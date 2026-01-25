@@ -6,18 +6,11 @@ import { TEMPLATES } from "../../data/templates";
 export default function AppHomePage() {
   return (
     <main style={{ padding: 24 }}>
-      <div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 8,
-  }}
->
+     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 10 }}>
   <img
-    src="/Studiosis Logo.svg"   // change to .png if needed
-    alt="studiosis Lab"
-    style={{ height: 32 }}
+    src="/Studiosis Logo.svg"
+    alt="Studiosis Lab"
+    style={{ width: 140, height: "auto", marginBottom: 6 }}
   />
 
   <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>

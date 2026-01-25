@@ -535,11 +535,12 @@ persistDraft({ pageIndex: pageIndexRef.current });
 
   function getNextSectionTop() {
     const c = fabricCanvasRef.current;
-    const a = safeAreaRef.current;
-    if (!c || !a) return a.top + 520;
+const a = safeAreaRef.current;
+
+if (!c || !a) return 520; // fallback height when refs not ready
 
     const GAP = 36;
-    let maxBottom = a.top + 520;
+    let maxBottom = 520;
 
     c.getObjects().forEach((o: any) => {
       if (o?.role !== "section") return;
@@ -548,7 +549,7 @@ persistDraft({ pageIndex: pageIndexRef.current });
       if (bottom > maxBottom) maxBottom = bottom;
     });
 
-    return Math.min(maxBottom + GAP, a.bottom - 200);
+    return Math.min(maxBottom + GAP, (a?.bottom ?? 0) - 200);
   }
 
   // ✅ UPDATE #1: normalizeSectionGroup(g)
@@ -1860,7 +1861,7 @@ applyTheme(initialTheme, { silent: true });
       if (!obj.selectable) return;
       if (o.role === "sidebar" || o.role === "safeGuide") return;
 
-      const br = obj.getBoundingRect(true, true);
+      const br = obj.getBoundingRect();
 
       if (br.width > SAFE_W) {
         const ratio = SAFE_W / br.width;
@@ -1868,15 +1869,14 @@ applyTheme(initialTheme, { silent: true });
         obj.scaleY = (obj.scaleY || 1) * ratio;
       }
 
-      const br2 = obj.getBoundingRect(true, true);
+      const br2 = obj.getBoundingRect();
       if (br2.height > SAFE_H) {
         const ratio = SAFE_H / br2.height;
         obj.scaleX = (obj.scaleX || 1) * ratio;
         obj.scaleY = (obj.scaleY || 1) * ratio;
       }
 
-      const br3 = obj.getBoundingRect(true, true);
-
+      const br3 = obj.getBoundingRect();
       let dx = 0;
       let dy = 0;
 

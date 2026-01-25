@@ -35,13 +35,11 @@ export async function GET(req: NextRequest) {
     // Helper to return PDF response
     const returnPdf = (buf: Buffer) => {
       const filename = `signed-${envelopeId}.pdf`;
-      return new NextResponse(buf, {
+      return new NextResponse(new Uint8Array(buf), {
         status: 200,
-        headers: {
-          "Content-Type": "application/pdf",
-          "Content-Disposition": `${disposition}; filename="${filename}"`,
-          "Cache-Control": "no-store",
-          "Content-Length": String(buf.length),
+  headers: {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `attachment; filename="signed-${envelopeId}.pdf"`,
         },
       });
     };

@@ -6,7 +6,24 @@ import { TEMPLATES } from "../../data/templates";
 export default function AppHomePage() {
   return (
     <main style={{ padding: 24 }}>
-      <h1 style={{ fontSize: 22, fontWeight: 700 }}>Studiosis Lab — Templates</h1>
+      <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 8,
+  }}
+>
+  <img
+    src="/Studiosis Logo.svg"   // change to .png if needed
+    alt="studiosis Lab"
+    style={{ height: 32 }}
+  />
+
+  <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>
+    studiosis Lab — Templates
+  </h1>
+</div>
       <p style={{ marginTop: 8, color: "#555" }}>
         Click any template to open the editor.
       </p>

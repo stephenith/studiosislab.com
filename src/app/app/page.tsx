@@ -1,42 +1,38 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
-import { auth } from "../../lib/firebase";
-import { useAuthUser } from "../../lib/useAuthUser";
+import Link from "next/link";
+import { TEMPLATES } from "../../data/templates";
 
-export default function AppHome() {
-  const router = useRouter();
-  const { user, loading } = useAuthUser();
-
-  useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [loading, user, router]);
-
-  if (loading) return <main className="p-6">Loading...</main>;
-  if (!user) return null;
-
+export default function AppHomePage() {
   return (
-    <main className="p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Dashboard</h1>
-          <p className="mt-1 text-zinc-600 text-sm">{user.email}</p>
-        </div>
+    <main style={{ padding: 24 }}>
+      <h1 style={{ fontSize: 22, fontWeight: 700 }}>StudioSIS Lab — Templates</h1>
+      <p style={{ marginTop: 8, color: "#555" }}>
+        Click any template to open the editor.
+      </p>
 
-        <button
-          className="rounded-xl border px-4 py-2"
-          onClick={async () => {
-            await signOut(auth);
-            router.replace("/login");
-          }}
-        >
-          Logout
-        </button>
+      <div style={{ marginTop: 16, display: "grid", gap: 12, maxWidth: 520 }}>
+        {TEMPLATES.map((t) => (
+          <Link
+            key={t.id}
+            href={`/app/editor/${t.id}`}
+            style={{
+              display: "block",
+              border: "1px solid #ddd",
+              borderRadius: 12,
+              padding: 14,
+              textDecoration: "none",
+              color: "black",
+              background: "white",
+            }}
+          >
+            <div style={{ fontWeight: 700 }}>{t.title}</div>
+            <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>
+              Category: {t.category} • ID: {t.id}
+            </div>
+          </Link>
+        ))}
       </div>
-
-      <p className="mt-6 text-zinc-600">Next: template search + editor.</p>
     </main>
   );
 }

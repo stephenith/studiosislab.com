@@ -10,11 +10,14 @@ export async function GET(req: NextRequest) {
 
     const envelopeId = searchParams.get("envelopeId");
     const download = searchParams.get("download") === "1";
-    const raw = searchParams.get("raw") === "1"; // optional helper mode
+    const raw = searchParams.get("raw") === "1";
     const disposition = download ? "attachment" : "inline";
 
     if (!envelopeId) {
-      return NextResponse.json({ ok: false, error: "Missing envelopeId" }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: "Missing envelopeId" },
+        { status: 400 }
+      );
     }
 
     // ✅ Access token from cookie
@@ -32,14 +35,15 @@ export async function GET(req: NextRequest) {
 
     if (!fs.existsSync(signedDir)) fs.mkdirSync(signedDir, { recursive: true });
 
-    // Helper to return PDF response
+    // ✅ Helper to return PDF response (Buffer -> Uint8Array fix)
     const returnPdf = (buf: Buffer) => {
-      const filename = `signed-${envelopeId}.pdf`;
-      return new NextResponse(new Uint8Array(buf), {
+      const bytes = new Uint8Array(buf); // ✅ Buffer -> Uint8Array (BodyInit compatible)
+
+      return new NextResponse(bytes, {
         status: 200,
-  headers: {
-    "Content-Type": "application/pdf",
-    "Content-Disposition": `attachment; filename="signed-${envelopeId}.pdf"`,
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `${disposition}; filename="signed-${envelopeId}.pdf"`,
         },
       });
     };
@@ -49,7 +53,15 @@ export async function GET(req: NextRequest) {
       const buf = fs.readFileSync(signedPath);
 
       // If raw=0, return a JSON “link” (optional)
-    
+      if (!raw) {
+        return NextResponse.json({
+          ok: true,
+          cached: true,
+          fileUrl: `/api/document/file?envelopeId=${encodeURIComponent(
+            envelopeId
+          )}&download=${download ? "1" : "0"}&raw=1`,
+        });
+      }
 
       return returnPdf(buf);
     }
@@ -72,8 +84,7 @@ export async function GET(req: NextRequest) {
     // Safer: pick default account if available, else first
     const accounts = Array.isArray(userinfo?.accounts) ? userinfo.accounts : [];
     const account =
-      accounts.find((a: any) => a?.is_default === true) ||
-      accounts[0];
+      accounts.find((a: any) => a?.is_default === true) || accounts[0];
 
     const accountId = account?.account_id;
     const baseUri = account?.base_uri; // e.g. https://demo.docusign.net
@@ -114,15 +125,18 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         ok: true,
         cached: false,
-        fileUrl: `/api/document/file?envelopeId=${encodeURIComponent(envelopeId)}&download=${
-          download ? "1" : "0"
-        }&raw=1`,
+        fileUrl: `/api/document/file?envelopeId=${encodeURIComponent(
+          envelopeId
+        )}&download=${download ? "1" : "0"}&raw=1`,
       });
     }
 
     return returnPdf(buf);
   } catch (err: any) {
     console.error("❌ /api/document/file error:", err);
-    return NextResponse.json({ ok: false, error: err?.message || "Server error" }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: err?.message || "Server error" },
+      { status: 500 }
+    );
   }
 }

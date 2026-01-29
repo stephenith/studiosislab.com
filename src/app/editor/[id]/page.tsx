@@ -9,6 +9,9 @@ import {
   Canvas,
   Textbox,
   Rect,
+  Circle,
+  Triangle,
+  Line,
   FabricObject,
   ActiveSelection,
   Group
@@ -16,7 +19,8 @@ import {
 
 import { jsPDF } from "jspdf";
 
-import { TEMPLATE_EDITOR_CONFIG } from "@/data/templates";
+import { TEMPLATE_EDITOR_CONFIG, TEMPLATE_SNAPSHOTS } from "@/data/templates";
+import EditorLayout from "@/components/editor/EditorLayout";
 
 // -------------------------------
 // TYPES
@@ -53,9 +57,15 @@ export default function EditorPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
 
-  const templateId = (params?.id || "t001") as string;
+  const rawId = params?.id;
+  const templateId =
+    typeof rawId === "string" && rawId.trim()
+      ? rawId.trim().toLowerCase()
+      : "t001";
+  const normalizedId =
+    templateId === "new" || templateId === "blank" ? "blank" : templateId;
   const editorConfig =
-    TEMPLATE_EDITOR_CONFIG[templateId] || TEMPLATE_EDITOR_CONFIG["t001"];
+    TEMPLATE_EDITOR_CONFIG[normalizedId] || TEMPLATE_EDITOR_CONFIG["t001"];
 
   // -------------------------------
   // AD GATE
@@ -120,6 +130,10 @@ export default function EditorPage() {
       "sectionType",
       "sectionId",
       "isSectionRoot",
+
+      // Text styling metadata
+      "originalText",
+      "textCase",
     ],
     []
   );
@@ -284,6 +298,239 @@ export default function EditorPage() {
     return sel?.getObjects?.() || sel?._objects || [];
   }
 
+  function isTextObject(obj: any) {
+    const type = String(obj?.type || "").toLowerCase();
+    return type === "textbox" || type === "i-text" || type === "text";
+  }
+
+  function isShapeObject(obj: any) {
+    const type = String(obj?.type || "").toLowerCase();
+    return type === "rect" || type === "circle" || type === "triangle" || type === "line";
+  }
+
+  // -------------------------------
+  // TEXT TOOLBAR STATE
+  // -------------------------------
+  const [hasTextSelection, setHasTextSelection] = useState(false);
+  const [fontFamily, setFontFamily] = useState("Poppins");
+  const [fontSize, setFontSize] = useState(32);
+  const [fontColor, setFontColor] = useState("#111827");
+  const [isBold, setIsBold] = useState(false);
+  const [isItalic, setIsItalic] = useState(false);
+  const [isUnderline, setIsUnderline] = useState(false);
+  const [isUppercase, setIsUppercase] = useState(false);
+  const [textAlign, setTextAlign] = useState<"left" | "center" | "right" | "justify">("left");
+  const [lineHeight, setLineHeight] = useState(1.3);
+  const [letterSpacing, setLetterSpacing] = useState(0);
+  const [hasShapeSelection, setHasShapeSelection] = useState(false);
+  const [shapeFill, setShapeFill] = useState("#111827");
+  const [shapeStroke, setShapeStroke] = useState("#111827");
+
+  function getActiveTextObject() {
+    const c = fabricCanvasRef.current;
+    if (!c) return null;
+    const active: any = c.getActiveObject();
+    if (!active) return null;
+    if (isActiveSelection(active)) return null;
+    if (!isTextObject(active)) return null;
+    return active;
+  }
+
+  function syncToolbarFromSelection() {
+    const obj: any = getActiveTextObject();
+    if (!obj) {
+      setHasTextSelection(false);
+    } else {
+      setHasTextSelection(true);
+      setFontFamily(obj.fontFamily || "Poppins");
+      setFontSize(Math.round(obj.fontSize || 32));
+      setFontColor(obj.fill || "#111827");
+      setIsBold((obj.fontWeight || "") === "bold" || obj.fontWeight >= 600);
+      setIsItalic((obj.fontStyle || "") === "italic");
+      setIsUnderline(!!obj.underline);
+      setIsUppercase(obj.textCase === "uppercase");
+      setTextAlign((obj.textAlign as any) || "left");
+      setLineHeight(obj.lineHeight || 1.3);
+      setLetterSpacing(obj.charSpacing || 0);
+    }
+
+    const active: any = fabricCanvasRef.current?.getActiveObject();
+    if (active && !isActiveSelection(active) && isShapeObject(active)) {
+      setHasShapeSelection(true);
+      setShapeFill(active.fill || "#111827");
+      setShapeStroke(active.stroke || "#111827");
+    } else {
+      setHasShapeSelection(false);
+    }
+  }
+
+  function applyTextStyle(partial: Record<string, any>) {
+    const c = fabricCanvasRef.current;
+    if (!c) return;
+    const obj: any = getActiveTextObject();
+    if (!obj) return;
+
+    obj.set(partial);
+    obj.setCoords?.();
+    c.requestRenderAll();
+    pushHistory("text:style");
+  }
+
+  function toggleUppercase() {
+    const obj: any = getActiveTextObject();
+    if (!obj) return;
+
+    const next = !(obj.textCase === "uppercase");
+    if (next) {
+      if (obj.originalText == null) obj.originalText = obj.text || "";
+      obj.text = String(obj.text || "").toUpperCase();
+      obj.textCase = "uppercase";
+    } else {
+      if (obj.originalText != null) {
+        obj.text = obj.originalText;
+      }
+      obj.textCase = "none";
+    }
+
+    obj.setCoords?.();
+    fabricCanvasRef.current?.requestRenderAll();
+    pushHistory("text:uppercase");
+    syncToolbarFromSelection();
+  }
+
+  function getActiveShapeObject() {
+    const c = fabricCanvasRef.current;
+    if (!c) return null;
+    const active: any = c.getActiveObject();
+    if (!active) return null;
+    if (isActiveSelection(active)) return null;
+    if (!isShapeObject(active)) return null;
+    if (isSystemObjectLive(active)) return null;
+    return active;
+  }
+
+  function applyShapeStyle(partial: Record<string, any>) {
+    const c = fabricCanvasRef.current;
+    if (!c) return;
+    const obj: any = getActiveShapeObject();
+    if (!obj) return;
+
+    obj.set({ strokeUniform: true, ...partial });
+    obj.setCoords?.();
+    c.requestRenderAll();
+    pushHistory("shape:style");
+  }
+
+  function addShape(type: "rect" | "circle" | "triangle" | "line") {
+    const c = fabricCanvasRef.current;
+    if (!c) return;
+
+    const pageW = baseWRef.current;
+    const pageH = baseHRef.current;
+    const fill = "rgba(17,24,39,0.1)";
+    const stroke = "#111827";
+    let obj: any = null;
+
+    if (type === "rect") {
+      const w = 420;
+      const h = 240;
+      obj = new Rect({
+        left: pageW / 2 - w / 2,
+        top: pageH / 2 - h / 2,
+        width: w,
+        height: h,
+        fill,
+        stroke,
+        strokeWidth: 2,
+        strokeUniform: true,
+      }) as any;
+    } else if (type === "circle") {
+      const r = 140;
+      obj = new Circle({
+        left: pageW / 2 - r,
+        top: pageH / 2 - r,
+        radius: r,
+        fill,
+        stroke,
+        strokeWidth: 2,
+        strokeUniform: true,
+      }) as any;
+    } else if (type === "triangle") {
+      const w = 320;
+      const h = 280;
+      obj = new Triangle({
+        left: pageW / 2 - w / 2,
+        top: pageH / 2 - h / 2,
+        width: w,
+        height: h,
+        fill,
+        stroke,
+        strokeWidth: 2,
+        strokeUniform: true,
+      }) as any;
+    } else if (type === "line") {
+      const len = 360;
+      obj = new Line([0, 0, len, 0], {
+        left: pageW / 2 - len / 2,
+        top: pageH / 2,
+        stroke,
+        strokeWidth: 2,
+        fill: "transparent",
+        strokeUniform: true,
+      }) as any;
+    }
+
+    if (!obj) return;
+    obj.uid = newUid();
+    obj.setCoords?.();
+    c.add(obj);
+    c.setActiveObject(obj);
+    c.requestRenderAll();
+    pushHistory(`shape:add:${type}`);
+    syncToolbarFromSelection();
+  }
+
+  function reorderObject(action: "forward" | "backward" | "front" | "back") {
+    const c = fabricCanvasRef.current;
+    if (!c) return;
+    const active: any = c.getActiveObject();
+    if (!active || isActiveSelection(active) || isSystemObjectLive(active)) return;
+
+    const tryMethod = (names: string[]) => {
+      for (const name of names) {
+        const fn = (c as any)[name];
+        if (typeof fn === "function") {
+          fn.call(c, active);
+          return true;
+        }
+      }
+      return false;
+    };
+
+    let moved = false;
+    if (action === "forward") moved = tryMethod(["bringForward", "bringObjectForward"]);
+    if (action === "backward") moved = tryMethod(["sendBackwards", "sendObjectBackwards"]);
+    if (action === "front") moved = tryMethod(["bringToFront", "bringObjectToFront"]);
+    if (action === "back") moved = tryMethod(["sendToBack", "sendObjectToBack"]);
+
+    if (!moved) {
+      const objs = c.getObjects();
+      const idx = objs.indexOf(active);
+      if (idx !== -1) {
+        let next = idx;
+        if (action === "forward") next = Math.min(objs.length - 1, idx + 1);
+        if (action === "backward") next = Math.max(0, idx - 1);
+        if (action === "front") next = objs.length - 1;
+        if (action === "back") next = 0;
+        (c as any).moveTo(active, next);
+      }
+    }
+
+    c.requestRenderAll?.();
+    c.renderAll?.();
+    pushHistory("object:reorder");
+  }
+
   // -------------------------------
   // GROUP TEXT EDITING
   // -------------------------------
@@ -312,7 +559,7 @@ export default function EditorPage() {
   function getNextSectionTop() {
     const c = fabricCanvasRef.current;
     const a = safeAreaRef.current;
-    if (!c || !a) return a.top + 520;
+    if (!c || !a) return;
 
     const GAP = 36;
     let maxBottom = a.top + 520;
@@ -538,8 +785,7 @@ export default function EditorPage() {
     if (!c || !a) return;
 
     const left = a.left;
-    const top = getNextSectionTop();
-
+    const top = getNextSectionTop() ?? 0;
     const g = createSectionGroup(sectionType, left, top);
     if (!g) return;
 
@@ -722,13 +968,22 @@ export default function EditorPage() {
   // DUPLICATION SYSTEM (Section-Safe)
   // ==========================================================
   async function cloneObjectSafe(obj: any) {
-    return await new Promise((resolve, reject) => {
-      try {
-        obj.clone((cloned: any) => resolve(cloned));
-      } catch (err) {
-        reject(err);
-      }
-    });
+    if (!obj?.clone) {
+      throw new Error("cloneObjectSafe: object has no clone method");
+    }
+
+    try {
+      const cloned = await obj.clone();
+      return cloned;
+    } catch (err) {
+      return await new Promise((resolve, reject) => {
+        try {
+          obj.clone((cloned: any) => resolve(cloned));
+        } catch (err2) {
+          reject(err2);
+        }
+      });
+    }
   }
 
   async function duplicateSelectedObjects() {
@@ -905,42 +1160,6 @@ export default function EditorPage() {
     canvas.add(safeGuide);
 
     // ==========================================================
-    // INITIAL USER OBJECTS — Title + Body text
-    // ==========================================================
-    const title = new Textbox("Your Name", {
-      left: editorConfig.titleAlign === "center" ? A4_WIDTH / 2 : SAFE_LEFT,
-      top: 180,
-      width:
-        editorConfig.titleAlign === "center"
-          ? A4_WIDTH - SAFE_MARGIN * 2
-          : SAFE_W,
-      fontSize: editorConfig.titleFontSize,
-      fontWeight: "bold",
-      textAlign: editorConfig.titleAlign,
-      originX: editorConfig.titleAlign === "center" ? "center" : "left",
-    }) as any;
-
-    title.uid = newUid();
-
-    const body = new Textbox(
-      "Click to edit text.\nThis is the resume body.",
-      {
-        left: SAFE_LEFT,
-        top: 340,
-        width: SAFE_W,
-        fontSize: editorConfig.bodyFontSize,
-        lineHeight: 1.6,
-        textAlign: "left",
-      }
-    ) as any;
-
-    body.uid = newUid();
-
-    canvas.add(title, body);
-    canvas.setActiveObject(title);
-    canvas.renderAll();
-
-    // ==========================================================
     // SYSTEM OBJECTS JSON — Store separately
     // ==========================================================
     {
@@ -950,6 +1169,20 @@ export default function EditorPage() {
       );
     }
 
+    const isBlankTemplate = normalizedId === "blank";
+    const resolvedTemplateId =
+      !isBlankTemplate && TEMPLATE_SNAPSHOTS[normalizedId]
+        ? normalizedId
+        : "t001";
+    const initialSnapshot: Snapshot = isBlankTemplate
+      ? { objects: [] }
+      : (TEMPLATE_SNAPSHOTS[resolvedTemplateId] || { objects: [] });
+
+    // ==========================================================
+    // INITIAL USER OBJECTS — Load from template snapshot
+    // ==========================================================
+    applySnapshot(initialSnapshot);
+
     // ==========================================================
     // SAFE AREA CLAMP (Live Movement + Scaling)
     // ==========================================================
@@ -957,19 +1190,28 @@ export default function EditorPage() {
       if (!obj || !obj.selectable) return;
       if (obj.role === "sidebar" || obj.role === "safeGuide") return;
 
+      const isShape = isShapeObject(obj);
+      const leftBound = isShape ? 0 : SAFE_LEFT;
+      const topBound = isShape ? 0 : SAFE_TOP;
+      const rightBound = isShape ? baseWRef.current : SAFE_RIGHT;
+      const bottomBound = isShape ? baseHRef.current : SAFE_BOTTOM;
+
+      const boundW = rightBound - leftBound;
+      const boundH = bottomBound - topBound;
+
       const br = obj.getBoundingRect(true, true);
 
       // Clamp width
-      if (br.width > SAFE_W) {
-        const ratio = SAFE_W / br.width;
+      if (br.width > boundW) {
+        const ratio = boundW / br.width;
         obj.scaleX *= ratio;
         obj.scaleY *= ratio;
       }
 
       // Clamp height
       const br2 = obj.getBoundingRect(true, true);
-      if (br2.height > SAFE_H) {
-        const ratio = SAFE_H / br2.height;
+      if (br2.height > boundH) {
+        const ratio = boundH / br2.height;
         obj.scaleX *= ratio;
         obj.scaleY *= ratio;
       }
@@ -978,14 +1220,14 @@ export default function EditorPage() {
       let dx = 0;
       let dy = 0;
 
-      if (br3.left < SAFE_LEFT) dx = SAFE_LEFT - br3.left;
-      if (br3.top < SAFE_TOP) dy = SAFE_TOP - br3.top;
+      if (br3.left < leftBound) dx = leftBound - br3.left;
+      if (br3.top < topBound) dy = topBound - br3.top;
 
       const right = br3.left + br3.width;
       const bottom = br3.top + br3.height;
 
-      if (right > SAFE_RIGHT) dx = SAFE_RIGHT - right;
-      if (bottom > SAFE_BOTTOM) dy = SAFE_BOTTOM - bottom;
+      if (right > rightBound) dx = rightBound - right;
+      if (bottom > bottomBound) dy = bottomBound - bottom;
 
       obj.left += dx;
       obj.top += dy;
@@ -1010,7 +1252,7 @@ export default function EditorPage() {
     // ==========================================================
     // INITIAL PAGE SETUP
     // ==========================================================
-    const baseline = serializeUserSnapshot(canvas);
+    const baseline = initialSnapshot;
 
     pagesRef.current = [baseline];
     pageHistoryRef.current = [
@@ -1096,7 +1338,7 @@ export default function EditorPage() {
       const c = fabricCanvasRef.current;
       if (!c) return;
 
-      const active = c.getActiveObject();
+      const active = c.getActiveObject() as any;
       if (active?.isEditing) return;
 
       if (e.key === "Delete" || e.key === "Backspace") {
@@ -1139,6 +1381,31 @@ export default function EditorPage() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [zoomScale, pageIndex]);
+
+  // ==========================================================
+  // TEXT TOOLBAR SYNC
+  // ==========================================================
+  useEffect(() => {
+    const c = fabricCanvasRef.current;
+    if (!c) return;
+
+    const onSelChange = () => syncToolbarFromSelection();
+    c.on("selection:created", onSelChange);
+    c.on("selection:updated", onSelChange);
+    c.on("selection:cleared", onSelChange);
+    c.on("object:modified", onSelChange);
+    c.on("text:changed", onSelChange);
+
+    syncToolbarFromSelection();
+
+    return () => {
+      c.off("selection:created", onSelChange);
+      c.off("selection:updated", onSelChange);
+      c.off("selection:cleared", onSelChange);
+      c.off("object:modified", onSelChange);
+      c.off("text:changed", onSelChange);
+    };
+  }, [pageIndex]);
 
   // ==========================================================
   // MULTI-PAGE SYSTEM — Snapshots + Switching + Page Ops
@@ -1356,186 +1623,409 @@ export default function EditorPage() {
   // UI + CANVAS WRAPPER + PAGE CONTROLS + SECTION CONTROLS + AD MODAL
   // ===================================================================
   return (
-    <main className="p-6">
-
-      <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-
-        {/* Back Button */}
-        <button onClick={() => router.back()} className="border px-3 py-1">
-          Back
-        </button>
-
-        {/* Controls */}
-        <div className="flex gap-2 flex-wrap items-center">
-
-          {/* PDF Export */}
-          <button
-            onClick={() => {
-              console.log("PDF button clicked");
-              exportAllPagesPdf();
-            }}
-            className="bg-black text-white px-3 py-1 rounded"
-            title="Exports all pages to one PDF"
-          >
-            Download PDF (All Pages)
+    <EditorLayout
+      topbar={
+        <div className="h-full flex items-center justify-between px-4">
+          <button onClick={() => router.back()} className="border px-3 py-1">
+            Back
           </button>
+          <div className="text-sm text-zinc-600">Template ID: {templateId}</div>
+        </div>
+      }
+      sidebar={
+        <div className="p-4 space-y-4">
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase text-zinc-500">
+              Text
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                className="rounded border px-2 py-1 text-sm"
+                value={fontFamily}
+                onChange={(e) => {
+                  setFontFamily(e.target.value);
+                  applyTextStyle({ fontFamily: e.target.value });
+                }}
+                disabled={!hasTextSelection}
+              >
+                {["Poppins", "Inter", "Montserrat", "Roboto"].map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
+              </select>
 
-          {/* Add Section Controls */}
-          <div className="flex gap-2 items-center border rounded px-2 py-1 bg-white">
-            <span className="text-sm text-zinc-600">Add Section:</span>
+              <input
+                type="number"
+                min={8}
+                max={96}
+                className="w-20 rounded border px-2 py-1 text-sm"
+                value={fontSize}
+                onChange={(e) => {
+                  const v = Math.max(8, Math.min(96, Number(e.target.value || 0)));
+                  setFontSize(v);
+                  applyTextStyle({ fontSize: v });
+                }}
+                disabled={!hasTextSelection}
+              />
 
-            <button
-              className="border px-2 py-1 rounded"
-              onClick={() => addSection("education")}
-              title="Add Education section"
-            >
-              Education
-            </button>
+              <input
+                type="color"
+                className="h-9 w-10 rounded border p-1"
+                value={fontColor}
+                onChange={(e) => {
+                  setFontColor(e.target.value);
+                  applyTextStyle({ fill: e.target.value });
+                }}
+                disabled={!hasTextSelection}
+              />
 
-            <button
-              className="border px-2 py-1 rounded"
-              onClick={() => addSection("experience")}
-              title="Add Experience section"
-            >
-              Experience
-            </button>
+              <button
+                onClick={() => {
+                  const next = !isBold;
+                  setIsBold(next);
+                  applyTextStyle({ fontWeight: next ? "bold" : "normal" });
+                }}
+                className={`rounded border px-2 py-1 text-sm ${isBold ? "bg-black text-white" : ""}`}
+                disabled={!hasTextSelection}
+              >
+                B
+              </button>
 
-            <button
-              className="border px-2 py-1 rounded"
-              onClick={() => addSection("skills")}
-              title="Add Skills section"
-            >
-              Skills
-            </button>
+              <button
+                onClick={() => {
+                  const next = !isItalic;
+                  setIsItalic(next);
+                  applyTextStyle({ fontStyle: next ? "italic" : "normal" });
+                }}
+                className={`rounded border px-2 py-1 text-sm ${isItalic ? "bg-black text-white" : ""}`}
+                disabled={!hasTextSelection}
+              >
+                I
+              </button>
 
-            {/* Remove Section */}
-            <button
-              className="border px-2 py-1 rounded"
-              onClick={removeSelectedSection}
-              title="Remove selected section"
-            >
-              Remove Section
-            </button>
+              <button
+                onClick={() => {
+                  const next = !isUnderline;
+                  setIsUnderline(next);
+                  applyTextStyle({ underline: next });
+                }}
+                className={`rounded border px-2 py-1 text-sm ${isUnderline ? "bg-black text-white" : ""}`}
+                disabled={!hasTextSelection}
+              >
+                U
+              </button>
+
+              <button
+                onClick={toggleUppercase}
+                className={`rounded border px-2 py-1 text-sm ${isUppercase ? "bg-black text-white" : ""}`}
+                disabled={!hasTextSelection}
+              >
+                Aa
+              </button>
+
+              {(["left", "center", "right", "justify"] as const).map((a) => (
+                <button
+                  key={a}
+                  onClick={() => {
+                    setTextAlign(a);
+                    applyTextStyle({ textAlign: a });
+                  }}
+                  className={`rounded border px-2 py-1 text-sm capitalize ${textAlign === a ? "bg-black text-white" : ""}`}
+                  disabled={!hasTextSelection}
+                >
+                  {a}
+                </button>
+              ))}
+
+              <select
+                className="rounded border px-2 py-1 text-sm"
+                value={lineHeight}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setLineHeight(v);
+                  applyTextStyle({ lineHeight: v });
+                }}
+                disabled={!hasTextSelection}
+              >
+                {[1.0, 1.15, 1.3, 1.5, 1.8, 2.0].map((v) => (
+                  <option key={v} value={v}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                className="rounded border px-2 py-1 text-sm"
+                value={letterSpacing}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setLetterSpacing(v);
+                  applyTextStyle({ charSpacing: v });
+                }}
+                disabled={!hasTextSelection}
+              >
+                {[0, 50, 100, 150, 200].map((v) => (
+                  <option key={v} value={v}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          {/* Undo / Redo */}
-          <button
-            onClick={undo}
-            className="border px-3 py-1 rounded"
-            title="Undo"
-          >
-            Undo
-          </button>
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase text-zinc-500">
+              Shapes
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => addShape("rect")}
+                className="rounded border px-2 py-1 text-sm"
+              >
+                Rectangle
+              </button>
+              <button
+                onClick={() => addShape("circle")}
+                className="rounded border px-2 py-1 text-sm"
+              >
+                Circle
+              </button>
+              <button
+                onClick={() => addShape("triangle")}
+                className="rounded border px-2 py-1 text-sm"
+              >
+                Triangle
+              </button>
+              <button
+                onClick={() => addShape("line")}
+                className="rounded border px-2 py-1 text-sm"
+              >
+                Line
+              </button>
+              <input
+                type="color"
+                className="h-9 w-10 rounded border p-1"
+                value={shapeFill}
+                onChange={(e) => {
+                  setShapeFill(e.target.value);
+                  applyShapeStyle({ fill: e.target.value });
+                }}
+                disabled={!hasShapeSelection}
+                title="Fill color"
+              />
+              <input
+                type="color"
+                className="h-9 w-10 rounded border p-1"
+                value={shapeStroke}
+                onChange={(e) => {
+                  setShapeStroke(e.target.value);
+                  applyShapeStyle({ stroke: e.target.value });
+                }}
+                disabled={!hasShapeSelection}
+                title="Stroke color"
+              />
+            </div>
+          </div>
 
-          <button
-            onClick={redo}
-            className="border px-3 py-1 rounded"
-            title="Redo"
-          >
-            Redo
-          </button>
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase text-zinc-500">
+              Position
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => reorderObject("forward")}
+                className="rounded border px-2 py-1 text-sm"
+              >
+                Bring Forward
+              </button>
+              <button
+                onClick={() => reorderObject("backward")}
+                className="rounded border px-2 py-1 text-sm"
+              >
+                Send Backward
+              </button>
+              <button
+                onClick={() => reorderObject("front")}
+                className="rounded border px-2 py-1 text-sm"
+              >
+                Bring To Front
+              </button>
+              <button
+                onClick={() => reorderObject("back")}
+                className="rounded border px-2 py-1 text-sm"
+              >
+                Send To Back
+              </button>
+            </div>
+          </div>
 
-          {/* Zoom Controls */}
-          <button
-            onClick={() => setZoom((z) => Math.max(zoomMin, z - zoomStep))}
-            className="border px-3 py-1 rounded"
-          >
-            – Zoom
-          </button>
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase text-zinc-500">
+              Actions
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => {
+                  console.log("PDF button clicked");
+                  exportAllPagesPdf();
+                }}
+                className="bg-black text-white px-3 py-1 rounded"
+                title="Exports all pages to one PDF"
+              >
+                Download PDF
+              </button>
+              <button
+                onClick={undo}
+                className="border px-3 py-1 rounded"
+                title="Undo"
+              >
+                Undo
+              </button>
+              <button
+                onClick={redo}
+                className="border px-3 py-1 rounded"
+                title="Redo"
+              >
+                Redo
+              </button>
+              <button
+                onClick={duplicateSelectedObjects}
+                className="border px-3 py-1 rounded"
+                title="Duplicate Object"
+              >
+                Duplicate
+              </button>
+            </div>
+          </div>
 
-          <button
-            onClick={() => setZoom(25)}
-            className="border px-3 py-1 rounded"
-          >
-            Reset
-          </button>
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase text-zinc-500">
+              Sections
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                className="border px-2 py-1 rounded"
+                onClick={() => addSection("education")}
+              >
+                Education
+              </button>
+              <button
+                className="border px-2 py-1 rounded"
+                onClick={() => addSection("experience")}
+              >
+                Experience
+              </button>
+              <button
+                className="border px-2 py-1 rounded"
+                onClick={() => addSection("skills")}
+              >
+                Skills
+              </button>
+              <button
+                className="border px-2 py-1 rounded"
+                onClick={removeSelectedSection}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
 
-          <button
-            onClick={() => setZoom((z) => Math.min(zoomMax, z + zoomStep))}
-            className="border px-3 py-1 rounded"
-          >
-            + Zoom
-          </button>
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase text-zinc-500">
+              Zoom
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => setZoom((z) => Math.max(zoomMin, z - zoomStep))}
+                className="border px-3 py-1 rounded"
+              >
+                – Zoom
+              </button>
+              <button
+                onClick={() => setZoom(25)}
+                className="border px-3 py-1 rounded"
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => setZoom((z) => Math.min(zoomMax, z + zoomStep))}
+                className="border px-3 py-1 rounded"
+              >
+                + Zoom
+              </button>
+              <span className="text-sm text-zinc-700">{zoom}%</span>
+            </div>
+          </div>
 
-          <span className="text-sm text-zinc-700">{zoom}%</span>
-
-          {/* Page Controls */}
-          <div className="ml-4 flex gap-2 items-center border rounded px-2 py-1 bg-white">
-
-            <button
-              className="border px-2 py-1 rounded"
-              onClick={() => switchToPage(pageIndex - 1)}
-              disabled={pageIndex === 0}
-              title="Previous page"
-            >
-              ◀
-            </button>
-
-            <span className="text-sm">
-              Page {pageIndex + 1}/{pageCount}
-            </span>
-
-            <button
-              className="border px-2 py-1 rounded"
-              onClick={() => switchToPage(pageIndex + 1)}
-              disabled={pageIndex >= pageCount - 1}
-              title="Next page"
-            >
-              ▶
-            </button>
-
-            <button
-              className="border px-2 py-1 rounded"
-              onClick={addPage}
-              title="Add new page"
-            >
-              + Page
-            </button>
-
-            <button
-              className="border px-2 py-1 rounded"
-              onClick={duplicatePage}
-              title="Duplicate page"
-            >
-              Duplicate
-            </button>
-
-            <button
-              className="border px-2 py-1 rounded"
-              onClick={deletePage}
-              disabled={pageCount <= 1}
-              title="Delete page"
-            >
-              Delete
-            </button>
-
-            <button
-              className="border px-2 py-1 rounded"
-              onClick={movePageLeft}
-              disabled={pageIndex === 0}
-              title="Move page left"
-            >
-              ←
-            </button>
-
-            <button
-              className="border px-2 py-1 rounded"
-              onClick={movePageRight}
-              disabled={pageIndex >= pageCount - 1}
-              title="Move page right"
-            >
-              →
-            </button>
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase text-zinc-500">
+              Pages
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                className="border px-2 py-1 rounded"
+                onClick={() => switchToPage(pageIndex - 1)}
+                disabled={pageIndex === 0}
+                title="Previous page"
+              >
+                ◀
+              </button>
+              <span className="text-sm">
+                Page {pageIndex + 1}/{pageCount}
+              </span>
+              <button
+                className="border px-2 py-1 rounded"
+                onClick={() => switchToPage(pageIndex + 1)}
+                disabled={pageIndex >= pageCount - 1}
+                title="Next page"
+              >
+                ▶
+              </button>
+              <button
+                className="border px-2 py-1 rounded"
+                onClick={addPage}
+                title="Add new page"
+              >
+                + Page
+              </button>
+              <button
+                className="border px-2 py-1 rounded"
+                onClick={duplicatePage}
+                title="Duplicate page"
+              >
+                Duplicate
+              </button>
+              <button
+                className="border px-2 py-1 rounded"
+                onClick={deletePage}
+                disabled={pageCount <= 1}
+                title="Delete page"
+              >
+                Delete
+              </button>
+              <button
+                className="border px-2 py-1 rounded"
+                onClick={movePageLeft}
+                disabled={pageIndex === 0}
+                title="Move page left"
+              >
+                ←
+              </button>
+              <button
+                className="border px-2 py-1 rounded"
+                onClick={movePageRight}
+                disabled={pageIndex >= pageCount - 1}
+                title="Move page right"
+              >
+                →
+              </button>
+            </div>
           </div>
         </div>
-
-        <div className="text-sm text-zinc-600">
-          Template ID: {templateId}
-        </div>
-      </div>
-
-      {/* Canvas Container */}
-      <div className="flex justify-center overflow-auto border rounded-lg bg-zinc-100 p-4">
+      }
+    >
+      <div className="flex justify-center">
         <div
           style={{
             width: baseWRef.current * zoomScale,
@@ -1643,6 +2133,6 @@ export default function EditorPage() {
           </div>,
           document.body
         )}
-    </main>
+    </EditorLayout>
   );
 }

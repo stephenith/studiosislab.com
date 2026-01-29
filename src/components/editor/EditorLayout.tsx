@@ -1,29 +1,31 @@
 "use client";
 
-export default function EditorLayout({
-  children,
-}: {
+type EditorLayoutProps = {
+  topbar?: React.ReactNode;
+  sidebar?: React.ReactNode;
   children: React.ReactNode;
-}) {
+};
+
+export default function EditorLayout({
+  topbar,
+  sidebar,
+  children,
+}: EditorLayoutProps) {
   return (
-    <div className="w-full h-screen flex bg-gray-100">
+    <div className="h-screen w-full flex flex-col bg-gray-100">
+      <div className="h-14 shrink-0 sticky top-0 z-50 border-b bg-white">
+        {topbar}
+      </div>
 
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-md p-4">
-        <h2 className="font-bold text-lg mb-4">Tools</h2>
+      <div className="flex-1 flex overflow-hidden">
+        <aside className="w-[280px] shrink-0 overflow-y-auto border-r bg-white">
+          {sidebar}
+        </aside>
 
-        <ul className="space-y-3 text-sm">
-          <li className="cursor-pointer hover:text-blue-600">Text</li>
-          <li className="cursor-pointer hover:text-blue-600">Colors</li>
-          <li className="cursor-pointer hover:text-blue-600">Upload Image</li>
-          <li className="cursor-pointer hover:text-blue-600">Templates</li>
-        </ul>
-      </aside>
-
-      {/* Main Canvas Area */}
-      <main className="flex-1 p-6 overflow-auto bg-white">
-        {children}
-      </main>
+        <main className="flex-1 overflow-auto bg-zinc-100 p-4">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

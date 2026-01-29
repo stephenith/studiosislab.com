@@ -1,0 +1,43 @@
+{
+  "objects": [
+    {
+      "type": "rect",
+      "left": 460,
+      "top": 120,
+      "width": 1900,
+      "height": 160,
+      "fill": "#fde68a",
+      "rx": 14,
+      "ry": 14
+    },
+    {
+      "type": "textbox",
+      "text": "Creative Designer",
+      "left": 520,
+      "top": 160,
+      "width": 1700,
+      "fontSize": 56,
+      "fontWeight": "bold",
+      "fill": "#111827"
+    },
+    {
+      "type": "rect",
+      "left": 460,
+      "top": 340,
+      "width": 900,
+      "height": 360,
+      "fill": "#f1f5f9",
+      "rx": 12,
+      "ry": 12
+    },
+    {
+      "type": "textbox",
+      "text": "Portfolio highlights",
+      "left": 500,
+      "top": 380,
+      "width": 820,
+      "fontSize": 26,
+      "fill": "#334155"
+    }
+  ]
+}

@@ -1,79 +1,58 @@
-"use client";
-
 import Link from "next/link";
-import EditorLayout from "@/components/editor/EditorLayout";
+
 export default function HomePage() {
   return (
     <main className="w-full bg-white">
 
       <section
-        className="
-          relative w-full h-[520px] flex flex-col items-center justify-center 
-          text-center bg-cover bg-center
-        "
+        className="relative w-full min-h-[560px] flex flex-col items-center justify-center text-center bg-cover bg-center overflow-hidden"
         style={{ backgroundImage: "url('/homebg.jpg')" }}
       >
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/40" />
 
-        {/* Login + Signup */}
-        <div className="absolute top-6 flex gap-3 justify-center w-full z-20">
+        <div className="absolute top-6 z-20 flex w-full justify-center gap-3">
           <Link
             href="/login"
-            className="
-              px-5 py-1.5 
-              bg-black text-white 
-              rounded-full 
-              text-sm font-medium 
-              shadow-md hover:bg-neutral-800 
-              transition
-            "
+            className="px-5 py-1.5 bg-black text-white rounded-full text-sm font-medium shadow-md hover:bg-neutral-800 transition"
           >
             Log in
           </Link>
 
           <Link
-            href="/signup"
-            className="
-              px-5 py-1.5 
-              bg-white text-black 
-              rounded-full 
-              text-sm font-semibold 
-              shadow-md hover:bg-gray-100 
-              transition
-            "
+            href="/login"
+            className="px-5 py-1.5 bg-white text-black rounded-full text-sm font-semibold shadow-md hover:bg-gray-100 transition"
           >
             Sign up
           </Link>
         </div>
 
-        {/* Logo Bubble */}
-        <div className="relative flex items-center justify-center mb-4">
-          <div className="absolute w-40 h-40 bg-white/20 blur-3xl rounded-full"></div>
-          <div className="absolute w-32 h-32 bg-white/40 rounded-full backdrop-blur-xl"></div>
-          <div className="absolute w-28 h-28 bg-white/70 rounded-full backdrop-blur-2xl shadow-xl"></div>
-          <span className="relative text-4xl font-semibold text-black">Lab</span>
-        </div>
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="relative flex items-center justify-center mb-5">
+            <div className="absolute w-40 h-40 bg-white/15 blur-3xl rounded-full" />
+            <div className="absolute w-32 h-32 bg-white/30 rounded-full backdrop-blur-xl" />
+            <div className="absolute w-28 h-28 bg-white/60 rounded-full backdrop-blur-2xl shadow-xl" />
+            <span className="relative text-4xl font-semibold text-black">Lab</span>
+          </div>
 
-        {/* Tagline */}
-        <h1 className="text-white text-3xl md:text-4xl font-bold max-w-2xl leading-tight drop-shadow-lg">
-          Build Stunning Resume & Projects <br />
-          for <span className="text-blue-200">Free – in Minutes!</span>
-        </h1>
+          <h1 className="text-white text-3xl md:text-5xl font-bold max-w-3xl leading-tight drop-shadow-lg">
+            Build Stunning Resume & Projects for Free – in Minutes!
+          </h1>
 
-        {/* CTA Buttons */}
-        <div className="mt-6 flex gap-4">
-          <Link
-            href="/editor/new"
-            className="px-5 py-2 bg-white/80 backdrop-blur text-black font-semibold rounded-md shadow hover:bg-white transition"
-          >
-            Start Building Resume
-          </Link>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link
+              href="/resume"
+              className="px-6 py-2.5 bg-white text-black font-semibold rounded-md shadow hover:bg-white/90 transition"
+            >
+              Start Building Resume
+            </Link>
 
-          <Link
-            href="/docusign"
-            className="px-5 py-2 border border-white text-white font-semibold rounded-md hover:bg-white hover:text-black transition"
-          >
-            DocuSign Tool
-          </Link>
+            <Link
+              href="/tools"
+              className="px-6 py-2.5 border border-white text-white font-semibold rounded-md hover:bg-white hover:text-black transition"
+            >
+              DocuSign Tool
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -87,7 +66,7 @@ export default function HomePage() {
 
           {/* Resume Builder Tile */}
           <Link 
-            href="/editor/new" 
+            href="/resume" 
             className="flex flex-col items-center gap-3 p-5 rounded-xl border hover:shadow-lg transition bg-white"
           >
             <img src="/resume.svg" className="w-12 h-12" alt="Resume Builder" />
@@ -99,17 +78,17 @@ export default function HomePage() {
             <p className="text-sm font-semibold text-center">Project Templates</p>
           </Link>
 
-          <Link href="/docusign" className="flex flex-col items-center gap-3 p-5 rounded-xl border hover:shadow-lg transition bg-white">
+          <Link href="/tools" className="flex flex-col items-center gap-3 p-5 rounded-xl border hover:shadow-lg transition bg-white">
             <img src="/tools.svg" className="w-12 h-12" alt="DocuSign Tool" />
             <p className="text-sm font-semibold text-center">DocuSign</p>
           </Link>
 
-          <Link href="#" className="flex flex-col items-center gap-3 p-5 rounded-xl border hover:shadow-lg transition bg-white">
+          <Link href="#coming-soon" className="flex flex-col items-center gap-3 p-5 rounded-xl border hover:shadow-lg transition bg-white">
             <img src="/college.svg" className="w-12 h-12" alt="Colleges" />
             <p className="text-sm font-semibold text-center">Colleges</p>
           </Link>
 
-          <Link href="#" className="flex flex-col items-center gap-3 p-5 rounded-xl border hover:shadow-lg transition bg-white">
+          <Link href="#coming-soon" className="flex flex-col items-center gap-3 p-5 rounded-xl border hover:shadow-lg transition bg-white">
             <img src="/partner.svg" className="w-12 h-12" alt="Partner With Us" />
             <p className="text-sm font-semibold text-center">Partner With Us</p>
           </Link>

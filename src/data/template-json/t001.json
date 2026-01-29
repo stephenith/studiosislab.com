@@ -1,0 +1,33 @@
+{
+  "objects": [
+    {
+      "type": "rect",
+      "left": 180,
+      "top": 140,
+      "width": 2120,
+      "height": 220,
+      "fill": "#e2e8f0",
+      "rx": 18,
+      "ry": 18
+    },
+    {
+      "type": "textbox",
+      "text": "Modern Minimal",
+      "left": 240,
+      "top": 190,
+      "width": 1800,
+      "fontSize": 64,
+      "fontWeight": "bold",
+      "fill": "#0f172a"
+    },
+    {
+      "type": "textbox",
+      "text": "Summary section placeholder",
+      "left": 240,
+      "top": 420,
+      "width": 2000,
+      "fontSize": 28,
+      "fill": "#334155"
+    }
+  ]
+}

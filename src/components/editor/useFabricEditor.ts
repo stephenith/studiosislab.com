@@ -8,6 +8,7 @@ import {
   Rect,
   Textbox,
   Group,
+  Shadow,
   Image as FabricImage,
 } from "fabric";
 import { jsPDF } from "jspdf";
@@ -329,12 +330,12 @@ export function useFabricEditor({
         top: 0,
         fill: bgColorRef.current || "#ffffff",
         stroke: "#e5e7eb",
-        shadow: {
+        shadow: new Shadow({
           color: "rgba(0,0,0,0.10)",
           blur: 18,
           offsetX: 0,
           offsetY: 8,
-        },
+        }),
         selectable: false,
         evented: false,
         hasControls: false,

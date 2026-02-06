@@ -1,5 +1,9 @@
-import { redirect } from "next/navigation";
+import EditorShell from "@/components/editor/EditorShell";
 
 export default function NewEditorPage() {
-  redirect("/editor/blank");
+  return (
+    <div className="h-screen flex flex-col">
+      <EditorShell mode="new" />
+    </div>
+  );
 }

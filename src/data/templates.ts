@@ -66,6 +66,7 @@ export const TEMPLATE_EDITOR_CONFIG: Record<string, EditorTemplateConfig> = {
 };
 
 export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
+  blank: { objects: [] },
   t001: t001 as TemplateSnapshot,
   t002: t002 as TemplateSnapshot,
   t003: t003 as TemplateSnapshot,

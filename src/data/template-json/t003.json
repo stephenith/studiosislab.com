@@ -2,6 +2,20 @@
   "objects": [
     {
       "type": "rect",
+      "left": 0,
+      "top": 0,
+      "width": 2480,
+      "height": 3508,
+      "fill": "#ffffff",
+      "selectable": false,
+      "evented": false,
+      "hasControls": false,
+      "hasBorders": false,
+      "lockMovementX": true,
+      "lockMovementY": true
+    },
+    {
+      "type": "rect",
       "left": 180,
       "top": 120,
       "width": 2120,

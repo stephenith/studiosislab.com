@@ -1,0 +1,61 @@
+{
+  "objects": [
+    {
+  "type": "rect",
+  "role": "page-bg",
+  "isPageBg": true,
+  "left": 0,
+  "top": 0,
+  "originX": "left",
+  "originY": "top",
+  "width": 794,
+  "height": 1123,
+  "fill": "#ffffff",
+  "selectable": false,
+  "evented": false,
+  "hasControls": false,
+  "hasBorders": false,
+  "lockMovementX": true,
+  "lockMovementY": true
+},
+    {
+      "type": "rect",
+      "left": 180,
+      "top": 120,
+      "width": 2120,
+      "height": 120,
+      "fill": "#cbd5f5",
+      "rx": 10,
+      "ry": 10
+    },
+    {
+      "type": "textbox",
+      "text": "Professional Manager",
+      "left": 240,
+      "top": 150,
+      "width": 1800,
+      "fontSize": 52,
+      "fontWeight": "bold",
+      "fill": "#1e1b4b"
+    },
+    {
+      "type": "rect",
+      "left": 180,
+      "top": 320,
+      "width": 2120,
+      "height": 240,
+      "fill": "#eef2ff",
+      "rx": 12,
+      "ry": 12
+    },
+    {
+      "type": "textbox",
+      "text": "Leadership summary",
+      "left": 240,
+      "top": 360,
+      "width": 1800,
+      "fontSize": 28,
+      "fill": "#312e81"
+    }
+  ]
+}

@@ -1,0 +1,331 @@
+{
+  "objects": [
+    {
+      "type": "rect",
+      "left": 0,
+      "top": 0,
+      "width": 2480,
+      "height": 3508,
+      "fill": "#ffffff",
+      "selectable": false,
+      "evented": false,
+      "hasControls": false,
+      "hasBorders": false,
+      "lockMovementX": true,
+      "lockMovementY": true
+    },
+    {
+      "type": "rect",
+      "left": 0,
+      "top": 0,
+      "width": 870,
+      "height": 3508,
+      "fill": "#1f5e8c",
+      "selectable": false,
+      "evented": false,
+      "hasControls": false,
+      "hasBorders": false,
+      "lockMovementX": true,
+      "lockMovementY": true
+    },
+    {
+      "type": "rect",
+      "left": 140,
+      "top": 160,
+      "width": 590,
+      "height": 590,
+      "fill": "#0b2d4d"
+    },
+    {
+      "type": "rect",
+      "left": 175,
+      "top": 195,
+      "width": 520,
+      "height": 520,
+      "fill": "#dbeafe"
+    },
+    {
+      "type": "textbox",
+      "text": "JORDAN HARRIS",
+      "left": 980,
+      "top": 190,
+      "width": 1300,
+      "fontSize": 96,
+      "fontWeight": "bold",
+      "fill": "#0f172a",
+      "fontFamily": "Montserrat"
+    },
+    {
+      "type": "textbox",
+      "text": "Business Operations Manager",
+      "left": 980,
+      "top": 310,
+      "width": 1200,
+      "fontSize": 42,
+      "fill": "#475569",
+      "fontFamily": "Montserrat"
+    },
+    {
+      "type": "textbox",
+      "text": "ABOUT ME",
+      "left": 120,
+      "top": 820,
+      "width": 620,
+      "fontSize": 36,
+      "fontWeight": "bold",
+      "fill": "#e2e8f0",
+      "fontFamily": "Montserrat"
+    },
+    {
+      "type": "textbox",
+      "text": "Results-driven manager with 8+ years leading cross-functional teams, optimizing processes, and delivering scalable growth initiatives.",
+      "left": 120,
+      "top": 880,
+      "width": 640,
+      "fontSize": 28,
+      "fill": "#e2e8f0",
+      "fontFamily": "Montserrat",
+      "lineHeight": 1.3
+    },
+    {
+      "type": "textbox",
+      "text": "CONTACT",
+      "left": 120,
+      "top": 1180,
+      "width": 620,
+      "fontSize": 36,
+      "fontWeight": "bold",
+      "fill": "#e2e8f0",
+      "fontFamily": "Montserrat"
+    },
+    {
+      "type": "circle",
+      "left": 120,
+      "top": 1255,
+      "radius": 12,
+      "fill": "#e2e8f0"
+    },
+    {
+      "type": "textbox",
+      "text": "+1 (555) 987-6543",
+      "left": 160,
+      "top": 1248,
+      "width": 640,
+      "fontSize": 26,
+      "fill": "#e2e8f0",
+      "fontFamily": "Montserrat"
+    },
+    {
+      "type": "circle",
+      "left": 120,
+      "top": 1325,
+      "radius": 12,
+      "fill": "#e2e8f0"
+    },
+    {
+      "type": "textbox",
+      "text": "jordan.harris@email.com",
+      "left": 160,
+      "top": 1318,
+      "width": 640,
+      "fontSize": 26,
+      "fill": "#e2e8f0",
+      "fontFamily": "Montserrat"
+    },
+    {
+      "type": "circle",
+      "left": 120,
+      "top": 1395,
+      "radius": 12,
+      "fill": "#e2e8f0"
+    },
+    {
+      "type": "textbox",
+      "text": "San Francisco, CA",
+      "left": 160,
+      "top": 1388,
+      "width": 640,
+      "fontSize": 26,
+      "fill": "#e2e8f0",
+      "fontFamily": "Montserrat"
+    },
+    {
+      "type": "textbox",
+      "text": "REFERENCE",
+      "left": 120,
+      "top": 1580,
+      "width": 620,
+      "fontSize": 36,
+      "fontWeight": "bold",
+      "fill": "#e2e8f0",
+      "fontFamily": "Montserrat"
+    },
+    {
+      "type": "textbox",
+      "text": "Morgan Lee\nVP Operations, Northwind\n(555) 222-1345",
+      "left": 120,
+      "top": 1645,
+      "width": 640,
+      "fontSize": 26,
+      "fill": "#e2e8f0",
+      "fontFamily": "Montserrat",
+      "lineHeight": 1.3
+    },
+    {
+      "type": "textbox",
+      "text": "EDUCATION",
+      "left": 980,
+      "top": 760,
+      "width": 1200,
+      "fontSize": 36,
+      "fontWeight": "bold",
+      "fill": "#0f172a",
+      "fontFamily": "Montserrat"
+    },
+    {
+      "type": "textbox",
+      "text": "MBA, Business Administration\nStanford University • 2016",
+      "left": 980,
+      "top": 820,
+      "width": 1200,
+      "fontSize": 30,
+      "fill": "#334155",
+      "fontFamily": "Montserrat",
+      "lineHeight": 1.3
+    },
+    {
+      "type": "textbox",
+      "text": "EXPERIENCE",
+      "left": 980,
+      "top": 1180,
+      "width": 1200,
+      "fontSize": 36,
+      "fontWeight": "bold",
+      "fill": "#0f172a",
+      "fontFamily": "Montserrat"
+    },
+    {
+      "type": "textbox",
+      "text": "Operations Manager — Northwind\n2019–Present\n• Led 12-member team and improved delivery SLAs by 28%\n• Implemented KPI dashboards reducing costs by 15%",
+      "left": 980,
+      "top": 1245,
+      "width": 1200,
+      "fontSize": 28,
+      "fill": "#334155",
+      "fontFamily": "Montserrat",
+      "lineHeight": 1.3
+    },
+    {
+      "type": "textbox",
+      "text": "Project Lead — Blue Ridge Co.\n2016–2019\n• Managed enterprise rollouts across 5 regions\n• Increased client retention by 20%",
+      "left": 980,
+      "top": 1540,
+      "width": 1200,
+      "fontSize": 28,
+      "fill": "#334155",
+      "fontFamily": "Montserrat",
+      "lineHeight": 1.3
+    },
+    {
+      "type": "textbox",
+      "text": "SKILLS",
+      "left": 980,
+      "top": 2000,
+      "width": 1200,
+      "fontSize": 36,
+      "fontWeight": "bold",
+      "fill": "#0f172a",
+      "fontFamily": "Montserrat"
+    },
+    {
+      "type": "textbox",
+      "text": "Leadership",
+      "left": 980,
+      "top": 2065,
+      "width": 480,
+      "fontSize": 28,
+      "fill": "#334155",
+      "fontFamily": "Montserrat"
+    },
+    {
+      "type": "circle",
+      "left": 1320,
+      "top": 2075,
+      "radius": 10,
+      "fill": "#1f5e8c"
+    },
+    {
+      "type": "circle",
+      "left": 1360,
+      "top": 2075,
+      "radius": 10,
+      "fill": "#1f5e8c"
+    },
+    {
+      "type": "circle",
+      "left": 1400,
+      "top": 2075,
+      "radius": 10,
+      "fill": "#1f5e8c"
+    },
+    {
+      "type": "circle",
+      "left": 1440,
+      "top": 2075,
+      "radius": 10,
+      "fill": "#cbd5f5"
+    },
+    {
+      "type": "circle",
+      "left": 1480,
+      "top": 2075,
+      "radius": 10,
+      "fill": "#cbd5f5"
+    },
+    {
+      "type": "textbox",
+      "text": "Process Optimization",
+      "left": 980,
+      "top": 2145,
+      "width": 600,
+      "fontSize": 28,
+      "fill": "#334155",
+      "fontFamily": "Montserrat"
+    },
+    {
+      "type": "circle",
+      "left": 1320,
+      "top": 2155,
+      "radius": 10,
+      "fill": "#1f5e8c"
+    },
+    {
+      "type": "circle",
+      "left": 1360,
+      "top": 2155,
+      "radius": 10,
+      "fill": "#1f5e8c"
+    },
+    {
+      "type": "circle",
+      "left": 1400,
+      "top": 2155,
+      "radius": 10,
+      "fill": "#1f5e8c"
+    },
+    {
+      "type": "circle",
+      "left": 1440,
+      "top": 2155,
+      "radius": 10,
+      "fill": "#1f5e8c"
+    },
+    {
+      "type": "circle",
+      "left": 1480,
+      "top": 2155,
+      "radius": 10,
+      "fill": "#cbd5f5"
+    }
+  ]
+}

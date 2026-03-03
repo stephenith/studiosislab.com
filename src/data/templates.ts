@@ -69,5 +69,17 @@ export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
   blank: { objects: [] },
   t001: t001 as TemplateSnapshot,
   t002: t002 as TemplateSnapshot,
-  t003: t003 as TemplateSnapshot,
+  t003:
+    (t003 as any)?.objects && (t003 as any).objects.length > 0
+      ? (t003 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
 };
+
+if (process.env.NODE_ENV === "development") {
+  console.log("[templates]", {
+    blank: TEMPLATE_SNAPSHOTS.blank.objects?.length ?? 0,
+    t001: (t001 as any)?.objects?.length ?? 0,
+    t002: (t002 as any)?.objects?.length ?? 0,
+    t003: (t003 as any)?.objects?.length ?? 0,
+  });
+}

@@ -6,11 +6,22 @@ export default async function EditorTemplatePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const templateId = id?.toLowerCase().trim();
+  const rawId = id?.trim();
+  const templateId = rawId?.toLowerCase();
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    rawId || ""
+  );
   if (templateId === "new") {
     return (
       <div className="h-screen flex flex-col">
         <EditorShell mode="new" />
+      </div>
+    );
+  }
+  if (isUuid && rawId) {
+    return (
+      <div className="h-screen flex flex-col">
+        <EditorShell mode="template" docId={rawId} />
       </div>
     );
   }

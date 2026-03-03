@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -22,7 +22,20 @@ if (process.env.NODE_ENV !== "production") {
   }
 }
 
-const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-
+export const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+let _db: ReturnType<typeof getFirestore> | null = null;
+function initDb() {
+  if (_db) return _db;
+  try {
+    _db = initializeFirestore(app, {
+      ignoreUndefinedProperties: true,
+      experimentalForceLongPolling: true,
+    });
+  } catch {
+    _db = getFirestore(app);
+  }
+  return _db;
+}
+export const db = initDb();

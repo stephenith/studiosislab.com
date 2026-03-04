@@ -50,7 +50,7 @@ export default function HomePage() {
               href="/tools"
               className="px-6 py-2.5 border border-white text-white font-semibold rounded-md hover:bg-white hover:text-black transition"
             >
-              DocuSign Tool
+              E-Sign
             </Link>
           </div>
         </div>
@@ -79,8 +79,8 @@ export default function HomePage() {
           </Link>
 
           <Link href="/tools" className="flex flex-col items-center gap-3 p-5 rounded-xl border hover:shadow-lg transition bg-white">
-            <img src="/tools.svg" className="w-12 h-12" alt="DocuSign Tool" />
-            <p className="text-sm font-semibold text-center">DocuSign</p>
+            <img src="/tools.svg" className="w-12 h-12" alt="E-Sign Tool" />
+            <p className="text-sm font-semibold text-center">E-Sign</p>
           </Link>
 
           <Link href="#coming-soon" className="flex flex-col items-center gap-3 p-5 rounded-xl border hover:shadow-lg transition bg-white">

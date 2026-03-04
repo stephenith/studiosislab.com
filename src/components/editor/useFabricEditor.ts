@@ -16,59 +16,28 @@ import { TEMPLATE_SNAPSHOTS } from "@/data/templates";
 import { toHexColor } from "@/lib/color";
 import { useAuthUser } from "@/lib/useAuthUser";
 import { createResumeDoc, getResumeDoc, updateResumeDoc } from "@/lib/resumeDocs";
-
-type EditorMode = "new" | "template";
-type PageSize = "A4" | "Letter" | "Custom";
-
-type SelectionType = "none" | "text" | "shape" | "image" | "frame";
-type AlignAction = "left" | "centerX" | "right" | "top" | "middle" | "bottom";
-
-type TextProps = {
-  fontFamily: string;
-  fontSize: number;
-  fill: string;
-  fontWeight: "normal" | "bold";
-  fontStyle: "normal" | "italic";
-  underline: boolean;
-  textAlign: "left" | "center" | "right" | "justify";
-  lineHeight: number;
-};
-
-type ShapeProps = {
-  fill: string;
-  stroke: string;
-  strokeWidth: number;
-  opacity: number;
-  cornerRadius: number;
-};
-
-type ImageProps = {
-  opacity: number;
-};
-
-type LayerItem = {
-  id: string;
-  type: string;
-  visible: boolean;
-  locked: boolean;
-  displayName: string;
-  index: number;
-  objectRef: any;
-};
-
-const CANVAS_BG = "#f3f4f6";
-
-const PAGE_SIZES: Record<PageSize, { w: number; h: number }> = {
-  A4: { w: 794, h: 1123 },
-  Letter: { w: 816, h: 1056 },
-  Custom: { w: 794, h: 1123 }, // default fallback
-};
-const FIT_MARGIN_RATIO = 0.95;
-const FIT_MIN_ZOOM = 0.25;
-const FIT_MAX_ZOOM = 1.25;
-const FIT_RESIZE_DEBOUNCE_MS = 120;
-const FIT_PAD = 24;
-const FIT_RESERVED_BOTTOM = 48; // button row + spacing under each page
+import type {
+  EditorMode,
+  PageSize,
+  SelectionType,
+  AlignAction,
+  TextProps,
+  ShapeProps,
+  ImageProps,
+  LayerItem,
+} from "@/types/editor";
+import {
+  CANVAS_BG,
+  PAGE_SIZES,
+  FIT_RESIZE_DEBOUNCE_MS,
+} from "@/types/editor";
+import { initFabricCanvas, applyCanvasBackground as applyCanvasBackgroundModule } from "@/lib/editor/canvasInitializer";
+import { normalizeToFabricJson } from "@/lib/editor/templateLoader";
+import { getFitZoom, setZoom as setZoomOnCanvas, clampEffectiveZoom as clampEffectiveZoomFn } from "@/lib/editor/zoomController";
+import { addTextbox as addTextboxTool, applyTextBoxNoStretch } from "@/lib/editor/textTools";
+import { addRect as addRectTool, addCircle as addCircleTool, addLine as addLineTool } from "@/lib/editor/shapeTools";
+import { getLayers as getLayersFromModule } from "@/lib/editor/layerManager";
+import { exportToDataURL as exportToDataURLModule } from "@/lib/editor/exportCanvas";
 
 const IMAGE_FRAME_SIZE = 150;
 const IMAGE_FRAME_TYPE = "image-frame";
@@ -314,10 +283,7 @@ export function useFabricEditor({
     return typeof zoom === "number" && Number.isFinite(zoom) ? zoom : 1;
   }, [zoom]);
   const getZoomPercent = useCallback(() => Math.round(getZoom() * 100), [getZoom]);
-  const clampEffectiveZoom = useCallback((z: number) => {
-    if (!Number.isFinite(z)) return 1;
-    return Math.max(0.05, Math.min(2, z));
-  }, []);
+  const clampEffectiveZoom = useCallback((z: number) => clampEffectiveZoomFn(z), []);
 
   const clamp = useCallback((v: number, lo: number, hi: number) => {
     return Math.min(hi, Math.max(lo, v));
@@ -334,27 +300,6 @@ export function useFabricEditor({
     const w = obj.getScaledWidth?.() ?? obj.width ?? 0;
     const h = obj.getScaledHeight?.() ?? obj.height ?? 0;
     return { left, top, width: w, height: h };
-  }, []);
-
-  const applyTextBoxNoStretch = useCallback((obj: any) => {
-    if (!obj) return;
-    if (obj.type !== "textbox") return;
-    obj.lockScalingY = true;
-    obj.lockUniScaling = false;
-    if (typeof obj.setControlsVisibility === "function") {
-      obj.setControlsVisibility({
-        mt: false,
-        mb: false,
-        tl: false,
-        tr: false,
-        bl: false,
-        br: false,
-        ml: true,
-        mr: true,
-        mtr: true,
-      });
-    }
-    obj.setCoords?.();
   }, []);
 
   const getContentBounds = useCallback(
@@ -524,15 +469,10 @@ export function useFabricEditor({
   }, []);
 
   const applyZoomToCanvas = useCallback((canvas: Canvas, z: number) => {
-    const { w: pageW, h: pageH } = pageSizePxRef.current;
-    // Canvas is sized to page*zoom — page fills canvas, no translation
-    const vpt: [number, number, number, number, number, number] = [z, 0, 0, z, 0, 0];
     if (process.env.NODE_ENV !== "production") {
-      console.log("[applyZoomToCanvas]", { z, vpt: [...vpt] });
+      console.log("[applyZoomToCanvas]", { z });
     }
-    canvas.setViewportTransform(vpt);
-    canvas.calcOffset?.();
-    canvas.requestRenderAll();
+    setZoomOnCanvas(canvas, z);
   }, []);
 
   const applyZoomToCanvases = useCallback(
@@ -742,23 +682,6 @@ export function useFabricEditor({
       zoom,
     ]
   );
-
-  const normalizeToFabricJson = useCallback((snap: any) => {
-    if (!snap) return { objects: [] };
-    if (typeof snap === "string") {
-      try {
-        const parsed = JSON.parse(snap);
-        return normalizeToFabricJson(parsed);
-      } catch {
-        return { objects: [] };
-      }
-    }
-    if (snap?.canvas) return normalizeToFabricJson(snap.canvas);
-    if (Array.isArray(snap?.objects)) {
-      return snap;
-    }
-    return { objects: [] };
-  }, []);
 
   const pushHistory = useCallback((reason: string) => {
     const c = getCanvas();
@@ -978,12 +901,14 @@ export function useFabricEditor({
       const vw = hostRect.w;
       const vh = hostRect.h;
       if (vw <= 0 || vh <= 0) return;
-      const effectiveW = vw - FIT_PAD * 2;
-      const effectiveH = vh - FIT_RESERVED_BOTTOM - FIT_PAD * 2;
       const { w: pageW, h: pageH } = pageSizePxRef.current;
-      const rawFit = Math.min(effectiveW / pageW, effectiveH / pageH) * FIT_MARGIN_RATIO;
-      const zoomCap = baseFitZoomRef.current ?? FIT_MAX_ZOOM;
-      let fit = Math.max(FIT_MIN_ZOOM, Math.min(rawFit, zoomCap));
+      let fit = getFitZoom({
+        viewportW: vw,
+        viewportH: vh,
+        pageW,
+        pageH,
+        zoomCap: baseFitZoomRef.current ?? null,
+      });
       if (baseFitZoomRef.current === null) {
         baseFitZoomRef.current = fit;
       }
@@ -1391,28 +1316,16 @@ try {
   }, [findPageObject, getCanvas, isPageBackgroundObject]);
 
   const updateLayers = useCallback(() => {
-    const { normalObjs } = getLayerObjects();
-    const typeCounts: Record<string, number> = {};
-    const items = normalObjs
-      .map((o: any, idx: number) => {
-        const base = getDefaultLabel(o);
-        const typeKey = String(base).toLowerCase();
-        typeCounts[typeKey] = (typeCounts[typeKey] || 0) + 1;
-        const numbered = `${base} ${typeCounts[typeKey]}`;
-        const displayName = (o as any).name || numbered;
-        return {
-          id: ensureObjectId(o) || `__idx_${idx}`,
-          type: o.type || "object",
-          visible: o.visible !== false,
-          locked: !!o.lockMovementX || !!o.lockMovementY || o.selectable === false,
-          displayName,
-          index: idx,
-          objectRef: o,
-        };
-      })
-      .reverse();
+    const c = getCanvas();
+    if (!c) return;
+    const size = pageSizePxRef.current;
+    const items = getLayersFromModule(c, {
+      isPageBackground: (o: any) => isPageBackgroundObject(o, size.w, size.h),
+      getDisplayName: getDefaultLabel,
+      ensureId: (o: any) => ensureObjectId(o),
+    });
     setLayers(items);
-  }, [ensureObjectId, getDefaultLabel, getLayerObjects]);
+  }, [ensureObjectId, getDefaultLabel, getCanvas, isPageBackgroundObject]);
 
   const renameLayer = useCallback(
     (id: string, newName: string) => {
@@ -1824,49 +1737,25 @@ try {
   const applyCanvasBackground = useCallback((color: string) => {
     const c = getCanvas();
     if (!c) return;
-    c.set({ backgroundColor: color });
-    c.requestRenderAll();
+    applyCanvasBackgroundModule(c, color);
   }, [getCanvas]);
 
   const exportPageDataUrl = useCallback(
     (multiplier: number = 2, canvas?: Canvas | null) => {
       const c = canvas ?? getCanvas();
       if (!c) return null;
-      const size = pageSizePxRef.current;
-      const pageObj = findPageObject(c, size.w, size.h) as any;
-      if (!pageObj) return null;
-
-      const prevVt = c.viewportTransform ? [...c.viewportTransform] : null;
-      const prevZoom = c.getZoom?.() ?? 1;
-      const prevShadow = pageObj.shadow;
-
-      c.setViewportTransform([1, 0, 0, 1, 0, 0]);
-      c.setZoom?.(1);
-      pageObj.set?.({ shadow: null });
-      c.requestRenderAll();
-
-      const left = pageObj.left ?? 0;
-      const top = pageObj.top ?? 0;
-      const width = pageObj.getScaledWidth?.() ?? pageObj.width ?? 0;
-      const height = pageObj.getScaledHeight?.() ?? pageObj.height ?? 0;
-
-      const dataUrl = c.toDataURL({
-        format: "png",
-        left,
-        top,
-        width,
-        height,
+      return exportToDataURLModule(c, {
         multiplier,
+        getPageBounds: (canv) => {
+          const size = pageSizePxRef.current;
+          const pageObj = findPageObject(canv, size.w, size.h) as any;
+          if (!pageObj) return null;
+          const b = getObjectBounds(pageObj);
+          return { ...b, fabricObj: pageObj };
+        },
       });
-
-      if (prevVt) c.setViewportTransform(prevVt as any);
-      c.setZoom?.(prevZoom);
-      pageObj.set?.({ shadow: prevShadow });
-      c.requestRenderAll();
-
-      return { dataUrl, width, height };
     },
-    [findPageObject, getCanvas]
+    [findPageObject, getCanvas, getObjectBounds]
   );
 
   const updateActiveObject = useCallback((patch: Record<string, any>) => {
@@ -1885,13 +1774,13 @@ try {
     async (pageId: string, el: HTMLCanvasElement) => {
       if (pageCanvasesRef.current.has(pageId)) return;
       const size = pageSizePxRef.current;
-      const c = new Canvas(el, {
+      const c = initFabricCanvas(el, {
         width: size.w,
         height: size.h,
         backgroundColor: CANVAS_BG,
         selection: true,
         preserveObjectStacking: true,
-      } as any);
+      });
 // DEV ONLY: expose current fabric canvas for debugging/export in DevTools
 if (process.env.NODE_ENV === "development") {
   (window as any).__slbCanvas = c; // <-- MUST be "c"
@@ -2386,21 +2275,22 @@ if (process.env.NODE_ENV === "development") {
     c.isDrawingMode = false;
     c.selection = true;
     const size = pageSizePx;
-    const t = new Textbox("Text", {
+    const t = addTextboxTool(c, {
+      text: "Text",
       left: size.w / 2 - 200,
       top: size.h / 2 - 24,
       width: 400,
       fontSize: 32,
       fontFamily: "Poppins",
       fill: "#111827",
-    }) as any;
+    });
     const id = ensureObjectId(t);
     t.uid = id;
     applyTextBoxNoStretch(t);
     c.add(t);
     c.setActiveObject(t);
     c.requestRenderAll();
-  }, [applyTextBoxNoStretch, ensureObjectId, pageSizePx, pushHistory]);
+  }, [ensureObjectId, pageSizePx, pushHistory]);
 
   const addRect = useCallback(() => {
     const c = getCanvas();
@@ -2408,7 +2298,7 @@ if (process.env.NODE_ENV === "development") {
     c.isDrawingMode = false;
     c.selection = true;
     const size = pageSizePx;
-    const r = new Rect({
+    const r = addRectTool(c, {
       left: size.w / 2 - 180,
       top: size.h / 2 - 120,
       width: 360,
@@ -2416,8 +2306,7 @@ if (process.env.NODE_ENV === "development") {
       fill: "rgba(17,24,39,0.1)",
       stroke: "#111827",
       strokeWidth: 2,
-      strokeUniform: true,
-    }) as any;
+    });
     const id = ensureObjectId(r);
     r.uid = id;
     c.add(r);
@@ -2431,15 +2320,14 @@ if (process.env.NODE_ENV === "development") {
     c.isDrawingMode = false;
     c.selection = true;
     const size = pageSizePx;
-    const r = new Circle({
+    const r = addCircleTool(c, {
       left: size.w / 2 - 120,
       top: size.h / 2 - 120,
       radius: 120,
       fill: "rgba(17,24,39,0.1)",
       stroke: "#111827",
       strokeWidth: 2,
-      strokeUniform: true,
-    }) as any;
+    });
     const id = ensureObjectId(r);
     r.uid = id;
     c.add(r);
@@ -2453,13 +2341,16 @@ if (process.env.NODE_ENV === "development") {
     c.isDrawingMode = false;
     c.selection = true;
     const size = pageSizePx;
-    const l = new Line([0, 0, 300, 0], {
+    const l = addLineTool(c, {
+      x1: 0,
+      y1: 0,
+      x2: 300,
+      y2: 0,
       left: size.w / 2 - 150,
       top: size.h / 2,
       stroke: "#111827",
       strokeWidth: 2,
-      strokeUniform: true,
-    }) as any;
+    });
     const id = ensureObjectId(l);
     l.uid = id;
     c.add(l);

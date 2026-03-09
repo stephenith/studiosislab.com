@@ -1,139 +1,147 @@
-import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { NextRequest } from "next/server";
 import { PDFDocument } from "pdf-lib";
-import { db, storage } from "@/lib/firebase";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  serverTimestamp,
-  updateDoc,
-} from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export const runtime = "nodejs";
 
-export async function GET(req: NextRequest) {
+export type ExportPlacement = {
+  page: number;
+  xNorm: number;
+  yNorm: number;
+  wNorm: number;
+  hNorm: number;
+  imageDataUrl: string;
+  locked?: boolean;
+};
+
+export type ExportBody = {
+  documentId: string;
+  placements: ExportPlacement[];
+};
+
+/** Convert normalized coords (0..1, top-left origin) to PDF points (bottom-left origin). */
+function normToPdf(
+  pageWidthPts: number,
+  pageHeightPts: number,
+  xNorm: number,
+  yNorm: number,
+  wNorm: number,
+  hNorm: number
+) {
+  const wPts = wNorm * pageWidthPts;
+  const hPts = hNorm * pageHeightPts;
+  const xPts = xNorm * pageWidthPts;
+  // PDF origin is bottom-left; yNorm is from top, so flip.
+  const yPts = pageHeightPts - yNorm * pageHeightPts - hPts;
+  return { x: xPts, y: yPts, width: wPts, height: hPts };
+}
+
+export async function POST(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const documentId = searchParams.get("documentId");
+    const body = (await req.json()) as ExportBody;
+    const { documentId, placements } = body;
 
-    if (!documentId) {
-      return NextResponse.json(
-        { ok: false, error: "Missing documentId" },
-        { status: 400 }
+    if (!documentId || !Array.isArray(placements)) {
+      return new Response(
+        JSON.stringify({ ok: false, error: "Missing documentId or placements" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
       );
     }
 
-    // Load e-sign document metadata
-    const docRef = doc(db, "esign_documents", documentId);
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) {
-      return NextResponse.json(
-        { ok: false, error: "Document not found" },
-        { status: 404 }
+    // Fetch original PDF via the existing download endpoint so we reuse
+    // the same storage logic as the viewer.
+    const origin = req.nextUrl.origin;
+    const downloadUrl = `${origin}/api/esign/download?documentId=${encodeURIComponent(
+      documentId
+    )}`;
+    const downloadRes = await fetch(downloadUrl);
+    if (!downloadRes.ok) {
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: "Failed to fetch original PDF for this documentId",
+        }),
+        {
+          status: downloadRes.status,
+          headers: { "Content-Type": "application/json" },
+        }
       );
     }
 
-    const data = docSnap.data() as any;
-    const ownerUid = data.ownerUid as string | undefined;
-    const fileName = (data.fileName as string | undefined) ?? "document";
-
-    // Load original PDF from local storage (same source as /api/esign/download)
-    const projectRoot = process.cwd();
-    const pdfPath = path.join(projectRoot, "storage", "esign", `${documentId}.pdf`);
-    if (!fs.existsSync(pdfPath)) {
-      return NextResponse.json(
-        { ok: false, error: "Original PDF not found for this documentId" },
-        { status: 404 }
+    const contentType = downloadRes.headers.get("content-type") || "";
+    if (!contentType.includes("pdf")) {
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: "Original file is not a PDF; export currently supports PDF only.",
+        }),
+        {
+          status: 415,
+          headers: { "Content-Type": "application/json" },
+        }
       );
     }
 
-    const originalBytes = fs.readFileSync(pdfPath);
+    const originalBytes = new Uint8Array(await downloadRes.arrayBuffer());
     const pdfDoc = await PDFDocument.load(originalBytes);
+    const numPages = pdfDoc.getPageCount();
 
-    // Load placements from Firestore
-    const placementsSnap = await getDocs(
-      collection(db, "esign_documents", documentId, "placements")
-    );
+    for (const p of placements) {
+      const pageNumber = Math.max(1, Math.min(numPages, Number(p.page) || 1));
+      const pageIndex = pageNumber - 1;
+      const page = pdfDoc.getPage(pageIndex);
+      const pageWidthPts = page.getWidth();
+      const pageHeightPts = page.getHeight();
 
-    const placements = placementsSnap.docs.map((d) => ({
-      id: d.id,
-      ...(d.data() as any),
-    }));
+      const imageDataUrl = p.imageDataUrl;
+      if (!imageDataUrl || typeof imageDataUrl !== "string") continue;
 
-    if (placements.length > 0) {
-      for (const placement of placements) {
-        const pageNumber = Number(placement.pageNumber ?? 1);
-        const pageIndex = Math.max(0, Math.min(pdfDoc.getPageCount() - 1, pageNumber - 1));
-        const page = pdfDoc.getPage(pageIndex);
+      const base64 = imageDataUrl.split(",")[1];
+      if (!base64) continue;
 
-        const pageWidth = page.getWidth();
-        const pageHeight = page.getHeight();
+      const pngBytes = Buffer.from(base64, "base64");
+      const pngImage = await pdfDoc.embedPng(pngBytes);
 
-        const imageDataUrl = placement.imageDataUrl as string | undefined;
-        if (!imageDataUrl) continue;
+      const xNorm = Number(p.xNorm ?? 0);
+      const yNorm = Number(p.yNorm ?? 0);
+      const wNorm = Number(p.wNorm ?? 0.2);
+      const hNorm = Number(p.hNorm ?? 0.08);
 
-        const base64 = imageDataUrl.split(",")[1];
-        if (!base64) continue;
+      const { x, y, width, height } = normToPdf(
+        pageWidthPts,
+        pageHeightPts,
+        xNorm,
+        yNorm,
+        wNorm,
+        hNorm
+      );
 
-        const pngBytes = Buffer.from(base64, "base64");
-        const pngImage = await pdfDoc.embedPng(pngBytes);
-
-        // Coordinates are expected as normalized [0,1] relative to page width/height.
-        const nx = Number(placement.x ?? 0);
-        const ny = Number(placement.y ?? 0);
-        const nw = Number(placement.width ?? 0.2);
-        const nh = Number(placement.height ?? 0.08);
-
-        const drawWidth = nw * pageWidth;
-        const drawHeight = nh * pageHeight;
-        const x = nx * pageWidth;
-        // PDF coordinate origin is bottom-left; placements stored with top-left origin
-        const y = pageHeight - ny * pageHeight - drawHeight;
-
-        page.drawImage(pngImage, {
-          x,
-          y,
-          width: drawWidth,
-          height: drawHeight,
-        });
-      }
+      page.drawImage(pngImage, { x, y, width, height });
     }
 
     const signedBytes = await pdfDoc.save();
+    const pdfBuffer = Buffer.from(signedBytes);
 
-    // Optionally upload to Firebase Storage for history / later download
-    let signedPdfUrl: string | null = null;
-    if (ownerUid) {
-      const storagePath = `signed-documents/${ownerUid}/${documentId}.pdf`;
-      const storageRef = ref(storage, storagePath);
-      await uploadBytes(storageRef, signedBytes);
-      signedPdfUrl = await getDownloadURL(storageRef);
-
-      await updateDoc(docRef, {
-        signedPdfUrl,
-        status: "signed",
-        signedAt: serverTimestamp(),
-      });
-    }
-
-    return new NextResponse(new Blob([signedBytes as BlobPart]), {
+    // Simple binary PDF response, no Storage writes for now.
+    return new Response(pdfBuffer, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="signed-${fileName}.pdf"`,
-        "X-Signed-Pdf-Url": signedPdfUrl ?? "",
       },
     });
   } catch (e: any) {
     console.error("esign export error", e);
-    return NextResponse.json(
-      { ok: false, error: e?.message || "Failed to export signed PDF" },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({
+        ok: false,
+        error: e?.message || "Failed to export signed PDF",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
     );
   }
 }
-

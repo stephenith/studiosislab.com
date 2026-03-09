@@ -33,41 +33,26 @@ import {
 } from "@/types/editor";
 import { initFabricCanvas, applyCanvasBackground as applyCanvasBackgroundModule } from "@/lib/editor/canvasInitializer";
 import { normalizeToFabricJson } from "@/lib/editor/templateLoader";
-import { getFitZoom, setZoom as setZoomOnCanvas, clampEffectiveZoom as clampEffectiveZoomFn } from "@/lib/editor/zoomController";
+import { clampEffectiveZoom as clampEffectiveZoomFn } from "@/lib/editor/zoomController";
 import { addTextbox as addTextboxTool, applyTextBoxNoStretch } from "@/lib/editor/textTools";
 import { addRect as addRectTool, addCircle as addCircleTool, addLine as addLineTool } from "@/lib/editor/shapeTools";
 import { getLayers as getLayersFromModule } from "@/lib/editor/layerManager";
 import { exportToDataURL as exportToDataURLModule } from "@/lib/editor/exportCanvas";
-
-const IMAGE_FRAME_SIZE = 150;
-const IMAGE_FRAME_TYPE = "image-frame";
-
-function isImageFrame(obj: any): boolean {
-  return !!(obj?.data?.type === IMAGE_FRAME_TYPE || obj?.role === "imageFrame");
-}
-
-function getImageFrameFrameType(obj: any): "square" | "circle" {
-  return (
-    obj?.data?.frameType ||
-    obj?.data?.imageFrameType ||
-    obj?.frameType ||
-    "square"
-  ) as "square" | "circle";
-}
+import { ensureObjectId } from "./editor/utils/fabricHelpers";
+import {
+  IMAGE_FRAME_SIZE,
+  IMAGE_FRAME_TYPE,
+  isImageFrame,
+  getImageFrameFrameType,
+  getImageForFrame,
+  getFrameShape,
+} from "./editor/frames/frameDetection";
+import { createFrameCreate } from "./editor/frames/frameCreate";
+import { createFrameAttach } from "./editor/frames/frameAttach";
+import { createFrameCrop } from "./editor/frames/frameCrop";
 
 function getFrameId(frame: any): string | null {
   return frame?.id ?? frame?.data?.id ?? frame?.uid ?? null;
-}
-
-function getImageForFrame(_canvas: Canvas, frame: any): any {
-  if (!frame) return null;
-  const objs = frame._objects ?? frame.getObjects?.() ?? [];
-  return objs.find((o: any) => o.type === "image") ?? null;
-}
-
-function getFrameShape(frame: any): any {
-  const objs = frame._objects ?? frame.getObjects?.() ?? [];
-  return objs[0] ?? null;
 }
 
 export function useFabricEditor({
@@ -101,6 +86,7 @@ export function useFabricEditor({
   const zoomModeRef = useRef<"fitWidth" | "manual">("fitWidth");
   const isLoadingDocRef = useRef(false);
   const hadStoredZoomRef = useRef(false);
+  const docRevisionRef = useRef(0);
   const imageFrameCropModeRef = useRef<{
     frame: any;
     image: any;
@@ -112,6 +98,8 @@ export function useFabricEditor({
   setCropModeStateRef.current = setIsInImageFrameCropMode;
 
   const clipboardRef = useRef<any>(null);
+  const isInitializingCanvasRef = useRef(false);
+  const isCanvasBootingRef = useRef(false);
 
   const [zoom, setZoomState] = useState(1);
   const fitZoomRef = useRef(1);
@@ -172,6 +160,13 @@ export function useFabricEditor({
     console.log("[text-sync]", mode);
   }, []);
 
+  function reorderPages<T>(list: T[], from: number, to: number): T[] {
+    const next = [...list];
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    return next;
+  }
+
   const getActivePageId = useCallback(
     () => pages[Math.max(0, Math.min(activePageIndex, pages.length - 1))]?.id,
     [activePageIndex, pages]
@@ -183,17 +178,27 @@ export function useFabricEditor({
   }, []);
 
   const addPageAfter = useCallback(
-    (index: number) => {
-      const id = createPageId();
-      setPages((prev) => {
-        const next = [...prev];
-        next.splice(index + 1, 0, { id });
-        return next;
-      });
-      setActivePageIndex(index + 1);
-      return id;
+    (afterIndex: number) => {
+      const { w: pageW, h: pageH } = pageSizePxRef.current;
+      const newPage = {
+        id: createPageId(),
+        objects: [] as any[],
+        width: pageW,
+        height: pageH,
+        background: "#ffffff",
+      };
+      pendingPageLoadRef.current.delete(newPage.id);
+      pendingPageLoadRef.current.set(newPage.id, { type: "blank" });
+      const updated = [
+        ...pages.slice(0, afterIndex + 1),
+        newPage,
+        ...pages.slice(afterIndex + 1),
+      ];
+      setPages(updated);
+      setActivePageIndex(afterIndex + 1);
+      return newPage.id;
     },
-    [createPageId]
+    [createPageId, pages]
   );
 
   const duplicatePage = useCallback(
@@ -216,6 +221,7 @@ export function useFabricEditor({
         const vpt = srcCanvas.viewportTransform;
         const objects = Array.isArray((json as any)?.objects) ? (json as any).objects : [];
         pendingPageLoadRef.current.set(id, {
+          type: "duplicate",
           objects,
           viewportTransform: vpt && vpt.length >= 6 ? [...vpt] : null,
         });
@@ -436,24 +442,6 @@ export function useFabricEditor({
   );
 
   const syncCanvasesToContainer = useCallback((z: number) => {
-    if (pageCanvasesRef.current.size === 0) {
-      if (process.env.NODE_ENV !== "production") {
-        console.log("[syncCanvasesToContainer] Skipping — canvasCount 0");
-      }
-      return false;
-    }
-    let hasAnyContent = false;
-    pageCanvasesRef.current.forEach((c) => {
-      if (c && typeof c.getObjects === "function" && (c.getObjects()?.length ?? 0) > 0) {
-        hasAnyContent = true;
-      }
-    });
-    if (!hasAnyContent) {
-      if (process.env.NODE_ENV !== "production") {
-        console.log("[syncCanvasesToContainer] Skipping — canvas not ready (no objects loaded)");
-      }
-      return false;
-    }
     const { w: pageW, h: pageH } = pageSizePxRef.current;
     const w = Math.max(1, Math.round(pageW * z));
     const h = Math.max(1, Math.round(pageH * z));
@@ -463,7 +451,7 @@ export function useFabricEditor({
     }
     pageCanvasesRef.current.forEach((c) => {
       c.setDimensions({ width: w, height: h }, { backstoreOnly: false });
-      c.calcOffset?.();
+      (c as any).calcOffset?.();
     });
     return true;
   }, []);
@@ -472,7 +460,17 @@ export function useFabricEditor({
     if (process.env.NODE_ENV !== "production") {
       console.log("[applyZoomToCanvas]", { z });
     }
-    setZoomOnCanvas(canvas, z);
+    const vpt: [number, number, number, number, number, number] = [
+      z,
+      0,
+      0,
+      z,
+      0,
+      0,
+    ];
+    canvas.setViewportTransform(vpt);
+    (canvas as any).calcOffset?.();
+    canvas.requestRenderAll();
   }, []);
 
   const applyZoomToCanvases = useCallback(
@@ -512,23 +510,6 @@ export function useFabricEditor({
       setZoom(z);
     },
     [clampEffectiveZoom, setZoom]
-  );
-  const ensureObjectId = useCallback(
-    (obj: any) => {
-      if (!obj) return null;
-      if (!obj.id) {
-        const generated =
-          typeof crypto !== "undefined" && "randomUUID" in crypto
-            ? crypto.randomUUID()
-            : String(Date.now() + Math.random());
-        obj.id = generated;
-      }
-      if (!obj.data) obj.data = {};
-      obj.data.id = obj.id;
-      obj.uid = obj.id;
-      return obj.id;
-    },
-    []
   );
 
   const getDefaultLabel = useCallback((obj: any) => {
@@ -691,7 +672,8 @@ export function useFabricEditor({
     if (last && JSON.stringify(last) === JSON.stringify(snap)) return;
     undoRef.current.push(snap);
     redoRef.current = [];
-  }, [serialize]);
+    docRevisionRef.current += 1;
+  }, [getCanvas, serialize]);
 
   const applyPageBackgroundProps = useCallback(
     (pageObj: any, pageW: number, pageH: number, fill: string) => {
@@ -875,6 +857,9 @@ export function useFabricEditor({
     setZoomState(z);
   }
 
+  const PAGE_HEADER_HEIGHT_PX = 48;
+  const PAGE_GAP_PX = 48;
+
   const fitViewport = useCallback(
     (reason: string = "fit") => {
       const c = canvasRef.current;
@@ -898,17 +883,18 @@ export function useFabricEditor({
       }
       const hostRect = getViewportSize(c);
       if (!hostRect) return;
-      const vw = hostRect.w;
-      const vh = hostRect.h;
-      if (vw <= 0 || vh <= 0) return;
-      const { w: pageW, h: pageH } = pageSizePxRef.current;
-      let fit = getFitZoom({
-        viewportW: vw,
-        viewportH: vh,
-        pageW,
-        pageH,
-        zoomCap: baseFitZoomRef.current ?? null,
-      });
+      const viewportH = hostRect.h;
+      if (viewportH <= 0) return;
+      const { h: pageH } = pageSizePxRef.current;
+
+      const availableHeight =
+        viewportH - PAGE_HEADER_HEIGHT_PX - PAGE_GAP_PX;
+      if (availableHeight <= 0) return;
+
+      let fit = availableHeight / pageH;
+      if (!Number.isFinite(fit) || fit <= 0) return;
+      fit = Math.min(fit, 1);
+
       if (baseFitZoomRef.current === null) {
         baseFitZoomRef.current = fit;
       }
@@ -929,21 +915,6 @@ export function useFabricEditor({
         if (vp) {
           vp.scrollTop = 0;
           vp.scrollLeft = 0;
-        }
-      }
-
-      if (process.env.NODE_ENV === "development" && reason === "templateLoaded") {
-        const key = `${reason}:${Math.round(vw)}x${Math.round(vh)}:${Math.round(fit * 1000)}`;
-        if (didLogFitRef.current !== key) {
-          didLogFitRef.current = key;
-          console.log("[fit-initial]", {
-            pageW: Math.round(pageW),
-            pageH: Math.round(pageH),
-            viewportW: Math.round(vw),
-            viewportH: Math.round(vh),
-            fitZoom: Math.round(fit * 1000) / 1000,
-            viewportTransform: c.viewportTransform ? [...c.viewportTransform] : null,
-          });
         }
       }
 
@@ -1230,11 +1201,46 @@ try {
         setSelectionType("none");
         setActiveObjectType(null);
         setActiveObjectSnapshot(null);
-        c.getObjects().forEach((o: any) => {
-          if (o?.role === "grid") {
-            o.excludeFromExport = true;
+
+        const objs = c.getObjects();
+        objs.forEach((obj: any) => {
+          // page background must NEVER intercept clicks
+          if (obj?.role === "pageBackground") {
+            obj.set({
+              selectable: false,
+              evented: false,
+            });
+            return;
+          }
+
+          // grid also non-interactive
+          if (obj?.role === "grid") {
+            obj.set({
+              selectable: false,
+              evented: false,
+            });
+            return;
+          }
+
+          // all other objects interactive
+          obj.set({
+            selectable: true,
+            evented: true,
+          });
+
+          // normalize groups
+          if (obj.type === "group") {
+            obj.set({
+              selectable: true,
+              evented: true,
+              subTargetCheck: false,
+            });
           }
         });
+
+        // Restore canvas interaction flags after JSON load
+        c.selection = true;
+        c.skipTargetFind = false;
         if (reason === "template-loaded" && !skipPostLoadMutations) {
           userZoomedRef.current = false;
           didLogFitRef.current = null;
@@ -1315,7 +1321,9 @@ try {
     return { pageObj, gridObj, normalObjs };
   }, [findPageObject, getCanvas, isPageBackgroundObject]);
 
+  const lastLayersRef = useRef<string>("");
   const updateLayers = useCallback(() => {
+    if (isCanvasBootingRef.current) return;
     const c = getCanvas();
     if (!c) return;
     const size = pageSizePxRef.current;
@@ -1324,7 +1332,11 @@ try {
       getDisplayName: getDefaultLabel,
       ensureId: (o: any) => ensureObjectId(o),
     });
-    setLayers(items);
+    const signature = items.map((i) => i.id).join("|");
+    if (signature !== lastLayersRef.current) {
+      lastLayersRef.current = signature;
+      setLayers(items);
+    }
   }, [ensureObjectId, getDefaultLabel, getCanvas, isPageBackgroundObject]);
 
   const renameLayer = useCallback(
@@ -1349,6 +1361,7 @@ try {
   );
 
   const updateSelection = useCallback(() => {
+    if (isInitializingCanvasRef.current) return;
     const c = getCanvas();
     if (!c) return;
     const active: any = c.getActiveObject();
@@ -1448,6 +1461,15 @@ try {
     activeCanvasListenersRef.current = null;
   }, []);
 
+  const { enterImageFrameCropMode, exitImageFrameCropMode } = createFrameCrop({
+    getCanvas,
+    isImageFrame,
+    getImageForFrame,
+    imageFrameCropModeRef,
+    exitCropModeRef,
+    setCropModeStateRef,
+  });
+
   const bindActiveCanvasListeners = useCallback(
     (canvas: Canvas) => {
       if (activeCanvasListenersRef.current?.canvas === canvas) {
@@ -1460,10 +1482,24 @@ try {
         if (!state) return;
         const { frame, image } = state;
         if (image) {
-          image.set({ selectable: false, lockScalingX: true, lockScalingY: true });
+          image.set({
+            selectable: false,
+            evented: true,
+            lockMovementX: true,
+            lockMovementY: true,
+            lockScalingX: true,
+            lockScalingY: true,
+          });
         }
         if (frame) {
-          frame.set({ selectable: true });
+          frame.set({
+            selectable: true,
+            evented: true,
+          });
+          (frame as any).lockMovementX = false;
+          (frame as any).lockMovementY = false;
+          // Restore default hit testing outside crop mode
+          (frame as any).subTargetCheck = false;
           (frame as any)._activeObjects = [];
           (frame as any)._set?.("dirty", true);
         }
@@ -1480,47 +1516,6 @@ try {
         if (state && active !== state.frame) exitCropMode();
         setHasSelection(!!active);
         updateSelection();
-      };
-
-      const tryAttachImageToFrame = (image: any, frame: any): boolean => {
-        if (!image || !frame || image.type !== "image" || !isImageFrame(frame)) return false;
-        const frameObjs = frame._objects ?? frame.getObjects?.() ?? [];
-        if (frameObjs.includes(image)) return false;
-
-        const imgBounds = (image as any).getBoundingRect?.(true);
-        const frameBounds = (frame as any).getBoundingRect?.(true);
-        if (!imgBounds || !frameBounds) return false;
-
-        const imgCenterX = imgBounds.left + imgBounds.width / 2;
-        const imgCenterY = imgBounds.top + imgBounds.height / 2;
-        const centerInside =
-          imgCenterX >= frameBounds.left &&
-          imgCenterX <= frameBounds.left + frameBounds.width &&
-          imgCenterY >= frameBounds.top &&
-          imgCenterY <= frameBounds.top + frameBounds.height;
-        const overlapLeft = Math.max(imgBounds.left, frameBounds.left);
-        const overlapTop = Math.max(imgBounds.top, frameBounds.top);
-        const overlapRight = Math.min(imgBounds.left + imgBounds.width, frameBounds.left + frameBounds.width);
-        const overlapBottom = Math.min(imgBounds.top + imgBounds.height, frameBounds.top + frameBounds.height);
-        const overlapArea =
-          overlapRight > overlapLeft && overlapBottom > overlapTop
-            ? (overlapRight - overlapLeft) * (overlapBottom - overlapTop)
-            : 0;
-        const frameArea = frameBounds.width * frameBounds.height;
-        const hasSignificantOverlap = frameArea > 0 && overlapArea > frameArea * 0.15;
-
-        if (!centerInside && !hasSignificantOverlap) return false;
-
-        try {
-          const attach = attachImageToFrameRef.current;
-          if (typeof attach === "function") {
-            attach(frame, image);
-            return true;
-          }
-        } catch (err) {
-          if (process.env.NODE_ENV !== "production") console.error("[attachImageToFrame]", err);
-        }
-        return false;
       };
 
       const runFrameDropDetection = (obj: any): boolean => {
@@ -1586,40 +1581,24 @@ try {
         },
         mouseUp: () => {},
         mouseDblclick: (e: any) => {
-          const target = e?.target;
-          if (!target || !isImageFrame(target)) {
-            exitCropMode();
+          const target = e?.target as any;
+          if (!target) return;
+
+          // If already in crop mode, ignore further double-clicks
+          if (imageFrameCropModeRef.current) return;
+
+          // Double-click directly on a frame
+          if (isImageFrame(target)) {
+            enterImageFrameCropMode();
             return;
           }
 
-          const image = getImageForFrame(canvas, target);
-          if (!image) {
-            exitCropMode();
-            return;
+          // Double-click on image or child inside a frame
+          const parent = (target as any).group || (target as any).parent || (target as any)._parent;
+          if (parent && isImageFrame(parent)) {
+            canvas.setActiveObject(parent);
+            enterImageFrameCropMode();
           }
-
-          const state = imageFrameCropModeRef.current;
-          if (state && state.frame === target) {
-            exitCropMode();
-            return;
-          }
-
-          exitCropMode();
-          target.set({ selectable: false, subTargetCheck: true });
-          image.set({
-            selectable: true,
-            evented: true,
-            lockScalingX: false,
-            lockScalingY: false,
-            hasBorders: true,
-            hasControls: true,
-          });
-          (target as any)._activeObjects = [image];
-          (target as any)._set?.("dirty", true);
-          canvas.setActiveObject(target);
-          imageFrameCropModeRef.current = { frame: target, image, canvas };
-          setCropModeStateRef.current(true);
-          canvas.requestRenderAll();
         },
       };
       canvas.on("selection:created", handlers.selectionCreated as any);
@@ -1633,7 +1612,7 @@ try {
       canvas.on("mouse:up", handlers.mouseUp);
       activeCanvasListenersRef.current = { canvas, handlers };
     },
-    [pushHistory, unbindActiveCanvasListeners, updateLayers, updateSelection]
+    [pushHistory, unbindActiveCanvasListeners, updateLayers, updateSelection, enterImageFrameCropMode]
   );
 
   useEffect(() => {
@@ -1771,27 +1750,24 @@ try {
   }, [pushHistory, updateSelection]);
 
   const initCanvasForPage = useCallback(
-    async (pageId: string, el: HTMLCanvasElement) => {
-      if (pageCanvasesRef.current.has(pageId)) return;
+    async (pageId: string, c: Canvas) => {
+      if (process.env.NODE_ENV !== "production") {
+        console.log("[initCanvas real pageId]", pageId);
+      }
+      isInitializingCanvasRef.current = true;
+      isCanvasBootingRef.current = true;
+      try {
       const size = pageSizePxRef.current;
-      const c = initFabricCanvas(el, {
-        width: size.w,
-        height: size.h,
-        backgroundColor: CANVAS_BG,
-        selection: true,
-        preserveObjectStacking: true,
-      });
-// DEV ONLY: expose current fabric canvas for debugging/export in DevTools
-if (process.env.NODE_ENV === "development") {
-  (window as any).__slbCanvas = c; // <-- MUST be "c"
-}
-
-
-
-      pageCanvasesRef.current.set(pageId, c);
+      const zoom = baseFitZoomRef.current || 1;
+      (c as any).setZoom?.(zoom);
+      c.requestRenderAll();
+      if (process.env.NODE_ENV === "development") {
+        (window as any).__slbCanvas = c;
+      }
       if (c.lowerCanvasEl) c.lowerCanvasEl.tabIndex = -1;
       if (c.upperCanvasEl) c.upperCanvasEl.tabIndex = -1;
-      if (getActivePageId() === pageId) {
+      const isActive = getActivePageId() === pageId;
+      if (isActive) {
         canvasRef.current = c;
         if (process.env.NODE_ENV === "development") {
           if (!(globalThis as any).__canvas) (globalThis as any).__canvas = c;
@@ -1960,82 +1936,112 @@ if (process.env.NODE_ENV === "development") {
         updateLayers();
       }
       setCanvasReady(true);
+      const prevActiveCanvas = canvasRef.current;
+      canvasRef.current = c;
       ensurePageBackground(size.w, size.h, { discardSelection: true });
 
       const pending = pendingPageLoadRef.current.get(pageId);
-      if (pending) {
+
+      if (pending?.type === "duplicate") {
         baseFitZoomRef.current = null;
         if (process.env.NODE_ENV !== "production") {
-          console.log("[initCanvas] baseFitZoomRef reset before load", { pageId });
+          console.log("[initCanvas] baseFitZoomRef reset before load (duplicate)", { pageId });
         }
-        pendingPageLoadRef.current.delete(pageId);
-        const isDuplicateFormat =
-          pending &&
-          typeof pending === "object" &&
-          Array.isArray((pending as any).objects) &&
-          Array.isArray((pending as any).viewportTransform);
-        if (isDuplicateFormat) {
-          const { objects, viewportTransform } = pending as {
-            objects: any[];
-            viewportTransform: number[];
-          };
-          const z = getZoom();
-          const { w: pageW, h: pageH } = pageSizePxRef.current;
-          const displayW = Math.max(1, Math.round(pageW * z));
-          const displayH = Math.max(1, Math.round(pageH * z));
-          c.setDimensions({ width: displayW, height: displayH }, { backstoreOnly: false });
-          c.setViewportTransform(
-            viewportTransform && viewportTransform.length >= 6
-              ? (viewportTransform as [number, number, number, number, number, number])
-              : [z, 0, 0, z, 0, 0]
-          );
-          if (process.env.NODE_ENV !== "production") {
-            console.log("[initCanvas] canvas.clear() before loadFromJSON (duplicate format)", { pageId });
+        const { objects, viewportTransform } = pending;
+        const z = getZoom();
+        const { w: pageW, h: pageH } = pageSizePxRef.current;
+        const displayW = Math.max(1, Math.round(pageW * z));
+        const displayH = Math.max(1, Math.round(pageH * z));
+        c.setDimensions({ width: displayW, height: displayH }, { backstoreOnly: false });
+        c.setViewportTransform(
+          viewportTransform && viewportTransform.length >= 6
+            ? (viewportTransform as [number, number, number, number, number, number])
+            : [z, 0, 0, z, 0, 0]
+        );
+        if (process.env.NODE_ENV !== "production") {
+          console.log("[initCanvas] loadFromJSON (duplicate)", { pageId, objectsCount: (objects?.length ?? 0) });
+        }
+        c.clear();
+        const objectsOnly = { objects: objects ?? [] };
+        const reviver = (_: any, obj: any) => {
+          const target = pageSizePxRef.current;
+          if (isPageBackgroundObject(obj, target.w, target.h)) {
+            applyPageBackgroundProps(
+              obj,
+              target.w,
+              target.h,
+              bgColorRef.current || "#ffffff"
+            );
           }
-          c.clear();
-          const objectsOnly = { objects: objects ?? [] };
-          const reviver = (_: any, obj: any) => {
-            const target = pageSizePxRef.current;
-            if (isPageBackgroundObject(obj, target.w, target.h)) {
-              applyPageBackgroundProps(
-                obj,
-                target.w,
-                target.h,
-                bgColorRef.current || "#ffffff"
-              );
-            }
-          };
-          try {
-            if (process.env.NODE_ENV !== "production") {
-              console.log("[initCanvas] loadFromJSON (duplicate/doc-load pending)", { pageId, objectsCount: (objects?.length ?? 0) });
-            }
-            const result = (c as any).loadFromJSON(objectsOnly, reviver, () => {
-              c.getObjects().forEach((o: any) => {
-                ensureObjectId(o);
-                applyTextBoxNoStretch(o);
-              });
-              ensurePageBackground(pageSizePxRef.current.w, pageSizePxRef.current.h, {
-                discardSelection: true,
-              });
-              c.discardActiveObject();
-              c.requestRenderAll();
-              requestAnimationFrame(() => {
-                if (hadStoredZoomRef.current) {
-                  applyZoomToCanvases(getZoom());
-                } else {
-                  scheduleFit("doc-load");
-                }
-              });
+        };
+        try {
+          const result = (c as any).loadFromJSON(objectsOnly, reviver, () => {
+            c.getObjects().forEach((o: any) => {
+              ensureObjectId(o);
+              applyTextBoxNoStretch(o);
+              // Normalize restored image frames so they remain interactive
+              if (o?.data?.type === IMAGE_FRAME_TYPE) {
+                o.set({
+                  selectable: true,
+                  evented: true,
+                  lockMovementX: false,
+                  lockMovementY: false,
+                });
+              }
             });
-            if (result && typeof result.then === "function") {
-              await result;
-            }
-          } catch (err) {
-            console.error("[editor] Failed to load duplicate page JSON", err);
+            ensurePageBackground(pageSizePxRef.current.w, pageSizePxRef.current.h, {
+              discardSelection: true,
+            });
+            c.discardActiveObject();
+            c.requestRenderAll();
+            requestAnimationFrame(() => {
+              if (hadStoredZoomRef.current) {
+                applyZoomToCanvases(getZoom());
+              } else {
+                scheduleFit("doc-load");
+              }
+            });
+          });
+          if (result && typeof result.then === "function") {
+            await result;
           }
-        } else {
-          await applySnapshotToCanvas(c, pending, "page-duplicate");
+        } catch (err) {
+          console.error("[editor] Failed to load duplicate page JSON", err);
         }
+      } else if (pending?.type === "doc-load") {
+        baseFitZoomRef.current = null;
+        if (process.env.NODE_ENV !== "production") {
+          console.log("[initCanvas] doc-load", { pageId });
+        }
+        await applySnapshotToCanvas(c, pending.snapshot, "doc-load");
+      } else {
+        // blank (Add Page) or no pending — do not load any JSON
+        c.clear();
+        ensurePageBackground(pageSizePxRef.current.w, pageSizePxRef.current.h, {
+          discardSelection: true,
+        });
+        (c as any).discardActiveObject?.();
+        c.requestRenderAll();
+        // Apply current zoom immediately so new page matches DOM on first mount (fixes add-page layout bug)
+        const z = getZoom();
+        const { w: pageW, h: pageH } = pageSizePxRef.current;
+        const w = Math.max(1, Math.round(pageW * z));
+        const h = Math.max(1, Math.round(pageH * z));
+        c.setDimensions({ width: w, height: h }, { backstoreOnly: false });
+        (c as any).calcOffset?.();
+        applyZoomToCanvas(c, z);
+        c.requestRenderAll();
+        scheduleFit("page-add");
+      }
+
+      pendingPageLoadRef.current.delete(pageId);
+      const activeId = getActivePageId();
+      canvasRef.current = (activeId ? pageCanvasesRef.current.get(activeId) ?? null : null) ?? prevActiveCanvas;
+      } finally {
+        isInitializingCanvasRef.current = false;
+        requestAnimationFrame(() => {
+          isCanvasBootingRef.current = false;
+        });
       }
     },
     [
@@ -2063,10 +2069,40 @@ if (process.env.NODE_ENV === "development") {
   const attachCanvasEl = useCallback(
     (pageId: string, el: HTMLCanvasElement | null) => {
       if (!el) return;
-      initCanvasForPage(pageId, el);
+      if (pageCanvasesRef.current.has(pageId)) return;
+      const size = pageSizePxRef.current;
+      const c = initFabricCanvas(el, {
+        width: size.w,
+        height: size.h,
+        backgroundColor: CANVAS_BG,
+        selection: true,
+        preserveObjectStacking: true,
+      });
+      pageCanvasesRef.current.set(pageId, c);
+      initCanvasForPage(pageId, c);
     },
     [initCanvasForPage]
   );
+
+  const prevPageIdsRef = useRef<string[]>([]);
+  useEffect(() => {
+    const prevIds = prevPageIdsRef.current;
+    const nextIds = pages.map((p: any) => p?.id).filter(Boolean) as string[];
+
+    for (const oldId of prevIds) {
+      if (!nextIds.includes(oldId)) {
+        const c = pageCanvasesRef.current.get(oldId);
+        if (c) {
+          try {
+            c.dispose();
+          } catch {}
+          pageCanvasesRef.current.delete(oldId);
+        }
+      }
+    }
+
+    prevPageIdsRef.current = nextIds;
+  }, [pages]);
 
   useEffect(() => {
     bgColorRef.current = bgColor;
@@ -2118,23 +2154,50 @@ if (process.env.NODE_ENV === "development") {
         if (hadStoredZoom) {
           applyEffectiveZoom(docSnap.zoom);
         }
+        const DEFAULT_PAGE_WIDTH = 794;
+        const DEFAULT_PAGE_HEIGHT = 1123;
         const pagesData = docSnap.pagesData;
         if (Array.isArray(pagesData) && pagesData.length > 0) {
-          const newPages = pagesData.map((_: any, i: number) => ({
+          const reconstructedPages = pagesData.map((pageData: any, i: number) => ({
             id: `page-${i + 1}`,
+            objects: [] as any[],
+            width: pageData?.width || DEFAULT_PAGE_WIDTH,
+            height: pageData?.height || DEFAULT_PAGE_HEIGHT,
+            background: "#ffffff",
           }));
-          pageIdCounterRef.current = Math.max(
-            pageIdCounterRef.current,
-            newPages.length
-          );
-          setPages(newPages);
-          for (let i = 0; i < newPages.length; i++) {
-            pendingPageLoadRef.current.set(`page-${i + 1}`, pagesData[i]);
+          if (process.env.NODE_ENV !== "production") {
+            console.log("[doc-load] reconstructedPages ids", reconstructedPages.map((p) => p.id));
+          }
+          setPages(reconstructedPages);
+          pageIdCounterRef.current = reconstructedPages.length;
+          setActivePageIndex(0);
+          pendingPageLoadRef.current.clear();
+          pagesData.forEach((pageData: any, i: number) => {
+            const pageId = `page-${i + 1}`;
+            pendingPageLoadRef.current.set(pageId, {
+              type: "doc-load",
+              snapshot: pageData,
+            });
+          });
+          if (process.env.NODE_ENV !== "production") {
+            console.log("[doc-load] pending ids", Array.from(pendingPageLoadRef.current.keys()));
           }
           undoRef.current = [pagesData[0]];
         } else {
           const snap = docSnap.canvasJson || { objects: [] };
-          pendingPageLoadRef.current.set("page-1", snap);
+          const singlePage = {
+            id: "page-1",
+            objects: Array.isArray(snap?.objects) ? snap.objects : [],
+            width: typeof snap?.width === "number" ? snap.width : DEFAULT_PAGE_WIDTH,
+            height: typeof snap?.height === "number" ? snap.height : DEFAULT_PAGE_HEIGHT,
+            background: "#ffffff",
+          };
+          setPages([singlePage]);
+          setActivePageIndex(0);
+          pendingPageLoadRef.current.set("page-1", {
+            type: "doc-load",
+            snapshot: snap,
+          });
           undoRef.current = [snap];
         }
         redoRef.current = [];
@@ -2358,103 +2421,16 @@ if (process.env.NODE_ENV === "development") {
     c.requestRenderAll();
   }, [ensureObjectId, pageSizePx, pushHistory]);
 
-  const attachImageToFrame = useCallback(
-    (frameGroup: any, image: any) => {
-      const c = getCanvas();
-      if (!c || !frameGroup || !image) return;
-
-      const shape = getFrameShape(frameGroup);
-      if (!shape) return;
-
-      const objs = frameGroup._objects ?? frameGroup.getObjects?.() ?? [];
-      if (objs.includes(image)) return;
-
-      const el = (image as any)._element ?? (image as any).getElement?.();
-      if (!el?.naturalWidth) return;
-
-      const size = (image as any).getOriginalSize?.() || {
-        width: el.naturalWidth,
-        height: el.naturalHeight,
-      };
-      const imgW = size?.width ?? el.naturalWidth ?? 1;
-      const imgH = size?.height ?? el.naturalHeight ?? 1;
-      if (!imgW || !imgH) return;
-
-      const frameType = getImageFrameFrameType(frameGroup);
-      const frameW =
-        frameType === "circle"
-          ? (Number(shape.radius) ?? IMAGE_FRAME_SIZE / 2) * 2
-          : Number(shape.width) ?? IMAGE_FRAME_SIZE;
-      const frameH =
-        frameType === "circle"
-          ? (Number(shape.radius) ?? IMAGE_FRAME_SIZE / 2) * 2
-          : Number(shape.height) ?? IMAGE_FRAME_SIZE;
-
-      const scale = Math.max(frameW / imgW, frameH / imgH);
-      if (!Number.isFinite(scale) || scale <= 0) return;
-
-      const cropW = frameW / scale;
-      const cropH = frameH / scale;
-      const cropX = Math.max(0, (imgW - cropW) / 2);
-      const cropY = Math.max(0, (imgH - cropH) / 2);
-
-      const existingImg = getImageForFrame(c, frameGroup);
-      if (existingImg) frameGroup.remove(existingImg);
-
-      image.set({
-        originX: "left",
-        originY: "top",
-        left: 0,
-        top: 0,
-        scaleX: scale,
-        scaleY: scale,
-        cropX,
-        cropY,
-        width: cropW,
-        height: cropH,
-        selectable: false,
-        evented: true,
-        lockScalingX: true,
-        lockScalingY: true,
-        angle: 0,
-        skewX: 0,
-        skewY: 0,
-      });
-
-      if (frameType === "circle") {
-        const clipPath = new Circle({
-          radius: frameW / 2,
-          originX: "left",
-          originY: "top",
-          left: 0,
-          top: 0,
-          selectable: false,
-          evented: false,
-        });
-        image.set({ clipPath });
-      } else {
-        image.set({ clipPath: undefined });
-      }
-
-      image.data = image.data || {};
-      image.data.insideFrame = true;
-
-      c.remove(image);
-      frameGroup.add(image);
-
-      frameGroup.data = frameGroup.data || {};
-      frameGroup.data.hasImage = true;
-
-      if (typeof frameGroup._calcBounds === "function") frameGroup._calcBounds();
-      frameGroup.setCoords?.();
-      c.requestRenderAll();
-      c.setActiveObject(frameGroup);
-      c.requestRenderAll();
-      pushHistory("object:update");
-      updateLayers();
-    },
-    [pushHistory, updateLayers]
-  );
+  const { attachImageToFrame, tryAttachImageToFrame } = createFrameAttach({
+    getCanvas,
+    getImageFrameFrameType,
+    getFrameShape,
+    getImageForFrame,
+    pushHistory,
+    updateLayers,
+    isImageFrame,
+    attachImageToFrameRef,
+  });
 
   useEffect(() => {
     attachImageToFrameRef.current = attachImageToFrame;
@@ -2518,78 +2494,13 @@ if (process.env.NODE_ENV === "development") {
     [ensureObjectId, pageSizePx, pushHistory]
   );
 
-  const addImageFrame = useCallback(
-    (type: "square" | "circle") => {
-      const c = getCanvas();
-      if (!c) return;
-      c.isDrawingMode = false;
-      c.selection = true;
-
-      const cx = pageSizePx.w / 2 - IMAGE_FRAME_SIZE / 2;
-      const cy = pageSizePx.h / 2 - IMAGE_FRAME_SIZE / 2;
-
-      let shape: any;
-      if (type === "circle") {
-        shape = new Circle({
-          radius: IMAGE_FRAME_SIZE / 2,
-          originX: "left",
-          originY: "top",
-          left: 0,
-          top: 0,
-          fill: "#e5e7eb",
-          stroke: "#9ca3af",
-          strokeWidth: 2,
-          strokeUniform: true,
-          selectable: false,
-          evented: false,
-        });
-      } else {
-        shape = new Rect({
-          width: IMAGE_FRAME_SIZE,
-          height: IMAGE_FRAME_SIZE,
-          originX: "left",
-          originY: "top",
-          left: 0,
-          top: 0,
-          rx: 8,
-          ry: 8,
-          fill: "#e5e7eb",
-          stroke: "#9ca3af",
-          strokeWidth: 2,
-          strokeUniform: true,
-          selectable: false,
-          evented: false,
-        });
-      }
-
-      const frameGroup = new Group([shape], {
-        left: cx,
-        top: cy,
-        originX: "left",
-        originY: "top",
-        subTargetCheck: true,
-        hasBorders: true,
-        hasControls: true,
-      }) as any;
-
-      shape.setCoords();
-      frameGroup._calcBounds?.();
-      frameGroup.setCoords();
-
-      frameGroup.data = frameGroup.data || {};
-      frameGroup.data.type = IMAGE_FRAME_TYPE;
-      frameGroup.data.frameType = type;
-
-      const id = ensureObjectId(frameGroup);
-      frameGroup.uid = id;
-      c.add(frameGroup);
-      c.setActiveObject(frameGroup);
-      c.requestRenderAll();
-      pushHistory("added");
-      updateLayers();
-    },
-    [ensureObjectId, pageSizePx, pushHistory, updateLayers]
-  );
+  const { addImageFrame } = createFrameCreate({
+    getCanvas,
+    getPageSizePx: () => pageSizePx,
+    ensureObjectId,
+    pushHistory,
+    updateLayers,
+  });
 
   const removeImageFromFrame = useCallback(
     (frame?: any) => {
@@ -2660,38 +2571,6 @@ if (process.env.NODE_ENV === "development") {
     const active = c.getActiveObject() as any;
     return !!(active && isImageFrame(active));
   }, []);
-
-  const exitImageFrameCropMode = useCallback(() => {
-    exitCropModeRef.current?.();
-  }, []);
-
-  const enterImageFrameCropMode = useCallback(() => {
-    const c = getCanvas();
-    if (!c) return false;
-    const target = c.getActiveObject() as any;
-    if (!target || !isImageFrame(target)) return false;
-    const image = getImageForFrame(c, target);
-    if (!image) return false;
-
-    exitCropModeRef.current?.();
-
-    target.set({ selectable: false, subTargetCheck: true });
-    image.set({
-      selectable: true,
-      evented: true,
-      lockScalingX: false,
-      lockScalingY: false,
-      hasBorders: true,
-      hasControls: true,
-    });
-    (target as any)._activeObjects = [image];
-    (target as any)._set?.("dirty", true);
-    c.setActiveObject(target);
-    imageFrameCropModeRef.current = { frame: target, image, canvas: c };
-    setCropModeStateRef.current(true);
-    c.requestRenderAll();
-    return true;
-  }, [getCanvas]);
 
   const setTextProp = useCallback((partial: Partial<TextProps>) => {
     if (isHydratingFromSelectionRef.current) return;
@@ -3170,6 +3049,28 @@ if (process.env.NODE_ENV === "development") {
     pages,
     activePageIndex,
     setActivePageIndex,
+    movePage(fromIndex: number, toIndex: number) {
+      setPages((prev) => {
+        if (fromIndex === toIndex) return prev;
+        if (fromIndex < 0 || toIndex < 0) return prev;
+        if (fromIndex >= prev.length || toIndex >= prev.length) return prev;
+        return reorderPages(prev, fromIndex, toIndex);
+      });
+      setActivePageIndex((prev) => {
+        if (prev === fromIndex) return toIndex;
+        return prev;
+      });
+    },
+    movePageUp(idx: number) {
+      if (idx > 0) {
+        (this as any).movePage(idx, idx - 1);
+      }
+    },
+    movePageDown(idx: number) {
+      if (idx < pages.length - 1) {
+        (this as any).movePage(idx, idx + 1);
+      }
+    },
     attachCanvasEl,
     getCanvas,
     addPageAfter,
@@ -3245,5 +3146,6 @@ if (process.env.NODE_ENV === "development") {
     layerBringForward,
     layerSendBackward,
     renameLayer,
+    docRevision: docRevisionRef.current,
   };
 }

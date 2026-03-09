@@ -17,6 +17,16 @@ import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/lib/useAuthUser";
 import type { EsignDocumentWithId } from "@/lib/esign";
 
+export type EsignSignedItem = {
+  id: string;
+  documentId: string;
+  fileName: string;
+  downloadUrl: string | null;
+  createdAt: any;
+  status: string;
+  signaturesCount?: number;
+};
+
 export default function EsignToolsPage() {
   const router = useRouter();
   const { user, loading } = useAuthUser();
@@ -25,8 +35,11 @@ export default function EsignToolsPage() {
   const [uploading, setUploading] = useState(false);
   const [recents, setRecents] = useState<EsignDocumentWithId[]>([]);
   const [recentsLoading, setRecentsLoading] = useState(false);
+  const [signedList, setSignedList] = useState<EsignSignedItem[]>([]);
+  const [signedLoading, setSignedLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const loadedRef = useRef(false);
+  const signedLoadedRef = useRef(false);
 
   useEffect(() => {
     if (loading) return;
@@ -79,6 +92,44 @@ export default function EsignToolsPage() {
       alive = false;
     };
   }, [user, recentsLoading]);
+
+  useEffect(() => {
+    if (!user || signedLoading || signedLoadedRef.current) return;
+    signedLoadedRef.current = true;
+    let alive = true;
+    const load = async () => {
+      try {
+        setSignedLoading(true);
+        const ref = collection(db, "users", user.uid, "esign_signed");
+        const q = fsQuery(ref, orderBy("createdAt", "desc"), limit(20));
+        const snap = await getDocs(q);
+        if (!alive) return;
+        const items: EsignSignedItem[] = snap.docs.map((d) => {
+          const data = d.data() as any;
+          return {
+            id: d.id,
+            documentId: data.documentId ?? "",
+            fileName: data.fileName ?? "Signed document",
+            downloadUrl: data.downloadUrl ?? null,
+            createdAt: data.createdAt ?? null,
+            status: data.status ?? "signed",
+            signaturesCount: data.signaturesCount,
+          };
+        });
+        setSignedList(items);
+      } catch (e) {
+        if (!alive) return;
+        setSignedList([]);
+      } finally {
+        if (!alive) return;
+        setSignedLoading(false);
+      }
+    };
+    load();
+    return () => {
+      alive = false;
+    };
+  }, [user, signedLoading]);
 
   const handleBrowseClick = () => {
     fileInputRef.current?.click();
@@ -281,6 +332,54 @@ export default function EsignToolsPage() {
               })
             )}
           </div>
+        </section>
+
+        <section className="mt-12">
+          <h2 className="text-lg font-semibold">Previous Signed Agreements</h2>
+          <p className="mt-1 text-sm text-zinc-600">
+            Documents you have signed and exported.
+          </p>
+          {signedLoading ? (
+            <div className="mt-4 text-sm text-zinc-500">Loading…</div>
+          ) : signedList.length === 0 ? (
+            <div className="mt-4 text-sm text-zinc-500">
+              No signed agreements yet. Sign a document and download it to see it here.
+            </div>
+          ) : (
+            <ul className="mt-4 space-y-2">
+              {signedList.map((item) => {
+                const dateLabel = formatDate(item.createdAt);
+                return (
+                  <li
+                    key={item.id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium truncate">
+                        {item.fileName}
+                      </div>
+                      <div className="text-[11px] text-zinc-500">
+                        {dateLabel && `${dateLabel} • `}
+                        <span className="inline-flex items-center rounded-full bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-800">
+                          Signed
+                        </span>
+                      </div>
+                    </div>
+                    {item.downloadUrl && (
+                      <a
+                        href={item.downloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50"
+                      >
+                        Download
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </section>
       </div>
 

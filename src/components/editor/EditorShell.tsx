@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronDown, ChevronUp, Copy, Download, LayoutGrid, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
 import { useFabricEditor } from "@/components/editor/useFabricEditor";
+import { EditorSidebar } from "@/components/editor/sidebar/EditorSidebar";
 import { toHexColor } from "@/lib/color";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 /** Recursively removes all keys with value === undefined. */
@@ -135,6 +137,40 @@ type EditorShellProps = {
   mode: "template" | "new";
 };
 
+const PAGE_HEADER_HEIGHT = 48;
+const PAGE_GAP = 48;
+const TOP_EDITOR_OFFSET = 88;
+const PAGE_REVEAL_OFFSET = 16;
+const AUTOSAVE_DEBOUNCE_MS = 5000;
+
+function getInitials(name: string | null | undefined): string {
+  if (!name || typeof name !== "string") return "?";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  return parts
+    .map((p) => p[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+const AVATAR_COLORS = [
+  "bg-indigo-500",
+  "bg-violet-500",
+  "bg-purple-500",
+  "bg-fuchsia-500",
+  "bg-pink-500",
+  "bg-rose-500",
+  "bg-teal-500",
+  "bg-cyan-500",
+] as const;
+function getAvatarColor(name: string | null | undefined): string {
+  if (!name) return AVATAR_COLORS[0];
+  let n = 0;
+  for (let i = 0; i < name.length; i++) n = (n << 5) - n + name.charCodeAt(i);
+  return AVATAR_COLORS[Math.abs(n) % AVATAR_COLORS.length];
+}
+
 export default function EditorShell({
   initialTemplateId,
   docId,
@@ -160,12 +196,20 @@ export default function EditorShell({
     "select" | "text" | "shape" | "line" | "image" | "imageFrameSquare" | "imageFrameCircle" | "templates"
   >("select");
   const [showFrameDeleteModal, setShowFrameDeleteModal] = useState(false);
+  const [showPageGrid, setShowPageGrid] = useState(false);
 
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [resumeCreatedAt, setResumeCreatedAt] = useState<any>(null);
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
+  const [autosaveStatus, setAutosaveStatus] = useState<"saving" | "saved" | null>(null);
+  const autosaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [avatarImageError, setAvatarImageError] = useState(false);
 
   const editor = useFabricEditor({ mode, initialTemplateId, docId });
+
+  useEffect(() => {
+    setAvatarImageError(false);
+  }, [auth.currentUser?.photoURL]);
 
   useEffect(() => {
     if (editor?.docTitle) setFilename(editor.docTitle);
@@ -192,6 +236,80 @@ export default function EditorShell({
     if (editor?.docCreatedAt) setResumeCreatedAt(editor.docCreatedAt);
   }, [editor?.docId, editor?.docCreatedAt]);
 
+  const saveDocumentForAutosave = useCallback(async () => {
+    const u = auth.currentUser;
+    const existingId = resumeId ?? editor?.docId ?? null;
+    if (!u || !existingId) return;
+
+    const rawPagesData = editor.getPagesJsonForSave?.();
+    const hasMultiplePages = Array.isArray(rawPagesData) && rawPagesData.length > 1;
+    const rawJson = hasMultiplePages ? null : editor.getCanvasJson?.();
+    if (!rawPagesData && !rawJson) return;
+
+    const safeName = (filename || "Untitled").trim() || "Untitled";
+    const sanitizedPagesData = hasMultiplePages
+      ? sanitizeFabricPagesData(rawPagesData)
+      : null;
+    const sanitizedJson =
+      !hasMultiplePages && rawJson ? sanitizeFabricCanvasJson(rawJson) : null;
+    const zoomVal = editor.getZoom?.() ?? editor.zoom ?? 1;
+
+    const payload: Record<string, unknown> = {
+      title: safeName,
+      templateId: initialTemplateId ?? "blank",
+      sourceTemplateId: initialTemplateId ?? "blank",
+      pageSize: editor.pageSize ?? "A4",
+      updatedAt: serverTimestamp(),
+      zoom: zoomVal,
+    };
+    if (hasMultiplePages && sanitizedPagesData) {
+      payload.pagesData = sanitizedPagesData;
+    } else if (sanitizedJson) {
+      payload.canvasJson = JSON.stringify(sanitizedJson);
+    }
+    const cleaned = stripUndefinedDeep(payload);
+    if (findUndefinedPaths(cleaned).length > 0) return;
+
+    const ref = doc(db, "users", u.uid, "resume_docs", existingId);
+    await updateDoc(ref, cleaned);
+  }, [
+    editor,
+    filename,
+    resumeId,
+    initialTemplateId,
+  ]);
+
+  const triggerAutosave = useCallback(() => {
+    if (autosaveTimeoutRef.current) {
+      clearTimeout(autosaveTimeoutRef.current);
+      autosaveTimeoutRef.current = null;
+    }
+    autosaveTimeoutRef.current = setTimeout(() => {
+      autosaveTimeoutRef.current = null;
+      setAutosaveStatus("saving");
+      saveDocumentForAutosave()
+        .then(() => setAutosaveStatus("saved"))
+        .catch(() => setAutosaveStatus(null));
+    }, AUTOSAVE_DEBOUNCE_MS);
+  }, [saveDocumentForAutosave]);
+
+  useEffect(() => {
+    if (!editor.isDocDataReady) return;
+    triggerAutosave();
+    return () => {
+      if (autosaveTimeoutRef.current) {
+        clearTimeout(autosaveTimeoutRef.current);
+        autosaveTimeoutRef.current = null;
+      }
+    };
+  }, [editor.docRevision, editor.isDocDataReady, filename, triggerAutosave]);
+
+  useEffect(() => {
+    if (autosaveStatus !== "saved") return;
+    const id = window.setTimeout(() => setAutosaveStatus(null), 2000);
+    return () => window.clearTimeout(id);
+  }, [autosaveStatus]);
+
   const handleAdComplete = useCallback(() => {
     if (!pendingExport) {
       setIsAdOpen(false);
@@ -207,12 +325,11 @@ export default function EditorShell({
   const rawZoomPercent =
     editor?.getZoomPercent?.() ?? Math.round((editor?.zoom ?? 1) * 100);
   const zoomPercent = Number.isFinite(rawZoomPercent) ? rawZoomPercent : 100;
-  const zoomLabel = `${zoomPercent}%`;
 
   const pageSizePx = editor.getPageSizePx();
-  const zoom = editor?.zoom ?? 1;
-  const pageDisplayW = Math.round(pageSizePx.w * zoom);
-  const pageDisplayH = Math.round(pageSizePx.h * zoom);
+  const zoom = zoomPercent / 100;
+  const displayW = Math.round(pageSizePx.w * zoom);
+  const displayH = Math.round(pageSizePx.h * zoom);
   const [customUnit, setCustomUnit] = useState<"mm" | "cm" | "in" | "px" | "pt">("mm");
   const [customWidth, setCustomWidth] = useState("");
   const [customHeight, setCustomHeight] = useState("");
@@ -227,13 +344,50 @@ export default function EditorShell({
     else pageRefs.current.delete(id);
   }, []);
 
-  const scrollToPage = useCallback((id: string) => {
-    const el = pageRefs.current.get(id);
-    if (!el) return;
-    requestAnimationFrame(() => {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  }, []);
+  const canvasRefCallbacks = useRef(
+    new Map<string, (el: HTMLCanvasElement | null) => void>()
+  );
+
+  const getCanvasRef = useCallback(
+    (pageId: string) => {
+      if (!canvasRefCallbacks.current.has(pageId)) {
+        canvasRefCallbacks.current.set(pageId, (el: HTMLCanvasElement | null) => {
+          editor.attachCanvasEl(pageId, el);
+        });
+      }
+      return canvasRefCallbacks.current.get(pageId)!;
+    },
+    [editor]
+  );
+
+  const scrollToPage = useCallback(
+    (pageId: string) => {
+      const viewportEl = editor.viewportRef?.current as HTMLDivElement | null;
+      const pageEl = pageRefs.current?.get?.(pageId) ?? null;
+      if (!viewportEl || !pageEl) return;
+
+      const viewportRect = viewportEl.getBoundingClientRect();
+      const pageRect = pageEl.getBoundingClientRect();
+
+      const relativeTop = pageRect.top - viewportRect.top;
+      const rawTargetTop =
+        viewportEl.scrollTop +
+        relativeTop -
+        TOP_EDITOR_OFFSET -
+        PAGE_REVEAL_OFFSET;
+      const targetTop = Math.max(0, rawTargetTop);
+
+      if (process.env.NODE_ENV !== "production") {
+        console.log("[scrollToPage]", { pageId, targetTop });
+      }
+
+      viewportEl.scrollTo({
+        top: targetTop,
+        behavior: "smooth",
+      });
+    },
+    [editor]
+  );
 
   const toPx = useCallback((value: number, unit: typeof customUnit) => {
     if (!Number.isFinite(value)) return 0;
@@ -386,83 +540,89 @@ export default function EditorShell({
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Banner Ad Bar */}
-      <div className="h-14 shrink-0 sticky top-0 z-[60] border-b bg-white">
-        <div className="h-full w-full flex items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <img
-              src="/brand/Studiosis Logo.svg"
-              alt="Studiosis Lab"
-              className="h-9 w-9 rounded object-contain"
-            />
-            <div className="text-xs text-zinc-600">Studiosis Lab</div>
-          </div>
+      {/* Top Bar — LidoJS style */}
+      <div className="h-[56px] shrink-0 sticky top-0 z-50 flex items-center justify-between px-6 bg-[#1f1f28] text-white">
+        <div className="flex flex-1 items-center gap-2 text-xl font-bold tracking-wide text-white" style={{ letterSpacing: "0.5px" }}>
+          Lab
+        </div>
 
-          <div className="h-7 flex-1 mx-4 rounded bg-zinc-100 border border-zinc-200 flex items-center justify-center text-[11px] text-zinc-500">
-            Banner Ad Placeholder (728×90 or responsive)
-          </div>
+        <input
+          value={filename}
+          onChange={(e) => setFilename(e.target.value)}
+          placeholder="Untitled Resume"
+          className="bg-transparent text-center text-sm font-medium outline-none border-none text-white placeholder:text-white/60 w-64 max-w-[40vw] flex-shrink-0"
+          aria-label="Document name"
+        />
+
+        <div className="flex flex-1 items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={editor.undo}
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition text-white"
+            title="Undo"
+            aria-label="Undo"
+          >
+            <Undo2 size={18} />
+          </button>
+          <button
+            type="button"
+            onClick={editor.redo}
+            className={`w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition text-white ${(editor as any).canRedo === false ? "opacity-40 pointer-events-none" : ""}`}
+            title="Redo"
+            aria-label="Redo"
+          >
+            <Redo2 size={18} />
+          </button>
+
+          {autosaveStatus && (
+            <span className="text-xs text-white/70 min-w-[4rem]">
+              {autosaveStatus === "saving" ? "Saving…" : "Saved"}
+            </span>
+          )}
+
+          {(() => {
+            const user = auth.currentUser;
+            const name = user?.displayName ?? user?.email ?? null;
+            const initials = getInitials(name);
+            const usePhoto = Boolean(user?.photoURL && !avatarImageError);
+            const avatarBg = usePhoto ? "" : getAvatarColor(name);
+            return (
+              <div
+                className={`w-9 h-9 rounded-full flex items-center justify-center font-semibold text-sm text-white flex-shrink-0 overflow-hidden ${avatarBg}`}
+                title={name ?? "User"}
+              >
+                {usePhoto ? (
+                  <img
+                    src={user?.photoURL ?? ""}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      setAvatarImageError(true);
+                    }}
+                  />
+                ) : (
+                  initials
+                )}
+              </div>
+            );
+          })()}
+
+          <button
+            type="button"
+            onClick={() => setIsDownloadOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-md bg-white text-black font-medium hover:bg-gray-200 transition"
+          >
+            <Download size={18} />
+            Download
+          </button>
         </div>
       </div>
 
-      {/* Top Bar */}
-      <div className="h-14 shrink-0 sticky top-0 z-50 border-b bg-white">
-        <div className="h-full flex items-center justify-between px-4">
-          <button onClick={() => router.back()} className="rounded border px-3 py-1 text-sm">
-            Back
-          </button>
-
-          <input
-            value={filename}
-            onChange={(e) => setFilename(e.target.value)}
-            className="w-64 rounded border px-2 py-1 text-sm text-center"
-            aria-label="Filename"
-          />
-
-          <div className="flex items-center gap-2">
-            <button onClick={editor.undo} className="rounded border px-2 py-1 text-sm">
-              Undo
-            </button>
-            <button onClick={editor.redo} className="rounded border px-2 py-1 text-sm">
-              Redo
-            </button>
-
-            {saveNotice && <div className="text-xs text-zinc-500">{saveNotice}</div>}
-
-            <div className="text-sm text-zinc-600">{zoomLabel}</div>
-
-            <button
-              className="rounded border px-2 py-1 text-sm"
-              onClick={() => {
-                editor.setManualZooming(true);
-                const next = Math.max(10, Math.min(400, zoomPercent - 10));
-                if (editor?.setZoomPercent) editor.setZoomPercent(next);
-                else if (editor?.setZoom) editor.setZoom(next / 100);
-              }}
-            >
-              –
-            </button>
-
-            <button
-              className="rounded border px-2 py-1 text-sm"
-              onClick={() => {
-                editor.setManualZooming(true);
-                const next = Math.max(10, Math.min(400, zoomPercent + 10));
-                if (editor?.setZoomPercent) editor.setZoomPercent(next);
-                else if (editor?.setZoom) editor.setZoom(next / 100);
-              }}
-            >
-              +
-            </button>
-
-            <button
-              onClick={() => setIsDownloadOpen(true)}
-              className="rounded bg-black px-3 py-1 text-sm text-white"
-            >
-              Download
-            </button>
-
-            <button
-              onClick={async () => {
+      {/* Save button + logic kept but hidden from main toolbar; trigger save from elsewhere if needed */}
+      {false && (
+        <button
+          onClick={async () => {
                 let saved = false;
                 let rawPayload: Record<string, any> | null = null;
 
@@ -645,9 +805,7 @@ export default function EditorShell({
             >
               Save
             </button>
-          </div>
-        </div>
-      </div>
+      )}
 
       {editor.loadError && (
         <div className="border-b bg-amber-50 px-4 py-2 text-sm text-amber-900">
@@ -656,192 +814,246 @@ export default function EditorShell({
       )}
 
       <div className="flex-1 min-h-0 flex overflow-hidden">
-        {/* Left Toolbar */}
-        <aside className="w-[72px] shrink-0 border-r bg-white flex flex-col items-center gap-3 py-4">
-          <button
-            type="button"
-            title="Select"
-            aria-label="Select tool"
-            onClick={() => setTool("select")}
-            className={`${toolButtonBase} ${tool === "select" ? toolButtonActive : toolButtonIdle}`}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M4 3l7 17 2-6 6-2L4 3z" />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            title="Text"
-            aria-label="Text tool"
-            onClick={() => {
-              setTool("text");
-              editor.addText();
-            }}
-            className={`${toolButtonBase} ${tool === "text" ? toolButtonActive : toolButtonIdle}`}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M5 6h14M12 6v12M8 18h8" />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            title="Shapes"
-            aria-label="Shapes tool"
-            onClick={() => {
-              setTool("shape");
-              editor.addRect();
-            }}
-            className={`${toolButtonBase} ${tool === "shape" ? toolButtonActive : toolButtonIdle}`}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <rect x="5" y="5" width="14" height="14" rx="2" />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            title="Line"
-            aria-label="Line tool"
-            onClick={() => {
-              setTool("line");
-              editor.addLine();
-            }}
-            className={`${toolButtonBase} ${tool === "line" ? toolButtonActive : toolButtonIdle}`}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M5 19L19 5" />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            title="Image"
-            aria-label="Image tool"
-            onClick={() => {
-              setTool("image");
-              fileInputRef.current?.click();
-            }}
-            className={`${toolButtonBase} ${tool === "image" ? toolButtonActive : toolButtonIdle}`}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <rect x="4" y="5" width="16" height="14" rx="2" />
-              <circle cx="9" cy="10" r="1.8" />
-              <path d="M4 17l5-5 4 4 3-3 4 4" />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            title="Square Image Frame"
-            aria-label="Square Image Frame"
-            onClick={() => {
-              setTool("imageFrameSquare");
-              editor.addImageFrame?.("square");
-            }}
-            className={`${toolButtonBase} ${tool === "imageFrameSquare" ? toolButtonActive : toolButtonIdle}`}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <rect x="5" y="5" width="14" height="14" rx="2" />
-              <rect x="8" y="8" width="8" height="8" rx="1" strokeDasharray="2 2" fill="none" />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            title="Circle Image Frame"
-            aria-label="Circle Image Frame"
-            onClick={() => {
-              setTool("imageFrameCircle");
-              editor.addImageFrame?.("circle");
-            }}
-            className={`${toolButtonBase} ${tool === "imageFrameCircle" ? toolButtonActive : toolButtonIdle}`}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <circle cx="12" cy="12" r="9" />
-              <circle cx="12" cy="12" r="5" strokeDasharray="2 2" fill="none" />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            title="Templates"
-            aria-label="Templates"
-            onClick={() => {
-              setTool("templates");
-              router.push("/resume");
-            }}
-            className={`${toolButtonBase} ${tool === "templates" ? toolButtonActive : toolButtonIdle}`}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <rect x="4" y="4" width="7" height="7" rx="1" />
-              <rect x="13" y="4" width="7" height="7" rx="1" />
-              <rect x="4" y="13" width="7" height="7" rx="1" />
-              <rect x="13" y="13" width="7" height="7" rx="1" />
-            </svg>
-          </button>
-        </aside>
+        {/* Left sidebar: icon strip + expandable panels (Canva/LidoJS style) */}
+        <EditorSidebar editor={editor} />
 
         {/* Center Canvas */}
         <div className="flex-1 min-h-0 min-w-0 flex flex-col" ref={canvasWrapRef}>
           <div
             ref={editor.viewportRef}
             id="slb-editor-viewport"
-            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-neutral-100 [scrollbar-gutter:stable] flex flex-col items-center"
+            className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-neutral-100 flex flex-col items-center"
           >
-            <div
-              className="flex flex-col items-center gap-6 py-4 shrink-0"
-              style={{ width: pageDisplayW }}
-            >
-              {editor.pages.map((page, idx) => (
-                <div
-                  key={page.id}
-                  ref={(el) => setPageRef(page.id, el)}
-                  className="flex flex-col items-center shrink-0"
-                  style={{ width: pageDisplayW }}
-                  onMouseDown={() => editor.setActivePageIndex(idx)}
-                  onClick={() => editor.setActivePageIndex(idx)}
-                >
-                  <div data-editor-viewport={page.id} className="flex justify-center shrink-0" style={{ width: pageDisplayW, height: pageDisplayH }}>
-                    <canvas ref={(el) => editor.attachCanvasEl(page.id, el)} className="block" />
-                  </div>
-                  <div className="mt-1.5 flex justify-center gap-2 w-full">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const newId = editor.addPageAfter(idx);
-                          if (newId) scrollToPage(newId);
+            {showPageGrid && (
+              <div className="absolute top-0 left-0 right-0 bottom-16 bg-white z-40 overflow-auto p-6">
+                <div className="grid grid-cols-2 gap-6 justify-center">
+                  {editor.pages.map((page, idx) => (
+                    <div
+                      key={page.id}
+                      className="bg-white border rounded shadow-sm hover:shadow-md flex flex-col items-center"
+                    >
+                      <div
+                        className="text-sm text-zinc-600 py-2"
+                        onClick={() => {
+                          editor.setActivePageIndex(idx);
+                          setShowPageGrid(false);
                         }}
-                        className="rounded border px-3 py-1.5 text-sm bg-white hover:bg-zinc-50"
                       >
-                        Add Page
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const newId = editor.duplicatePage(idx);
-                          if (newId) scrollToPage(newId);
+                        Page {idx + 1}
+                      </div>
+
+                      <div
+                        className="bg-white border"
+                        style={{
+                          width: pageSizePx.w * 0.55,
+                          height: pageSizePx.h * 0.55,
                         }}
-                        className="rounded border px-3 py-1.5 text-sm bg-white hover:bg-zinc-50"
-                      >
-                        Duplicate
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          editor.deletePage(idx);
-                        }}
-                        disabled={editor.pages.length <= 1}
-                        className="rounded border px-3 py-1.5 text-sm bg-white hover:bg-zinc-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        Delete
-                      </button>
+                      />
+
+                      <div className="flex justify-center gap-2 pb-2 pt-1">
+                        <button
+                          type="button"
+                          className="text-xs bg-white border rounded px-2 py-1 hover:bg-zinc-100"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            editor.duplicatePage(idx);
+                          }}
+                        >
+                          Copy
+                        </button>
+                        <button
+                          type="button"
+                          className="text-xs bg-white border rounded px-2 py-1 hover:bg-red-50 text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            editor.deletePage(idx);
+                          }}
+                          disabled={editor.pages.length <= 1}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+            )}
+            <div className="editor-viewport flex flex-col items-center py-6">
+              {editor.pages.map((page, idx) => {
+                const isActive = editor.activePageIndex === idx;
+                return (
+                  <div
+                    key={page.id}
+                    ref={(el) => setPageRef(page.id, el)}
+                    className="page-shell flex flex-col items-center w-full cursor-pointer"
+                    style={{
+                      scrollMarginTop: `${TOP_EDITOR_OFFSET + PAGE_REVEAL_OFFSET}px`,
+                    }}
+                    onClick={() => editor.setActivePageIndex(idx)}
+                  >
+                    <div
+                      className="page-frame bg-white shadow-sm flex flex-col"
+                      style={{
+                        width: displayW,
+                        height: displayH + PAGE_HEADER_HEIGHT,
+                      }}
+                    >
+                      <div
+                        className="page-header flex items-center justify-between px-3 text-sm text-zinc-700"
+                        style={{ height: PAGE_HEADER_HEIGHT }}
+                      >
+                        <div className="font-medium">Page {idx + 1}</div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            className="p-1 hover:bg-zinc-200 rounded"
+                            title="Move Page Up"
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              editor.movePageUp(idx);
+                            }}
+                          >
+                            <ChevronUp size={16} />
+                          </button>
+                          <button
+                            className="p-1 hover:bg-zinc-200 rounded"
+                            title="Move Page Down"
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              editor.movePageDown(idx);
+                            }}
+                          >
+                            <ChevronDown size={16} />
+                          </button>
+                          <button
+                            className="p-1 hover:bg-zinc-200 rounded"
+                            title="Duplicate Page"
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const newId = editor.duplicatePage(idx);
+                              if (newId) {
+                                requestAnimationFrame(() => {
+                                  requestAnimationFrame(() => {
+                                    scrollToPage(newId);
+                                  });
+                                });
+                              }
+                            }}
+                          >
+                            <Copy size={16} />
+                          </button>
+                          <button
+                            className="p-1 hover:bg-zinc-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Delete Page"
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              editor.deletePage(idx);
+                            }}
+                            disabled={editor.pages.length <= 1}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                          <button
+                            type="button"
+                            className="p-1 hover:bg-zinc-200 rounded"
+                            title="Add Page"
+                            onPointerDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const newId = editor.addPageAfter(idx);
+                              if (newId) {
+                                requestAnimationFrame(() => {
+                                  requestAnimationFrame(() => {
+                                    scrollToPage(newId);
+                                  });
+                                });
+                              }
+                            }}
+                          >
+                            <Plus size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      <div
+                        className={`page-canvas relative z-10 overflow-hidden box-border transition-colors duration-150 ${
+                          isActive
+                            ? "ring-2 ring-blue-500"
+                            : "ring-1 ring-transparent hover:ring-blue-400"
+                        }`}
+                        style={{
+                          width: displayW,
+                          height: displayH,
+                        }}
+                      >
+                        <div
+                          data-editor-viewport={page.id}
+                          className="canvas-container relative w-full h-full overflow-hidden"
+                          style={{ width: "100%", height: "100%" }}
+                        >
+                          <canvas
+                            ref={getCanvasRef(page.id)}
+                            className="block"
+                            style={{ width: "100%", height: "100%" }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ height: PAGE_GAP }} />
+                  </div>
+                );
+              })}
             </div>
+          </div>
+
+          {/* Bottom toolbar */}
+          <div className="editor-bottom-toolbar">
+            <div className="flex items-center justify-between px-6 py-2 border-t bg-white">
+              <span className="text-sm text-zinc-600">
+                Page {editor.activePageIndex + 1} / {editor.pages.length || 1}
+              </span>
+
+              <div className="flex items-center">
+                <input
+                  type="range"
+                  min={20}
+                  max={200}
+                  value={zoomPercent}
+                  onChange={(e) => {
+                    const next = Number(e.target.value) || 100;
+                    editor.setManualZooming(true);
+                    if (editor?.setZoomPercent) editor.setZoomPercent(next);
+                    else if (editor?.setZoom) editor.setZoom(next / 100);
+                  }}
+                  className="w-48"
+                />
+                <span className="text-sm text-zinc-600 ml-2">
+                  {zoomPercent}%
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className="p-2 hover:bg-zinc-200 rounded"
+                title="Page Grid"
+                onClick={() => setShowPageGrid(!showPageGrid)}
+              >
+                <LayoutGrid size={18} />
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Right Panel */}

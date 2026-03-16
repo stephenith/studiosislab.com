@@ -1,7 +1,5 @@
 import { NextRequest } from "next/server";
 import { adminAuth, adminDb, adminStorage } from "@/lib/firebaseAdmin";
-import { getStorage, ref, getDownloadURL } from "firebase/storage";
-import { app } from "@/lib/firebase";
 import { sendEmail } from "@/lib/mail/sendEmail";
 import { buildAuditRecord, appendAuditCertificatePage } from "@/lib/esignAudit";
 import crypto from "crypto";
@@ -207,11 +205,12 @@ export async function POST(req: NextRequest) {
         contentType: "application/pdf",
       });
       signedPdfPath = filePath;
-
-      // Generate a Firebase Storage download URL so the PDF can be opened in browsers and by PDF.js.
-      const clientStorage = getStorage(app);
-      const fileRef = ref(clientStorage, filePath);
-      signedPdfUrl = await getDownloadURL(fileRef);
+      // public URL (assuming default bucket public rules or signed URLs elsewhere)
+      const [url] = await file.getSignedUrl({
+        action: "read",
+        expires: "03-01-2500",
+      });
+      signedPdfUrl = url;
     }
 
     audit.signedPdfPath = signedPdfPath ?? undefined;

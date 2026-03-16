@@ -17,20 +17,12 @@ import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/lib/useAuthUser";
 import type { EsignDocumentWithId } from "@/lib/esign";
 
-export type EsignSignedItem = {
-  id: string;
-  documentId: string;
-  fileName: string;
-  downloadUrl: string | null;
-  createdAt: any;
-  status: string;
-  signaturesCount?: number;
-};
-
 function PdfThumbnail({ url }: { url?: string | null }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    console.log("[PdfThumbnail] URL =", url);
+
     if (!url) {
       const container = containerRef.current;
       if (container) {
@@ -46,39 +38,63 @@ function PdfThumbnail({ url }: { url?: string | null }) {
         const container = containerRef.current;
         if (!container) return;
 
-        const pdfjsLib: any = await import("pdfjs-dist");
-        pdfjsLib.GlobalWorkerOptions.workerSrc =
-          `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+        console.log("[PdfThumbnail] starting render for", url);
 
-        const loadingTask = pdfjsLib.getDocument(url);
+        // Dynamically import pdf.js legacy build, same as the main viewer
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - pdfjs-dist ships no types for this legacy entry
+        const pdfjsLib: any = await import("pdfjs-dist/legacy/build/pdf");
+
+        (pdfjsLib as any).GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
+
+        console.log("[PdfThumbnail] pdfjs loaded");
+
+        console.log("[PdfThumbnail] loading document", url);
+
+        const loadingTask = (pdfjsLib as any).getDocument(url);
         const pdf = await loadingTask.promise;
+
+        console.log("[PdfThumbnail] PDF loaded");
+
         if (cancelled) return;
 
         const page = await pdf.getPage(1);
+
+        console.log("[PdfThumbnail] page 1 ready");
+
         const viewport = page.getViewport({ scale: 1 });
 
         const rect = container.getBoundingClientRect();
+
+        console.log("[PdfThumbnail] container width", rect.width);
+
         const targetWidth = rect.width || viewport.width;
+
         const scale = targetWidth / viewport.width;
+
         const scaledViewport = page.getViewport({ scale });
 
         const canvas = document.createElement("canvas");
+
         const context = canvas.getContext("2d");
+
         if (!context) return;
 
         canvas.width = scaledViewport.width;
         canvas.height = scaledViewport.height;
 
         container.innerHTML = "";
+
         container.appendChild(canvas);
 
         await page.render({
           canvasContext: context,
           viewport: scaledViewport,
         }).promise;
+
+        console.log("[PdfThumbnail] render finished");
+
       } catch (err) {
-        // Fallback: keep gray placeholder if preview fails.
-        // eslint-disable-next-line no-console
         console.warn("Failed to render PDF thumbnail", err);
       }
     }
@@ -106,11 +122,8 @@ export default function EsignToolsPage() {
   const [uploading, setUploading] = useState(false);
   const [recents, setRecents] = useState<EsignDocumentWithId[]>([]);
   const [recentsLoading, setRecentsLoading] = useState(false);
-  const [signedList, setSignedList] = useState<EsignSignedItem[]>([]);
-  const [signedLoading, setSignedLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const loadedRef = useRef(false);
-  const signedLoadedRef = useRef(false);
 
   // Verify Existing Agreement (Phase 1: verification ID only)
   const [verificationIdInput, setVerificationIdInput] = useState("");
@@ -153,7 +166,7 @@ export default function EsignToolsPage() {
           limit(20)
         );
         const snap = await getDocs(q);
-        if (!alive) return;
+        console.log("Recent agreements snapshot:", snap.docs.length);
         const items: EsignDocumentWithId[] = snap.docs.map((d) => {
           const data = d.data() as any;
           return {
@@ -167,13 +180,13 @@ export default function EsignToolsPage() {
             pagesCount: data.pagesCount ?? null,
           };
         });
+        console.log("Recent agreements items:", items);
         setRecents(items);
       } catch (e) {
         console.warn("Failed to load recent e-sign documents", e);
         if (!alive) return;
         setRecents([]);
       } finally {
-        if (!alive) return;
         setRecentsLoading(false);
       }
     };
@@ -184,43 +197,6 @@ export default function EsignToolsPage() {
     };
   }, [user, recentsLoading]);
 
-  useEffect(() => {
-    if (!user || signedLoading || signedLoadedRef.current) return;
-    signedLoadedRef.current = true;
-    let alive = true;
-    const load = async () => {
-      try {
-        setSignedLoading(true);
-        const ref = collection(db, "users", user.uid, "esign_signed");
-        const q = fsQuery(ref, orderBy("createdAt", "desc"), limit(20));
-        const snap = await getDocs(q);
-        if (!alive) return;
-        const items: EsignSignedItem[] = snap.docs.map((d) => {
-          const data = d.data() as any;
-          return {
-            id: d.id,
-            documentId: data.documentId ?? "",
-            fileName: data.fileName ?? "Signed document",
-            downloadUrl: data.downloadUrl ?? null,
-            createdAt: data.createdAt ?? null,
-            status: data.status ?? "signed",
-            signaturesCount: data.signaturesCount,
-          };
-        });
-        setSignedList(items);
-      } catch (e) {
-        if (!alive) return;
-        setSignedList([]);
-      } finally {
-        if (!alive) return;
-        setSignedLoading(false);
-      }
-    };
-    load();
-    return () => {
-      alive = false;
-    };
-  }, [user, signedLoading]);
 
   const handleBrowseClick = () => {
     fileInputRef.current?.click();
@@ -619,7 +595,13 @@ export default function EsignToolsPage() {
                     onClick={() => router.push(`/tools/esign/${docItem.id}`)}
                     className="group flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:border-blue-300 hover:shadow-md"
                   >
-                    <PdfThumbnail url={docItem.finalPdfUrl} />
+                    <PdfThumbnail
+                      url={
+                        status === "completed"
+                          ? `/api/esign/download?documentId=${docItem.id}&final=1`
+                          : `/api/esign/download?documentId=${docItem.id}`
+                      }
+                    />
                     <div className="text-sm font-semibold leading-tight truncate">
                       {docItem.fileName}
                     </div>
@@ -639,54 +621,6 @@ export default function EsignToolsPage() {
           </div>
         </section>
 
-        <section className="mt-12">
-          <h2 className="text-lg font-semibold">Previous Signed Agreements</h2>
-          <p className="mt-1 text-sm text-zinc-600">
-            Documents you have signed and exported.
-          </p>
-          {signedLoading ? (
-            <div className="mt-4 text-sm text-zinc-500">Loading…</div>
-          ) : signedList.length === 0 ? (
-            <div className="mt-4 text-sm text-zinc-500">
-              No signed agreements yet. Sign a document and download it to see it here.
-            </div>
-          ) : (
-            <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {signedList.map((item) => {
-                const dateLabel = formatDate(item.createdAt);
-                return (
-                  <div
-                    key={item.id}
-                    className="group flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:border-blue-300 hover:shadow-md"
-                  >
-                    <PdfThumbnail url={item.downloadUrl} />
-                    <div className="text-sm font-semibold truncate">
-                      {item.fileName}
-                    </div>
-                    <div className="mt-0.5 flex items-center justify-between text-[11px] text-zinc-500">
-                      <span className="inline-flex items-center rounded-full bg-green-100 px-1.5 py-0.5 font-medium text-green-800">
-                        Signed
-                      </span>
-                      {dateLabel && <span>{dateLabel}</span>}
-                    </div>
-                    {item.downloadUrl && (
-                      <div className="mt-1 flex items-center justify-end">
-                        <a
-                          href={item.downloadUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs font-medium text-blue-600 hover:underline"
-                        >
-                          Download
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
       </div>
 
       <input

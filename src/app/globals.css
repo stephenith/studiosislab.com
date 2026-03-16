@@ -5,6 +5,25 @@ html,
 body {
   height: 100%;
   margin: 0;
+  font-family: var(--font-inter), "Inter", system-ui, -apple-system, sans-serif;
+}
+
+p,
+span,
+button,
+input,
+textarea,
+label,
+div {
+  font-family: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--font-poppins), "Poppins", system-ui, -apple-system, sans-serif;
 }
 
 .canvas-container {

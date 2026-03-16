@@ -11,6 +11,7 @@ import {
   Shadow,
   Image as FabricImage,
 } from "fabric";
+import * as FabricNS from "fabric";
 import { jsPDF } from "jspdf";
 import { TEMPLATE_SNAPSHOTS } from "@/data/templates";
 import { toHexColor } from "@/lib/color";
@@ -51,6 +52,26 @@ import { createFrameCreate } from "./editor/frames/frameCreate";
 import { createFrameAttach } from "./editor/frames/frameAttach";
 import { createFrameCrop } from "./editor/frames/frameCrop";
 
+// Ensure global Fabric defaults allow interaction unless explicitly overridden.
+(FabricNS as any).Object.prototype.selectable = true;
+(FabricNS as any).Object.prototype.evented = true;
+
+function refreshCanvasOffset(canvas: any) {
+  if (!canvas) return;
+  requestAnimationFrame(() => {
+    try {
+      canvas.calcOffset();
+    } catch {}
+
+    setTimeout(() => {
+      try {
+        canvas.calcOffset();
+        canvas.requestRenderAll();
+      } catch {}
+    }, 50);
+  });
+}
+
 function getFrameId(frame: any): string | null {
   return frame?.id ?? frame?.data?.id ?? frame?.uid ?? null;
 }
@@ -75,6 +96,7 @@ export function useFabricEditor({
   const undoRef = useRef<any[]>([]);
   const redoRef = useRef<any[]>([]);
   const isApplyingRef = useRef(false);
+  const lastLoadedSnapshotRef = useRef<any>(null);
   const didInitialFitRef = useRef(false);
   const fitRafRef = useRef<number | null>(null);
   const fitResizeTimeoutRef = useRef<number | null>(null);
@@ -153,12 +175,33 @@ export function useFabricEditor({
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const isHydratingFromSelectionRef = useRef(false);
+  const prevActivePageIdRef = useRef<string | null>(null);
   const { user, loading: authLoading } = useAuthUser();
   const getCanvas = useCallback(() => canvasRef.current, []);
   const logTextSync = useCallback((mode: "hydrate" | "apply") => {
     if (process.env.NODE_ENV !== "development") return;
     console.log("[text-sync]", mode);
   }, []);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    const handleScroll = () => {
+      const canvas = getCanvas();
+      if (!canvas) return;
+
+      try {
+        canvas.calcOffset();
+      } catch {}
+    };
+
+    viewport.addEventListener("scroll", handleScroll);
+
+    return () => {
+      viewport.removeEventListener("scroll", handleScroll);
+    };
+  }, [getCanvas]);
 
   function reorderPages<T>(list: T[], from: number, to: number): T[] {
     const next = [...list];
@@ -445,9 +488,39 @@ export function useFabricEditor({
     const { w: pageW, h: pageH } = pageSizePxRef.current;
     const w = Math.max(1, Math.round(pageW * z));
     const h = Math.max(1, Math.round(pageH * z));
+    const prevSize = lastHostSizeRef.current;
+    const changed = !prevSize || prevSize.w !== w || prevSize.h !== h;
     lastHostSizeRef.current = { w, h };
     if (process.env.NODE_ENV !== "production") {
-      console.log("[syncCanvasesToContainer]", { z, w, h, canvasCount: pageCanvasesRef.current.size });
+      console.log("[syncCanvasesToContainer]", {
+        z,
+        w,
+        h,
+        changed,
+        canvasCount: pageCanvasesRef.current.size,
+      });
+    }
+    // #region agent log
+    fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Debug-Session-Id": "b60eca",
+      },
+      body: JSON.stringify({
+        sessionId: "b60eca",
+        runId: "pre-fix",
+        hypothesisId: "H1",
+        location: "useFabricEditor.ts:syncCanvasesToContainer",
+        message: "syncCanvasesToContainer call",
+        data: { z, w, h, changed },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+    if (!changed) {
+      // Dimensions already match; avoid redundant setDimensions() to prevent resize feedback loops.
+      return false;
     }
     pageCanvasesRef.current.forEach((c) => {
       c.setDimensions({ width: w, height: h }, { backstoreOnly: false });
@@ -487,6 +560,24 @@ export function useFabricEditor({
   const applyEffectiveZoom = useCallback(
     (effectiveZoom: number) => {
       const z = clampEffectiveZoom(effectiveZoom);
+      // #region agent log
+      fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "b60eca",
+        },
+        body: JSON.stringify({
+          sessionId: "b60eca",
+          runId: "pre-fix",
+          hypothesisId: "H2",
+          location: "useFabricEditor.ts:applyEffectiveZoom",
+          message: "applyEffectiveZoom",
+          data: { effectiveZoom, clamped: z },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       applyZoomToCanvases(z);
     },
     [applyZoomToCanvases, clampEffectiveZoom]
@@ -795,7 +886,10 @@ export function useFabricEditor({
       if (active === pageObj) {
         c.discardActiveObject();
       }
-      if (opts?.discardSelection) c.discardActiveObject();
+      // IMPORTANT: do NOT blindly discard the current selection here.
+      // This function is called frequently (page size changes, doc load, etc.),
+      // and clearing selection on every call makes it impossible for the user
+      // to keep objects selected or drag them reliably.
       c.requestRenderAll();
       return pageObj;
     },
@@ -816,6 +910,28 @@ export function useFabricEditor({
     (pageW: number, pageH: number, opts?: { discardSelection?: boolean }) => {
       const c = getCanvas();
       if (!c) return;
+      // #region agent log
+      fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "b60eca",
+        },
+        body: JSON.stringify({
+          sessionId: "b60eca",
+          runId: "selection-debug",
+          hypothesisId: "S3",
+          location: "useFabricEditor.ts:ensurePageBackground",
+          message: "ensurePageBackground called",
+          data: {
+            pageW,
+            pageH,
+            discardSelection: !!opts?.discardSelection,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       normalizePageBackground(c, pageW, pageH, bgColorRef.current || "#ffffff", opts);
     },
     [getCanvas, normalizePageBackground]
@@ -902,6 +1018,24 @@ export function useFabricEditor({
       if (process.env.NODE_ENV !== "production") {
         console.log("[fitViewport] baseFitZoomRef:", baseFitZoomRef.current, "reason:", reason);
       }
+      // #region agent log
+      fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "b60eca",
+        },
+        body: JSON.stringify({
+          sessionId: "b60eca",
+          runId: "pre-fix",
+          hypothesisId: "H3",
+          location: "useFabricEditor.ts:fitViewport",
+          message: "fitViewport computed",
+          data: { reason, viewportH, pageH, availableHeight, fit },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       applyEffectiveZoom(fit);
 
       if (
@@ -959,6 +1093,29 @@ export function useFabricEditor({
           });
         });
       };
+      // #region agent log
+      fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "b60eca",
+        },
+        body: JSON.stringify({
+          sessionId: "b60eca",
+          runId: "pre-fix",
+          hypothesisId: "H4",
+          location: "useFabricEditor.ts:scheduleFit",
+          message: "scheduleFit invoked",
+          data: {
+            reason,
+            isLoadingDoc: isLoadingDocRef.current,
+            manualZoom: manualZoomRef.current,
+            zoomMode: zoomModeRef.current,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       if (reason === "resize") {
         if (fitResizeTimeoutRef.current) {
           window.clearTimeout(fitResizeTimeoutRef.current);
@@ -998,8 +1155,15 @@ export function useFabricEditor({
       requestAnimationFrame(() => {
         scheduleFit("resize");
       });
+      // Recalc Fabric pointer offset once viewport is in DOM (fixes hit-test when viewport mounts after canvas)
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const c = getCanvas();
+          if (c) refreshCanvasOffset(c);
+        }, 0);
+      });
     },
-    [scheduleFit]
+    [scheduleFit, getCanvas]
   );
 
   useEffect(() => {
@@ -1020,6 +1184,9 @@ export function useFabricEditor({
 
   const applySnapshotToCanvas = useCallback(
     async (c: Canvas, snap: any, reason: string) => {
+      if (reason === "doc-load" && lastLoadedSnapshotRef.current === snap) {
+        return;
+      }
       baseFitZoomRef.current = null;
       isApplyingRef.current = true;
       const json = normalizeToFabricJson(snap);
@@ -1148,54 +1315,46 @@ try {
             pageObj.moveTo(0);
           }
         }
-        if (reason === "template-loaded" && !normalizedContentRef.current.has(c)) {
-  const all = c.getObjects();
-  const nonBg = pageObj
-    ? all.filter((o: any) => o !== pageObj && o?.role !== "grid")
-    : all.filter((o: any) => o?.role !== "grid");
+        //if (reason === "template-loaded" && !normalizedContentRef.current.has(c)) {
+        // TEMP FIX: disable second normalization
+        if (false && reason === "template-loaded" && !normalizedContentRef.current.has(c)) {
+      const all = c.getObjects();
+      const nonBg = pageObj
+        ? all.filter((o: any) => o !== pageObj && o?.role !== "grid")
+        : all.filter((o: any) => o?.role !== "grid");
+      const bounds = getContentBounds(nonBg);
+      if (!bounds) return;
 
-  const bounds = getContentBounds(nonBg);
+      const contentW = bounds!.maxX - bounds!.minX;
+      const contentH = bounds!.maxY - bounds!.minY;
 
-  if (bounds) {
-    const contentW = bounds.maxX - bounds.minX;
-    const contentH = bounds.maxY - bounds.minY;
+      const scale = pageW / contentW;
 
-    const pageW2 = pageW;
-    const pageH2 = pageH;
+      const dx = -bounds!.minX;
+      const dy = -bounds!.minY;
 
-    // If template is in a much larger coordinate system (e.g., 2480x3508),
-    // scale everything down to fit the web page size.
-    const tooBig = contentW > pageW2 * 1.5 || contentH > pageH2 * 1.5;
+      for (const o of nonBg) {
+        const left = Number(o?.left ?? 0);
+        const top = Number(o?.top ?? 0);
 
-    const scale = tooBig ? Math.min(pageW2 / contentW, pageH2 / contentH) : 1;
+        o.set?.({
+          left: (left + dx) * scale,
+          top: (top + dy) * scale,
+        });
 
-    const dx = -bounds.minX;
-    const dy = -bounds.minY;
+        const sx = Number(o?.scaleX ?? 1);
+        const sy = Number(o?.scaleY ?? 1);
 
-    for (const o of nonBg) {
-      const left = Number(o?.left ?? 0);
-      const top = Number(o?.top ?? 0);
+        o.set?.({
+          scaleX: sx * scale,
+          scaleY: sy * scale,
+        });
 
-      // First shift to origin (0,0), then scale to page coords
-      o.set?.({
-        left: (left + dx) * scale,
-        top: (top + dy) * scale,
-      });
+        o.setCoords?.();
+      }
 
-      // Apply uniform scaling (keeps shapes/text/images consistent)
-      const sx = Number(o?.scaleX ?? 1);
-      const sy = Number(o?.scaleY ?? 1);
-      o.set?.({
-        scaleX: sx * scale,
-        scaleY: sy * scale,
-      });
-
-      o.setCoords?.();
+      normalizedContentRef.current.add(c);
     }
-  }
-
-  normalizedContentRef.current.add(c);
-}
         c.discardActiveObject();
         setSelectedLayerId(null);
         setSelectionType("none");
@@ -1241,6 +1400,8 @@ try {
         // Restore canvas interaction flags after JSON load
         c.selection = true;
         c.skipTargetFind = false;
+        (c as any).interactive = true;
+        refreshCanvasOffset(c);
         if (reason === "template-loaded" && !skipPostLoadMutations) {
           userZoomedRef.current = false;
           didLogFitRef.current = null;
@@ -1249,6 +1410,7 @@ try {
         if (process.env.NODE_ENV !== "production") {
           console.log("[applySnapshot] loadFromJSON finalize done, requestRenderAll", { reason });
         }
+        lastLoadedSnapshotRef.current = snap;
         c.requestRenderAll();
         if (skipPostLoadMutations) {
           requestAnimationFrame(() => {
@@ -1361,7 +1523,6 @@ try {
   );
 
   const updateSelection = useCallback(() => {
-    if (isInitializingCanvasRef.current) return;
     const c = getCanvas();
     if (!c) return;
     const active: any = c.getActiveObject();
@@ -1442,6 +1603,7 @@ try {
       textChanged: () => void;
       mouseDblclick: (e: any) => void;
       mouseUp: (e: any) => void;
+      debugMouseDown?: (e: any) => void;
     };
   } | null>(null);
 
@@ -1458,6 +1620,7 @@ try {
     canvas.off("text:changed", handlers.textChanged);
     canvas.off("mouse:dblclick", handlers.mouseDblclick);
     canvas.off("mouse:up", handlers.mouseUp);
+    if (handlers.debugMouseDown) canvas.off("mouse:down", handlers.debugMouseDown);
     activeCanvasListenersRef.current = null;
   }, []);
 
@@ -1600,6 +1763,25 @@ try {
             enterImageFrameCropMode();
           }
         },
+        // TEMPORARY: debug selection / pointer mapping — remove after diagnosis
+        debugMouseDown: (e: any) => {
+          const dom = e?.e;
+          const vp = viewportRef.current;
+          const c = canvas as any;
+          const log: Record<string, unknown> = {
+            "viewport.getBoundingClientRect()": vp?.getBoundingClientRect?.(),
+            "viewport.scrollTop": vp?.scrollTop,
+            "viewport.scrollLeft": vp?.scrollLeft,
+            "canvas._offset": c?._offset,
+            "canvas.getZoom()": canvas.getZoom?.(),
+            "event.clientX/clientY": dom ? { clientX: dom.clientX, clientY: dom.clientY } : null,
+            "Fabric target": e?.target ?? null,
+          };
+          if (c?.upperCanvasEl) log["upperCanvasEl.getBoundingClientRect()"] = c.upperCanvasEl.getBoundingClientRect();
+          if (c?.lowerCanvasEl) log["lowerCanvasEl.getBoundingClientRect()"] = c.lowerCanvasEl.getBoundingClientRect();
+          if (c?.wrapperEl) log["wrapperEl.getBoundingClientRect()"] = c.wrapperEl.getBoundingClientRect();
+          console.log("[DEBUG selection]", log);
+        },
       };
       canvas.on("selection:created", handlers.selectionCreated as any);
       canvas.on("selection:updated", handlers.selectionUpdated as any);
@@ -1610,6 +1792,7 @@ try {
       canvas.on("text:changed", handlers.textChanged);
       canvas.on("mouse:dblclick", handlers.mouseDblclick);
       canvas.on("mouse:up", handlers.mouseUp);
+      if (handlers.debugMouseDown) canvas.on("mouse:down", handlers.debugMouseDown);
       activeCanvasListenersRef.current = { canvas, handlers };
     },
     [pushHistory, unbindActiveCanvasListeners, updateLayers, updateSelection, enterImageFrameCropMode]
@@ -1619,20 +1802,42 @@ try {
     const id = getActivePageId();
     if (!id) return;
     const c = pageCanvasesRef.current.get(id) || null;
+    const didPageActuallyChange = prevActivePageIdRef.current !== id;
     canvasRef.current = c;
+    // Update interaction flags for all page canvases based on active page.
+    pageCanvasesRef.current.forEach((canvas, pageId) => {
+      const isActivePage = pageId === id;
+
+      if (isActivePage) {
+        canvas.selection = true;
+        (canvas as any).interactive = true;
+        (canvas as any).skipTargetFind = false;
+      } else {
+        canvas.selection = false;
+        (canvas as any).interactive = false;
+      }
+    });
     if (process.env.NODE_ENV !== "production") {
       if (!(globalThis as any).__canvas) (globalThis as any).__canvas = c;
     }
     unbindActiveCanvasListeners();
     if (c) bindActiveCanvasListeners(c);
     if (c) {
-      c.discardActiveObject();
+      if (didPageActuallyChange) {
+        c.discardActiveObject();
+      }
+      refreshCanvasOffset(c);
       c.requestRenderAll();
     }
-    setSelectedLayerId(null);
-    setSelectionType("none");
-    setActiveObjectType(null);
-    setActiveObjectSnapshot(null);
+
+    if (didPageActuallyChange) {
+      setSelectedLayerId(null);
+      setSelectionType("none");
+      setActiveObjectType(null);
+      setActiveObjectSnapshot(null);
+    }
+
+    prevActivePageIdRef.current = id;
     updateSelection();
     updateLayers();
   }, [
@@ -1643,6 +1848,17 @@ try {
     updateLayers,
     updateSelection,
   ]);
+
+  useEffect(() => {
+    const handler = () => {
+      try {
+        const canvas = getCanvas();
+        if (canvas) refreshCanvasOffset(canvas);
+      } catch {}
+    };
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, [getCanvas]);
 
   const applyGrid = useCallback((enabled?: boolean) => {
     const c = getCanvas();
@@ -1761,6 +1977,16 @@ try {
       const zoom = baseFitZoomRef.current || 1;
       (c as any).setZoom?.(zoom);
       c.requestRenderAll();
+      // Configure interaction based on whether this page is currently active.
+      const isActivePage = getActivePageId() === pageId;
+      if (isActivePage) {
+        c.selection = true;
+        (c as any).interactive = true;
+        (c as any).skipTargetFind = false;
+      } else {
+        c.selection = false;
+        (c as any).interactive = false;
+      }
       if (process.env.NODE_ENV === "development") {
         (window as any).__slbCanvas = c;
       }
@@ -2078,6 +2304,12 @@ try {
         selection: true,
         preserveObjectStacking: true,
       });
+      refreshCanvasOffset(c);
+      // Ensure Fabric interaction is enabled
+      (c as any).interactive = true;
+      c.selection = true;
+      (c as any).skipTargetFind = false;
+
       pageCanvasesRef.current.set(pageId, c);
       initCanvasForPage(pageId, c);
     },

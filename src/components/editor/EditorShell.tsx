@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import { ChevronDown, ChevronUp, Copy, Download, LayoutGrid, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
 import { useFabricEditor } from "@/components/editor/useFabricEditor";
 import { EditorSidebar } from "@/components/editor/sidebar/EditorSidebar";
+import { TextInspectorPanel } from "@/components/editor/TextInspectorPanel";
+import { ShapeInspectorPanel } from "@/components/editor/ShapeInspectorPanel";
+import { ImageInspectorPanel } from "@/components/editor/ImageInspectorPanel";
+import { FloatingSelectionToolbar } from "@/components/editor/FloatingSelectionToolbar";
+import { useFloatingToolbarPosition } from "@/components/editor/useFloatingToolbarPosition";
 import { toHexColor } from "@/lib/color";
 import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
@@ -337,6 +342,39 @@ export default function EditorShell({
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
   const [editingLayerValue, setEditingLayerValue] = useState("");
 
+  type InspectorSectionId = "page" | "position" | "layers";
+  const [openSection, setOpenSection] = useState<InspectorSectionId | null>(null);
+
+  const { position: toolbarPosition, isMultipleSelection } = useFloatingToolbarPosition(
+    editor.hasSelection,
+    editor.getCanvas,
+    editor.viewportRef as React.RefObject<HTMLDivElement | null>,
+    editor.zoom ?? 1
+  );
+
+  const handleFloatingGroup = useCallback(() => {
+    const c = editor.getCanvas();
+    if (!c) return;
+    const active = c.getActiveObject() as any;
+    if (active?.type === "activeSelection" && typeof active.toGroup === "function") {
+      active.toGroup();
+      c.requestRenderAll();
+    }
+  }, [editor.getCanvas]);
+
+  const handleFloatingDuplicate = useCallback(async () => {
+    await editor.copy();
+    await editor.paste();
+  }, [editor.copy, editor.paste]);
+
+  const handleFloatingDelete = useCallback(() => {
+    editor.deleteSelected();
+  }, [editor.deleteSelected]);
+
+  const handleFloatingMore = useCallback(() => {
+    console.log("More options");
+  }, []);
+
   const pageRefs = useRef(new Map<string, HTMLDivElement>());
 
   const setPageRef = useCallback((id: string, el: HTMLDivElement | null) => {
@@ -529,7 +567,7 @@ export default function EditorShell({
 
   if (!editor.isDocDataReady) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-neutral-100">
+      <div className="h-screen flex flex-col items-center justify-center bg-[#ebecf0]">
         <div className="text-zinc-600 animate-pulse">Loading resume…</div>
         {editor.loadError && (
           <div className="mt-2 text-sm text-amber-600">{editor.loadError}</div>
@@ -542,9 +580,17 @@ export default function EditorShell({
     <div className="h-screen flex flex-col">
       {/* Top Bar — LidoJS style */}
       <div className="h-[56px] shrink-0 sticky top-0 z-50 flex items-center justify-between px-6 bg-[#1f1f28] text-white">
-        <div className="flex flex-1 items-center gap-2 text-xl font-bold tracking-wide text-white" style={{ letterSpacing: "0.5px" }}>
-          Lab
-        </div>
+      <div
+        className="flex flex-1 items-center gap-2 pl-0 text-xl font-bold tracking-wide text-white"
+        style={{ letterSpacing: "0.5px" }}
+      >
+      <img
+       src="/Studiosis-white.png"
+       alt="Studiosis"
+       className="h-13 w-auto object-contain"
+      />
+      <span>Lab</span>
+    </div>
 
         <input
           value={filename}
@@ -815,15 +861,26 @@ export default function EditorShell({
 
       <div className="flex-1 min-h-0 flex overflow-hidden">
         {/* Left sidebar: icon strip + expandable panels (Canva/LidoJS style) */}
-        <EditorSidebar editor={editor} />
+        <div className="relative z-20">
+          <EditorSidebar editor={editor} />
+        </div>
 
         {/* Center Canvas */}
         <div className="flex-1 min-h-0 min-w-0 flex flex-col" ref={canvasWrapRef}>
           <div
             ref={editor.viewportRef}
             id="slb-editor-viewport"
-            className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-neutral-100 flex flex-col items-center"
+            className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-[#ebecf0] flex flex-col items-center"
           >
+            <FloatingSelectionToolbar
+              visible={editor.hasSelection}
+              position={toolbarPosition}
+              isMultipleSelection={isMultipleSelection}
+              onGroup={handleFloatingGroup}
+              onDuplicate={handleFloatingDuplicate}
+              onDelete={handleFloatingDelete}
+              onMore={handleFloatingMore}
+            />
             {showPageGrid && (
               <div className="absolute top-0 left-0 right-0 bottom-16 bg-white z-40 overflow-auto p-6">
                 <div className="grid grid-cols-2 gap-6 justify-center">
@@ -1001,7 +1058,7 @@ export default function EditorShell({
                         <div
                           data-editor-viewport={page.id}
                           className="canvas-container relative w-full h-full overflow-hidden"
-                          style={{ width: "100%", height: "100%" }}
+                        style={{ width: "100%", height: "100%" }}
                         >
                           <canvas
                             ref={getCanvasRef(page.id)}
@@ -1020,7 +1077,7 @@ export default function EditorShell({
 
           {/* Bottom toolbar */}
           <div className="editor-bottom-toolbar">
-            <div className="flex items-center justify-between px-6 py-2 border-t bg-white">
+            <div className="h-[56px] flex items-center justify-between px-4 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.06)] rounded-t-xl relative z-10">
               <span className="text-sm text-zinc-600">
                 Page {editor.activePageIndex + 1} / {editor.pages.length || 1}
               </span>
@@ -1056,206 +1113,35 @@ export default function EditorShell({
           </div>
         </div>
 
+        
         {/* Right Panel */}
-        <aside className="w-[300px] shrink-0 h-full overflow-y-auto border-l bg-white p-4 space-y-6">
+        <aside className="w-[300px] shrink-0 h-full overflow-y-auto bg-transparent p-4 space-y-4 relative z-20">
           {editor.selectionType === "text" && (
-            <div className="space-y-3">
-              <div className="text-xs font-semibold uppercase text-zinc-500">Text</div>
-              <select
-                className="w-full rounded border px-2 py-1 text-sm"
-                value={editor.textProps.fontFamily}
-                onChange={(e) => editor.setTextProp({ fontFamily: e.target.value })}
-              >
-                {["Poppins", "Inter", "Montserrat", "Roboto"].map((f) => (
-                  <option key={f} value={f}>
-                    {f}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="number"
-                min={8}
-                max={96}
-                className="w-full rounded border px-2 py-1 text-sm"
-                value={editor.textProps.fontSize}
-                onChange={(e) => editor.setTextProp({ fontSize: Number(e.target.value) })}
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={() =>
-                    editor.setTextProp({
-                      fontWeight: editor.textProps.fontWeight === "bold" ? "normal" : "bold",
-                    })
-                  }
-                  className="rounded border px-2 py-1 text-sm"
-                >
-                  B
-                </button>
-                <button
-                  onClick={() =>
-                    editor.setTextProp({
-                      fontStyle: editor.textProps.fontStyle === "italic" ? "normal" : "italic",
-                    })
-                  }
-                  className="rounded border px-2 py-1 text-sm"
-                >
-                  I
-                </button>
-                <button
-                  onClick={() => editor.setTextProp({ underline: !editor.textProps.underline })}
-                  className="rounded border px-2 py-1 text-sm"
-                >
-                  U
-                </button>
-              </div>
-              <input
-                type="color"
-                value={toHexColor(editor.textProps.fill, "#000000")}
-                onChange={(e) => editor.setTextProp({ fill: e.target.value })}
-                className="h-10 w-full rounded border"
-              />
-              <select
-                className="w-full rounded border px-2 py-1 text-sm"
-                value={editor.textProps.textAlign}
-                onChange={(e) => editor.setTextProp({ textAlign: e.target.value as any })}
-              >
-                {["left", "center", "right", "justify"].map((a) => (
-                  <option key={a} value={a}>
-                    {a}
-                  </option>
-                ))}
-              </select>
-              <select
-                className="w-full rounded border px-2 py-1 text-sm"
-                value={editor.textProps.lineHeight}
-                onChange={(e) => editor.setTextProp({ lineHeight: Number(e.target.value) })}
-              >
-                {[1.0, 1.15, 1.3, 1.5, 1.8, 2.0].map((v) => (
-                  <option key={v} value={v}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <TextInspectorPanel
+              textProps={editor.textProps}
+              setTextProp={editor.setTextProp}
+              updateActiveObject={editor.updateActiveObject}
+              activeObjectSnapshot={editor.activeObjectSnapshot}
+            />
           )}
-
-          {editor.selectionType === "shape" && (
-            <div className="space-y-3">
-              <div className="text-xs font-semibold uppercase text-zinc-500">Shape</div>
-              <input
-                type="color"
-                value={toHexColor(editor.shapeProps.fill, "#000000")}
-                onChange={(e) => editor.updateActiveObject({ fill: e.target.value })}
-                className="h-10 w-full rounded border"
-              />
-              <input
-                type="color"
-                value={toHexColor(editor.shapeProps.stroke, "#000000")}
-                onChange={(e) => editor.updateActiveObject({ stroke: e.target.value })}
-                className="h-10 w-full rounded border"
-              />
-              <input
-                type="number"
-                min={0}
-                max={20}
-                value={editor.shapeProps.strokeWidth}
-                onChange={(e) => editor.updateActiveObject({ strokeWidth: Number(e.target.value) })}
-                className="w-full rounded border px-2 py-1 text-sm"
-              />
-              <input
-                type="number"
-                min={0}
-                max={60}
-                value={editor.shapeProps.cornerRadius}
-                onChange={(e) =>
-                  editor.updateActiveObject({
-                    rx: Number(e.target.value),
-                    ry: Number(e.target.value),
-                  })
-                }
-                className="w-full rounded border px-2 py-1 text-sm"
-              />
-              <input
-                type="number"
-                min={0}
-                max={1}
-                step={0.05}
-                value={editor.shapeProps.opacity}
-                onChange={(e) => editor.updateActiveObject({ opacity: Number(e.target.value) })}
-                className="w-full rounded border px-2 py-1 text-sm"
-              />
-            </div>
+          {(editor.selectionType === "shape" ||
+            ["rect", "circle", "triangle", "polygon", "ellipse", "line"].includes(editor.activeObjectType ?? "")) && (
+            <ShapeInspectorPanel
+              shapeProps={editor.shapeProps}
+              activeObjectSnapshot={editor.activeObjectSnapshot}
+              updateActiveObject={editor.updateActiveObject}
+            />
           )}
-
-          {editor.selectionType === "none" && (
-            <div className="space-y-3">
-              <div className="text-xs font-semibold uppercase text-zinc-500">Page</div>
-              <select
-                className="w-full rounded border px-2 py-1 text-sm"
-                value={editor.pageSize}
-                onChange={(e) => {
-                  const next = e.target.value as any;
-                  editor.setPageSize(next);
-                  if (next === "Custom") {
-                    if (!customWidth || !customHeight) {
-                      const w = fromPx(pageSizePx.w, customUnit);
-                      const h = fromPx(pageSizePx.h, customUnit);
-                      setCustomWidth(w.toFixed(2).replace(/\.00$/, ""));
-                      setCustomHeight(h.toFixed(2).replace(/\.00$/, ""));
-                    }
-                  }
-                }}
-              >
-                {["A4", "Letter", "Custom"].map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-
-              {editor.pageSize === "Custom" && (
-                <div className="space-y-2">
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      type="number"
-                      min={1}
-                      step={0.1}
-                      value={customWidth}
-                      onChange={(e) => setCustomWidth(e.target.value)}
-                      placeholder="Width"
-                      className="w-full rounded border px-2 py-1 text-sm"
-                    />
-                    <input
-                      type="number"
-                      min={1}
-                      step={0.1}
-                      value={customHeight}
-                      onChange={(e) => setCustomHeight(e.target.value)}
-                      placeholder="Height"
-                      className="w-full rounded border px-2 py-1 text-sm"
-                    />
-                  </div>
-                  <select
-                    className="w-full rounded border px-2 py-1 text-sm"
-                    value={customUnit}
-                    onChange={(e) => setCustomUnit(e.target.value as any)}
-                  >
-                    {["mm", "cm", "in", "px", "pt"].map((u) => (
-                      <option key={u} value={u}>
-                        {u}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              <input
-                type="color"
-                value={toHexColor(editor.bgColor, "#f3f4f6")}
-                onChange={(e) => editor.setPageBackground(e.target.value)}
-                className="h-10 w-full rounded border"
-              />
-
+          {(editor.selectionType === "image" || editor.activeObjectType === "image") && (
+            <ImageInspectorPanel
+              imageProps={editor.imageProps}
+              activeObjectSnapshot={editor.activeObjectSnapshot}
+              updateActiveObject={editor.updateActiveObject}
+            />
+          )}
+          <div className="rounded-2xl bg-white border border-[#d6deeb] shadow-[0_6px_14px_rgba(30,64,175,0.08)] transition-shadow transition-colors duration-200 hover:shadow-lg hover:border-slate-400">
+            {/* Grid row */}
+            <div className="px-4 py-3 flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
@@ -1265,244 +1151,170 @@ export default function EditorShell({
                     editor.applyGrid(e.target.checked);
                   }}
                 />
-                Grid
+                <span>Grid</span>
               </label>
             </div>
-          )}
 
-          {editor.selectionType === "image" && (
-            <div className="space-y-3">
-              <div className="text-xs font-semibold uppercase text-zinc-500">Image</div>
-              <input
-                type="number"
-                min={0}
-                max={1}
-                step={0.05}
-                value={editor.imageProps.opacity}
-                onChange={(e) => editor.updateActiveObject({ opacity: Number(e.target.value) })}
-                className="w-full rounded border px-2 py-1 text-sm"
+            <div className="border-t border-zinc-200 opacity-60" />
+
+            {/* Page section header */}
+            <button
+              type="button"
+              onClick={() =>
+                setOpenSection((prev) => (prev === "page" ? null : "page"))
+              }
+              className="w-full flex items-center justify-between px-4 py-3 text-sm"
+            >
+              <span className="font-medium text-zinc-700">Page</span>
+              <ChevronDown
+                size={14}
+                className={
+                  openSection === "page"
+                    ? "transform rotate-180 transition-transform"
+                    : "transition-transform"
+                }
               />
-            </div>
-          )}
+            </button>
 
-          {(editor.selectionType === "frame" || editor.isInImageFrameCropMode) && (
-            <div className="space-y-3">
-              <div className="text-xs font-semibold uppercase text-zinc-500">
-                {editor.isInImageFrameCropMode ? "Editing Image in Frame" : "Image Frame"}
-              </div>
-              <div className="flex flex-col gap-2">
-                {editor.isInImageFrameCropMode ? (
-                  <button
-                    type="button"
-                    className="w-full rounded bg-green-600 px-3 py-2 text-sm text-white hover:bg-green-700"
-                    onClick={() => editor.exitImageFrameCropMode?.()}
-                  >
-                    Done editing
-                  </button>
-                ) : editor.selectedFrameHasImage ? (
-                  <button
-                    type="button"
-                    className="w-full rounded bg-indigo-600 px-3 py-2 text-sm text-white hover:bg-indigo-700"
-                    onClick={() => editor.enterImageFrameCropMode?.()}
-                  >
-                    Edit Image (position & zoom)
-                  </button>
-                ) : null}
-                {!editor.isInImageFrameCropMode && (
-                  <>
-                    {editor.selectedFrameHasImage && (
-                      <button
-                        type="button"
-                        className="w-full rounded border border-zinc-300 px-3 py-2 text-sm hover:bg-zinc-50"
-                        onClick={() => editor.removeImageFromFrame?.()}
-                      >
-                        Remove Image
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      className="w-full rounded bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-700"
-                      onClick={() => editor.deleteFrameEntirely?.()}
-                    >
-                      Delete Frame
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-
-          <div className="mt-4">
-            <div className="text-xs font-semibold text-zinc-500 mb-2">ALIGN</div>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                className="rounded border px-2 py-1 text-xs disabled:opacity-50"
-                onClick={() => editor.alignSelected?.("left")}
-                disabled={!editor?.hasSelection}
-              >
-                Left
-              </button>
-              <button
-                className="rounded border px-2 py-1 text-xs disabled:opacity-50"
-                onClick={() => editor.alignSelected?.("centerX")}
-                disabled={!editor?.hasSelection}
-              >
-                Center
-              </button>
-              <button
-                className="rounded border px-2 py-1 text-xs disabled:opacity-50"
-                onClick={() => editor.alignSelected?.("right")}
-                disabled={!editor?.hasSelection}
-              >
-                Right
-              </button>
-              <button
-                className="rounded border px-2 py-1 text-xs disabled:opacity-50"
-                onClick={() => editor.alignSelected?.("top")}
-                disabled={!editor?.hasSelection}
-              >
-                Top
-              </button>
-              <button
-                className="rounded border px-2 py-1 text-xs disabled:opacity-50"
-                onClick={() => editor.alignSelected?.("middle")}
-                disabled={!editor?.hasSelection}
-              >
-                Middle
-              </button>
-              <button
-                className="rounded border px-2 py-1 text-xs disabled:opacity-50"
-                onClick={() => editor.alignSelected?.("bottom")}
-                disabled={!editor?.hasSelection}
-              >
-                Bottom
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="text-xs font-semibold uppercase text-zinc-500">Layers</div>
-            <div className="space-y-2">
-              {editor.layers.map((layer, idx) => (
-                <div
-                  key={layer.id}
-                  onClick={() => editor.selectLayerById(layer.id)}
-                  draggable
-                  onDragStart={(e) => e.dataTransfer.setData("text/plain", String(idx))}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    const from = Number(e.dataTransfer.getData("text/plain"));
-                    if (Number.isFinite(from)) editor.reorderLayer(from, idx);
-                  }}
-                  className={`flex items-center justify-between rounded px-2 py-1 text-xs ${
-                    editor.selectedLayerId === layer.id ? "bg-zinc-200 text-zinc-900" : "hover:bg-zinc-100"
-                  }`}
+            {openSection === "page" && (
+              <div className="px-4 pb-3 space-y-3">
+                <select
+                  className="w-full rounded border px-2 py-1 text-sm"
+                  value={editor.pageSize}
+                  onChange={(e) =>
+                    editor.setPageSize(e.target.value as typeof editor.pageSize)
+                  }
                 >
-                  {editingLayerId === layer.id ? (
-                    <input
-                      className="min-w-0 flex-1 rounded border border-zinc-300 bg-white px-1 py-0.5 text-xs"
-                      value={editingLayerValue}
-                      onChange={(e) => setEditingLayerValue(e.target.value)}
-                      onKeyDownCapture={(e) => {
-                        e.stopPropagation();
-                        (e.nativeEvent as any)?.stopImmediatePropagation?.();
-                      }}
-                      onBlur={() => {
-                        editor.renameLayer(layer.id, editingLayerValue);
-                        setEditingLayerId(null);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          editor.renameLayer(layer.id, editingLayerValue);
-                          setEditingLayerId(null);
-                        }
-                        if (e.key === "Escape") setEditingLayerId(null);
-                      }}
-                      data-layer-rename="1"
-                      autoFocus
-                    />
-                  ) : (
-                    <button
-                      className="min-w-0 flex-1 truncate text-left"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingLayerId(layer.id);
-                        setEditingLayerValue(layer.displayName || "");
-                      }}
-                      title="Rename layer"
-                    >
-                      {layer.displayName}
-                    </button>
-                  )}
+                  <option value="A4">A4</option>
+                  <option value="Letter">Letter</option>
+                </select>
 
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        editor.layerBringToFront(layer.id);
-                      }}
-                      className="rounded border px-1.5 py-0.5"
-                      title="Bring to front"
-                      aria-label="Bring to front"
-                    >
-                      ⬆️
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        editor.layerSendToBack(layer.id);
-                      }}
-                      className="rounded border px-1.5 py-0.5"
-                      title="Send to back"
-                      aria-label="Send to back"
-                    >
-                      ⬇️
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        editor.layerBringForward(layer.id);
-                      }}
-                      className="rounded border px-1.5 py-0.5"
-                      title="Bring forward"
-                      aria-label="Bring forward"
-                    >
-                      ↑
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        editor.layerSendBackward(layer.id);
-                      }}
-                      className="rounded border px-1.5 py-0.5"
-                      title="Send backward"
-                      aria-label="Send backward"
-                    >
-                      ↓
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        editor.setLayerVisible(layer.id, !layer.visible);
-                      }}
-                      className="rounded border px-2 py-0.5"
-                    >
-                      {layer.visible ? "👁" : "🚫"}
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        editor.setLayerLocked(layer.id, !layer.locked);
-                      }}
-                      className="rounded border px-2 py-0.5"
-                    >
-                      {layer.locked ? "🔒" : "🔓"}
-                    </button>
-                  </div>
+                <div>
+                  <div className="text-xs text-zinc-500 mb-1">Page Color</div>
+                  <input
+                    type="color"
+                    value={editor.bgColor || "#ffffff"}
+                    onChange={(e) => editor.setPageBackground(e.target.value)}
+                    className="w-full h-10 rounded border"
+                  />
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+
+            <div className="border-t border-zinc-200 opacity-60" />
+
+            {/* Position section header */}
+            <button
+              type="button"
+              onClick={() =>
+                setOpenSection((prev) =>
+                  prev === "position" ? null : "position",
+                )
+              }
+              className="w-full flex items-center justify-between px-4 py-3 text-sm"
+            >
+              <span className="font-medium text-zinc-700">Position</span>
+              <ChevronDown
+                size={14}
+                className={
+                  openSection === "position"
+                    ? "transform rotate-180 transition-transform"
+                    : "transition-transform"
+                }
+              />
+            </button>
+
+            {openSection === "position" && (
+              <div className="px-4 pb-3 grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => editor.alignSelected?.("left")}
+                  className="border rounded py-1 text-xs"
+                >
+                  Left
+                </button>
+                <button
+                  onClick={() => editor.alignSelected?.("centerX")}
+                  className="border rounded py-1 text-xs"
+                >
+                  Center
+                </button>
+                <button
+                  onClick={() => editor.alignSelected?.("right")}
+                  className="border rounded py-1 text-xs"
+                >
+                  Right
+                </button>
+
+                <button
+                  onClick={() => editor.alignSelected?.("top")}
+                  className="border rounded py-1 text-xs"
+                >
+                  Top
+                </button>
+                <button
+                  onClick={() => editor.alignSelected?.("middle")}
+                  className="border rounded py-1 text-xs"
+                >
+                  Middle
+                </button>
+                <button
+                  onClick={() => editor.alignSelected?.("bottom")}
+                  className="border rounded py-1 text-xs"
+                >
+                  Bottom
+                </button>
+              </div>
+            )}
+
+            <div className="border-t border-zinc-200 opacity-60" />
+
+            {/* Layers section header */}
+            <button
+              type="button"
+              onClick={() =>
+                setOpenSection((prev) =>
+                  prev === "layers" ? null : "layers",
+                )
+              }
+              className="w-full flex items-center justify-between px-4 py-3 text-sm"
+            >
+              <span className="font-medium text-zinc-700">Layers</span>
+              <ChevronDown
+                size={14}
+                className={
+                  openSection === "layers"
+                    ? "transform rotate-180 transition-transform"
+                    : "transition-transform"
+                }
+              />
+            </button>
+
+            {openSection === "layers" && (
+              <div className="px-4 pb-3 space-y-2">
+                {editor.layers.map((layer) => (
+                  <div
+                    key={layer.id}
+                    className="flex justify-between items-center text-xs border rounded px-2 py-1"
+                  >
+                    <span className="truncate">{layer.displayName}</span>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => editor.layerBringForward(layer.id)}
+                        className="px-1"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        onClick={() => editor.layerSendBackward(layer.id)}
+                        className="px-1"
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </aside>
       </div>

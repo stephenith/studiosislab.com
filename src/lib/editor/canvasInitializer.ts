@@ -33,6 +33,9 @@ export function initFabricCanvas(
     backgroundColor,
     selection,
     preserveObjectStacking,
+    selectionColor: "rgba(59, 130, 246, 0.2)",
+    selectionBorderColor: "rgba(59, 130, 246, 0.8)",
+    selectionLineWidth: 2,
   } as any);
   return c;
 }

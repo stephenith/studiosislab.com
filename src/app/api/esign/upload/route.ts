@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
 import { randomUUID } from "crypto";
+import { adminStorage } from "@/lib/firebaseAdmin";
 
 export const runtime = "nodejs";
 
@@ -37,13 +36,17 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     const documentId = randomUUID();
-    const projectRoot = process.cwd();
-    const esignDir = path.join(projectRoot, "storage", "esign");
+    const objectPath = `esign/original/${documentId}${ext}`;
 
-    await fs.mkdir(esignDir, { recursive: true });
-
-    const outPath = path.join(esignDir, `${documentId}${ext}`);
-    await fs.writeFile(outPath, buffer);
+    const fileRef = adminStorage.file(objectPath);
+    await fileRef.save(buffer, {
+      contentType:
+        ext === ".pdf"
+          ? "application/pdf"
+          : ext === ".docx"
+          ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          : "application/msword",
+    });
 
     return NextResponse.json({
       ok: true,

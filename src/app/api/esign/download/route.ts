@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-import { adminDb } from "@/lib/firebaseAdmin";
+import { adminDb, adminStorage } from "@/lib/firebaseAdmin";
 
 export const runtime = "nodejs";
 
@@ -65,30 +63,30 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const projectRoot = process.cwd();
-    const baseDir = path.join(projectRoot, "storage", "esign");
-
     const exts = [".pdf", ".docx", ".doc"];
-    let foundPath: string | null = null;
+    let foundExt: string | null = null;
+    let fileBuffer: Buffer | null = null;
     let foundExt: string | null = null;
 
     for (const ext of exts) {
-      const p = path.join(baseDir, `${documentId}${ext}`);
-      if (fs.existsSync(p)) {
-        foundPath = p;
+      const objectPath = `esign/original/${documentId}${ext}`;
+      const fileRef = adminStorage.file(objectPath);
+      const [exists] = await fileRef.exists();
+      if (exists) {
+        const [downloadedBuffer] = await fileRef.download();
+        fileBuffer = downloadedBuffer;
         foundExt = ext;
         break;
       }
     }
 
-    if (!foundPath || !foundExt) {
+    if (!fileBuffer || !foundExt) {
       return NextResponse.json(
-        { ok: false, error: "File not found for this documentId" },
+        { ok: false, error: "Original file not found" },
         { status: 404 }
       );
     }
 
-    const fileBuffer = fs.readFileSync(foundPath);
     const bytes = new Uint8Array(fileBuffer);
 
     const contentType =

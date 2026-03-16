@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
     const exts = [".pdf", ".docx", ".doc"];
     let foundExt: string | null = null;
     let fileBuffer: Buffer | null = null;
-    let foundExt: string | null = null;
+  
 
     for (const ext of exts) {
       const objectPath = `esign/original/${documentId}${ext}`;

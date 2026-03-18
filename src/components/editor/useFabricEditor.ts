@@ -137,6 +137,8 @@ export function useFabricEditor({
   const [canvasReady, setCanvasReady] = useState(false);
   const [pages, setPages] = useState<Array<{ id: string }>>([{ id: "page-1" }]);
   const [activePageIndex, setActivePageIndex] = useState(0);
+  const pagesRef = useRef(pages);
+  pagesRef.current = pages;
 
   const [selectionType, setSelectionType] = useState<SelectionType>("none");
   const [selectedFrameHasImage, setSelectedFrameHasImage] = useState(false);
@@ -210,10 +212,11 @@ export function useFabricEditor({
     return next;
   }
 
-  const getActivePageId = useCallback(
-    () => pages[Math.max(0, Math.min(activePageIndex, pages.length - 1))]?.id,
-    [activePageIndex, pages]
-  );
+  const getActivePageId = useCallback(() => {
+    const p = pagesRef.current;
+    const i = activePageIndex;
+    return p[Math.max(0, Math.min(i, p.length - 1))]?.id;
+  }, [activePageIndex]);
 
   const createPageId = useCallback(() => {
     pageIdCounterRef.current += 1;
@@ -500,24 +503,6 @@ export function useFabricEditor({
         canvasCount: pageCanvasesRef.current.size,
       });
     }
-    // #region agent log
-    fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "b60eca",
-      },
-      body: JSON.stringify({
-        sessionId: "b60eca",
-        runId: "pre-fix",
-        hypothesisId: "H1",
-        location: "useFabricEditor.ts:syncCanvasesToContainer",
-        message: "syncCanvasesToContainer call",
-        data: { z, w, h, changed },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
     if (!changed) {
       // Dimensions already match; avoid redundant setDimensions() to prevent resize feedback loops.
       return false;
@@ -560,24 +545,6 @@ export function useFabricEditor({
   const applyEffectiveZoom = useCallback(
     (effectiveZoom: number) => {
       const z = clampEffectiveZoom(effectiveZoom);
-      // #region agent log
-      fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Debug-Session-Id": "b60eca",
-        },
-        body: JSON.stringify({
-          sessionId: "b60eca",
-          runId: "pre-fix",
-          hypothesisId: "H2",
-          location: "useFabricEditor.ts:applyEffectiveZoom",
-          message: "applyEffectiveZoom",
-          data: { effectiveZoom, clamped: z },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
       applyZoomToCanvases(z);
     },
     [applyZoomToCanvases, clampEffectiveZoom]
@@ -910,28 +877,6 @@ export function useFabricEditor({
     (pageW: number, pageH: number, opts?: { discardSelection?: boolean }) => {
       const c = getCanvas();
       if (!c) return;
-      // #region agent log
-      fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Debug-Session-Id": "b60eca",
-        },
-        body: JSON.stringify({
-          sessionId: "b60eca",
-          runId: "selection-debug",
-          hypothesisId: "S3",
-          location: "useFabricEditor.ts:ensurePageBackground",
-          message: "ensurePageBackground called",
-          data: {
-            pageW,
-            pageH,
-            discardSelection: !!opts?.discardSelection,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
       normalizePageBackground(c, pageW, pageH, bgColorRef.current || "#ffffff", opts);
     },
     [getCanvas, normalizePageBackground]
@@ -1018,24 +963,6 @@ export function useFabricEditor({
       if (process.env.NODE_ENV !== "production") {
         console.log("[fitViewport] baseFitZoomRef:", baseFitZoomRef.current, "reason:", reason);
       }
-      // #region agent log
-      fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Debug-Session-Id": "b60eca",
-        },
-        body: JSON.stringify({
-          sessionId: "b60eca",
-          runId: "pre-fix",
-          hypothesisId: "H3",
-          location: "useFabricEditor.ts:fitViewport",
-          message: "fitViewport computed",
-          data: { reason, viewportH, pageH, availableHeight, fit },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
       applyEffectiveZoom(fit);
 
       if (
@@ -1093,29 +1020,6 @@ export function useFabricEditor({
           });
         });
       };
-      // #region agent log
-      fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Debug-Session-Id": "b60eca",
-        },
-        body: JSON.stringify({
-          sessionId: "b60eca",
-          runId: "pre-fix",
-          hypothesisId: "H4",
-          location: "useFabricEditor.ts:scheduleFit",
-          message: "scheduleFit invoked",
-          data: {
-            reason,
-            isLoadingDoc: isLoadingDocRef.current,
-            manualZoom: manualZoomRef.current,
-            zoomMode: zoomModeRef.current,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
       if (reason === "resize") {
         if (fitResizeTimeoutRef.current) {
           window.clearTimeout(fitResizeTimeoutRef.current);
@@ -1131,6 +1035,9 @@ export function useFabricEditor({
     },
     [fitToViewport]
   );
+
+  const scheduleFitRef = useRef(scheduleFit);
+  scheduleFitRef.current = scheduleFit;
 
   useEffect(() => {
     return () => {
@@ -1148,12 +1055,12 @@ export function useFabricEditor({
       }
       if (!el || typeof ResizeObserver === "undefined") return;
       const ro = new ResizeObserver(() => {
-        scheduleFit("resize");
+        scheduleFitRef.current("resize");
       });
       ro.observe(el);
       resizeObserverRef.current = ro;
       requestAnimationFrame(() => {
-        scheduleFit("resize");
+        scheduleFitRef.current("resize");
       });
       // Recalc Fabric pointer offset once viewport is in DOM (fixes hit-test when viewport mounts after canvas)
       requestAnimationFrame(() => {
@@ -1163,23 +1070,23 @@ export function useFabricEditor({
         }, 0);
       });
     },
-    [scheduleFit, getCanvas]
+    [getCanvas]
   );
 
   useEffect(() => {
-    const onResize = () => scheduleFit("resize");
+    const onResize = () => scheduleFitRef.current("resize");
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [scheduleFit]);
+  }, []);
 
   const setPageBackground = useCallback(
     (color: string) => {
       const normalized = toHexColor(color, "#ffffff");
       setBgColor(normalized);
       applyPageBackground(normalized);
-      scheduleFit("templateLoaded");
+      scheduleFitRef.current("templateLoaded");
     },
-    [applyPageBackground, scheduleFit]
+    [applyPageBackground]
   );
 
   const applySnapshotToCanvas = useCallback(
@@ -1461,6 +1368,9 @@ try {
     ]
   );
 
+  const applySnapshotToCanvasRef = useRef(applySnapshotToCanvas);
+  applySnapshotToCanvasRef.current = applySnapshotToCanvas;
+
   const applySnapshot = useCallback(
     async (snap: any, reason: string = "template-loaded") => {
       const c = getCanvas();
@@ -1469,6 +1379,9 @@ try {
     },
     [applySnapshotToCanvas, getCanvas]
   );
+
+  const applySnapshotRef = useRef(applySnapshot);
+  applySnapshotRef.current = applySnapshot;
 
   const getLayerObjects = useCallback(() => {
     const c = getCanvas();
@@ -1501,6 +1414,9 @@ try {
     }
   }, [ensureObjectId, getDefaultLabel, getCanvas, isPageBackgroundObject]);
 
+  const updateLayersRef = useRef(updateLayers);
+  updateLayersRef.current = updateLayers;
+
   const renameLayer = useCallback(
     (id: string, newName: string) => {
       const c = getCanvas();
@@ -1522,32 +1438,54 @@ try {
     [getCanvas, getDefaultLabel, saveDraft, updateLayers]
   );
 
+  const lastSelectionRef = useRef<string | null>(null);
+
   const updateSelection = useCallback(() => {
     const c = getCanvas();
     if (!c) return;
     const active: any = c.getActiveObject();
+
+    // Guard: skip React work if logical selection id hasn't changed
+    let currentId: string | null = null;
+    if (active) {
+      if (active.type === "activeSelection") {
+        const objs = active.getObjects?.() || active._objects || [];
+        const target = objs[0];
+        currentId = target ? ensureObjectId(target) : null;
+      } else {
+        currentId = ensureObjectId(active);
+      }
+    }
+    if (lastSelectionRef.current === currentId) {
+      return;
+    }
+    lastSelectionRef.current = currentId;
+
     if (!active || active.type === "activeSelection") {
       if (active?.type === "activeSelection") {
         const objs = active.getObjects?.() || active._objects || [];
         const target = objs[0];
-        setSelectedLayerId(ensureObjectId(target));
+        const targetId = target ? ensureObjectId(target) : null;
+        setSelectedLayerId((prev) => (prev === targetId ? prev : targetId));
       } else {
-        setSelectedLayerId(null);
+        setSelectedLayerId((prev) => (prev === null ? prev : null));
       }
-      setSelectionType("none");
-      setSelectedFrameHasImage(false);
-      setActiveObjectType(null);
-      setActiveObjectSnapshot(null);
+      setSelectionType((prev) => (prev === "none" ? prev : "none"));
+      setSelectedFrameHasImage((prev: boolean) => (prev === false ? prev : false));
+      setActiveObjectType((prev: string | null) => (prev === null ? prev : null));
+      setActiveObjectSnapshot((prev: any) => (prev === null ? prev : null));
       return;
     }
     const type = String(active.type || "").toLowerCase();
     isHydratingFromSelectionRef.current = true;
-    setActiveObjectType(type);
-    setActiveObjectSnapshot(active.toObject ? active.toObject() : active);
-    setSelectedLayerId(ensureObjectId(active));
+    setActiveObjectType((prev: string | null) => (prev === type ? prev : type));
+    const nextSnapshot = active.toObject ? active.toObject() : active;
+    setActiveObjectSnapshot((prev: any) => (prev === nextSnapshot ? prev : nextSnapshot));
+    const activeId = ensureObjectId(active);
+    setSelectedLayerId((prev: string | null) => (prev === activeId ? prev : activeId));
     if (type === "textbox" || type === "i-text" || type === "text") {
-      setSelectionType("text");
-      setSelectedFrameHasImage(false);
+      setSelectionType((prev) => (prev === "text" ? prev : "text"));
+      setSelectedFrameHasImage((prev) => (prev === false ? prev : false));
       logTextSync("hydrate");
       const activeFontSize = Number(active.fontSize);
       const activeLineHeight = Number(active.lineHeight);
@@ -1562,32 +1500,47 @@ try {
         lineHeight: Number.isFinite(activeLineHeight) ? activeLineHeight : 1.3,
       });
     } else if (type === "image") {
-      setSelectionType("image");
-      setSelectedFrameHasImage(false);
-      setImageProps({
-        opacity: active.opacity ?? 1,
-      });
+      setSelectionType((prev) => (prev === "image" ? prev : "image"));
+      setSelectedFrameHasImage((prev) => (prev === false ? prev : false));
+      const nextImage = { opacity: active.opacity ?? 1 };
+      setImageProps((prev: typeof nextImage | null) =>
+        prev && prev.opacity === nextImage.opacity ? prev : nextImage
+      );
     } else if (type === "rect" || type === "circle" || type === "triangle" || type === "line") {
-      setSelectionType("shape");
-      setSelectedFrameHasImage(false);
-      setShapeProps({
+      setSelectionType((prev) => (prev === "shape" ? prev : "shape"));
+      setSelectedFrameHasImage((prev) => (prev === false ? prev : false));
+      const nextShape = {
         fill: toHexColor(active.fill, "#111827"),
         stroke: toHexColor(active.stroke, "#111827"),
         strokeWidth: active.strokeWidth || 2,
         opacity: active.opacity ?? 1,
         cornerRadius: active.rx || 0,
-      });
+      };
+      setShapeProps((prev: typeof nextShape | null) =>
+        prev &&
+        prev.fill === nextShape.fill &&
+        prev.stroke === nextShape.stroke &&
+        prev.strokeWidth === nextShape.strokeWidth &&
+        prev.opacity === nextShape.opacity &&
+        prev.cornerRadius === nextShape.cornerRadius
+          ? prev
+          : nextShape
+      );
     } else if ((type === "group" || type === "activeSelection") && isImageFrame(active)) {
-      setSelectionType("frame");
-      setSelectedFrameHasImage(!!getImageForFrame(c, active));
+      setSelectionType((prev) => (prev === "frame" ? prev : "frame"));
+      const hasImg = !!getImageForFrame(c, active);
+      setSelectedFrameHasImage((prev) => (prev === hasImg ? prev : hasImg));
     } else {
-      setSelectedFrameHasImage(false);
-      setSelectionType("none");
+      setSelectedFrameHasImage((prev) => (prev === false ? prev : false));
+      setSelectionType((prev) => (prev === "none" ? prev : "none"));
     }
     requestAnimationFrame(() => {
       isHydratingFromSelectionRef.current = false;
     });
   }, [ensureObjectId, getCanvas, logTextSync]);
+
+  const updateSelectionRef = useRef(updateSelection);
+  updateSelectionRef.current = updateSelection;
 
   const attachImageToFrameRef = useRef<(frameGroup: any, img: any) => void>(() => undefined);
 
@@ -1644,6 +1597,33 @@ try {
         const state = imageFrameCropModeRef.current;
         if (!state) return;
         const { frame, image } = state;
+
+        // Apply a simple final crop based on the image's position relative to the frame.
+        if (frame && image) {
+          const shape = getFrameShape(frame);
+          const frameW = Number((shape as any)?.width ?? 0);
+          const frameH = Number((shape as any)?.height ?? 0);
+          const scale = Number((image as any).scaleX || 1);
+          if (frameW > 0 && frameH > 0 && Number.isFinite(scale) && scale > 0) {
+            const imgLeft = Number((image as any).left || 0);
+            const imgTop = Number((image as any).top || 0);
+            const cropX = Math.max(0, -imgLeft / scale);
+            const cropY = Math.max(0, -imgTop / scale);
+            const cropW = frameW / scale;
+            const cropH = frameH / scale;
+            (image as any).set({
+              cropX,
+              cropY,
+              width: cropW,
+              height: cropH,
+              left: 0,
+              top: 0,
+              scaleX: scale,
+              scaleY: scale,
+            });
+          }
+        }
+
         if (image) {
           image.set({
             selectable: false,
@@ -1665,6 +1645,15 @@ try {
           (frame as any).subTargetCheck = false;
           (frame as any)._activeObjects = [];
           (frame as any)._set?.("dirty", true);
+
+          // Remove frame highlight styling applied during crop mode.
+          const shape = getFrameShape(frame);
+          if (shape) {
+            (shape as any).set({
+              stroke: "#d1d5db",
+              strokeWidth: 1,
+            });
+          }
         }
         imageFrameCropModeRef.current = null;
         setCropModeStateRef.current(false);
@@ -1701,9 +1690,24 @@ try {
         }
 
         if (obj.type !== "image") return false;
-        const frames = (canvas.getObjects?.() || []).filter((o: any) => isImageFrame(o));
+        const canvas = getCanvas();
+        const frames = (canvas?.getObjects?.() || []).filter((o: any) => isImageFrame(o));
+
         for (let i = frames.length - 1; i >= 0; i--) {
-          if (tryAttachImageToFrame(obj, frames[i])) return true;
+          const frame = frames[i];
+          const imgRect = (obj as any).getBoundingRect?.(true, true);
+          const frameRect = (frame as any).getBoundingRect?.(true, true);
+          if (!imgRect || !frameRect) continue;
+
+          const isOverlapping =
+            imgRect.left < frameRect.left + frameRect.width &&
+            imgRect.left + imgRect.width > frameRect.left &&
+            imgRect.top < frameRect.top + frameRect.height &&
+            imgRect.top + imgRect.height > frameRect.top;
+
+          if (isOverlapping) {
+            if (tryAttachImageToFrame(obj, frame)) return true;
+          }
         }
         return false;
       };
@@ -1742,13 +1746,70 @@ try {
           updateSelection();
           if (!isApplyingRef.current) pushHistory("text");
         },
-        mouseUp: () => {},
+        objectMoving: (e: any) => {
+          const target = e?.target as any;
+          if (!target || imageFrameCropModeRef.current) return;
+          if (!isImageFrame(target)) return;
+          const c = canvas;
+          const img = getImageForFrame(c, target);
+          if (!img) return;
+          const shape = getFrameShape(target);
+          if (!shape?.getCenterPoint) return;
+          const center = shape.getCenterPoint();
+          img.set({
+            left: center.x,
+            top: center.y,
+          });
+          img.setCoords();
+        },
+        mouseUp: (e: any) => {
+          const obj = e?.target;
+          if (!obj) return;
+          runFrameDropDetection(obj);
+        },
         mouseDblclick: (e: any) => {
           const target = e?.target as any;
+          // #region agent log
+          fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Debug-Session-Id": "b60eca",
+            },
+            body: JSON.stringify({
+              sessionId: "b60eca",
+              runId: "frame-crop",
+              hypothesisId: "H-crop-dblclick",
+              location: "useFabricEditor.ts:mouseDblclick",
+              message: "mouse:dblclick",
+              data: {
+                hasTarget: !!target,
+                targetType: target?.type ?? null,
+                targetId: (target as any)?.id ?? (target as any)?.uid ?? null,
+                inCropMode: !!imageFrameCropModeRef.current,
+              },
+              timestamp: Date.now(),
+            }),
+          }).catch(() => {});
+          // #endregion
           if (!target) return;
 
           // If already in crop mode, ignore further double-clicks
           if (imageFrameCropModeRef.current) return;
+
+          // Double-click directly on an image that is linked to a frame via data.frameId
+          if (target.type === "image" && target?.data?.frameId) {
+            const frameId = target.data.frameId;
+            const frame = (canvas.getObjects?.() || []).find((o: any) => {
+              const oid = (o as any).id ?? (o as any).uid;
+              return isImageFrame(o) && oid === frameId;
+            });
+            if (frame) {
+              canvas.setActiveObject(frame);
+              enterImageFrameCropMode();
+              return;
+            }
+          }
 
           // Double-click directly on a frame
           if (isImageFrame(target)) {
@@ -1763,25 +1824,6 @@ try {
             enterImageFrameCropMode();
           }
         },
-        // TEMPORARY: debug selection / pointer mapping — remove after diagnosis
-        debugMouseDown: (e: any) => {
-          const dom = e?.e;
-          const vp = viewportRef.current;
-          const c = canvas as any;
-          const log: Record<string, unknown> = {
-            "viewport.getBoundingClientRect()": vp?.getBoundingClientRect?.(),
-            "viewport.scrollTop": vp?.scrollTop,
-            "viewport.scrollLeft": vp?.scrollLeft,
-            "canvas._offset": c?._offset,
-            "canvas.getZoom()": canvas.getZoom?.(),
-            "event.clientX/clientY": dom ? { clientX: dom.clientX, clientY: dom.clientY } : null,
-            "Fabric target": e?.target ?? null,
-          };
-          if (c?.upperCanvasEl) log["upperCanvasEl.getBoundingClientRect()"] = c.upperCanvasEl.getBoundingClientRect();
-          if (c?.lowerCanvasEl) log["lowerCanvasEl.getBoundingClientRect()"] = c.lowerCanvasEl.getBoundingClientRect();
-          if (c?.wrapperEl) log["wrapperEl.getBoundingClientRect()"] = c.wrapperEl.getBoundingClientRect();
-          console.log("[DEBUG selection]", log);
-        },
       };
       canvas.on("selection:created", handlers.selectionCreated as any);
       canvas.on("selection:updated", handlers.selectionUpdated as any);
@@ -1792,22 +1834,27 @@ try {
       canvas.on("text:changed", handlers.textChanged);
       canvas.on("mouse:dblclick", handlers.mouseDblclick);
       canvas.on("mouse:up", handlers.mouseUp);
-      if (handlers.debugMouseDown) canvas.on("mouse:down", handlers.debugMouseDown);
+      canvas.on("object:moving", handlers.objectMoving as any);
       activeCanvasListenersRef.current = { canvas, handlers };
     },
     [pushHistory, unbindActiveCanvasListeners, updateLayers, updateSelection, enterImageFrameCropMode]
   );
 
+  const bindActiveCanvasListenersRef = useRef(bindActiveCanvasListeners);
+  bindActiveCanvasListenersRef.current = bindActiveCanvasListeners;
+  const unbindActiveCanvasListenersRef = useRef(unbindActiveCanvasListeners);
+  unbindActiveCanvasListenersRef.current = unbindActiveCanvasListeners;
+
   useEffect(() => {
-    const id = getActivePageId();
+    const p = pagesRef.current;
+    const idx = activePageIndex;
+    const id = p[Math.max(0, Math.min(idx, p.length - 1))]?.id;
     if (!id) return;
     const c = pageCanvasesRef.current.get(id) || null;
     const didPageActuallyChange = prevActivePageIdRef.current !== id;
     canvasRef.current = c;
-    // Update interaction flags for all page canvases based on active page.
     pageCanvasesRef.current.forEach((canvas, pageId) => {
       const isActivePage = pageId === id;
-
       if (isActivePage) {
         canvas.selection = true;
         (canvas as any).interactive = true;
@@ -1820,8 +1867,8 @@ try {
     if (process.env.NODE_ENV !== "production") {
       if (!(globalThis as any).__canvas) (globalThis as any).__canvas = c;
     }
-    unbindActiveCanvasListeners();
-    if (c) bindActiveCanvasListeners(c);
+    unbindActiveCanvasListenersRef.current();
+    if (c) bindActiveCanvasListenersRef.current(c);
     if (c) {
       if (didPageActuallyChange) {
         c.discardActiveObject();
@@ -1829,25 +1876,16 @@ try {
       refreshCanvasOffset(c);
       c.requestRenderAll();
     }
-
     if (didPageActuallyChange) {
       setSelectedLayerId(null);
       setSelectionType("none");
       setActiveObjectType(null);
       setActiveObjectSnapshot(null);
     }
-
     prevActivePageIdRef.current = id;
-    updateSelection();
-    updateLayers();
-  }, [
-    activePageIndex,
-    bindActiveCanvasListeners,
-    getActivePageId,
-    unbindActiveCanvasListeners,
-    updateLayers,
-    updateSelection,
-  ]);
+    updateSelectionRef.current();
+    updateLayersRef.current();
+  }, [activePageIndex]);
 
   useEffect(() => {
     const handler = () => {
@@ -2147,7 +2185,7 @@ try {
                   typeof jsonOrObject === "string"
                     ? JSON.parse(jsonOrObject)
                     : jsonOrObject;
-                await applySnapshot(data, reason);
+                await applySnapshotRef.current(data, reason);
                 active.requestRenderAll();
                 console.log("[slbImport] Loaded template");
               } catch (err) {
@@ -2156,10 +2194,10 @@ try {
             };
           }
         }
-        unbindActiveCanvasListeners();
-        bindActiveCanvasListeners(c);
-        updateSelection();
-        updateLayers();
+        unbindActiveCanvasListenersRef.current();
+        bindActiveCanvasListenersRef.current(c);
+        updateSelectionRef.current();
+        updateLayersRef.current();
       }
       setCanvasReady(true);
       const prevActiveCanvas = canvasRef.current;
@@ -2224,7 +2262,7 @@ try {
               if (hadStoredZoomRef.current) {
                 applyZoomToCanvases(getZoom());
               } else {
-                scheduleFit("doc-load");
+                scheduleFitRef.current("doc-load");
               }
             });
           });
@@ -2239,7 +2277,7 @@ try {
         if (process.env.NODE_ENV !== "production") {
           console.log("[initCanvas] doc-load", { pageId });
         }
-        await applySnapshotToCanvas(c, pending.snapshot, "doc-load");
+        await applySnapshotToCanvasRef.current(c, pending.snapshot, "doc-load");
       } else {
         // blank (Add Page) or no pending — do not load any JSON
         c.clear();
@@ -2257,7 +2295,7 @@ try {
         (c as any).calcOffset?.();
         applyZoomToCanvas(c, z);
         c.requestRenderAll();
-        scheduleFit("page-add");
+        scheduleFitRef.current("page-add");
       }
 
       pendingPageLoadRef.current.delete(pageId);
@@ -2272,23 +2310,16 @@ try {
     },
     [
       applyPageBackgroundProps,
-      applySnapshotToCanvas,
-      bindActiveCanvasListeners,
       ensureObjectId,
       ensurePageBackground,
       getActivePageId,
       getZoom,
       applyZoomToCanvas,
       isPageBackgroundObject,
-      syncCanvasesToContainer,
       mode,
       pageSize,
-      unbindActiveCanvasListeners,
-      updateLayers,
-      updateSelection,
       applyTextBoxNoStretch,
       applyZoomToCanvases,
-      scheduleFit,
     ]
   );
 
@@ -2508,13 +2539,12 @@ try {
     }
 
     const snapshotForLoad = snapshot || { objects: [] };
-    applySnapshot(snapshotForLoad).then(() => {
+    applySnapshotRef.current(snapshotForLoad).then(() => {
       undoRef.current = [snapshotForLoad];
       redoRef.current = [];
-      updateLayers();
+      updateLayersRef.current();
     });
   }, [
-    applySnapshot,
     canvasReady,
     getCanvas,
     getDraftKey,
@@ -2527,7 +2557,6 @@ try {
     templateId,
     trimmedDocId,
     treatBlank,
-    updateLayers,
   ]);
 
   useEffect(() => {
@@ -2549,8 +2578,8 @@ try {
     if (!c) return;
     const size = PAGE_SIZES[pageSize];
     ensurePageBackground(size.w, size.h, { discardSelection: true });
-    scheduleFit("pageSize");
-  }, [ensurePageBackground, getCanvas, pageSize, pageSizePx, scheduleFit]);
+    scheduleFitRef.current("pageSize");
+  }, [ensurePageBackground, getCanvas, pageSize, pageSizePx]);
 
   useEffect(() => {
     const c = getCanvas();
@@ -2918,16 +2947,16 @@ try {
     const current = undoRef.current.pop();
     if (current) redoRef.current.push(current);
     const prev = undoRef.current[undoRef.current.length - 1];
-    await applySnapshot(prev, "history");
-  }, [applySnapshot]);
+    await applySnapshotRef.current(prev, "history");
+  }, [getCanvas]);
 
   const redo = useCallback(async () => {
     const c = getCanvas();
     if (!c || redoRef.current.length === 0) return;
     const next = redoRef.current.pop();
     if (next) undoRef.current.push(next);
-    await applySnapshot(next, "history");
-  }, [applySnapshot]);
+    await applySnapshotRef.current(next, "history");
+  }, [getCanvas]);
 
   const alignSelected = useCallback(
     (action: AlignAction) => {

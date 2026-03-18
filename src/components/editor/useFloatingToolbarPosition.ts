@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 export interface ToolbarPosition {
   top: number;
@@ -19,10 +19,15 @@ export function useFloatingToolbarPosition(
 ): { position: ToolbarPosition | null; isMultipleSelection: boolean } {
   const [position, setPosition] = useState<ToolbarPosition | null>(null);
   const [isMultipleSelection, setIsMultipleSelection] = useState(false);
+  const getCanvasRef = useRef(getCanvas);
+
+  useEffect(() => {
+    getCanvasRef.current = getCanvas;
+  }, [getCanvas]);
 
   const updatePosition = useCallback(() => {
     const viewport = viewportRef?.current;
-    const canvas = getCanvas();
+    const canvas = getCanvasRef.current();
     if (!viewport || !canvas || !hasSelection) {
       setPosition(null);
       return;
@@ -51,8 +56,19 @@ export function useFloatingToolbarPosition(
     const selectionTop = rect.top;
     const left = canvasOffsetLeft + centerX * z + vpt4;
     const top = canvasOffsetTop + selectionTop * z + vpt5;
-    setPosition({ left, top });
-  }, [hasSelection, getCanvas, viewportRef, zoom]);
+
+    // Avoid tiny numerical jitter causing extra renders
+    setPosition((prev) => {
+      if (
+        prev &&
+        Math.abs(prev.left - left) < 0.5 &&
+        Math.abs(prev.top - top) < 0.5
+      ) {
+        return prev;
+      }
+      return { left, top };
+    });
+  }, [hasSelection, viewportRef, zoom]);
 
   useEffect(() => {
     if (!hasSelection) {
@@ -60,7 +76,7 @@ export function useFloatingToolbarPosition(
       return;
     }
     updatePosition();
-    const canvas = getCanvas();
+    const canvas = getCanvasRef.current();
     if (!canvas) return;
     const c = canvas as any;
     const onModified = () => updatePosition();
@@ -71,7 +87,7 @@ export function useFloatingToolbarPosition(
       c.off?.("object:modified", onModified);
       c.off?.("selection:updated", onSelectionUpdated);
     };
-  }, [hasSelection, getCanvas, updatePosition]);
+  }, [hasSelection, zoom, updatePosition]);
 
   return { position, isMultipleSelection };
 }

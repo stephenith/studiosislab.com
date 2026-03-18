@@ -16,10 +16,16 @@ export function getImageFrameFrameType(obj: any): "square" | "circle" {
   ) as "square" | "circle";
 }
 
-export function getImageForFrame(_canvas: Canvas, frame: any): any {
-  if (!frame) return null;
-  const objs = (frame as any)._objects ?? (frame as any).getObjects?.() ?? [];
-  return objs.find((o: any) => o.type === "image") ?? null;
+export function getImageForFrame(canvas: Canvas, frame: any): any {
+  if (!canvas || !frame) return null;
+  const frameId = (frame as any).id || (frame as any).uid;
+  if (!frameId) return null;
+  const objs = canvas.getObjects() || [];
+  return (
+    objs.find(
+      (o: any) => o.type === "image" && o?.data?.frameId === frameId
+    ) ?? null
+  );
 }
 
 export function getFrameShape(frame: any): any {

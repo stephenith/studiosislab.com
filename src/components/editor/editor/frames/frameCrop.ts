@@ -1,4 +1,5 @@
 import type { Canvas } from "fabric";
+import { getFrameShape } from "./frameDetection";
 
 export function createFrameCrop(deps: {
   getCanvas: () => Canvas | null;
@@ -32,8 +33,53 @@ export function createFrameCrop(deps: {
     if (imageFrameCropModeRef.current) return false;
 
     const target = c.getActiveObject() as any;
+    // #region agent log
+    fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Debug-Session-Id": "b60eca",
+      },
+      body: JSON.stringify({
+        sessionId: "b60eca",
+        runId: "frame-crop",
+        hypothesisId: "H-crop-target",
+        location: "frameCrop.ts:enterImageFrameCropMode",
+        message: "enterImageFrameCropMode called",
+        data: {
+          hasCanvas: !!c,
+          hasTarget: !!target,
+          targetType: target?.type ?? null,
+          isImageFrame: target ? isImageFrame(target) : null,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+
     if (!target || !isImageFrame(target)) return false;
     const image = getImageForFrame(c, target);
+    // #region agent log
+    fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Debug-Session-Id": "b60eca",
+      },
+      body: JSON.stringify({
+        sessionId: "b60eca",
+        runId: "frame-crop",
+        hypothesisId: "H-crop-image",
+        location: "frameCrop.ts:enterImageFrameCropMode",
+        message: "getImageForFrame result",
+        data: {
+          hasImage: !!image,
+          imageFrameId: image?.data?.frameId ?? null,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
     if (!image) return false;
 
     exitCropModeRef.current?.();
@@ -48,6 +94,16 @@ export function createFrameCrop(deps: {
     (target as any).lockMovementX = true;
     (target as any).lockMovementY = true;
 
+    // Highlight the frame shape while in crop mode for clearer UX.
+    const shape = getFrameShape(target);
+    if (shape) {
+      shape.set({
+        stroke: "#3b82f6",
+        strokeWidth: 2,
+      });
+    }
+
+    // Allow the image to move and scale freely while cropping.
     image.set({
       selectable: true,
       evented: true,
@@ -58,9 +114,9 @@ export function createFrameCrop(deps: {
       hasBorders: true,
       hasControls: true,
     });
-    (target as any)._activeObjects = [image];
-    (target as any)._set?.("dirty", true);
-    c.setActiveObject(target);
+    // Make the image itself the active object so the user can drag/scale it
+    // inside the stationary frame.
+    c.setActiveObject(image);
     imageFrameCropModeRef.current = { frame: target, image, canvas: c };
     setCropModeStateRef.current(true);
     c.requestRenderAll();

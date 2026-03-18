@@ -32,46 +32,62 @@ export function createFrameAttach(deps: {
     const objs = frameGroup._objects ?? frameGroup.getObjects?.() ?? [];
     if (objs.includes(image)) return;
 
+    // 1) Get original image size (base, unscaled dimensions).
     const el = (image as any)._element ?? (image as any).getElement?.();
-    if (!el?.naturalWidth) return;
+    const original =
+      (image as any).getOriginalSize?.() || {
+        width: el?.naturalWidth || (image as any).width,
+        height: el?.naturalHeight || (image as any).height,
+      };
+    const baseW = Number(original?.width) || 0;
+    const baseH = Number(original?.height) || 0;
+    if (!baseW || !baseH) return;
 
-    const size = (image as any).getOriginalSize?.() || {
-      width: el.naturalWidth,
-      height: el.naturalHeight,
-    };
-    const imgW = size?.width ?? el.naturalWidth ?? 1;
-    const imgH = size?.height ?? el.naturalHeight ?? 1;
-    if (!imgW || !imgH) return;
-
+    // 2) Compute visible frame size (including frame's own scaling).
     const frameType = getImageFrameFrameType(frameGroup);
-    const frameW =
-      frameType === "circle"
-        ? (Number((shape as any).radius) ?? IMAGE_FRAME_SIZE / 2) * 2
-        : Number((shape as any).width) ?? IMAGE_FRAME_SIZE;
-    const frameH =
-      frameType === "circle"
-        ? (Number((shape as any).radius) ?? IMAGE_FRAME_SIZE / 2) * 2
-        : Number((shape as any).height) ?? IMAGE_FRAME_SIZE;
+    let frameW: number;
+    let frameH: number;
+    if (frameType === "circle") {
+      const radius = Number((shape as any).radius) || IMAGE_FRAME_SIZE / 2;
+      const scaleX = Number((shape as any).scaleX) || 1;
+      const scaleY = Number((shape as any).scaleY) || 1;
+      frameW = radius * 2 * scaleX;
+      frameH = radius * 2 * scaleY;
+    } else {
+      const scaledW =
+        typeof (shape as any).getScaledWidth === "function"
+          ? (shape as any).getScaledWidth()
+          : Number((shape as any).width) || IMAGE_FRAME_SIZE;
+      const scaledH =
+        typeof (shape as any).getScaledHeight === "function"
+          ? (shape as any).getScaledHeight()
+          : Number((shape as any).height) || IMAGE_FRAME_SIZE;
+      frameW = scaledW;
+      frameH = scaledH;
+    }
 
-    const scale = Math.max(frameW / imgW, frameH / imgH);
+    // 3) COVER scaling: ignore any existing image scale and compute fresh factor.
+    const scale = Math.max(frameW / baseW, frameH / baseH);
     if (!Number.isFinite(scale) || scale <= 0) return;
 
-    const cropW = frameW / scale;
-    const cropH = frameH / scale;
-    const cropX = Math.max(0, (imgW - cropW) / 2);
-    const cropY = Math.max(0, (imgH - cropH) / 2);
-
     const existingImg = getImageForFrame(c, frameGroup);
-    if (existingImg) frameGroup.remove(existingImg);
+    if (existingImg) {
+      c.remove(existingImg);
+    }
 
-    // Apply cover-scale and crop in image space (no positioning yet)
+    // 4) Center the image on the frame's visible center.
+    const center = (shape as any).getCenterPoint?.();
+    if (!center) return;
+    const cx = Number(center.x) || 0;
+    const cy = Number(center.y) || 0;
+
     image.set({
+      originX: "center",
+      originY: "center",
+      left: cx,
+      top: cy,
       scaleX: scale,
       scaleY: scale,
-      cropX,
-      cropY,
-      width: cropW,
-      height: cropH,
       selectable: false,
       evented: true,
       lockScalingX: true,
@@ -80,60 +96,55 @@ export function createFrameAttach(deps: {
       skewX: 0,
       skewY: 0,
     });
+    image.setCoords();
 
+    let clipPath;
     if (frameType === "circle") {
-      const clipPath = new Circle({
+      clipPath = new Circle({
         radius: frameW / 2,
-        originX: "left",
-        originY: "top",
+        originX: "center",
+        originY: "center",
         left: 0,
         top: 0,
         selectable: false,
         evented: false,
       });
-      image.set({ clipPath });
-      (clipPath as any).absolutePositioned = false;
     } else {
       const rx = (shape as any).rx ?? 0;
       const ry = (shape as any).ry ?? 0;
-      const clipPath = new Rect({
+      clipPath = new Rect({
         width: frameW,
         height: frameH,
         rx,
         ry,
-        originX: "left",
-        originY: "top",
+        originX: "center",
+        originY: "center",
         left: 0,
         top: 0,
         selectable: false,
         evented: false,
       });
-      image.set({ clipPath });
-      (clipPath as any).absolutePositioned = false;
     }
+    (clipPath as any).absolutePositioned = false;
+    image.set({ clipPath });
 
+    const frameId = (frameGroup as any).id || (frameGroup as any).uid;
     image.data = image.data || {};
     image.data.insideFrame = true;
-
-    c.remove(image);
-    frameGroup.add(image);
-
-    // Position the image in the frame's local space relative to the shape
-    image.set({
-      originX: "left",
-      originY: "top",
-      left: (shape as any).left ?? 0,
-      top: (shape as any).top ?? 0,
-    });
+    if (frameId) {
+      (image.data as any).frameId = frameId;
+    }
 
     frameGroup.data = frameGroup.data || {};
     frameGroup.data.hasImage = true;
 
-    if (typeof frameGroup._calcBounds === "function") frameGroup._calcBounds();
-    frameGroup.setCoords?.();
+    if (!image.canvas) {
+      c.add(image);
+    }
+    image.set({ visible: true, opacity: 1 });
+    (c as any).bringToFront?.(image);
     c.requestRenderAll();
-    c.setActiveObject(frameGroup);
-    c.requestRenderAll();
+
     pushHistory("object:update");
     updateLayers();
   };

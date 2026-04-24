@@ -28,7 +28,9 @@ export default function MemoryMatchGame() {
   const [matched, setMatched] = useState<boolean[]>(() => initMatched());
   const [flipped, setFlipped] = useState<number[]>([]);
   const [lock, setLock] = useState(false);
-  const flipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Browser `setTimeout` / `clearTimeout` use `number` handles; Node's `setTimeout` typing is `NodeJS.Timeout`.
+  // "use client" + `window` APIs → store the timer id as `number` so it matches Vercel/DOM tsc.
+  const flipTimerRef = useRef<number | null>(null);
 
   const clearFlipTimer = useCallback(() => {
     if (flipTimerRef.current != null) {

@@ -116,7 +116,6 @@ export function createFrameCreate(deps: {
       hasBorders: true,
       hasControls: true,
       perPixelTargetFind: true,
-      layout: 'clip-path',
       objectCaching: true,
       subTargetCheck: true,
       interactive: true,

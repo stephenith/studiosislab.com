@@ -29,11 +29,29 @@ export type PanelId =
 export type EditorSidebarApi = {
   addText?: () => void;
   setTextProp?: (patch: Record<string, unknown>) => void;
+  addTable?: (rows: number, cols: number) => void;
+  addShape?: (shapeId: string) => void;
   addRect?: () => void;
   addCircle?: () => void;
   addLine?: () => void;
   addImageFrame?: (type: "square" | "circle") => void;
   addImage?: (file: File) => void;
+  addImageFromUrl?: (url: string) => Promise<void> | void;
+  addGraphicFromUrl?: (url: string) => Promise<void> | void;
+  addQrCode?: (content: string) => Promise<void> | void;
+  applyTemplateToCurrentPage?: (templateId: string) => Promise<void> | void;
+  activeDrawTool?: "none" | "pencil" | "highlighter" | "eraser";
+  pencilColor?: string;
+  pencilThickness?: number;
+  highlighterColor?: string;
+  highlighterThickness?: number;
+  eraserSize?: number;
+  setDrawTool?: (tool: "none" | "pencil" | "highlighter" | "eraser") => void;
+  setPencilColor?: (value: string) => void;
+  setPencilThickness?: (value: number) => void;
+  setHighlighterColor?: (value: string) => void;
+  setHighlighterThickness?: (value: number) => void;
+  setEraserSize?: (value: number) => void;
 };
 
 const PANEL_WIDTH = 280;
@@ -175,14 +193,14 @@ export function EditorSidebar({ editor }: EditorSidebarProps) {
           className="shrink-0 flex flex-col h-full border-l border-zinc-100 bg-white overflow-hidden transition-[width] duration-200"
           style={{ width: PANEL_WIDTH }}
         >
-          {openPanel === "templates" && <TemplatesPanel onClose={closePanel} />}
+          {openPanel === "templates" && <TemplatesPanel onClose={closePanel} editor={editor} />}
           {openPanel === "text" && <TextPanel onClose={closePanel} editor={editor} />}
           {openPanel === "shapes" && <ShapesPanel onClose={closePanel} editor={editor} />}
-          {openPanel === "tables" && <TablesPanel onClose={closePanel} />}
+          {openPanel === "tables" && <TablesPanel onClose={closePanel} editor={editor} />}
           {openPanel === "frames" && <FramesPanel onClose={closePanel} editor={editor} />}
-          {openPanel === "images" && <ImagesPanel onClose={closePanel} />}
-          {openPanel === "graphics" && <GraphicsPanel onClose={closePanel} />}
-          {openPanel === "qr" && <QRPanel onClose={closePanel} />}
+          {openPanel === "images" && <ImagesPanel onClose={closePanel} editor={editor} />}
+          {openPanel === "graphics" && <GraphicsPanel onClose={closePanel} editor={editor} />}
+          {openPanel === "qr" && <QRPanel onClose={closePanel} editor={editor} />}
           {openPanel === "draw" && <DrawPanel onClose={closePanel} editor={editor} />}
           {openPanel === "upload" && <UploadPanel onClose={closePanel} editor={editor} />}
         </div>

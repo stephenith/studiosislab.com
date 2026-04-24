@@ -80,12 +80,18 @@ export function useFloatingToolbarPosition(
     if (!canvas) return;
     const c = canvas as any;
     const onModified = () => updatePosition();
+    const onSelectionCreated = () => updatePosition();
     const onSelectionUpdated = () => updatePosition();
+    const onSelectionCleared = () => updatePosition();
     c.on?.("object:modified", onModified);
+    c.on?.("selection:created", onSelectionCreated);
     c.on?.("selection:updated", onSelectionUpdated);
+    c.on?.("selection:cleared", onSelectionCleared);
     return () => {
       c.off?.("object:modified", onModified);
+      c.off?.("selection:created", onSelectionCreated);
       c.off?.("selection:updated", onSelectionUpdated);
+      c.off?.("selection:cleared", onSelectionCleared);
     };
   }, [hasSelection, zoom, updatePosition]);
 

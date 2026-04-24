@@ -8,15 +8,17 @@ const GRID_COLS = 5;
 
 type TablesPanelProps = {
   onClose: () => void;
+  editor?: {
+    addTable?: (rows: number, cols: number) => void;
+  } | null;
 };
 
-export function TablesPanel({ onClose }: TablesPanelProps) {
+export function TablesPanel({ onClose, editor }: TablesPanelProps) {
   const [selected, setSelected] = useState<{ rows: number; cols: number } | null>(null);
-  const [tablePlaceholder, setTablePlaceholder] = useState<{ rows: number; cols: number } | null>(null);
 
   const handleCellClick = (rows: number, cols: number) => {
     setSelected({ rows, cols });
-    setTablePlaceholder({ rows, cols });
+    editor?.addTable?.(rows, cols);
   };
 
   return (
@@ -59,11 +61,9 @@ export function TablesPanel({ onClose }: TablesPanelProps) {
             })}
           </div>
         </SidebarSection>
-        {tablePlaceholder && (
-          <SidebarSection title="Preview">
-            <p className="text-sm text-zinc-600">
-              Table {tablePlaceholder.rows}×{tablePlaceholder.cols} placeholder. Actual table rendering can be implemented later.
-            </p>
+        {selected && (
+          <SidebarSection title="Selected">
+            <p className="text-sm text-zinc-600">Inserted table {selected.rows}×{selected.cols}</p>
           </SidebarSection>
         )}
       </div>

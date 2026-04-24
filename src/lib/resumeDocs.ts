@@ -34,8 +34,22 @@ const stripUndefinedDeep = (value: any): any => sanitizeJSON(value);
 const sanitizeFabricObject = (obj: any): any | null => {
   if (!obj || typeof obj !== "object") return obj;
   if (obj.type === "path" && (!Array.isArray(obj.path) || obj.path.length === 0)) return null;
-  if (obj.type === "image" && !obj.src) return null;
+  if (obj.type === "image") {
+    const hasSrc =
+      obj.src ||
+      (obj as any)._element?.src ||
+      obj.data?.src;
+
+    if (!hasSrc) {
+      console.warn("Image removed due to missing src:", obj);
+      return null;
+    }
+  }
   const cleaned = { ...obj };
+  // Ensure Fabric loadFromJSON sees top-level src when only stored under data
+  if (obj.type === "image" && cleaned.src == null && obj.data?.src) {
+    cleaned.src = obj.data.src;
+  }
   if (cleaned.path === undefined) delete cleaned.path;
   return sanitizeJSON(cleaned);
 };
@@ -75,9 +89,24 @@ export async function createResumeDoc(params: {
   pagesData?: any[];
   pageSize?: string;
   zoom?: number;
+  autosaveRevision?: number;
+  autosaveHash?: string | null;
   docId?: string | null;
+  thumbnail?: string | null;
 }) {
-  const { uid, title, sourceTemplateId, canvasJson, pagesData, pageSize, zoom, docId } = params;
+  const {
+    uid,
+    title,
+    sourceTemplateId,
+    canvasJson,
+    pagesData,
+    pageSize,
+    zoom,
+    autosaveRevision,
+    autosaveHash,
+    docId,
+    thumbnail,
+  } = params;
   const id =
     docId ||
     (typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -94,8 +123,15 @@ export async function createResumeDoc(params: {
     payload.pagesData = sanitizeFabricPagesData(pagesData);
     if (pageSize != null) payload.pageSize = pageSize;
     if (zoom != null) payload.zoom = zoom;
+    if (autosaveRevision != null) payload.autosaveRevision = autosaveRevision;
+    if (autosaveHash != null) payload.autosaveHash = autosaveHash;
   } else if (canvasJson != null) {
     payload.canvasJson = typeof canvasJson === "string" ? canvasJson : sanitizeFabricCanvasJson(canvasJson);
+    if (autosaveRevision != null) payload.autosaveRevision = autosaveRevision;
+    if (autosaveHash != null) payload.autosaveHash = autosaveHash;
+  }
+  if (thumbnail !== undefined && thumbnail !== null) {
+    payload.thumbnail = thumbnail;
   }
   const cleanPayload = stripUndefinedDeep(payload);
   const ref = doc(db, "users", uid, COLLECTION, id);
@@ -111,8 +147,22 @@ export async function updateResumeDoc(params: {
   pagesData?: any[];
   pageSize?: string;
   zoom?: number;
+  autosaveRevision?: number;
+  autosaveHash?: string | null;
+  thumbnail?: string | null;
 }) {
-  const { uid, docId, title, canvasJson, pagesData, pageSize, zoom } = params;
+  const {
+    uid,
+    docId,
+    title,
+    canvasJson,
+    pagesData,
+    pageSize,
+    zoom,
+    autosaveRevision,
+    autosaveHash,
+    thumbnail,
+  } = params;
   const ref = doc(db, "users", uid, COLLECTION, docId);
   const payload: Record<string, any> = {
     uid,
@@ -123,8 +173,15 @@ export async function updateResumeDoc(params: {
     payload.pagesData = sanitizeFabricPagesData(pagesData);
     if (pageSize != null) payload.pageSize = pageSize;
     if (zoom != null) payload.zoom = zoom;
+    if (autosaveRevision != null) payload.autosaveRevision = autosaveRevision;
+    if (autosaveHash != null) payload.autosaveHash = autosaveHash;
   } else if (canvasJson != null) {
     payload.canvasJson = typeof canvasJson === "string" ? canvasJson : sanitizeFabricCanvasJson(canvasJson);
+    if (autosaveRevision != null) payload.autosaveRevision = autosaveRevision;
+    if (autosaveHash != null) payload.autosaveHash = autosaveHash;
+  }
+  if (thumbnail !== undefined && thumbnail !== null) {
+    payload.thumbnail = thumbnail;
   }
   const cleanPayload = stripUndefinedDeep(payload);
   await updateDoc(ref, cleanPayload);
@@ -148,5 +205,8 @@ export async function getResumeDoc(params: { uid: string; docId: string }) {
     createdAt: data?.createdAt ?? null,
     sourceTemplateId: data?.sourceTemplateId ?? null,
     pageSize: data?.pageSize ?? null,
+    autosaveRevision:
+      typeof data?.autosaveRevision === "number" ? data.autosaveRevision : 0,
+    autosaveHash: typeof data?.autosaveHash === "string" ? data.autosaveHash : null,
   };
 }

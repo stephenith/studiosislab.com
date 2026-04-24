@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Inter, Poppins } from "next/font/google";
+import { Providers } from "./providers";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -31,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             crossOrigin="anonymous"
           />
         )}
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

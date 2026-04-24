@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, ChevronUp, Copy, Download, LayoutGrid, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
@@ -8,10 +10,12 @@ import { EditorSidebar } from "@/components/editor/sidebar/EditorSidebar";
 import { TextInspectorPanel } from "@/components/editor/TextInspectorPanel";
 import { ShapeInspectorPanel } from "@/components/editor/ShapeInspectorPanel";
 import { ImageInspectorPanel } from "@/components/editor/ImageInspectorPanel";
+import { TableInspectorPanel } from "@/components/editor/TableInspectorPanel";
 import { FloatingSelectionToolbar } from "@/components/editor/FloatingSelectionToolbar";
 import { useFloatingToolbarPosition } from "@/components/editor/useFloatingToolbarPosition";
 import { toHexColor } from "@/lib/color";
 import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 import { auth, db } from "@/lib/firebase";
 
 /** Recursively removes all keys with value === undefined. */
@@ -146,8 +150,6 @@ const PAGE_HEADER_HEIGHT = 48;
 const PAGE_GAP = 48;
 const TOP_EDITOR_OFFSET = 88;
 const PAGE_REVEAL_OFFSET = 16;
-const AUTOSAVE_DEBOUNCE_MS = 5000;
-
 function getInitials(name: string | null | undefined): string {
   if (!name || typeof name !== "string") return "?";
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -206,8 +208,6 @@ export default function EditorShell({
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [resumeCreatedAt, setResumeCreatedAt] = useState<any>(null);
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
-  const [autosaveStatus, setAutosaveStatus] = useState<"saving" | "saved" | null>(null);
-  const autosaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [avatarImageError, setAvatarImageError] = useState(false);
 
   const editor = useFabricEditor({ mode, initialTemplateId, docId });
@@ -241,79 +241,7 @@ export default function EditorShell({
     if (editor?.docCreatedAt) setResumeCreatedAt(editor.docCreatedAt);
   }, [editor?.docId, editor?.docCreatedAt]);
 
-  const saveDocumentForAutosave = useCallback(async () => {
-    const u = auth.currentUser;
-    const existingId = resumeId ?? editor?.docId ?? null;
-    if (!u || !existingId) return;
-
-    const rawPagesData = editor.getPagesJsonForSave?.();
-    const hasMultiplePages = Array.isArray(rawPagesData) && rawPagesData.length > 1;
-    const rawJson = hasMultiplePages ? null : editor.getCanvasJson?.();
-    if (!rawPagesData && !rawJson) return;
-
-    const safeName = (filename || "Untitled").trim() || "Untitled";
-    const sanitizedPagesData = hasMultiplePages
-      ? sanitizeFabricPagesData(rawPagesData)
-      : null;
-    const sanitizedJson =
-      !hasMultiplePages && rawJson ? sanitizeFabricCanvasJson(rawJson) : null;
-    const zoomVal = editor.getZoom?.() ?? editor.zoom ?? 1;
-
-    const payload: Record<string, unknown> = {
-      title: safeName,
-      templateId: initialTemplateId ?? "blank",
-      sourceTemplateId: initialTemplateId ?? "blank",
-      pageSize: editor.pageSize ?? "A4",
-      updatedAt: serverTimestamp(),
-      zoom: zoomVal,
-    };
-    if (hasMultiplePages && sanitizedPagesData) {
-      payload.pagesData = sanitizedPagesData;
-    } else if (sanitizedJson) {
-      payload.canvasJson = JSON.stringify(sanitizedJson);
-    }
-    const cleaned = stripUndefinedDeep(payload);
-    if (findUndefinedPaths(cleaned).length > 0) return;
-
-    const ref = doc(db, "users", u.uid, "resume_docs", existingId);
-    await updateDoc(ref, cleaned);
-  }, [
-    editor,
-    filename,
-    resumeId,
-    initialTemplateId,
-  ]);
-
-  const triggerAutosave = useCallback(() => {
-    if (autosaveTimeoutRef.current) {
-      clearTimeout(autosaveTimeoutRef.current);
-      autosaveTimeoutRef.current = null;
-    }
-    autosaveTimeoutRef.current = setTimeout(() => {
-      autosaveTimeoutRef.current = null;
-      setAutosaveStatus("saving");
-      saveDocumentForAutosave()
-        .then(() => setAutosaveStatus("saved"))
-        .catch(() => setAutosaveStatus(null));
-    }, AUTOSAVE_DEBOUNCE_MS);
-  }, [saveDocumentForAutosave]);
-
-  useEffect(() => {
-    if (!editor.isDocDataReady) return;
-    triggerAutosave();
-    return () => {
-      if (autosaveTimeoutRef.current) {
-        clearTimeout(autosaveTimeoutRef.current);
-        autosaveTimeoutRef.current = null;
-      }
-    };
-  }, [editor.docRevision, editor.isDocDataReady, filename, triggerAutosave]);
-
-  useEffect(() => {
-    if (autosaveStatus !== "saved") return;
-    const id = window.setTimeout(() => setAutosaveStatus(null), 2000);
-    return () => window.clearTimeout(id);
-  }, [autosaveStatus]);
+  const autosaveStatus = editor.autosaveStatus;
 
   const handleAdComplete = useCallback(() => {
     if (!pendingExport) {
@@ -345,7 +273,7 @@ export default function EditorShell({
   type InspectorSectionId = "page" | "position" | "layers";
   const [openSection, setOpenSection] = useState<InspectorSectionId | null>(null);
 
-  const { position: toolbarPosition, isMultipleSelection } = useFloatingToolbarPosition(
+  const { position: toolbarPosition } = useFloatingToolbarPosition(
     editor.hasSelection,
     editor.getCanvas,
     editor.viewportRef as React.RefObject<HTMLDivElement | null>,
@@ -353,14 +281,12 @@ export default function EditorShell({
   );
 
   const handleFloatingGroup = useCallback(() => {
-    const c = editor.getCanvas();
-    if (!c) return;
-    const active = c.getActiveObject() as any;
-    if (active?.type === "activeSelection" && typeof active.toGroup === "function") {
-      active.toGroup();
-      c.requestRenderAll();
-    }
-  }, [editor.getCanvas]);
+    editor.groupSelected?.();
+  }, [editor.groupSelected]);
+
+  const handleFloatingUngroup = useCallback(() => {
+    editor.ungroupSelected?.();
+  }, [editor.ungroupSelected]);
 
   const handleFloatingDuplicate = useCallback(async () => {
     await editor.copy();
@@ -477,6 +403,19 @@ export default function EditorShell({
       const isMac = navigator.platform.toLowerCase().includes("mac");
       const mod = isMac ? e.metaKey : e.ctrlKey;
 
+      if (editor.imageProps?.isCropping) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          editor.applyImageCrop?.();
+          return;
+        }
+        if (e.key === "Escape") {
+          e.preventDefault();
+          editor.cancelImageCrop?.();
+          return;
+        }
+      }
+
       if ((e.key === "Delete" || e.key === "Backspace") && !mod) {
         e.preventDefault();
         if (editor.isImageFrameSelected?.()) {
@@ -580,17 +519,21 @@ export default function EditorShell({
     <div className="h-screen flex flex-col">
       {/* Top Bar — LidoJS style */}
       <div className="h-[56px] shrink-0 sticky top-0 z-50 flex items-center justify-between px-6 bg-[#1f1f28] text-white">
-      <div
-        className="flex flex-1 items-center gap-2 pl-0 text-xl font-bold tracking-wide text-white"
-        style={{ letterSpacing: "0.5px" }}
-      >
-      <img
-       src="/Studiosis-white.png"
-       alt="Studiosis"
-       className="h-13 w-auto object-contain"
-      />
-      <span>Lab</span>
-    </div>
+        <div className="flex min-w-0 flex-1 items-center pl-0">
+          <Link
+            href="/"
+            className="relative block h-9 w-[min(100%,220px)] shrink-0 sm:h-10 sm:w-[min(100%,260px)]"
+          >
+            <Image
+              src={HOME_LOGOS_DARK.header}
+              alt="Studiosis Lab — home"
+              fill
+              className="object-contain object-left"
+              sizes="260px"
+              priority
+            />
+          </Link>
+        </div>
 
         <input
           value={filename}
@@ -622,7 +565,13 @@ export default function EditorShell({
 
           {autosaveStatus && (
             <span className="text-xs text-white/70 min-w-[4rem]">
-              {autosaveStatus === "saving" ? "Saving…" : "Saved"}
+              {autosaveStatus === "saving"
+                ? "Saving..."
+                : autosaveStatus === "syncing"
+                  ? "Syncing..."
+                  : autosaveStatus === "offlinePending"
+                    ? "Offline changes pending"
+                    : "All changes saved"}
             </span>
           )}
 
@@ -875,8 +824,13 @@ export default function EditorShell({
             <FloatingSelectionToolbar
               visible={editor.hasSelection}
               position={toolbarPosition}
-              isMultipleSelection={isMultipleSelection}
+              isMultipleSelection={!!editor.canGroup}
+              canGroup={!!editor.canGroup}
               onGroup={handleFloatingGroup}
+              canUngroupSelection={!!editor.canUngroup}
+              canUngroup={!!editor.canUngroup}
+              onUngroup={handleFloatingUngroup}
+              canDelete={!!editor.canDelete}
               onDuplicate={handleFloatingDuplicate}
               onDelete={handleFloatingDelete}
               onMore={handleFloatingMore}
@@ -949,14 +903,14 @@ export default function EditorShell({
                     onClick={() => editor.setActivePageIndex(idx)}
                   >
                     <div
-                      className="page-frame bg-white shadow-sm flex flex-col"
+                      className="page-frame flex flex-col bg-transparent shadow-none"
                       style={{
                         width: displayW,
                         height: displayH + PAGE_HEADER_HEIGHT,
                       }}
                     >
                       <div
-                        className="page-header flex items-center justify-between px-3 text-sm text-zinc-700"
+                        className="page-header flex items-center justify-between px-3 text-sm text-zinc-800 bg-transparent border-b border-zinc-300/40"
                         style={{ height: PAGE_HEADER_HEIGHT }}
                       >
                         <div className="font-medium">Page {idx + 1}</div>
@@ -1045,7 +999,7 @@ export default function EditorShell({
                         </div>
                       </div>
                       <div
-                        className={`page-canvas relative z-10 overflow-hidden box-border transition-colors duration-150 ${
+                        className={`page-canvas relative z-10 overflow-hidden box-border bg-white shadow-sm transition-colors duration-150 ${
                           isActive
                             ? "ring-2 ring-blue-500"
                             : "ring-1 ring-transparent hover:ring-blue-400"
@@ -1121,7 +1075,9 @@ export default function EditorShell({
               textProps={editor.textProps}
               setTextProp={editor.setTextProp}
               updateActiveObject={editor.updateActiveObject}
-              activeObjectSnapshot={editor.activeObjectSnapshot}
+              toggleUppercase={editor.toggleUppercase}
+              toggleBulletList={editor.toggleBulletList}
+              toggleNumberedList={editor.toggleNumberedList}
             />
           )}
           {(editor.selectionType === "shape" ||
@@ -1129,6 +1085,7 @@ export default function EditorShell({
             <ShapeInspectorPanel
               shapeProps={editor.shapeProps}
               activeObjectSnapshot={editor.activeObjectSnapshot}
+              setShapeProp={editor.setShapeProp}
               updateActiveObject={editor.updateActiveObject}
             />
           )}
@@ -1137,6 +1094,19 @@ export default function EditorShell({
               imageProps={editor.imageProps}
               activeObjectSnapshot={editor.activeObjectSnapshot}
               updateActiveObject={editor.updateActiveObject}
+              updateActiveObjectLive={editor.updateActiveObjectLive}
+              commitActiveObjectUpdate={editor.commitActiveObjectUpdate}
+              updateImageAdjustments={editor.updateImageAdjustments}
+              resetImageAdjustments={editor.resetImageAdjustments}
+              beginImageCrop={editor.beginImageCrop}
+              applyImageCrop={editor.applyImageCrop}
+              cancelImageCrop={editor.cancelImageCrop}
+            />
+          )}
+          {editor.selectionType === "table" && (
+            <TableInspectorPanel
+              tableProps={editor.tableProps}
+              setTableProp={editor.setTableProp}
             />
           )}
           <div className="rounded-2xl bg-white border border-[#d6deeb] shadow-[0_6px_14px_rgba(30,64,175,0.08)] transition-shadow transition-colors duration-200 hover:shadow-lg hover:border-slate-400">

@@ -1,14 +1,19 @@
 "use client";
 
-import { Copy, Trash2, MoreHorizontal, Group } from "lucide-react";
+import { Copy, Trash2, MoreHorizontal } from "lucide-react";
 
 const TOOLBAR_OFFSET_TOP = 50;
 
 export interface FloatingSelectionToolbarProps {
   visible: boolean;
   position: { top: number; left: number } | null;
-  isMultipleSelection: boolean;
+  isMultipleSelection?: boolean;
+  canUngroupSelection?: boolean;
+  canGroup?: boolean;
+  canUngroup?: boolean;
+  canDelete?: boolean;
   onGroup: () => void;
+  onUngroup?: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
   onMore: () => void;
@@ -17,13 +22,20 @@ export interface FloatingSelectionToolbarProps {
 export function FloatingSelectionToolbar({
   visible,
   position,
-  isMultipleSelection,
+  isMultipleSelection = false,
+  canUngroupSelection = false,
+  canGroup = false,
+  canUngroup = false,
+  canDelete = true,
   onGroup,
+  onUngroup,
   onDuplicate,
   onDelete,
   onMore,
 }: FloatingSelectionToolbarProps) {
   if (!visible || !position) return null;
+  const showGroup = canGroup || isMultipleSelection;
+  const showUngroup = canUngroup || canUngroupSelection;
 
   return (
     <div
@@ -34,14 +46,30 @@ export function FloatingSelectionToolbar({
         transform: "translateX(-50%)",
       }}
     >
-      {isMultipleSelection && (
+      {showGroup && (
         <button
           type="button"
-          onClick={(e) => { e.stopPropagation(); onGroup(); }}
-          className="rounded-lg p-2 text-zinc-600 hover:bg-zinc-100"
+          onClick={(e) => {
+            e.stopPropagation();
+            onGroup();
+          }}
+          className="rounded px-3 py-1 text-sm font-medium text-zinc-700 hover:bg-gray-100"
           title="Group"
         >
-          <Group size={18} />
+          Group
+        </button>
+      )}
+      {showUngroup && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onUngroup?.();
+          }}
+          className="rounded px-3 py-1 text-sm font-medium text-zinc-700 hover:bg-gray-100"
+          title="Ungroup"
+        >
+          Ungroup
         </button>
       )}
       <button
@@ -52,14 +80,16 @@ export function FloatingSelectionToolbar({
       >
         <Copy size={18} />
       </button>
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); onDelete(); }}
-        className="rounded-lg p-2 text-zinc-600 hover:bg-zinc-100"
-        title="Delete"
-      >
-        <Trash2 size={18} />
-      </button>
+      {canDelete && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          className="rounded-lg p-2 text-zinc-600 hover:bg-zinc-100"
+          title="Delete"
+        >
+          <Trash2 size={18} />
+        </button>
+      )}
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); onMore(); }}

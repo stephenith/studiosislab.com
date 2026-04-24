@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -11,62 +13,106 @@ import {
   query as fsQuery,
   serverTimestamp,
   setDoc,
+  Timestamp,
   where,
 } from "firebase/firestore";
+import HomeHeaderAuth from "@/components/HomeHeaderAuth";
+import NoiseBackground from "@/components/home/NoiseBackground";
+import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
 import { db } from "@/lib/firebase";
-import { useAuthUser } from "@/lib/useAuthUser";
-import type { EsignDocumentWithId } from "@/lib/esign";
+import { useAuth } from "@/lib/useAuth";
+
+type RecentAgreementItem = {
+  id: string;
+  ownerUid: string;
+  fileName: string;
+  status: string;
+  createdAt?: Timestamp | Date | null;
+  updatedAt?: Timestamp | Date | null;
+  finalPdfUrl?: string | null;
+  pagesCount?: number | null;
+  countersignStatus?: string | null;
+  auditId?: string | null;
+};
 
 function PdfThumbnail({ url }: { url?: string | null }) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [phase, setPhase] = useState<"idle" | "loading" | "ready" | "unavailable">(
+    () => (url ? "loading" : "unavailable")
+  );
 
   useEffect(() => {
-    console.log("[PdfThumbnail] URL =", url);
+    let cancelled = false;
 
     if (!url) {
-      const container = containerRef.current;
-      if (container) {
-        container.innerHTML = "";
-      }
+      setPhase("unavailable");
       return;
     }
 
-    let cancelled = false;
+    const safeUrl: string = url;
+
+    setPhase("loading");
+
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width || 0, canvas.height || 0);
+      }
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+
+    async function probeLooksLikePdf(u: string) {
+      // Small ranged read: enough to validate PDF magic without downloading the full file twice.
+      try {
+        const res = await fetch(u, {
+          headers: { Range: "bytes=0-1023" },
+          cache: "no-store",
+        });
+        if (!res.ok) return false;
+        const buf = await res.arrayBuffer();
+        const prefix = new TextDecoder().decode(new Uint8Array(buf).slice(0, 5));
+        return prefix.startsWith("%PDF");
+      } catch {
+        return false;
+      }
+    }
 
     async function renderThumbnail() {
       try {
-        const container = containerRef.current;
-        if (!container) return;
+        const wrap = wrapRef.current;
+        const canvas = canvasRef.current;
+        if (!wrap || !canvas) return;
 
-        console.log("[PdfThumbnail] starting render for", url);
+        const ok = await probeLooksLikePdf(safeUrl);
+        if (cancelled) return;
+        if (!ok) {
+          setPhase("unavailable");
+          return;
+        }
 
         // Dynamically import pdf.js legacy build, same as the main viewer
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - pdfjs-dist ships no types for this legacy entry
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pdfjsLib: any = await import("pdfjs-dist/legacy/build/pdf");
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (pdfjsLib as any).GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
-        console.log("[PdfThumbnail] pdfjs loaded");
-
-        console.log("[PdfThumbnail] loading document", url);
-
-        const loadingTask = (pdfjsLib as any).getDocument(url);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const loadingTask = (pdfjsLib as any).getDocument(safeUrl);
         const pdf = await loadingTask.promise;
-
-        console.log("[PdfThumbnail] PDF loaded");
 
         if (cancelled) return;
 
         const page = await pdf.getPage(1);
 
-        console.log("[PdfThumbnail] page 1 ready");
-
         const viewport = page.getViewport({ scale: 1 });
 
-        const rect = container.getBoundingClientRect();
-
-        console.log("[PdfThumbnail] container width", rect.width);
+        const rect = wrap.getBoundingClientRect();
 
         const targetWidth = rect.width || viewport.width;
 
@@ -74,54 +120,84 @@ function PdfThumbnail({ url }: { url?: string | null }) {
 
         const scaledViewport = page.getViewport({ scale });
 
-        const canvas = document.createElement("canvas");
-
         const context = canvas.getContext("2d");
 
-        if (!context) return;
+        if (!context) {
+          setPhase("unavailable");
+          return;
+        }
 
         canvas.width = scaledViewport.width;
         canvas.height = scaledViewport.height;
-
-        container.innerHTML = "";
-
-        container.appendChild(canvas);
 
         await page.render({
           canvasContext: context,
           viewport: scaledViewport,
         }).promise;
 
-        console.log("[PdfThumbnail] render finished");
-
-      } catch (err) {
-        console.warn("Failed to render PDF thumbnail", err);
+        if (cancelled) return;
+        setPhase("ready");
+      } catch {
+        if (cancelled) return;
+        // Expected for stale/missing artifacts — keep console quiet.
+        setPhase("unavailable");
       }
     }
 
-    renderThumbnail();
+    void renderThumbnail();
 
     return () => {
       cancelled = true;
+      const c = canvasRef.current;
+      if (c) {
+        const ctx = c.getContext("2d");
+        if (ctx) ctx.clearRect(0, 0, c.width || 0, c.height || 0);
+        c.width = 0;
+        c.height = 0;
+      }
     };
   }, [url]);
 
   return (
     <div
-      ref={containerRef}
+      ref={wrapRef}
       className="relative mb-1 w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 shadow-sm aspect-[210/297]"
-    />
+    >
+      {(phase === "loading" || phase === "unavailable") && (
+        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 bg-zinc-100 px-3 text-center">
+          {phase === "loading" ? (
+            <div className="h-6 w-6 animate-pulse rounded-full bg-zinc-300" />
+          ) : (
+            <>
+              <div className="text-[11px] font-medium text-zinc-600">
+                Preview unavailable
+              </div>
+              <div className="text-[10px] text-zinc-500 leading-snug">
+                This agreement preview could not be loaded.
+              </div>
+            </>
+          )}
+        </div>
+      )}
+      <canvas ref={canvasRef} className="block h-full w-full bg-white" />
+    </div>
   );
 }
 
 export default function EsignToolsPage() {
   const router = useRouter();
-  const { user, loading } = useAuthUser();
+  const { user, authReady } = useAuth();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [recents, setRecents] = useState<EsignDocumentWithId[]>([]);
+  const [recents, setRecents] = useState<RecentAgreementItem[]>([]);
   const [recentsLoading, setRecentsLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteConfirmDocumentId, setDeleteConfirmDocumentId] = useState<string | null>(
+    null
+  );
+  const [deleteConfirmFileName, setDeleteConfirmFileName] = useState<string | null>(null);
+  const [deleteModalError, setDeleteModalError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const loadedRef = useRef(false);
 
@@ -145,14 +221,14 @@ export default function EsignToolsPage() {
   const verifyFileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (loading) return;
+    if (!authReady) return;
     if (!user) {
       router.replace("/login");
     }
-  }, [loading, user, router]);
+  }, [authReady, user, router]);
 
   useEffect(() => {
-    if (!user || recentsLoading || loadedRef.current) return;
+    if (!authReady || !user || recentsLoading || loadedRef.current) return;
     loadedRef.current = true;
 
     let alive = true;
@@ -166,21 +242,58 @@ export default function EsignToolsPage() {
           limit(20)
         );
         const snap = await getDocs(q);
-        console.log("Recent agreements snapshot:", snap.docs.length);
-        const items: EsignDocumentWithId[] = snap.docs.map((d) => {
-          const data = d.data() as any;
+        const items: RecentAgreementItem[] = snap.docs.map((d) => {
+          const data = d.data() as Record<string, unknown>;
+          const ownerUid = typeof data.ownerUid === "string" ? data.ownerUid : "";
+          const fileName =
+            typeof data.fileName === "string" ? data.fileName : "Untitled document";
+          const status = typeof data.status === "string" ? data.status : "draft";
+          const createdAt =
+            data.createdAt instanceof Timestamp ||
+            data.createdAt instanceof Date ||
+            data.createdAt == null
+              ? (data.createdAt as Timestamp | Date | null | undefined)
+              : undefined;
+          const updatedAt =
+            data.updatedAt instanceof Timestamp ||
+            data.updatedAt instanceof Date ||
+            data.updatedAt == null
+              ? (data.updatedAt as Timestamp | Date | null | undefined)
+              : undefined;
+          const finalPdfUrl =
+            typeof data.finalPdfUrl === "string"
+              ? data.finalPdfUrl
+              : data.finalPdfUrl === null
+                ? null
+                : null;
+          const pagesCount =
+            typeof data.pagesCount === "number" ? data.pagesCount : null;
+          const countersignStatus =
+            typeof data.countersignStatus === "string"
+              ? data.countersignStatus
+              : data.countersignStatus === null
+                ? null
+                : null;
+          const auditId =
+            typeof data.auditId === "string"
+              ? data.auditId
+              : data.auditId === null
+                ? null
+                : null;
+
           return {
             id: d.id,
-            ownerUid: data.ownerUid,
-            fileName: data.fileName ?? "Untitled document",
-            status: data.status ?? "draft",
-            createdAt: data.createdAt ?? null,
-            updatedAt: data.updatedAt ?? null,
-            finalPdfUrl: data.finalPdfUrl ?? null,
-            pagesCount: data.pagesCount ?? null,
+            ownerUid,
+            fileName,
+            status,
+            createdAt: createdAt ?? null,
+            updatedAt: updatedAt ?? null,
+            finalPdfUrl,
+            pagesCount,
+            countersignStatus,
+            auditId,
           };
         });
-        console.log("Recent agreements items:", items);
         setRecents(items);
       } catch (e) {
         console.warn("Failed to load recent e-sign documents", e);
@@ -195,8 +308,63 @@ export default function EsignToolsPage() {
     return () => {
       alive = false;
     };
-  }, [user, recentsLoading]);
+  }, [authReady, user, recentsLoading]);
 
+  function openDeleteAgreementModal(documentId: string, fileName: string) {
+    setDeleteConfirmDocumentId(documentId);
+    setDeleteConfirmFileName(fileName);
+    setDeleteModalError(null);
+  }
+
+  function closeDeleteAgreementModal() {
+    if (deletingId) return;
+    setDeleteConfirmDocumentId(null);
+    setDeleteConfirmFileName(null);
+    setDeleteModalError(null);
+  }
+
+  async function confirmDeleteAgreement() {
+    if (!user) {
+      alert("Please sign in first.");
+      return;
+    }
+    const documentId = deleteConfirmDocumentId;
+    if (!documentId) return;
+
+    setDeleteModalError(null);
+    setDeletingId(documentId);
+
+    try {
+      const idToken = await user.getIdToken();
+
+      const res = await fetch("/api/esign/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ documentId }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok || !json?.ok) {
+        setDeleteModalError(
+          typeof json?.error === "string" ? json.error : "Delete failed"
+        );
+        return;
+      }
+
+      setRecents((prev) => prev.filter((d) => d.id !== documentId));
+      setDeleteConfirmDocumentId(null);
+      setDeleteConfirmFileName(null);
+      setDeleteModalError(null);
+    } catch {
+      setDeleteModalError("Delete failed. Try again.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   const handleBrowseClick = () => {
     fileInputRef.current?.click();
@@ -296,6 +464,7 @@ export default function EsignToolsPage() {
     async function parsePdf(file: File): Promise<string | null> {
       console.log("Starting PDF parsing...");
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pdfjsLib: any = await import("pdfjs-dist");
       pdfjsLib.GlobalWorkerOptions.workerSrc =
         `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
@@ -311,7 +480,8 @@ export default function EsignToolsPage() {
       for (let pageNum = pdf.numPages; pageNum >= 1; pageNum--) {
         const page = await pdf.getPage(pageNum);
         const textContent = await page.getTextContent();
-        const items = textContent.items as any[];
+        type TextItem = { str?: string };
+        const items = textContent.items as TextItem[];
 
         console.log(
           "[Verify PDF] Page",
@@ -417,28 +587,33 @@ export default function EsignToolsPage() {
       );
 
       router.push(`/tools/esign/${documentId}`);
-    } catch (e) {
+    } catch {
       alert("Something went wrong while uploading. Please try again.");
     } finally {
       setUploading(false);
     }
   };
 
-  if (loading || !user) {
+  if (!authReady || !user) {
     return (
-      <main className="min-h-screen flex items-center justify-center text-zinc-700">
-        Loading…
+      <main className="relative flex min-h-dvh items-center justify-center bg-white text-zinc-700">
+        <NoiseBackground />
+        <span className="relative z-10">Loading…</span>
       </main>
     );
   }
 
   const selectedLabel = selectedFile?.name || "Select file...";
 
-  const formatDate = (ts: any, withYear = false) => {
+  const formatDate = (ts: unknown, withYear = false) => {
     try {
       const d: Date | null =
-        ts?.toDate?.() instanceof Date
-          ? ts.toDate()
+        ts &&
+        typeof ts === "object" &&
+        "toDate" in ts &&
+        typeof (ts as { toDate?: () => Date }).toDate === "function" &&
+        (ts as { toDate: () => Date }).toDate() instanceof Date
+          ? (ts as { toDate: () => Date }).toDate()
           : ts instanceof Date
           ? ts
           : null;
@@ -454,16 +629,44 @@ export default function EsignToolsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 via-blue-50 to-white text-zinc-900">
-      <div className="mx-auto w-full max-w-5xl px-6 py-12">
-        <header className="text-center">
-          <h1 className="text-2xl md:text-3xl font-semibold">
-            E-Signing Tool
-          </h1>
-          <p className="mt-2 text-sm text-zinc-600">
-            Upload a document to start a digital signing flow.
-          </p>
+    <main className="relative flex min-h-dvh w-full flex-col bg-white px-5 pb-24 pt-5 text-zinc-900">
+      <NoiseBackground />
+      <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col">
+        <header className="flex shrink-0 items-center justify-between px-1 pb-4 sm:px-2">
+          <Link href="/" className="relative block h-11 w-[min(100%,280px)] shrink-0">
+            <Image
+              src={HOME_LOGOS_LIGHT.header}
+              alt="Studiosis Lab — home"
+              fill
+              className="object-contain object-left"
+              sizes="280px"
+              priority
+            />
+          </Link>
+          <HomeHeaderAuth />
         </header>
+
+        <div className="mx-auto flex w-full max-w-5xl flex-col">
+        <div className="mx-auto flex w-full max-w-3xl flex-col items-center px-2 pb-2 text-center sm:px-4">
+          <div className="relative mb-6 flex h-40 w-full max-w-[280px] shrink-0 items-center justify-center sm:mb-8 sm:h-48 sm:max-w-[336px]">
+            <Image
+              src={HOME_LOGOS_LIGHT.heroLab}
+              alt="Studiosis Lab"
+              fill
+              className="object-contain object-center"
+              sizes="(max-width: 768px) 90vw, 336px"
+              priority
+            />
+          </div>
+          <div className="w-full text-center">
+            <h1 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
+              E-Signing Tool
+            </h1>
+            <p className="mt-3 text-sm text-zinc-600 sm:text-base">
+              Upload a document to start a digital signing flow.
+            </p>
+          </div>
+        </div>
 
         <section className="mt-10 flex flex-col items-center">
           <div className="w-full max-w-3xl rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
@@ -480,7 +683,7 @@ export default function EsignToolsPage() {
                 <button
                   type="button"
                   onClick={handleBrowseClick}
-                  className="rounded-full border border-zinc-300 bg-white px-4 py-1.5 text-sm font-medium text-zinc-800 hover:border-blue-400"
+                  className="rounded-full border border-zinc-300 bg-white px-4 py-1.5 text-sm font-medium text-zinc-800 transition-colors hover:border-zinc-400"
                 >
                   Browse
                 </button>
@@ -516,13 +719,13 @@ export default function EsignToolsPage() {
                 value={verificationIdInput}
                 onChange={(e) => setVerificationIdInput(e.target.value)}
                 placeholder="Verification code"
-                className="flex-1 min-w-0 rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-800 placeholder:text-zinc-500 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                className="flex-1 min-w-0 rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-800 placeholder:text-zinc-500 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10"
               />
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => verifyFileInputRef.current?.click()}
-                  className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 hover:border-blue-400"
+                  className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 transition-colors hover:border-zinc-400"
                 >
                   Browse
                 </button>
@@ -588,38 +791,61 @@ export default function EsignToolsPage() {
                     ? { label: "Pending", class: "bg-amber-100 text-amber-800" }
                     : { label: "Draft", class: "bg-zinc-200 text-zinc-700" };
 
+                const preferFinalPreview =
+                  docItem.status === "completed" &&
+                  (!!docItem.finalPdfUrl ||
+                    !!docItem.auditId ||
+                    docItem.countersignStatus === "completed");
+
+                const thumbUrl = preferFinalPreview
+                  ? `/api/esign/download?documentId=${docItem.id}&final=1`
+                  : `/api/esign/download?documentId=${docItem.id}`;
+
                 return (
-                  <button
+                  <div
                     key={docItem.id}
-                    type="button"
-                    onClick={() => router.push(`/tools/esign/${docItem.id}`)}
-                    className="group flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:border-blue-300 hover:shadow-md"
+                    className="flex w-full flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:border-zinc-300 hover:shadow-md"
                   >
-                    <PdfThumbnail
-                      url={
-                        status === "completed"
-                          ? `/api/esign/download?documentId=${docItem.id}&final=1`
-                          : `/api/esign/download?documentId=${docItem.id}`
-                      }
-                    />
+                    <PdfThumbnail url={thumbUrl} />
                     <div className="text-sm font-semibold leading-tight truncate">
                       {docItem.fileName}
                     </div>
-                    <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-zinc-500">
-                      <span className={`inline-flex rounded-full px-1.5 py-0.5 font-medium ${statusBadge.class}`}>
+                    <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-zinc-500">
+                      <span
+                        className={`inline-flex rounded-full px-1.5 py-0.5 font-medium ${statusBadge.class}`}
+                      >
                         {statusBadge.label}
                       </span>
                       {dateLabel && <span>{dateLabel}</span>}
                     </div>
-                    <span className="mt-1 text-xs font-medium text-blue-600">
-                      Open
-                    </span>
-                  </button>
+                    <div className="mt-2 flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => router.push(`/tools/esign/${docItem.id}`)}
+                        className="text-xs font-medium text-zinc-800 underline-offset-2 transition-colors hover:text-zinc-950 hover:underline"
+                      >
+                        Open
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openDeleteAgreementModal(docItem.id, docItem.fileName);
+                        }}
+                        disabled={deletingId === docItem.id}
+                        className="text-xs font-medium text-red-600 hover:text-red-700 disabled:opacity-50"
+                      >
+                        {deletingId === docItem.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
+                  </div>
                 );
               })
             )}
           </div>
         </section>
+
+        </div>
 
       </div>
 
@@ -637,6 +863,66 @@ export default function EsignToolsPage() {
         className="hidden"
         onChange={handleVerifyFileChange}
       />
+
+      {deleteConfirmDocumentId && (
+        <div
+          className="fixed inset-0 z-[55] flex items-center justify-center bg-black/50 px-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !deletingId) {
+              closeDeleteAgreementModal();
+            }
+          }}
+          role="presentation"
+        >
+          <div
+            className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-agreement-title"
+          >
+            <h2
+              id="delete-agreement-title"
+              className="text-lg font-semibold text-zinc-900"
+            >
+              Delete agreement?
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-zinc-600">
+              Are you sure you want to delete this agreement? This will remove the
+              document and related stored files.
+            </p>
+            {deleteConfirmFileName ? (
+              <p
+                className="mt-2 truncate text-sm font-medium text-zinc-800"
+                title={deleteConfirmFileName}
+              >
+                {deleteConfirmFileName}
+              </p>
+            ) : null}
+            {deleteModalError ? (
+              <p className="mt-3 text-sm text-red-600">{deleteModalError}</p>
+            ) : null}
+            <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
+              <button
+                type="button"
+                onClick={closeDeleteAgreementModal}
+                disabled={!!deletingId}
+                className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteAgreement}
+                disabled={!!deletingId}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {deletingId === deleteConfirmDocumentId ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showVerifyModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">

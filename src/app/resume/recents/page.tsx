@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-import { onAuthStateChanged, User } from "firebase/auth";
 import {
   collection,
   deleteDoc,
@@ -17,9 +16,14 @@ import {
   setDoc,
   doc,
 } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/lib/useAuth";
 
+import NoiseBackground from "@/components/home/NoiseBackground";
 import { TEMPLATES } from "@/data/templates";
+
+const THUMB_FRAME =
+  "relative w-full overflow-hidden rounded-xl bg-zinc-100 aspect-[210/297] shadow-[0_4px_16px_-6px_rgba(0,0,0,0.14)] ring-1 ring-zinc-200/80 transition-shadow duration-200 group-hover:shadow-[0_8px_22px_-8px_rgba(0,0,0,0.18)]";
 
 type RecentDoc = {
   id: string;
@@ -37,29 +41,18 @@ const KNOWN_TEMPLATE_IDS = new Set(TEMPLATES.map((t) => t.id).concat(["blank"]))
 
 export default function ResumeRecentsPage() {
   const router = useRouter();
+  const { user, authReady } = useAuth();
 
-  const [authLoading, setAuthLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
   const [recents, setRecents] = useState<RecentDoc[]>([]);
   const [recentsLoading, setRecentsLoading] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const authListenerAttachedRef = useRef(false);
 
   useEffect(() => {
-    if (authListenerAttachedRef.current) return;
-    authListenerAttachedRef.current = true;
-
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setAuthLoading(false);
-      if (!u) router.replace("/login");
-    });
-
-    return () => {
-      authListenerAttachedRef.current = false;
-      unsub();
-    };
-  }, [router]);
+    if (!authReady) return;
+    if (!user) {
+      router.replace("/login");
+    }
+  }, [authReady, user, router]);
 
   useEffect(() => {
     let alive = true;
@@ -131,7 +124,7 @@ export default function ResumeRecentsPage() {
     }
   };
 
-  if (authLoading) {
+  if (!authReady) {
     return (
       <main className="min-h-screen flex items-center justify-center text-zinc-700">
         Loading…
@@ -142,39 +135,41 @@ export default function ResumeRecentsPage() {
   if (!user) return null;
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 via-blue-50 to-white text-zinc-900">
-      <div className="mx-auto w-full max-w-7xl px-6 py-16">
+    <main className="relative min-h-dvh w-full bg-white px-5 pb-20 pt-5 text-zinc-900">
+      <NoiseBackground />
+      <div className="relative z-10 mx-auto w-full max-w-7xl">
         <header className="text-center">
-          <h1 className="text-3xl md:text-4xl font-semibold">
+          <h1 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">
             Recent resumes
           </h1>
-          <p className="mt-3 text-zinc-600">
+          <p className="mt-3 text-sm text-zinc-600 sm:text-base">
             Your saved resumes, most recent first.
           </p>
         </header>
 
-        <section className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <section className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {/* Create blank */}
           <button
+            type="button"
             onClick={() => router.push("/editor/new")}
-            className="group flex flex-col gap-4 rounded-2xl border border-dashed border-zinc-300 bg-white/70 p-5 text-left shadow-sm transition hover:border-blue-400 hover:shadow-md"
+            className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
           >
-            <div className="flex items-center justify-center rounded-xl border-2 border-dashed border-blue-300 bg-white text-4xl font-semibold text-blue-500 shadow-sm aspect-[210/297]">
+            <div
+              className={`${THUMB_FRAME} flex items-center justify-center border border-dashed border-zinc-300/90 bg-zinc-50/80 text-3xl font-semibold text-zinc-400 transition-colors group-hover:border-zinc-400 group-hover:text-zinc-600 sm:text-4xl`}
+            >
               +
             </div>
-            <div>
-              <div className="text-lg font-semibold">Create blank</div>
-              <div className="text-sm text-zinc-600">
-                Start from a clean canvas.
-              </div>
+            <div className="min-w-0 pt-0.5">
+              <div className="text-sm font-semibold leading-tight text-zinc-900">Create blank</div>
+              <div className="mt-0.5 text-xs text-zinc-500">Start from a clean canvas.</div>
             </div>
           </button>
 
           {recentsLoading ? (
-            <div className="flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-5 text-left shadow-sm">
-              <div className="relative mb-3 w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 shadow-sm aspect-[210/297]" />
-              <div className="h-5 w-40 rounded bg-zinc-100" />
-              <div className="h-4 w-24 rounded bg-zinc-100" />
+            <div className="flex flex-col gap-2">
+              <div className={`${THUMB_FRAME} animate-pulse bg-zinc-100`} />
+              <div className="h-4 w-32 max-w-full rounded bg-zinc-100" />
+              <div className="h-3 w-20 max-w-full rounded bg-zinc-100" />
               <div className="text-xs text-zinc-500">Loading recent…</div>
             </div>
           ) : (
@@ -197,10 +192,9 @@ export default function ResumeRecentsPage() {
                       router.push(`/editor/${r.id}`);
                     }
                   }}
-                  className="group flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:border-blue-300 hover:shadow-md"
+                  className="group flex w-full cursor-pointer flex-col gap-2 border-0 bg-transparent p-0 text-left outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
                 >
-                  <div>
-                    <div className="relative mb-3 w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 shadow-sm aspect-[210/297]">
+                  <div className={THUMB_FRAME}>
                       <div
                         className="absolute right-2 top-2 z-10"
                         data-menu-root="1"
@@ -380,23 +374,23 @@ export default function ResumeRecentsPage() {
                           Preview unavailable
                         </div>
                       )}
-                    </div>
+                  </div>
 
-                    <div className="text-sm font-semibold leading-tight truncate">
+                  <div className="min-w-0 pt-0.5">
+                    <div className="text-sm font-semibold leading-tight text-zinc-900 truncate">
                       {r.title?.toString()?.trim() ? r.title : "Untitled Resume"}
                     </div>
                     <div className="mt-0.5 text-[11px] text-zinc-500">
                       Recent • {formatUpdated(r.updatedAt) || "—"}
                     </div>
                   </div>
-
                 </div>
               );
             })
           )}
         </section>
 
-        <footer className="mt-16 text-center text-sm text-zinc-500">
+        <footer className="mt-20 text-center text-sm text-zinc-500">
           designed and powered by Studiosis
         </footer>
       </div>

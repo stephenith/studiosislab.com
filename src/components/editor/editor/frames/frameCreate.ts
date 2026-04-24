@@ -1,5 +1,9 @@
 import { Circle, Rect, Group, type Canvas } from "fabric";
-import { IMAGE_FRAME_SIZE, IMAGE_FRAME_TYPE } from "./frameDetection";
+import {
+  IMAGE_FRAME_SIZE,
+  IMAGE_FRAME_TYPE,
+  FRAME_VISIBLE_MASK_ROLE,
+} from "./frameDetection";
 
 type GetPageSizePx = () => { w: number; h: number };
 
@@ -21,68 +25,103 @@ export function createFrameCreate(deps: {
 
     const size = getPageSizePx();
 
-    const cx = size.w / 2 - IMAGE_FRAME_SIZE / 2;
-    const cy = size.h / 2 - IMAGE_FRAME_SIZE / 2;
+    const cx = size.w / 2;
+    const cy = size.h / 2;
 
-    let shape: any;
+    let visibleShape: Rect | Circle;
+    let clipShape: Rect | Circle;
 
     if (type === "circle") {
-      shape = new Circle({
-        radius: IMAGE_FRAME_SIZE / 2,
-        originX: "left",
-        originY: "top",
+      const r = IMAGE_FRAME_SIZE / 2;
+      const base = {
+        radius: r,
+        originX: "center" as const,
+        originY: "center" as const,
         left: 0,
         top: 0,
-
+        selectable: false,
+        evented: false,
+      };
+      visibleShape = new Circle({
+        ...base,
         fill: "#e5e7eb",
         stroke: "#9ca3af",
         strokeWidth: 2,
         strokeUniform: true,
-
+      });
+      clipShape = new Circle({
+        radius: r,
+        originX: "left",
+        originY: "top",
+        left: -r,
+        top: -r,
+        absolutePositioned: false,
+        fill: "#ffffff",
+        strokeWidth: 0,
         selectable: false,
-        evented: false
+        evented: false,
       });
     } else {
-      shape = new Rect({
+      const base = {
         width: IMAGE_FRAME_SIZE,
         height: IMAGE_FRAME_SIZE,
         rx: 8,
         ry: 8,
-
-        originX: "left",
-        originY: "top",
+        originX: "center" as const,
+        originY: "center" as const,
         left: 0,
         top: 0,
-
+        selectable: false,
+        evented: false,
+      };
+      visibleShape = new Rect({
+        ...base,
         fill: "#e5e7eb",
         stroke: "#9ca3af",
         strokeWidth: 2,
         strokeUniform: true,
-
+      });
+      clipShape = new Rect({
+        width: IMAGE_FRAME_SIZE,
+        height: IMAGE_FRAME_SIZE,
+        rx: 8,
+        ry: 8,
+        originX: "left",
+        originY: "top",
+        left: -IMAGE_FRAME_SIZE / 2,
+        top: -IMAGE_FRAME_SIZE / 2,
+        absolutePositioned: false,
+        fill: "#ffffff",
+        strokeWidth: 0,
         selectable: false,
-        evented: false
+        evented: false,
       });
     }
 
-    const frameGroup = new Group([shape], {
+    (visibleShape as any).data = {
+      ...((visibleShape as any).data || {}),
+      slbFrameRole: FRAME_VISIBLE_MASK_ROLE,
+    };
+
+    visibleShape.setCoords();
+    clipShape.setCoords();
+
+    const frameGroup = new Group([visibleShape], {
       left: cx,
       top: cy,
-      originX: "left",
-      originY: "top",
-
+      originX: "center",
+      originY: "center",
       selectable: true,
       evented: true,
-
       hasBorders: true,
       hasControls: true,
-
       perPixelTargetFind: true,
-      objectCaching: false,
-
-      subTargetCheck: false
+      layout: 'clip-path',
+      objectCaching: true,
+      subTargetCheck: true,
+      interactive: true,
+      clipPath: clipShape,
     }) as any;
-
-    shape.setCoords();
 
     frameGroup._calcBounds?.();
     frameGroup.setCoords();
@@ -90,6 +129,7 @@ export function createFrameCreate(deps: {
     frameGroup.data = frameGroup.data || {};
     frameGroup.data.type = IMAGE_FRAME_TYPE;
     frameGroup.data.frameType = type;
+    frameGroup.data.hasImage = false;
 
     const id = ensureObjectId(frameGroup);
     frameGroup.uid = id;

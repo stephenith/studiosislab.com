@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc, onSnapshot, serverTimestamp, updateDoc } from "firebase/firestore";
@@ -8,6 +10,7 @@ import { useAuthUser } from "@/lib/useAuthUser";
 import type { EsignDocument } from "@/lib/esign";
 import { removeBackgroundFromDataUrl } from "@/lib/esignRemoveBackground";
 import SignatureToolsPanel from "@/components/esign/SignatureToolsPanel";
+import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 
 type EsignViewerClientProps = {
   documentId: string;
@@ -1427,27 +1430,29 @@ export default function EsignViewerClient({
   return (
     <main className="min-h-screen bg-slate-50 text-zinc-900">
       <div className="flex h-screen flex-col">
-        <header
-          className="flex h-14 shrink-0 items-center justify-between gap-4 px-4 bg-[#000000] text-white shadow-sm"
-          style={{ letterSpacing: "0.5px" }}
-        >
+        <header className="flex h-14 shrink-0 items-center justify-between gap-4 bg-[#000000] px-4 text-white shadow-sm">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <button
               type="button"
               onClick={() => router.push("/tools")}
-              className="shrink-0 rounded p-1.5 text-white/70 hover:bg-white/10 hover:text-white transition-colors duration-150"
+              className="shrink-0 rounded p-1.5 text-white/70 transition-colors duration-150 hover:bg-white/10 hover:text-white"
               aria-label="Back to E-Signing Tool"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
-            <img
-              src="/Studiosis-white.png"
-              alt="Studiosis"
-              className="h-13 w-auto object-contain shrink-0"
-            />
-            <span className="shrink-0 text-xl font-bold tracking-wide text-white">
-              Lab
-            </span>
+            <Link
+              href="/"
+              className="relative block h-9 w-[min(100%,220px)] shrink-0 sm:h-10 sm:w-[min(100%,260px)]"
+            >
+              <Image
+                src={HOME_LOGOS_DARK.header}
+                alt="Studiosis Lab — home"
+                fill
+                className="object-contain object-left"
+                sizes="260px"
+                priority
+              />
+            </Link>
             <div
               className="shrink-0 self-center w-px bg-white/15"
               style={{ height: 18 }}

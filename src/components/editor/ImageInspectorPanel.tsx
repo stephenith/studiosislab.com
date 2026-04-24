@@ -3,13 +3,11 @@
 import { useRef, useEffect, useState } from "react";
 import {
   ImagePlus,
-  Eraser,
   Square,
   Ruler,
   Crop,
   FlipHorizontal,
   FlipVertical,
-  SlidersHorizontal,
   Check,
 } from "lucide-react";
 import { Rect } from "fabric";
@@ -52,12 +50,29 @@ export interface ImageInspectorPanelProps {
     opacity?: number;
   } | null;
   updateActiveObject: (patch: Record<string, unknown>) => void;
+  updateActiveObjectLive?: (patch: Record<string, unknown>) => void;
+  commitActiveObjectUpdate?: () => void;
+  updateImageAdjustments?: (
+    patch: Partial<ImageProps["adjustments"]>,
+    opts?: { commit?: boolean }
+  ) => void;
+  resetImageAdjustments?: () => void;
+  beginImageCrop?: () => void;
+  applyImageCrop?: () => void;
+  cancelImageCrop?: () => void;
 }
 
 export function ImageInspectorPanel({
   imageProps,
   activeObjectSnapshot,
   updateActiveObject,
+  updateActiveObjectLive,
+  commitActiveObjectUpdate,
+  updateImageAdjustments,
+  resetImageAdjustments,
+  beginImageCrop,
+  applyImageCrop,
+  cancelImageCrop,
 }: ImageInspectorPanelProps) {
   const borderPopoverRef = useRef<HTMLDivElement>(null);
   const flipPopoverRef = useRef<HTMLDivElement>(null);
@@ -65,7 +80,7 @@ export function ImageInspectorPanel({
   const [borderOpen, setBorderOpen] = useState(false);
   const [cornerOpen, setCornerOpen] = useState(false);
   const [flipOpen, setFlipOpen] = useState(false);
-  const [cropMode, setCropMode] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   const stroke = activeObjectSnapshot?.stroke ?? "#111827";
   const strokeWidth = Number(activeObjectSnapshot?.strokeWidth ?? 0);
@@ -135,36 +150,74 @@ export function ImageInspectorPanel({
   const setFlipX = () => updateActiveObject({ flipX: !flipX });
   const setFlipY = () => updateActiveObject({ flipY: !flipY });
 
-  const handleCropDone = () => {
-    setCropMode(false);
-  };
+  const isCropping = !!imageProps?.isCropping;
+  const adjustments = imageProps?.adjustments;
 
   return (
     <div className="rounded-2xl bg-white border border-[#d6deeb] shadow-[0_6px_14px_rgba(30,64,175,0.08)] transition-shadow transition-colors duration-200 hover:shadow-lg hover:border-slate-400 p-4 space-y-4">
       <div className="text-sm font-medium text-zinc-700 pb-2 border-b border-zinc-200">Image</div>
 
-      {/* Section 1 — Image Actions (placeholders) */}
+      {/* Section 1 — Image Actions */}
       <div>
         <label className="text-xs text-zinc-500 block mb-1">Actions</label>
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => console.log("Edit image clicked")}
+            onClick={() => setEditOpen((v) => !v)}
             className="flex-1 h-9 rounded-lg border border-zinc-200 flex items-center justify-center gap-2 hover:bg-zinc-50 text-sm"
           >
             <ImagePlus size={16} className="text-zinc-600" />
             <span>Edit Image</span>
           </button>
-          <button
-            type="button"
-            onClick={() => console.log("Background remover clicked")}
-            className="flex-1 h-9 rounded-lg border border-zinc-200 flex items-center justify-center gap-2 hover:bg-zinc-50 text-sm"
-          >
-            <Eraser size={16} className="text-zinc-600" />
-            <span>BG Remover</span>
-          </button>
         </div>
       </div>
+
+      {editOpen && (
+        <div className="rounded-xl bg-white border border-zinc-200 shadow-lg p-3 space-y-3">
+          <div className="text-xs font-medium text-zinc-600">Adjustments</div>
+          {[
+            { key: "brightness", label: "Brightness", min: -1, max: 1, step: 0.01 },
+            { key: "contrast", label: "Contrast", min: -1, max: 1, step: 0.01 },
+            { key: "saturation", label: "Saturation", min: -1, max: 1, step: 0.01 },
+            { key: "blur", label: "Blur", min: 0, max: 1, step: 0.01 },
+            { key: "sharpen", label: "Sharpen", min: 0, max: 1, step: 0.01 },
+          ].map((slider) => (
+            <div key={slider.key}>
+              <div className="text-xs text-zinc-500 mb-1 flex items-center justify-between">
+                <span>{slider.label}</span>
+                <span>{Number((adjustments as any)?.[slider.key] ?? 0).toFixed(2)}</span>
+              </div>
+              <input
+                type="range"
+                min={slider.min}
+                max={slider.max}
+                step={slider.step}
+                value={Number((adjustments as any)?.[slider.key] ?? 0)}
+                onInput={(e) =>
+                  updateImageAdjustments?.(
+                    { [slider.key]: Number((e.target as HTMLInputElement).value) } as Partial<ImageProps["adjustments"]>,
+                    { commit: false }
+                  )
+                }
+                onPointerUp={() =>
+                  updateImageAdjustments?.(
+                    { [slider.key]: Number((adjustments as any)?.[slider.key] ?? 0) } as Partial<ImageProps["adjustments"]>,
+                    { commit: true }
+                  )
+                }
+                className="w-full h-2 rounded-full appearance-none bg-zinc-200 accent-blue-600"
+              />
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => resetImageAdjustments?.()}
+            className="w-full h-9 rounded-lg border border-zinc-200 text-sm hover:bg-zinc-50"
+          >
+            Reset
+          </button>
+        </div>
+      )}
 
       {/* Section 2 — Image Toolbar */}
       <div>
@@ -195,9 +248,15 @@ export function ImageInspectorPanel({
           </button>
           <button
             type="button"
-            onClick={() => { setCropMode((c) => !c); setBorderOpen(false); setFlipOpen(false); setCornerOpen(false); }}
+            onClick={() => {
+              setBorderOpen(false);
+              setFlipOpen(false);
+              setCornerOpen(false);
+              if (isCropping) cancelImageCrop?.();
+              else beginImageCrop?.();
+            }}
             className={`w-9 h-9 rounded-lg border flex items-center justify-center ${
-              cropMode ? "bg-blue-600 text-white border-blue-600" : "border-zinc-200 hover:bg-zinc-50"
+              isCropping ? "bg-blue-600 text-white border-blue-600" : "border-zinc-200 hover:bg-zinc-50"
             }`}
             title="Crop"
           >
@@ -216,14 +275,6 @@ export function ImageInspectorPanel({
               <FlipHorizontal size={16} />
             </button>
           </div>
-          <button
-            type="button"
-            onClick={() => console.log("Adjust tool clicked")}
-            className="w-9 h-9 rounded-lg border border-zinc-200 flex items-center justify-center hover:bg-zinc-50"
-            title="Adjust"
-          >
-            <SlidersHorizontal size={16} />
-          </button>
         </div>
       </div>
 
@@ -298,21 +349,29 @@ export function ImageInspectorPanel({
       )}
 
       {/* Section 5 — Crop mode */}
-      {cropMode && (
+      {isCropping && (
         <div className="rounded-xl bg-white border border-zinc-200 shadow-lg p-3 space-y-3">
           <div className="text-xs font-medium text-zinc-600">Crop mode</div>
-          <p className="text-xs text-zinc-500">Cropping frame would appear on canvas. Use DONE to apply and exit.</p>
-          <button
-            type="button"
-            onClick={handleCropDone}
-            className="w-full h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center gap-2 text-sm font-medium hover:bg-blue-700"
-          >
-            <Check size={16} />
-            Done
-          </button>
+          <p className="text-xs text-zinc-500">Drag the crop box on canvas, then apply.</p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => cancelImageCrop?.()}
+              className="flex-1 h-9 rounded-lg border border-zinc-200 text-sm hover:bg-zinc-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => applyImageCrop?.()}
+              className="flex-1 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center gap-2 text-sm font-medium hover:bg-blue-700"
+            >
+              <Check size={16} />
+              Apply
+            </button>
+          </div>
         </div>
       )}
-
       {/* Section 6 — Flip popup */}
       {flipOpen && (
         <div
@@ -354,7 +413,12 @@ export function ImageInspectorPanel({
             min={0}
             max={100}
             value={Math.round((imageProps?.opacity ?? 1) * 100)}
-            onChange={(e) => updateActiveObject({ opacity: Number(e.target.value) / 100 })}
+            onInput={(e) =>
+              (updateActiveObjectLive || updateActiveObject)({
+                opacity: Number((e.target as HTMLInputElement).value) / 100,
+              })
+            }
+            onPointerUp={() => commitActiveObjectUpdate?.()}
             className="flex-1 h-2 rounded-full appearance-none bg-zinc-200 accent-blue-600"
           />
           <span className="text-xs text-zinc-500 w-8">{Math.round((imageProps?.opacity ?? 1) * 100)}%</span>

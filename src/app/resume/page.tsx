@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-import { onAuthStateChanged, User } from "firebase/auth";
 import {
   collection,
   deleteDoc,
@@ -17,9 +16,22 @@ import {
   setDoc,
   doc,
 } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/lib/useAuth";
 
+import NoiseBackground from "@/components/home/NoiseBackground";
 import { TEMPLATES, CATEGORIES } from "@/data/templates";
+
+/** Thumbnail frame: subtle shadow + light ring (no heavy outer card). */
+const THUMB_FRAME =
+  "relative w-full overflow-hidden rounded-xl bg-zinc-100 aspect-[210/297] shadow-[0_4px_16px_-6px_rgba(0,0,0,0.14)] ring-1 ring-zinc-200/80 transition-shadow duration-200 group-hover:shadow-[0_8px_22px_-8px_rgba(0,0,0,0.18)]";
+
+/** Same column breakpoints as templates; narrower max width shrinks strip tiles ~¼ vs full 7xl row. */
+const RECENTS_STRIP_GRID =
+  "grid w-full grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 lg:grid-cols-4 xl:grid-cols-5";
+
+const TEMPLATE_GALLERY_GRID =
+  "grid w-full grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
 
 type RecentDoc = {
   id: string;
@@ -37,9 +49,7 @@ type RecentDoc = {
 
 export default function ResumeTemplatesPage() {
   const router = useRouter();
-
-  const [authLoading, setAuthLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
+  const { user, authReady } = useAuth();
 
   const [queryText, setQueryText] = useState("");
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("All");
@@ -47,24 +57,13 @@ export default function ResumeTemplatesPage() {
   const [recents, setRecents] = useState<RecentDoc[]>([]);
   const [recentsLoading, setRecentsLoading] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const authListenerAttachedRef = useRef(false);
 
-  // Auth guard
   useEffect(() => {
-    if (authListenerAttachedRef.current) return;
-    authListenerAttachedRef.current = true;
-
-    const unsub = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setAuthLoading(false);
-      if (!u) router.replace("/login");
-    });
-
-    return () => {
-      authListenerAttachedRef.current = false;
-      unsub();
-    };
-  }, [router]);
+    if (!authReady) return;
+    if (!user) {
+      router.replace("/login");
+    }
+  }, [authReady, user, router]);
 
   // Load recents
   useEffect(() => {
@@ -158,7 +157,7 @@ export default function ResumeTemplatesPage() {
     []
   );
 
-  if (authLoading) {
+  if (!authReady) {
     return (
       <main className="min-h-screen flex items-center justify-center text-zinc-700">
         Loading…
@@ -169,34 +168,37 @@ export default function ResumeTemplatesPage() {
   if (!user) return null;
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 via-blue-50 to-white text-zinc-900">
-      <div className="mx-auto w-full max-w-7xl px-6 py-16">
-        <header className="text-center">
-          <h1 className="text-3xl md:text-4xl font-semibold">
-            Type your role, pick a design, and shine.
+    <main className="relative min-h-dvh w-full bg-white px-5 pb-20 pt-10 text-zinc-900 sm:pt-12">
+      <NoiseBackground />
+      <div className="relative z-10 mx-auto w-full max-w-7xl">
+        <header className="px-1 pt-2 text-center sm:px-2 sm:pt-4">
+          <h1 className="mx-auto max-w-4xl font-heading text-xl font-medium leading-[1.08] tracking-tight text-zinc-900 sm:text-2xl md:text-3xl lg:text-4xl">
+            Type your role, pick a <span className="text-violet-600">design</span>, and shine.
           </h1>
-          <p className="mt-3 text-zinc-600">
+          <p className="mx-auto mt-4 max-w-lg text-sm text-zinc-600 sm:text-base">
             Casual but clear — guides users smoothly.
           </p>
         </header>
 
-        <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="mx-auto mt-10 flex w-full max-w-2xl flex-col items-center gap-3 sm:mt-12 sm:gap-3.5">
           <input
             value={queryText}
             onChange={(e) => setQueryText(e.target.value)}
             placeholder="Search by title, category, or tags…"
-            className="w-full md:max-w-md rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+            aria-label="Search templates"
+            className="w-full max-w-md rounded-full border border-zinc-200 bg-white px-4 py-2.5 text-left text-sm text-zinc-900 shadow-sm outline-none ring-zinc-900/5 transition placeholder:text-zinc-400 focus:border-zinc-300 focus:outline-none focus:ring-2 focus:ring-violet-500/15"
           />
 
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex w-full max-w-xl flex-wrap justify-center gap-2 px-1">
             {CATEGORIES.map((c) => (
               <button
                 key={c}
+                type="button"
                 onClick={() => setCategory(c)}
-                className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
+                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
                   category === c
-                    ? "border-blue-600 bg-blue-600 text-white"
-                    : "border-zinc-200 bg-white text-zinc-700 hover:border-blue-300"
+                    ? "border-zinc-900 bg-zinc-900 text-white shadow-sm"
+                    : "border-zinc-200 bg-white/90 text-zinc-700 shadow-sm hover:border-zinc-300 hover:bg-zinc-50"
                 }`}
               >
                 {c}
@@ -206,46 +208,49 @@ export default function ResumeTemplatesPage() {
         </div>
 
         {!isSearching && (
-          <div className="mt-10 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Recent resumes</h2>
+          <div className="mt-12 flex items-center justify-between gap-3 sm:mt-14">
+            <h2 className="text-lg font-semibold tracking-tight">Recent resumes</h2>
             <button
               type="button"
               onClick={() => router.push("/resume/recents")}
-              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+              className="shrink-0 text-sm font-medium text-zinc-700 underline-offset-4 transition-colors hover:text-zinc-900 hover:underline"
             >
               View all
             </button>
           </div>
         )}
 
-        <section className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {!isSearching && (
-            <>
-              {/* Create blank */}
-              <button
-                onClick={() => router.push("/editor/new")}
-                className="group flex flex-col gap-4 rounded-2xl border border-dashed border-zinc-300 bg-white/70 p-5 text-left shadow-sm transition hover:border-blue-400 hover:shadow-md"
+        {!isSearching && (
+          <section
+            className={`${RECENTS_STRIP_GRID} mx-auto mt-8 max-w-[60rem] sm:mt-10`}
+            aria-label="Recent resumes and create blank"
+          >
+            {/* Create blank */}
+            <button
+              type="button"
+              onClick={() => router.push("/editor/new")}
+              className="group flex w-full flex-col gap-1.5 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+            >
+              <div
+                className={`${THUMB_FRAME} flex items-center justify-center border border-dashed border-zinc-300/90 bg-zinc-50/80 text-2xl font-semibold text-zinc-400 transition-colors group-hover:border-zinc-400 group-hover:text-zinc-600 sm:text-3xl`}
               >
-                <div className="flex items-center justify-center rounded-xl border-2 border-dashed border-blue-300 bg-white text-4xl font-semibold text-blue-500 shadow-sm aspect-[210/297]">
-                  +
-                </div>
-                <div>
-                  <div className="text-lg font-semibold">Create blank</div>
-                  <div className="text-sm text-zinc-600">
-                    Start from a clean canvas.
-                  </div>
-                </div>
-              </button>
+                +
+              </div>
+              <div className="min-w-0 pt-0.5">
+                <div className="text-xs font-semibold leading-tight text-zinc-900 sm:text-sm">Create blank</div>
+                <div className="mt-0.5 text-[11px] text-zinc-500 sm:text-xs">Start from a clean canvas.</div>
+              </div>
+            </button>
 
-              {/* Recents */}
-              {recentsLoading ? (
-                <div className="flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-5 text-left shadow-sm">
-                  <div className="relative mb-3 w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 shadow-sm aspect-[210/297]" />
-                  <div className="h-5 w-40 rounded bg-zinc-100" />
-                  <div className="h-4 w-24 rounded bg-zinc-100" />
-                  <div className="text-xs text-zinc-500">Loading recent…</div>
-                </div>
-              ) : (
+            {/* Recents */}
+            {recentsLoading ? (
+              <div className="flex flex-col gap-1.5">
+                <div className={`${THUMB_FRAME} animate-pulse bg-zinc-100`} />
+                <div className="h-3.5 w-28 max-w-full rounded bg-zinc-100" />
+                <div className="h-3 w-16 max-w-full rounded bg-zinc-100" />
+                <div className="text-[11px] text-zinc-500">Loading recent…</div>
+              </div>
+            ) : (
                 recents.map((r) => {
                   const fallbackTemplateId = String(
                     r.sourceTemplateId || r.templateId || "blank"
@@ -266,10 +271,9 @@ export default function ResumeTemplatesPage() {
                           router.push(`/editor/${r.id}`);
                         }
                       }}
-                      className="group flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:border-blue-300 hover:shadow-md"
+                      className="group flex w-full cursor-pointer flex-col gap-1.5 border-0 bg-transparent p-0 text-left outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
                     >
-                      <div>
-                        <div className="relative mb-3 w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 shadow-sm aspect-[210/297]">
+                      <div className={THUMB_FRAME}>
                           <div
                             className="absolute right-2 top-2 z-10"
                             data-menu-root="1"
@@ -420,67 +424,58 @@ export default function ResumeTemplatesPage() {
                               Preview unavailable
                             </div>
                           )}
-                        </div>
+                      </div>
 
-                        <div className="text-sm font-semibold leading-tight truncate">
+                      <div className="min-w-0 pt-0.5">
+                        <div className="text-xs font-semibold leading-tight text-zinc-900 truncate sm:text-sm">
                           {r.title?.toString()?.trim() ? r.title : "Untitled Resume"}
                         </div>
-                        <div className="mt-0.5 text-[11px] text-zinc-500">
+                        <div className="mt-0.5 text-[10px] text-zinc-500 sm:text-[11px]">
                           Recent • {formatUpdated(r.updatedAt) || "—"}
                         </div>
                       </div>
-
                     </div>
                   );
                 })
               )}
-            </>
-          )}
+          </section>
+        )}
 
-          {/* Templates */}
+        <section
+          className={`${TEMPLATE_GALLERY_GRID} ${isSearching ? "mt-10 sm:mt-12" : "mt-12 sm:mt-14"}`}
+          aria-label="Resume templates"
+        >
           {filteredTemplates.map((template) => (
             <button
               key={template.id}
+              type="button"
               onClick={() => router.push(`/editor/${template.id}`)}
-              className="group flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-5 text-left shadow-sm transition hover:border-blue-300 hover:shadow-md"
+              className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
             >
-              <div>
-                <div className="relative mb-3 w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-100 shadow-sm aspect-[210/297]">
-                  <Image
-                    src={`/templates/${template.id}.png`}
-                    alt={`${template.title} preview`}
-                    fill
-                    className="object-cover"
-                    sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 100vw"
-                    priority={template.id === filteredTemplates[0]?.id}
-                    loading={
-                      template.id === filteredTemplates[0]?.id
-                        ? "eager"
-                        : "lazy"
-                    }
-                  />
-                </div>
-                <div className="text-lg font-semibold">{template.title}</div>
-                <div className="mt-1 text-xs text-zinc-500">
-                  {template.category}
-                </div>
+              <div className={THUMB_FRAME}>
+                <Image
+                  src={`/templates/${template.id}.png`}
+                  alt={`${template.title} preview`}
+                  fill
+                  className="object-cover"
+                  sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 100vw"
+                  priority={template.id === filteredTemplates[0]?.id}
+                  loading={
+                    template.id === filteredTemplates[0]?.id
+                      ? "eager"
+                      : "lazy"
+                  }
+                />
               </div>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {template.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600"
-                  >
-                    {tag}
-                  </span>
-                ))}
+              <div className="min-w-0 pt-0.5">
+                <div className="text-sm font-semibold leading-tight text-zinc-900">{template.title}</div>
+                <div className="mt-0.5 text-xs text-zinc-500">{template.category}</div>
               </div>
             </button>
           ))}
         </section>
 
-        <footer className="mt-16 text-center text-sm text-zinc-500">
+        <footer className="mt-20 text-center text-sm text-zinc-500">
           designed and powered by Studiosis
         </footer>
       </div>

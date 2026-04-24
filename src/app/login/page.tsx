@@ -1,31 +1,53 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/lib/useAuth";
 
 function LoginInner() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next");
+  const { user, authReady, signInWithGoogle } = useAuth();
+
+  useEffect(() => {
+    if (!authReady) return;
+    if (user) {
+      router.replace(next || "/resume");
+    }
+  }, [authReady, user, router, next]);
 
   async function signIn() {
     try {
       setLoading(true);
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      await signInWithGoogle();
       if (next) {
         router.push(next);
       } else {
         router.push("/resume");
       }
-    } catch (e) {
+    } catch {
       alert("Login failed");
     } finally {
       setLoading(false);
     }
+  }
+
+  if (!authReady) {
+    return (
+      <main className="min-h-screen flex items-center justify-center p-6 text-zinc-700">
+        Loading…
+      </main>
+    );
+  }
+
+  if (user) {
+    return (
+      <main className="min-h-screen flex items-center justify-center p-6 text-zinc-700">
+        Redirecting…
+      </main>
+    );
   }
 
   return (

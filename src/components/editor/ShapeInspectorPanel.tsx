@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import { Lock, Square } from "lucide-react";
 import type { ShapeProps } from "@/types/editor";
 import { toHexColor } from "@/lib/color";
+import { getShapeCapabilities } from "@/data/shapes/catalog";
 
 const PRESET_COLORS = [
   "#000000", "#374151", "#6b7280", "#9ca3af",
@@ -49,12 +50,14 @@ export interface ShapeInspectorPanelProps {
     lockScalingY?: boolean;
     lockRotation?: boolean;
   } | null;
+  setShapeProp: (partial: Partial<ShapeProps>) => void;
   updateActiveObject: (patch: Record<string, unknown>) => void;
 }
 
 export function ShapeInspectorPanel({
   shapeProps,
   activeObjectSnapshot,
+  setShapeProp,
   updateActiveObject,
 }: ShapeInspectorPanelProps) {
   const colorPopoverRef = useRef<HTMLDivElement>(null);
@@ -64,11 +67,14 @@ export function ShapeInspectorPanel({
 
   const fill = toHexColor(shapeProps?.fill ?? activeObjectSnapshot?.fill, "#111827");
   const stroke = shapeProps?.stroke ?? activeObjectSnapshot?.stroke;
+  const strokeHex = toHexColor(stroke, "#111827");
   const strokeWidth = Number(shapeProps?.strokeWidth ?? activeObjectSnapshot?.strokeWidth ?? 2);
   const opacity = Number(shapeProps?.opacity ?? activeObjectSnapshot?.opacity ?? 1);
   const cornerRadius = Number(shapeProps?.cornerRadius ?? activeObjectSnapshot?.rx ?? activeObjectSnapshot?.ry ?? 0);
   const objectType = String(activeObjectSnapshot?.type ?? "").toLowerCase();
-  const isRect = objectType === "rect";
+  const shapeKind = String((activeObjectSnapshot as any)?.data?.shapeKind ?? "").toLowerCase();
+  const capabilities = getShapeCapabilities(objectType, shapeKind);
+  const isRect = objectType === "rect" || shapeKind === "rect";
 
   const dashArr = activeObjectSnapshot?.strokeDashArray ?? null;
   const borderStyle = getBorderStyleFromDashArray(dashArr, stroke);
@@ -95,7 +101,8 @@ export function ShapeInspectorPanel({
     return () => document.removeEventListener("mousedown", close);
   }, []);
 
-  const setFill = (value: string) => updateActiveObject({ fill: value });
+  const setFill = (value: string) => setShapeProp({ fill: value });
+  const setStroke = (value: string) => setShapeProp({ stroke: value, strokeWidth: strokeWidth > 0 ? strokeWidth : 2 });
   const setStrokeStyle = (style: BorderStyle) => {
     if (style === "none") {
       updateActiveObject({ stroke: null, strokeDashArray: null, strokeWidth: 0 });
@@ -108,9 +115,9 @@ export function ShapeInspectorPanel({
       });
     }
   };
-  const setStrokeWidth = (v: number) => updateActiveObject({ strokeWidth: Math.max(0, Math.min(50, v)) });
-  const setCornerRadius = (v: number) => updateActiveObject({ rx: v, ry: v });
-  const setOpacity = (v: number) => updateActiveObject({ opacity: Math.max(0, Math.min(1, v / 100)) });
+  const setStrokeWidth = (v: number) => setShapeProp({ strokeWidth: Math.max(0, Math.min(50, v)) });
+  const setCornerRadius = (v: number) => setShapeProp({ cornerRadius: v });
+  const setOpacity = (v: number) => setShapeProp({ opacity: Math.max(0, Math.min(1, v / 100)) });
   const setLocked = (locked: boolean) => updateActiveObject({
     lockMovementX: locked,
     lockMovementY: locked,
@@ -123,61 +130,62 @@ export function ShapeInspectorPanel({
     <div className="rounded-2xl bg-white border border-[#d6deeb] shadow-[0_6px_14px_rgba(30,64,175,0.08)] transition-shadow transition-colors duration-200 hover:shadow-lg hover:border-slate-400 p-4 space-y-4">
       <div className="text-sm font-medium text-zinc-700 pb-2 border-b border-zinc-200">Shape</div>
 
-      {/* 1. Shape color */}
-      <div>
-        <label className="text-xs text-zinc-500 block mb-1">Fill</label>
-        <div className="relative">
-          <button
-            type="button"
-            data-shape-color-swatch
-            onClick={() => setColorOpen((o) => !o)}
-            className="w-full h-9 rounded-lg border border-zinc-200 flex items-center gap-2 px-2 hover:bg-zinc-50"
-          >
-            <span
-              className="w-6 h-6 rounded border border-zinc-200 shrink-0"
-              style={{ backgroundColor: fill }}
-            />
-            <span className="text-xs text-zinc-600 truncate">{fill}</span>
-          </button>
-          {colorOpen && (
-            <div
-              ref={colorPopoverRef}
-              className="absolute left-0 top-full mt-1 z-50 w-56 rounded-xl bg-white border border-zinc-200 shadow-lg p-3"
+      {capabilities.fill && (
+        <div>
+          <label className="text-xs text-zinc-500 block mb-1">Fill</label>
+          <div className="relative">
+            <button
+              type="button"
+              data-shape-color-swatch
+              onClick={() => setColorOpen((o) => !o)}
+              className="w-full h-9 rounded-lg border border-zinc-200 flex items-center gap-2 px-2 hover:bg-zinc-50"
             >
-              <div className="grid grid-cols-4 gap-1.5 mb-2">
-                {PRESET_COLORS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => { setFill(c); setColorOpen(false); }}
-                    className="w-8 h-8 rounded border border-zinc-200 hover:ring-2 ring-blue-500"
-                    style={{ backgroundColor: c }}
+              <span
+                className="w-6 h-6 rounded border border-zinc-200 shrink-0"
+                style={{ backgroundColor: fill }}
+              />
+              <span className="text-xs text-zinc-600 truncate">{fill}</span>
+            </button>
+            {colorOpen && (
+              <div
+                ref={colorPopoverRef}
+                className="absolute left-0 top-full mt-1 z-50 w-56 rounded-xl bg-white border border-zinc-200 shadow-lg p-3"
+              >
+                <div className="grid grid-cols-4 gap-1.5 mb-2">
+                  {PRESET_COLORS.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => { setFill(c); setColorOpen(false); }}
+                      className="w-8 h-8 rounded border border-zinc-200 hover:ring-2 ring-blue-500"
+                      style={{ backgroundColor: c }}
+                    />
+                  ))}
+                </div>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="color"
+                    value={fill}
+                    onChange={(e) => setFill(e.target.value)}
+                    className="w-10 h-8 rounded border cursor-pointer"
                   />
-                ))}
+                  <input
+                    type="text"
+                    value={fill}
+                    onChange={(e) => {
+                      const v = e.target.value.trim();
+                      if (v.startsWith("#") || /^[0-9a-fA-F]{3,6}$/.test(v)) setFill(v.startsWith("#") ? v : `#${v}`);
+                    }}
+                    className="flex-1 rounded border border-zinc-200 px-2 py-1 text-xs font-mono"
+                  />
+                </div>
               </div>
-              <div className="flex gap-2 items-center">
-                <input
-                  type="color"
-                  value={fill}
-                  onChange={(e) => setFill(e.target.value)}
-                  className="w-10 h-8 rounded border cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={fill}
-                  onChange={(e) => {
-                    const v = e.target.value.trim();
-                    if (v.startsWith("#") || /^[0-9a-fA-F]{3,6}$/.test(v)) setFill(v.startsWith("#") ? v : `#${v}`);
-                  }}
-                  className="flex-1 rounded border border-zinc-200 px-2 py-1 text-xs font-mono"
-                />
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* 2. Border control */}
+      {(capabilities.stroke || capabilities.strokeWidth) && (
       <div>
         <label className="text-xs text-zinc-500 block mb-1">Border</label>
         <div className="relative">
@@ -211,6 +219,30 @@ export function ShapeInspectorPanel({
                 ))}
               </div>
 
+              {capabilities.stroke && (
+              <div>
+                <div className="text-xs text-zinc-500 mb-1">Border color</div>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="color"
+                    value={strokeHex}
+                    onChange={(e) => setStroke(e.target.value)}
+                    className="w-10 h-8 rounded border cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={strokeHex}
+                    onChange={(e) => {
+                      const v = e.target.value.trim();
+                      if (v.startsWith("#") || /^[0-9a-fA-F]{3,6}$/.test(v)) setStroke(v.startsWith("#") ? v : `#${v}`);
+                    }}
+                    className="flex-1 rounded border border-zinc-200 px-2 py-1 text-xs font-mono"
+                  />
+                </div>
+              </div>
+              )}
+
+              {capabilities.strokeWidth && (
               <div>
                 <div className="text-xs text-zinc-500 mb-1">Border weight</div>
                 <div className="flex gap-2 items-center">
@@ -232,8 +264,9 @@ export function ShapeInspectorPanel({
                   />
                 </div>
               </div>
+              )}
 
-              {isRect && (
+              {capabilities.cornerRadius && isRect && (
                 <div>
                   <div className="text-xs text-zinc-500 mb-1">Corner rounding</div>
                   <div className="flex gap-2 items-center">
@@ -260,8 +293,10 @@ export function ShapeInspectorPanel({
           )}
         </div>
       </div>
+      )}
 
       {/* 3. Opacity */}
+      {capabilities.opacity && (
       <div>
         <label className="text-xs text-zinc-500 block mb-1">Opacity</label>
         <div className="flex gap-2 items-center">
@@ -270,12 +305,13 @@ export function ShapeInspectorPanel({
             min={0}
             max={100}
             value={Math.round(opacity * 100)}
-            onChange={(e) => setOpacity(Number(e.target.value) / 100)}
+            onChange={(e) => setOpacity(Number(e.target.value))}
             className="flex-1 h-2 rounded-full appearance-none bg-zinc-200 accent-blue-600"
           />
           <span className="text-xs text-zinc-500 w-8">{Math.round(opacity * 100)}%</span>
         </div>
       </div>
+      )}
 
       {/* 4. Lock shape */}
       <div>

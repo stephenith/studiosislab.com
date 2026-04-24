@@ -5,14 +5,24 @@ import { SidebarSection } from "../sidebar/SidebarSection";
 
 type QRPanelProps = {
   onClose: () => void;
+  editor?: {
+    addQrCode?: (content: string) => Promise<void> | void;
+  } | null;
 };
 
-export function QRPanel({ onClose }: QRPanelProps) {
+export function QRPanel({ onClose, editor }: QRPanelProps) {
   const [value, setValue] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleGenerate = () => {
-    // Stub: functionality can be implemented later
-    console.log("[QRPanel] Generate QR for:", value);
+  const handleGenerate = async () => {
+    if (!value.trim()) return;
+
+    setLoading(true);
+    try {
+      await editor?.addQrCode?.(value.trim());
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,9 +53,10 @@ export function QRPanel({ onClose }: QRPanelProps) {
           <button
             type="button"
             onClick={handleGenerate}
-            className="w-full rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            disabled={loading}
+            className="w-full rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Generate QR
+            {loading ? "Generating..." : "Generate QR"}
           </button>
         </SidebarSection>
       </div>

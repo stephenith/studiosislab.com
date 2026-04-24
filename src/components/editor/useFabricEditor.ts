@@ -3,20 +3,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Canvas,
-  Circle,
   Line,
   Rect,
-  Textbox,
   Group,
+  ActiveSelection,
   Shadow,
   Image as FabricImage,
 } from "fabric";
 import * as FabricNS from "fabric";
 import { jsPDF } from "jspdf";
 import { TEMPLATE_SNAPSHOTS } from "@/data/templates";
+import { getSystemTemplateById } from "@/data/systemTemplates/registry";
 import { toHexColor } from "@/lib/color";
 import { useAuthUser } from "@/lib/useAuthUser";
 import { createResumeDoc, getResumeDoc, updateResumeDoc } from "@/lib/resumeDocs";
+import { generateResumeThumbnail } from "@/lib/resumePreviewExport";
 import type {
   EditorMode,
   PageSize,
@@ -25,6 +26,8 @@ import type {
   TextProps,
   ShapeProps,
   ImageProps,
+  ImageAdjustments,
+  TableProps,
   LayerItem,
 } from "@/types/editor";
 import {
@@ -36,17 +39,25 @@ import { initFabricCanvas, applyCanvasBackground as applyCanvasBackgroundModule 
 import { normalizeToFabricJson } from "@/lib/editor/templateLoader";
 import { clampEffectiveZoom as clampEffectiveZoomFn } from "@/lib/editor/zoomController";
 import { addTextbox as addTextboxTool, applyTextBoxNoStretch } from "@/lib/editor/textTools";
-import { addRect as addRectTool, addCircle as addCircleTool, addLine as addLineTool } from "@/lib/editor/shapeTools";
+import { getShapeDefinitionById } from "@/data/shapes/catalog";
+import { createShapeFromDefinition } from "@/lib/editor/shapeFactory";
+import { createTableModel, type TableModel } from "@/lib/editor/tableModel";
+import { renderTableFromModel } from "@/lib/editor/tableFactory";
+import { generateQrDataUrl } from "@/lib/editor/qrGenerator";
 import { getLayers as getLayersFromModule } from "@/lib/editor/layerManager";
 import { exportToDataURL as exportToDataURLModule } from "@/lib/editor/exportCanvas";
+import {
+  deleteAutosaveDraft,
+  readAutosaveDraft,
+  saveAutosaveDraft,
+} from "@/lib/editor/autosaveStore";
 import { ensureObjectId } from "./editor/utils/fabricHelpers";
 import {
-  IMAGE_FRAME_SIZE,
-  IMAGE_FRAME_TYPE,
   isImageFrame,
   getImageFrameFrameType,
-  getImageForFrame,
   getFrameShape,
+  getFrameImage,
+  isImageNestedInImageFrame,
 } from "./editor/frames/frameDetection";
 import { createFrameCreate } from "./editor/frames/frameCreate";
 import { createFrameAttach } from "./editor/frames/frameAttach";
@@ -72,9 +83,26 @@ function refreshCanvasOffset(canvas: any) {
   });
 }
 
-function getFrameId(frame: any): string | null {
-  return frame?.id ?? frame?.data?.id ?? frame?.uid ?? null;
+function isShapeType(type: string, shapeKind?: string) {
+  const normalizedType = String(type || "").toLowerCase();
+  const normalizedKind = String(shapeKind || "").toLowerCase();
+  return ["rect", "circle", "triangle", "line", "polygon", "star"].includes(normalizedType) ||
+    ["rect", "circle", "triangle", "line", "polygon", "star"].includes(normalizedKind);
 }
+
+const DEFAULT_IMAGE_ADJUSTMENTS: ImageAdjustments = {
+  brightness: 0,
+  contrast: 0,
+  saturation: 0,
+  blur: 0,
+  sharpen: 0,
+};
+
+const LOCAL_AUTOSAVE_THROTTLE_MS = 500;
+const CLOUD_AUTOSAVE_DEBOUNCE_MS = 3000;
+const CLOUD_AUTOSAVE_INTERVAL_MS = 45000;
+
+type AutosaveStatus = "saving" | "syncing" | "synced" | "offlinePending" | null;
 
 export function useFabricEditor({
   mode,
@@ -96,6 +124,7 @@ export function useFabricEditor({
   const undoRef = useRef<any[]>([]);
   const redoRef = useRef<any[]>([]);
   const isApplyingRef = useRef(false);
+  const isInternalMutationRef = useRef(false);
   const lastLoadedSnapshotRef = useRef<any>(null);
   const didInitialFitRef = useRef(false);
   const fitRafRef = useRef<number | null>(null);
@@ -109,6 +138,21 @@ export function useFabricEditor({
   const isLoadingDocRef = useRef(false);
   const hadStoredZoomRef = useRef(false);
   const docRevisionRef = useRef(0);
+  const autosaveRevisionRef = useRef(0);
+  const dirtyRef = useRef(false);
+  const lastSavedHashRef = useRef<string | null>(null);
+  const lastSyncedHashRef = useRef<string | null>(null);
+  const pendingSnapshotRef = useRef<any>(null);
+  const saveTimerRef = useRef<number | null>(null);
+  const syncTimerRef = useRef<number | null>(null);
+  const syncIntervalRef = useRef<number | null>(null);
+  const isCloudSyncRunningRef = useRef(false);
+  /** Throttle offscreen thumbnail uploads after cloud sync (ms). */
+  const THUMBNAIL_CLOUD_MIN_INTERVAL_MS = 90_000;
+  const lastThumbnailGenAtRef = useRef(0);
+  const lastThumbnailGenHashRef = useRef<string | null>(null);
+  const restoreCheckKeyRef = useRef<string | null>(null);
+  const markDirtyRef = useRef<(snapshot: any) => void>(() => {});
   const imageFrameCropModeRef = useRef<{
     frame: any;
     image: any;
@@ -141,6 +185,9 @@ export function useFabricEditor({
   pagesRef.current = pages;
 
   const [selectionType, setSelectionType] = useState<SelectionType>("none");
+  const [selectionKind, setSelectionKind] = useState<"none" | "single" | "multi" | "group">(
+    "none"
+  );
   const [selectedFrameHasImage, setSelectedFrameHasImage] = useState(false);
   const [activeObjectType, setActiveObjectType] = useState<string | null>(null);
   const [activeObjectSnapshot, setActiveObjectSnapshot] = useState<any>(null);
@@ -148,11 +195,16 @@ export function useFabricEditor({
     fontFamily: "Poppins",
     fontSize: 32,
     fill: "#111827",
-    fontWeight: "normal",
+    fontWeight: 400,
     fontStyle: "normal",
+    fontVariantId: "400-normal",
     underline: false,
     textAlign: "left",
     lineHeight: 1.3,
+    charSpacing: 0,
+    opacity: 1,
+    uppercaseEnabled: false,
+    listMode: "none",
   });
   const [shapeProps, setShapeProps] = useState<ShapeProps>({
     fill: "rgba(17,24,39,0.1)",
@@ -163,27 +215,214 @@ export function useFabricEditor({
   });
   const [imageProps, setImageProps] = useState<ImageProps>({
     opacity: 1,
+    scaleX: 1,
+    scaleY: 1,
+    angle: 0,
+    flipX: false,
+    flipY: false,
+    width: 0,
+    height: 0,
+    isCropping: false,
+    adjustments: { ...DEFAULT_IMAGE_ADJUSTMENTS },
   });
+  const [tableProps, setTableProps] = useState<TableProps>({
+    borderColor: "#111827",
+    borderWidth: 1,
+  });
+  const [activeDrawTool, setActiveDrawToolState] = useState<"none" | "pencil" | "highlighter" | "eraser">("none");
+  const [pencilColor, setPencilColor] = useState("#111827");
+  const [pencilThickness, setPencilThickness] = useState(3);
+  const [highlighterColor, setHighlighterColor] = useState("rgba(204,255,0,0.3)");
+  const [highlighterThickness, setHighlighterThickness] = useState(16);
+  const [eraserSize, setEraserSize] = useState(20);
   const [layers, setLayers] = useState<LayerItem[]>([]);
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
   const [hasSelection, setHasSelection] = useState(false);
   const [cloudDocId, setCloudDocId] = useState<string | null>(null);
+  const [resolvedDocId, setResolvedDocId] = useState<string>(() => {
+    const fromParam = String(docIdParam || "").trim();
+    if (fromParam) return fromParam;
+    if (typeof window === "undefined") return "";
+    if (mode !== "template") return "";
+    const templateId = String(initialTemplateId || "").toLowerCase().trim();
+    if (!templateId) return "";
+    try {
+      return String(window.localStorage.getItem(`lastDocIdForTemplate:${templateId}`) || "").trim();
+    } catch {
+      return "";
+    }
+  });
   const [docTitle, setDocTitle] = useState<string | null>(null);
   const [docCreatedAt, setDocCreatedAt] = useState<any>(null);
+  const [docUpdatedAt, setDocUpdatedAt] = useState<any>(null);
+  const [docAutosaveRevision, setDocAutosaveRevision] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isDocDataReady, setIsDocDataReady] = useState(false);
+  const [autosaveStatus, setAutosaveStatus] = useState<AutosaveStatus>(null);
 
   const bgColorRef = useRef(bgColor);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const isHydratingFromSelectionRef = useRef(false);
+  const imageCropStateRef = useRef<{
+    image: any;
+    baseCropX: number;
+    baseCropY: number;
+    dimTop: any;
+    dimBottom: any;
+    dimLeft: any;
+    dimRight: any;
+    cropRect: any;
+    handlers: {
+      moving: () => void;
+      scaling: () => void;
+      modified: () => void;
+    };
+  } | null>(null);
+  const suppressImageHistoryPushRef = useRef(false);
   const prevActivePageIdRef = useRef<string | null>(null);
   const { user, loading: authLoading } = useAuthUser();
   const getCanvas = useCallback(() => canvasRef.current, []);
+  const persistTemplateDocPointer = useCallback(
+    (nextDocId: string | null) => {
+      if (typeof window === "undefined") return;
+      if (mode !== "template") return;
+      const templateId = String(initialTemplateId || "").toLowerCase().trim();
+      if (!templateId) return;
+      const key = `lastDocIdForTemplate:${templateId}`;
+      try {
+        if (nextDocId) window.localStorage.setItem(key, nextDocId);
+        else window.localStorage.removeItem(key);
+      } catch {}
+    },
+    [initialTemplateId, mode]
+  );
+  useEffect(() => {
+    const fromParam = String(docIdParam || "").trim();
+    if (fromParam) {
+      setResolvedDocId(fromParam);
+      return;
+    }
+    if (mode !== "template") {
+      setResolvedDocId("");
+      return;
+    }
+    const templateId = String(initialTemplateId || "").toLowerCase().trim();
+    if (!templateId) {
+      setResolvedDocId("");
+      return;
+    }
+    try {
+      const pointer = String(window.localStorage.getItem(`lastDocIdForTemplate:${templateId}`) || "").trim();
+      setResolvedDocId(pointer);
+    } catch {
+      setResolvedDocId("");
+    }
+  }, [docIdParam, initialTemplateId, mode]);
   const logTextSync = useCallback((mode: "hydrate" | "apply") => {
     if (process.env.NODE_ENV !== "development") return;
     console.log("[text-sync]", mode);
   }, []);
+
+  const setDrawTool = useCallback((tool: "none" | "pencil" | "highlighter" | "eraser") => {
+    setActiveDrawToolState((prev) => (prev === tool ? "none" : tool));
+  }, []);
+
+  const setPencilThicknessValue = useCallback((value: number) => {
+    const next = Number.isFinite(value) ? value : 1;
+    setPencilThickness(Math.max(1, Math.min(64, Math.round(next))));
+  }, []);
+
+  const setHighlighterThicknessValue = useCallback((value: number) => {
+    const next = Number.isFinite(value) ? value : 8;
+    setHighlighterThickness(Math.max(4, Math.min(64, Math.round(next))));
+  }, []);
+
+  const setEraserSizeValue = useCallback((value: number) => {
+    const next = Number.isFinite(value) ? value : 8;
+    setEraserSize(Math.max(4, Math.min(96, Math.round(next))));
+  }, []);
+
+  const setPencilColorValue = useCallback((value: string) => {
+    if (!value) return;
+    setPencilColor(value);
+  }, []);
+
+  const setHighlighterColorValue = useCallback((value: string) => {
+    if (!value) return;
+    setHighlighterColor(value);
+  }, []);
+
+  const createEraserBrush = useCallback((canvas: Canvas) => {
+    const brush: any = new (FabricNS as any).PencilBrush(canvas);
+    brush.width = Math.max(1, eraserSize);
+    brush.color = "rgba(0,0,0,1)";
+
+    const baseFinalize = brush._finalizeAndAddPath?.bind(brush);
+    if (baseFinalize) {
+      brush._finalizeAndAddPath = function (...args: any[]) {
+        const topCtx = this.canvas?.contextTop;
+        if (topCtx) topCtx.globalCompositeOperation = "destination-out";
+        try {
+          return baseFinalize(...args);
+        } finally {
+          if (topCtx) topCtx.globalCompositeOperation = "source-over";
+        }
+      };
+    }
+
+    const baseCreatePath = brush.createPath?.bind(brush);
+    if (baseCreatePath) {
+      brush.createPath = function (...args: any[]) {
+        const path = baseCreatePath(...args);
+        if (path) (path as any).globalCompositeOperation = "destination-out";
+        return path;
+      };
+    }
+
+    return brush;
+  }, [eraserSize]);
+
+  const updateBrushConfig = useCallback(() => {
+    const activeCanvas = getCanvas();
+
+    pageCanvasesRef.current.forEach((canvas) => {
+      canvas.isDrawingMode = false;
+      canvas.selection = canvas === activeCanvas;
+      (canvas as any).skipTargetFind = false;
+    });
+
+    if (!activeCanvas || activeDrawTool === "none") return;
+
+    let brush: any = null;
+    if (activeDrawTool === "pencil") {
+      brush = new (FabricNS as any).PencilBrush(activeCanvas);
+      brush.color = pencilColor;
+      brush.width = Math.max(1, pencilThickness);
+      brush.opacity = 1;
+    } else if (activeDrawTool === "highlighter") {
+      brush = new (FabricNS as any).PencilBrush(activeCanvas);
+      brush.color = highlighterColor;
+      brush.width = Math.max(4, highlighterThickness);
+      brush.opacity = 1;
+    } else if (activeDrawTool === "eraser") {
+      brush = createEraserBrush(activeCanvas);
+    }
+
+    if (!brush) return;
+    activeCanvas.freeDrawingBrush = brush;
+    activeCanvas.selection = false;
+    (activeCanvas as any).skipTargetFind = true;
+    activeCanvas.isDrawingMode = true;
+  }, [
+    activeDrawTool,
+    createEraserBrush,
+    getCanvas,
+    highlighterColor,
+    highlighterThickness,
+    pencilColor,
+    pencilThickness,
+  ]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -204,6 +443,17 @@ export function useFabricEditor({
       viewport.removeEventListener("scroll", handleScroll);
     };
   }, [getCanvas]);
+
+  useEffect(() => {
+    updateBrushConfig();
+    if (typeof window === "undefined") return;
+    const frame = window.requestAnimationFrame(() => {
+      updateBrushConfig();
+    });
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [updateBrushConfig, activePageIndex]);
 
   function reorderPages<T>(list: T[], from: number, to: number): T[] {
     const next = [...list];
@@ -672,7 +922,10 @@ export function useFabricEditor({
   }, [getDraftKey, serializeForDraft]);
 
   const saveToCloud = useCallback(
-    async (title?: string) => {
+    async (
+      title?: string,
+      opts?: { autosaveRevision?: number; autosaveHash?: string | null }
+    ) => {
       if (!user) {
         console.warn("[save] No user logged in");
         return null;
@@ -688,6 +941,12 @@ export function useFabricEditor({
         title: nextTitle,
         pageSize,
         zoom,
+        autosaveRevision:
+          typeof opts?.autosaveRevision === "number"
+            ? opts.autosaveRevision
+            : autosaveRevisionRef.current,
+        autosaveHash:
+          typeof opts?.autosaveHash === "string" ? opts.autosaveHash : lastSavedHashRef.current,
       };
       if (cloudDocId) {
         await updateResumeDoc({
@@ -696,10 +955,12 @@ export function useFabricEditor({
           ...(hasMultiplePages ? { pagesData } : { canvasJson }),
         });
         setDocTitle(nextTitle);
+        setResolvedDocId(cloudDocId);
+        persistTemplateDocPointer(cloudDocId);
         return { docId: cloudDocId, isNew: false };
       }
       const templateId = (initialTemplateId || "").toLowerCase().trim();
-      const isTemplate = !!TEMPLATE_SNAPSHOTS[templateId];
+      const isTemplate = !!getSystemTemplateById(templateId);
       const sourceTemplateId = isTemplate ? templateId : null;
       const newDocId = await createResumeDoc({
         ...common,
@@ -708,6 +969,8 @@ export function useFabricEditor({
       });
       setCloudDocId(newDocId);
       setDocTitle(nextTitle);
+      setResolvedDocId(newDocId);
+      persistTemplateDocPointer(newDocId);
       return { docId: newDocId, isNew: true };
     },
     [
@@ -717,21 +980,407 @@ export function useFabricEditor({
       getPagesJsonForSave,
       initialTemplateId,
       pageSize,
+      persistTemplateDocPointer,
       user,
       zoom,
     ]
   );
 
+  const getAutosaveDocKey = useCallback(() => {
+    const uid = user?.uid || "anonymous";
+    const sourceId =
+      cloudDocId ||
+      resolvedDocId ||
+      `${mode}:${String(initialTemplateId || "blank").toLowerCase().trim()}`;
+    return `${uid}:${sourceId}`;
+  }, [cloudDocId, initialTemplateId, mode, resolvedDocId, user?.uid]);
+
+  const getAutosaveMetaStorageKey = useCallback(() => {
+    return `slb:autosave:meta:${getAutosaveDocKey()}`;
+  }, [getAutosaveDocKey]);
+
+  const computeSnapshotHash = useCallback((snapshot: any): string => {
+    const raw = JSON.stringify(snapshot || { objects: [] });
+    let checksum = 0;
+    for (let i = 0; i < raw.length; i++) {
+      checksum = (checksum + raw.charCodeAt(i) * (i + 1)) % 1000000007;
+    }
+    return `${raw.length}:${checksum}`;
+  }, []);
+
+  const runWhenIdle = useCallback((fn: () => void) => {
+    if (typeof window === "undefined") return;
+    const ric = (window as any).requestIdleCallback;
+    if (typeof ric === "function") {
+      ric(() => fn(), { timeout: 700 });
+      return;
+    }
+    window.setTimeout(fn, 0);
+  }, []);
+
+  const toEpochMs = useCallback((value: any): number => {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (value && typeof value.toMillis === "function") return Number(value.toMillis()) || 0;
+    const parsed = Date.parse(String(value ?? ""));
+    return Number.isFinite(parsed) ? parsed : 0;
+  }, []);
+
+  const writeAutosaveMeta = useCallback(
+    (meta: {
+      docId: string | null;
+      revision: number;
+      updatedAt: number;
+      hash: string;
+      hasPendingSync: boolean;
+    }) => {
+      if (typeof window === "undefined") return;
+      try {
+        window.localStorage.setItem(getAutosaveMetaStorageKey(), JSON.stringify(meta));
+      } catch {}
+    },
+    [getAutosaveMetaStorageKey]
+  );
+
+  const readAutosaveMeta = useCallback(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem(getAutosaveMetaStorageKey());
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return null;
+      return parsed as {
+        docId: string | null;
+        revision: number;
+        updatedAt: number;
+        hash: string;
+        hasPendingSync: boolean;
+      };
+    } catch {
+      return null;
+    }
+  }, [getAutosaveMetaStorageKey]);
+
+  const saveLocalDraftNow = useCallback(
+    async (snapshot: any, hash: string) => {
+      const now = Date.now();
+      const undoStack = (undoRef.current || []).slice(-10);
+      const redoStack = (redoRef.current || []).slice(-10);
+      await saveAutosaveDraft({
+        key: getAutosaveDocKey(),
+        snapshot,
+        hash,
+        revision: autosaveRevisionRef.current,
+        updatedAt: now,
+        history: {
+          undo: undoStack,
+          redo: redoStack,
+        },
+      });
+      lastSavedHashRef.current = hash;
+      writeAutosaveMeta({
+        docId: cloudDocId || resolvedDocId || null,
+        revision: autosaveRevisionRef.current,
+        updatedAt: now,
+        hash,
+        hasPendingSync: true,
+      });
+    },
+    [cloudDocId, getAutosaveDocKey, resolvedDocId, writeAutosaveMeta]
+  );
+
+  const scheduleLocalDraftSave = useCallback(
+    (snapshot: any, hash: string) => {
+      if (typeof window === "undefined") return;
+      if (saveTimerRef.current != null) return;
+      saveTimerRef.current = window.setTimeout(() => {
+        saveTimerRef.current = null;
+        const latestSnapshot = pendingSnapshotRef.current || snapshot;
+        const latestHash = computeSnapshotHash(latestSnapshot);
+        runWhenIdle(() => {
+          void saveLocalDraftNow(latestSnapshot, latestHash).catch(() => {});
+        });
+      }, LOCAL_AUTOSAVE_THROTTLE_MS);
+      setAutosaveStatus("saving");
+    },
+    [computeSnapshotHash, runWhenIdle, saveLocalDraftNow]
+  );
+
+  const syncNow = useCallback(async () => {
+    if (isCloudSyncRunningRef.current) return;
+    const snapshot = pendingSnapshotRef.current;
+    if (!snapshot) return;
+    const hash = computeSnapshotHash(snapshot);
+    if (hash === lastSyncedHashRef.current) {
+      pendingSnapshotRef.current = null;
+      dirtyRef.current = false;
+      writeAutosaveMeta({
+        docId: cloudDocId || resolvedDocId || null,
+        revision: autosaveRevisionRef.current,
+        updatedAt: Date.now(),
+        hash,
+        hasPendingSync: false,
+      });
+      setAutosaveStatus("synced");
+      void deleteAutosaveDraft(getAutosaveDocKey()).catch(() => {});
+      return;
+    }
+    if (!user) {
+      setAutosaveStatus("offlinePending");
+      return;
+    }
+    isCloudSyncRunningRef.current = true;
+    setAutosaveStatus("syncing");
+    try {
+      const saveResult = await saveToCloud(docTitle || undefined, {
+        autosaveRevision: autosaveRevisionRef.current,
+        autosaveHash: hash,
+      });
+      lastSyncedHashRef.current = hash;
+
+      if (saveResult && user) {
+        const activeDocId = saveResult.docId;
+        const now = Date.now();
+        const elapsed =
+          lastThumbnailGenAtRef.current === 0
+            ? THUMBNAIL_CLOUD_MIN_INTERVAL_MS
+            : now - lastThumbnailGenAtRef.current;
+        const hashChanged = hash !== lastThumbnailGenHashRef.current;
+        if (hashChanged && elapsed >= THUMBNAIL_CLOUD_MIN_INTERVAL_MS) {
+          const pd = getPagesJsonForSave();
+          const multi = Array.isArray(pd) && pd.length > 1;
+          const cj = multi ? undefined : getCanvasJsonForSave();
+          void (async () => {
+            try {
+              const thumb = await generateResumeThumbnail({
+                pagesData: multi ? pd : undefined,
+                canvasJson: multi ? undefined : cj,
+                pageSize,
+              });
+              if (thumb && thumb.length < 950_000) {
+                await updateResumeDoc({
+                  uid: user.uid,
+                  docId: activeDocId,
+                  title: docTitle || "Untitled Resume",
+                  thumbnail: thumb,
+                });
+                lastThumbnailGenHashRef.current = hash;
+                lastThumbnailGenAtRef.current = Date.now();
+              }
+            } catch (e) {
+              console.warn("[thumb] cloud thumbnail failed", e);
+            }
+          })();
+        }
+      }
+
+      const latestHash = computeSnapshotHash(pendingSnapshotRef.current);
+      if (latestHash === hash) {
+        pendingSnapshotRef.current = null;
+        dirtyRef.current = false;
+        writeAutosaveMeta({
+          docId: cloudDocId || resolvedDocId || null,
+          revision: autosaveRevisionRef.current,
+          updatedAt: Date.now(),
+          hash,
+          hasPendingSync: false,
+        });
+        setAutosaveStatus("synced");
+        void deleteAutosaveDraft(getAutosaveDocKey()).catch(() => {});
+      } else {
+        setAutosaveStatus("saving");
+      }
+    } catch {
+      dirtyRef.current = true;
+      setAutosaveStatus("offlinePending");
+      writeAutosaveMeta({
+        docId: cloudDocId || resolvedDocId || null,
+        revision: autosaveRevisionRef.current,
+        updatedAt: Date.now(),
+        hash,
+        hasPendingSync: true,
+      });
+    } finally {
+      isCloudSyncRunningRef.current = false;
+    }
+  }, [
+    cloudDocId,
+    computeSnapshotHash,
+    deleteAutosaveDraft,
+    docTitle,
+    getAutosaveDocKey,
+    getCanvasJsonForSave,
+    getPagesJsonForSave,
+    pageSize,
+    resolvedDocId,
+    saveToCloud,
+    user,
+    writeAutosaveMeta,
+  ]);
+
+  const scheduleCloudSync = useCallback(() => {
+    if (typeof window === "undefined") return;
+    if (syncTimerRef.current != null) {
+      window.clearTimeout(syncTimerRef.current);
+      syncTimerRef.current = null;
+    }
+    syncTimerRef.current = window.setTimeout(() => {
+      syncTimerRef.current = null;
+      void syncNow();
+    }, CLOUD_AUTOSAVE_DEBOUNCE_MS);
+  }, [syncNow]);
+
+  const markDirty = useCallback(
+    (snapshot: any) => {
+      if (!snapshot) return;
+      const hash = computeSnapshotHash(snapshot);
+      pendingSnapshotRef.current = snapshot;
+      dirtyRef.current = true;
+      if (hash === lastSavedHashRef.current && hash === lastSyncedHashRef.current) {
+        return;
+      }
+      scheduleLocalDraftSave(snapshot, hash);
+      scheduleCloudSync();
+    },
+    [computeSnapshotHash, scheduleCloudSync, scheduleLocalDraftSave]
+  );
+  markDirtyRef.current = markDirty;
+
   const pushHistory = useCallback((reason: string) => {
     const c = getCanvas();
-    if (!c || isApplyingRef.current) return;
-    const snap = serialize();
+    if (!c || isApplyingRef.current || isInternalMutationRef.current) return;
+    const snap: any = serialize();
+    const normalized = (value: any) => {
+      if (!value || typeof value !== "object") return value;
+      const next = { ...value };
+      delete next.autosaveRevision;
+      delete next.updatedAt;
+      return next;
+    };
     const last = undoRef.current[undoRef.current.length - 1];
-    if (last && JSON.stringify(last) === JSON.stringify(snap)) return;
+    if (last && JSON.stringify(normalized(last)) === JSON.stringify(normalized(snap))) return;
+    autosaveRevisionRef.current += 1;
+    snap.autosaveRevision = autosaveRevisionRef.current;
+    snap.updatedAt = Date.now();
     undoRef.current.push(snap);
     redoRef.current = [];
     docRevisionRef.current += 1;
+    markDirtyRef.current(snap);
   }, [getCanvas, serialize]);
+
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current != null) {
+        window.clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = null;
+      }
+      if (syncTimerRef.current != null) {
+        window.clearTimeout(syncTimerRef.current);
+        syncTimerRef.current = null;
+      }
+      if (syncIntervalRef.current != null) {
+        window.clearInterval(syncIntervalRef.current);
+        syncIntervalRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (syncIntervalRef.current != null) {
+      window.clearInterval(syncIntervalRef.current);
+      syncIntervalRef.current = null;
+    }
+    syncIntervalRef.current = window.setInterval(() => {
+      if (!dirtyRef.current) return;
+      void syncNow();
+    }, CLOUD_AUTOSAVE_INTERVAL_MS);
+    return () => {
+      if (syncIntervalRef.current != null) {
+        window.clearInterval(syncIntervalRef.current);
+        syncIntervalRef.current = null;
+      }
+    };
+  }, [syncNow]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onOnline = () => {
+      if (!pendingSnapshotRef.current) return;
+      void syncNow();
+    };
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
+  }, [syncNow]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!isDocDataReady) return;
+    const autosaveKey = getAutosaveDocKey();
+    if (restoreCheckKeyRef.current === autosaveKey) return;
+    restoreCheckKeyRef.current = autosaveKey;
+    let cancelled = false;
+    const run = async () => {
+      const meta = readAutosaveMeta();
+      if (!meta) return;
+      const remoteRevision = Number(docAutosaveRevision || 0);
+      const localRevision = Number(meta.revision || 0);
+      const draft = await readAutosaveDraft(autosaveKey).catch(() => null);
+      if (cancelled) return;
+
+      const shouldUseLocal =
+        !!draft?.snapshot &&
+        (localRevision > remoteRevision ||
+          (localRevision === remoteRevision &&
+            (Array.isArray(draft?.history?.undo) &&
+              draft.history.undo.length > 1 ||
+              !!meta.hasPendingSync ||
+              toEpochMs(meta.updatedAt) >= toEpochMs(docUpdatedAt))));
+
+      if (shouldUseLocal && draft?.snapshot) {
+        await applySnapshotRef.current(draft.snapshot, "history");
+        autosaveRevisionRef.current = Math.max(localRevision, autosaveRevisionRef.current);
+        undoRef.current =
+          Array.isArray(draft.history?.undo) && draft.history!.undo.length
+            ? draft.history!.undo.slice(-10)
+            : [draft.snapshot];
+        redoRef.current = Array.isArray(draft.history?.redo) ? draft.history!.redo.slice(-10) : [];
+        pendingSnapshotRef.current = draft.snapshot;
+        dirtyRef.current = !!meta.hasPendingSync;
+        setAutosaveStatus(meta.hasPendingSync ? "offlinePending" : "synced");
+        if (meta.hasPendingSync) scheduleCloudSync();
+        return;
+      }
+
+      if (draft?.snapshot && meta.hasPendingSync) {
+        pendingSnapshotRef.current = null;
+        dirtyRef.current = false;
+        writeAutosaveMeta({
+          docId: cloudDocId || resolvedDocId || null,
+          revision: Math.max(remoteRevision, localRevision),
+          updatedAt: Date.now(),
+          hash: meta.hash || "",
+          hasPendingSync: false,
+        });
+        setAutosaveStatus("synced");
+        void deleteAutosaveDraft(autosaveKey).catch(() => {});
+      }
+    };
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    cloudDocId,
+    docAutosaveRevision,
+    docUpdatedAt,
+    getAutosaveDocKey,
+    isDocDataReady,
+    readAutosaveMeta,
+    resolvedDocId,
+    scheduleCloudSync,
+    toEpochMs,
+    writeAutosaveMeta,
+  ]);
 
   const applyPageBackgroundProps = useCallback(
     (pageObj: any, pageW: number, pageH: number, fill: string) => {
@@ -1105,7 +1754,9 @@ export function useFabricEditor({
       didInitialFitRef.current = false;
       const isDuplicate = reason === "page-duplicate";
       const isDocLoad = reason === "doc-load";
-      const skipPostLoadMutations = isDuplicate || isDocLoad;
+      const isHistory = reason === "history";
+      const isTemplateLoad = reason === "template-loaded";
+      const skipPostLoadMutations = isDuplicate || isDocLoad || isHistory;
       const enforceBackgroundSafety = () => {
         const target = pageSizePxRef.current;
         c.getObjects().forEach((o: any) => {
@@ -1142,13 +1793,14 @@ export function useFabricEditor({
         }
       };
       const finalize = () => {
-        c.getObjects().forEach((o: any) => {
+        const allBefore = c.getObjects();
+        allBefore.forEach((o: any) => {
           ensureObjectId(o);
           applyTextBoxNoStretch(o);
         });
         // --- SLB: normalize 300DPI templates into editor page size (fix right-shift) ---
         // Skip for page-duplicate and doc-load: content is already in correct coordinates
-        if (!skipPostLoadMutations) {
+        if (isTemplateLoad) {
 try {
   const targetW = pageSizePxRef.current.w;
   const targetH = pageSizePxRef.current.h;
@@ -1288,13 +1940,42 @@ try {
             return;
           }
 
+          // Image frame groups + nested cover image
+          if (obj.type === "group" && isImageFrame(obj)) {
+            obj.set({
+              selectable: true,
+              evented: true,
+              hasControls: true,
+              hasBorders: true,
+              lockMovementX: false,
+              lockMovementY: false,
+              subTargetCheck: false,
+              interactive: false,
+            });
+            const nestedImg = getFrameImage(obj);
+            if (nestedImg) {
+              nestedImg.set({
+                selectable: false,
+                evented: false,
+                lockMovementX: true,
+                lockMovementY: true,
+                lockScalingX: true,
+                lockScalingY: true,
+                hasBorders: false,
+                hasControls: false,
+              });
+              nestedImg.setCoords?.();
+            }
+            return;
+          }
+
           // all other objects interactive
           obj.set({
             selectable: true,
             evented: true,
           });
 
-          // normalize groups
+          // normalize other groups
           if (obj.type === "group") {
             obj.set({
               selectable: true,
@@ -1440,6 +2121,213 @@ try {
 
   const lastSelectionRef = useRef<string | null>(null);
 
+  const isActiveSelectionLike = (obj: any) => {
+    return (
+      obj?.isType?.("ActiveSelection") ||
+      String(obj?.type || "").toLowerCase() === "activeselection"
+    );
+  };
+
+  const isGroupLike = (obj: any) => {
+    return (
+      obj?.isType?.("Group") ||
+      String(obj?.type || "").toLowerCase() === "group"
+    );
+  };
+
+  const detectListMode = useCallback((text: string): "none" | "bullet" | "number" => {
+    if (!text) return "none";
+    const lines = text.split("\n");
+    if (lines.length === 0) return "none";
+    if (lines.every((line) => line.trim().startsWith("• "))) return "bullet";
+    if (lines.every((line) => /^\d+\.\s/.test(line.trim()))) return "number";
+    return "none";
+  }, []);
+
+  const stripListPrefixes = useCallback((text: string) => {
+    return text
+      .split("\n")
+      .map((line) => line.replace(/^(\d+\.\s|•\s)/, ""))
+      .join("\n");
+  }, []);
+
+  const applyBulletList = useCallback((text: string) => {
+    return text
+      .split("\n")
+      .map((line) => `• ${line}`)
+      .join("\n");
+  }, []);
+
+  const applyNumberList = useCallback((text: string) => {
+    return text
+      .split("\n")
+      .map((line, index) => `${index + 1}. ${line}`)
+      .join("\n");
+  }, []);
+
+  const hydrateTextUiFromActiveObject = useCallback((activeOverride?: any) => {
+    const c = getCanvas();
+    if (!c) return;
+    const active: any = activeOverride || c.getActiveObject();
+    if (!active) return;
+    const type = String(active.type || "").toLowerCase();
+    if (type !== "textbox" && type !== "i-text" && type !== "text") return;
+
+    const activeFontSize = Number(active.fontSize);
+    const activeLineHeight = Number(active.lineHeight);
+    const activeCharSpacing = Number(active.charSpacing);
+    const activeOpacity = Number(active.opacity);
+    const activeText = String(active.text || "");
+    const nextListMode = detectListMode(activeText);
+    const uppercaseEnabled = !!active?.data?.uppercaseEnabled;
+    const rawWeight = active.fontWeight;
+    const activeWeight =
+      rawWeight === "bold"
+        ? 700
+        : rawWeight === "normal"
+          ? 400
+          : Number(rawWeight);
+    const normalizedWeight = Number.isFinite(activeWeight) ? activeWeight : 400;
+    const normalizedStyle: "normal" | "italic" =
+      active.fontStyle === "italic" ? "italic" : "normal";
+    const fontVariantId = `${normalizedWeight}-${normalizedStyle}`;
+    setTextProps({
+      fontFamily: active.fontFamily || "Poppins",
+      fontSize: Number.isFinite(activeFontSize) ? Math.round(activeFontSize) : 32,
+      fill: toHexColor(active.fill, "#111827"),
+      fontWeight: normalizedWeight,
+      fontStyle: normalizedStyle,
+      fontVariantId,
+      underline: !!active.underline,
+      textAlign: active.textAlign || "left",
+      lineHeight: Number.isFinite(activeLineHeight) ? activeLineHeight : 1.3,
+      charSpacing: Number.isFinite(activeCharSpacing) ? activeCharSpacing : 0,
+      opacity: Number.isFinite(activeOpacity) ? activeOpacity : 1,
+      uppercaseEnabled,
+      listMode: nextListMode,
+    });
+  }, [detectListMode, getCanvas]);
+
+  const hydrateShapeUiFromActiveObject = useCallback((activeOverride?: any) => {
+    const c = getCanvas();
+    if (!c) return;
+    const active: any = activeOverride || c.getActiveObject();
+    if (!active) return;
+    const type = String(active.type || "").toLowerCase();
+    if (!isShapeType(type, active?.data?.shapeKind)) return;
+
+    const nextShape = {
+      fill: toHexColor(active.fill, "#111827"),
+      stroke: toHexColor(active.stroke, "#111827"),
+      strokeWidth: Number(active.strokeWidth ?? 0),
+      opacity: Number(active.opacity ?? 1),
+      cornerRadius: Number(active.rx ?? 0),
+    };
+
+    setShapeProps((prev) =>
+      prev &&
+      prev.fill === nextShape.fill &&
+      prev.stroke === nextShape.stroke &&
+      prev.strokeWidth === nextShape.strokeWidth &&
+      prev.opacity === nextShape.opacity &&
+      prev.cornerRadius === nextShape.cornerRadius
+        ? prev
+        : nextShape
+    );
+  }, [getCanvas]);
+
+  const getImageAdjustmentsFromObject = useCallback((image: any): ImageAdjustments => {
+    const raw = image?.data?.imageAdjustments || {};
+    const toNumber = (value: unknown, fallback: number) => {
+      const next = Number(value);
+      return Number.isFinite(next) ? next : fallback;
+    };
+    return {
+      brightness: Math.max(-1, Math.min(1, toNumber(raw.brightness, 0))),
+      contrast: Math.max(-1, Math.min(1, toNumber(raw.contrast, 0))),
+      saturation: Math.max(-1, Math.min(1, toNumber(raw.saturation, 0))),
+      blur: Math.max(0, Math.min(1, toNumber(raw.blur, 0))),
+      sharpen: Math.max(0, Math.min(1, toNumber(raw.sharpen, 0))),
+    };
+  }, []);
+
+  const applyImageFilters = useCallback((image: any, adjustments: ImageAdjustments) => {
+    const filtersNS = (FabricNS as any)?.filters || (FabricNS as any)?.Image?.filters;
+    if (!filtersNS || !image) return;
+
+    const nextFilters: any[] = [];
+    if (Math.abs(adjustments.brightness) > 0.0001) {
+      nextFilters.push(new filtersNS.Brightness({ brightness: adjustments.brightness }));
+    }
+    if (Math.abs(adjustments.contrast) > 0.0001) {
+      nextFilters.push(new filtersNS.Contrast({ contrast: adjustments.contrast }));
+    }
+    if (Math.abs(adjustments.saturation) > 0.0001) {
+      nextFilters.push(new filtersNS.Saturation({ saturation: adjustments.saturation }));
+    }
+    if (adjustments.blur > 0.0001) {
+      nextFilters.push(new filtersNS.Blur({ blur: adjustments.blur }));
+    }
+    if (adjustments.sharpen > 0.0001) {
+      const s = adjustments.sharpen;
+      const center = 1 + 4 * s;
+      const edge = -s;
+      nextFilters.push(
+        new filtersNS.Convolute({
+          matrix: [0, edge, 0, edge, center, edge, 0, edge, 0],
+        })
+      );
+    }
+    image.filters = nextFilters;
+    image.applyFilters?.();
+  }, []);
+
+  const hydrateImageUiFromActiveObject = useCallback((activeOverride?: any) => {
+    const c = getCanvas();
+    if (!c) return;
+    const active: any = activeOverride || c.getActiveObject();
+    if (!active) return;
+    const type = String(active.type || "").toLowerCase();
+    if (type !== "image") return;
+    const nextImage: ImageProps = {
+      opacity: Number.isFinite(Number(active.opacity)) ? Number(active.opacity) : 1,
+      scaleX: Number.isFinite(Number(active.scaleX)) ? Number(active.scaleX) : 1,
+      scaleY: Number.isFinite(Number(active.scaleY)) ? Number(active.scaleY) : 1,
+      angle: Number.isFinite(Number(active.angle)) ? Number(active.angle) : 0,
+      flipX: !!active.flipX,
+      flipY: !!active.flipY,
+      width: Number.isFinite(Number(active.width)) ? Number(active.width) : 0,
+      height: Number.isFinite(Number(active.height)) ? Number(active.height) : 0,
+      isCropping: !!imageCropStateRef.current,
+      adjustments: getImageAdjustmentsFromObject(active),
+    };
+    setImageProps((prev) => {
+      if (
+        prev.opacity === nextImage.opacity &&
+        prev.scaleX === nextImage.scaleX &&
+        prev.scaleY === nextImage.scaleY &&
+        prev.angle === nextImage.angle &&
+        prev.flipX === nextImage.flipX &&
+        prev.flipY === nextImage.flipY &&
+        prev.width === nextImage.width &&
+        prev.height === nextImage.height &&
+        prev.isCropping === nextImage.isCropping &&
+        prev.adjustments.brightness === nextImage.adjustments.brightness &&
+        prev.adjustments.contrast === nextImage.adjustments.contrast &&
+        prev.adjustments.saturation === nextImage.adjustments.saturation &&
+        prev.adjustments.blur === nextImage.adjustments.blur &&
+        prev.adjustments.sharpen === nextImage.adjustments.sharpen
+      ) {
+        return prev;
+      }
+      return nextImage;
+    });
+  }, [getCanvas, getImageAdjustmentsFromObject]);
+
+  const isTableLike = useCallback((obj: any) => {
+    return String(obj?.data?.role || "").toLowerCase() === "table";
+  }, []);
+
   const updateSelection = useCallback(() => {
     const c = getCanvas();
     if (!c) return;
@@ -1448,7 +2336,7 @@ try {
     // Guard: skip React work if logical selection id hasn't changed
     let currentId: string | null = null;
     if (active) {
-      if (active.type === "activeSelection") {
+      if (isActiveSelectionLike(active)) {
         const objs = active.getObjects?.() || active._objects || [];
         const target = objs[0];
         currentId = target ? ensureObjectId(target) : null;
@@ -1461,8 +2349,8 @@ try {
     }
     lastSelectionRef.current = currentId;
 
-    if (!active || active.type === "activeSelection") {
-      if (active?.type === "activeSelection") {
+    if (!active || isActiveSelectionLike(active)) {
+      if (isActiveSelectionLike(active)) {
         const objs = active.getObjects?.() || active._objects || [];
         const target = objs[0];
         const targetId = target ? ensureObjectId(target) : null;
@@ -1487,26 +2375,27 @@ try {
       setSelectionType((prev) => (prev === "text" ? prev : "text"));
       setSelectedFrameHasImage((prev) => (prev === false ? prev : false));
       logTextSync("hydrate");
-      const activeFontSize = Number(active.fontSize);
-      const activeLineHeight = Number(active.lineHeight);
-      setTextProps({
-        fontFamily: active.fontFamily || "Poppins",
-        fontSize: Number.isFinite(activeFontSize) ? Math.round(activeFontSize) : 32,
-        fill: toHexColor(active.fill, "#111827"),
-        fontWeight: active.fontWeight === "bold" ? "bold" : "normal",
-        fontStyle: active.fontStyle === "italic" ? "italic" : "normal",
-        underline: !!active.underline,
-        textAlign: active.textAlign || "left",
-        lineHeight: Number.isFinite(activeLineHeight) ? activeLineHeight : 1.3,
-      });
+      hydrateTextUiFromActiveObject();
     } else if (type === "image") {
       setSelectionType((prev) => (prev === "image" ? prev : "image"));
       setSelectedFrameHasImage((prev) => (prev === false ? prev : false));
-      const nextImage = { opacity: active.opacity ?? 1 };
-      setImageProps((prev: typeof nextImage | null) =>
-        prev && prev.opacity === nextImage.opacity ? prev : nextImage
+      hydrateImageUiFromActiveObject(active);
+    } else if (isTableLike(active)) {
+      setSelectionType((prev) => (prev === "table" ? prev : "table"));
+      setSelectedFrameHasImage((prev) => (prev === false ? prev : false));
+      const border = (active?.data as TableModel | undefined)?.border;
+      const nextTable = {
+        borderColor: toHexColor(border?.color, "#111827"),
+        borderWidth: Number(border?.width ?? 1),
+      };
+      setTableProps((prev) =>
+        prev &&
+        prev.borderColor === nextTable.borderColor &&
+        prev.borderWidth === nextTable.borderWidth
+          ? prev
+          : nextTable
       );
-    } else if (type === "rect" || type === "circle" || type === "triangle" || type === "line") {
+    } else if (isShapeType(type, active?.data?.shapeKind)) {
       setSelectionType((prev) => (prev === "shape" ? prev : "shape"));
       setSelectedFrameHasImage((prev) => (prev === false ? prev : false));
       const nextShape = {
@@ -1528,7 +2417,7 @@ try {
       );
     } else if ((type === "group" || type === "activeSelection") && isImageFrame(active)) {
       setSelectionType((prev) => (prev === "frame" ? prev : "frame"));
-      const hasImg = !!getImageForFrame(c, active);
+      const hasImg = !!getFrameImage(active);
       setSelectedFrameHasImage((prev) => (prev === hasImg ? prev : hasImg));
     } else {
       setSelectedFrameHasImage((prev) => (prev === false ? prev : false));
@@ -1537,12 +2426,39 @@ try {
     requestAnimationFrame(() => {
       isHydratingFromSelectionRef.current = false;
     });
-  }, [ensureObjectId, getCanvas, logTextSync]);
+  }, [
+    ensureObjectId,
+    getCanvas,
+    hydrateImageUiFromActiveObject,
+    hydrateTextUiFromActiveObject,
+    isTableLike,
+    logTextSync,
+  ]);
 
   const updateSelectionRef = useRef(updateSelection);
   updateSelectionRef.current = updateSelection;
 
-  const attachImageToFrameRef = useRef<(frameGroup: any, img: any) => void>(() => undefined);
+  const computeSelectionKind = useCallback(
+    (active: any): "none" | "single" | "multi" | "group" => {
+      if (!active) return "none";
+      if (isActiveSelectionLike(active)) return "multi";
+      if (isGroupLike(active) && !isImageFrame(active)) return "group";
+
+      return "single";
+    },
+    []
+  );
+
+  const syncSelectionKind = useCallback(() => {
+    const c = getCanvas();
+    const active = c?.getActiveObject?.();
+    setSelectionKind(computeSelectionKind(active));
+  }, [computeSelectionKind, getCanvas]);
+
+  // Interaction state for frame vs image edit mode (kept in refs to avoid rerender churn).
+  const activeFrameRef = useRef<any>(null);
+  const editingImageRef = useRef<any>(null);
+  const isEditModeRef = useRef<boolean>(false);
 
   const activeCanvasListenersRef = useRef<{
     canvas: Canvas;
@@ -1555,6 +2471,7 @@ try {
       objectRemoved: (e: any) => void;
       textChanged: () => void;
       mouseDblclick: (e: any) => void;
+      mouseDown: (e: any) => void;
       mouseUp: (e: any) => void;
       debugMouseDown?: (e: any) => void;
     };
@@ -1572,6 +2489,7 @@ try {
     canvas.off("object:removed", handlers.objectRemoved as any);
     canvas.off("text:changed", handlers.textChanged);
     canvas.off("mouse:dblclick", handlers.mouseDblclick);
+    canvas.off("mouse:down", handlers.mouseDown);
     canvas.off("mouse:up", handlers.mouseUp);
     if (handlers.debugMouseDown) canvas.off("mouse:down", handlers.debugMouseDown);
     activeCanvasListenersRef.current = null;
@@ -1580,7 +2498,6 @@ try {
   const { enterImageFrameCropMode, exitImageFrameCropMode } = createFrameCrop({
     getCanvas,
     isImageFrame,
-    getImageForFrame,
     imageFrameCropModeRef,
     exitCropModeRef,
     setCropModeStateRef,
@@ -1598,40 +2515,16 @@ try {
         if (!state) return;
         const { frame, image } = state;
 
-        // Apply a simple final crop based on the image's position relative to the frame.
-        if (frame && image) {
-          const shape = getFrameShape(frame);
-          const frameW = Number((shape as any)?.width ?? 0);
-          const frameH = Number((shape as any)?.height ?? 0);
-          const scale = Number((image as any).scaleX || 1);
-          if (frameW > 0 && frameH > 0 && Number.isFinite(scale) && scale > 0) {
-            const imgLeft = Number((image as any).left || 0);
-            const imgTop = Number((image as any).top || 0);
-            const cropX = Math.max(0, -imgLeft / scale);
-            const cropY = Math.max(0, -imgTop / scale);
-            const cropW = frameW / scale;
-            const cropH = frameH / scale;
-            (image as any).set({
-              cropX,
-              cropY,
-              width: cropW,
-              height: cropH,
-              left: 0,
-              top: 0,
-              scaleX: scale,
-              scaleY: scale,
-            });
-          }
-        }
-
         if (image) {
           image.set({
             selectable: false,
-            evented: true,
+            evented: false,
             lockMovementX: true,
             lockMovementY: true,
             lockScalingX: true,
             lockScalingY: true,
+            hasBorders: false,
+            hasControls: false,
           });
         }
         if (frame) {
@@ -1641,22 +2534,24 @@ try {
           });
           (frame as any).lockMovementX = false;
           (frame as any).lockMovementY = false;
-          // Restore default hit testing outside crop mode
           (frame as any).subTargetCheck = false;
+          (frame as any).interactive = false;
           (frame as any)._activeObjects = [];
           (frame as any)._set?.("dirty", true);
 
-          // Remove frame highlight styling applied during crop mode.
           const shape = getFrameShape(frame);
           if (shape) {
             (shape as any).set({
-              stroke: "#d1d5db",
-              strokeWidth: 1,
+              stroke: "#9ca3af",
+              strokeWidth: 2,
             });
           }
         }
         imageFrameCropModeRef.current = null;
         setCropModeStateRef.current(false);
+        activeFrameRef.current = frame ?? null;
+        editingImageRef.current = null;
+        isEditModeRef.current = false;
         canvas.setActiveObject(frame);
         canvas.requestRenderAll();
       };
@@ -1665,50 +2560,117 @@ try {
       const handleSelection = () => {
         const active = canvas.getActiveObject?.();
         const state = imageFrameCropModeRef.current;
-        if (state && active !== state.frame) exitCropMode();
+        // V1 crop keeps the image active; stay in crop while selection is frame or image.
+        if (
+          state &&
+          active &&
+          active !== state.frame &&
+          active !== state.image
+        ) {
+          exitCropMode();
+        }
         setHasSelection(!!active);
+        syncSelectionKind();
         updateSelection();
+      };
+
+      function isStep1Frame(o: any) {
+        return isImageFrame(o) || o?.data?.isFrame === true || o?.isFrame === true;
+      }
+
+      function isFabricImage(o: any) {
+        return Boolean(
+          o?.type === "image" ||
+            o?._element ||
+            o?.data?.src ||
+            o?.data?.url
+        );
+      }
+
+      const resolveFrameFromTarget = (target: any): any => {
+        if (!target) return null;
+        if (isImageFrame(target)) return target;
+        const parent = target.group || target.parent || target._parent;
+        if (isImageFrame(parent)) return parent;
+        return null;
       };
 
       const runFrameDropDetection = (obj: any): boolean => {
         if (!obj) return false;
         if (imageFrameCropModeRef.current) return false;
 
-        if (obj.type === "activeSelection") {
-          const objs = obj.getObjects?.() || obj._objects || [];
-          if (objs.length !== 2) return false;
-          const image = objs.find((o: any) => o.type === "image");
-          const frame = objs.find((o: any) => isImageFrame(o));
-          if (image && frame) {
-            const didAttach = tryAttachImageToFrame(image, frame);
-            if (didAttach) {
-              updateSelection();
-              updateLayers();
-            }
-            return didAttach;
-          }
-        }
-
-        if (obj.type !== "image") return false;
         const canvas = getCanvas();
-        const frames = (canvas?.getObjects?.() || []).filter((o: any) => isImageFrame(o));
+        if (!canvas) return false;
 
-        for (let i = frames.length - 1; i >= 0; i--) {
-          const frame = frames[i];
-          const imgRect = (obj as any).getBoundingRect?.(true, true);
-          const frameRect = (frame as any).getBoundingRect?.(true, true);
-          if (!imgRect || !frameRect) continue;
-
-          const isOverlapping =
-            imgRect.left < frameRect.left + frameRect.width &&
-            imgRect.left + imgRect.width > frameRect.left &&
-            imgRect.top < frameRect.top + frameRect.height &&
-            imgRect.top + imgRect.height > frameRect.top;
-
-          if (isOverlapping) {
-            if (tryAttachImageToFrame(obj, frame)) return true;
+        let images: any[] = [];
+        if (isFabricImage(obj)) {
+          images = [obj];
+        } else if (isActiveSelectionLike(obj)) {
+          images = (obj.getObjects?.() || obj._objects || []).filter((o: any) =>
+            isFabricImage(o)
+          );
+        } else {
+          // obj might be a wrapper/group; fallback to canvas active object.
+          const active = canvas?.getActiveObject?.();
+          if (isFabricImage(active)) {
+            images = [active];
+          } else if (isActiveSelectionLike(active)) {
+            images =
+              (active as any).getObjects?.().filter((o: any) => isFabricImage(o)) ||
+              [];
+          } else {
+            return false;
           }
         }
+
+        if (images.length === 0) return false;
+
+        const frames = canvas.getObjects?.().filter((o: any) => isStep1Frame(o)) || [];
+        if (frames.length === 0) return false;
+
+        const prefersCenterInside = (imgRect: any, frameRect: any) => {
+          const imgCenterX = imgRect.left + imgRect.width / 2;
+          const imgCenterY = imgRect.top + imgRect.height / 2;
+          return (
+            imgCenterX >= frameRect.left &&
+            imgCenterX <= frameRect.left + frameRect.width &&
+            imgCenterY >= frameRect.top &&
+            imgCenterY <= frameRect.top + frameRect.height
+          );
+        };
+
+        for (let i = images.length - 1; i >= 0; i--) {
+          const image = images[i];
+          if (!image || isImageNestedInImageFrame(image)) continue;
+
+          const imgRect = (image as any).getBoundingRect?.(true, true);
+          if (!imgRect) continue;
+
+          // Two-pass preference:
+          // pass 0: overlap where the image center is inside the frame
+          // pass 1: any overlap fallback
+          for (let pass = 0; pass < 2; pass++) {
+            for (let fi = frames.length - 1; fi >= 0; fi--) {
+              const frame = frames[fi];
+              const frameRect = (frame as any).getBoundingRect?.(true, true);
+              if (!frameRect) continue;
+
+              const isOverlapping =
+                imgRect.left < frameRect.left + frameRect.width &&
+                imgRect.left + imgRect.width > frameRect.left &&
+                imgRect.top < frameRect.top + frameRect.height &&
+                imgRect.top + imgRect.height > frameRect.top;
+              if (!isOverlapping) continue;
+
+              const centerInside = prefersCenterInside(imgRect, frameRect);
+              if (pass === 0 && !centerInside) continue;
+
+              attachImageToFrame(frame, image);
+              return true;
+            }
+          }
+        }
+
         return false;
       };
 
@@ -1723,14 +2685,13 @@ try {
           exitCropMode();
           setSelectedLayerId(null);
           setHasSelection(false);
+          syncSelectionKind();
           updateSelection();
         },
-        objectModified: (e: any) => {
-          const obj = e?.target;
-          const didAttach = obj ? runFrameDropDetection(obj) : false;
+        objectModified: () => {
           updateSelection();
           updateLayers();
-          if (!didAttach) pushHistory("modified");
+          pushHistory("modified");
         },
         objectAdded: (e: any) => {
           updateLayers();
@@ -1746,74 +2707,58 @@ try {
           updateSelection();
           if (!isApplyingRef.current) pushHistory("text");
         },
-        objectMoving: (e: any) => {
+        mouseDown: (e: any) => {
           const target = e?.target as any;
-          if (!target || imageFrameCropModeRef.current) return;
-          if (!isImageFrame(target)) return;
-          const c = canvas;
-          const img = getImageForFrame(c, target);
-          if (!img) return;
-          const shape = getFrameShape(target);
-          if (!shape?.getCenterPoint) return;
-          const center = shape.getCenterPoint();
-          img.set({
-            left: center.x,
-            top: center.y,
-          });
-          img.setCoords();
+
+          let editState = imageFrameCropModeRef.current;
+
+          const clickedFrame = resolveFrameFromTarget(target);
+
+          // If we are in IMAGE EDIT MODE, only exit when the click is outside
+          // the currently edited frame.
+          if (editState) {
+            const currentFrame = editState.frame;
+            const clickedIsCurrentFrame =
+              clickedFrame &&
+              String(ensureObjectId(clickedFrame)) === String(ensureObjectId(currentFrame));
+
+            if (!target || !clickedIsCurrentFrame) {
+              exitCropMode();
+              // If clicked outside every frame, exit and let `exitCropMode()` keep frame active.
+              if (!clickedFrame) return;
+            } else {
+              // Click inside the current frame while editing: keep edit mode.
+              return;
+            }
+          }
+
+          // Not in edit mode: track frame for app UI only — do NOT mutate Fabric objects
+          // on pointerdown (that breaks _setupCurrentTransform / drag on this gesture).
+          if (!clickedFrame) return;
+          activeFrameRef.current = clickedFrame;
+          editingImageRef.current = null;
+          isEditModeRef.current = false;
         },
         mouseUp: (e: any) => {
-          const obj = e?.target;
+          const canvas = getCanvas();
+          const obj = e?.target ?? canvas?.getActiveObject();
           if (!obj) return;
           runFrameDropDetection(obj);
         },
         mouseDblclick: (e: any) => {
           const target = e?.target as any;
-          // #region agent log
-          fetch("http://127.0.0.1:7497/ingest/56601a8a-ebed-4e8a-847f-61b683cab256", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Debug-Session-Id": "b60eca",
-            },
-            body: JSON.stringify({
-              sessionId: "b60eca",
-              runId: "frame-crop",
-              hypothesisId: "H-crop-dblclick",
-              location: "useFabricEditor.ts:mouseDblclick",
-              message: "mouse:dblclick",
-              data: {
-                hasTarget: !!target,
-                targetType: target?.type ?? null,
-                targetId: (target as any)?.id ?? (target as any)?.uid ?? null,
-                inCropMode: !!imageFrameCropModeRef.current,
-              },
-              timestamp: Date.now(),
-            }),
-          }).catch(() => {});
-          // #endregion
           if (!target) return;
 
           // If already in crop mode, ignore further double-clicks
           if (imageFrameCropModeRef.current) return;
 
-          // Double-click directly on an image that is linked to a frame via data.frameId
-          if (target.type === "image" && target?.data?.frameId) {
-            const frameId = target.data.frameId;
-            const frame = (canvas.getObjects?.() || []).find((o: any) => {
-              const oid = (o as any).id ?? (o as any).uid;
-              return isImageFrame(o) && oid === frameId;
-            });
-            if (frame) {
-              canvas.setActiveObject(frame);
-              enterImageFrameCropMode();
-              return;
-            }
-          }
-
           // Double-click directly on a frame
           if (isImageFrame(target)) {
             enterImageFrameCropMode();
+            const st = imageFrameCropModeRef.current as { image: any } | null;
+            activeFrameRef.current = null;
+            editingImageRef.current = st?.image ?? null;
+            isEditModeRef.current = !!st;
             return;
           }
 
@@ -1822,6 +2767,10 @@ try {
           if (parent && isImageFrame(parent)) {
             canvas.setActiveObject(parent);
             enterImageFrameCropMode();
+            const st = imageFrameCropModeRef.current as { image: any } | null;
+            activeFrameRef.current = null;
+            editingImageRef.current = st?.image ?? null;
+            isEditModeRef.current = !!st;
           }
         },
       };
@@ -1833,11 +2782,19 @@ try {
       canvas.on("object:removed", handlers.objectRemoved as any);
       canvas.on("text:changed", handlers.textChanged);
       canvas.on("mouse:dblclick", handlers.mouseDblclick);
+      canvas.on("mouse:down", handlers.mouseDown);
       canvas.on("mouse:up", handlers.mouseUp);
-      canvas.on("object:moving", handlers.objectMoving as any);
       activeCanvasListenersRef.current = { canvas, handlers };
     },
-    [pushHistory, unbindActiveCanvasListeners, updateLayers, updateSelection, enterImageFrameCropMode]
+    [
+      enterImageFrameCropMode,
+      pushHistory,
+      hydrateImageUiFromActiveObject,
+      syncSelectionKind,
+      unbindActiveCanvasListeners,
+      updateLayers,
+      updateSelection,
+    ]
   );
 
   const bindActiveCanvasListenersRef = useRef(bindActiveCanvasListeners);
@@ -1883,9 +2840,10 @@ try {
       setActiveObjectSnapshot(null);
     }
     prevActivePageIdRef.current = id;
+    syncSelectionKind();
     updateSelectionRef.current();
     updateLayersRef.current();
-  }, [activePageIndex]);
+  }, [activePageIndex, syncSelectionKind]);
 
   useEffect(() => {
     const handler = () => {
@@ -1991,7 +2949,7 @@ try {
     [findPageObject, getCanvas, getObjectBounds]
   );
 
-  const updateActiveObject = useCallback((patch: Record<string, any>) => {
+  const updateActiveObject = useCallback((patch: Record<string, any>, opts?: { commitHistory?: boolean }) => {
     const c = getCanvas();
     if (!c) return;
     const active: any = c.getActiveObject();
@@ -1999,9 +2957,119 @@ try {
     active.set(patch);
     active.setCoords?.();
     c.requestRenderAll();
+    hydrateTextUiFromActiveObject(active);
+    hydrateShapeUiFromActiveObject(active);
+    hydrateImageUiFromActiveObject(active);
+    const nextSnapshot = active.toObject ? active.toObject() : active;
+    setActiveObjectSnapshot(nextSnapshot);
+    const shouldCommit = opts?.commitHistory ?? !suppressImageHistoryPushRef.current;
+    if (shouldCommit) pushHistory("object:update");
+  }, [
+    getCanvas,
+    hydrateImageUiFromActiveObject,
+    hydrateShapeUiFromActiveObject,
+    hydrateTextUiFromActiveObject,
+    pushHistory,
+  ]);
+
+  const toggleUppercase = useCallback(() => {
+    const c = getCanvas();
+    if (!c) return;
+    const obj: any = c.getActiveObject();
+    if (!obj) return;
+    const type = String(obj.type || "").toLowerCase();
+    if (type !== "textbox" && type !== "i-text" && type !== "text") return;
+    const currentText = String(obj.text || "");
+    if (!currentText) return;
+
+    const data = obj.data || {};
+    if (!data.uppercaseEnabled) {
+      obj.data = {
+        ...data,
+        caseOriginalText: currentText,
+        uppercaseEnabled: true,
+      };
+      obj.set("text", currentText.toUpperCase());
+    } else {
+      const original = String(data.caseOriginalText || currentText);
+      obj.set("text", original);
+      obj.data = {
+        ...data,
+        uppercaseEnabled: false,
+      };
+    }
+
+    obj.setCoords?.();
+    c.requestRenderAll();
     pushHistory("object:update");
-    updateSelection();
-  }, [pushHistory, updateSelection]);
+    hydrateTextUiFromActiveObject(obj);
+  }, [getCanvas, hydrateTextUiFromActiveObject, pushHistory]);
+
+  const toggleBulletList = useCallback(() => {
+    const c = getCanvas();
+    if (!c) return;
+    const obj: any = c.getActiveObject();
+    if (!obj) return;
+    const type = String(obj.type || "").toLowerCase();
+    if (type !== "textbox" && type !== "i-text" && type !== "text") return;
+
+    const rawText = String(obj.text || "");
+    if (!rawText) return;
+    const mode = detectListMode(rawText);
+
+    let newText: string;
+    if (mode === "bullet") {
+      newText = stripListPrefixes(rawText);
+    } else {
+      newText = applyBulletList(stripListPrefixes(rawText));
+    }
+
+    obj.set("text", newText);
+    obj.setCoords?.();
+    c.requestRenderAll();
+    pushHistory("object:update");
+    hydrateTextUiFromActiveObject(obj);
+  }, [
+    applyBulletList,
+    detectListMode,
+    getCanvas,
+    hydrateTextUiFromActiveObject,
+    pushHistory,
+    stripListPrefixes,
+  ]);
+
+  const toggleNumberedList = useCallback(() => {
+    const c = getCanvas();
+    if (!c) return;
+    const obj: any = c.getActiveObject();
+    if (!obj) return;
+    const type = String(obj.type || "").toLowerCase();
+    if (type !== "textbox" && type !== "i-text" && type !== "text") return;
+
+    const rawText = String(obj.text || "");
+    if (!rawText) return;
+    const mode = detectListMode(rawText);
+
+    let newText: string;
+    if (mode === "number") {
+      newText = stripListPrefixes(rawText);
+    } else {
+      newText = applyNumberList(stripListPrefixes(rawText));
+    }
+
+    obj.set("text", newText);
+    obj.setCoords?.();
+    c.requestRenderAll();
+    pushHistory("object:update");
+    hydrateTextUiFromActiveObject(obj);
+  }, [
+    applyNumberList,
+    detectListMode,
+    getCanvas,
+    hydrateTextUiFromActiveObject,
+    pushHistory,
+    stripListPrefixes,
+  ]);
 
   const initCanvasForPage = useCallback(
     async (pageId: string, c: Canvas) => {
@@ -2240,17 +3308,37 @@ try {
         };
         try {
           const result = (c as any).loadFromJSON(objectsOnly, reviver, () => {
-            c.getObjects().forEach((o: any) => {
+            const allBeforeDup = c.getObjects();
+            allBeforeDup.forEach((o: any) => {
               ensureObjectId(o);
               applyTextBoxNoStretch(o);
-              // Normalize restored image frames so they remain interactive
-              if (o?.data?.type === IMAGE_FRAME_TYPE) {
+            });
+            c.getObjects().forEach((o: any) => {
+              if (o?.type === "group" && isImageFrame(o)) {
                 o.set({
                   selectable: true,
                   evented: true,
+                  hasControls: true,
+                  hasBorders: true,
                   lockMovementX: false,
                   lockMovementY: false,
+                  subTargetCheck: false,
+                  interactive: false,
                 });
+                const nestedImg = getFrameImage(o);
+                if (nestedImg) {
+                  nestedImg.set({
+                    selectable: false,
+                    evented: false,
+                    lockMovementX: true,
+                    lockMovementY: true,
+                    lockScalingX: true,
+                    lockScalingY: true,
+                    hasBorders: false,
+                    hasControls: false,
+                  });
+                  nestedImg.setCoords?.();
+                }
               }
             });
             ensurePageBackground(pageSizePxRef.current.w, pageSizePxRef.current.h, {
@@ -2372,10 +3460,10 @@ try {
   }, [bgColor]);
 
   const templateId = (initialTemplateId || "").toLowerCase().trim();
-  const trimmedDocId = (docIdParam || "").trim();
+  const trimmedDocId = (resolvedDocId || "").trim();
   const isBlank =
     mode === "new" || !templateId || templateId === "new" || templateId === "blank";
-  const isTemplateId = !!TEMPLATE_SNAPSHOTS[templateId];
+  const isTemplateId = !!getSystemTemplateById(templateId);
   const isDocId =
     !!trimmedDocId || (mode === "template" && !isBlank && !isTemplateId);
   const treatBlank = !trimmedDocId && isBlank;
@@ -2407,8 +3495,16 @@ try {
         }
         setLoadError(null);
         setCloudDocId(trimmedDocId || templateId);
+        setResolvedDocId(trimmedDocId || templateId);
+        persistTemplateDocPointer(trimmedDocId || templateId);
         setDocTitle(docSnap.title || "Untitled Resume");
         setDocCreatedAt(docSnap.createdAt ?? null);
+        setDocUpdatedAt(docSnap.updatedAt ?? null);
+        setDocAutosaveRevision(
+          typeof docSnap.autosaveRevision === "number" ? docSnap.autosaveRevision : 0
+        );
+        autosaveRevisionRef.current =
+          typeof docSnap.autosaveRevision === "number" ? docSnap.autosaveRevision : 0;
         if (docSnap.pageSize && PAGE_SIZES[docSnap.pageSize as PageSize]) {
           setPageSize(docSnap.pageSize as PageSize);
         }
@@ -2501,53 +3597,58 @@ try {
     if (isDocId && !isDocDataReady) return;
     const appliedId = treatBlank ? "blank" : (trimmedDocId || templateId);
     if (lastAppliedTemplateRef.current === appliedId) return;
-    lastAppliedTemplateRef.current = appliedId;
 
     if (isDocId) {
       return;
     }
 
     setLoadError(null);
-    let draftSnapshot: any = null;
-    if (typeof window !== "undefined") {
+    let cancelled = false;
+
+    const run = async () => {
       try {
-        const raw = window.localStorage.getItem(getDraftKey());
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          draftSnapshot = parsed;
+        let snapshot: any = { objects: [] };
+
+        if (treatBlank) {
+          snapshot = { objects: [] };
+        } else {
+          const template = getSystemTemplateById(templateId);
+          if (!template) {
+            console.error("Template not found:", templateId);
+            return;
+          }
+          snapshot = await template.load();
+          if (cancelled) return;
         }
-      } catch {}
-    }
 
-    const snapshot =
-      draftSnapshot || (treatBlank ? TEMPLATE_SNAPSHOTS.blank : TEMPLATE_SNAPSHOTS[templateId]);
-    const isMissingTemplate = mode === "template" && !treatBlank && !snapshot;
-    if (isMissingTemplate) {
-      console.error(
-        "[editor] Missing template snapshot for id:",
-        templateId,
-        "Available:",
-        Object.keys(TEMPLATE_SNAPSHOTS)
-      );
-      if (process.env.NODE_ENV !== "production") {
-        throw new Error(
-          `[editor] Missing template snapshot for id: ${templateId} (available: ${Object.keys(
-            TEMPLATE_SNAPSHOTS
-          ).join(", ")})`
-        );
+        const snapshotForLoad = snapshot || { objects: [] };
+        if (cancelled) return;
+
+        await applySnapshotRef.current(snapshotForLoad);
+        if (cancelled) return;
+
+        autosaveRevisionRef.current = Number(snapshotForLoad?.autosaveRevision || 0);
+        setDocAutosaveRevision(autosaveRevisionRef.current);
+        undoRef.current = [snapshotForLoad];
+        redoRef.current = [];
+        updateLayersRef.current();
+        lastAppliedTemplateRef.current = appliedId;
+      } catch (err: any) {
+        if (cancelled) return;
+        const name = err?.name || "";
+        const msg = String(err?.message || "").toLowerCase();
+        if (name === "AbortError" || msg.includes("aborted")) return;
+        console.error("[editor] Failed initial load", err);
       }
-    }
+    };
 
-    const snapshotForLoad = snapshot || { objects: [] };
-    applySnapshotRef.current(snapshotForLoad).then(() => {
-      undoRef.current = [snapshotForLoad];
-      redoRef.current = [];
-      updateLayersRef.current();
-    });
+    void run();
+    return () => {
+      cancelled = true;
+    };
   }, [
     canvasReady,
     getCanvas,
-    getDraftKey,
     initialTemplateId,
     docIdParam,
     isDocDataReady,
@@ -2616,86 +3717,96 @@ try {
     c.requestRenderAll();
   }, [ensureObjectId, pageSizePx, pushHistory]);
 
-  const addRect = useCallback(() => {
+  const addShape = useCallback((shapeId: string) => {
     const c = getCanvas();
     if (!c) return;
     c.isDrawingMode = false;
     c.selection = true;
-    const size = pageSizePx;
-    const r = addRectTool(c, {
-      left: size.w / 2 - 180,
-      top: size.h / 2 - 120,
-      width: 360,
-      height: 240,
-      fill: "rgba(17,24,39,0.1)",
-      stroke: "#111827",
-      strokeWidth: 2,
-    });
-    const id = ensureObjectId(r);
-    r.uid = id;
-    c.add(r);
-    c.setActiveObject(r);
+    const def = getShapeDefinitionById(shapeId);
+    if (!def) return;
+    const obj = createShapeFromDefinition(def, pageSizePx);
+    const id = ensureObjectId(obj);
+    obj.uid = id;
+    c.add(obj);
+    c.setActiveObject(obj);
     c.requestRenderAll();
-  }, [ensureObjectId, pageSizePx, pushHistory]);
+  }, [ensureObjectId, getCanvas, pageSizePx]);
+
+  const addTable = useCallback((rows: number, cols: number) => {
+    const c = getCanvas();
+    if (!c) return;
+    c.isDrawingMode = false;
+    c.selection = true;
+
+    const model = createTableModel(rows, cols);
+    const group = renderTableFromModel(model) as any;
+    const tableWidth = model.colWidths.reduce((sum, value) => sum + value, 0);
+    const tableHeight = model.rowHeights.reduce((sum, value) => sum + value, 0);
+    const size = pageSizePx;
+
+    group.set({
+      left: size.w / 2 - tableWidth / 2,
+      top: size.h / 2 - tableHeight / 2,
+      subTargetCheck: true,
+      hasControls: true,
+      lockScalingFlip: true,
+    });
+    group.data = { ...model, role: "table", tableId: model.tableId };
+
+    const children = group.getObjects?.() || group._objects || [];
+    children.forEach((child: any) => {
+      if (String(child?.data?.role || "") !== "table-cell-text") return;
+      const syncCellContent = () => {
+        const tableData = group.data as TableModel | undefined;
+        if (!tableData?.cells) return;
+        const row = Number(child?.data?.row);
+        const col = Number(child?.data?.col);
+        const cell = tableData.cells.find((entry) => entry.row === row && entry.col === col);
+        if (!cell) return;
+        cell.text = String(child?.text || "");
+      };
+      child.on?.("changed", syncCellContent);
+      child.on?.("editing:exited", syncCellContent);
+    });
+
+    const id = ensureObjectId(group);
+    group.uid = id;
+
+    isApplyingRef.current = true;
+    try {
+      c.add(group);
+      c.setActiveObject(group);
+      c.requestRenderAll();
+    } finally {
+      isApplyingRef.current = false;
+    }
+
+    const nextTableProps = {
+      borderColor: toHexColor(model.border.color, "#111827"),
+      borderWidth: Number(model.border.width ?? 1),
+    };
+    setTableProps(nextTableProps);
+    pushHistory("table:created");
+  }, [ensureObjectId, getCanvas, pageSizePx, pushHistory]);
+
+  const addRect = useCallback(() => {
+    addShape("rectangle");
+  }, [addShape]);
 
   const addCircle = useCallback(() => {
-    const c = getCanvas();
-    if (!c) return;
-    c.isDrawingMode = false;
-    c.selection = true;
-    const size = pageSizePx;
-    const r = addCircleTool(c, {
-      left: size.w / 2 - 120,
-      top: size.h / 2 - 120,
-      radius: 120,
-      fill: "rgba(17,24,39,0.1)",
-      stroke: "#111827",
-      strokeWidth: 2,
-    });
-    const id = ensureObjectId(r);
-    r.uid = id;
-    c.add(r);
-    c.setActiveObject(r);
-    c.requestRenderAll();
-  }, [ensureObjectId, pageSizePx, pushHistory]);
+    addShape("circle");
+  }, [addShape]);
 
   const addLine = useCallback(() => {
-    const c = getCanvas();
-    if (!c) return;
-    c.isDrawingMode = false;
-    c.selection = true;
-    const size = pageSizePx;
-    const l = addLineTool(c, {
-      x1: 0,
-      y1: 0,
-      x2: 300,
-      y2: 0,
-      left: size.w / 2 - 150,
-      top: size.h / 2,
-      stroke: "#111827",
-      strokeWidth: 2,
-    });
-    const id = ensureObjectId(l);
-    l.uid = id;
-    c.add(l);
-    c.setActiveObject(l);
-    c.requestRenderAll();
-  }, [ensureObjectId, pageSizePx, pushHistory]);
+    addShape("line");
+  }, [addShape]);
 
-  const { attachImageToFrame, tryAttachImageToFrame } = createFrameAttach({
+  const { attachImageToFrame } = createFrameAttach({
     getCanvas,
-    getImageFrameFrameType,
-    getFrameShape,
-    getImageForFrame,
     pushHistory,
     updateLayers,
-    isImageFrame,
-    attachImageToFrameRef,
+    isInternalMutationRef,
   });
-
-  useEffect(() => {
-    attachImageToFrameRef.current = attachImageToFrame;
-  }, [attachImageToFrame]);
 
   const addImageToFrame = useCallback(
     async (frame: any, file: File) => {
@@ -2719,41 +3830,151 @@ try {
     [attachImageToFrame]
   );
 
-  const addImage = useCallback(
-    (file: File) => {
+  const addImageFromUrl = useCallback(
+    async (url: string) => {
       const c = getCanvas();
-      if (!c) return;
+      if (!c || !url) return;
+
       c.isDrawingMode = false;
       c.selection = true;
 
+      try {
+        const img = await FabricImage.fromURL(url, { crossOrigin: "anonymous" } as any);
+        const size = pageSizePx;
+        const maxW = size.w * 0.55;
+        const maxH = size.h * 0.55;
+        const baseW = img.width || 200;
+        const baseH = img.height || 200;
+        const scale = Math.min(maxW / baseW, maxH / baseH, 1);
+        const targetW = baseW * scale;
+        const targetH = baseH * scale;
+
+        img.set({
+          left: size.w / 2 - targetW / 2,
+          top: size.h / 2 - targetH / 2,
+          scaleX: scale,
+          scaleY: scale,
+        });
+
+        const id = ensureObjectId(img);
+        (img as any).uid = id;
+
+        isApplyingRef.current = true;
+        try {
+          c.add(img);
+          c.setActiveObject(img);
+          c.requestRenderAll();
+        } finally {
+          isApplyingRef.current = false;
+        }
+
+        pushHistory("added");
+      } catch (err) {
+        console.error("[addImageFromUrl]", err);
+      }
+    },
+    [ensureObjectId, getCanvas, pageSizePx, pushHistory]
+  );
+
+  const addImage = useCallback(
+    (file: File) => {
       const reader = new FileReader();
       reader.onload = async () => {
         try {
           const url = reader.result as string;
-          const img = await FabricImage.fromURL(url);
-          const size = pageSizePx;
-          const w = (img.width || 200) * 0.5;
-          const h = (img.height || 200) * 0.5;
-          img.set({
-            left: size.w / 2 - w / 2,
-            top: size.h / 2 - h / 2,
-            scaleX: 0.5,
-            scaleY: 0.5,
-          });
-          const id = ensureObjectId(img);
-          (img as any).uid = id;
-          c.add(img);
-          c.setActiveObject(img);
-          c.requestRenderAll();
-          pushHistory("added");
+          await addImageFromUrl(url);
         } catch (err) {
           console.error("[addImage]", err);
         }
       };
       reader.readAsDataURL(file);
     },
-    [ensureObjectId, pageSizePx, pushHistory]
+    [addImageFromUrl]
   );
+
+  const addGraphicFromUrl = useCallback(
+    async (url: string) => {
+      const c = getCanvas();
+      if (!c || !url) return;
+
+      c.isDrawingMode = false;
+      c.selection = true;
+
+      try {
+        const img = await FabricImage.fromURL(url, { crossOrigin: "anonymous" } as any);
+        const size = pageSizePx;
+        const maxW = size.w * 0.25;
+        const maxH = size.h * 0.25;
+        const baseW = img.width || 200;
+        const baseH = img.height || 200;
+        const scale = Math.min(maxW / baseW, maxH / baseH, 1);
+        const targetW = baseW * scale;
+        const targetH = baseH * scale;
+
+        img.set({
+          left: size.w / 2 - targetW / 2,
+          top: size.h / 2 - targetH / 2,
+          scaleX: scale,
+          scaleY: scale,
+        });
+
+        const id = ensureObjectId(img);
+        (img as any).uid = id;
+
+        isApplyingRef.current = true;
+        try {
+          c.add(img);
+          c.setActiveObject(img);
+          c.requestRenderAll();
+        } finally {
+          isApplyingRef.current = false;
+        }
+
+        pushHistory("added");
+      } catch (err) {
+        console.error("[addGraphicFromUrl]", err);
+      }
+    },
+    [ensureObjectId, getCanvas, pageSizePx, pushHistory]
+  );
+
+  const addQrCode = useCallback(async (content: string) => {
+    const c = getCanvas();
+    if (!c || !content?.trim()) return;
+
+    try {
+      const dataUrl = await generateQrDataUrl(content);
+      const img = await FabricImage.fromURL(dataUrl);
+
+      const size = 180;
+      const sourceW = img.width || size;
+      const sourceH = img.height || size;
+
+      img.set({
+        left: pageSizePx.w / 2 - size / 2,
+        top: pageSizePx.h / 2 - size / 2,
+        scaleX: size / sourceW,
+        scaleY: size / sourceH,
+        selectable: true,
+      });
+
+      const id = ensureObjectId(img);
+      (img as any).uid = id;
+
+      isApplyingRef.current = true;
+      try {
+        c.add(img);
+        c.setActiveObject(img);
+        c.requestRenderAll();
+      } finally {
+        isApplyingRef.current = false;
+      }
+
+      pushHistory("qr:added");
+    } catch (err) {
+      console.error("[QR] generation failed", err);
+    }
+  }, [ensureObjectId, getCanvas, pageSizePx, pushHistory]);
 
   const { addImageFrame } = createFrameCreate({
     getCanvas,
@@ -2770,7 +3991,7 @@ try {
       const target = frame || (c.getActiveObject?.() as any);
       if (!target || !isImageFrame(target)) return;
 
-      const img = getImageForFrame(c, target);
+      const img = getFrameImage(target);
       if (img) {
         target.remove(img);
         const orig = (img as any).getOriginalSize?.() || {};
@@ -2803,7 +4024,7 @@ try {
     if (!c) return;
     const active = c.getActiveObject() as any;
     if (!active || !isImageFrame(active)) return;
-    const img = getImageForFrame(c, active);
+    const img = getFrameImage(active);
     if (img) {
       active.remove(img);
       const orig = (img as any).getOriginalSize?.() || {};
@@ -2847,6 +4068,17 @@ try {
       if (!Number.isFinite(nextLineHeight)) return;
       patch.lineHeight = nextLineHeight;
     }
+    if (patch.fontWeight != null) {
+      const rawWeight = patch.fontWeight as any;
+      const nextWeight =
+        rawWeight === "bold"
+          ? 700
+          : rawWeight === "normal"
+            ? 400
+            : Number(rawWeight);
+      if (!Number.isFinite(nextWeight)) return;
+      patch.fontWeight = Math.max(100, Math.min(900, Math.round(nextWeight)));
+    }
     const c = getCanvas();
     if (!c) return;
     const active: any = c.getActiveObject();
@@ -2854,7 +4086,11 @@ try {
     const type = String(active.type || "").toLowerCase();
     if (type !== "textbox" && type !== "i-text" && type !== "text") return;
     logTextSync("apply");
-    updateActiveObject(patch);
+    const fabricPatch: Record<string, any> = { ...patch };
+    delete fabricPatch.fontVariantId;
+    delete fabricPatch.uppercaseEnabled;
+    delete fabricPatch.listMode;
+    updateActiveObject(fabricPatch);
   }, [getCanvas, logTextSync, selectionType, updateActiveObject]);
 
   const setShapeProp = useCallback((partial: Partial<ShapeProps>) => {
@@ -2863,7 +4099,7 @@ try {
     const active: any = c.getActiveObject();
     if (!active) return;
     const type = String(active.type || "").toLowerCase();
-    if (type !== "rect" && type !== "circle" && type !== "triangle" && type !== "line") return;
+    if (!isShapeType(type, active?.data?.shapeKind)) return;
     const patch: any = { ...partial, strokeUniform: true };
     if (partial.cornerRadius != null && type === "rect") {
       patch.rx = partial.cornerRadius;
@@ -2872,32 +4108,537 @@ try {
     updateActiveObject(patch);
   }, [updateActiveObject]);
 
-  const deleteSelected = useCallback(() => {
+  const updateActiveObjectLive = useCallback((patch: Record<string, any>) => {
+    suppressImageHistoryPushRef.current = true;
+    try {
+      updateActiveObject(patch, { commitHistory: false });
+    } finally {
+      suppressImageHistoryPushRef.current = false;
+    }
+  }, [updateActiveObject]);
+
+  const commitActiveObjectUpdate = useCallback(() => {
     const c = getCanvas();
     if (!c) return;
     const active = c.getActiveObject();
     if (!active) return;
+    const nextSnapshot = (active as any).toObject ? (active as any).toObject() : active;
+    setActiveObjectSnapshot(nextSnapshot);
+    pushHistory("object:update");
+  }, [getCanvas, pushHistory]);
 
-    const removeObj = (obj: any) => {
-      if (obj?.group) {
-        obj.group.remove(obj);
-        if (obj.data) delete obj.data.insideFrame;
-        (obj.group as any).data = (obj.group as any).data || {};
-        (obj.group as any).data.hasImage = false;
-      } else {
-        c.remove(obj);
-      }
+  const setTableProp = useCallback((partial: Partial<TableProps>) => {
+    const c = getCanvas();
+    if (!c) return;
+    const active: any = c.getActiveObject();
+    if (!active || !isTableLike(active)) return;
+
+    const tableData = (active.data || {}) as TableModel;
+    tableData.border = tableData.border || { color: "#111827", width: 1 };
+
+    if (partial.borderColor != null) {
+      tableData.border.color = toHexColor(partial.borderColor, "#111827");
+    }
+    if (partial.borderWidth != null) {
+      tableData.border.width = Math.max(0, Math.min(12, Number(partial.borderWidth) || 0));
+    }
+
+    active.data = {
+      ...tableData,
+      role: "table",
     };
 
-    if (active.type === "activeSelection") {
-      (active as any).getObjects().forEach((o: any) => removeObj(o));
-    } else {
-      removeObj(active);
-    }
-    c.discardActiveObject();
+    const children = active.getObjects?.() || active._objects || [];
+    children.forEach((child: any) => {
+      if (String(child?.data?.role || "") !== "table-cell-rect") return;
+      child.set({
+        stroke: tableData.border.color,
+        strokeWidth: tableData.border.width,
+      });
+      child.setCoords?.();
+    });
+
+    setTableProps({
+      borderColor: toHexColor(tableData.border.color, "#111827"),
+      borderWidth: Number(tableData.border.width ?? 1),
+    });
+    const nextSnapshot = active.toObject ? active.toObject() : active;
+    setActiveObjectSnapshot(nextSnapshot);
     c.requestRenderAll();
-    pushHistory("removed");
-  }, [pushHistory]);
+    pushHistory("table:update");
+  }, [getCanvas, isTableLike, pushHistory]);
+
+  const getActiveImageObject = useCallback(() => {
+    const c = getCanvas();
+    if (!c) return null;
+    const active: any = c.getActiveObject();
+    if (!active) return null;
+    return String(active.type || "").toLowerCase() === "image" ? active : null;
+  }, [getCanvas]);
+
+  const replaceImageSource = useCallback(
+    async (image: any, src: string) => {
+      const c = getCanvas();
+      if (!c || !image || !src) return false;
+      const renderedW = (Number(image.width) || 1) * (Number(image.scaleX) || 1);
+      const renderedH = (Number(image.height) || 1) * (Number(image.scaleY) || 1);
+      const loaded = await FabricImage.fromURL(src, { crossOrigin: "anonymous" } as any);
+      const element = loaded?.getElement?.() || (loaded as any)?._element;
+      if (!element) return false;
+      image.setElement?.(element);
+      image.set({
+        width: loaded.width || image.width || 1,
+        height: loaded.height || image.height || 1,
+        cropX: 0,
+        cropY: 0,
+      });
+      const nextW = Number(image.width) || 1;
+      const nextH = Number(image.height) || 1;
+      image.set({
+        scaleX: renderedW / nextW,
+        scaleY: renderedH / nextH,
+      });
+      image.setCoords?.();
+      c.requestRenderAll();
+      return true;
+    },
+    [getCanvas]
+  );
+
+  const updateImageAdjustments = useCallback(
+    (partial: Partial<ImageAdjustments>, opts?: { commit?: boolean }) => {
+      const c = getCanvas();
+      if (!c) return;
+      const image = getActiveImageObject();
+      if (!image) return;
+      const prev = getImageAdjustmentsFromObject(image);
+      const next: ImageAdjustments = {
+        brightness: Math.max(-1, Math.min(1, Number(partial.brightness ?? prev.brightness))),
+        contrast: Math.max(-1, Math.min(1, Number(partial.contrast ?? prev.contrast))),
+        saturation: Math.max(-1, Math.min(1, Number(partial.saturation ?? prev.saturation))),
+        blur: Math.max(0, Math.min(1, Number(partial.blur ?? prev.blur))),
+        sharpen: Math.max(0, Math.min(1, Number(partial.sharpen ?? prev.sharpen))),
+      };
+      image.data = {
+        ...(image.data || {}),
+        imageAdjustments: next,
+      };
+      applyImageFilters(image, next);
+      image.setCoords?.();
+      c.requestRenderAll();
+      hydrateImageUiFromActiveObject(image);
+      const nextSnapshot = image.toObject ? image.toObject() : image;
+      setActiveObjectSnapshot(nextSnapshot);
+      if (opts?.commit) {
+        pushHistory("object:update");
+      }
+    },
+    [
+      applyImageFilters,
+      getActiveImageObject,
+      getCanvas,
+      getImageAdjustmentsFromObject,
+      hydrateImageUiFromActiveObject,
+      pushHistory,
+    ]
+  );
+
+  const resetImageAdjustments = useCallback(() => {
+    updateImageAdjustments({ ...DEFAULT_IMAGE_ADJUSTMENTS }, { commit: true });
+  }, [updateImageAdjustments]);
+
+  const normalizeCropRectScale = useCallback((cropRect: any) => {
+    const scaleX = Number(cropRect.scaleX || 1);
+    const scaleY = Number(cropRect.scaleY || 1);
+    if (Math.abs(scaleX - 1) < 0.0001 && Math.abs(scaleY - 1) < 0.0001) return;
+    cropRect.set({
+      width: Math.max(1, Number(cropRect.width || 1) * scaleX),
+      height: Math.max(1, Number(cropRect.height || 1) * scaleY),
+      scaleX: 1,
+      scaleY: 1,
+    });
+  }, []);
+
+  const updateCropDimRects = useCallback(
+    (
+      cropRect: any,
+      dimTop: any,
+      dimBottom: any,
+      dimLeft: any,
+      dimRight: any
+    ) => {
+      const { w: pageW, h: pageH } = pageSizePxRef.current;
+      const left = Math.max(0, Number(cropRect.left || 0));
+      const top = Math.max(0, Number(cropRect.top || 0));
+      const width = Math.max(1, Number(cropRect.width || 1));
+      const height = Math.max(1, Number(cropRect.height || 1));
+      const right = Math.min(pageW, left + width);
+      const bottom = Math.min(pageH, top + height);
+
+      dimTop.set({
+        left: 0,
+        top: 0,
+        width: pageW,
+        height: Math.max(0, top),
+      });
+      dimBottom.set({
+        left: 0,
+        top: Math.max(0, bottom),
+        width: pageW,
+        height: Math.max(0, pageH - bottom),
+      });
+      dimLeft.set({
+        left: 0,
+        top: Math.max(0, top),
+        width: Math.max(0, left),
+        height: Math.max(0, bottom - top),
+      });
+      dimRight.set({
+        left: Math.max(0, right),
+        top: Math.max(0, top),
+        width: Math.max(0, pageW - right),
+        height: Math.max(0, bottom - top),
+      });
+    },
+    []
+  );
+
+  const clampCropRectToImageBounds = useCallback(
+    (cropRect: any, image: any) => {
+      const imageRect = image.getBoundingRect?.(true, true);
+      if (!imageRect) return;
+      normalizeCropRectScale(cropRect);
+      const minSize = 8;
+      const maxW = Math.max(minSize, Number(imageRect.width || minSize));
+      const maxH = Math.max(minSize, Number(imageRect.height || minSize));
+
+      let width = Math.max(minSize, Number(cropRect.width || minSize));
+      let height = Math.max(minSize, Number(cropRect.height || minSize));
+      width = Math.min(width, maxW);
+      height = Math.min(height, maxH);
+
+      let left = Number(cropRect.left || imageRect.left);
+      let top = Number(cropRect.top || imageRect.top);
+      left = Math.max(imageRect.left, Math.min(left, imageRect.left + imageRect.width - width));
+      top = Math.max(imageRect.top, Math.min(top, imageRect.top + imageRect.height - height));
+
+      cropRect.set({
+        left,
+        top,
+        width,
+        height,
+        scaleX: 1,
+        scaleY: 1,
+      });
+      cropRect.setCoords?.();
+    },
+    [normalizeCropRectScale]
+  );
+
+  const beginImageCrop = useCallback(() => {
+    const c = getCanvas();
+    if (!c || imageCropStateRef.current) return;
+    const image = getActiveImageObject();
+    if (!image) return;
+    const imageRect = image.getBoundingRect?.(true, true);
+    if (!imageRect) return;
+    const makeDim = () =>
+      new Rect({
+        left: 0,
+        top: 0,
+        width: 0,
+        height: 0,
+        fill: "rgba(15,23,42,0.18)",
+        selectable: false,
+        evented: false,
+        excludeFromExport: true,
+      }) as any;
+    const dimTop = makeDim();
+    const dimBottom = makeDim();
+    const dimLeft = makeDim();
+    const dimRight = makeDim();
+    dimTop.role = "image-crop-dim";
+    dimBottom.role = "image-crop-dim";
+    dimLeft.role = "image-crop-dim";
+    dimRight.role = "image-crop-dim";
+
+    const cropRect = new Rect({
+      left: imageRect.left,
+      top: imageRect.top,
+      width: imageRect.width,
+      height: imageRect.height,
+      fill: "rgba(59,130,246,0.06)",
+      stroke: "#2563eb",
+      strokeDashArray: [8, 6],
+      strokeWidth: 2,
+      hasRotatingPoint: false,
+      lockRotation: true,
+      transparentCorners: false,
+      cornerColor: "#2563eb",
+      cornerStrokeColor: "#ffffff",
+      borderColor: "#2563eb",
+      cornerSize: 10,
+      originX: "left",
+      originY: "top",
+    }) as any;
+    cropRect.role = "image-crop-rect";
+
+    const syncCropUi = () => {
+      clampCropRectToImageBounds(cropRect, image);
+      updateCropDimRects(cropRect, dimTop, dimBottom, dimLeft, dimRight);
+      c.requestRenderAll();
+    };
+
+    const handlers = {
+      moving: syncCropUi,
+      scaling: syncCropUi,
+      modified: syncCropUi,
+    };
+    cropRect.on("moving", handlers.moving);
+    cropRect.on("scaling", handlers.scaling);
+    cropRect.on("modified", handlers.modified);
+
+    isApplyingRef.current = true;
+    try {
+      c.add(dimTop);
+      c.add(dimBottom);
+      c.add(dimLeft);
+      c.add(dimRight);
+      c.add(cropRect);
+      c.setActiveObject(cropRect);
+      syncCropUi();
+      cropRect.moveTo?.(Math.max(0, c.getObjects().length - 1));
+    } finally {
+      isApplyingRef.current = false;
+    }
+
+    imageCropStateRef.current = {
+      image,
+      baseCropX: Math.max(0, Number(image.cropX || 0)),
+      baseCropY: Math.max(0, Number(image.cropY || 0)),
+      dimTop,
+      dimBottom,
+      dimLeft,
+      dimRight,
+      cropRect,
+      handlers,
+    };
+    setImageProps((prev) => ({ ...prev, isCropping: true }));
+    c.requestRenderAll();
+  }, [clampCropRectToImageBounds, getActiveImageObject, getCanvas, updateCropDimRects]);
+
+  const cancelImageCrop = useCallback(() => {
+    const c = getCanvas();
+    const state = imageCropStateRef.current;
+    if (!c || !state) return;
+    const { cropRect, dimTop, dimBottom, dimLeft, dimRight, image, handlers } = state;
+    cropRect.off("moving", handlers.moving);
+    cropRect.off("scaling", handlers.scaling);
+    cropRect.off("modified", handlers.modified);
+    isApplyingRef.current = true;
+    try {
+      c.remove(dimTop);
+      c.remove(dimBottom);
+      c.remove(dimLeft);
+      c.remove(dimRight);
+      c.remove(cropRect);
+      c.setActiveObject(image);
+    } finally {
+      isApplyingRef.current = false;
+    }
+    imageCropStateRef.current = null;
+    setImageProps((prev) => ({ ...prev, isCropping: false }));
+    c.requestRenderAll();
+    hydrateImageUiFromActiveObject(image);
+  }, [getCanvas, hydrateImageUiFromActiveObject]);
+
+  const applyImageCrop = useCallback(() => {
+    const c = getCanvas();
+    const state = imageCropStateRef.current;
+    if (!c || !state) return;
+    const { image, cropRect, dimTop, dimBottom, dimLeft, dimRight, handlers, baseCropX, baseCropY } =
+      state;
+
+    cropRect.off("moving", handlers.moving);
+    cropRect.off("scaling", handlers.scaling);
+    cropRect.off("modified", handlers.modified);
+    clampCropRectToImageBounds(cropRect, image);
+
+    const left = Number(cropRect.left || 0);
+    const top = Number(cropRect.top || 0);
+    const width = Math.max(1, Number(cropRect.width || 1));
+    const height = Math.max(1, Number(cropRect.height || 1));
+    const pointA = new (FabricNS as any).Point(left, top);
+    const pointB = new (FabricNS as any).Point(left + width, top + height);
+    const localA = image.toLocalPoint?.(pointA, "center", "center");
+    const localB = image.toLocalPoint?.(pointB, "center", "center");
+    if (!localA || !localB) {
+      cancelImageCrop();
+      return;
+    }
+
+    const sourceW = Math.max(1, Number(image.width || 1));
+    const sourceH = Math.max(1, Number(image.height || 1));
+    const localLeft = Math.max(0, Math.min(sourceW, Math.min(localA.x, localB.x) + sourceW / 2));
+    const localRight = Math.max(0, Math.min(sourceW, Math.max(localA.x, localB.x) + sourceW / 2));
+    const localTop = Math.max(0, Math.min(sourceH, Math.min(localA.y, localB.y) + sourceH / 2));
+    const localBottom = Math.max(0, Math.min(sourceH, Math.max(localA.y, localB.y) + sourceH / 2));
+    const nextWidth = Math.max(1, localRight - localLeft);
+    const nextHeight = Math.max(1, localBottom - localTop);
+    const renderedWidth = sourceW * Math.max(0.0001, Number(image.scaleX || 1));
+    const renderedHeight = sourceH * Math.max(0.0001, Number(image.scaleY || 1));
+
+    image.set({
+      cropX: Math.max(0, baseCropX + localLeft),
+      cropY: Math.max(0, baseCropY + localTop),
+      width: nextWidth,
+      height: nextHeight,
+      scaleX: renderedWidth / nextWidth,
+      scaleY: renderedHeight / nextHeight,
+      left: left + width / 2,
+      top: top + height / 2,
+      originX: "center",
+      originY: "center",
+    });
+    image.setCoords?.();
+
+    isApplyingRef.current = true;
+    try {
+      c.remove(dimTop);
+      c.remove(dimBottom);
+      c.remove(dimLeft);
+      c.remove(dimRight);
+      c.remove(cropRect);
+      c.setActiveObject(image);
+    } finally {
+      isApplyingRef.current = false;
+    }
+    imageCropStateRef.current = null;
+    setImageProps((prev) => ({ ...prev, isCropping: false }));
+    c.requestRenderAll();
+    hydrateImageUiFromActiveObject(image);
+    pushHistory("object:update");
+  }, [cancelImageCrop, clampCropRectToImageBounds, getCanvas, hydrateImageUiFromActiveObject, pushHistory]);
+
+  const deleteSelected = useCallback(() => {
+    const c = getCanvas();
+    if (!c) return;
+    const active = c.getActiveObject() as any;
+    if (!active) return;
+
+    // MULTI-SELECTION
+    if (isActiveSelectionLike(active)) {
+      const objects = [...(active.getObjects?.() || active._objects || [])];
+      if (!objects.length) return;
+
+      isInternalMutationRef.current = true;
+      try {
+        c.discardActiveObject();
+        c.remove(...objects);
+        c.requestRenderAll();
+      } finally {
+        isInternalMutationRef.current = false;
+      }
+
+      syncSelectionKind();
+      updateSelectionRef.current?.();
+      updateLayers();
+      pushHistory("object:removed");
+      return;
+    }
+
+    // GROUP
+    if (isGroupLike(active)) {
+      isInternalMutationRef.current = true;
+      try {
+        c.discardActiveObject();
+        c.remove(active);
+        c.requestRenderAll();
+      } finally {
+        isInternalMutationRef.current = false;
+      }
+
+      syncSelectionKind();
+      updateSelectionRef.current?.();
+      updateLayers();
+      pushHistory("object:removed");
+      return;
+    }
+
+    // SINGLE OBJECT
+    isInternalMutationRef.current = true;
+    try {
+      c.discardActiveObject();
+      c.remove(active);
+      c.requestRenderAll();
+    } finally {
+      isInternalMutationRef.current = false;
+    }
+
+    syncSelectionKind();
+    updateSelectionRef.current?.();
+    updateLayers();
+    pushHistory("object:removed");
+  }, [getCanvas, pushHistory, syncSelectionKind, updateLayers]);
+
+  const groupSelected = useCallback(() => {
+    const c = getCanvas();
+    if (!c) return;
+
+    const active = c.getActiveObject() as any;
+    if (!isActiveSelectionLike(active)) return;
+    const objects = [...(active.getObjects?.() || active._objects || [])];
+    if (!objects.length) return;
+
+    isInternalMutationRef.current = true;
+    try {
+      c.discardActiveObject();
+      c.remove(...objects);
+
+      const group = new Group(objects);
+      c.add(group);
+      c.setActiveObject(group);
+      c.requestRenderAll();
+    } finally {
+      isInternalMutationRef.current = false;
+    }
+
+    syncSelectionKind();
+    updateSelectionRef.current?.();
+    updateLayers();
+    pushHistory("object:grouped");
+  }, [getCanvas, pushHistory, syncSelectionKind, updateLayers]);
+
+  const ungroupSelected = useCallback(() => {
+    const c = getCanvas();
+    if (!c) return;
+
+    const active = c.getActiveObject() as any;
+    if (!active || !isGroupLike(active)) return;
+    if (isImageFrame(active)) return;
+
+    isInternalMutationRef.current = true;
+    try {
+      c.discardActiveObject();
+      c.remove(active);
+
+      const children = active.removeAll?.() || active.getObjects?.() || active._objects || [];
+      if (children.length) {
+        c.add(...children);
+        const selection = new ActiveSelection(children, { canvas: c } as any);
+        c.setActiveObject(selection);
+      }
+
+      c.requestRenderAll();
+    } finally {
+      isInternalMutationRef.current = false;
+    }
+
+    syncSelectionKind();
+    updateSelectionRef.current?.();
+    updateLayers();
+    pushHistory("object:ungrouped");
+  }, [getCanvas, pushHistory, syncSelectionKind, updateLayers]);
 
   const copy = useCallback(async () => {
     const c = getCanvas();
@@ -2919,27 +4660,104 @@ try {
     const c = getCanvas();
     if (!c || !clipboardRef.current) return;
     const src = clipboardRef.current;
-    let cloned: any = null;
-    if (src.clone) {
+    const pasteOffset = 40;
+    const cloneFabricObject = async (obj: any) => {
+      if (!obj?.clone) return null;
       try {
-        cloned = await src.clone();
+        return await obj.clone();
       } catch {
-        await new Promise<void>((resolve) => {
-          src.clone((c2: any) => {
-            cloned = c2;
-            resolve();
-          });
+        return await new Promise<any>((resolve) => {
+          obj.clone((clonedObj: any) => resolve(clonedObj));
         });
       }
+    };
+    const setCoordsDeep = (obj: any) => {
+      obj?.setCoords?.();
+      if (isGroupLike(obj) || isActiveSelectionLike(obj)) {
+        const children = obj.getObjects?.() || obj._objects || [];
+        children.forEach((child: any) => setCoordsDeep(child));
+      }
+    };
+    const getObjectCenter = (obj: any) => {
+      const bounds = obj?.getBoundingRect?.(true, true);
+      if (!bounds) {
+        return {
+          x: Number(obj?.left || 0),
+          y: Number(obj?.top || 0),
+        };
+      }
+      return {
+        x: Number(bounds.left || 0) + Number(bounds.width || 0) / 2,
+        y: Number(bounds.top || 0) + Number(bounds.height || 0) / 2,
+      };
+    };
+    if (isActiveSelectionLike(src)) {
+      const sourceObjects = src.getObjects?.() || src._objects || [];
+      if (!Array.isArray(sourceObjects) || sourceObjects.length === 0) return;
+      const clonedChildrenRaw = await Promise.all(
+        sourceObjects.map((obj: any) => cloneFabricObject(obj))
+      );
+      const clonedChildren = clonedChildrenRaw.filter(Boolean);
+      if (!clonedChildren.length) return;
+      const tempSelection = new ActiveSelection(clonedChildren, { canvas: c } as any);
+      setCoordsDeep(tempSelection);
+      const sourceCenter = getObjectCenter(src);
+      const cloneCenter = getObjectCenter(tempSelection);
+      const deltaX = sourceCenter.x + pasteOffset - cloneCenter.x;
+      const deltaY = sourceCenter.y + pasteOffset - cloneCenter.y;
+      const now = Date.now();
+      isInternalMutationRef.current = true;
+      try {
+        clonedChildren.forEach((child: any, index: number) => {
+          child.set({
+            left: Number(child.left || 0) + deltaX,
+            top: Number(child.top || 0) + deltaY,
+          });
+          child.uid = `obj_${now}_${index}`;
+          setCoordsDeep(child);
+        });
+        c.add(...clonedChildren);
+        const selection = new ActiveSelection(clonedChildren, { canvas: c } as any);
+        setCoordsDeep(selection);
+        c.setActiveObject(selection);
+      } finally {
+        isInternalMutationRef.current = false;
+      }
+      c.requestRenderAll();
+      syncSelectionKind();
+      updateSelectionRef.current?.();
+      updateLayers();
+      pushHistory("paste");
+      return;
     }
+
+    const cloned = await cloneFabricObject(src);
     if (!cloned) return;
-    cloned.set({ left: (cloned.left || 0) + 40, top: (cloned.top || 0) + 40 });
-    cloned.uid = `obj_${Date.now()}`;
-    c.add(cloned);
-    c.setActiveObject(cloned);
+    setCoordsDeep(cloned);
+    const sourceCenter = getObjectCenter(src);
+    const cloneCenter = getObjectCenter(cloned);
+    const deltaX = sourceCenter.x + pasteOffset - cloneCenter.x;
+    const deltaY = sourceCenter.y + pasteOffset - cloneCenter.y;
+    const now = Date.now();
+    cloned.set({
+      left: Number(cloned.left || 0) + deltaX,
+      top: Number(cloned.top || 0) + deltaY,
+    });
+    cloned.uid = `obj_${now}`;
+    setCoordsDeep(cloned);
+    isInternalMutationRef.current = true;
+    try {
+      c.add(cloned);
+      c.setActiveObject(cloned);
+    } finally {
+      isInternalMutationRef.current = false;
+    }
     c.requestRenderAll();
+    syncSelectionKind();
+    updateSelectionRef.current?.();
+    updateLayers();
     pushHistory("paste");
-  }, [pushHistory]);
+  }, [getCanvas, pushHistory, syncSelectionKind, updateLayers]);
 
   const undo = useCallback(async () => {
     const c = getCanvas();
@@ -2997,7 +4815,7 @@ try {
       if (dx !== 0) obj.set({ left: (obj.left ?? 0) + dx });
       if (dy !== 0) obj.set({ top: (obj.top ?? 0) + dy });
       obj.setCoords?.();
-      if ((obj as any).type === "activeSelection") {
+      if (isActiveSelectionLike(obj)) {
         (obj as any)._objects?.forEach((o: any) => o.setCoords?.());
       }
       c.requestRenderAll();
@@ -3306,6 +5124,44 @@ try {
     [applyLayerOrder, getCanvas, getLayerObjects, updateLayers]
   );
 
+  const applyTemplateToCurrentPage = useCallback(
+    async (templateId: string) => {
+      try {
+        const template = getSystemTemplateById(templateId);
+        if (!template) {
+          console.error("Template not found:", templateId);
+          return;
+        }
+
+        const snapshot = await template.load();
+        if (!snapshot) return;
+
+        await applySnapshotRef.current(snapshot, "template-loaded");
+
+        undoRef.current = [snapshot];
+        redoRef.current = [];
+        updateLayersRef.current();
+      } catch (err: any) {
+        const msg = String(err?.message || "").toLowerCase();
+        if (err?.name === "AbortError" || msg.includes("aborted")) return;
+        console.error("[editor] template apply failed", err);
+      }
+    },
+    []
+  );
+  
+  const addImageFrameRef = useRef(addImageFrame);
+  addImageFrameRef.current = addImageFrame;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    (window as any).editor = {
+      addImageFrame: (type: "square" | "circle") =>
+        addImageFrameRef.current(type),
+    };
+  }, []);
+
   return {
     pages,
     activePageIndex,
@@ -3358,33 +5214,71 @@ try {
     setGridEnabled,
     applyGrid,
     selectionType,
+    selectionKind,
+    canGroup: selectionKind === "multi",
+    canUngroup: selectionKind === "group",
+    canDelete: selectionKind !== "none",
     selectedFrameHasImage,
     activeObjectType,
     activeObjectSnapshot,
     textProps,
     shapeProps,
     imageProps,
+    tableProps,
+    activeDrawTool,
+    pencilColor,
+    pencilThickness,
+    highlighterColor,
+    highlighterThickness,
+    eraserSize,
     layers,
     selectedLayerId,
     hasSelection,
     docId: cloudDocId,
     docTitle,
     docCreatedAt,
+    autosaveStatus,
     loadError,
     isDocDataReady,
     getCanvasJson,
     getPagesJsonForSave,
     saveToCloud,
     addText,
+    addTable,
+    addShape,
     addRect,
     addCircle,
     addLine,
     addImage,
+    addImageFromUrl,
+    addGraphicFromUrl,
+    addQrCode,
     addImageFrame,
+    applyTemplateToCurrentPage,
+    setDrawTool,
+    updateBrushConfig,
+    setPencilColor: setPencilColorValue,
+    setPencilThickness: setPencilThicknessValue,
+    setHighlighterColor: setHighlighterColorValue,
+    setHighlighterThickness: setHighlighterThicknessValue,
+    setEraserSize: setEraserSizeValue,
     setTextProp,
     setShapeProp,
+    setTableProp,
     updateActiveObject,
+    updateActiveObjectLive,
+    commitActiveObjectUpdate,
+    updateImageAdjustments,
+    resetImageAdjustments,
+    beginImageCrop,
+    cancelImageCrop,
+    applyImageCrop,
+    toggleUppercase,
+    toggleBulletList,
+    toggleNumberedList,
     deleteSelected,
+    groupSelected,
+    ungroupSelected,
     deleteFrameEntirely,
     removeImageFromFrame,
     isImageFrameSelected,

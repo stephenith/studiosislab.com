@@ -6,7 +6,7 @@
 export type EditorMode = "new" | "template";
 export type PageSize = "A4" | "Letter" | "Custom";
 
-export type SelectionType = "none" | "text" | "shape" | "image" | "frame";
+export type SelectionType = "none" | "text" | "shape" | "image" | "frame" | "table";
 export type AlignAction =
   | "left"
   | "centerX"
@@ -19,11 +19,16 @@ export type TextProps = {
   fontFamily: string;
   fontSize: number;
   fill: string;
-  fontWeight: "normal" | "bold";
+  fontWeight: number;
   fontStyle: "normal" | "italic";
+  fontVariantId?: string;
   underline: boolean;
   textAlign: "left" | "center" | "right" | "justify";
   lineHeight: number;
+  charSpacing: number;
+  opacity?: number;
+  uppercaseEnabled?: boolean;
+  listMode?: "none" | "bullet" | "number";
 };
 
 export type ShapeProps = {
@@ -34,8 +39,30 @@ export type ShapeProps = {
   cornerRadius: number;
 };
 
+export type ImageAdjustments = {
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  blur: number;
+  sharpen: number;
+};
+
 export type ImageProps = {
   opacity: number;
+  scaleX: number;
+  scaleY: number;
+  angle: number;
+  flipX: boolean;
+  flipY: boolean;
+  width: number;
+  height: number;
+  isCropping: boolean;
+  adjustments: ImageAdjustments;
+};
+
+export type TableProps = {
+  borderColor: string;
+  borderWidth: number;
 };
 
 export type LayerItem = {

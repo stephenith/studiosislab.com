@@ -4,8 +4,11 @@ import { useRef, useEffect, useState } from "react";
 import { ChevronDown, AlignLeft, AlignCenter, AlignRight, AlignJustify, Bold, Italic, Underline, Type, List, ListOrdered } from "lucide-react";
 import type { TextProps } from "@/types/editor";
 import { toHexColor } from "@/lib/color";
+import fontCatalog from "@/data/fonts/catalog.json";
+import { ensureFontLoaded } from "@/lib/fonts/fontLoader";
+import { FontPicker, type FontFamily } from "@/components/editor/panels/FontPicker";
 
-const FONTS = ["Inter", "Poppins", "Roboto", "Open Sans", "Montserrat", "Lato"];
+const typedFontCatalog = fontCatalog as FontFamily[];
 
 const PRESET_COLORS = [
   "#000000", "#374151", "#6b7280", "#9ca3af",
@@ -18,24 +21,37 @@ export interface TextInspectorPanelProps {
   textProps: TextProps;
   setTextProp: (partial: Partial<TextProps>) => void;
   updateActiveObject: (patch: Record<string, unknown>) => void;
-  activeObjectSnapshot: { text?: string; charSpacing?: number; lineHeight?: number; opacity?: number } | null;
+  toggleUppercase: () => void;
+  toggleBulletList: () => void;
+  toggleNumberedList: () => void;
 }
 
 export function TextInspectorPanel({
   textProps,
   setTextProp,
   updateActiveObject,
-  activeObjectSnapshot,
+  toggleUppercase,
+  toggleBulletList,
+  toggleNumberedList,
 }: TextInspectorPanelProps) {
   const colorPopoverRef = useRef<HTMLDivElement>(null);
   const spacingPopoverRef = useRef<HTMLDivElement>(null);
   const [colorOpen, setColorOpen] = useState(false);
   const [spacingOpen, setSpacingOpen] = useState(false);
+  const [fontSizeDraft, setFontSizeDraft] = useState<string | null>(null);
+  const [isEditingFontSize, setIsEditingFontSize] = useState(false);
 
   const fillHex = toHexColor(textProps.fill, "#111827");
-  const charSpacing = Number(activeObjectSnapshot?.charSpacing ?? 0);
+  const charSpacing = Number(textProps.charSpacing ?? 0);
   const lineHeight = Number(textProps.lineHeight ?? 1.3);
-  const opacity = Number(activeObjectSnapshot?.opacity ?? 1);
+  const opacity = Number(textProps.opacity ?? 1);
+  const isUppercase = !!textProps.uppercaseEnabled;
+  const activeListMode = textProps.listMode || "none";
+  const activeWeight = Number(textProps.fontWeight ?? 400);
+  const activeStyle: "normal" | "italic" = textProps.fontStyle === "italic" ? "italic" : "normal";
+  const activeVariantId = textProps.fontVariantId || `${activeWeight}-${activeStyle}`;
+  const selectedFont = typedFontCatalog.find((font) => font.family === textProps.fontFamily);
+  const variants = selectedFont?.variants || [];
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
@@ -52,22 +68,56 @@ export function TextInspectorPanel({
     return () => document.removeEventListener("mousedown", close);
   }, []);
 
-  const applyList = (prefix: (i: number) => string) => {
-    const text = activeObjectSnapshot?.text ?? "";
-    const lines = text.split("\n");
-    const prefixed = lines.map((line, i) => `${prefix(i)} ${line}`).join("\n");
-    updateActiveObject({ text: prefixed });
+  useEffect(() => {
+    if (!isEditingFontSize) {
+      setFontSizeDraft(null);
+    }
+  }, [isEditingFontSize, textProps.fontSize]);
+
+  const commitFontSize = () => {
+    const parsed = parseInt(fontSizeDraft || "", 10);
+    if (!Number.isNaN(parsed)) {
+      const clamped = Math.max(1, Math.min(parsed, 500));
+      setTextProp({ fontSize: clamped });
+    }
+    setIsEditingFontSize(false);
+    setFontSizeDraft(null);
   };
 
-  const toggleUppercase = () => {
-    const text = activeObjectSnapshot?.text ?? "";
-    const isUpper = text === text.toUpperCase() && text.length > 0;
-    updateActiveObject({ text: isUpper ? text.toLowerCase() : text.toUpperCase() });
+  const handleVariantChange = async (variantId: string) => {
+    const font = typedFontCatalog.find((item) => item.family === textProps.fontFamily);
+    if (!font) return;
+    const variant = font.variants.find((item) => item.id === variantId);
+    if (!variant) return;
+
+    await ensureFontLoaded(font.family, variant);
+
+    setTextProp({
+      fontFamily: font.family,
+      fontWeight: variant.weight,
+      fontStyle: variant.style,
+      fontVariantId: variant.id,
+    });
   };
 
-  const isUppercase =
-    (activeObjectSnapshot?.text?.length ?? 0) > 0 &&
-    activeObjectSnapshot?.text === activeObjectSnapshot?.text?.toUpperCase();
+  const handleFontChange = async (family: string) => {
+    const font = typedFontCatalog.find((item) => item.family === family);
+    if (!font) return;
+
+    const defaultVariant =
+      font.variants.find((item) => item.weight === 400 && item.style === "normal") ||
+      font.variants[0];
+    if (!defaultVariant) return;
+
+    await ensureFontLoaded(family, defaultVariant);
+
+    setTextProp({
+      fontFamily: family,
+      fontWeight: defaultVariant.weight,
+      fontStyle: defaultVariant.style,
+      fontVariantId: defaultVariant.id,
+    });
+  };
 
   return (
     <div className="rounded-2xl bg-white border border-[#d6deeb] shadow-[0_6px_14px_rgba(30,64,175,0.08)] transition-shadow transition-colors duration-200 hover:shadow-lg hover:border-slate-400 p-4 space-y-4">
@@ -76,14 +126,30 @@ export function TextInspectorPanel({
       {/* 1. Font family */}
       <div>
         <label className="text-xs text-zinc-500 block mb-1">Font</label>
+        <FontPicker
+          fonts={typedFontCatalog}
+          value={textProps.fontFamily}
+          onSelect={(family) => {
+            void handleFontChange(family);
+          }}
+        />
+      </div>
+
+      <div>
+        <label className="text-xs text-zinc-500 block mb-1">Font Style</label>
         <div className="relative">
           <select
-            value={textProps.fontFamily}
-            onChange={(e) => setTextProp({ fontFamily: e.target.value })}
+            value={activeVariantId}
+            onChange={(e) => {
+              void handleVariantChange(e.target.value);
+            }}
             className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm appearance-none bg-white pr-8"
+            disabled={variants.length === 0}
           >
-            {FONTS.map((f) => (
-              <option key={f} value={f}>{f}</option>
+            {variants.map((variant) => (
+              <option key={variant.id} value={variant.id}>
+                {variant.label}
+              </option>
             ))}
           </select>
           <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400" />
@@ -105,10 +171,20 @@ export function TextInspectorPanel({
             type="number"
             min={8}
             max={200}
-            value={textProps.fontSize ?? 32}
+            value={isEditingFontSize ? (fontSizeDraft ?? "") : String(textProps.fontSize ?? "")}
             onChange={(e) => {
-              const n = parseInt(e.target.value, 10);
-              if (Number.isFinite(n)) setTextProp({ fontSize: Math.max(8, Math.min(200, n)) });
+              setFontSizeDraft(e.target.value);
+            }}
+            onFocus={() => {
+              setIsEditingFontSize(true);
+              setFontSizeDraft(String(textProps.fontSize ?? ""));
+            }}
+            onBlur={commitFontSize}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                commitFontSize();
+              }
             }}
             className="w-14 rounded-lg border border-zinc-200 px-2 py-1.5 text-sm text-center"
           />
@@ -179,16 +255,19 @@ export function TextInspectorPanel({
         <div className="flex gap-1 flex-wrap">
           <button
             type="button"
-            onClick={() => setTextProp({ fontWeight: textProps.fontWeight === "bold" ? "normal" : "bold" })}
-            className={`w-8 h-8 rounded-lg border flex items-center justify-center ${textProps.fontWeight === "bold" ? "bg-blue-600 text-white border-blue-600" : "border-zinc-200 hover:bg-zinc-50"}`}
+            onClick={() => setTextProp({ fontWeight: activeWeight >= 600 ? 400 : 700, fontVariantId: `${activeWeight >= 600 ? 400 : 700}-${activeStyle}` })}
+            className={`w-8 h-8 rounded-lg border flex items-center justify-center ${activeWeight >= 600 ? "bg-blue-600 text-white border-blue-600" : "border-zinc-200 hover:bg-zinc-50"}`}
             title="Bold"
           >
             <Bold size={16} />
           </button>
           <button
             type="button"
-            onClick={() => setTextProp({ fontStyle: textProps.fontStyle === "italic" ? "normal" : "italic" })}
-            className={`w-8 h-8 rounded-lg border flex items-center justify-center ${textProps.fontStyle === "italic" ? "bg-blue-600 text-white border-blue-600" : "border-zinc-200 hover:bg-zinc-50"}`}
+            onClick={() => {
+              const nextStyle: "normal" | "italic" = activeStyle === "italic" ? "normal" : "italic";
+              setTextProp({ fontStyle: nextStyle, fontVariantId: `${activeWeight}-${nextStyle}` });
+            }}
+            className={`w-8 h-8 rounded-lg border flex items-center justify-center ${activeStyle === "italic" ? "bg-blue-600 text-white border-blue-600" : "border-zinc-200 hover:bg-zinc-50"}`}
             title="Italic"
           >
             <Italic size={16} />
@@ -239,16 +318,16 @@ export function TextInspectorPanel({
         <div className="flex gap-1">
           <button
             type="button"
-            onClick={() => applyList(() => "•")}
-            className="w-8 h-8 rounded-lg border border-zinc-200 flex items-center justify-center hover:bg-zinc-50"
+            onClick={toggleBulletList}
+            className={`w-8 h-8 rounded-lg border flex items-center justify-center ${activeListMode === "bullet" ? "bg-blue-600 text-white border-blue-600" : "border-zinc-200 hover:bg-zinc-50"}`}
             title="Bullet list"
           >
             <List size={16} />
           </button>
           <button
             type="button"
-            onClick={() => applyList((i) => `${i + 1}.`)}
-            className="w-8 h-8 rounded-lg border border-zinc-200 flex items-center justify-center hover:bg-zinc-50"
+            onClick={toggleNumberedList}
+            className={`w-8 h-8 rounded-lg border flex items-center justify-center ${activeListMode === "number" ? "bg-blue-600 text-white border-blue-600" : "border-zinc-200 hover:bg-zinc-50"}`}
             title="Numbered list"
           >
             <ListOrdered size={16} />
@@ -342,7 +421,7 @@ export function TextInspectorPanel({
             min={0}
             max={100}
             value={Math.round(opacity * 100)}
-            onChange={(e) => updateActiveObject({ opacity: Number(e.target.value) / 100 })}
+            onChange={(e) => setTextProp({ opacity: Number(e.target.value) / 100 })}
             className="flex-1 h-2 rounded-full appearance-none bg-zinc-200 accent-blue-600"
           />
           <span className="text-xs text-zinc-500 w-8">{Math.round(opacity * 100)}%</span>

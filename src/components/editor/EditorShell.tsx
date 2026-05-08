@@ -4,7 +4,25 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, ChevronUp, Copy, Download, LayoutGrid, Plus, Redo2, Trash2, Undo2 } from "lucide-react";
+import {
+  AlignCenterHorizontal,
+  AlignEndHorizontal as AlignRight,
+  AlignHorizontalSpaceBetween,
+  AlignStartHorizontal as AlignLeft,
+  AlignVerticalJustifyCenter,
+  AlignVerticalJustifyEnd,
+  AlignVerticalJustifyStart,
+  AlignVerticalSpaceBetween,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Download,
+  LayoutGrid,
+  Plus,
+  Redo2,
+  Trash2,
+  Undo2,
+} from "lucide-react";
 import { useFabricEditor } from "@/components/editor/useFabricEditor";
 import { EditorSidebar } from "@/components/editor/sidebar/EditorSidebar";
 import { TextInspectorPanel } from "@/components/editor/TextInspectorPanel";
@@ -51,7 +69,7 @@ function sanitizeFabricObject(obj: any): any | null {
   }
 
   // Skip image objects without src
-  if (obj.type === "image" && !obj.src) {
+  if (String(obj.type || "").toLowerCase() === "image" && !obj.src) {
     console.warn("[save] Skipping image object without src");
     return null;
   }
@@ -140,11 +158,10 @@ function makeThumbnailFromCanvasEl(canvasEl: HTMLCanvasElement, maxW = 360): str
   }
 }
 
-type EditorShellProps = {
-  initialTemplateId?: string | null;
-  docId?: string | null;
-  mode: "template" | "new";
-};
+type EditorShellProps =
+  | { variant: "new"; templateId?: never; docId?: never }
+  | { variant: "template"; templateId: string; docId?: never }
+  | { variant: "doc"; docId: string; templateId?: never };
 
 const PAGE_HEADER_HEIGHT = 48;
 const PAGE_GAP = 48;
@@ -179,9 +196,9 @@ function getAvatarColor(name: string | null | undefined): string {
 }
 
 export default function EditorShell({
-  initialTemplateId,
+  templateId,
   docId,
-  mode,
+  variant,
 }: EditorShellProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -210,7 +227,18 @@ export default function EditorShell({
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const [avatarImageError, setAvatarImageError] = useState(false);
 
-  const editor = useFabricEditor({ mode, initialTemplateId, docId });
+  const editorParams =
+    variant === "doc"
+      ? ({ variant, docId } as const)
+      : variant === "template"
+        ? ({ variant, templateId } as const)
+        : ({ variant: "new" } as const);
+
+  const editor = useFabricEditor(editorParams);
+
+  const positionToolBtn =
+    "border border-zinc-200 rounded-lg h-9 px-3 flex items-center justify-center gap-2 text-zinc-600 hover:bg-zinc-100 hover:shadow-sm active:scale-[0.97] transition-transform";
+  const iconSize = 16;
 
   useEffect(() => {
     setAvatarImageError(false);
@@ -653,15 +681,15 @@ export default function EditorShell({
                     : null;
 
                   const ref = doc(db, "users", u.uid, "resume_docs", newDocId);
-                  const templateId = initialTemplateId ?? "blank";
+                  const sourceTemplateId = templateId ?? "blank";
 
                   const zoomBeforeSave = editor.getZoom?.() ?? editor.zoom ?? 1;
                   console.log("[save] zoom before save:", zoomBeforeSave);
 
                   rawPayload = {
                     title: safeName,
-                    templateId: templateId ?? "blank",
-                    sourceTemplateId: templateId ?? "blank",
+                    templateId: sourceTemplateId,
+                    sourceTemplateId: sourceTemplateId,
                     pageSize: editor.pageSize ?? "A4",
                     updatedAt: serverTimestamp(),
                     zoom: zoomBeforeSave,
@@ -773,7 +801,7 @@ export default function EditorShell({
                   console.log("[save] zoom after save:", zoomAfterSave);
 
                   if (!existingId) {
-                    router.replace(`/editor/${newDocId}`);
+                    router.replace(`/editor/doc/${newDocId}`);
                   }
                 } catch (err: any) {
                   console.error("[save] Failed:", err?.name, err?.message, err);
@@ -822,7 +850,7 @@ export default function EditorShell({
             className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-[#ebecf0] flex flex-col items-center"
           >
             <FloatingSelectionToolbar
-              visible={editor.hasSelection}
+              visible={editor.hasSelection && !editor.isRotatingObject}
               position={toolbarPosition}
               isMultipleSelection={!!editor.canGroup}
               canGroup={!!editor.canGroup}
@@ -1195,44 +1223,110 @@ export default function EditorShell({
             </button>
 
             {openSection === "position" && (
-              <div className="px-4 pb-3 grid grid-cols-3 gap-2">
-                <button
-                  onClick={() => editor.alignSelected?.("left")}
-                  className="border rounded py-1 text-xs"
-                >
-                  Left
-                </button>
-                <button
-                  onClick={() => editor.alignSelected?.("centerX")}
-                  className="border rounded py-1 text-xs"
-                >
-                  Center
-                </button>
-                <button
-                  onClick={() => editor.alignSelected?.("right")}
-                  className="border rounded py-1 text-xs"
-                >
-                  Right
-                </button>
+              <div className="px-4 pb-3 space-y-3">
+                <div>
+                  <div className="text-[11px] uppercase tracking-wide text-zinc-500 mb-2">
+                    Align Elements
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      title="Align left"
+                      onClick={() => editor.alignSelected?.("left")}
+                      className={positionToolBtn}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <AlignLeft size={iconSize} strokeWidth={1.75} />
+                        <span className="text-xs font-medium">Left</span>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      title="Align center horizontally"
+                      onClick={() => editor.alignSelected?.("centerX")}
+                      className={positionToolBtn}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <AlignCenterHorizontal size={iconSize} strokeWidth={1.75} />
+                        <span className="text-xs font-medium">Center</span>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      title="Align right"
+                      onClick={() => editor.alignSelected?.("right")}
+                      className={positionToolBtn}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <AlignRight size={iconSize} strokeWidth={1.75} />
+                        <span className="text-xs font-medium">Right</span>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      title="Align top"
+                      onClick={() => editor.alignSelected?.("top")}
+                      className={positionToolBtn}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <AlignVerticalJustifyStart size={iconSize} strokeWidth={1.75} />
+                        <span className="text-xs font-medium">Top</span>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      title="Align middle"
+                      onClick={() => editor.alignSelected?.("middle")}
+                      className={positionToolBtn}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <AlignVerticalJustifyCenter size={iconSize} strokeWidth={1.75} />
+                        <span className="text-xs font-medium">Middle</span>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      title="Align bottom"
+                      onClick={() => editor.alignSelected?.("bottom")}
+                      className={positionToolBtn}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <AlignVerticalJustifyEnd size={iconSize} strokeWidth={1.75} />
+                        <span className="text-xs font-medium">Bottom</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
 
-                <button
-                  onClick={() => editor.alignSelected?.("top")}
-                  className="border rounded py-1 text-xs"
-                >
-                  Top
-                </button>
-                <button
-                  onClick={() => editor.alignSelected?.("middle")}
-                  className="border rounded py-1 text-xs"
-                >
-                  Middle
-                </button>
-                <button
-                  onClick={() => editor.alignSelected?.("bottom")}
-                  className="border rounded py-1 text-xs"
-                >
-                  Bottom
-                </button>
+                <div>
+                  <div className="text-[11px] uppercase tracking-wide text-zinc-500 mb-2">
+                    Space evenly
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      title="Distribute horizontally"
+                      onClick={() => editor.distributeSelected?.("horizontal")}
+                      className={positionToolBtn}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <AlignHorizontalSpaceBetween size={iconSize} strokeWidth={1.75} />
+                        <span className="text-xs font-medium">Horizontal</span>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      title="Distribute vertically"
+                      onClick={() => editor.distributeSelected?.("vertical")}
+                      className={positionToolBtn}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <AlignVerticalSpaceBetween size={iconSize} strokeWidth={1.75} />
+                        <span className="text-xs font-medium">Vertical</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 

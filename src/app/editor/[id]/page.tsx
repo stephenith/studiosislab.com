@@ -1,5 +1,4 @@
-import EditorShell from "@/components/editor/EditorShell";
-import { EditorAuthGate } from "@/components/editor/EditorAuthGate";
+import { redirect } from "next/navigation";
 import { SYSTEM_TEMPLATE_IDS } from "@/data/systemTemplates/registry";
 
 export default async function EditorTemplatePage({
@@ -19,45 +18,17 @@ export default async function EditorTemplatePage({
 
   const isTemplate = SYSTEM_TEMPLATE_IDS.includes(normalizedId);
 
-  // 1️⃣ Blank editor
   if (normalizedId === "new") {
-    return (
-      <EditorAuthGate>
-        <div className="h-screen flex flex-col">
-          <EditorShell mode="new" />
-        </div>
-      </EditorAuthGate>
-    );
+    redirect("/editor/new");
   }
 
-  // 2️⃣ Load template
   if (isTemplate) {
-    return (
-      <EditorAuthGate>
-        <div className="h-screen flex flex-col">
-          <EditorShell mode="template" initialTemplateId={normalizedId} />
-        </div>
-      </EditorAuthGate>
-    );
+    redirect(`/editor/template/${normalizedId}`);
   }
 
-  // 3️⃣ Load saved document
   if (isUuid) {
-    return (
-      <EditorAuthGate>
-        <div className="h-screen flex flex-col">
-          <EditorShell mode="template" docId={rawId} />
-        </div>
-      </EditorAuthGate>
-    );
+    redirect(`/editor/doc/${rawId}`);
   }
 
-  // 4️⃣ Fallback → blank editor
-  return (
-    <EditorAuthGate>
-      <div className="h-screen flex flex-col">
-        <EditorShell mode="new" />
-      </div>
-    </EditorAuthGate>
-  );
+  redirect("/editor/new");
 }

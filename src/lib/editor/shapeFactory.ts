@@ -104,6 +104,12 @@ export function createShapeFromDefinition(def: ShapeDefinition, pageSize: PageSi
         strokeWidth: def.defaultStyle.strokeWidth,
         opacity: def.defaultStyle.opacity,
         strokeUniform: true,
+        selectable: true,
+        evented: true,
+        lockRotation: false,
+        padding: 10,
+        snapAngle: 45,
+        snapThreshold: 5,
       });
       break;
     }

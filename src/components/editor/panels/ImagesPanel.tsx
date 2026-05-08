@@ -37,25 +37,49 @@ export function ImagesPanel({ onClose, editor }: ImagesPanelProps) {
   }, [search]);
 
   useEffect(() => {
-    const controller = new AbortController();
-    setLoading(true);
-    setLoadError(null);
+    if (!debouncedSearch || !debouncedSearch.trim()) {
+      setResults([]);
+      return;
+    }
 
-    fetch(`/api/images/search?q=${encodeURIComponent(debouncedSearch)}`, {
-      signal: controller.signal,
-    })
-      .then(async (res) => {
+    const controller = new AbortController();
+
+    const run = async () => {
+      try {
+        setLoading(true);
+        setLoadError(null);
+
+        const res = await fetch(
+          `/api/images/search?q=${encodeURIComponent(debouncedSearch)}`,
+          { signal: controller.signal }
+        );
+
+        if (!res.ok) {
+          throw new Error("Request failed");
+        }
+
         const json = await res.json();
+
+        if (controller.signal.aborted) return;
+
         setResults(Array.isArray(json?.items) ? json.items : []);
-      })
-      .catch((err: any) => {
-        if (err?.name === "AbortError") return;
+      } catch (err: any) {
+        if (err?.name === "AbortError" || controller.signal.aborted) {
+          return;
+        }
+
+        console.error("[ImagesPanel] fetch failed:", err);
+
         setResults([]);
         setLoadError("Unable to load images");
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    run();
 
     return () => {
       controller.abort();

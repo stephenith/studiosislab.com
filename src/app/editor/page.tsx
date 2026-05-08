@@ -5,7 +5,7 @@ export default function EditorRootPage() {
   return (
     <EditorAuthGate>
       <div className="h-screen flex flex-col">
-        <EditorShell mode="new" />
+        <EditorShell variant="new" />
       </div>
     </EditorAuthGate>
   );

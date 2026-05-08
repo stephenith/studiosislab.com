@@ -33,8 +33,9 @@ const stripUndefinedDeep = (value: any): any => sanitizeJSON(value);
 /** Sanitize Fabric object: remove invalid path/image, delete undefined path. */
 const sanitizeFabricObject = (obj: any): any | null => {
   if (!obj || typeof obj !== "object") return obj;
-  if (obj.type === "path" && (!Array.isArray(obj.path) || obj.path.length === 0)) return null;
-  if (obj.type === "image") {
+  const normalizedType = String(obj.type || "").toLowerCase();
+  if (normalizedType === "path" && (!Array.isArray(obj.path) || obj.path.length === 0)) return null;
+  if (normalizedType === "image") {
     const hasSrc =
       obj.src ||
       (obj as any)._element?.src ||
@@ -47,7 +48,7 @@ const sanitizeFabricObject = (obj: any): any | null => {
   }
   const cleaned = { ...obj };
   // Ensure Fabric loadFromJSON sees top-level src when only stored under data
-  if (obj.type === "image" && cleaned.src == null && obj.data?.src) {
+  if (normalizedType === "image" && cleaned.src == null && obj.data?.src) {
     cleaned.src = obj.data.src;
   }
   if (cleaned.path === undefined) delete cleaned.path;

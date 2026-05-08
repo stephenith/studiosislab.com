@@ -9,6 +9,8 @@ import {
   FlipHorizontal,
   FlipVertical,
   Check,
+  RotateCcw,
+  RotateCw,
 } from "lucide-react";
 import { Rect } from "fabric";
 import type { ImageProps } from "@/types/editor";
@@ -36,6 +38,12 @@ function getBorderStyleFromDashArray(
   return "solid";
 }
 
+function normalizeAngle(value: number): number {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  return ((n % 360) + 360) % 360;
+}
+
 export interface ImageInspectorPanelProps {
   imageProps: ImageProps;
   activeObjectSnapshot: {
@@ -48,6 +56,7 @@ export interface ImageInspectorPanelProps {
     flipX?: boolean;
     flipY?: boolean;
     opacity?: number;
+    angle?: number;
   } | null;
   updateActiveObject: (patch: Record<string, unknown>) => void;
   updateActiveObjectLive?: (patch: Record<string, unknown>) => void;
@@ -94,6 +103,7 @@ export function ImageInspectorPanel({
 
   const flipX = activeObjectSnapshot?.flipX ?? false;
   const flipY = activeObjectSnapshot?.flipY ?? false;
+  const angle = normalizeAngle(Number(activeObjectSnapshot?.angle ?? 0));
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
@@ -149,6 +159,15 @@ export function ImageInspectorPanel({
 
   const setFlipX = () => updateActiveObject({ flipX: !flipX });
   const setFlipY = () => updateActiveObject({ flipY: !flipY });
+  const setAngle = (value: number) =>
+    updateActiveObject({
+      angle: normalizeAngle(value),
+      lockRotation: false,
+      hasControls: true,
+      padding: 10,
+      snapAngle: 45,
+      snapThreshold: 5,
+    });
 
   const isCropping = !!imageProps?.isCropping;
   const adjustments = imageProps?.adjustments;
@@ -403,6 +422,36 @@ export function ImageInspectorPanel({
           </div>
         </div>
       )}
+
+      <div>
+        <label className="text-xs text-zinc-500 block mb-1">Rotation</label>
+        <div className="flex gap-2 items-center">
+          <button
+            type="button"
+            onClick={() => setAngle(angle - 15)}
+            className="h-9 px-3 rounded-lg border border-zinc-200 hover:bg-zinc-50 flex items-center justify-center"
+            title="Rotate left 15 degrees"
+          >
+            <RotateCcw size={16} />
+          </button>
+          <input
+            type="number"
+            min={0}
+            max={360}
+            value={Math.round(angle)}
+            onChange={(e) => setAngle(Number(e.target.value))}
+            className="flex-1 h-9 rounded-lg border border-zinc-200 px-2 text-sm text-center"
+          />
+          <button
+            type="button"
+            onClick={() => setAngle(angle + 15)}
+            className="h-9 px-3 rounded-lg border border-zinc-200 hover:bg-zinc-50 flex items-center justify-center"
+            title="Rotate right 15 degrees"
+          >
+            <RotateCw size={16} />
+          </button>
+        </div>
+      </div>
 
       {/* Opacity from imageProps */}
       <div>

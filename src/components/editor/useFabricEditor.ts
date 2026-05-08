@@ -12,14 +12,18 @@ import {
 } from "fabric";
 import * as FabricNS from "fabric";
 import { jsPDF } from "jspdf";
-import { TEMPLATE_SNAPSHOTS } from "@/data/templates";
 import { getSystemTemplateById } from "@/data/systemTemplates/registry";
 import { toHexColor } from "@/lib/color";
+import { auth } from "@/lib/firebase";
 import { useAuthUser } from "@/lib/useAuthUser";
 import { createResumeDoc, getResumeDoc, updateResumeDoc } from "@/lib/resumeDocs";
 import { generateResumeThumbnail } from "@/lib/resumePreviewExport";
+import {
+  deleteOldAssets,
+  getAsset,
+  updateLastAccess as touchLocalAsset,
+} from "@/lib/localAssets";
 import type {
-  EditorMode,
   PageSize,
   SelectionType,
   AlignAction,
@@ -83,6 +87,30 @@ function refreshCanvasOffset(canvas: any) {
   });
 }
 
+function generateThumbnailFromCanvas(canvas: any) {
+  try {
+    if (!canvas) {
+      console.error("Thumbnail: canvas not found");
+      return null;
+    }
+
+    const dataUrl = canvas.toDataURL({
+      format: "png",
+      quality: 1,
+      multiplier: 1,
+    });
+
+    console.log("Thumbnail generated");
+
+  
+
+    return dataUrl;
+  } catch (e) {
+    console.error("Thumbnail generation failed", e);
+    return null;
+  }
+}
+
 function isShapeType(type: string, shapeKind?: string) {
   const normalizedType = String(type || "").toLowerCase();
   const normalizedKind = String(shapeKind || "").toLowerCase();
@@ -102,19 +130,267 @@ const LOCAL_AUTOSAVE_THROTTLE_MS = 500;
 const CLOUD_AUTOSAVE_DEBOUNCE_MS = 3000;
 const CLOUD_AUTOSAVE_INTERVAL_MS = 45000;
 
+const AUTOSAVE_META_PREFIX = "slb:autosave:meta:";
+
+type AutosaveLocalStorageMeta = {
+  docId: string | null;
+  revision: number;
+  updatedAt: number;
+  hash: string;
+  hasPendingSync: boolean;
+};
+
+type AutosaveIdbRecordLike = {
+  snapshot: any;
+  history?: { undo: any[]; redo: any[] };
+  revision: number;
+  updatedAt: number;
+  hash?: string;
+};
+
+function readLocalStorageAutosaveMetaForKey(docKey: string): AutosaveLocalStorageMeta | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(AUTOSAVE_META_PREFIX + docKey);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    return parsed as AutosaveLocalStorageMeta;
+  } catch {
+    return null;
+  }
+}
+
+function removeLocalStorageAutosaveMetaForDocKey(docKey: string) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(AUTOSAVE_META_PREFIX + docKey);
+  } catch {}
+}
+
+function isPageBackgroundishJsonForAutosave(o: any): boolean {
+  if (!o || typeof o !== "object") return false;
+  if (o.role === "grid") return true;
+  if (o.isPageBg === true) return true;
+  const r = o.role;
+  if (r === "pageBackground" || r === "page-bg" || r === "pageBg") return true;
+  const n = o.name;
+  if (n === "Page Background" || n === "pageBackground" || n === "page-bg") return true;
+  if (o.data?.role === "pageBackground" || o.data?.kind === "page-bg") return true;
+  return false;
+}
+
+function countMeaningfulObjectsInJsonSnapshot(snap: any): number {
+  if (!snap || typeof snap !== "object") return 0;
+  const list = Array.isArray(snap.objects) ? snap.objects : [];
+  let n = 0;
+  for (const o of list) {
+    if (o && !isPageBackgroundishJsonForAutosave(o)) n += 1;
+  }
+  return n;
+}
+
+function isMeaningfulContentSnapshot(snap: any): boolean {
+  return countMeaningfulObjectsInJsonSnapshot(snap) > 0;
+}
+
+function hasMeaningfulContentToSave(payload: any): boolean {
+  if (Array.isArray(payload)) {
+    return payload.some((page) => isMeaningfulContentSnapshot(page));
+  }
+  return isMeaningfulContentSnapshot(payload);
+}
+
+function toEpochMetaMs(value: any): number {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (value && typeof (value as any).toMillis === "function")
+    return Number((value as any).toMillis()) || 0;
+  const p = Date.parse(String(value ?? ""));
+  return Number.isFinite(p) ? p : 0;
+}
+
+/**
+ * When local version should be applied over the loaded server doc
+ * (same conditions as the original single-key restore, with meta read from any doc key if needed).
+ */
+function localDraftBeatsServerDoc(
+  draft: AutosaveIdbRecordLike | null,
+  meta: AutosaveLocalStorageMeta | null,
+  docAutosaveRevision: number,
+  docUpdatedAt: any
+): boolean {
+  if (!draft?.snapshot) return false;
+  const localRevision = Number(meta?.revision ?? draft?.revision ?? 0);
+  const remoteRevision = Number(docAutosaveRevision || 0);
+  if (localRevision > remoteRevision) return true;
+  if (localRevision < remoteRevision) return false;
+  const updated = meta != null ? meta.updatedAt : draft?.updatedAt;
+  return (
+    (Array.isArray(draft?.history?.undo) && draft.history.undo.length > 1) ||
+    !!meta?.hasPendingSync ||
+    toEpochMetaMs(updated) >= toEpochMetaMs(docUpdatedAt)
+  );
+}
+
+/**
+ * Migrate anonymous → signed key only when it would not clobber a richer or newer signed-in draft.
+ */
+function shouldTakeAnonymousDraftOverSigned(
+  signedDraft: AutosaveIdbRecordLike | null,
+  signedMeta: AutosaveLocalStorageMeta | null,
+  anonDraft: AutosaveIdbRecordLike,
+  anonMeta: AutosaveLocalStorageMeta | null
+): boolean {
+  if (!isMeaningfulContentSnapshot(anonDraft.snapshot)) return false;
+  const aCount = countMeaningfulObjectsInJsonSnapshot(anonDraft.snapshot);
+  const aRev = Number(anonMeta?.revision ?? anonDraft.revision ?? 0);
+  if (!signedDraft?.snapshot) return aCount > 0;
+  const sCount = countMeaningfulObjectsInJsonSnapshot(signedDraft.snapshot);
+  const sRev = Number(signedMeta?.revision ?? signedDraft.revision ?? 0);
+  if (sCount > aCount) return false;
+  if (aCount > sCount) return true;
+  if (aRev > sRev) return true;
+  if (aRev < sRev) return false;
+  return false;
+}
+
+/** True if serialized canvas payload includes an image `src` data URL (Firestore 1 MiB risk). */
+function fabricSavePayloadHasDataImageSrc(payload: unknown): boolean {
+  try {
+    return /"src"\s*:\s*"data:/.test(JSON.stringify(payload));
+  } catch {
+    return true;
+  }
+}
+
+function normalizeAngleDegrees(value: number): number {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  return ((n % 360) + 360) % 360;
+}
+
+type LocalImageMeta = {
+  slbAssetId?: string;
+  slbSource?: "local" | "cloud" | "template";
+};
+
+const TEMPLATE_IMAGE_FALLBACK_SRC = "/templates/avatar-placeholder.png";
+
+function walkFabricLikeTree(root: any, onNode: (node: any) => void): void {
+  const seen = new WeakSet<object>();
+  const visit = (value: any) => {
+    if (!value || typeof value !== "object") return;
+    if (Array.isArray(value)) {
+      for (const item of value) visit(item);
+      return;
+    }
+    if (seen.has(value)) return;
+    seen.add(value);
+    onNode(value);
+    for (const nested of Object.values(value)) {
+      if (nested && typeof nested === "object") visit(nested);
+    }
+  };
+  visit(root);
+}
+
+function isPortableImageSrc(src: string): boolean {
+  const normalized = String(src || "").trim().toLowerCase();
+  if (!normalized) return false;
+  if (normalized.startsWith("data:")) return true;
+  if (normalized.startsWith("http://")) return true;
+  if (normalized.startsWith("https://")) return true;
+  if (normalized.startsWith("/")) return true;
+  return false;
+}
+
+function sanitizeImageSourcesForLoad(
+  payload: any,
+  opts?: { stripLocalAssetFields?: boolean; fallbackSrc?: string }
+): { blobCount: number; missingSrcCount: number; invalidSrcCount: number } {
+  const fallbackSrc = String(opts?.fallbackSrc || TEMPLATE_IMAGE_FALLBACK_SRC);
+  let blobCount = 0;
+  let missingSrcCount = 0;
+  let invalidSrcCount = 0;
+
+  walkFabricLikeTree(payload, (node) => {
+    if (!node || typeof node !== "object") return;
+    const type = String((node as any).type || "").toLowerCase();
+    if (opts?.stripLocalAssetFields && String((node as any).slbSource || "").toLowerCase() === "local") {
+      delete (node as any).slbSource;
+      delete (node as any).slbAssetId;
+    }
+    if (type !== "image") return;
+    const src = String((node as any).src || "").trim();
+    if (!src) {
+      (node as any).src = fallbackSrc;
+      missingSrcCount += 1;
+      return;
+    }
+    if (src.toLowerCase().startsWith("blob:")) {
+      (node as any).src = fallbackSrc;
+      blobCount += 1;
+      return;
+    }
+    if (!isPortableImageSrc(src)) {
+      (node as any).src = fallbackSrc;
+      invalidSrcCount += 1;
+    }
+  });
+
+  return { blobCount, missingSrcCount, invalidSrcCount };
+}
+
+async function hydrateLocalImageSourcesInJson(
+  payload: any,
+  onObjectUrlCreated?: (url: string) => void
+): Promise<void> {
+  const walk = async (node: any): Promise<void> => {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) {
+      await Promise.all(node.map((item) => walk(item)));
+      return;
+    }
+
+    const source = String((node as LocalImageMeta).slbSource || "").toLowerCase();
+    const assetId = String((node as LocalImageMeta).slbAssetId || "").trim();
+    const isImage = String(node.type || "").toLowerCase() === "image";
+    if (isImage && source === "local" && assetId) {
+      const blob = await getAsset(assetId);
+      if (blob) {
+        const localUrl = URL.createObjectURL(blob);
+        node.src = localUrl;
+        onObjectUrlCreated?.(localUrl);
+        void touchLocalAsset(assetId).catch(() => {});
+      }
+    }
+
+    if (Array.isArray(node.objects)) {
+      await Promise.all(node.objects.map((item: any) => walk(item)));
+    }
+  };
+
+  await walk(payload);
+}
+
 type AutosaveStatus = "saving" | "syncing" | "synced" | "offlinePending" | null;
 
+type UseFabricEditorParams =
+  | { variant: "new"; templateId?: never; docId?: never }
+  | { variant: "template"; templateId: string; docId?: never }
+  | { variant: "doc"; docId: string; templateId?: never };
+
 export function useFabricEditor({
-  mode,
-  initialTemplateId,
-  docId: docIdParam,
-}: {
-  mode: EditorMode;
-  initialTemplateId?: string | null;
-  docId?: string | null;
-}) {
+  variant,
+  templateId: templateIdInput,
+  docId: docIdInput,
+}: UseFabricEditorParams) {
+  const mode = variant;
+  const initialTemplateId = templateIdInput;
+  const docIdParam = docIdInput;
   const canvasRef = useRef<Canvas | null>(null);
   const pageCanvasesRef = useRef<Map<string, Canvas>>(new Map());
+  const pageCanvasElementsRef = useRef<Map<string, HTMLCanvasElement>>(new Map());
   const pendingPageLoadRef = useRef<Map<string, any>>(new Map());
   const pageIdCounterRef = useRef(1);
   const gridGroupRef = useRef<any>(null);
@@ -136,6 +412,7 @@ export function useFabricEditor({
   const lastHostSizeRef = useRef<{ w: number; h: number } | null>(null);
   const zoomModeRef = useRef<"fitWidth" | "manual">("fitWidth");
   const isLoadingDocRef = useRef(false);
+  const hasInitialDocLoadCompletedRef = useRef(false);
   const hadStoredZoomRef = useRef(false);
   const docRevisionRef = useRef(0);
   const autosaveRevisionRef = useRef(0);
@@ -158,6 +435,7 @@ export function useFabricEditor({
     image: any;
     canvas: Canvas;
   } | null>(null);
+  const localAssetObjectUrlsRef = useRef<Set<string>>(new Set());
   const exitCropModeRef = useRef<(() => void) | null>(null);
   const [isInImageFrameCropMode, setIsInImageFrameCropMode] = useState(false);
   const setCropModeStateRef = useRef<(v: boolean) => void>(() => {});
@@ -237,20 +515,11 @@ export function useFabricEditor({
   const [eraserSize, setEraserSize] = useState(20);
   const [layers, setLayers] = useState<LayerItem[]>([]);
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
+  const [isRotatingObject, setIsRotatingObject] = useState(false);
   const [hasSelection, setHasSelection] = useState(false);
   const [cloudDocId, setCloudDocId] = useState<string | null>(null);
   const [resolvedDocId, setResolvedDocId] = useState<string>(() => {
-    const fromParam = String(docIdParam || "").trim();
-    if (fromParam) return fromParam;
-    if (typeof window === "undefined") return "";
-    if (mode !== "template") return "";
-    const templateId = String(initialTemplateId || "").toLowerCase().trim();
-    if (!templateId) return "";
-    try {
-      return String(window.localStorage.getItem(`lastDocIdForTemplate:${templateId}`) || "").trim();
-    } catch {
-      return "";
-    }
+    return mode === "doc" ? String(docIdParam || "").trim() : "";
   });
   const [docTitle, setDocTitle] = useState<string | null>(null);
   const [docCreatedAt, setDocCreatedAt] = useState<any>(null);
@@ -283,6 +552,11 @@ export function useFabricEditor({
   const prevActivePageIdRef = useRef<string | null>(null);
   const { user, loading: authLoading } = useAuthUser();
   const getCanvas = useCallback(() => canvasRef.current, []);
+  const isUuid = useCallback((value: string) => {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      String(value || "").trim()
+    );
+  }, []);
   const persistTemplateDocPointer = useCallback(
     (nextDocId: string | null) => {
       if (typeof window === "undefined") return;
@@ -299,26 +573,12 @@ export function useFabricEditor({
   );
   useEffect(() => {
     const fromParam = String(docIdParam || "").trim();
-    if (fromParam) {
+    if (mode === "doc") {
       setResolvedDocId(fromParam);
       return;
     }
-    if (mode !== "template") {
-      setResolvedDocId("");
-      return;
-    }
-    const templateId = String(initialTemplateId || "").toLowerCase().trim();
-    if (!templateId) {
-      setResolvedDocId("");
-      return;
-    }
-    try {
-      const pointer = String(window.localStorage.getItem(`lastDocIdForTemplate:${templateId}`) || "").trim();
-      setResolvedDocId(pointer);
-    } catch {
-      setResolvedDocId("");
-    }
-  }, [docIdParam, initialTemplateId, mode]);
+    setResolvedDocId("");
+  }, [docIdParam, mode]);
   const logTextSync = useCallback((mode: "hydrate" | "apply") => {
     if (process.env.NODE_ENV !== "development") return;
     console.log("[text-sync]", mode);
@@ -468,6 +728,34 @@ export function useFabricEditor({
     return p[Math.max(0, Math.min(i, p.length - 1))]?.id;
   }, [activePageIndex]);
 
+  const applyRotationDefaults = useCallback((obj: any) => {
+    if (!obj || typeof obj !== "object") return;
+    const role = String(obj?.role || obj?.data?.role || "").toLowerCase();
+    if (
+      role === "grid" ||
+      role === "pagebackground" ||
+      role === "image-crop-rect" ||
+      role === "image-crop-dim"
+    ) {
+      return;
+    }
+    const type = String(obj.type || "").toLowerCase();
+    const isShape = isShapeType(type, obj?.data?.shapeKind);
+    const isImage = type === "image";
+    const isLine = type === "line" || String(obj?.data?.shapeKind || "").toLowerCase() === "line";
+    if (!isShape && !isImage && !isLine) return;
+    obj.set?.({
+      hasControls: true,
+      lockRotation: false,
+      padding: 10,
+      snapAngle: 45,
+      snapThreshold: 5,
+      angle: normalizeAngleDegrees(Number(obj?.angle ?? 0)),
+    });
+    obj.setControlsVisibility?.({ mtr: true });
+    obj.setCoords?.();
+  }, []);
+
   const createPageId = useCallback(() => {
     pageIdCounterRef.current += 1;
     return `page-${pageIdCounterRef.current}`;
@@ -510,6 +798,8 @@ export function useFabricEditor({
           "role",
           "name",
           "slbId",
+          "slbAssetId",
+          "slbSource",
           "isPageBg",
           "locked",
           "hidden",
@@ -853,6 +1143,8 @@ export function useFabricEditor({
       "role",
       "name",
       "slbId",
+      "slbAssetId",
+      "slbSource",
       "isPageBg",
       "locked",
       "hidden",
@@ -862,9 +1154,14 @@ export function useFabricEditor({
   }, []);
 
   const getDraftKey = useCallback(() => {
-    const id = mode === "new" ? "new" : String(initialTemplateId || "new");
+    const id =
+      mode === "doc"
+        ? String(resolvedDocId || docIdParam || "doc")
+        : mode === "template"
+          ? String(initialTemplateId || "template")
+          : "new";
     return `slb:draft:${id}`;
-  }, [initialTemplateId, mode]);
+  }, [docIdParam, initialTemplateId, mode, resolvedDocId]);
 
   const serializeForDraft = useCallback(() => {
     const c = getCanvas();
@@ -876,6 +1173,8 @@ export function useFabricEditor({
       "role",
       "name",
       "slbId",
+      "slbAssetId",
+      "slbSource",
       "isPageBg",
       "locked",
       "hidden",
@@ -899,6 +1198,8 @@ export function useFabricEditor({
         "role",
         "name",
         "slbId",
+        "slbAssetId",
+        "slbSource",
         "isPageBg",
         "locked",
         "hidden",
@@ -926,7 +1227,14 @@ export function useFabricEditor({
       title?: string,
       opts?: { autosaveRevision?: number; autosaveHash?: string | null }
     ) => {
-      if (!user) {
+      const templateId = (initialTemplateId || "").toLowerCase().trim();
+      const isTemplateId = !!getSystemTemplateById(templateId);
+      const isDocMode = mode === "doc";
+      if (isDocMode && !hasInitialDocLoadCompletedRef.current) {
+        return null;
+      }
+      const resolvedUser = user ?? auth.currentUser;
+      if (!resolvedUser) {
         console.warn("[save] No user logged in");
         return null;
       }
@@ -935,9 +1243,19 @@ export function useFabricEditor({
       const canvasJson = hasMultiplePages ? undefined : getCanvasJsonForSave();
       const dataToSave = hasMultiplePages ? pagesData : canvasJson;
       if (!dataToSave) return null;
+      if (cloudDocId && !hasMeaningfulContentToSave(dataToSave)) {
+        console.warn("[save] Skipping Firestore write: payload has no meaningful objects.");
+        return null;
+      }
+      if (fabricSavePayloadHasDataImageSrc(dataToSave)) {
+        console.warn(
+          "[save] Skipping Firestore write: canvas JSON contains image data: URLs (keeps document under size limits; use Storage URLs)."
+        );
+        return null;
+      }
       const nextTitle = title || docTitle || "Untitled Resume";
       const common = {
-        uid: user.uid,
+        uid: resolvedUser.uid,
         title: nextTitle,
         pageSize,
         zoom,
@@ -959,9 +1277,7 @@ export function useFabricEditor({
         persistTemplateDocPointer(cloudDocId);
         return { docId: cloudDocId, isNew: false };
       }
-      const templateId = (initialTemplateId || "").toLowerCase().trim();
-      const isTemplate = !!getSystemTemplateById(templateId);
-      const sourceTemplateId = isTemplate ? templateId : null;
+      const sourceTemplateId = mode === "template" && isTemplateId ? templateId : null;
       const newDocId = await createResumeDoc({
         ...common,
         sourceTemplateId,
@@ -981,19 +1297,30 @@ export function useFabricEditor({
       initialTemplateId,
       pageSize,
       persistTemplateDocPointer,
+      mode,
+      resolvedDocId,
       user,
       zoom,
     ]
   );
 
   const getAutosaveDocKey = useCallback(() => {
-    const uid = user?.uid || "anonymous";
+    const resolvedUser = user ?? auth.currentUser;
+    const uid = resolvedUser?.uid || "anonymous";
     const sourceId =
       cloudDocId ||
       resolvedDocId ||
       `${mode}:${String(initialTemplateId || "blank").toLowerCase().trim()}`;
     return `${uid}:${sourceId}`;
-  }, [cloudDocId, initialTemplateId, mode, resolvedDocId, user?.uid]);
+  }, [cloudDocId, initialTemplateId, mode, resolvedDocId, user]);
+
+  const getAutosaveSourceId = useCallback((): string => {
+    return (
+      cloudDocId ||
+      resolvedDocId ||
+      `${mode}:${String(initialTemplateId || "blank").toLowerCase().trim()}`
+    );
+  }, [cloudDocId, initialTemplateId, mode, resolvedDocId]);
 
   const getAutosaveMetaStorageKey = useCallback(() => {
     return `slb:autosave:meta:${getAutosaveDocKey()}`;
@@ -1042,23 +1369,8 @@ export function useFabricEditor({
   );
 
   const readAutosaveMeta = useCallback(() => {
-    if (typeof window === "undefined") return null;
-    try {
-      const raw = window.localStorage.getItem(getAutosaveMetaStorageKey());
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      if (!parsed || typeof parsed !== "object") return null;
-      return parsed as {
-        docId: string | null;
-        revision: number;
-        updatedAt: number;
-        hash: string;
-        hasPendingSync: boolean;
-      };
-    } catch {
-      return null;
-    }
-  }, [getAutosaveMetaStorageKey]);
+    return readLocalStorageAutosaveMetaForKey(getAutosaveDocKey());
+  }, [getAutosaveDocKey]);
 
   const saveLocalDraftNow = useCallback(
     async (snapshot: any, hash: string) => {
@@ -1106,6 +1418,9 @@ export function useFabricEditor({
   );
 
   const syncNow = useCallback(async () => {
+    if (mode === "doc" && !hasInitialDocLoadCompletedRef.current) {
+      return;
+    }
     if (isCloudSyncRunningRef.current) return;
     const snapshot = pendingSnapshotRef.current;
     if (!snapshot) return;
@@ -1124,7 +1439,8 @@ export function useFabricEditor({
       void deleteAutosaveDraft(getAutosaveDocKey()).catch(() => {});
       return;
     }
-    if (!user) {
+    const resolvedUser = user ?? auth.currentUser;
+    if (!resolvedUser) {
       setAutosaveStatus("offlinePending");
       return;
     }
@@ -1135,9 +1451,13 @@ export function useFabricEditor({
         autosaveRevision: autosaveRevisionRef.current,
         autosaveHash: hash,
       });
+      if (!saveResult) {
+        setAutosaveStatus("offlinePending");
+        return;
+      }
       lastSyncedHashRef.current = hash;
 
-      if (saveResult && user) {
+      if (resolvedUser) {
         const activeDocId = saveResult.docId;
         const now = Date.now();
         const elapsed =
@@ -1158,7 +1478,7 @@ export function useFabricEditor({
               });
               if (thumb && thumb.length < 950_000) {
                 await updateResumeDoc({
-                  uid: user.uid,
+                  uid: resolvedUser.uid,
                   docId: activeDocId,
                   title: docTitle || "Untitled Resume",
                   thumbnail: thumb,
@@ -1211,6 +1531,8 @@ export function useFabricEditor({
     getCanvasJsonForSave,
     getPagesJsonForSave,
     pageSize,
+    mode,
+    initialTemplateId,
     resolvedDocId,
     saveToCloud,
     user,
@@ -1320,49 +1642,123 @@ export function useFabricEditor({
     restoreCheckKeyRef.current = autosaveKey;
     let cancelled = false;
     const run = async () => {
-      const meta = readAutosaveMeta();
-      if (!meta) return;
+      const authUser = user ?? auth.currentUser;
+      const sourceId = getAutosaveSourceId();
+      const signedInKey = autosaveKey;
       const remoteRevision = Number(docAutosaveRevision || 0);
-      const localRevision = Number(meta.revision || 0);
-      const draft = await readAutosaveDraft(autosaveKey).catch(() => null);
+      const signedInMeta = readLocalStorageAutosaveMetaForKey(signedInKey);
+      const signedInDraft = await readAutosaveDraft(signedInKey).catch(() => null);
       if (cancelled) return;
 
-      const shouldUseLocal =
-        !!draft?.snapshot &&
-        (localRevision > remoteRevision ||
-          (localRevision === remoteRevision &&
-            (Array.isArray(draft?.history?.undo) &&
-              draft.history.undo.length > 1 ||
-              !!meta.hasPendingSync ||
-              toEpochMs(meta.updatedAt) >= toEpochMs(docUpdatedAt))));
-
-      if (shouldUseLocal && draft?.snapshot) {
+      if (
+        signedInDraft?.snapshot &&
+        localDraftBeatsServerDoc(
+          signedInDraft,
+          signedInMeta,
+          docAutosaveRevision,
+          docUpdatedAt
+        )
+      ) {
+        const localRevision = Number(
+          (signedInMeta as AutosaveLocalStorageMeta | null)?.revision ?? signedInDraft.revision ?? 0
+        );
+        const meta = signedInMeta;
+        const draft = signedInDraft;
         await applySnapshotRef.current(draft.snapshot, "history");
         autosaveRevisionRef.current = Math.max(localRevision, autosaveRevisionRef.current);
         undoRef.current =
-          Array.isArray(draft.history?.undo) && draft.history!.undo.length
-            ? draft.history!.undo.slice(-10)
+          Array.isArray(draft.history?.undo) && draft.history.undo.length
+            ? draft.history.undo.slice(-10)
             : [draft.snapshot];
-        redoRef.current = Array.isArray(draft.history?.redo) ? draft.history!.redo.slice(-10) : [];
+        redoRef.current = Array.isArray(draft.history?.redo) ? draft.history.redo.slice(-10) : [];
         pendingSnapshotRef.current = draft.snapshot;
-        dirtyRef.current = !!meta.hasPendingSync;
-        setAutosaveStatus(meta.hasPendingSync ? "offlinePending" : "synced");
-        if (meta.hasPendingSync) scheduleCloudSync();
+        const fromMeta = !!meta?.hasPendingSync;
+        const noMeta = meta == null;
+        dirtyRef.current = fromMeta || noMeta;
+        if (noMeta) {
+          if (authUser) {
+            setAutosaveStatus("saving");
+            scheduleCloudSync();
+          } else {
+            setAutosaveStatus("offlinePending");
+            scheduleCloudSync();
+          }
+        } else {
+          setAutosaveStatus(fromMeta ? "offlinePending" : "synced");
+          if (fromMeta) scheduleCloudSync();
+        }
         return;
       }
 
-      if (draft?.snapshot && meta.hasPendingSync) {
+      if (authUser?.uid) {
+        const anonymousKey = `anonymous:${sourceId}`;
+        if (signedInKey !== anonymousKey) {
+          const anonMeta = readLocalStorageAutosaveMetaForKey(anonymousKey);
+          const anonDraft = await readAutosaveDraft(anonymousKey).catch(() => null);
+          if (cancelled) return;
+          if (
+            anonDraft &&
+            shouldTakeAnonymousDraftOverSigned(signedInDraft, signedInMeta, anonDraft, anonMeta) &&
+            anonDraft.snapshot
+          ) {
+            if (process.env.NODE_ENV === "development") {
+              console.log("[autosave] migrate anonymous local draft to signed-in key", {
+                sourceId,
+                from: anonymousKey,
+                to: signedInKey,
+              });
+            }
+            const draft = anonDraft;
+            await applySnapshotRef.current(draft.snapshot, "history");
+            const localRev = Math.max(
+              Number(anonMeta?.revision ?? draft.revision ?? 0),
+              remoteRevision
+            );
+            autosaveRevisionRef.current = Math.max(localRev, autosaveRevisionRef.current);
+            undoRef.current =
+              Array.isArray(draft.history?.undo) && draft.history.undo.length
+                ? draft.history.undo.slice(-10)
+                : [draft.snapshot];
+            redoRef.current = Array.isArray(draft.history?.redo) ? draft.history.redo.slice(-10) : [];
+            pendingSnapshotRef.current = draft.snapshot;
+            dirtyRef.current = true;
+            setAutosaveStatus(authUser ? "saving" : "offlinePending");
+            const h = computeSnapshotHash(draft.snapshot);
+            let migratedOk = false;
+            try {
+              await saveLocalDraftNow(draft.snapshot, h);
+              migratedOk = true;
+            } catch {
+              migratedOk = false;
+            }
+            if (cancelled) return;
+            if (migratedOk) {
+              void deleteAutosaveDraft(anonymousKey).catch(() => {});
+              removeLocalStorageAutosaveMetaForDocKey(anonymousKey);
+            }
+            if (authUser) {
+              scheduleCloudSync();
+            }
+            return;
+          }
+        }
+      }
+
+      const localRevision = Number(
+        (signedInMeta as AutosaveLocalStorageMeta | null)?.revision ?? signedInDraft?.revision ?? 0
+      );
+      if (signedInDraft?.snapshot && signedInMeta?.hasPendingSync) {
         pendingSnapshotRef.current = null;
         dirtyRef.current = false;
         writeAutosaveMeta({
           docId: cloudDocId || resolvedDocId || null,
           revision: Math.max(remoteRevision, localRevision),
           updatedAt: Date.now(),
-          hash: meta.hash || "",
+          hash: (signedInMeta as AutosaveLocalStorageMeta).hash || "",
           hasPendingSync: false,
         });
         setAutosaveStatus("synced");
-        void deleteAutosaveDraft(autosaveKey).catch(() => {});
+        void deleteAutosaveDraft(signedInKey).catch(() => {});
       }
     };
     void run();
@@ -1371,14 +1767,16 @@ export function useFabricEditor({
     };
   }, [
     cloudDocId,
+    computeSnapshotHash,
+    deleteAutosaveDraft,
     docAutosaveRevision,
     docUpdatedAt,
     getAutosaveDocKey,
+    getAutosaveSourceId,
     isDocDataReady,
-    readAutosaveMeta,
-    resolvedDocId,
+    saveLocalDraftNow,
     scheduleCloudSync,
-    toEpochMs,
+    user,
     writeAutosaveMeta,
   ]);
 
@@ -1695,6 +2093,23 @@ export function useFabricEditor({
     };
   }, []);
 
+  useEffect(() => {
+    void deleteOldAssets(7).catch((err) => {
+      console.warn("[local-assets] cleanup failed", err);
+    });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      localAssetObjectUrlsRef.current.forEach((url) => {
+        try {
+          URL.revokeObjectURL(url);
+        } catch {}
+      });
+      localAssetObjectUrlsRef.current.clear();
+    };
+  }, []);
+
   const setViewportEl = useCallback(
     (el: HTMLElement | null) => {
       viewportRef.current = el as HTMLDivElement | null;
@@ -1751,6 +2166,13 @@ export function useFabricEditor({
         isApplyingRef.current = false;
         return;
       }
+      try {
+        await hydrateLocalImageSourcesInJson(json, (url) => {
+          localAssetObjectUrlsRef.current.add(url);
+        });
+      } catch (err) {
+        console.warn("[local-assets] failed to hydrate local image refs", err);
+      }
       didInitialFitRef.current = false;
       const isDuplicate = reason === "page-duplicate";
       const isDocLoad = reason === "doc-load";
@@ -1780,6 +2202,19 @@ export function useFabricEditor({
           baseFitZoomRef: baseFitZoomRef.current,
         });
       }
+      const prevCanvasSnapshot = (c as any).toJSON([
+        "excludeFromExport",
+        "selectable",
+        "evented",
+        "role",
+        "name",
+        "slbId",
+        "slbAssetId",
+        "slbSource",
+        "isPageBg",
+        "locked",
+        "hidden",
+      ]);
       c.clear();
       const reviver = (_: any, obj: any) => {
         const target = pageSizePxRef.current;
@@ -1974,6 +2409,7 @@ try {
             selectable: true,
             evented: true,
           });
+          applyRotationDefaults(obj);
 
           // normalize other groups
           if (obj.type === "group") {
@@ -1998,8 +2434,14 @@ try {
         if (process.env.NODE_ENV !== "production") {
           console.log("[applySnapshot] loadFromJSON finalize done, requestRenderAll", { reason });
         }
+        if (reason === "doc-load") {
+          hasInitialDocLoadCompletedRef.current = true;
+        }
         lastLoadedSnapshotRef.current = snap;
         c.requestRenderAll();
+        if (reason === "template-loaded") {
+          generateThumbnailFromCanvas(c);
+        }
         if (skipPostLoadMutations) {
           requestAnimationFrame(() => {
             if (hadStoredZoomRef.current) {
@@ -2012,27 +2454,71 @@ try {
       };
       let finalized = false;
       try {
+       const sanitizedReport = sanitizeImageSourcesForLoad(json, {
+         stripLocalAssetFields: reason === "template-loaded",
+         fallbackSrc: TEMPLATE_IMAGE_FALLBACK_SRC,
+       });
+       if (
+         sanitizedReport.blobCount > 0 ||
+         sanitizedReport.missingSrcCount > 0 ||
+         sanitizedReport.invalidSrcCount > 0
+       ) {
+         console.warn("[template-load] normalized image sources before load", {
+           reason,
+           ...sanitizedReport,
+         });
+       }
        if (process.env.NODE_ENV !== "production") {
          console.log("[loadFromJSON] start", { reason, objectsCount: (json?.objects?.length ?? 0) });
        }
-       const result = (c as any).loadFromJSON(
-  json,
-  reviver,
-  () => {
-    if (finalized) return;
-    finalized = true;
-    finalize();
-  }
-);
+      const result = (c as any).loadFromJSON(json, reviver);
         if (result && typeof result.then === "function") {
           await result;
-          if (!finalized) {
-            finalized = true;
-            finalize();
-          }
+        }
+        if (!finalized) {
+          finalized = true;
+          finalize();
         }
       } catch (err) {
         console.error("[editor] Failed to load template JSON", err);
+        if (reason === "template-loaded") {
+          setLoadError("Template image assets failed to load");
+        }
+        const hadPreviousObjects = Array.isArray(prevCanvasSnapshot?.objects) && prevCanvasSnapshot.objects.length > 0;
+        if (hadPreviousObjects) {
+          try {
+            const rollback = (c as any).loadFromJSON(prevCanvasSnapshot, reviver);
+            if (rollback && typeof rollback.then === "function") {
+              await rollback;
+            }
+          } catch (rollbackErr) {
+            console.error("[editor] Failed to rollback previous canvas snapshot", rollbackErr);
+          }
+        }
+        if (!hadPreviousObjects) {
+          try {
+            const size = pageSizePxRef.current;
+            ensurePageBackground(size.w, size.h, { discardSelection: true });
+            const message = new (FabricNS as any).Textbox("Template failed to load image assets", {
+              left: 48,
+              top: 48,
+              width: Math.max(200, size.w - 96),
+              fontSize: 18,
+              fill: "#9f1239",
+              selectable: false,
+              evented: false,
+            });
+            c.add(message);
+            c.requestRenderAll();
+          } catch (placeholderErr) {
+            console.error("[editor] Failed to render fallback placeholder", placeholderErr);
+          }
+        }
+      } finally {
+        if (!finalized) {
+          finalized = true;
+          finalize();
+        }
       }
       isApplyingRef.current = false;
     },
@@ -2466,6 +2952,7 @@ try {
       selectionCreated: (e?: any) => void;
       selectionUpdated: (e?: any) => void;
       selectionCleared: () => void;
+      objectRotating: (e?: any) => void;
       objectModified: (e?: any) => void;
       objectAdded: (e: any) => void;
       objectRemoved: (e: any) => void;
@@ -2484,6 +2971,7 @@ try {
     canvas.off("selection:created", handlers.selectionCreated);
     canvas.off("selection:updated", handlers.selectionUpdated);
     canvas.off("selection:cleared", handlers.selectionCleared);
+    canvas.off("object:rotating", handlers.objectRotating);
     canvas.off("object:modified", handlers.objectModified);
     canvas.off("object:added", handlers.objectAdded as any);
     canvas.off("object:removed", handlers.objectRemoved as any);
@@ -2559,6 +3047,13 @@ try {
 
       const handleSelection = () => {
         const active = canvas.getActiveObject?.();
+        if (active) {
+          if (isActiveSelectionLike(active)) {
+            (active as any).getObjects?.().forEach((obj: any) => applyRotationDefaults(obj));
+          } else {
+            applyRotationDefaults(active);
+          }
+        }
         const state = imageFrameCropModeRef.current;
         // V1 crop keeps the image active; stay in crop while selection is frame or image.
         if (
@@ -2579,8 +3074,9 @@ try {
       }
 
       function isFabricImage(o: any) {
+        const normalizedType = String(o?.type || "").toLowerCase();
         return Boolean(
-          o?.type === "image" ||
+          normalizedType === "image" ||
             o?._element ||
             o?.data?.src ||
             o?.data?.url
@@ -2683,17 +3179,23 @@ try {
         },
         selectionCleared: () => {
           exitCropMode();
+          setIsRotatingObject(false);
           setSelectedLayerId(null);
           setHasSelection(false);
           syncSelectionKind();
           updateSelection();
         },
+        objectRotating: () => {
+          setIsRotatingObject(true);
+        },
         objectModified: () => {
+          setIsRotatingObject(false);
           updateSelection();
           updateLayers();
           pushHistory("modified");
         },
         objectAdded: (e: any) => {
+          applyRotationDefaults(e?.target);
           updateLayers();
           if (e?.target?.role === "grid") return;
           if (!isApplyingRef.current) pushHistory("added");
@@ -2740,6 +3242,7 @@ try {
           isEditModeRef.current = false;
         },
         mouseUp: (e: any) => {
+          setIsRotatingObject(false);
           const canvas = getCanvas();
           const obj = e?.target ?? canvas?.getActiveObject();
           if (!obj) return;
@@ -2777,6 +3280,7 @@ try {
       canvas.on("selection:created", handlers.selectionCreated as any);
       canvas.on("selection:updated", handlers.selectionUpdated as any);
       canvas.on("selection:cleared", handlers.selectionCleared);
+      canvas.on("object:rotating", handlers.objectRotating);
       canvas.on("object:modified", handlers.objectModified);
       canvas.on("object:added", handlers.objectAdded as any);
       canvas.on("object:removed", handlers.objectRemoved as any);
@@ -2787,6 +3291,7 @@ try {
       activeCanvasListenersRef.current = { canvas, handlers };
     },
     [
+      applyRotationDefaults,
       enterImageFrameCropMode,
       pushHistory,
       hydrateImageUiFromActiveObject,
@@ -3238,6 +3743,88 @@ try {
               }
             };
           }
+          if (!(window as any).__slbGetTemplateSnapshot) {
+            (window as any).__slbGetTemplateSnapshot = () => {
+              const pages = getPagesJsonForSave?.();
+              const single = getCanvasJson?.();
+              const snapshot = pages?.[0] ?? single ?? { objects: [] };
+
+              try {
+                return JSON.parse(JSON.stringify(snapshot));
+              } catch {
+                return snapshot;
+              }
+            };
+          }
+
+          if (process.env.NODE_ENV === "development") {
+            (window as any).slbEditor = {
+              getPagesJsonForSave,
+              getCanvasJson,
+            };
+
+        if (!(window as any).__SLB_VALIDATE_TEMPLATE__) {
+          (window as any).__SLB_VALIDATE_TEMPLATE__ = (input: any) => {
+            const payload =
+              typeof input === "string"
+                ? (() => {
+                    try {
+                      return JSON.parse(input);
+                    } catch {
+                      return null;
+                    }
+                  })()
+                : input;
+            if (!payload || typeof payload !== "object") {
+              const invalid = {
+                ok: false,
+                reason: "Invalid JSON payload",
+                blobSrcPaths: [] as string[],
+                missingSrcPaths: [] as string[],
+                invalidImageNodes: 0,
+              };
+              console.warn("[SLB_VALIDATE_TEMPLATE]", invalid);
+              return invalid;
+            }
+            const blobSrcPaths: string[] = [];
+            const missingSrcPaths: string[] = [];
+            let invalidImageNodes = 0;
+            const walk = (node: any, pathParts: string[]) => {
+              if (!node || typeof node !== "object") return;
+              if (Array.isArray(node)) {
+                node.forEach((child, idx) => walk(child, [...pathParts, String(idx)]));
+                return;
+              }
+              const type = String(node.type || "").toLowerCase();
+              if (type === "image") {
+                const src = String(node.src || "").trim();
+                if (!src) {
+                  missingSrcPaths.push(pathParts.join(".") || "(root)");
+                  invalidImageNodes += 1;
+                } else if (src.toLowerCase().startsWith("blob:")) {
+                  blobSrcPaths.push(pathParts.join(".") || "(root)");
+                  invalidImageNodes += 1;
+                }
+              }
+              for (const [key, value] of Object.entries(node)) {
+                if (value && typeof value === "object") {
+                  walk(value, [...pathParts, key]);
+                }
+              }
+            };
+            walk(payload, []);
+            const report = {
+              ok: blobSrcPaths.length === 0 && missingSrcPaths.length === 0 && invalidImageNodes === 0,
+              blobSrcPaths,
+              missingSrcPaths,
+              invalidImageNodes,
+            };
+            console.log("[SLB_VALIDATE_TEMPLATE]", report);
+            return report;
+          };
+        }
+          }
+
           if (!(window as any).__slbImportTemplate) {
             (window as any).__slbImportTemplate = async (
               jsonOrObject: any,
@@ -3307,7 +3894,7 @@ try {
           }
         };
         try {
-          const result = (c as any).loadFromJSON(objectsOnly, reviver, () => {
+          const finalizeDuplicateLoad = () => {
             const allBeforeDup = c.getObjects();
             allBeforeDup.forEach((o: any) => {
               ensureObjectId(o);
@@ -3339,7 +3926,9 @@ try {
                   });
                   nestedImg.setCoords?.();
                 }
+                return;
               }
+              applyRotationDefaults(o);
             });
             ensurePageBackground(pageSizePxRef.current.w, pageSizePxRef.current.h, {
               discardSelection: true,
@@ -3353,10 +3942,12 @@ try {
                 scheduleFitRef.current("doc-load");
               }
             });
-          });
+          };
+          const result = (c as any).loadFromJSON(objectsOnly, reviver);
           if (result && typeof result.then === "function") {
             await result;
           }
+          finalizeDuplicateLoad();
         } catch (err) {
           console.error("[editor] Failed to load duplicate page JSON", err);
         }
@@ -3413,8 +4004,28 @@ try {
 
   const attachCanvasEl = useCallback(
     (pageId: string, el: HTMLCanvasElement | null) => {
-      if (!el) return;
-      if (pageCanvasesRef.current.has(pageId)) return;
+      if (!el) {
+        const existingCanvas = pageCanvasesRef.current.get(pageId);
+        if (existingCanvas) {
+          try {
+            existingCanvas.dispose();
+          } catch {}
+          pageCanvasesRef.current.delete(pageId);
+        }
+        pageCanvasElementsRef.current.delete(pageId);
+        return;
+      }
+      const existingEl = pageCanvasElementsRef.current.get(pageId);
+      if (existingEl === el && pageCanvasesRef.current.has(pageId)) return;
+      if (pageCanvasesRef.current.has(pageId) && existingEl !== el) {
+        const existingCanvas = pageCanvasesRef.current.get(pageId);
+        if (existingCanvas) {
+          try {
+            existingCanvas.dispose();
+          } catch {}
+          pageCanvasesRef.current.delete(pageId);
+        }
+      }
       const size = pageSizePxRef.current;
       const c = initFabricCanvas(el, {
         width: size.w,
@@ -3429,6 +4040,7 @@ try {
       c.selection = true;
       (c as any).skipTargetFind = false;
 
+      pageCanvasElementsRef.current.set(pageId, el);
       pageCanvasesRef.current.set(pageId, c);
       initCanvasForPage(pageId, c);
     },
@@ -3449,6 +4061,7 @@ try {
           } catch {}
           pageCanvasesRef.current.delete(oldId);
         }
+        pageCanvasElementsRef.current.delete(oldId);
       }
     }
 
@@ -3461,15 +4074,22 @@ try {
 
   const templateId = (initialTemplateId || "").toLowerCase().trim();
   const trimmedDocId = (resolvedDocId || "").trim();
+  const isNewVariant = mode === "new";
+  const isTemplateVariant = mode === "template";
+  const isDocVariant = mode === "doc";
   const isBlank =
-    mode === "new" || !templateId || templateId === "new" || templateId === "blank";
+    isNewVariant || !templateId || templateId === "new" || templateId === "blank";
   const isTemplateId = !!getSystemTemplateById(templateId);
-  const isDocId =
-    !!trimmedDocId || (mode === "template" && !isBlank && !isTemplateId);
-  const treatBlank = !trimmedDocId && isBlank;
+  const hasValidDocId = isUuid(trimmedDocId);
+  const treatBlank = isNewVariant || (isTemplateVariant && isBlank);
 
   useEffect(() => {
-    if (!isDocId) {
+    if (!isDocVariant) {
+      setIsDocDataReady(true);
+      return;
+    }
+    if (!trimmedDocId || !hasValidDocId) {
+      setLoadError("Invalid document");
       setIsDocDataReady(true);
       return;
     }
@@ -3482,9 +4102,10 @@ try {
 
     let alive = true;
     isLoadingDocRef.current = true;
+    hasInitialDocLoadCompletedRef.current = false;
     hadStoredZoomRef.current = false;
     setIsDocDataReady(false);
-    getResumeDoc({ uid: user.uid, docId: trimmedDocId || templateId })
+    getResumeDoc({ uid: user.uid, docId: trimmedDocId })
       .then((docSnap) => {
         if (!alive) return;
         if (!docSnap) {
@@ -3494,9 +4115,8 @@ try {
           return;
         }
         setLoadError(null);
-        setCloudDocId(trimmedDocId || templateId);
-        setResolvedDocId(trimmedDocId || templateId);
-        persistTemplateDocPointer(trimmedDocId || templateId);
+        setCloudDocId(trimmedDocId);
+        setResolvedDocId(trimmedDocId);
         setDocTitle(docSnap.title || "Untitled Resume");
         setDocCreatedAt(docSnap.createdAt ?? null);
         setDocUpdatedAt(docSnap.updatedAt ?? null);
@@ -3582,11 +4202,11 @@ try {
       isLoadingDocRef.current = false;
     };
   }, [
-    isDocId,
+    isDocVariant,
     authLoading,
     user,
     trimmedDocId,
-    templateId,
+    hasValidDocId,
     applyEffectiveZoom,
     setPageSize,
   ]);
@@ -3594,11 +4214,13 @@ try {
   useEffect(() => {
     const c = getCanvas();
     if (!c || !canvasReady) return;
-    if (isDocId && !isDocDataReady) return;
-    const appliedId = treatBlank ? "blank" : (trimmedDocId || templateId);
+    if (isDocVariant && !isDocDataReady) return;
+    const appliedId = isDocVariant
+      ? trimmedDocId
+      : (treatBlank ? "blank" : templateId);
     if (lastAppliedTemplateRef.current === appliedId) return;
 
-    if (isDocId) {
+    if (isDocVariant) {
       return;
     }
 
@@ -3612,9 +4234,12 @@ try {
         if (treatBlank) {
           snapshot = { objects: [] };
         } else {
+          if (!isTemplateVariant) {
+            return;
+          }
           const template = getSystemTemplateById(templateId);
           if (!template) {
-            console.error("Template not found:", templateId);
+            setLoadError("Template not found");
             return;
           }
           snapshot = await template.load();
@@ -3650,9 +4275,9 @@ try {
     canvasReady,
     getCanvas,
     initialTemplateId,
-    docIdParam,
     isDocDataReady,
-    isDocId,
+    isDocVariant,
+    isTemplateVariant,
     mode,
     setPageSize,
     templateId,
@@ -3831,7 +4456,7 @@ try {
   );
 
   const addImageFromUrl = useCallback(
-    async (url: string) => {
+    async (url: string, meta?: LocalImageMeta) => {
       const c = getCanvas();
       if (!c || !url) return;
 
@@ -3855,6 +4480,13 @@ try {
           scaleX: scale,
           scaleY: scale,
         });
+        if (meta?.slbAssetId) {
+          img.set("slbAssetId", meta.slbAssetId);
+          void touchLocalAsset(meta.slbAssetId).catch(() => {});
+        }
+        if (meta?.slbSource) {
+          img.set("slbSource", meta.slbSource);
+        }
 
         const id = ensureObjectId(img);
         (img as any).uid = id;
@@ -4782,45 +5414,181 @@ try {
       if (!c) return;
       const obj: any = c.getActiveObject();
       if (!obj) return;
-      const page = getPageBounds(c);
-      if (!page) return;
+      const targets: any[] =
+        isActiveSelectionLike(obj) && typeof obj.getObjects === "function"
+          ? obj.getObjects()
+          : [obj];
 
-      const br = obj.getBoundingRect(true, true);
-      let dx = 0;
-      let dy = 0;
+      // Keep existing single-object behavior: align to page bounds.
+      if (targets.length <= 1) {
+        const page = getPageBounds(c);
+        if (!page) return;
+        const br = obj.getBoundingRect(true, true);
+        let dx = 0;
+        let dy = 0;
 
-      switch (action) {
-        case "left":
-          dx = page.left - br.left;
-          break;
-        case "centerX":
-          dx = page.left + page.width / 2 - (br.left + br.width / 2);
-          break;
-        case "right":
-          dx = page.left + page.width - (br.left + br.width);
-          break;
-        case "top":
-          dy = page.top - br.top;
-          break;
-        case "middle":
-          dy = page.top + page.height / 2 - (br.top + br.height / 2);
-          break;
-        case "bottom":
-          dy = page.top + page.height - (br.top + br.height);
-          break;
+        switch (action) {
+          case "left":
+            dx = page.left - br.left;
+            break;
+          case "centerX":
+            dx = page.left + page.width / 2 - (br.left + br.width / 2);
+            break;
+          case "right":
+            dx = page.left + page.width - (br.left + br.width);
+            break;
+          case "top":
+            dy = page.top - br.top;
+            break;
+          case "middle":
+            dy = page.top + page.height / 2 - (br.top + br.height / 2);
+            break;
+          case "bottom":
+            dy = page.top + page.height - (br.top + br.height);
+            break;
+        }
+
+        const canMoveX = dx !== 0 && obj?.lockMovementX !== true;
+        const canMoveY = dy !== 0 && obj?.lockMovementY !== true;
+        if (!canMoveX && !canMoveY) return;
+        if (canMoveX) obj.set({ left: (obj.left ?? 0) + dx });
+        if (canMoveY) obj.set({ top: (obj.top ?? 0) + dy });
+        obj.setCoords?.();
+        c.requestRenderAll();
+        updateSelectionRef.current?.();
+        updateLayers();
+        pushHistory("modified");
+        return;
       }
 
-      if (!dx && !dy) return;
+      const bounds = targets.map((target) => ({
+        target,
+        rect: target.getBoundingRect(true, true),
+      }));
+      const selectionLeft = Math.min(...bounds.map((item) => item.rect.left));
+      const selectionTop = Math.min(...bounds.map((item) => item.rect.top));
+      const selectionRight = Math.max(...bounds.map((item) => item.rect.left + item.rect.width));
+      const selectionBottom = Math.max(...bounds.map((item) => item.rect.top + item.rect.height));
+      const selectionCenterX = (selectionLeft + selectionRight) / 2;
+      const selectionCenterY = (selectionTop + selectionBottom) / 2;
 
-      if (dx !== 0) obj.set({ left: (obj.left ?? 0) + dx });
-      if (dy !== 0) obj.set({ top: (obj.top ?? 0) + dy });
+      let moved = false;
+      for (const { target, rect } of bounds) {
+        const objLeft = rect.left;
+        const objTop = rect.top;
+        const objRight = rect.left + rect.width;
+        const objBottom = rect.top + rect.height;
+        const objCenterX = objLeft + rect.width / 2;
+        const objCenterY = objTop + rect.height / 2;
+
+        let dx = 0;
+        let dy = 0;
+        switch (action) {
+          case "left":
+            dx = selectionLeft - objLeft;
+            break;
+          case "centerX":
+            dx = selectionCenterX - objCenterX;
+            break;
+          case "right":
+            dx = selectionRight - objRight;
+            break;
+          case "top":
+            dy = selectionTop - objTop;
+            break;
+          case "middle":
+            dy = selectionCenterY - objCenterY;
+            break;
+          case "bottom":
+            dy = selectionBottom - objBottom;
+            break;
+        }
+
+        const canMoveX = dx !== 0 && target?.lockMovementX !== true;
+        const canMoveY = dy !== 0 && target?.lockMovementY !== true;
+        if (!canMoveX && !canMoveY) continue;
+        if (canMoveX) target.set({ left: (target.left ?? 0) + dx });
+        if (canMoveY) target.set({ top: (target.top ?? 0) + dy });
+        target.setCoords?.();
+        moved = true;
+      }
+
+      if (!moved) return;
       obj.setCoords?.();
-      if (isActiveSelectionLike(obj)) {
-        (obj as any)._objects?.forEach((o: any) => o.setCoords?.());
-      }
       c.requestRenderAll();
+      updateSelectionRef.current?.();
+      updateLayers();
+      pushHistory("modified");
     },
-    [getPageBounds]
+    [getPageBounds, pushHistory, updateLayers]
+  );
+
+  const distributeSelected = useCallback(
+    (axis: "horizontal" | "vertical") => {
+      const c = canvasRef.current;
+      if (!c) return;
+      const active: any = c.getActiveObject();
+      if (!active) return;
+      const targets: any[] =
+        isActiveSelectionLike(active) && typeof active.getObjects === "function"
+          ? active.getObjects()
+          : [active];
+      if (targets.length < 3) return;
+
+      const sorted = targets
+        .map((target) => ({ target, rect: target.getBoundingRect(true, true) }))
+        .sort((a, b) =>
+          axis === "horizontal" ? a.rect.left - b.rect.left : a.rect.top - b.rect.top
+        );
+
+      const first = sorted[0];
+      const last = sorted[sorted.length - 1];
+      if (!first || !last) return;
+
+      const totalSize = sorted.reduce(
+        (sum, item) => sum + (axis === "horizontal" ? item.rect.width : item.rect.height),
+        0
+      );
+      const span =
+        axis === "horizontal"
+          ? last.rect.left + last.rect.width - first.rect.left
+          : last.rect.top + last.rect.height - first.rect.top;
+      const gap = (span - totalSize) / (sorted.length - 1);
+      if (!Number.isFinite(gap)) return;
+
+      let cursor =
+        axis === "horizontal"
+          ? first.rect.left + first.rect.width + gap
+          : first.rect.top + first.rect.height + gap;
+      let moved = false;
+      for (let index = 1; index < sorted.length - 1; index += 1) {
+        const item = sorted[index];
+        const targetStart = axis === "horizontal" ? item.rect.left : item.rect.top;
+        const delta = cursor - targetStart;
+        if (delta !== 0) {
+          if (axis === "horizontal") {
+            if (item.target?.lockMovementX !== true) {
+              item.target.set({ left: (item.target.left ?? 0) + delta });
+              moved = true;
+            }
+          } else if (item.target?.lockMovementY !== true) {
+            item.target.set({ top: (item.target.top ?? 0) + delta });
+            moved = true;
+          }
+        }
+        const size = axis === "horizontal" ? item.rect.width : item.rect.height;
+        cursor += size + gap;
+      }
+
+      if (!moved) return;
+      sorted.forEach((item) => item.target.setCoords?.());
+      active.setCoords?.();
+      c.requestRenderAll();
+      updateSelectionRef.current?.();
+      updateLayers();
+      pushHistory("modified");
+    },
+    [pushHistory, updateLayers]
   );
 
   const exportPNG = useCallback(
@@ -5234,6 +6002,7 @@ try {
     layers,
     selectedLayerId,
     hasSelection,
+    isRotatingObject,
     docId: cloudDocId,
     docTitle,
     docCreatedAt,
@@ -5290,6 +6059,7 @@ try {
     undo,
     redo,
     alignSelected,
+    distributeSelected,
     exportPNG,
     exportPDF,
     setLayerVisible,

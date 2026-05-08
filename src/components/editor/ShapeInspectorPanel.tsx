@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { Lock, Square } from "lucide-react";
+import { Lock, RotateCcw, RotateCw, Square } from "lucide-react";
 import type { ShapeProps } from "@/types/editor";
 import { toHexColor } from "@/lib/color";
 import { getShapeCapabilities } from "@/data/shapes/catalog";
@@ -33,6 +33,12 @@ function getBorderStyleFromDashArray(arr: number[] | null | undefined, stroke: s
   return "solid";
 }
 
+function normalizeAngle(value: number): number {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  return ((n % 360) + 360) % 360;
+}
+
 export interface ShapeInspectorPanelProps {
   shapeProps: ShapeProps;
   activeObjectSnapshot: {
@@ -49,6 +55,7 @@ export interface ShapeInspectorPanelProps {
     lockScalingX?: boolean;
     lockScalingY?: boolean;
     lockRotation?: boolean;
+    angle?: number;
   } | null;
   setShapeProp: (partial: Partial<ShapeProps>) => void;
   updateActiveObject: (patch: Record<string, unknown>) => void;
@@ -85,6 +92,7 @@ export function ShapeInspectorPanel({
     activeObjectSnapshot?.lockScalingX === true ||
     activeObjectSnapshot?.lockScalingY === true ||
     activeObjectSnapshot?.lockRotation === true;
+  const angle = normalizeAngle(Number(activeObjectSnapshot?.angle ?? 0));
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
@@ -125,6 +133,15 @@ export function ShapeInspectorPanel({
     lockScalingY: locked,
     lockRotation: locked,
   });
+  const setAngle = (value: number) =>
+    updateActiveObject({
+      angle: normalizeAngle(value),
+      lockRotation: false,
+      hasControls: true,
+      padding: 10,
+      snapAngle: 45,
+      snapThreshold: 5,
+    });
 
   return (
     <div className="rounded-2xl bg-white border border-[#d6deeb] shadow-[0_6px_14px_rgba(30,64,175,0.08)] transition-shadow transition-colors duration-200 hover:shadow-lg hover:border-slate-400 p-4 space-y-4">
@@ -312,6 +329,36 @@ export function ShapeInspectorPanel({
         </div>
       </div>
       )}
+
+      <div>
+        <label className="text-xs text-zinc-500 block mb-1">Rotation</label>
+        <div className="flex gap-2 items-center">
+          <button
+            type="button"
+            onClick={() => setAngle(angle - 15)}
+            className="h-9 px-3 rounded-lg border border-zinc-200 hover:bg-zinc-50 flex items-center justify-center"
+            title="Rotate left 15 degrees"
+          >
+            <RotateCcw size={16} />
+          </button>
+          <input
+            type="number"
+            min={0}
+            max={360}
+            value={Math.round(angle)}
+            onChange={(e) => setAngle(Number(e.target.value))}
+            className="flex-1 h-9 rounded-lg border border-zinc-200 px-2 text-sm text-center"
+          />
+          <button
+            type="button"
+            onClick={() => setAngle(angle + 15)}
+            className="h-9 px-3 rounded-lg border border-zinc-200 hover:bg-zinc-50 flex items-center justify-center"
+            title="Rotate right 15 degrees"
+          >
+            <RotateCw size={16} />
+          </button>
+        </div>
+      </div>
 
       {/* 4. Lock shape */}
       <div>

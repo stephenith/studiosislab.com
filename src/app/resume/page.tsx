@@ -20,7 +20,21 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/useAuth";
 
 import NoiseBackground from "@/components/home/NoiseBackground";
-import { TEMPLATES, CATEGORIES } from "@/data/templates";
+import { TEMPLATES } from "@/data/templates";
+import { TEMPLATE_CATEGORIES } from "@/data/templateCategories";
+
+const RESUME_GALLERY_HIDDEN_TEMPLATE_IDS = new Set(["t001", "t002", "t003"]);
+
+/** Maps template id → TEMPLATE_CATEGORIES `id` until template data carries `categoryId`. */
+const TEMPLATE_ID_TO_FILTER: Partial<Record<string, (typeof TEMPLATE_CATEGORIES)[number]["id"]>> = {
+  t001: "others",
+  t002: "creative",
+  t003: "business",
+  t004: "business",
+};
+
+type TemplateFilterId = (typeof TEMPLATE_CATEGORIES)[number]["id"];
+type FilterKey = "all" | TemplateFilterId;
 
 /** Thumbnail frame: subtle shadow + light ring (no heavy outer card). */
 const THUMB_FRAME =
@@ -52,7 +66,7 @@ export default function ResumeTemplatesPage() {
   const { user, authReady } = useAuth();
 
   const [queryText, setQueryText] = useState("");
-  const [category, setCategory] = useState<(typeof CATEGORIES)[number]>("All");
+  const [filterKey, setFilterKey] = useState<FilterKey>("all");
 
   const [recents, setRecents] = useState<RecentDoc[]>([]);
   const [recentsLoading, setRecentsLoading] = useState(false);
@@ -108,13 +122,16 @@ export default function ResumeTemplatesPage() {
   const filteredTemplates = useMemo(() => {
     const q = queryText.trim().toLowerCase();
     return TEMPLATES.filter((t) => {
-      const matchesCategory = category === "All" || t.category === category;
-      if (!matchesCategory) return false;
+      if (RESUME_GALLERY_HIDDEN_TEMPLATE_IDS.has(t.id)) return false;
+      if (filterKey !== "all") {
+        const mapped = TEMPLATE_ID_TO_FILTER[t.id];
+        if (mapped !== filterKey) return false;
+      }
       if (!q) return true;
       const hay = `${t.id} ${t.title} ${t.category} ${t.tags.join(" ")}`.toLowerCase();
       return hay.includes(q);
     });
-  }, [queryText, category]);
+  }, [queryText, filterKey]);
 
   const isSearching = queryText.trim().length > 0;
 
@@ -190,18 +207,29 @@ export default function ResumeTemplatesPage() {
           />
 
           <div className="flex w-full max-w-xl flex-wrap justify-center gap-2 px-1">
-            {CATEGORIES.map((c) => (
+            <button
+              type="button"
+              onClick={() => setFilterKey("all")}
+              className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                filterKey === "all"
+                  ? "border-zinc-900 bg-zinc-900 text-white shadow-sm"
+                  : "border-zinc-200 bg-white/90 text-zinc-700 shadow-sm hover:border-zinc-300 hover:bg-zinc-50"
+              }`}
+            >
+              All
+            </button>
+            {TEMPLATE_CATEGORIES.map((c) => (
               <button
-                key={c}
+                key={c.id}
                 type="button"
-                onClick={() => setCategory(c)}
+                onClick={() => setFilterKey(c.id)}
                 className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                  category === c
+                  filterKey === c.id
                     ? "border-zinc-900 bg-zinc-900 text-white shadow-sm"
                     : "border-zinc-200 bg-white/90 text-zinc-700 shadow-sm hover:border-zinc-300 hover:bg-zinc-50"
                 }`}
               >
-                {c}
+                {c.label}
               </button>
             ))}
           </div>
@@ -265,10 +293,10 @@ export default function ResumeTemplatesPage() {
                       key={r.id}
                       role="button"
                       tabIndex={0}
-                      onClick={() => router.push(`/editor/${r.id}`)}
+                      onClick={() => router.push(`/editor/doc/${r.id}`)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
-                          router.push(`/editor/${r.id}`);
+                          router.push(`/editor/doc/${r.id}`);
                         }
                       }}
                       className="group flex w-full cursor-pointer flex-col gap-1.5 border-0 bg-transparent p-0 text-left outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
@@ -449,23 +477,15 @@ export default function ResumeTemplatesPage() {
             <button
               key={template.id}
               type="button"
-              onClick={() => router.push(`/editor/${template.id}`)}
+              onClick={() => router.push(`/editor/template/${template.id}`)}
               className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
             >
               <div className={THUMB_FRAME}>
-                <Image
-                  src={`/templates/${template.id}.png`}
-                  alt={`${template.title} preview`}
-                  fill
-                  className="object-cover"
-                  sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 100vw"
-                  priority={template.id === filteredTemplates[0]?.id}
-                  loading={
-                    template.id === filteredTemplates[0]?.id
-                      ? "eager"
-                      : "lazy"
-                  }
-                />
+              <img
+                src={`/templates/${template.id}.png`}
+                alt={`${template.title} preview`}
+                className="w-full h-full object-cover"
+              />
               </div>
               <div className="min-w-0 pt-0.5">
                 <div className="text-sm font-semibold leading-tight text-zinc-900">{template.title}</div>

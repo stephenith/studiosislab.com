@@ -22,7 +22,7 @@ export function getFrameImage(frame: any): any | null {
   if (!frame) return null;
   const objs = (frame as any)._objects ?? (frame as any).getObjects?.() ?? [];
   for (const o of objs) {
-    if (o?.type === "image" || o?.isType?.("image")) return o;
+    if (String(o?.type || "").toLowerCase() === "image" || o?.isType?.("image")) return o;
   }
   return null;
 }
@@ -43,7 +43,7 @@ export function getFrameShape(frame: any): any | null {
 
 /** True if this image is nested inside an image-frame group. */
 export function isImageNestedInImageFrame(img: any): boolean {
-  if (!img || img.type !== "image") return false;
+  if (!img || String(img.type || "").toLowerCase() !== "image") return false;
   const p = img.group ?? img.parent ?? (img as any)._parent;
   return !!(p && isImageFrame(p));
 }

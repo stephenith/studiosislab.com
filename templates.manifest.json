@@ -1,0 +1,83 @@
+{
+  "templates": [
+    {
+      "id": "t001",
+      "title": "Modern Minimal",
+      "categoryId": "business",
+      "thumbnailPath": "/templates/t001.png",
+      "jsonPath": "src/data/template-json/t001.json",
+      "status": "published"
+    },
+    {
+      "id": "t002",
+      "title": "Creative Designer",
+      "categoryId": "creative",
+      "thumbnailPath": "/templates/t002.png",
+      "jsonPath": "src/data/template-json/t002.json",
+      "status": "published"
+    },
+    {
+      "id": "t003",
+      "title": "Professional Manager",
+      "categoryId": "business",
+      "thumbnailPath": "/templates/t003.png",
+      "jsonPath": "src/data/template-json/t003.json",
+      "status": "published"
+    },
+    {
+      "id": "t004",
+      "title": "Marketing Manager Resume",
+      "categoryId": "business",
+      "category": "business",
+      "tags": [],
+      "thumbnailPath": "/templates/t004.png",
+      "jsonPath": "src/data/template-json/t004.json",
+      "status": "published"
+    },
+    {
+      "id": "t005",
+      "title": "Project Manager Resume",
+      "categoryId": "business",
+      "thumbnailPath": "/templates/t005.png",
+      "jsonPath": "src/data/template-json/t005.json",
+      "status": "published",
+      "tags": ["business", "manager", "resume"]
+    },
+    {
+      "id": "t006",
+      "title": "Operations Manager Resume",
+      "categoryId": "business",
+      "thumbnailPath": "/templates/t006.png",
+      "jsonPath": "src/data/template-json/t006.json",
+      "status": "published",
+      "tags": ["business", "operations", "resume"]
+    },
+    {
+      "id": "t007",
+      "title": "Product Manager Resume",
+      "categoryId": "business",
+      "thumbnailPath": "/templates/t007.png",
+      "jsonPath": "src/data/template-json/t007.json",
+      "status": "published",
+      "tags": ["business", "product", "manager", "resume"]
+    },
+    {
+      "id": "t008",
+      "title": "Operations Manager Resume (With Image)",
+      "categoryId": "business",
+      "thumbnailPath": "/templates/t008.png",
+      "jsonPath": "src/data/template-json/t008.json",
+      "status": "published",
+      "tags": ["business", "operations", "resume", "image"]
+    },
+    {
+      "id": "t009",
+      "title": "Executive Resume",
+      "categoryId": "business",
+      "thumbnailPath": "/templates/t009.png",
+      "jsonPath": "src/data/template-json/t009.json",
+      "status": "published",
+      "tags": ["business", "executive", "resume"]
+    }
+  ]
+}

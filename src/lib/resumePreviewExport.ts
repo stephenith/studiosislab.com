@@ -8,6 +8,8 @@ import { initFabricCanvas } from "@/lib/editor/canvasInitializer";
 import type { PageSize } from "@/types/editor";
 import { PAGE_SIZES } from "@/types/editor";
 
+const THUMBNAIL_FALLBACK_IMAGE_SRC = "/templates/avatar-placeholder.png";
+
 function loadFromJsonPromise(canvas: Canvas, json: unknown): Promise<void> {
   return new Promise((resolve, reject) => {
     let settled = false;
@@ -27,6 +29,45 @@ function loadFromJsonPromise(canvas: Canvas, json: unknown): Promise<void> {
       }
     } catch (e) {
       reject(e);
+    }
+  });
+}
+
+function walkFabricTree(root: any, onNode: (node: any) => void): void {
+  const seen = new WeakSet<object>();
+  const visit = (value: any) => {
+    if (!value || typeof value !== "object") return;
+    if (Array.isArray(value)) {
+      for (const item of value) visit(item);
+      return;
+    }
+    if (seen.has(value)) return;
+    seen.add(value);
+    onNode(value);
+    for (const nested of Object.values(value)) {
+      if (nested && typeof nested === "object") visit(nested);
+    }
+  };
+  visit(root);
+}
+
+function isPortableImageSrc(src: string): boolean {
+  const normalized = String(src || "").trim().toLowerCase();
+  if (!normalized) return false;
+  if (normalized.startsWith("data:")) return true;
+  if (normalized.startsWith("http://")) return true;
+  if (normalized.startsWith("https://")) return true;
+  if (normalized.startsWith("/")) return true;
+  return false;
+}
+
+function sanitizeThumbnailJson(json: any): void {
+  walkFabricTree(json, (node) => {
+    const type = String((node as any)?.type || "").toLowerCase();
+    if (type !== "image") return;
+    const src = String((node as any)?.src || "").trim();
+    if (!src || src.toLowerCase().startsWith("blob:") || !isPortableImageSrc(src)) {
+      (node as any).src = THUMBNAIL_FALLBACK_IMAGE_SRC;
     }
   });
 }
@@ -54,6 +95,8 @@ export async function generateResumeThumbnail(params: {
   if (!json || !Array.isArray(json.objects)) {
     return "";
   }
+
+  sanitizeThumbnailJson(json);
 
   const w =
     typeof json.width === "number" && Number.isFinite(json.width) && json.width > 0
@@ -88,7 +131,16 @@ export async function generateResumeThumbnail(params: {
     return typeof dataUrl === "string" ? dataUrl : "";
   } catch (e) {
     console.warn("[generateResumeThumbnail]", e);
-    return "";
+    try {
+      c.renderAll();
+      const fallbackDataUrl = c.toDataURL({
+        format: "png",
+        multiplier: 0.25,
+      } as any);
+      return typeof fallbackDataUrl === "string" ? fallbackDataUrl : "";
+    } catch {
+      return "";
+    }
   } finally {
     try {
       c.dispose();

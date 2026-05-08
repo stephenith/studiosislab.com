@@ -186,10 +186,10 @@ export default function ResumeRecentsPage() {
                   key={r.id}
                   role="button"
                   tabIndex={0}
-                  onClick={() => router.push(`/editor/${r.id}`)}
+                  onClick={() => router.push(`/editor/doc/${r.id}`)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
-                      router.push(`/editor/${r.id}`);
+                      router.push(`/editor/doc/${r.id}`);
                     }
                   }}
                   className="group flex w-full cursor-pointer flex-col gap-2 border-0 bg-transparent p-0 text-left outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"

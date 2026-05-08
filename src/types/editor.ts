@@ -3,7 +3,7 @@
  * Used by useFabricEditor and lib/editor modules.
  */
 
-export type EditorMode = "new" | "template";
+export type EditorMode = "new" | "template" | "doc";
 export type PageSize = "A4" | "Letter" | "Custom";
 
 export type SelectionType = "none" | "text" | "shape" | "image" | "frame" | "table";

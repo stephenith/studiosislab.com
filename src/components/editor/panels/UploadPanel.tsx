@@ -2,12 +2,20 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthUser } from "@/lib/useAuthUser";
-import { listUserUploads, uploadUserImage } from "@/lib/userUploads";
+import {
+  listAssets,
+  saveAsset,
+  type LocalAssetRecord,
+  updateLastAccess,
+} from "@/lib/localAssets";
 import { SidebarSection } from "../sidebar/SidebarSection";
 
 export type UploadEditorApi = {
-  addImage?: (file: File) => void;
-  addImageFromUrl?: (url: string) => void | Promise<void>;
+  docId?: string | null;
+  addImageFromUrl?: (
+    url: string,
+    meta?: { slbAssetId?: string; slbSource?: "local" | "cloud" | "template" }
+  ) => void | Promise<void>;
 };
 
 type UploadPanelProps = {
@@ -15,20 +23,17 @@ type UploadPanelProps = {
   editor: UploadEditorApi | null;
 };
 
-type UploadItem = {
-  id: string;
-  downloadURL: string;
-  name: string;
-  status: "ready" | "uploading" | "error";
-  progress: number;
-  localPreviewUrl?: string;
+type AssetThumb = {
+  assetId: string;
+  url: string;
 };
 
 export function UploadPanel({ onClose, editor }: UploadPanelProps) {
   const { user, loading: authLoading } = useAuthUser();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadsRef = useRef<UploadItem[]>([]);
-  const [uploads, setUploads] = useState<UploadItem[]>([]);
+  const thumbUrlsRef = useRef<Map<string, string>>(new Map());
+  const [assets, setAssets] = useState<LocalAssetRecord[]>([]);
+  const [assetThumbs, setAssetThumbs] = useState<AssetThumb[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,43 +42,54 @@ export function UploadPanel({ onClose, editor }: UploadPanelProps) {
     fileInputRef.current?.click();
   };
 
-  const loadUploads = useCallback(async () => {
-    if (!user?.uid) return;
+  const loadAssets = useCallback(async () => {
+    if (!user?.uid) {
+      setAssets([]);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const rows = await listUserUploads({ uid: user.uid });
-      setUploads(
-        rows.map((row) => ({
-          id: row.id,
-          downloadURL: row.downloadURL,
-          name: row.name || "Upload",
-          status: "ready",
-          progress: 100,
-        }))
-      );
+      const rows = await listAssets(user.uid);
+      setAssets(rows);
     } catch (err) {
-      console.error("[UploadPanel] load uploads failed", err);
-      setError("Failed to load uploads.");
-      setUploads([]);
+      console.error("[UploadPanel] load local assets failed", err);
+      setError("Failed to load local assets.");
+      setAssets([]);
     } finally {
       setLoading(false);
     }
   }, [user?.uid]);
 
   useEffect(() => {
-    loadUploads();
-  }, [loadUploads]);
+    void loadAssets();
+  }, [loadAssets]);
 
   useEffect(() => {
-    uploadsRef.current = uploads;
-  }, [uploads]);
+    const next = new Map<string, string>();
+    const thumbs: AssetThumb[] = assets.map((asset) => {
+      const existing = thumbUrlsRef.current.get(asset.assetId);
+      const url = existing ?? URL.createObjectURL(asset.blob);
+      next.set(asset.assetId, url);
+      return { assetId: asset.assetId, url };
+    });
+
+    thumbUrlsRef.current.forEach((url, assetId) => {
+      if (!next.has(assetId)) {
+        URL.revokeObjectURL(url);
+      }
+    });
+
+    thumbUrlsRef.current = next;
+    setAssetThumbs(thumbs);
+  }, [assets]);
 
   useEffect(() => {
     return () => {
-      uploadsRef.current.forEach((item) => {
-        if (item.localPreviewUrl) URL.revokeObjectURL(item.localPreviewUrl);
+      thumbUrlsRef.current.forEach((url) => {
+        URL.revokeObjectURL(url);
       });
+      thumbUrlsRef.current.clear();
     };
   }, []);
 
@@ -91,67 +107,36 @@ export function UploadPanel({ onClose, editor }: UploadPanelProps) {
     let failedCount = 0;
 
     const tasks = Array.from(files)
-      .filter((file) => file.type.startsWith("image/"))
+      .filter((file) => {
+        const mime = (file.type || "").toLowerCase();
+        if (mime.startsWith("image/")) return true;
+        return /\.(png|jpe?g|webp|gif|bmp|svg|heic|heif)$/i.test(file.name || "");
+      })
       .map(async (file) => {
-        const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
         const localUrl = URL.createObjectURL(file);
 
-        setUploads((prev) => [
-          {
-            id: tempId,
-            downloadURL: localUrl,
-            localPreviewUrl: localUrl,
-            name: file.name,
-            status: "uploading",
-            progress: 0,
-          },
-          ...prev,
-        ]);
-
-        // Preserve existing behavior: selected local file is still inserted immediately.
-        editor?.addImage?.(file);
-
         try {
-          const { assetId, downloadURL } = await uploadUserImage({
+          const assetId = await saveAsset({
             uid: user.uid,
+            docId: String(editor?.docId || "draft"),
             file,
-            onProgress: (percent) => {
-              setUploads((prev) =>
-                prev.map((item) =>
-                  item.id === tempId ? { ...item, progress: percent } : item
-                )
-              );
-            },
           });
-
-          URL.revokeObjectURL(localUrl);
-          setUploads((prev) =>
-            prev.map((item) =>
-              item.id === tempId
-                ? {
-                    id: assetId,
-                    downloadURL,
-                    name: file.name,
-                    status: "ready",
-                    progress: 100,
-                  }
-                : item
-            )
-          );
+          if (editor?.addImageFromUrl) {
+            await editor.addImageFromUrl(localUrl, {
+              slbAssetId: assetId,
+              slbSource: "local",
+            });
+          }
         } catch (err) {
           console.error("[UploadPanel] upload failed", err);
           failedCount += 1;
-          setUploads((prev) =>
-            prev.map((item) =>
-              item.id === tempId
-                ? { ...item, status: "error", progress: 0 }
-                : item
-            )
-          );
+        } finally {
+          URL.revokeObjectURL(localUrl);
         }
       });
 
     await Promise.allSettled(tasks);
+    await loadAssets();
     if (failedCount > 0) {
       setError("Some uploads failed. Please retry.");
     } else {
@@ -161,9 +146,15 @@ export function UploadPanel({ onClose, editor }: UploadPanelProps) {
     e.target.value = "";
   };
 
-  const handleInsert = (item: UploadItem) => {
-    if (!item.downloadURL || item.status !== "ready") return;
-    editor?.addImageFromUrl?.(item.downloadURL);
+  const handleInsert = async (asset: LocalAssetRecord) => {
+    const url = thumbUrlsRef.current.get(asset.assetId);
+    if (!url) return;
+    await updateLastAccess(asset.assetId).catch(() => {});
+    await editor?.addImageFromUrl?.(url, {
+      slbAssetId: asset.assetId,
+      slbSource: "local",
+    });
+    void loadAssets();
   };
 
   return (
@@ -203,42 +194,37 @@ export function UploadPanel({ onClose, editor }: UploadPanelProps) {
         </SidebarSection>
 
         {error && <p className="mt-2 text-xs text-rose-600">{error}</p>}
-        {loading && <p className="mt-2 text-xs text-zinc-500">Loading uploads...</p>}
+        {loading && <p className="mt-2 text-xs text-zinc-500">Loading assets...</p>}
 
-        {!loading && uploads.length === 0 && (
-          <p className="mt-2 text-xs text-zinc-500">No uploads yet</p>
+        {!loading && assets.length === 0 && (
+          <p className="mt-2 text-xs text-zinc-500">No assets yet</p>
         )}
 
-        {uploads.length > 0 && (
-          <SidebarSection title="Uploaded">
+        {assets.length > 0 && (
+          <SidebarSection title="Asset Library">
             <div className="grid grid-cols-3 gap-2">
-              {uploads.map((item) => (
+              {assets.map((asset) => {
+                const thumb = assetThumbs.find((item) => item.assetId === asset.assetId);
+                if (!thumb) return null;
+                return (
                 <button
-                  key={item.id}
+                  key={asset.assetId}
                   type="button"
-                  onClick={() => handleInsert(item)}
-                  disabled={item.status !== "ready"}
-                  className="relative aspect-square rounded-lg border border-zinc-200 bg-zinc-100 overflow-hidden disabled:cursor-wait"
-                  title={item.name}
+                  onClick={() => {
+                    void handleInsert(asset);
+                  }}
+                  className="relative aspect-square rounded-lg border border-zinc-200 bg-zinc-100 overflow-hidden"
+                  title={`Asset ${asset.assetId.slice(0, 8)}`}
                 >
                   <img
-                    src={item.downloadURL}
-                    alt={item.name}
+                    src={thumb.url}
+                    alt={`Local asset ${asset.assetId.slice(0, 8)}`}
                     loading="lazy"
                     className="w-full h-full object-cover"
                   />
-                  {item.status === "uploading" && (
-                    <div className="absolute inset-x-0 bottom-0 bg-black/60 px-1 py-0.5 text-[10px] text-white">
-                      {item.progress}%
-                    </div>
-                  )}
-                  {item.status === "error" && (
-                    <div className="absolute inset-0 grid place-items-center bg-black/50 text-[10px] font-medium text-white">
-                      Failed
-                    </div>
-                  )}
                 </button>
-              ))}
+                );
+              })}
             </div>
           </SidebarSection>
         )}

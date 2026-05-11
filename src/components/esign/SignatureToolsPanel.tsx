@@ -362,11 +362,11 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
             </div>
           )}
 
-          {mobileSigningUrl && (
+          {mobileSigningUrl && onFetchMobileSignature && (
             <button
               type="button"
               onClick={() => onFetchMobileSignature?.()}
-              disabled={mobileSignatureFetching || !onFetchMobileSignature}
+              disabled={mobileSignatureFetching}
               className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 transition hover:border-blue-400 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {mobileSignatureFetching ? "Checking..." : "Fetch mobile signature"}

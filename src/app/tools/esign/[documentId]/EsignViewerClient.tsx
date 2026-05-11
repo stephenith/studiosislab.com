@@ -1228,16 +1228,23 @@ export default function EsignViewerClient({
       });
 
       const json = await res.json().catch(() => null);
-      if (!res.ok || !json?.ok || typeof json.mobileSigningUrl !== "string") {
+      if (
+        !res.ok ||
+        !json?.ok ||
+        typeof json.mobileSigningUrl !== "string" ||
+        typeof json.sessionId !== "string"
+      ) {
         setMobileSigningError(
-          typeof json?.error === "string"
-            ? json.error
-            : "Failed to generate mobile signing link."
+          "Mobile signing session could not be created. Please regenerate the QR link."
         );
+        setMobileSigningSessionId(null);
+        setMobileSigningQrDataUrl(null);
+        setMobileSigningUrl(null);
         return;
       }
 
       const url = json.mobileSigningUrl as string;
+      const sessionId = json.sessionId as string;
       const qrModule = await import("qrcode");
       const qrDataUrl = await qrModule.toDataURL(url, {
         width: 220,
@@ -1245,15 +1252,15 @@ export default function EsignViewerClient({
         errorCorrectionLevel: "M",
       });
 
+      setMobileSigningSessionId(sessionId);
       setMobileSigningUrl(url);
       setMobileSigningQrDataUrl(qrDataUrl);
-      setMobileSigningSessionId(
-        typeof json.sessionId === "string" ? json.sessionId : null
-      );
       lastMobileSignatureRef.current = null;
       setMobileSigningExpiresAt(
         typeof json.expiresAt === "string" ? json.expiresAt : null
       );
+      setMobileSignatureFetchError(null);
+      setMobileSignatureReady(false);
     } catch {
       setMobileSigningError("Failed to generate mobile signing link.");
     } finally {
@@ -1262,13 +1269,22 @@ export default function EsignViewerClient({
   };
 
   const handleFetchMobileSignature = async () => {
-    if (!user) {
-      setMobileSignatureFetchError("Please sign in first.");
+    console.log("[MobileSign] Fetch clicked", {
+      hasUser: !!user,
+      mobileSigningSessionId,
+    });
+
+    if (!mobileSigningSessionId) {
+      setMobileSignatureFetchError(
+        "Mobile session ID missing. Please regenerate the QR link."
+      );
       setMobileSignatureReady(false);
       return;
     }
-    if (!mobileSigningSessionId) {
-      setMobileSignatureFetchError("Generate a mobile signing link first.");
+    if (!user) {
+      setMobileSignatureFetchError(
+        "Please sign in again to fetch the mobile signature."
+      );
       setMobileSignatureReady(false);
       return;
     }

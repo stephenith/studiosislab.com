@@ -836,6 +836,21 @@ export default function EsignViewerClient({
   );
   const [copiedInvite, setCopiedInvite] = useState(false);
   const [inviteSent, setInviteSent] = useState(false);
+  const [mobileSigningUrl, setMobileSigningUrl] = useState<string | null>(null);
+  const [mobileSigningQrDataUrl, setMobileSigningQrDataUrl] = useState<string | null>(
+    null
+  );
+  const [mobileSigningSessionId, setMobileSigningSessionId] = useState<string | null>(
+    null
+  );
+  const [mobileSigningExpiresAt, setMobileSigningExpiresAt] = useState<string | null>(
+    null
+  );
+  const [mobileSigningLoading, setMobileSigningLoading] = useState(false);
+  const [mobileSigningError, setMobileSigningError] = useState<string | null>(null);
+  const [mobileSigningStatusMessage, setMobileSigningStatusMessage] = useState<
+    string | null
+  >(null);
   const [countersignPlaceholder, setCountersignPlaceholder] = useState<CountersignPlaceholderModel | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
 
@@ -846,6 +861,7 @@ export default function EsignViewerClient({
   const insertingRef = useRef(false);
   const clientSignatureInsertedRef = useRef(false);
   const pendingRecipientInsertRef = useRef(false);
+  const lastMobileSignatureRef = useRef<string | null>(null);
   signaturesRef.current = signatures;
   countersignPlaceholderRef.current = countersignPlaceholder;
   docDataRef.current = docData;
@@ -1184,6 +1200,97 @@ export default function EsignViewerClient({
     }
   };
 
+  const handleGenerateMobileSigningLink = async () => {
+    if (!user) {
+      setMobileSigningError("Please sign in first.");
+      return;
+    }
+
+    setMobileSigningLoading(true);
+    setMobileSigningError(null);
+    setMobileSigningStatusMessage(null);
+    try {
+      const idToken = await user.getIdToken();
+      const res = await fetch("/api/esign/mobile-sign/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ documentId }),
+      });
+
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.ok || typeof json.mobileSigningUrl !== "string") {
+        setMobileSigningError(
+          typeof json?.error === "string"
+            ? json.error
+            : "Failed to generate mobile signing link."
+        );
+        return;
+      }
+
+      const url = json.mobileSigningUrl as string;
+      const qrModule = await import("qrcode");
+      const qrDataUrl = await qrModule.toDataURL(url, {
+        width: 220,
+        margin: 1,
+        errorCorrectionLevel: "M",
+      });
+
+      setMobileSigningUrl(url);
+      setMobileSigningQrDataUrl(qrDataUrl);
+      setMobileSigningSessionId(
+        typeof json.sessionId === "string" ? json.sessionId : null
+      );
+      lastMobileSignatureRef.current = null;
+      setMobileSigningExpiresAt(
+        typeof json.expiresAt === "string" ? json.expiresAt : null
+      );
+    } catch {
+      setMobileSigningError("Failed to generate mobile signing link.");
+    } finally {
+      setMobileSigningLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!mobileSigningSessionId || isRecipientMode) return;
+
+    const sessionRef = doc(
+      db,
+      "esign_mobile_signature_sessions",
+      mobileSigningSessionId
+    );
+
+    const unsubscribe = onSnapshot(
+      sessionRef,
+      (snap) => {
+        if (!snap.exists()) return;
+        const data = snap.data() as Record<string, unknown>;
+        if (data.status !== "submitted") return;
+        const signatureDataUrl =
+          typeof data.signatureDataUrl === "string" ? data.signatureDataUrl : "";
+        if (!signatureDataUrl.startsWith("data:image/png;base64,")) return;
+        if (lastMobileSignatureRef.current === signatureDataUrl) return;
+
+        lastMobileSignatureRef.current = signatureDataUrl;
+        setActiveSignature(signatureDataUrl);
+        setMobileSigningError(null);
+        setMobileSigningStatusMessage(
+          "Signature received from mobile. Click Insert to place it."
+        );
+      },
+      (error) => {
+        console.warn("Failed to subscribe to mobile signing session", error);
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [mobileSigningSessionId, isRecipientMode]);
+
   const handleSignatureFileChange = (e: any) => {
     const file = e.target.files?.[0];
     handleUploadSignature(file);
@@ -1517,6 +1624,13 @@ export default function EsignViewerClient({
           onUploadSignature={handleUploadSignature}
           onDeleteSignature={handleDeleteSignature}
           onLockSignature={handleLockSignature}
+          onGenerateMobileSigningLink={handleGenerateMobileSigningLink}
+          mobileSigningUrl={mobileSigningUrl}
+          mobileSigningQrDataUrl={mobileSigningQrDataUrl}
+          mobileSigningExpiresAt={mobileSigningExpiresAt}
+          mobileSigningLoading={mobileSigningLoading}
+          mobileSigningError={mobileSigningError}
+          mobileSigningStatusMessage={mobileSigningStatusMessage}
          />
 
           <section className="relative flex-1 min-h-0 flex flex-col">

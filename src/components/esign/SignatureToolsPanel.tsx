@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 
 type SignatureToolsPanelProps = {
   mode: "sender" | "recipient";
@@ -11,6 +12,13 @@ type SignatureToolsPanelProps = {
   onDeleteSignature: () => void;
   onLockSignature: () => void;
   signatureLocked: boolean;
+  onGenerateMobileSigningLink?: () => Promise<void> | void;
+  mobileSigningUrl?: string | null;
+  mobileSigningQrDataUrl?: string | null;
+  mobileSigningExpiresAt?: string | Date | null;
+  mobileSigningLoading?: boolean;
+  mobileSigningError?: string | null;
+  mobileSigningStatusMessage?: string | null;
 };
 
 function SignaturePad({
@@ -218,6 +226,13 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
   onDeleteSignature,
   onLockSignature,
   signatureLocked,
+  onGenerateMobileSigningLink,
+  mobileSigningUrl,
+  mobileSigningQrDataUrl,
+  mobileSigningExpiresAt,
+  mobileSigningLoading,
+  mobileSigningError,
+  mobileSigningStatusMessage,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -228,6 +243,20 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
     setFileName(file.name || "Signature");
     onUploadSignature(file);
   };
+
+  const expiryLabel = (() => {
+    if (!mobileSigningExpiresAt) return null;
+    try {
+      const d =
+        typeof mobileSigningExpiresAt === "string"
+          ? new Date(mobileSigningExpiresAt)
+          : mobileSigningExpiresAt;
+      if (!(d instanceof Date) || Number.isNaN(d.getTime())) return null;
+      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    } catch {
+      return null;
+    }
+  })();
 
   return (
     <aside className="w-[320px] shrink-0 border-r bg-white p-4 space-y-6">
@@ -268,6 +297,75 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
           Insert
         </button>
       </div>
+
+      {mode === "sender" && (
+        <div className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
+          <div className="text-xs font-semibold uppercase text-zinc-500">
+            Sign using your mobile
+          </div>
+          <p className="text-xs leading-relaxed text-zinc-600">
+            Scan this QR code with your phone to draw your signature using touch.
+          </p>
+          <button
+            type="button"
+            onClick={() => onGenerateMobileSigningLink?.()}
+            disabled={mobileSigningLoading || !onGenerateMobileSigningLink}
+            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 transition hover:border-blue-400 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {mobileSigningLoading ? "Generating..." : "Generate mobile signing link"}
+          </button>
+
+          {mobileSigningQrDataUrl && (
+            <div className="mx-auto w-fit rounded-lg border border-zinc-200 bg-white p-2">
+              <Image
+                src={mobileSigningQrDataUrl}
+                alt="Mobile signing QR code"
+                className="h-40 w-40"
+                width={160}
+                height={160}
+                unoptimized
+              />
+            </div>
+          )}
+
+          {mobileSigningUrl && (
+            <div className="space-y-2">
+              <a
+                href={mobileSigningUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="block rounded border border-zinc-200 bg-white px-2 py-1.5 text-[11px] font-medium text-zinc-700 hover:border-blue-300 hover:text-zinc-900 break-all"
+              >
+                {mobileSigningUrl}
+              </a>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(mobileSigningUrl);
+                  } catch {
+                    // no-op
+                  }
+                }}
+                className="w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-[11px] font-medium text-zinc-700 hover:border-blue-400"
+              >
+                Copy mobile signing link
+              </button>
+            </div>
+          )}
+
+          {expiryLabel && (
+            <p className="text-[11px] text-zinc-500">Expires at {expiryLabel}</p>
+          )}
+
+          {mobileSigningError && (
+            <p className="text-xs text-red-600">{mobileSigningError}</p>
+          )}
+          {mobileSigningStatusMessage && (
+            <p className="text-xs text-green-700">{mobileSigningStatusMessage}</p>
+          )}
+        </div>
+      )}
 
       {activeSignature && (
         <div className="space-y-2 border-t border-zinc-200 pt-4">

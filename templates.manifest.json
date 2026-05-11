@@ -78,6 +78,46 @@
       "jsonPath": "src/data/template-json/t009.json",
       "status": "published",
       "tags": ["business", "executive", "resume"]
+    },
+    {
+      "id": "t010",
+      "title": "Software Engineer Resume",
+      "categoryId": "it",
+      "category": "IT & Software",
+      "tags": [],
+      "thumbnailPath": "/templates/t010.png",
+      "jsonPath": "src/data/template-json/t010.json",
+      "status": "published"
+    },
+    {
+      "id": "t011",
+      "title": "Data Analyst Resume",
+      "categoryId": "it",
+      "category": "IT & Software",
+      "tags": [],
+      "thumbnailPath": "/templates/t011.png",
+      "jsonPath": "src/data/template-json/t011.json",
+      "status": "published"
+    },
+    {
+      "id": "t012",
+      "title": "Front-end Developer Resume",
+      "categoryId": "it",
+      "category": "IT & Software",
+      "tags": [],
+      "thumbnailPath": "/templates/t012.png",
+      "jsonPath": "src/data/template-json/t012.json",
+      "status": "published"
+    },
+    {
+      "id": "t013",
+      "title": "Cyber Security Resume",
+      "categoryId": "it",
+      "category": "IT & Software",
+      "tags": [],
+      "thumbnailPath": "/templates/t013.png",
+      "jsonPath": "src/data/template-json/t013.json",
+      "status": "published"
     }
   ]
 }

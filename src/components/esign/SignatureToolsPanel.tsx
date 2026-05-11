@@ -30,6 +30,50 @@ function SignaturePad({
     { points: { x: number; y: number }[]; color: string }[]
   >([]);
   const isDrawingRef = useRef(false);
+  const MIN_POINT_DISTANCE = 1.4;
+
+  const smoothStroke = (
+    ctx: CanvasRenderingContext2D,
+    points: { x: number; y: number }[],
+    strokeColor: string
+  ) => {
+    if (points.length === 0) return;
+
+    ctx.strokeStyle = strokeColor;
+    ctx.fillStyle = strokeColor;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 2.5;
+
+    if (points.length === 1) {
+      const p = points[0];
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+      return;
+    }
+
+    if (points.length === 2) {
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      ctx.lineTo(points[1].x, points[1].y);
+      ctx.stroke();
+      return;
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length - 1; i++) {
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const midX = (p1.x + p2.x) / 2;
+      const midY = (p1.y + p2.y) / 2;
+      ctx.quadraticCurveTo(p1.x, p1.y, midX, midY);
+    }
+    const last = points[points.length - 1];
+    ctx.lineTo(last.x, last.y);
+    ctx.stroke();
+  };
 
   const redraw = () => {
     const canvas = canvasRef.current;
@@ -38,17 +82,7 @@ function SignaturePad({
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (const stroke of strokes) {
-      if (stroke.points.length < 2) continue;
-      ctx.strokeStyle = stroke.color;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
-      for (let i = 1; i < stroke.points.length; i++) {
-        ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
-      }
-      ctx.stroke();
+      smoothStroke(ctx, stroke.points, stroke.color);
     }
   };
 
@@ -85,6 +119,13 @@ function SignaturePad({
       if (!prev.length) return prev;
       const next = [...prev];
       const last = next[next.length - 1];
+      const prevPt = last.points[last.points.length - 1];
+      if (!prevPt) return prev;
+      const dx = pt.x - prevPt.x;
+      const dy = pt.y - prevPt.y;
+      if (Math.hypot(dx, dy) < MIN_POINT_DISTANCE) {
+        return prev;
+      }
       last.points = [...last.points, pt];
       return next;
     });

@@ -73,6 +73,34 @@ export const SYSTEM_TEMPLATES: SystemTemplate[] = [
     thumbnail: "/templates/t009.png",
     load: async () => (await import("../template-json/t009.json")).default,
   },
+  {
+    id: "t010",
+    name: "Software Engineer Resume",
+    tags: [],
+    thumbnail: "/templates/t010.png",
+    load: async () => (await import("../template-json/t010.json")).default,
+  },
+  {
+    id: "t011",
+    name: "Data Analyst Resume",
+    tags: [],
+    thumbnail: "/templates/t011.png",
+    load: async () => (await import("../template-json/t011.json")).default,
+  },
+  {
+    id: "t012",
+    name: "Front-end Developer Resume",
+    tags: [],
+    thumbnail: "/templates/t012.png",
+    load: async () => (await import("../template-json/t012.json")).default,
+  },
+  {
+    id: "t013",
+    name: "Cyber Security Resume",
+    tags: [],
+    thumbnail: "/templates/t013.png",
+    load: async () => (await import("../template-json/t013.json")).default,
+  },
 ];
 
 export const SYSTEM_TEMPLATE_IDS = SYSTEM_TEMPLATES.map((template) => template.id);

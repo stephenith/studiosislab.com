@@ -9,6 +9,10 @@ import tpl5 from "./template-json/t006.json";
 import tpl6 from "./template-json/t007.json";
 import tpl7 from "./template-json/t008.json";
 import tpl8 from "./template-json/t009.json";
+import tpl9 from "./template-json/t010.json";
+import tpl10 from "./template-json/t011.json";
+import tpl11 from "./template-json/t012.json";
+import tpl12 from "./template-json/t013.json";
 
 export type Template = {
   id: string;
@@ -106,6 +110,42 @@ export const TEMPLATES: Template[] = [
     thumb: "/templates/t009.png",
     status: "published",
   },
+  {
+    id: "t010",
+    title: "Software Engineer Resume",
+    categoryId: "it",
+    category: "it",
+    tags: [],
+    thumb: "/templates/t010.png",
+    status: "published",
+  },
+  {
+    id: "t011",
+    title: "Data Analyst Resume",
+    categoryId: "it",
+    category: "it",
+    tags: [],
+    thumb: "/templates/t011.png",
+    status: "published",
+  },
+  {
+    id: "t012",
+    title: "Front-end Developer Resume",
+    categoryId: "it",
+    category: "it",
+    tags: [],
+    thumb: "/templates/t012.png",
+    status: "published",
+  },
+  {
+    id: "t013",
+    title: "Cyber Security Resume",
+    categoryId: "it",
+    category: "it",
+    tags: [],
+    thumb: "/templates/t013.png",
+    status: "published",
+  },
 ];
 
 export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
@@ -145,5 +185,21 @@ export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
   "t009":
     (tpl8 as any)?.objects && (tpl8 as any).objects.length > 0
       ? (tpl8 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t010":
+    (tpl9 as any)?.objects && (tpl9 as any).objects.length > 0
+      ? (tpl9 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t011":
+    (tpl10 as any)?.objects && (tpl10 as any).objects.length > 0
+      ? (tpl10 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t012":
+    (tpl11 as any)?.objects && (tpl11 as any).objects.length > 0
+      ? (tpl11 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t013":
+    (tpl12 as any)?.objects && (tpl12 as any).objects.length > 0
+      ? (tpl12 as TemplateSnapshot)
       : ({ objects: [] } as TemplateSnapshot),
 };

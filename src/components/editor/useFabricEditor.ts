@@ -1591,6 +1591,15 @@ export function useFabricEditor({
 
   useEffect(() => {
     return () => {
+      try {
+        if (dirtyRef.current && pendingSnapshotRef.current) {
+          console.log("[autosave] flushing before unmount");
+          void syncNow();
+        }
+      } catch (e) {
+        console.error("[autosave flush error]", e);
+      }
+
       if (saveTimerRef.current != null) {
         window.clearTimeout(saveTimerRef.current);
         saveTimerRef.current = null;
@@ -1604,7 +1613,7 @@ export function useFabricEditor({
         syncIntervalRef.current = null;
       }
     };
-  }, []);
+  }, [syncNow]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;

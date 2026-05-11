@@ -361,8 +361,22 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
           {mobileSigningError && (
             <p className="text-xs text-red-600">{mobileSigningError}</p>
           )}
-          {mobileSigningStatusMessage && (
-            <p className="text-xs text-green-700">{mobileSigningStatusMessage}</p>
+          {mobileSigningStatusMessage && activeSignature && (
+            <div className="space-y-2 rounded border border-green-200 bg-green-50 px-2 py-2">
+              <p className="text-xs font-medium text-green-800">
+                Mobile signature received.
+              </p>
+              <p className="text-xs text-green-700">
+                Click below to insert it into this document.
+              </p>
+              <button
+                type="button"
+                onClick={() => onInsertSignature()}
+                className="w-full rounded-md bg-black px-3 py-1.5 text-xs font-medium text-white"
+              >
+                Insert mobile signature
+              </button>
+            </div>
           )}
         </div>
       )}

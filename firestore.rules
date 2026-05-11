@@ -27,5 +27,11 @@ service cloud.firestore {
 
       allow delete: if isOwner(uid);
     }
+
+    match /esign_mobile_signature_sessions/{sessionId} {
+      allow read: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid;
+      allow create, update, delete: if false;
+    }
   }
 }

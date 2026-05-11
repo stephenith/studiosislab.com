@@ -1283,6 +1283,9 @@ export default function EsignViewerClient({
       },
       (error) => {
         console.warn("Failed to subscribe to mobile signing session", error);
+        setMobileSigningStatusMessage(
+          "Unable to receive mobile signature. Please refresh and try again."
+        );
       }
     );
 

@@ -1687,6 +1687,7 @@ export default function EsignViewerClient({
         <SignatureToolsPanel
           mode={isRecipientMode ? "recipient" : "sender"}
           activeSignature={activeSignature}
+          hasSelectedSignature={!!selectedSignatureId}
           signatureLocked={signatureLocked}
           onSignatureDrawn={setActiveSignature}
           onInsertSignature={(dataUrl?: string) => {

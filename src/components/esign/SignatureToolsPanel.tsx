@@ -6,6 +6,7 @@ import Image from "next/image";
 type SignatureToolsPanelProps = {
   mode: "sender" | "recipient";
   activeSignature: string | null;
+  hasSelectedSignature?: boolean;
   onSignatureDrawn: (dataUrl: string) => void;
   onInsertSignature: (dataUrl?: string) => void;
   onUploadSignature: (file: File) => void;
@@ -224,6 +225,7 @@ function SignaturePad({
 const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
   mode,
   activeSignature,
+  hasSelectedSignature,
   onSignatureDrawn,
   onInsertSignature,
   onUploadSignature,
@@ -267,7 +269,7 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
   })();
 
   return (
-    <aside className="w-[320px] shrink-0 border-r bg-white p-4 space-y-6">
+    <aside className="h-full min-h-0 w-[320px] shrink-0 overflow-y-auto overscroll-contain border-r bg-white p-4 space-y-6">
       <SignaturePad
   mode={mode}
   activeSignature={activeSignature}
@@ -415,10 +417,16 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
             <button
               type="button"
               onClick={onDeleteSignature}
-              className="w-full rounded-lg border border-red-300 bg-white px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50"
+              disabled={!hasSelectedSignature}
+              className="w-full rounded-lg border border-red-300 bg-white px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Delete Signature
             </button>
+            {!hasSelectedSignature && (
+              <p className="text-[11px] text-zinc-500">
+                Select a placed signature to delete it.
+              </p>
+            )}
             <button
               type="button"
               onClick={onLockSignature}

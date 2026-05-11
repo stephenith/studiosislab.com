@@ -71,7 +71,9 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    if (data.status !== "submitted") {
+    const signatureDataUrl =
+      typeof data.signatureDataUrl === "string" ? data.signatureDataUrl : "";
+    if (!signatureDataUrl.startsWith("data:image/png;base64,")) {
       return new Response(
         JSON.stringify({
           ok: false,
@@ -84,25 +86,16 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const signatureDataUrl =
-      typeof data.signatureDataUrl === "string" ? data.signatureDataUrl : "";
-    if (!signatureDataUrl.startsWith("data:image/png;base64,")) {
-      return new Response(
-        JSON.stringify({ ok: false, error: "Invalid submitted signature data" }),
-        {
-          status: 422,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
     const base64 = signatureDataUrl.split(",")[1] || "";
     const raw = Buffer.from(base64, "base64");
     if (!raw.length) {
       return new Response(
-        JSON.stringify({ ok: false, error: "Submitted signature is empty" }),
+        JSON.stringify({
+          ok: false,
+          error: "Mobile signature has not been submitted yet",
+        }),
         {
-          status: 422,
+          status: 409,
           headers: { "Content-Type": "application/json" },
         }
       );
@@ -118,6 +111,17 @@ export async function GET(req: NextRequest) {
           headers: { "Content-Type": "application/json" },
         }
       );
+    }
+
+    // Best-effort fetch marker; should never block returning a valid signature.
+    try {
+      const status = typeof data.status === "string" ? data.status : null;
+      await sessionRef.update({
+        fetchedAt: new Date(),
+        ...(status === "submitted" ? { status: "fetched" } : {}),
+      });
+    } catch (e) {
+      console.warn("[esign/mobile-sign/fetch] failed to set fetched marker", e);
     }
 
     return new Response(

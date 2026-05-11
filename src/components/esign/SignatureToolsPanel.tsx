@@ -19,6 +19,10 @@ type SignatureToolsPanelProps = {
   mobileSigningLoading?: boolean;
   mobileSigningError?: string | null;
   mobileSigningStatusMessage?: string | null;
+  onFetchMobileSignature?: () => Promise<void> | void;
+  mobileSignatureFetching?: boolean;
+  mobileSignatureFetchError?: string | null;
+  mobileSignatureReady?: boolean;
 };
 
 function SignaturePad({
@@ -233,6 +237,10 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
   mobileSigningLoading,
   mobileSigningError,
   mobileSigningStatusMessage,
+  onFetchMobileSignature,
+  mobileSignatureFetching,
+  mobileSignatureFetchError,
+  mobileSignatureReady,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -354,6 +362,17 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
             </div>
           )}
 
+          {mobileSigningUrl && (
+            <button
+              type="button"
+              onClick={() => onFetchMobileSignature?.()}
+              disabled={mobileSignatureFetching || !onFetchMobileSignature}
+              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 transition hover:border-blue-400 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {mobileSignatureFetching ? "Checking..." : "Fetch mobile signature"}
+            </button>
+          )}
+
           {expiryLabel && (
             <p className="text-[11px] text-zinc-500">Expires at {expiryLabel}</p>
           )}
@@ -361,7 +380,10 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
           {mobileSigningError && (
             <p className="text-xs text-red-600">{mobileSigningError}</p>
           )}
-          {mobileSigningStatusMessage && activeSignature && (
+          {mobileSignatureFetchError && (
+            <p className="text-xs text-red-600">{mobileSignatureFetchError}</p>
+          )}
+          {mobileSignatureReady && activeSignature && (
             <div className="space-y-2 rounded border border-green-200 bg-green-50 px-2 py-2">
               <p className="text-xs font-medium text-green-800">
                 Mobile signature received.
@@ -369,6 +391,9 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
               <p className="text-xs text-green-700">
                 Click below to insert it into this document.
               </p>
+              {mobileSigningStatusMessage && (
+                <p className="text-[11px] text-green-700">{mobileSigningStatusMessage}</p>
+              )}
               <button
                 type="button"
                 onClick={() => onInsertSignature()}

@@ -848,6 +848,11 @@ export default function EsignViewerClient({
   );
   const [mobileSigningLoading, setMobileSigningLoading] = useState(false);
   const [mobileSigningError, setMobileSigningError] = useState<string | null>(null);
+  const [mobileSignatureFetching, setMobileSignatureFetching] = useState(false);
+  const [mobileSignatureFetchError, setMobileSignatureFetchError] = useState<string | null>(
+    null
+  );
+  const [mobileSignatureReady, setMobileSignatureReady] = useState(false);
   const [mobileSigningStatusMessage, setMobileSigningStatusMessage] = useState<
     string | null
   >(null);
@@ -1209,6 +1214,8 @@ export default function EsignViewerClient({
     setMobileSigningLoading(true);
     setMobileSigningError(null);
     setMobileSigningStatusMessage(null);
+    setMobileSignatureFetchError(null);
+    setMobileSignatureReady(false);
     try {
       const idToken = await user.getIdToken();
       const res = await fetch("/api/esign/mobile-sign/create", {
@@ -1254,6 +1261,61 @@ export default function EsignViewerClient({
     }
   };
 
+  const handleFetchMobileSignature = async () => {
+    if (!user) {
+      setMobileSignatureFetchError("Please sign in first.");
+      setMobileSignatureReady(false);
+      return;
+    }
+    if (!mobileSigningSessionId) {
+      setMobileSignatureFetchError("Generate a mobile signing link first.");
+      setMobileSignatureReady(false);
+      return;
+    }
+
+    setMobileSignatureFetching(true);
+    setMobileSignatureFetchError(null);
+    try {
+      const idToken = await user.getIdToken();
+      const res = await fetch(
+        `/api/esign/mobile-sign/fetch?sessionId=${encodeURIComponent(
+          mobileSigningSessionId
+        )}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
+        }
+      );
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.ok || typeof json.signatureDataUrl !== "string") {
+        setMobileSignatureFetchError(
+          typeof json?.error === "string"
+            ? json.error
+            : "Failed to fetch mobile signature."
+        );
+        setMobileSignatureReady(false);
+        return;
+      }
+
+      const signatureDataUrl = json.signatureDataUrl as string;
+      setActiveSignature(signatureDataUrl);
+      lastMobileSignatureRef.current = signatureDataUrl;
+      setMobileSignatureReady(true);
+      setMobileSigningStatusMessage(
+        "Mobile signature fetched. Click Insert mobile signature to place it."
+      );
+      setMobileSigningError(null);
+      setMobileSignatureFetchError(null);
+    } catch {
+      setMobileSignatureFetchError("Failed to fetch mobile signature.");
+      setMobileSignatureReady(false);
+    } finally {
+      setMobileSignatureFetching(false);
+    }
+  };
+
   useEffect(() => {
     if (!mobileSigningSessionId || isRecipientMode) return;
 
@@ -1277,12 +1339,15 @@ export default function EsignViewerClient({
         lastMobileSignatureRef.current = signatureDataUrl;
         setActiveSignature(signatureDataUrl);
         setMobileSigningError(null);
+        setMobileSignatureReady(true);
+        setMobileSignatureFetchError(null);
         setMobileSigningStatusMessage(
           "Signature received from mobile. Click Insert to place it."
         );
       },
       (error) => {
         console.warn("Failed to subscribe to mobile signing session", error);
+        setMobileSignatureReady(false);
         setMobileSigningStatusMessage(
           "Unable to receive mobile signature. Please refresh and try again."
         );
@@ -1634,6 +1699,10 @@ export default function EsignViewerClient({
           mobileSigningLoading={mobileSigningLoading}
           mobileSigningError={mobileSigningError}
           mobileSigningStatusMessage={mobileSigningStatusMessage}
+          onFetchMobileSignature={handleFetchMobileSignature}
+          mobileSignatureFetching={mobileSignatureFetching}
+          mobileSignatureFetchError={mobileSignatureFetchError}
+          mobileSignatureReady={mobileSignatureReady}
          />
 
           <section className="relative flex-1 min-h-0 flex flex-col">

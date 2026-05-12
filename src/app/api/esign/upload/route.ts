@@ -20,17 +20,17 @@ export async function POST(req: NextRequest) {
     const originalName = (fileLike as any).name || "document";
     const lower = originalName.toLowerCase();
 
-    let ext = "";
-    if (lower.endsWith(".pdf")) ext = ".pdf";
-    else if (lower.endsWith(".doc")) ext = ".doc";
-    else if (lower.endsWith(".docx")) ext = ".docx";
-
-    if (!ext) {
+    if (!lower.endsWith(".pdf")) {
       return NextResponse.json(
-        { ok: false, error: "Only PDF or Word documents (.pdf, .doc, .docx) are supported." },
+        {
+          ok: false,
+          error: "Only PDF files are currently supported for e-signing.",
+        },
         { status: 400 }
       );
     }
+
+    const ext = ".pdf" as const;
 
     const arrayBuffer = await fileLike.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -40,12 +40,7 @@ export async function POST(req: NextRequest) {
 
     const fileRef = adminStorage.file(objectPath);
     await fileRef.save(buffer, {
-      contentType:
-        ext === ".pdf"
-          ? "application/pdf"
-          : ext === ".docx"
-          ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-          : "application/msword",
+      contentType: "application/pdf",
     });
 
     return NextResponse.json({

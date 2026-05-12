@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Inter, Poppins } from "next/font/google";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -15,9 +16,51 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
+};
+
 export const metadata: Metadata = {
-  title: "Studiosis Lab",
-  description: "Free resume builder with ad-supported downloads.",
+  title: "StudiosisLab",
+  description:
+    "Create resumes, manage documents, and prepare e-sign workflows with StudiosisLab’s simple online productivity tools.",
+  metadataBase: new URL("https://studiosislab.com"),
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/branding/favicon.ico" },
+      {
+        url: "/branding/icon-192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        url: "/branding/icon-512.png",
+        sizes: "512x512",
+        type: "image/png",
+      },
+    ],
+    apple: "/branding/apple-touch-icon.png",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "StudiosisLab",
+    images: [
+      {
+        url: "/branding/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "StudiosisLab",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/branding/twitter-image.png"],
+  },
+  verification: {
+    google: "Z8_dQuj8VOTEdsit3LZe4fuWrh9j4YB7Xw5ijA1QLKA",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -33,6 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         )}
         <Providers>{children}</Providers>
+        <GoogleAnalytics />
       </body>
     </html>
   );

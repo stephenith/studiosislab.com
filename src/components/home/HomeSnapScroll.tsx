@@ -9,7 +9,12 @@ import {
   type ReactNode,
 } from "react";
 
-export default function HomeSnapScroll({ children }: { children: ReactNode }) {
+type HomeSnapScrollProps = {
+  children: ReactNode;
+  afterContent?: ReactNode;
+};
+
+export default function HomeSnapScroll({ children, afterContent }: HomeSnapScrollProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
@@ -74,7 +79,10 @@ export default function HomeSnapScroll({ children }: { children: ReactNode }) {
         onScroll={scheduleFlush}
         className="home-snap-scroll h-full min-h-0 overflow-x-hidden overflow-y-auto overscroll-y-contain snap-y snap-mandatory pb-5"
       >
-        <div ref={contentRef}>{children}</div>
+        <div ref={contentRef}>
+          {children}
+          {afterContent ? <div className="snap-none">{afterContent}</div> : null}
+        </div>
       </div>
       {hasOverflow ? (
         <div

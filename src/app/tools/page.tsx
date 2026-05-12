@@ -379,11 +379,9 @@ export default function EsignToolsPage() {
     const name = file.name || "";
     const lower = name.toLowerCase();
     const ok =
-      lower.endsWith(".pdf") ||
-      lower.endsWith(".doc") ||
-      lower.endsWith(".docx");
+      lower.endsWith(".pdf") || file.type === "application/pdf";
     if (!ok) {
-      alert("Please upload a PDF or Word document (.pdf, .doc, .docx).");
+      alert("Only PDF files are currently supported for e-signing.");
       e.target.value = "";
       setSelectedFile(null);
       return;
@@ -669,13 +667,13 @@ export default function EsignToolsPage() {
         </div>
 
         <section className="mt-10 flex flex-col items-center">
-          <div className="w-full max-w-3xl rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-            <div className="text-sm font-medium text-zinc-800 mb-3">
+          <div className="w-full max-w-3xl rounded-2xl border border-zinc-800 bg-zinc-950 p-5 shadow-lg">
+            <div className="text-sm font-medium text-white mb-3">
               Document
             </div>
-            <div className="flex items-stretch rounded-full border border-zinc-300 bg-zinc-50 px-3 py-1 shadow-sm">
+            <div className="flex items-stretch rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 shadow-sm">
               <div className="flex-1 flex items-center gap-2 px-2">
-                <span className="text-sm text-zinc-500 truncate">
+                <span className="text-sm text-zinc-300 truncate">
                   {selectedLabel}
                 </span>
               </div>
@@ -683,7 +681,7 @@ export default function EsignToolsPage() {
                 <button
                   type="button"
                   onClick={handleBrowseClick}
-                  className="rounded-full border border-zinc-300 bg-white px-4 py-1.5 text-sm font-medium text-zinc-800 transition-colors hover:border-zinc-400"
+                  className="rounded-full border border-zinc-600 bg-zinc-800 px-4 py-1.5 text-sm font-medium text-zinc-100 transition-colors hover:border-zinc-500 hover:bg-zinc-700"
                 >
                   Browse
                 </button>
@@ -691,16 +689,16 @@ export default function EsignToolsPage() {
                   type="button"
                   onClick={handleProceed}
                   disabled={uploading || !selectedFile}
-                  className="rounded-full bg-black px-5 py-1.5 text-sm font-medium text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {uploading ? "Uploading..." : "Proceed"}
                 </button>
               </div>
             </div>
 
-            <p className="mt-2 text-xs text-zinc-600">
-              Please upload the document which needs to be signed. Only PDF or
-              Word format supported.
+            <p className="mt-2 text-xs text-zinc-400">
+              Please upload the document which needs to be signed. Only PDF files
+              are currently supported.
             </p>
           </div>
         </section>
@@ -852,7 +850,7 @@ export default function EsignToolsPage() {
       <input
         ref={fileInputRef}
         type="file"
-        accept=".pdf,.doc,.docx"
+        accept=".pdf"
         className="hidden"
         onChange={handleFileChange}
       />

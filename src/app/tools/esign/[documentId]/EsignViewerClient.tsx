@@ -858,6 +858,8 @@ export default function EsignViewerClient({
   >(null);
   const [countersignPlaceholder, setCountersignPlaceholder] = useState<CountersignPlaceholderModel | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [showWorkflowTip, setShowWorkflowTip] = useState(true);
+  const [showCounterSignTip, setShowCounterSignTip] = useState(true);
 
   const signaturesRef = useRef<SignatureModel[]>(signatures);
   const countersignPlaceholderRef = useRef<CountersignPlaceholderModel | null>(countersignPlaceholder);
@@ -1536,6 +1538,18 @@ export default function EsignViewerClient({
 
   const hasLockedSignature = signatures.some((s) => s.locked ?? false);
 
+  const showWorkflowGuidance =
+    !isRecipientMode &&
+    hasLockedSignature &&
+    counterMode === "single" &&
+    showWorkflowTip;
+
+  const showCounterSignGuidance =
+    !isRecipientMode &&
+    counterMode === "multi" &&
+    showCounterSignTip &&
+    countersignPlaceholder == null;
+
   const step1Done =
     signatures.length >= 1 && hasLockedSignature;
 
@@ -1987,8 +2001,52 @@ export default function EsignViewerClient({
                 </label>
               </div>
 
+              {showWorkflowGuidance && (
+                <div className="relative shrink-0 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 pr-9 text-emerald-950 shadow-md ring-1 ring-emerald-100/80">
+                  <button
+                    type="button"
+                    onClick={() => setShowWorkflowTip(false)}
+                    className="absolute right-2 top-2 rounded p-0.5 text-emerald-800 hover:bg-emerald-100/90"
+                    aria-label="Dismiss workflow tip"
+                  >
+                    <span className="block text-sm font-medium leading-none">×</span>
+                  </button>
+                  <h2 className="text-xs font-semibold text-emerald-950">
+                    Choose workflow type
+                  </h2>
+                  <p className="mt-1.5 text-xs leading-relaxed text-emerald-900/90">
+                    If you want to send this document for a second-party signature,
+                    click Counter Sign.
+                    <br />
+                    If not, you can continue with Solo Sign and download the signed
+                    copy.
+                  </p>
+                </div>
+              )}
+
               {counterMode === "multi" && (
                 <div className="space-y-3">
+                  {showCounterSignGuidance && (
+                    <div className="relative shrink-0 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 pr-9 text-emerald-950 shadow-md ring-1 ring-emerald-100/80">
+                      <button
+                        type="button"
+                        onClick={() => setShowCounterSignTip(false)}
+                        className="absolute right-2 top-2 rounded p-0.5 text-emerald-800 hover:bg-emerald-100/90"
+                        aria-label="Dismiss countersign tip"
+                      >
+                        <span className="block text-sm font-medium leading-none">×</span>
+                      </button>
+                      <h2 className="text-xs font-semibold text-emerald-950">
+                        Add counter signature box
+                      </h2>
+                      <p className="mt-1.5 text-xs leading-relaxed text-emerald-900/90">
+                        Click Add Counter Sign Box and place it where the second
+                        party needs to sign.
+                        <br />
+                        Then enter the email details and share it for countersign.
+                      </p>
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
@@ -2003,7 +2061,7 @@ export default function EsignViewerClient({
                         locked: false,
                       });
                     }}
-                    className="w-full rounded border border-zinc-300 bg-white px-3 py-2 text-xs font-medium text-zinc-800 hover:border-zinc-400"
+                    className="w-full rounded border border-orange-500 bg-orange-500 px-3 py-2 text-xs font-medium text-white hover:bg-orange-600 hover:border-orange-600"
                   >
                     Add Countersign Box
                   </button>
@@ -2012,13 +2070,13 @@ export default function EsignViewerClient({
                       type="button"
                       onClick={() => setCountersignPlaceholder((p) => p ? { ...p, locked: true } : null)}
                       disabled={countersignPlaceholder.locked}
-                      className={`w-full rounded px-3 py-2 text-xs font-medium ${
+                      className={`w-full rounded-lg px-3 py-2 text-xs font-medium ${
                         countersignPlaceholder.locked
-                          ? "bg-zinc-100 text-zinc-500 cursor-default"
-                          : "border border-zinc-300 bg-white text-zinc-800 hover:border-zinc-400"
+                          ? "cursor-default bg-zinc-100 text-zinc-500"
+                          : "bg-sky-500 text-white shadow-sm hover:bg-sky-600"
                       }`}
                     >
-                      Lock Countersign Position
+                      Click to lock countersign position
                     </button>
                   )}
                   <div className="grid grid-cols-2 gap-3 text-xs">

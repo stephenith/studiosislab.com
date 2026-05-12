@@ -246,6 +246,13 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [showOnboardingTip, setShowOnboardingTip] = useState(true);
+  const [showManageSignatureTip, setShowManageSignatureTip] = useState(true);
+
+  const showManageSignatureHelper =
+    mode === "sender" &&
+    showManageSignatureTip &&
+    (!!hasSelectedSignature || !!activeSignature);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -270,6 +277,30 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
 
   return (
     <aside className="h-full min-h-0 w-[320px] shrink-0 overflow-y-auto overscroll-contain border-r bg-white p-4 space-y-6">
+      {mode === "sender" && showOnboardingTip && (
+        <div className="sticky top-0 z-10 shrink-0 -mx-1">
+          <div className="relative rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 pr-9 text-emerald-950 shadow-md ring-1 ring-emerald-100/80">
+            <button
+              type="button"
+              onClick={() => setShowOnboardingTip(false)}
+              className="absolute right-2 top-2 rounded p-0.5 text-emerald-800 hover:bg-emerald-100/90"
+              aria-label="Dismiss onboarding tip"
+            >
+              <span className="block text-sm font-medium leading-none">×</span>
+            </button>
+            <h2 className="text-xs font-semibold text-emerald-950">
+              How to sign
+            </h2>
+            <p className="mt-1.5 text-xs leading-relaxed text-emerald-900/90">
+              Use any of these methods to sign.
+              <br />
+              Once signed, insert/place the signature on the required area and
+              lock the signature.
+            </p>
+          </div>
+        </div>
+      )}
+
       <SignaturePad
   mode={mode}
   activeSignature={activeSignature}
@@ -435,6 +466,28 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
               {signatureLocked ? "Unlock Signature" : "Lock Signature"}
             </button>
           </div>
+          {showManageSignatureHelper && (
+            <div className="relative mt-2 shrink-0 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 pr-9 text-emerald-950 shadow-md ring-1 ring-emerald-100/80">
+              <button
+                type="button"
+                onClick={() => setShowManageSignatureTip(false)}
+                className="absolute right-2 top-2 rounded p-0.5 text-emerald-800 hover:bg-emerald-100/90"
+                aria-label="Dismiss manage signature tip"
+              >
+                <span className="block text-sm font-medium leading-none">×</span>
+              </button>
+              <h2 className="text-xs font-semibold text-emerald-950">
+                Manage your signature
+              </h2>
+              <p className="mt-1.5 text-xs leading-relaxed text-emerald-900/90">
+                Click Delete Signature if you want to redo the sign and insert
+                it again.
+                <br />
+                Once you are happy with the signature position, click Lock
+                Signature.
+              </p>
+            </div>
+          )}
         </div>
       )}
 

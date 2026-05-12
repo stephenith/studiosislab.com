@@ -4,7 +4,11 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
 import NamasteWorld from "@/components/home/NamasteWorld";
-import Dock from "./Dock";
+import dynamic from "next/dynamic";
+
+const Dock = dynamic(() => import("./Dock"), {
+  ssr: false,
+});
 
 export default function HeroSection() {
   return (

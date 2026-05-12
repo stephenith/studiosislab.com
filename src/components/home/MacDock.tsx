@@ -7,11 +7,11 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
 
 const DOCK_ICON_SRC = {
-  resume: "/dock/resume.png",
-  esign: "/dock/esign.png",
-  docs: "/dock/docs.png",
-  games: "/dock/games.png",
-  settings: "/dock/settings.png",
+  resume: "/dock/resume.svg",
+  esign: "/dock/esign.svg",
+  docs: "/dock/docs.svg",
+  games: "/dock/games.svg",
+  settings: "/dock/settings.svg",
 } as const;
 
 function DockPng({ src, label }: { src: string; label: string }) {

@@ -20,14 +20,15 @@ export default function HeroSection() {
         className="flex flex-col items-center text-center"
       >
         <div className="relative mb-6 flex h-48 w-full max-w-[336px] shrink-0 items-center justify-center">
-          <Image
-            src={HOME_LOGOS_LIGHT.heroLab}
-            alt="Studiosis Lab"
-            fill
-            className="object-contain object-center"
-            sizes="(max-width: 768px) 90vw, 336px"
-            priority
-          />
+        <Image
+          src={HOME_LOGOS_LIGHT.heroLab}
+          alt="Studiosis Lab"
+          fill
+          priority
+          quality={70}
+          className="object-contain object-center"
+          sizes="(max-width: 768px) 90vw, 336px"
+        />
         </div>
 
         <NamasteWorld />

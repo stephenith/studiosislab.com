@@ -4,7 +4,7 @@
  */
 export const HOME_LOGOS_LIGHT = {
   header: "/Studiosis.Lab%20Black%20logo.png",
-  heroLab: "/Lab%20Black%20logo.png",
+  heroLab: "/LAB-black-logo.webp",
 } as const;
 
 /** Reserved for dark homepage background — wire when theme is implemented. */

@@ -10,7 +10,7 @@ export async function GET() {
 
     return Response.json({ success: true });
   } catch (error) {
-    console.error("Email test failed:", error);
-    return Response.json({ success: false, error });
+    const message = error instanceof Error ? error.message : "Email test failed";
+    return Response.json({ success: false, error: message });
   }
 }

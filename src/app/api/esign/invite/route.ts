@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
+import { getPublicAppUrl } from "@/lib/getPublicAppUrl";
 import { sendEmail } from "@/lib/mail/sendEmail";
 
 export const runtime = "nodejs";
@@ -84,6 +85,19 @@ headers: { "Content-Type": "application/json" },
 );
 }
 
+let publicBaseUrl: string;
+try {
+  publicBaseUrl = getPublicAppUrl();
+} catch {
+  return new Response(
+    JSON.stringify({ ok: false, error: "Server configuration error." }),
+    {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+}
+
 const inviteId = crypto.randomUUID();
 const token = crypto.randomUUID();
 
@@ -115,12 +129,10 @@ countersignStatus: "sent",
 { merge: true }
 );
 
-// Generate signing link
+// Generate signing link (absolute URL for email clients)
 const url = `/tools/esign/${documentId}?token=${encodeURIComponent(token)}`;
 
-const baseUrl = "http://localhost:3000";
-
-const signingLink = `${baseUrl}${url}`;
+const signingLink = `${publicBaseUrl}${url}`;
 
 const emailHtml = `
 <!doctype html>
@@ -226,11 +238,24 @@ const emailHtml = `
 </html>
 `;
 
-await sendEmail({
-to: clientEmail,
-subject: `Signature requested by ${senderEmail} via Studiosis Lab`,
-html: emailHtml,
-});
+try {
+  await sendEmail({
+    to: clientEmail,
+    subject: `Signature requested by ${senderEmail} via Studiosis Lab`,
+    html: emailHtml,
+  });
+} catch {
+  return new Response(
+    JSON.stringify({
+      ok: false,
+      error: "Invite was created but the notification email could not be sent. Try again or contact support.",
+    }),
+    {
+      status: 502,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+}
 
 return new Response(
 JSON.stringify({

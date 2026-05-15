@@ -4,18 +4,20 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
 import { trackEvent } from "@/lib/analytics";
+import { isSafeInternalNextPath } from "@/lib/safeNextPath";
 
 function LoginInner() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next");
+  const nextRaw = searchParams.get("next");
+  const next = nextRaw && isSafeInternalNextPath(nextRaw) ? nextRaw : null;
   const { user, authReady, signInWithGoogle } = useAuth();
 
   useEffect(() => {
     if (!authReady) return;
     if (user) {
-      router.replace(next || "/resume");
+      router.replace(next ?? "/resume");
     }
   }, [authReady, user, router, next]);
 

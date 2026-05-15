@@ -329,7 +329,7 @@ export async function POST(req: NextRequest) {
 </html>
 `;
 
-    // Fire-and-forget emails; errors are logged by sendEmail.
+    // Fire-and-forget completion emails; failures are non-blocking for the client.
     const rawName = docName || "signed-agreement";
     const baseName = rawName.replace(/\.pdf$/i, "");
     const attachmentName = `${baseName}_signed.pdf`;
@@ -346,7 +346,7 @@ export async function POST(req: NextRequest) {
           subject: "Final signed document via Studiosis Lab",
           html: emailHtml(senderEmail, "Sender"),
           attachments: pdfAttachment,
-        });
+        }).catch(() => {});
       }
       if (clientEmail) {
         void sendEmail({
@@ -354,7 +354,7 @@ export async function POST(req: NextRequest) {
           subject: "Final signed document via Studiosis Lab",
           html: emailHtml(clientEmail, "Signer"),
           attachments: pdfAttachment,
-        });
+        }).catch(() => {});
       }
     }
 

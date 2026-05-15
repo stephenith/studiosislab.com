@@ -22,6 +22,7 @@ import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/useAuth";
 import { trackEvent, uploadSizeBucket } from "@/lib/analytics";
+import { getLoginRedirectUrl } from "@/lib/safeNextPath";
 
 const IS_DEV = process.env.NODE_ENV !== "production";
 
@@ -235,7 +236,7 @@ export default function EsignToolsPage() {
   useEffect(() => {
     if (!authReady) return;
     if (!user) {
-      router.replace("/login");
+      router.replace(getLoginRedirectUrl());
     }
   }, [authReady, user, router]);
 
@@ -549,7 +550,7 @@ export default function EsignToolsPage() {
 
   const handleProceed = async () => {
     if (!user) {
-      router.push("/login");
+      router.push(getLoginRedirectUrl());
       return;
     }
     if (!selectedFile) {

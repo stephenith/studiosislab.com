@@ -3,6 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
+import { getLoginRedirectUrl } from "@/lib/safeNextPath";
 
 export function EditorAuthGate({ children }: { children: ReactNode }) {
   const { user, authReady } = useAuth();
@@ -11,7 +12,7 @@ export function EditorAuthGate({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!authReady) return;
     if (!user) {
-      router.replace("/login");
+      router.replace(getLoginRedirectUrl());
     }
   }, [authReady, user, router]);
 

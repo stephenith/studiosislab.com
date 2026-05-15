@@ -1,7 +1,15 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+export type SendEmailResult = {
+  ok: true;
+  messageId: string | null;
+};
 
+/**
+ * Sends transactional email via Resend.
+ * Throws on misconfiguration or delivery failure (callers should map to HTTP errors).
+ * Never logs recipients, links, tokens, or full payloads.
+ */
 export async function sendEmail({
   to,
   subject,
@@ -12,15 +20,13 @@ export async function sendEmail({
   subject: string;
   html: string;
   attachments?: Array<{ filename: string; content: Buffer }>;
-}) {
-
-  console.log("EMAIL FUNCTION CALLED");
-  console.log("Sending email to:", to);
-
-  if (!process.env.RESEND_API_KEY) {
-    console.error("RESEND_API_KEY is missing in environment variables");
-    return;
+}): Promise<SendEmailResult> {
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY is not configured.");
   }
+
+  const resend = new Resend(apiKey);
 
   try {
     const payload: Parameters<typeof resend.emails.send>[0] = {
@@ -34,13 +40,18 @@ export async function sendEmail({
     }
     const response = await resend.emails.send(payload);
 
-    console.log("EMAIL SENT SUCCESSFULLY");
-    console.log("Resend response:", response);
+    if (response.error) {
+      throw new Error(response.error.message || "Resend email send failed.");
+    }
 
-    return response;
+    const messageId =
+      response.data && typeof response.data === "object" && "id" in response.data
+        ? String((response.data as { id?: string }).id ?? "")
+        : null;
 
-  } catch (error) {
-    console.error("EMAIL SENDING FAILED");
-    console.error(error);
+    return { ok: true, messageId: messageId || null };
+  } catch (e) {
+    if (e instanceof Error) throw e;
+    throw new Error("Email send failed.");
   }
 }

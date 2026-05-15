@@ -19,6 +19,7 @@ import {
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/useAuth";
 import { trackEvent } from "@/lib/analytics";
+import { getLoginRedirectUrl } from "@/lib/safeNextPath";
 
 import NoiseBackground from "@/components/home/NoiseBackground";
 import { TEMPLATES } from "@/data/templates";
@@ -51,7 +52,7 @@ export default function ResumeRecentsPage() {
   useEffect(() => {
     if (!authReady) return;
     if (!user) {
-      router.replace("/login");
+      router.replace(getLoginRedirectUrl());
     }
   }, [authReady, user, router]);
 

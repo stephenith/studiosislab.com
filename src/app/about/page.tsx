@@ -57,13 +57,13 @@ export default function AboutPage() {
           </li>
           <li>
             <Link href="/esign-online" className={linkClass}>
-              E-Sign Online
+              E-sign online
             </Link>{" "}
             — overview of how we approach digital signing and document preparation.
           </li>
           <li>
             <Link href="/tools" className={linkClass}>
-              Tools
+              E-sign tools
             </Link>{" "}
             — document utilities and signing-related workflows in one entry point.
           </li>

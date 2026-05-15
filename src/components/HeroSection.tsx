@@ -50,8 +50,8 @@ export default function HeroSection() {
           </h1>
 
           <p className="mt-4 max-w-lg text-xs sm:text-sm text-zinc-500">
-            Simple tools for resumes, e-signs and everyday creative work.
-            We&apos;ve just started, stay tuned for more upcoming free tools.
+            Create resumes, sign documents, and use simple browser-based tools in one place. Pick a tool
+            below to get started.
           </p>
         </div>
       </div>

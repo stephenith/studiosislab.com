@@ -5,8 +5,8 @@ const FOOTER_GROUPS = [
     title: "Product",
     links: [
       { label: "Resume Builder", href: "/resume-builder" },
-      { label: "E-Sign Online", href: "/esign-online" },
-      { label: "Tools", href: "/tools" },
+      { label: "E-sign online", href: "/esign-online" },
+      { label: "E-sign tools", href: "/tools" },
     ],
   },
   {

@@ -1503,7 +1503,7 @@ export default function EsignViewerClient({
           onClick={() => router.push("/tools")}
           className="mt-4 rounded-xl border border-zinc-300 bg-white px-4 py-2 text-sm hover:border-blue-300"
         >
-          Back to E-Signing Tool
+          Back to e-sign tools
         </button>
       </main>
     );
@@ -1641,7 +1641,7 @@ export default function EsignViewerClient({
               type="button"
               onClick={() => router.push("/tools")}
               className="shrink-0 rounded p-1.5 text-white/70 transition-colors duration-150 hover:bg-white/10 hover:text-white"
-              aria-label="Back to E-Signing Tool"
+              aria-label="Back to e-sign tools"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
@@ -1651,7 +1651,7 @@ export default function EsignViewerClient({
             >
               <Image
                 src={HOME_LOGOS_DARK.header}
-                alt="Studiosis Lab — home"
+                alt="StudiosisLab — home"
                 fill
                 className="object-contain object-left"
                 sizes="260px"

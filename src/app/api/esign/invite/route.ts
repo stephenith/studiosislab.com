@@ -144,7 +144,7 @@ const emailHtml = `
           <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.06);">
             <tr>
               <td style="padding:20px 24px 12px 24px;border-bottom:1px solid #e5e5e5;">
-                <div style="font-size:18px;font-weight:600;color:#111827;">Studiosis Lab</div>
+                <div style="font-size:18px;font-weight:600;color:#111827;">StudiosisLab</div>
                 <div style="margin-top:4px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#6b7280;">
                   Secure Document Signature Request
                 </div>
@@ -158,7 +158,7 @@ const emailHtml = `
                 </p>
                 <p style="margin:0 0 12px 0;color:#4b5563;">
                   You are being asked to review and countersign a document securely using
-                  Studiosis Lab's e‑signature system.
+                  StudiosisLab’s e-sign workflow.
                 </p>
               </td>
             </tr>
@@ -223,7 +223,7 @@ const emailHtml = `
             <tr>
               <td style="padding:14px 24px 18px 24px;background-color:#f9fafb;border-top:1px solid #e5e7eb;font-size:11px;color:#6b7280;line-height:1.5;">
                 <div style="margin-bottom:4px;">
-                  Powered by <strong>Studiosis Lab Secure E‑Signature</strong>
+                  Powered by <strong>StudiosisLab secure e-sign</strong>
                 </div>
                 <div style="font-size:11px;color:#9ca3af;">
                   This secure link is intended only for the recipient. Please do not share it.
@@ -241,7 +241,7 @@ const emailHtml = `
 try {
   await sendEmail({
     to: clientEmail,
-    subject: `Signature requested by ${senderEmail} via Studiosis Lab`,
+    subject: `Signature requested by ${senderEmail} via StudiosisLab`,
     html: emailHtml,
   });
 } catch {

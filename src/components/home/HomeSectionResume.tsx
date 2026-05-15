@@ -16,23 +16,22 @@ export default function HomeSectionResume() {
       <div className={ILLUSTRATION_FRAME}>
         <Image
           src={RESUME_ILLUSTRATION_SRC}
-          alt="Resume editor illustration"
+          alt="Resume builder illustration"
           fill
           className="object-contain object-center"
           sizes="(max-width: 768px) 100vw, 896px"
         />
       </div>
       <HomeCtaLink href="/resume" surface="home_resume" className={CTA_CLASS}>
-        Choose template
+        Browse templates
       </HomeCtaLink>
       <div className="flex w-full max-w-xl flex-col items-center">
         <h2 className="text-2xl font-semibold font-heading tracking-tight text-zinc-900 md:text-3xl">
-          Resume editor
+          Resume builder
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600 md:text-base">
-          A free resume builder you can rely on—create, refine, and download as many times as you like.
-          Fast, modern editing keeps the experience smooth, and your progress is saved so you can step
-          away and return whenever you are ready to keep polishing.
+          Build and edit your resume in the browser, then download whenever you are ready. Create from a
+          template or a blank page, refine the details, and export a polished file you can use right away.
         </p>
       </div>
     </div>

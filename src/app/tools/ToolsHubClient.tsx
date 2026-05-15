@@ -570,15 +570,42 @@ export default function EsignToolsPage() {
         method: "POST",
         body: formData,
       });
-      const json = await res.json();
+
+      type UploadJson = {
+        ok?: boolean;
+        error?: string;
+        documentId?: string;
+        originalFilename?: string;
+      };
+      let json: UploadJson = {};
+      try {
+        json = (await res.json()) as UploadJson;
+      } catch {
+        json = {};
+      }
 
       if (!res.ok || !json?.ok) {
-        const message = json?.error || "Upload failed";
-        setHubNotice(message);
+        if (res.status === 413) {
+          setHubNotice(
+            "This PDF is too large. Please upload a file under 15 MB."
+          );
+        } else {
+          const serverMsg =
+            typeof json?.error === "string" && json.error.trim() ? json.error.trim() : null;
+          setHubNotice(
+            serverMsg ||
+              "Something went wrong while uploading. Please try again."
+          );
+        }
         return;
       }
 
-      const documentId: string = json.documentId;
+      const documentId = json.documentId;
+      if (!documentId) {
+        setHubNotice("Something went wrong while uploading. Please try again.");
+        return;
+      }
+
       const originalFilename: string =
         json.originalFilename || selectedFile.name || "Document";
 
@@ -717,10 +744,10 @@ export default function EsignToolsPage() {
           </div>
           <div className="w-full text-center">
             <h1 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
-              E-Signing Tool
+              E-sign tools
             </h1>
             <p className="mt-3 text-sm text-zinc-600 sm:text-base">
-              Upload a document to start a digital signing flow.
+              Upload a PDF to start a signing flow, or verify an agreement you already have.
             </p>
           </div>
         </div>
@@ -750,14 +777,13 @@ export default function EsignToolsPage() {
                   disabled={uploading || !selectedFile}
                   className="rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {uploading ? "Uploading..." : "Proceed"}
+                  {uploading ? "Uploading..." : selectedFile ? "Upload and continue" : "Proceed"}
                 </button>
               </div>
             </div>
 
             <p className="mt-2 text-xs text-zinc-400">
-              Please upload the document which needs to be signed. Only PDF files
-              are currently supported.
+              Upload the PDF that needs to be signed. PDF only, max 15 MB.
             </p>
           </div>
         </section>
@@ -799,11 +825,13 @@ export default function EsignToolsPage() {
             {verifyFile && (
               <p className="mt-2 text-xs text-zinc-500 truncate">
                 File selected: {verifyFile.name} —{" "}
-                {verifyFile.type === "application/pdf" && extractingVerifyCode
-                  ? "extracting verification code..."
-                  : verificationIdInput.trim()
-                    ? "verification code extracted"
-                    : "verification code not found in this document"}
+                {verifyFile.type === "application/pdf"
+                  ? extractingVerifyCode
+                    ? "Reading your PDF…"
+                    : verificationIdInput.trim()
+                      ? "Verification code found."
+                      : "No verification code found in this PDF."
+                  : "Only PDFs can be scanned for a verification code automatically."}
               </p>
             )}
             {verifyFile?.type === "application/pdf" && !extractingVerifyCode && verifyError && (

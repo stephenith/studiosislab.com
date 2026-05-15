@@ -42,14 +42,14 @@ const ITEMS: DockItem[] = [
   },
   {
     id: "esign",
-    label: "E‑Sign",
+    label: "E-sign",
     path: "/tools",
-    icon: <DockPng src={DOCK_ICON_SRC.esign} label="E‑Sign" />,
+    icon: <DockPng src={DOCK_ICON_SRC.esign} label="E-sign" />,
   },
   {
     id: "tools",
-    label: "Publishers",
-    icon: <DockPng src={DOCK_ICON_SRC.docs} label="Publishers" />,
+    label: "Publisher",
+    icon: <DockPng src={DOCK_ICON_SRC.docs} label="Publisher" />,
   },
   {
     id: "games",

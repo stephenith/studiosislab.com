@@ -553,7 +553,7 @@ export default function EditorShell({
           >
             <Image
               src={HOME_LOGOS_DARK.header}
-              alt="Studiosis Lab — home"
+              alt="StudiosisLab — home"
               fill
               className="object-contain object-left"
               sizes="260px"

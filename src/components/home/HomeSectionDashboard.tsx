@@ -16,23 +16,23 @@ export default function HomeSectionDashboard() {
       <div className={ILLUSTRATION_FRAME}>
         <Image
           src={DASHBOARD_ILLUSTRATION_SRC}
-          alt="Live dashboard illustration"
+          alt="Publisher dashboard illustration"
           fill
           className="object-contain object-center"
           sizes="(max-width: 768px) 100vw, 768px"
         />
       </div>
       <HomeCtaLink href="/dashboard/login" surface="home_publishers" className={CTA_CLASS}>
-        Login
+        Publisher login
       </HomeCtaLink>
       <div className="flex w-full max-w-xl flex-col items-center">
         <h2 className="text-2xl font-semibold font-heading tracking-tight text-zinc-900 md:text-3xl">
-          Live dashboard
+          Publisher dashboard
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600 md:text-base">
-          Real-time reporting for approved ad tech partners and clients. With issued credentials, your
-          team can monitor live performance in one place while we operate and maintain the platform in
-          the background—clear visibility when transparency matters.
+          Invite-only access for approved publishing and ad-tech partners. With issued credentials, your
+          team can monitor live performance in one place while we operate and maintain the platform in the
+          background—clear visibility when transparency matters.
         </p>
       </div>
     </div>

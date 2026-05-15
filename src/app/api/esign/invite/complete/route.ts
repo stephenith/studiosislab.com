@@ -256,7 +256,7 @@ export async function POST(req: NextRequest) {
           <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.06);">
             <tr>
               <td style="padding:20px 24px 12px 24px;border-bottom:1px solid #e5e5e5;">
-                <div style="font-size:18px;font-weight:600;color:#111827;">Studiosis Lab</div>
+                <div style="font-size:18px;font-weight:600;color:#111827;">StudiosisLab</div>
                 <div style="margin-top:4px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#6b7280;">
                   Final Signed Document
                 </div>
@@ -317,7 +317,7 @@ export async function POST(req: NextRequest) {
                   This email was sent to ${recipient} as the ${role.toLowerCase()} of this agreement.
                 </div>
                 <div style="font-size:11px;color:#9ca3af;">
-                  Powered by Studiosis Lab Secure E‑Signature.
+                  Powered by StudiosisLab secure e-sign.
                 </div>
               </td>
             </tr>
@@ -343,7 +343,7 @@ export async function POST(req: NextRequest) {
       if (senderEmail) {
         void sendEmail({
           to: senderEmail,
-          subject: "Final signed document via Studiosis Lab",
+          subject: "Final signed document via StudiosisLab",
           html: emailHtml(senderEmail, "Sender"),
           attachments: pdfAttachment,
         }).catch(() => {});
@@ -351,7 +351,7 @@ export async function POST(req: NextRequest) {
       if (clientEmail) {
         void sendEmail({
           to: clientEmail,
-          subject: "Final signed document via Studiosis Lab",
+          subject: "Final signed document via StudiosisLab",
           html: emailHtml(clientEmail, "Signer"),
           attachments: pdfAttachment,
         }).catch(() => {});

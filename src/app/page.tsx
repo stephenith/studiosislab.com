@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import NoiseBackground from "@/components/home/NoiseBackground";
 import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
 import HomeSectionDashboard from "@/components/home/HomeSectionDashboard";
@@ -24,16 +25,15 @@ export default function HomePage() {
       <NoiseBackground />
       <div className="relative z-10 flex flex-col">
         <header className="flex shrink-0 items-center justify-between px-1 pb-4 sm:px-2">
-          <div className="relative h-11 w-[min(100%,280px)] shrink-0">
+          <Link href="/" className="relative block h-11 w-[min(100%,280px)] shrink-0">
             <Image
               src={HOME_LOGOS_LIGHT.header}
-              alt="Studiosis Lab"
+              alt="StudiosisLab"
               fill
               className="object-contain object-left"
               sizes="280px"
-              priority
             />
-          </div>
+          </Link>
           <HomeHeaderAuth />
         </header>
 

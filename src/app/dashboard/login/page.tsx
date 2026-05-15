@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import NoiseBackground from "@/components/home/NoiseBackground";
 import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
 import HomeHeaderAuth from "@/components/HomeHeaderAuth";
@@ -9,24 +10,24 @@ export default function DashboardLoginPage() {
       <NoiseBackground />
       <div className="relative z-10 flex min-h-0 flex-1 flex-col">
         <header className="flex shrink-0 items-center justify-between px-1 pb-4 sm:px-2">
-          <div className="relative h-11 w-[min(100%,280px)] shrink-0">
+          <Link href="/" className="relative block h-11 w-[min(100%,280px)] shrink-0">
             <Image
               src={HOME_LOGOS_LIGHT.header}
-              alt="Studiosis Lab"
+              alt="StudiosisLab"
               fill
               className="object-contain object-left"
               sizes="280px"
               priority
             />
-          </div>
+          </Link>
           <HomeHeaderAuth />
         </header>
 
         <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-4 pb-12 pt-4">
-          <div className="relative mb-8 flex h-48 w-full max-w-[336px] shrink-0 items-center justify-center">
+          <div className="relative mb-8 flex h-40 w-full max-w-[280px] shrink-0 items-center justify-center sm:mb-10 sm:h-48 sm:max-w-[336px]">
             <Image
               src={HOME_LOGOS_LIGHT.heroLab}
-              alt="Studiosis Lab"
+              alt="StudiosisLab"
               fill
               className="object-contain object-center"
               sizes="(max-width: 768px) 90vw, 336px"
@@ -34,45 +35,39 @@ export default function DashboardLoginPage() {
             />
           </div>
 
-          <div className="w-full max-w-md rounded-2xl border border-zinc-200/90 bg-white/90 p-6 shadow-sm backdrop-blur-sm sm:p-8">
-            <h1 className="text-center text-xl font-semibold font-heading tracking-tight text-zinc-900 md:text-2xl">
-              Login to your publisher side dashboard
+          <div className="w-full max-w-lg rounded-2xl border border-zinc-200/90 bg-white/90 p-6 shadow-sm backdrop-blur-sm sm:p-8">
+            <h1 className="text-center font-heading text-xl font-semibold tracking-tight text-zinc-900 md:text-2xl">
+              Publisher partners (invite only)
             </h1>
-
-            <form className="mt-8 space-y-4" action="#" method="post">
-              <div className="text-left">
-                <label htmlFor="dashboard-user-id" className="mb-1.5 block text-xs font-medium text-zinc-600">
-                  User ID
-                </label>
-                <input
-                  id="dashboard-user-id"
-                  name="userId"
-                  type="text"
-                  autoComplete="username"
-                  className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none ring-zinc-900/10 transition placeholder:text-zinc-400 focus:border-zinc-300 focus:ring-2"
-                  placeholder="Enter your user ID"
-                />
-              </div>
-              <div className="text-left">
-                <label htmlFor="dashboard-password" className="mb-1.5 block text-xs font-medium text-zinc-600">
-                  Password
-                </label>
-                <input
-                  id="dashboard-password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none ring-zinc-900/10 transition placeholder:text-zinc-400 focus:border-zinc-300 focus:ring-2"
-                  placeholder="Enter your password"
-                />
-              </div>
-              <button
-                type="button"
-                className="mt-2 w-full rounded-xl bg-zinc-900 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-zinc-800"
+            <p className="mt-4 text-center text-sm leading-relaxed text-zinc-600">
+              This space is reserved for approved Studiosis publishing and ad-tech partners. Access is
+              invite-only: credentials are issued manually after onboarding and approval—not through
+              public sign-up.
+            </p>
+            <p className="mt-4 text-center text-sm leading-relaxed text-zinc-600">
+              If you are exploring a partnership or need help with StudiosisLab, reach our team through
+              the contact page—we will route your message to the right inbox.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center rounded-xl bg-zinc-900 px-5 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-zinc-800"
               >
-                Login
-              </button>
-            </form>
+                Contact StudiosisLab
+              </Link>
+              <Link
+                href="/"
+                className="inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 py-3 text-sm font-medium text-zinc-800 shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50"
+              >
+                Back to home
+              </Link>
+            </div>
+            <p className="mt-6 text-center text-xs text-zinc-500">
+              Business inquiries:{" "}
+              <a className="font-medium text-zinc-700 underline" href="mailto:business@studiosislab.com">
+                business@studiosislab.com
+              </a>
+            </p>
           </div>
         </div>
       </div>

@@ -6,6 +6,9 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
+  alternates: {
+    canonical: "/login",
+  },
 };
 
 export default function LoginLayout({ children }: { children: React.ReactNode }) {

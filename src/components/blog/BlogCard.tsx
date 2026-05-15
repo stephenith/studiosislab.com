@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import type { BlogArticle } from "@/data/blog/types";
 import ArticleMeta from "@/components/blog/ArticleMeta";
+import { trackEvent } from "@/lib/analytics";
 
 type BlogCardProps = {
   article: BlogArticle;
@@ -10,7 +13,17 @@ export default function BlogCard({ article }: BlogCardProps) {
   return (
     <article className="rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-sm">
       <h2 className="font-heading text-xl font-semibold tracking-tight text-zinc-900">
-        <Link href={`/blog/${article.slug}`} className="hover:underline">
+        <Link
+          href={`/blog/${article.slug}`}
+          className="hover:underline"
+          onClick={() =>
+            trackEvent("blog_article_click", {
+              surface: "blog_index",
+              destination: `/blog/${article.slug}`,
+              link_type: "title",
+            })
+          }
+        >
           {article.title}
         </Link>
       </h2>
@@ -27,7 +40,17 @@ export default function BlogCard({ article }: BlogCardProps) {
         ))}
       </div>
       <div className="mt-5">
-        <Link href={`/blog/${article.slug}`} className="text-sm font-medium text-zinc-900 underline">
+        <Link
+          href={`/blog/${article.slug}`}
+          className="text-sm font-medium text-zinc-900 underline"
+          onClick={() =>
+            trackEvent("blog_article_click", {
+              surface: "blog_index",
+              destination: `/blog/${article.slug}`,
+              link_type: "read_more",
+            })
+          }
+        >
           Read article
         </Link>
       </div>

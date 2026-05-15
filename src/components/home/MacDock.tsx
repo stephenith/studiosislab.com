@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
+import { trackEvent } from "@/lib/analytics";
 
 const DOCK_ICON_SRC = {
   resume: "/dock/resume.svg",
@@ -47,8 +48,8 @@ const ITEMS: DockItem[] = [
   },
   {
     id: "tools",
-    label: "Dashboard",
-    icon: <DockPng src={DOCK_ICON_SRC.docs} label="Dashboard" />,
+    label: "Publishers",
+    icon: <DockPng src={DOCK_ICON_SRC.docs} label="Publishers" />,
   },
   {
     id: "games",
@@ -61,6 +62,14 @@ const ITEMS: DockItem[] = [
     icon: <DockPng src={DOCK_ICON_SRC.settings} label="Settings" />,
   },
 ];
+
+function dockDestination(item: DockItem): string {
+  if (item.id === "tools") return "/dashboard/login";
+  if (item.id === "games") return "/games";
+  if (item.id === "settings") return "/settings";
+  if (item.path) return item.path;
+  return "";
+}
 
 /** Narrow range so only the hovered index (integer) scales; neighbors stay at scale 1. */
 const COSINE_RANGE = 0.42;
@@ -89,6 +98,7 @@ const DOCK_ICON_HOVER_FILTER =
 export default function MacDock() {
   const router = useRouter();
   const { user, authReady, signInWithGoogle } = useAuth();
+  const [dockAuthError, setDockAuthError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const pendingXRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -136,14 +146,23 @@ export default function MacDock() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!dockAuthError) return;
+    const t = window.setTimeout(() => setDockAuthError(null), 8000);
+    return () => window.clearTimeout(t);
+  }, [dockAuthError]);
+
   const navigateWithAuth = useCallback(
     async (path: string) => {
+      setDockAuthError(null);
       if (!authReady) return;
       if (!user) {
         try {
+          trackEvent("sign_in_click", { surface: "dock", method: "google" });
           await signInWithGoogle();
+          trackEvent("sign_in_success", { surface: "dock", method: "google" });
         } catch {
-          alert("Login failed");
+          setDockAuthError("Sign-in didn’t complete. You can try again from the dock.");
           return;
         }
       }
@@ -154,6 +173,10 @@ export default function MacDock() {
 
   const handleItem = useCallback(
     (item: DockItem) => {
+      const destination = dockDestination(item);
+      if (destination) {
+        trackEvent("dock_click", { item_id: item.id, destination });
+      }
       if (item.id === "tools") {
         router.push("/dashboard/login");
         return;
@@ -255,6 +278,14 @@ export default function MacDock() {
           );
         })}
       </motion.div>
+      {dockAuthError ? (
+        <p
+          className="mx-auto mt-2 max-w-[min(100%,22rem)] px-2 text-center text-[11px] leading-snug text-red-200/95"
+          role="status"
+        >
+          {dockAuthError}
+        </p>
+      ) : null}
     </div>
   );
 }

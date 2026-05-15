@@ -18,7 +18,7 @@ export function TemplatesPanel({ onClose, editor }: TemplatesPanelProps) {
       (t.name + " " + t.tags.join(" ")).toLowerCase().includes(q)
     );
   }, [query]);
-  console.log("TEMPLATES PANEL LOADED");
+
   return (
     <>
       <div className="flex items-center justify-between px-3 py-2 border-b border-zinc-200 bg-white">

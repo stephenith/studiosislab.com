@@ -5,7 +5,7 @@ import SectionBlock from "@/components/legal/SectionBlock";
 export const metadata: Metadata = {
   title: "Privacy Policy | StudiosisLab",
   description:
-    "Read the StudiosisLab Privacy Policy covering data collection, authentication, document handling, cookies, analytics, and user rights.",
+    "Read the StudiosisLab Privacy Policy covering data collection, authentication, document handling, cookies, analytics, optional advertising, and user rights.",
   alternates: {
     canonical: "/privacy-policy",
   },
@@ -46,6 +46,21 @@ export default function PrivacyPolicyPage() {
           We may use cookies and similar technologies to maintain sessions, improve reliability, and
           understand usage patterns. We may also use analytics tools to evaluate product performance
           and improve user experience.
+        </p>
+      </SectionBlock>
+
+      <SectionBlock title="Advertising and related technologies">
+        <p>
+          StudiosisLab may be supported in part by advertising so we can keep core tools free or low
+          cost. If we show ads, they may be served through advertising partners or platforms (for
+          example, Google AdSense or similar services). Those partners may use cookies, pixels, or
+          similar technologies to measure delivery and help prevent abuse. We do not sell your personal
+          information to advertisers.
+        </p>
+        <p>
+          You can manage many browser-level cookie preferences in your browser settings. For
+          analytics, we aim to use privacy-conscious configurations where available. If our ad or
+          analytics setup changes in a material way, we will update this policy to reflect it.
         </p>
       </SectionBlock>
 

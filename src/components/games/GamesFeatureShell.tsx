@@ -19,7 +19,7 @@ export default function GamesFeatureShell({ title, children }: GamesFeatureShell
           <Link href="/" className="relative block h-11 w-[min(100%,280px)] shrink-0">
             <Image
               src={HOME_LOGOS_LIGHT.header}
-              alt="Studiosis Lab — home"
+              alt="StudiosisLab — home"
               fill
               className="object-contain object-left"
               sizes="280px"

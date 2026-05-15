@@ -5,8 +5,19 @@ import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
 import NamasteWorld from "@/components/home/NamasteWorld";
 import dynamic from "next/dynamic";
 
+/** Reserves dock layout space before the client-only dock chunk hydrates (reduces CLS). */
+function DockPlaceholder() {
+  return (
+    <div
+      className="mx-auto w-max max-w-full min-h-[5.75rem] sm:min-h-[6.25rem]"
+      aria-hidden
+    />
+  );
+}
+
 const Dock = dynamic(() => import("./Dock"), {
   ssr: false,
+  loading: DockPlaceholder,
 });
 
 export default function HeroSection() {
@@ -16,7 +27,7 @@ export default function HeroSection() {
         <div className="relative mb-6 flex h-48 w-full max-w-[336px] shrink-0 items-center justify-center">
           <Image
             src={HOME_LOGOS_LIGHT.heroLab}
-            alt="Studiosis Lab"
+            alt="StudiosisLab"
             fill
             priority
             quality={70}
@@ -45,7 +56,7 @@ export default function HeroSection() {
         </div>
       </div>
 
-      <div className="mt-10">
+      <div className="mt-10 flex w-full justify-center">
         <Dock />
       </div>
     </div>

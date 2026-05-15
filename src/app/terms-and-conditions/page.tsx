@@ -21,7 +21,8 @@ export default function TermsAndConditionsPage() {
         <p>
           You agree to use StudiosisLab only for lawful purposes and in a way that does not abuse,
           disrupt, or compromise service quality, infrastructure stability, or other users&apos;
-          experience.
+          experience. Core tools are offered with free access where stated; optional advertising may
+          appear in some areas to help support operating costs.
         </p>
       </SectionBlock>
 

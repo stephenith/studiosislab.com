@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ContactMailtoLink } from "@/components/analytics/ContactMailtoLink";
 import LegalPageShell from "@/components/legal/LegalPageShell";
 import SectionBlock from "@/components/legal/SectionBlock";
 
@@ -20,9 +21,9 @@ export default function ContactPage() {
       <SectionBlock title="Support Contact">
         <p>
           For account help, product guidance, and technical questions, contact us at{" "}
-          <a className="font-medium text-zinc-900 underline" href="mailto:support@studiosislab.com">
+          <ContactMailtoLink href="mailto:support@studiosislab.com" linkType="support">
             support@studiosislab.com
-          </a>
+          </ContactMailtoLink>
           .
         </p>
       </SectionBlock>
@@ -30,9 +31,9 @@ export default function ContactPage() {
       <SectionBlock title="Business and Partnership Inquiries">
         <p>
           For partnerships, enterprise use cases, or commercial discussions, reach out at{" "}
-          <a className="font-medium text-zinc-900 underline" href="mailto:business@studiosislab.com">
+          <ContactMailtoLink href="mailto:business@studiosislab.com" linkType="business">
             business@studiosislab.com
-          </a>
+          </ContactMailtoLink>
           .
         </p>
       </SectionBlock>

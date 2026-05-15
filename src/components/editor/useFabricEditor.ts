@@ -67,6 +67,20 @@ import { createFrameCreate } from "./editor/frames/frameCreate";
 import { createFrameAttach } from "./editor/frames/frameAttach";
 import { createFrameCrop } from "./editor/frames/frameCrop";
 
+const IS_DEV = process.env.NODE_ENV !== "production";
+function devLog(...args: unknown[]) {
+  if (IS_DEV) globalThis["console"].log(...args);
+}
+function devInfo(...args: unknown[]) {
+  if (IS_DEV) globalThis["console"].info(...args);
+}
+function devWarn(...args: unknown[]) {
+  if (IS_DEV) globalThis["console"].warn(...args);
+}
+function devDebug(...args: unknown[]) {
+  if (IS_DEV) globalThis["console"].debug(...args);
+}
+
 // Ensure global Fabric defaults allow interaction unless explicitly overridden.
 (FabricNS as any).Object.prototype.selectable = true;
 (FabricNS as any).Object.prototype.evented = true;
@@ -100,7 +114,7 @@ function generateThumbnailFromCanvas(canvas: any) {
       multiplier: 1,
     });
 
-    console.log("Thumbnail generated");
+    devLog("Thumbnail generated");
 
   
 
@@ -581,7 +595,7 @@ export function useFabricEditor({
   }, [docIdParam, mode]);
   const logTextSync = useCallback((mode: "hydrate" | "apply") => {
     if (process.env.NODE_ENV !== "development") return;
-    console.log("[text-sync]", mode);
+    devLog("[text-sync]", mode);
   }, []);
 
   const setDrawTool = useCallback((tool: "none" | "pencil" | "highlighter" | "eraser") => {
@@ -1035,7 +1049,7 @@ export function useFabricEditor({
     const changed = !prevSize || prevSize.w !== w || prevSize.h !== h;
     lastHostSizeRef.current = { w, h };
     if (process.env.NODE_ENV !== "production") {
-      console.log("[syncCanvasesToContainer]", {
+      devLog("[syncCanvasesToContainer]", {
         z,
         w,
         h,
@@ -1056,7 +1070,7 @@ export function useFabricEditor({
 
   const applyZoomToCanvas = useCallback((canvas: Canvas, z: number) => {
     if (process.env.NODE_ENV !== "production") {
-      console.log("[applyZoomToCanvas]", { z });
+      devLog("[applyZoomToCanvas]", { z });
     }
     const vpt: [number, number, number, number, number, number] = [
       z,
@@ -1235,7 +1249,7 @@ export function useFabricEditor({
       }
       const resolvedUser = user ?? auth.currentUser;
       if (!resolvedUser) {
-        console.warn("[save] No user logged in");
+        devWarn("[save] No user logged in");
         return null;
       }
       const pagesData = getPagesJsonForSave();
@@ -1244,11 +1258,11 @@ export function useFabricEditor({
       const dataToSave = hasMultiplePages ? pagesData : canvasJson;
       if (!dataToSave) return null;
       if (cloudDocId && !hasMeaningfulContentToSave(dataToSave)) {
-        console.warn("[save] Skipping Firestore write: payload has no meaningful objects.");
+        devWarn("[save] Skipping Firestore write: payload has no meaningful objects.");
         return null;
       }
       if (fabricSavePayloadHasDataImageSrc(dataToSave)) {
-        console.warn(
+        devWarn(
           "[save] Skipping Firestore write: canvas JSON contains image data: URLs (keeps document under size limits; use Storage URLs)."
         );
         return null;
@@ -1487,7 +1501,7 @@ export function useFabricEditor({
                 lastThumbnailGenAtRef.current = Date.now();
               }
             } catch (e) {
-              console.warn("[thumb] cloud thumbnail failed", e);
+              devWarn("[thumb] cloud thumbnail failed", e);
             }
           })();
         }
@@ -1593,7 +1607,7 @@ export function useFabricEditor({
     return () => {
       try {
         if (dirtyRef.current && pendingSnapshotRef.current) {
-          console.log("[autosave] flushing before unmount");
+          devLog("[autosave] flushing before unmount");
           void syncNow();
         }
       } catch (e) {
@@ -1711,7 +1725,7 @@ export function useFabricEditor({
             anonDraft.snapshot
           ) {
             if (process.env.NODE_ENV === "development") {
-              console.log("[autosave] migrate anonymous local draft to signed-in key", {
+              devLog("[autosave] migrate anonymous local draft to signed-in key", {
                 sourceId,
                 from: anonymousKey,
                 to: signedInKey,
@@ -2017,7 +2031,7 @@ export function useFabricEditor({
       }
       fitZoomRef.current = fit;
       if (process.env.NODE_ENV !== "production") {
-        console.log("[fitViewport] baseFitZoomRef:", baseFitZoomRef.current, "reason:", reason);
+        devLog("[fitViewport] baseFitZoomRef:", baseFitZoomRef.current, "reason:", reason);
       }
       applyEffectiveZoom(fit);
 
@@ -2063,7 +2077,7 @@ export function useFabricEditor({
     (reason: string) => {
       if (isLoadingDocRef.current) {
         if (process.env.NODE_ENV !== "production") {
-          console.log("[scheduleFit] skipped during doc load", reason);
+          devLog("[scheduleFit] skipped during doc load", reason);
         }
         return;
       }
@@ -2104,7 +2118,7 @@ export function useFabricEditor({
 
   useEffect(() => {
     void deleteOldAssets(7).catch((err) => {
-      console.warn("[local-assets] cleanup failed", err);
+      devWarn("[local-assets] cleanup failed", err);
     });
   }, []);
 
@@ -2180,7 +2194,7 @@ export function useFabricEditor({
           localAssetObjectUrlsRef.current.add(url);
         });
       } catch (err) {
-        console.warn("[local-assets] failed to hydrate local image refs", err);
+        devWarn("[local-assets] failed to hydrate local image refs", err);
       }
       didInitialFitRef.current = false;
       const isDuplicate = reason === "page-duplicate";
@@ -2206,7 +2220,7 @@ export function useFabricEditor({
       }
       c.requestRenderAll();
       if (process.env.NODE_ENV !== "production") {
-        console.log("[applySnapshot] baseFitZoomRef reset, canvas.clear() before loadFromJSON", {
+        devLog("[applySnapshot] baseFitZoomRef reset, canvas.clear() before loadFromJSON", {
           reason,
           baseFitZoomRef: baseFitZoomRef.current,
         });
@@ -2441,7 +2455,7 @@ try {
           scheduleFit("templateLoaded");
         }
         if (process.env.NODE_ENV !== "production") {
-          console.log("[applySnapshot] loadFromJSON finalize done, requestRenderAll", { reason });
+          devLog("[applySnapshot] loadFromJSON finalize done, requestRenderAll", { reason });
         }
         if (reason === "doc-load") {
           hasInitialDocLoadCompletedRef.current = true;
@@ -2472,13 +2486,13 @@ try {
          sanitizedReport.missingSrcCount > 0 ||
          sanitizedReport.invalidSrcCount > 0
        ) {
-         console.warn("[template-load] normalized image sources before load", {
+         devWarn("[template-load] normalized image sources before load", {
            reason,
            ...sanitizedReport,
          });
        }
        if (process.env.NODE_ENV !== "production") {
-         console.log("[loadFromJSON] start", { reason, objectsCount: (json?.objects?.length ?? 0) });
+         devLog("[loadFromJSON] start", { reason, objectsCount: (json?.objects?.length ?? 0) });
        }
       const result = (c as any).loadFromJSON(json, reviver);
         if (result && typeof result.then === "function") {
@@ -3588,7 +3602,7 @@ try {
   const initCanvasForPage = useCallback(
     async (pageId: string, c: Canvas) => {
       if (process.env.NODE_ENV !== "production") {
-        console.log("[initCanvas real pageId]", pageId);
+        devLog("[initCanvas real pageId]", pageId);
       }
       isInitializingCanvasRef.current = true;
       isCanvasBootingRef.current = true;
@@ -3622,7 +3636,7 @@ try {
               try {
                 const active = canvasRef.current;
                 if (!active) {
-                  console.warn("[slbExport] No active canvas");
+                  devWarn("[slbExport] No active canvas");
                   return;
                 }
                 const extraProps = [
@@ -3735,17 +3749,17 @@ try {
                   navigator.clipboard
                     .writeText(json)
                     .then(() =>
-                      console.log(`[slbExport] Copied ${fileName} to clipboard`)
+                      devLog(`[slbExport] Copied ${fileName} to clipboard`)
                     )
                     .catch(() => {
                       download();
-                      console.info(
+                      devInfo(
                         `[slbExport] Clipboard unavailable, downloaded ${fileName}`
                       );
                     });
                 } else {
                   download();
-                  console.info(`[slbExport] Downloaded ${fileName}`);
+                  devInfo(`[slbExport] Downloaded ${fileName}`);
                 }
               } catch (err) {
                 console.error("[slbExport] Failed to export template", err);
@@ -3792,7 +3806,7 @@ try {
                 missingSrcPaths: [] as string[],
                 invalidImageNodes: 0,
               };
-              console.warn("[SLB_VALIDATE_TEMPLATE]", invalid);
+              devWarn("[SLB_VALIDATE_TEMPLATE]", invalid);
               return invalid;
             }
             const blobSrcPaths: string[] = [];
@@ -3828,7 +3842,7 @@ try {
               missingSrcPaths,
               invalidImageNodes,
             };
-            console.log("[SLB_VALIDATE_TEMPLATE]", report);
+            devLog("[SLB_VALIDATE_TEMPLATE]", report);
             return report;
           };
         }
@@ -3842,7 +3856,7 @@ try {
               try {
                 const active = canvasRef.current;
                 if (!active) {
-                  console.warn("[slbImport] No active canvas");
+                  devWarn("[slbImport] No active canvas");
                   return;
                 }
                 const data =
@@ -3851,7 +3865,7 @@ try {
                     : jsonOrObject;
                 await applySnapshotRef.current(data, reason);
                 active.requestRenderAll();
-                console.log("[slbImport] Loaded template");
+                devLog("[slbImport] Loaded template");
               } catch (err) {
                 console.error("[slbImport] Failed to load template", err);
               }
@@ -3873,7 +3887,7 @@ try {
       if (pending?.type === "duplicate") {
         baseFitZoomRef.current = null;
         if (process.env.NODE_ENV !== "production") {
-          console.log("[initCanvas] baseFitZoomRef reset before load (duplicate)", { pageId });
+          devLog("[initCanvas] baseFitZoomRef reset before load (duplicate)", { pageId });
         }
         const { objects, viewportTransform } = pending;
         const z = getZoom();
@@ -3887,7 +3901,7 @@ try {
             : [z, 0, 0, z, 0, 0]
         );
         if (process.env.NODE_ENV !== "production") {
-          console.log("[initCanvas] loadFromJSON (duplicate)", { pageId, objectsCount: (objects?.length ?? 0) });
+          devLog("[initCanvas] loadFromJSON (duplicate)", { pageId, objectsCount: (objects?.length ?? 0) });
         }
         c.clear();
         const objectsOnly = { objects: objects ?? [] };
@@ -3963,7 +3977,7 @@ try {
       } else if (pending?.type === "doc-load") {
         baseFitZoomRef.current = null;
         if (process.env.NODE_ENV !== "production") {
-          console.log("[initCanvas] doc-load", { pageId });
+          devLog("[initCanvas] doc-load", { pageId });
         }
         await applySnapshotToCanvasRef.current(c, pending.snapshot, "doc-load");
       } else {
@@ -4154,7 +4168,7 @@ try {
             background: "#ffffff",
           }));
           if (process.env.NODE_ENV !== "production") {
-            console.log("[doc-load] reconstructedPages ids", reconstructedPages.map((p) => p.id));
+            devLog("[doc-load] reconstructedPages ids", reconstructedPages.map((p) => p.id));
           }
           setPages(reconstructedPages);
           pageIdCounterRef.current = reconstructedPages.length;
@@ -4168,7 +4182,7 @@ try {
             });
           });
           if (process.env.NODE_ENV !== "production") {
-            console.log("[doc-load] pending ids", Array.from(pendingPageLoadRef.current.keys()));
+            devLog("[doc-load] pending ids", Array.from(pendingPageLoadRef.current.keys()));
           }
           undoRef.current = [pagesData[0]];
         } else {
@@ -4194,7 +4208,7 @@ try {
         });
         setIsDocDataReady(true);
         if (process.env.NODE_ENV !== "production") {
-          console.log("[load] doc data ready, isDocDataReady=true");
+          devLog("[load] doc data ready, isDocDataReady=true");
         }
       })
       .catch((err) => {
@@ -5792,7 +5806,7 @@ try {
       uiOrder.splice(to, 0, obj);
       applyLayerOrder(uiOrder);
       if (process.env.NODE_ENV !== "production") {
-        console.debug("[layers] move", {
+        devDebug("[layers] move", {
           fromUiIndex,
           toUiIndex,
           fromFabricIndex: count - 1 - from,

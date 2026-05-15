@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllArticles } from "@/lib/blog";
 
+/** Public, indexable URLs only (aligned with route metadata and robots policy). */
 const BASE_URL = "https://studiosislab.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {

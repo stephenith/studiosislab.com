@@ -20,6 +20,14 @@ export default function AboutPage() {
       title="About StudiosisLab"
       intro="StudiosisLab is a free online tools platform. We focus on practical resume and document workflows, e-signing, and helpful guides—built to stay simple, fast, and accessible in the browser."
     >
+      <SectionBlock title="Who operates StudiosisLab?">
+        <p>
+          StudiosisLab is built and operated by Studiosis as an independent, small-team platform. We
+          focus on free and accessible online tools for creative and document work, and we improve the
+          product iteratively based on real usage and feedback.
+        </p>
+      </SectionBlock>
+
       <SectionBlock title="What is StudiosisLab?">
         <p>
           StudiosisLab brings together resume building, PDF-oriented document tasks, and e-signing in

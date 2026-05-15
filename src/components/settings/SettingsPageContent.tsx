@@ -90,7 +90,7 @@ export default function SettingsPageContent() {
           <Link href="/" className="relative block h-11 w-[min(100%,280px)] shrink-0">
             <Image
               src={HOME_LOGOS_LIGHT.header}
-              alt="Studiosis Lab — home"
+              alt="StudiosisLab — home"
               fill
               className="object-contain object-left"
               sizes="280px"
@@ -104,7 +104,7 @@ export default function SettingsPageContent() {
           <div className="relative mb-6 flex h-40 w-full max-w-[280px] shrink-0 items-center justify-center sm:mb-8 sm:h-48 sm:max-w-[336px]">
             <Image
               src={HOME_LOGOS_LIGHT.heroLab}
-              alt="Studiosis Lab"
+              alt="StudiosisLab"
               fill
               className="object-contain object-center"
               sizes="(max-width: 768px) 90vw, 336px"
@@ -128,28 +128,28 @@ export default function SettingsPageContent() {
                   className="shrink-0 rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-500"
                   aria-hidden
                 >
-                  Coming soon
+                  In development
                 </span>
               </div>
               <p className={`mt-3 text-sm ${MUTED_TEXT}`}>
-                Light and dark mode preferences will be available soon.
+                Theme preferences are not available yet; the default experience applies for now.
               </p>
             </section>
 
             <section className={CARD_CLASS}>
-              <h2 className={`text-xs font-semibold uppercase tracking-wide ${MUTED_TEXT}`}>More (soon)</h2>
+              <h2 className={`text-xs font-semibold uppercase tracking-wide ${MUTED_TEXT}`}>More options</h2>
               <ul className={`mt-4 space-y-2 text-sm ${MUTED_TEXT}`}>
                 <li className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-zinc-500/25 px-3 py-2">
                   <span>Profile photo</span>
-                  <span className="shrink-0 text-xs opacity-70">Later</span>
+                  <span className="shrink-0 text-xs opacity-70">Not yet</span>
                 </li>
                 <li className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-zinc-500/25 px-3 py-2">
                   <span>Phone number</span>
-                  <span className="shrink-0 text-xs opacity-70">Later</span>
+                  <span className="shrink-0 text-xs opacity-70">Not yet</span>
                 </li>
                 <li className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-zinc-500/25 px-3 py-2">
                   <span>Account preferences</span>
-                  <span className="shrink-0 text-xs opacity-70">Later</span>
+                  <span className="shrink-0 text-xs opacity-70">Not yet</span>
                 </li>
               </ul>
             </section>

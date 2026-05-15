@@ -226,16 +226,11 @@ const emailHtml = `
 </html>
 `;
 
-console.log("Sending signing email to:", clientEmail);
-console.log("Signing link:", signingLink);
-
 await sendEmail({
 to: clientEmail,
 subject: `Signature requested by ${senderEmail} via Studiosis Lab`,
 html: emailHtml,
 });
-
-console.log("Email successfully sent.");
 
 return new Response(
 JSON.stringify({
@@ -254,7 +249,7 @@ if (e instanceof Response) {
 return e;
 }
 
-console.error("esign invite error:", e);
+console.error("esign invite error:", e instanceof Error ? e.message : "unknown");
 
 return new Response(
 JSON.stringify({

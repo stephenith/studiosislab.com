@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
+import { trackEvent } from "@/lib/analytics";
 
 function LoginInner() {
   const [loading, setLoading] = useState(false);
@@ -21,7 +22,9 @@ function LoginInner() {
   async function signIn() {
     try {
       setLoading(true);
+      trackEvent("sign_in_click", { surface: "login_page", method: "google" });
       await signInWithGoogle();
+      trackEvent("sign_in_success", { surface: "login_page", method: "google" });
       if (next) {
         router.push(next);
       } else {
@@ -53,7 +56,7 @@ function LoginInner() {
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-md rounded-2xl border p-6">
-        <h1 className="text-2xl font-semibold">Studiosis Lab</h1>
+        <h1 className="text-2xl font-semibold">StudiosisLab</h1>
         <p className="mt-2 text-sm text-zinc-600">
           Login with Google to continue
         </p>

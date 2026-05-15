@@ -35,6 +35,15 @@ import { toHexColor } from "@/lib/color";
 import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 import { auth, db } from "@/lib/firebase";
+import { trackEvent } from "@/lib/analytics";
+
+const IS_DEV = process.env.NODE_ENV !== "production";
+function devLog(...args: unknown[]) {
+  if (IS_DEV) globalThis["console"].log(...args);
+}
+function devWarn(...args: unknown[]) {
+  if (IS_DEV) globalThis["console"].warn(...args);
+}
 
 /** Recursively removes all keys with value === undefined. */
 function sanitizeJSON(value: any): any {
@@ -64,13 +73,13 @@ function sanitizeFabricObject(obj: any): any | null {
 
   // Skip invalid path objects
   if (obj.type === "path" && (!Array.isArray(obj.path) || obj.path.length === 0)) {
-    console.warn("[save] Skipping invalid path object");
+    devWarn("[save] Skipping invalid path object");
     return null;
   }
 
   // Skip image objects without src
   if (String(obj.type || "").toLowerCase() === "image" && !obj.src) {
-    console.warn("[save] Skipping image object without src");
+    devWarn("[save] Skipping image object without src");
     return null;
   }
 
@@ -210,8 +219,6 @@ export default function EditorShell({
   const [pendingExport, setPendingExport] = useState<
     null | { format: "pdf" | "png"; pages: number[] }
   >(null);
-
-  const [adCountdown, setAdCountdown] = useState(15);
   const [selectedDownloadFormat, setSelectedDownloadFormat] = useState<"pdf" | "png">(
     "pdf"
   );
@@ -281,6 +288,7 @@ export default function EditorShell({
     setIsAdOpen(false);
     if (format === "pdf") editor?.exportPDF?.(pages);
     else editor?.exportPNG?.(pages);
+    trackEvent("export_success", { format, flow: "resume_editor" });
   }, [editor, pendingExport]);
 
   const rawZoomPercent =
@@ -326,7 +334,7 @@ export default function EditorShell({
   }, [editor.deleteSelected]);
 
   const handleFloatingMore = useCallback(() => {
-    console.log("More options");
+    devLog("More options");
   }, []);
 
   const pageRefs = useRef(new Map<string, HTMLDivElement>());
@@ -370,7 +378,7 @@ export default function EditorShell({
       const targetTop = Math.max(0, rawTargetTop);
 
       if (process.env.NODE_ENV !== "production") {
-        console.log("[scrollToPage]", { pageId, targetTop });
+        devLog("[scrollToPage]", { pageId, targetTop });
       }
 
       viewportEl.scrollTo({
@@ -477,15 +485,6 @@ export default function EditorShell({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [editor]);
-
-  useEffect(() => {
-    if (!isAdOpen) return;
-    setAdCountdown(15);
-    const id = window.setInterval(() => {
-      setAdCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => window.clearInterval(id);
-  }, [isAdOpen]);
 
   useEffect(() => {
     if (!editor?.setViewportEl) return;
@@ -684,7 +683,7 @@ export default function EditorShell({
                   const sourceTemplateId = templateId ?? "blank";
 
                   const zoomBeforeSave = editor.getZoom?.() ?? editor.zoom ?? 1;
-                  console.log("[save] zoom before save:", zoomBeforeSave);
+                  devLog("[save] zoom before save:", zoomBeforeSave);
 
                   rawPayload = {
                     title: safeName,
@@ -708,7 +707,7 @@ export default function EditorShell({
                      (fabricCanvas as any)?.getElement?.() ||
                      undefined;
 
-                    console.log("[thumb] canvas found?", !!canvasEl);
+                    devLog("[thumb] canvas found?", !!canvasEl);
 
                     // DOM fallback (when hook doesn't expose Fabric canvas)
                     if (!canvasEl) {
@@ -720,22 +719,22 @@ export default function EditorShell({
                      const domCanvas = document.querySelector(selector) as HTMLCanvasElement | null;
                      canvasEl = domCanvas || undefined;
 
-                     console.log("[thumb] DOM canvas found?", !!canvasEl, "selector:", selector);
+                     devLog("[thumb] DOM canvas found?", !!canvasEl, "selector:", selector);
                     } 
 
                    if (canvasEl) {
                      const thumb = makeThumbnailFromCanvasEl(canvasEl, 360);
                      if (thumb) {
                       rawPayload.thumbnail = thumb;
-                      console.log("Thumbnail generated ✅");
+                      devLog("Thumbnail generated ✅");
                      } else {
-                      console.warn("Thumbnail generation returned null");
+                      devWarn("Thumbnail generation returned null");
                      }
                    } else {
-                     console.warn("No canvas element found for thumbnail");
+                     devWarn("No canvas element found for thumbnail");
                    }
                   } catch (e) {
-                    console.warn("Thumbnail generation failed", e);
+                    devWarn("Thumbnail generation failed", e);
                   }
 
                   const isNewDoc = !existingId;
@@ -757,22 +756,22 @@ export default function EditorShell({
                       anyEditor?.canvases?.[anyEditor?.activePageIndex ?? 0] ||
                       anyEditor?.pages?.[anyEditor?.activePageIndex ?? 0]?.canvas;
 
-                    console.log("[thumb] canvas found?", !!c);
-                    console.log("[thumb] has toDataURL?", typeof c?.toDataURL);
+                    devLog("[thumb] canvas found?", !!c);
+                    devLog("[thumb] has toDataURL?", typeof c?.toDataURL);
 
                     if (c?.toDataURL) {
                       // 0.25 = small preview. Increase if you want clearer thumbs.
                       thumbDataUrl = c.toDataURL({ format: "png", multiplier: 0.25 });
                     }
                   } catch (e) {
-                    console.warn("Thumbnail export failed", e);
+                    devWarn("Thumbnail export failed", e);
                   }
 
                   if (thumbDataUrl) {
                     rawPayload.thumbnail = thumbDataUrl; // this is the field you should render on /resume
-                    console.log("[thumb] length", thumbDataUrl.length);
+                    devLog("[thumb] length", thumbDataUrl.length);
                   } else {
-                    console.log("[thumb] NO thumbnail created");
+                    devLog("[thumb] NO thumbnail created");
                   }
                   // =========================
 
@@ -785,10 +784,10 @@ export default function EditorShell({
                     return;
                   }
 
-                  console.log("SAVE uid", u.uid);
-                  console.log("SAVE path", ref.path);
+                  devLog("SAVE uid", u.uid);
+                  devLog("SAVE path", ref.path);
                   if (process.env.NODE_ENV === "development") {
-                    console.log("[save] payload keys", Object.keys(payload || {}));
+                    devLog("[save] payload keys", Object.keys(payload || {}));
                   }
 
                   await setDoc(ref, payload, { merge: true });
@@ -798,13 +797,17 @@ export default function EditorShell({
                   setSaveNotice("Saved");
 
                   const zoomAfterSave = editor.getZoom?.() ?? editor.zoom ?? 1;
-                  console.log("[save] zoom after save:", zoomAfterSave);
+                  devLog("[save] zoom after save:", zoomAfterSave);
 
                   if (!existingId) {
                     router.replace(`/editor/doc/${newDocId}`);
                   }
                 } catch (err: any) {
-                  console.error("[save] Failed:", err?.name, err?.message, err);
+                  if (IS_DEV) {
+                    console.error("[save] Failed:", err?.name, err?.message, err);
+                  } else {
+                    console.error("[save] Failed:", err?.name, err?.message);
+                  }
 
                   if (isAbortError(err)) {
                     setSaveNotice(saved ? "Saved" : "Save interrupted (aborted)");
@@ -820,7 +823,7 @@ export default function EditorShell({
 
                   if (message.toLowerCase().includes("unsupported field value: undefined")) {
                     const paths = rawPayload ? findUndefinedPaths(rawPayload) : [];
-                    console.log("[save] undefined paths", paths);
+                    devLog("[save] undefined paths", paths);
                   }
                 }
               }}
@@ -1447,6 +1450,10 @@ export default function EditorShell({
                 className="w-full rounded bg-black px-3 py-2 text-sm text-white"
                 onClick={() => {
                   setIsDownloadOpen(false);
+                  trackEvent("export_attempt", {
+                    format: selectedDownloadFormat,
+                    flow: "resume_editor",
+                  });
                   setPendingExport({ format: selectedDownloadFormat, pages: selectedPages });
                   setIsAdOpen(true);
                 }}
@@ -1505,7 +1512,7 @@ export default function EditorShell({
 
           <div className="relative w-[860px] max-w-[95vw] rounded-2xl bg-white shadow-2xl border p-6">
             <div className="flex items-center justify-between">
-              <div className="text-base font-semibold">Sponsored</div>
+              <div className="text-base font-semibold text-zinc-900">Finish export</div>
               <button
                 className="text-sm text-zinc-500 hover:text-zinc-700"
                 onClick={() => setIsAdOpen(false)}
@@ -1515,23 +1522,19 @@ export default function EditorShell({
               </button>
             </div>
 
-            <div className="mt-4 rounded-xl bg-zinc-100 overflow-hidden">
-              <div className="aspect-video w-full flex items-center justify-center text-sm text-zinc-500">
-                Ad placeholder (landscape video)
-              </div>
+            <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-6 text-center text-sm text-zinc-600">
+              When you continue, your selected pages will be exported in the format you chose. You can
+              close this dialog to go back without exporting.
             </div>
 
-            <div className="mt-4 text-sm text-zinc-700">
-              {adCountdown > 0 ? `Please wait ${adCountdown}s...` : "Ready to download"}
-            </div>
+            <div className="mt-4 text-sm text-zinc-700">Ready when you are.</div>
 
             <button
-              className="mt-4 w-full rounded-xl bg-black px-4 py-3 text-sm text-white disabled:opacity-50"
-              disabled={adCountdown > 0}
+              className="mt-4 w-full rounded-xl bg-black px-4 py-3 text-sm text-white"
               onClick={handleAdComplete}
               type="button"
             >
-              Continue
+              Continue to download
             </button>
           </div>
         </div>

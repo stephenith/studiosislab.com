@@ -1,8 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
+import { HomeCtaLink } from "@/components/analytics/HomeCtaLink";
 
 const RESUME_ILLUSTRATION_SRC =
-  "/illustrations/" + encodeURIComponent("Resume illustration.png");
+  "/illustrations/" + encodeURIComponent("Resume illustration.webp");
 
 const ILLUSTRATION_FRAME =
   "relative h-[min(44vh,520px)] w-full max-w-4xl shrink-0";
@@ -19,12 +19,12 @@ export default function HomeSectionResume() {
           alt="Resume editor illustration"
           fill
           className="object-contain object-center"
-          sizes="(max-width: 768px) 100vw, 1024px"
+          sizes="(max-width: 768px) 100vw, 896px"
         />
       </div>
-      <Link href="/resume" className={CTA_CLASS}>
+      <HomeCtaLink href="/resume" surface="home_resume" className={CTA_CLASS}>
         Choose template
-      </Link>
+      </HomeCtaLink>
       <div className="flex w-full max-w-xl flex-col items-center">
         <h2 className="text-2xl font-semibold font-heading tracking-tight text-zinc-900 md:text-3xl">
           Resume editor

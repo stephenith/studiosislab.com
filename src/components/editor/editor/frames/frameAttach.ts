@@ -99,39 +99,6 @@ export function createFrameAttach(deps: {
       }
       frameGroup.add(image);
 
-      console.log("A: AFTER ADD (_enterGroup ran)", {
-        left: image.left,
-        top: image.top,
-        scaleX: image.scaleX,
-        scaleY: image.scaleY,
-        inObjects: frameGroup._objects?.includes(image),
-        groupRef: image.group === frameGroup,
-      });
-
-      console.log("B: ELEMENT CHECK", {
-        element: !!(image as any)._element,
-        naturalWidth: (image as any)._element?.naturalWidth,
-        naturalHeight: (image as any)._element?.naturalHeight,
-        width: image.width,
-        height: image.height,
-        visible: image.visible,
-        opacity: image.opacity,
-      });
-
-      console.log("C: SCALE CHECK", {
-        scaleX: image.scaleX,
-        scaleY: image.scaleY,
-      });
-
-      console.log("D: FINAL POSITION CHECK", {
-        left: image.left,
-        top: image.top,
-        frameLeft: frameGroup.left,
-        frameTop: frameGroup.top,
-        clipLeft: (frameGroup.clipPath as any)?.left,
-        clipTop: (frameGroup.clipPath as any)?.top,
-      });
-
       // Re-derive cover scale from the shape's actual rendered size so the image
       // fills the clip region regardless of any group-level scale applied before attach.
       const shapeBounds = shape.getBoundingRect?.();

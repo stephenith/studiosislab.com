@@ -118,6 +118,240 @@
       "thumbnailPath": "/templates/t013.png",
       "jsonPath": "src/data/template-json/t013.json",
       "status": "published"
+    },
+    {
+      "id": "t014",
+      "title": "UI/UX Designer Resume",
+      "categoryId": "it-software",
+      "thumbnailPath": "/templates/t014.png",
+      "jsonPath": "src/data/template-json/t014.json",
+      "status": "published",
+      "tags": ["uiux", "designer", "resume"]
+    },
+    {
+      "id": "t015",
+      "title": "Nursing Resume",
+      "categoryId": "healthcare-medical",
+      "thumbnailPath": "/templates/t015.png",
+      "jsonPath": "src/data/template-json/t015.json",
+      "status": "published",
+      "tags": ["nursing", "healthcare", "medical", "resume"]
+    },
+    {
+      "id": "t016",
+      "title": "Medical Assistant Resume",
+      "categoryId": "healthcare-medical",
+      "thumbnailPath": "/templates/t016.png",
+      "jsonPath": "src/data/template-json/t016.json",
+      "status": "published",
+      "tags": ["medical", "assistant", "healthcare", "resume"]
+    },
+    {
+      "id": "t017",
+      "title": "Care Taker Resume",
+      "categoryId": "healthcare-medical",
+      "thumbnailPath": "/templates/t017.png",
+      "jsonPath": "src/data/template-json/t017.json",
+      "status": "published",
+      "tags": ["caretaker", "healthcare", "medical", "resume"]
+    },
+    {
+      "id": "t018",
+      "title": "Healthcare Resume",
+      "categoryId": "healthcare-medical",
+      "thumbnailPath": "/templates/t018.png",
+      "jsonPath": "src/data/template-json/t018.json",
+      "status": "published",
+      "tags": ["healthcare", "medical", "resume"]
+    },
+    {
+      "id": "t019",
+      "title": "Sales Resume",
+      "categoryId": "sales-marketing-advertising",
+      "thumbnailPath": "/templates/t019.png",
+      "jsonPath": "src/data/template-json/t019.json",
+      "status": "published",
+      "tags": ["sales", "marketing", "advertising", "resume"]
+    },
+    {
+      "id": "t020",
+      "title": "Digital Marketing Resume",
+      "categoryId": "sales-marketing-advertising",
+      "thumbnailPath": "/templates/t020.png",
+      "jsonPath": "src/data/template-json/t020.json",
+      "status": "published",
+      "tags": ["digital-marketing", "marketing", "advertising", "resume"]
+    },
+    {
+      "id": "t021",
+      "title": "Social Media Manager Resume",
+      "categoryId": "sales-marketing-advertising",
+      "thumbnailPath": "/templates/t021.png",
+      "jsonPath": "src/data/template-json/t021.json",
+      "status": "published",
+      "tags": ["social-media", "manager", "marketing", "resume"]
+    },
+    {
+      "id": "t022",
+      "title": "Account Manager Resume",
+      "categoryId": "sales-marketing-advertising",
+      "thumbnailPath": "/templates/t022.png",
+      "jsonPath": "src/data/template-json/t022.json",
+      "status": "published",
+      "tags": ["account-manager", "sales", "marketing", "resume"]
+    },
+    {
+      "id": "t023",
+      "title": "Accountant Resume",
+      "categoryId": "finance-accounting",
+      "thumbnailPath": "/templates/t023.png",
+      "jsonPath": "src/data/template-json/t023.json",
+      "status": "published",
+      "tags": ["accountant", "finance", "accounting", "resume"]
+    },
+    {
+      "id": "t024",
+      "title": "Financial Analyst Resume",
+      "categoryId": "finance-accounting",
+      "thumbnailPath": "/templates/t024.png",
+      "jsonPath": "src/data/template-json/t024.json",
+      "status": "published",
+      "tags": ["financial-analyst", "finance", "accounting", "resume"]
+    },
+    {
+      "id": "t025",
+      "title": "Bookkeeper Resume",
+      "categoryId": "finance-accounting",
+      "thumbnailPath": "/templates/t025.png",
+      "jsonPath": "src/data/template-json/t025.json",
+      "status": "published",
+      "tags": ["bookkeeper", "finance", "accounting", "resume"]
+    },
+    {
+      "id": "t026",
+      "title": "Accounts Payable Resume",
+      "categoryId": "finance-accounting",
+      "thumbnailPath": "/templates/t026.png",
+      "jsonPath": "src/data/template-json/t026.json",
+      "status": "published",
+      "tags": ["accounts-payable", "finance", "accounting", "resume"]
+    },
+    {
+      "id": "t027",
+      "title": "Customer Service Resume",
+      "categoryId": "customer-service-administration",
+      "thumbnailPath": "/templates/t027.png",
+      "jsonPath": "src/data/template-json/t027.json",
+      "status": "published",
+      "tags": ["customer-service", "administration", "support", "resume"]
+    },
+    {
+      "id": "t028",
+      "title": "Administrative Assistant Resume",
+      "categoryId": "customer-service-administration",
+      "thumbnailPath": "/templates/t028.png",
+      "jsonPath": "src/data/template-json/t028.json",
+      "status": "published",
+      "tags": ["administrative-assistant", "administration", "customer-service", "resume"]
+    },
+    {
+      "id": "t029",
+      "title": "Receptionist Resume",
+      "categoryId": "customer-service-administration",
+      "thumbnailPath": "/templates/t029.png",
+      "jsonPath": "src/data/template-json/t029.json",
+      "status": "published",
+      "tags": ["receptionist", "administration", "customer-service", "resume"]
+    },
+    {
+      "id": "t030",
+      "title": "Office Assistant Resume",
+      "categoryId": "customer-service-administration",
+      "thumbnailPath": "/templates/t030.png",
+      "jsonPath": "src/data/template-json/t030.json",
+      "status": "published",
+      "tags": ["office-assistant", "administration", "customer-service", "resume"]
+    },
+    {
+      "id": "t031",
+      "title": "Graphic Designer Resume",
+      "categoryId": "creative-designing",
+      "thumbnailPath": "/templates/t031.png",
+      "jsonPath": "src/data/template-json/t031.json",
+      "status": "published",
+      "tags": ["graphic-designer", "creative", "design", "resume"]
+    },
+    {
+      "id": "t032",
+      "title": "UI/UX Designer Resume",
+      "categoryId": "creative-designing",
+      "thumbnailPath": "/templates/t032.png",
+      "jsonPath": "src/data/template-json/t032.json",
+      "status": "published",
+      "tags": ["ui-ux-designer", "creative", "design", "resume"]
+    },
+    {
+      "id": "t033",
+      "title": "Content Writer Resume",
+      "categoryId": "creative-designing",
+      "thumbnailPath": "/templates/t033.png",
+      "jsonPath": "src/data/template-json/t033.json",
+      "status": "published",
+      "tags": ["content-writer", "creative", "writing", "resume"]
+    },
+    {
+      "id": "t034",
+      "title": "Hotel Manager Resume",
+      "categoryId": "hospitality-travel",
+      "thumbnailPath": "/templates/t034.png",
+      "jsonPath": "src/data/template-json/t034.json",
+      "status": "published",
+      "tags": ["hotel-manager", "hospitality", "travel", "resume"]
+    },
+    {
+      "id": "t035",
+      "title": "Front Desk Resume",
+      "categoryId": "hospitality-travel",
+      "thumbnailPath": "/templates/t035.png",
+      "jsonPath": "src/data/template-json/t035.json",
+      "status": "published",
+      "tags": ["front-desk", "hospitality", "travel", "resume"]
+    },
+    {
+      "id": "t036",
+      "title": "Flight Attendant Resume",
+      "categoryId": "hospitality-travel",
+      "thumbnailPath": "/templates/t036.png",
+      "jsonPath": "src/data/template-json/t036.json",
+      "status": "published",
+      "tags": ["flight-attendant", "hospitality", "travel", "resume"]
+    },
+    {
+      "id": "t037",
+      "title": "Restaurant Manager Resume",
+      "categoryId": "hospitality-travel",
+      "thumbnailPath": "/templates/t037.png",
+      "jsonPath": "src/data/template-json/t037.json",
+      "status": "published",
+      "tags": ["restaurant-manager", "hospitality", "travel", "resume"]
+    },
+    {
+      "id": "t038",
+      "title": "Student Resume",
+      "categoryId": "student-entry-level",
+      "thumbnailPath": "/templates/t038.png",
+      "jsonPath": "src/data/template-json/t038.json",
+      "status": "published",
+      "tags": ["student", "entry-level", "fresher", "resume"]
+    },
+    {
+      "id": "t039",
+      "title": "Internship Resume",
+      "categoryId": "student-entry-level",
+      "thumbnailPath": "/templates/t039.png",
+      "jsonPath": "src/data/template-json/t039.json",
+      "status": "published",
+      "tags": ["internship", "student", "entry-level", "resume"]
     }
   ]
 }

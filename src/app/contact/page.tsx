@@ -21,8 +21,8 @@ export default function ContactPage() {
       <SectionBlock title="Support Contact">
         <p>
           For account help, product guidance, and technical questions, contact us at{" "}
-          <ContactMailtoLink href="mailto:support@studiosislab.com" linkType="support">
-            support@studiosislab.com
+          <ContactMailtoLink href="mailto:stephen@studiosis.in" linkType="support">
+            stephen@studiosis.in
           </ContactMailtoLink>
           .
         </p>
@@ -31,8 +31,8 @@ export default function ContactPage() {
       <SectionBlock title="Business and Partnership Inquiries">
         <p>
           For partnerships, enterprise use cases, or commercial discussions, reach out at{" "}
-          <ContactMailtoLink href="mailto:business@studiosislab.com" linkType="business">
-            business@studiosislab.com
+          <ContactMailtoLink href="mailto:business@studiosis.in" linkType="business">
+            business@studiosis.in
           </ContactMailtoLink>
           .
         </p>

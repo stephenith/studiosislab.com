@@ -64,8 +64,8 @@ export default function DashboardLoginPage() {
             </div>
             <p className="mt-6 text-center text-xs text-zinc-500">
               Business inquiries:{" "}
-              <a className="font-medium text-zinc-700 underline" href="mailto:business@studiosislab.com">
-                business@studiosislab.com
+              <a className="font-medium text-zinc-700 underline" href="mailto:business@studiosis.in">
+                business@studiosis.in
               </a>
             </p>
           </div>

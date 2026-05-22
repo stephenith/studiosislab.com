@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
 import {
   collection,
@@ -22,6 +23,7 @@ import { trackEvent } from "@/lib/analytics";
 import { getLoginRedirectUrl } from "@/lib/safeNextPath";
 
 import NoiseBackground from "@/components/home/NoiseBackground";
+import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
 import { TEMPLATES } from "@/data/templates";
 import { TEMPLATE_CATEGORIES } from "@/data/templateCategories";
 
@@ -217,6 +219,19 @@ export default function ResumeTemplatesPage() {
   return (
     <main className="relative min-h-dvh w-full bg-white px-5 pb-20 pt-10 text-zinc-900 sm:pt-12">
       <NoiseBackground />
+      <header className="relative z-10 flex items-center px-1 pb-4 sm:px-2 sm:pb-5">
+        <Link href="/" className="relative block h-11 w-[min(100%,280px)] shrink-0">
+          <Image
+            src={HOME_LOGOS_LIGHT.header}
+            alt="StudiosisLab — home"
+            fill
+            className="object-contain object-left"
+            sizes="280px"
+            priority
+          />
+        </Link>
+      </header>
+
       <div className="relative z-10 mx-auto w-full max-w-7xl">
         <header className="px-1 pt-2 text-center sm:px-2 sm:pt-4">
           <h1 className="mx-auto max-w-4xl font-heading text-xl font-medium leading-[1.08] tracking-tight text-zinc-900 sm:text-2xl md:text-3xl lg:text-4xl">

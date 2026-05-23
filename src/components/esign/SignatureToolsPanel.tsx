@@ -276,7 +276,7 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
   })();
 
   return (
-    <aside className="h-full min-h-0 w-[320px] shrink-0 overflow-y-auto overscroll-contain border-r bg-white p-4 space-y-6">
+    <aside className="h-auto min-h-0 w-full shrink-0 overflow-y-auto overscroll-contain border-b bg-white p-4 space-y-6 lg:h-full lg:w-[320px] lg:border-b-0 lg:border-r">
       {mode === "sender" && showOnboardingTip && (
         <div className="sticky top-0 z-10 shrink-0 -mx-1">
           <div className="relative rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 pr-9 text-emerald-950 shadow-md ring-1 ring-emerald-100/80">

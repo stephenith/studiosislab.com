@@ -1635,7 +1635,7 @@ export default function EsignViewerClient({
   return (
     <main className="min-h-screen bg-slate-50 text-zinc-900">
       <div className="flex h-screen flex-col">
-        <header className="flex h-14 shrink-0 items-center justify-between gap-4 bg-[#000000] px-4 text-white shadow-sm">
+        <header className="flex h-14 shrink-0 items-center justify-between gap-3 bg-[#000000] px-3 text-white shadow-sm sm:px-4">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <button
               type="button"
@@ -1673,7 +1673,7 @@ export default function EsignViewerClient({
               </div>
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="hidden shrink-0 items-center gap-1 md:flex">
             {steps.map((s, i) => (
               <div key={i} className="flex items-center gap-1">
                 <div
@@ -1695,9 +1695,12 @@ export default function EsignViewerClient({
               </div>
             ))}
           </div>
+          <div className="shrink-0 text-[11px] text-white/70 md:hidden">
+            {statusLabel}
+          </div>
         </header>
 
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 min-h-0 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
         <SignatureToolsPanel
           mode={isRecipientMode ? "recipient" : "sender"}
           activeSignature={activeSignature}
@@ -1736,8 +1739,8 @@ export default function EsignViewerClient({
           mobileSignatureReady={mobileSignatureReady}
          />
 
-          <section className="relative flex-1 min-h-0 flex flex-col">
-            <div className="absolute left-1/2 top-2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-lg bg-white px-2 py-1.5 shadow-sm text-xs">
+          <section className="relative order-2 flex min-h-[45vh] flex-1 flex-col lg:order-none lg:min-h-0">
+            <div className="absolute left-1/2 top-2 z-10 flex max-w-[calc(100%-1rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-1.5 rounded-lg bg-white px-2 py-1.5 shadow-sm text-xs">
               <button
                 type="button"
                 className={`rounded-md px-2 py-1 transition-colors duration-150 hover:bg-[#f4f4f4] ${
@@ -1801,7 +1804,7 @@ export default function EsignViewerClient({
 
             <div
               ref={scrollContainerRef}
-              className="flex-1 min-h-0 overflow-y-auto bg-zinc-100 pt-10"
+              className="flex-1 min-h-0 overflow-y-auto bg-zinc-100 pt-12 sm:pt-10"
             >
               <EsignPdfViewer
                 ref={viewerRef}
@@ -1855,7 +1858,7 @@ export default function EsignViewerClient({
           </section>
 
         {isRecipientMode ? (
-        <aside className="w-[320px] border-l bg-white flex flex-col">
+        <aside className="order-3 w-full max-h-[48vh] overflow-y-auto border-t bg-white lg:order-none lg:max-h-none lg:w-[320px] lg:border-l lg:border-t-0 lg:overflow-visible lg:flex lg:flex-col">
           <div className="border-b px-4 py-3">
             <div className="font-semibold text-sm">Agreement Progress</div>
             <p className="mt-1 text-xs text-zinc-600">✓ Sender has signed</p>
@@ -1879,7 +1882,7 @@ export default function EsignViewerClient({
           </div>
         </aside>
         ) : (
-        <aside className="w-[320px] border-l bg-white flex flex-col">
+        <aside className="order-3 w-full max-h-[56vh] overflow-y-auto border-t bg-white lg:order-none lg:max-h-none lg:w-[320px] lg:border-l lg:border-t-0 lg:overflow-visible lg:flex lg:flex-col">
           <div className="flex-1 overflow-y-auto px-4 py-3 text-sm space-y-6">
             {/* Section A: Download Signed Document */}
             <div className="space-y-2">

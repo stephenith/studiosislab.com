@@ -1,5 +1,6 @@
 import EditorShell from "@/components/editor/EditorShell";
 import { EditorAuthGate } from "@/components/editor/EditorAuthGate";
+import EditorMobileGuard from "@/components/editor/EditorMobileGuard";
 import { SYSTEM_TEMPLATE_IDS } from "@/data/systemTemplates/registry";
 
 export default async function EditorTemplatePage({
@@ -13,15 +14,17 @@ export default async function EditorTemplatePage({
 
   return (
     <EditorAuthGate>
-      <div className="h-screen flex flex-col">
-        {isValidTemplate ? (
-          <EditorShell variant="template" templateId={normalizedTemplateId} />
-        ) : (
-          <div className="flex h-full items-center justify-center text-sm text-amber-600">
-            Template not found
-          </div>
-        )}
-      </div>
+      <EditorMobileGuard>
+        <div className="h-screen flex flex-col">
+          {isValidTemplate ? (
+            <EditorShell variant="template" templateId={normalizedTemplateId} />
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-amber-600">
+              Template not found
+            </div>
+          )}
+        </div>
+      </EditorMobileGuard>
     </EditorAuthGate>
   );
 }

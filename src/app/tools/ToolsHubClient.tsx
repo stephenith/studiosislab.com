@@ -757,17 +757,17 @@ export default function EsignToolsPage() {
             <div className="text-sm font-medium text-white mb-3">
               Document
             </div>
-            <div className="flex items-stretch rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 shadow-sm">
-              <div className="flex-1 flex items-center gap-2 px-2">
-                <span className="text-sm text-zinc-300 truncate">
+            <div className="flex flex-col gap-3 rounded-2xl border border-zinc-700 bg-zinc-900 px-3 py-3 shadow-sm sm:flex-row sm:items-stretch sm:gap-2 sm:rounded-full sm:px-3 sm:py-1">
+              <div className="flex min-w-0 flex-1 items-center gap-2 px-1 sm:px-2">
+                <span className="min-w-0 truncate text-sm text-zinc-300">
                   {selectedLabel}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <button
                   type="button"
                   onClick={handleBrowseClick}
-                  className="rounded-full border border-zinc-600 bg-zinc-800 px-4 py-1.5 text-sm font-medium text-zinc-100 transition-colors hover:border-zinc-500 hover:bg-zinc-700"
+                  className="min-h-10 rounded-full border border-zinc-600 bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-100 transition-colors hover:border-zinc-500 hover:bg-zinc-700 sm:min-h-0 sm:py-1.5"
                 >
                   Browse
                 </button>
@@ -775,7 +775,7 @@ export default function EsignToolsPage() {
                   type="button"
                   onClick={handleProceed}
                   disabled={uploading || !selectedFile}
-                  className="rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="min-h-10 rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-0 sm:py-1.5"
                 >
                   {uploading ? "Uploading..." : selectedFile ? "Upload and continue" : "Proceed"}
                 </button>
@@ -796,7 +796,7 @@ export default function EsignToolsPage() {
             <p className="text-xs text-zinc-600 mb-3">
               Upload the signed PDF you want to verify or enter the verification code.
             </p>
-            <div className="flex flex-col sm:flex-row gap-2 sm:items-stretch">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
               <input
                 type="text"
                 value={verificationIdInput}
@@ -804,11 +804,11 @@ export default function EsignToolsPage() {
                 placeholder="Verification code"
                 className="flex-1 min-w-0 rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-800 placeholder:text-zinc-500 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10"
               />
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row">
                 <button
                   type="button"
                   onClick={() => verifyFileInputRef.current?.click()}
-                  className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 transition-colors hover:border-zinc-400"
+                  className="min-h-10 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 transition-colors hover:border-zinc-400 sm:min-h-0"
                 >
                   Browse
                 </button>
@@ -816,7 +816,7 @@ export default function EsignToolsPage() {
                   type="button"
                   onClick={handleVerify}
                   disabled={verifying}
-                  className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
+                  className="min-h-10 rounded-full bg-black px-5 py-2 text-sm font-medium text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-0"
                 >
                   {verifying ? "Verifying…" : "Verify"}
                 </button>

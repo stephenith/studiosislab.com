@@ -1,5 +1,6 @@
 import EditorShell from "@/components/editor/EditorShell";
 import { EditorAuthGate } from "@/components/editor/EditorAuthGate";
+import EditorMobileGuard from "@/components/editor/EditorMobileGuard";
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -15,15 +16,17 @@ export default async function EditorDocumentPage({
 
   return (
     <EditorAuthGate>
-      <div className="h-screen flex flex-col">
-        {isValidDocId ? (
-          <EditorShell variant="doc" docId={normalizedDocId} />
-        ) : (
-          <div className="flex h-full items-center justify-center text-sm text-amber-600">
-            Invalid document
-          </div>
-        )}
-      </div>
+      <EditorMobileGuard>
+        <div className="h-screen flex flex-col">
+          {isValidDocId ? (
+            <EditorShell variant="doc" docId={normalizedDocId} />
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-amber-600">
+              Invalid document
+            </div>
+          )}
+        </div>
+      </EditorMobileGuard>
     </EditorAuthGate>
   );
 }

@@ -283,6 +283,41 @@ export const SYSTEM_TEMPLATES: SystemTemplate[] = [
     thumbnail: "/templates/t039.png",
     load: async () => (await import("../template-json/t039.json")).default,
   },
+  {
+    id: "t040",
+    name: "Entry-Level Software Engineer Resume",
+    tags: ["software engineer","entry level","developer","it","resume"],
+    thumbnail: "/templates/t040.png",
+    load: async () => (await import("../template-json/t040.json")).default,
+  },
+  {
+    id: "t041",
+    name: "Registered Nurse Resume",
+    tags: ["registered nurse","nurse","healthcare","medical","resume"],
+    thumbnail: "/templates/t041.png",
+    load: async () => (await import("../template-json/t041.json")).default,
+  },
+  {
+    id: "t042",
+    name: "Project Manager Resume",
+    tags: ["project manager","management","business","corporate","resume"],
+    thumbnail: "/templates/t042.png",
+    load: async () => (await import("../template-json/t042.json")).default,
+  },
+  {
+    id: "t043",
+    name: "Data Analyst Resume",
+    tags: ["data analyst","analytics","data","it","resume"],
+    thumbnail: "/templates/t043.png",
+    load: async () => (await import("../template-json/t043.json")).default,
+  },
+  {
+    id: "t044",
+    name: "Customer Service Representative Resume",
+    tags: ["customer service","representative","support","administration","resume"],
+    thumbnail: "/templates/t044.png",
+    load: async () => (await import("../template-json/t044.json")).default,
+  },
 ];
 
 export const SYSTEM_TEMPLATE_IDS = SYSTEM_TEMPLATES.map((template) => template.id);

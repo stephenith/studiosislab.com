@@ -39,6 +39,11 @@ import tpl35 from "./template-json/t036.json";
 import tpl36 from "./template-json/t037.json";
 import tpl37 from "./template-json/t038.json";
 import tpl38 from "./template-json/t039.json";
+import tpl39 from "./template-json/t040.json";
+import tpl40 from "./template-json/t041.json";
+import tpl41 from "./template-json/t042.json";
+import tpl42 from "./template-json/t043.json";
+import tpl43 from "./template-json/t044.json";
 
 export type Template = {
   id: string;
@@ -406,6 +411,51 @@ export const TEMPLATES: Template[] = [
     thumb: "/templates/t039.png",
     status: "published",
   },
+  {
+    id: "t040",
+    title: "Entry-Level Software Engineer Resume",
+    categoryId: "it-software",
+    category: "it-software",
+    tags: ["software engineer","entry level","developer","it","resume"],
+    thumb: "/templates/t040.png",
+    status: "published",
+  },
+  {
+    id: "t041",
+    title: "Registered Nurse Resume",
+    categoryId: "healthcare-medical",
+    category: "healthcare-medical",
+    tags: ["registered nurse","nurse","healthcare","medical","resume"],
+    thumb: "/templates/t041.png",
+    status: "published",
+  },
+  {
+    id: "t042",
+    title: "Project Manager Resume",
+    categoryId: "business-management",
+    category: "business-management",
+    tags: ["project manager","management","business","corporate","resume"],
+    thumb: "/templates/t042.png",
+    status: "published",
+  },
+  {
+    id: "t043",
+    title: "Data Analyst Resume",
+    categoryId: "it-software",
+    category: "it-software",
+    tags: ["data analyst","analytics","data","it","resume"],
+    thumb: "/templates/t043.png",
+    status: "published",
+  },
+  {
+    id: "t044",
+    title: "Customer Service Representative Resume",
+    categoryId: "customer-service-administration",
+    category: "customer-service-administration",
+    tags: ["customer service","representative","support","administration","resume"],
+    thumb: "/templates/t044.png",
+    status: "published",
+  },
 ];
 
 export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
@@ -565,5 +615,25 @@ export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
   "t039":
     (tpl38 as any)?.objects && (tpl38 as any).objects.length > 0
       ? (tpl38 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t040":
+    (tpl39 as any)?.objects && (tpl39 as any).objects.length > 0
+      ? (tpl39 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t041":
+    (tpl40 as any)?.objects && (tpl40 as any).objects.length > 0
+      ? (tpl40 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t042":
+    (tpl41 as any)?.objects && (tpl41 as any).objects.length > 0
+      ? (tpl41 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t043":
+    (tpl42 as any)?.objects && (tpl42 as any).objects.length > 0
+      ? (tpl42 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t044":
+    (tpl43 as any)?.objects && (tpl43 as any).objects.length > 0
+      ? (tpl43 as TemplateSnapshot)
       : ({ objects: [] } as TemplateSnapshot),
 };

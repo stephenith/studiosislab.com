@@ -352,6 +352,51 @@
       "jsonPath": "src/data/template-json/t039.json",
       "status": "published",
       "tags": ["internship", "student", "entry-level", "resume"]
-    }
+    },
+    {
+      "id": "t040",
+      "title": "Entry-Level Software Engineer Resume",
+      "categoryId": "it-software",
+      "thumbnailPath": "/templates/t040.png",
+      "jsonPath": "src/data/template-json/t040.json",
+      "status": "published",
+      "tags": ["software engineer", "entry level", "developer", "it", "resume"]
+      },
+      {
+        "id": "t041",
+        "title": "Registered Nurse Resume",
+        "categoryId": "healthcare-medical",
+        "thumbnailPath": "/templates/t041.png",
+        "jsonPath": "src/data/template-json/t041.json",
+        "status": "published",
+        "tags": ["registered nurse", "nurse", "healthcare", "medical", "resume"]
+        },
+        {
+          "id": "t042",
+          "title": "Project Manager Resume",
+          "categoryId": "business-management",
+          "thumbnailPath": "/templates/t042.png",
+          "jsonPath": "src/data/template-json/t042.json",
+          "status": "published",
+          "tags": ["project manager", "management", "business", "corporate", "resume"]
+          },
+          {
+            "id": "t043",
+            "title": "Data Analyst Resume",
+            "categoryId": "it-software",
+            "thumbnailPath": "/templates/t043.png",
+            "jsonPath": "src/data/template-json/t043.json",
+            "status": "published",
+            "tags": ["data analyst", "analytics", "data", "it", "resume"]
+            },
+            {
+              "id": "t044",
+              "title": "Customer Service Representative Resume",
+              "categoryId": "customer-service-administration",
+              "thumbnailPath": "/templates/t044.png",
+              "jsonPath": "src/data/template-json/t044.json",
+              "status": "published",
+              "tags": ["customer service", "representative", "support", "administration", "resume"]
+              }
   ]
 }

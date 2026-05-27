@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllArticles } from "@/lib/blog";
+import { getAllPublishedTemplateSeoPages } from "@/lib/templateSeo";
 
 /** Public, indexable URLs only (aligned with route metadata and robots policy). */
 const BASE_URL = "https://studiosislab.com";
@@ -7,6 +8,7 @@ const BASE_URL = "https://studiosislab.com";
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   const articles = getAllArticles();
+  const templatePages = getAllPublishedTemplateSeoPages();
 
   const baseRoutes: MetadataRoute.Sitemap = [
     {
@@ -96,8 +98,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.65,
   }));
 
+  const templateRoutes: MetadataRoute.Sitemap = templatePages.map((page) => ({
+    url: `${BASE_URL}/resume/${page.slug}`,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.75,
+  }));
+
   return [
     ...baseRoutes,
     ...blogRoutes,
+    ...templateRoutes,
   ];
 }

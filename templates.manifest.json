@@ -397,6 +397,52 @@
               "jsonPath": "src/data/template-json/t044.json",
               "status": "published",
               "tags": ["customer service", "representative", "support", "administration", "resume"]
-              }
+              },
+              {
+                "id": "t045",
+                "title": "Business Analyst Resume",
+                "categoryId": "business-management",
+                "thumbnailPath": "/templates/t045.png",
+                "jsonPath": "src/data/template-json/t045.json",
+                "status": "published",
+                "tags": ["business analyst", "analysis", "corporate", "management", "resume"]
+                },
+                {
+                  "id": "t046",
+                  "title": "Teacher Resume",
+                  "categoryId": "others-student-entry-level",
+                  "thumbnailPath": "/templates/t046.png",
+                  "jsonPath": "src/data/template-json/t046.json",
+                  "status": "published",
+                  "tags": ["teacher", "education", "school", "academic", "resume"]
+                },
+                {
+                  "id": "t047",
+                  "title": "Cybersecurity Analyst Resume",
+                  "categoryId": "it-software",
+                  "thumbnailPath": "/templates/t047.png",
+                  "jsonPath": "src/data/template-json/t047.json",
+                  "status": "published",
+                  "tags": ["cybersecurity", "security analyst", "cyber security", "it", "resume"]
+                  },
+                  {
+                    "id": "t048",
+                    "title": "Human Resources Resume",
+                    "categoryId": "business-management",
+                    "thumbnailPath": "/templates/t048.png",
+                    "jsonPath": "src/data/template-json/t048.json",
+                    "status": "published",
+                    "tags": ["human resources", "hr", "recruitment", "management", "resume"]
+                    },
+                    {
+                      "id": "t049",
+                      "title": "Warehouse Worker Resume",
+                      "categoryId": "customer-service-administration",
+                      "thumbnailPath": "/templates/t049.png",
+                      "jsonPath": "src/data/template-json/t049.json",
+                      "status": "published",
+                      "tags": ["warehouse worker", "warehouse", "logistics", "operations", "resume"]
+                      }
+
   ]
 }

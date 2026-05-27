@@ -44,6 +44,11 @@ import tpl40 from "./template-json/t041.json";
 import tpl41 from "./template-json/t042.json";
 import tpl42 from "./template-json/t043.json";
 import tpl43 from "./template-json/t044.json";
+import tpl44 from "./template-json/t045.json";
+import tpl45 from "./template-json/t046.json";
+import tpl46 from "./template-json/t047.json";
+import tpl47 from "./template-json/t048.json";
+import tpl48 from "./template-json/t049.json";
 
 export type Template = {
   id: string;
@@ -456,6 +461,51 @@ export const TEMPLATES: Template[] = [
     thumb: "/templates/t044.png",
     status: "published",
   },
+  {
+    id: "t045",
+    title: "Business Analyst Resume",
+    categoryId: "business-management",
+    category: "business-management",
+    tags: ["business analyst","analysis","corporate","management","resume"],
+    thumb: "/templates/t045.png",
+    status: "published",
+  },
+  {
+    id: "t046",
+    title: "Teacher Resume",
+    categoryId: "others-student-entry-level",
+    category: "others-student-entry-level",
+    tags: ["teacher","education","school","academic","resume"],
+    thumb: "/templates/t046.png",
+    status: "published",
+  },
+  {
+    id: "t047",
+    title: "Cybersecurity Analyst Resume",
+    categoryId: "it-software",
+    category: "it-software",
+    tags: ["cybersecurity","security analyst","cyber security","it","resume"],
+    thumb: "/templates/t047.png",
+    status: "published",
+  },
+  {
+    id: "t048",
+    title: "Human Resources Resume",
+    categoryId: "business-management",
+    category: "business-management",
+    tags: ["human resources","hr","recruitment","management","resume"],
+    thumb: "/templates/t048.png",
+    status: "published",
+  },
+  {
+    id: "t049",
+    title: "Warehouse Worker Resume",
+    categoryId: "customer-service-administration",
+    category: "customer-service-administration",
+    tags: ["warehouse worker","warehouse","logistics","operations","resume"],
+    thumb: "/templates/t049.png",
+    status: "published",
+  },
 ];
 
 export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
@@ -635,5 +685,25 @@ export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
   "t044":
     (tpl43 as any)?.objects && (tpl43 as any).objects.length > 0
       ? (tpl43 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t045":
+    (tpl44 as any)?.objects && (tpl44 as any).objects.length > 0
+      ? (tpl44 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t046":
+    (tpl45 as any)?.objects && (tpl45 as any).objects.length > 0
+      ? (tpl45 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t047":
+    (tpl46 as any)?.objects && (tpl46 as any).objects.length > 0
+      ? (tpl46 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t048":
+    (tpl47 as any)?.objects && (tpl47 as any).objects.length > 0
+      ? (tpl47 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t049":
+    (tpl48 as any)?.objects && (tpl48 as any).objects.length > 0
+      ? (tpl48 as TemplateSnapshot)
       : ({ objects: [] } as TemplateSnapshot),
 };

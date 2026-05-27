@@ -318,6 +318,41 @@ export const SYSTEM_TEMPLATES: SystemTemplate[] = [
     thumbnail: "/templates/t044.png",
     load: async () => (await import("../template-json/t044.json")).default,
   },
+  {
+    id: "t045",
+    name: "Business Analyst Resume",
+    tags: ["business analyst","analysis","corporate","management","resume"],
+    thumbnail: "/templates/t045.png",
+    load: async () => (await import("../template-json/t045.json")).default,
+  },
+  {
+    id: "t046",
+    name: "Teacher Resume",
+    tags: ["teacher","education","school","academic","resume"],
+    thumbnail: "/templates/t046.png",
+    load: async () => (await import("../template-json/t046.json")).default,
+  },
+  {
+    id: "t047",
+    name: "Cybersecurity Analyst Resume",
+    tags: ["cybersecurity","security analyst","cyber security","it","resume"],
+    thumbnail: "/templates/t047.png",
+    load: async () => (await import("../template-json/t047.json")).default,
+  },
+  {
+    id: "t048",
+    name: "Human Resources Resume",
+    tags: ["human resources","hr","recruitment","management","resume"],
+    thumbnail: "/templates/t048.png",
+    load: async () => (await import("../template-json/t048.json")).default,
+  },
+  {
+    id: "t049",
+    name: "Warehouse Worker Resume",
+    tags: ["warehouse worker","warehouse","logistics","operations","resume"],
+    thumbnail: "/templates/t049.png",
+    load: async () => (await import("../template-json/t049.json")).default,
+  },
 ];
 
 export const SYSTEM_TEMPLATE_IDS = SYSTEM_TEMPLATES.map((template) => template.id);

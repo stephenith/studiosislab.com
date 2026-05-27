@@ -11,5 +11,6 @@ export const TEMPLATE_CATEGORIES = [
   { id: "hospitality", label: "Hospitality & Travel" },
   { id: "it", label: "IT & Software" },
   { id: "sales", label: "Sales, Marketing & Advertising" },
-  { id: "others", label: "Others" },
+  { id: "customer-service", label: "Customer Service & Administration" },
+  { id: "others", label: "Others / Student & Entry Level" },
 ];

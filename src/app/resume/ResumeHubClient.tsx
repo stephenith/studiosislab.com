@@ -29,8 +29,8 @@ import { TEMPLATE_CATEGORIES } from "@/data/templateCategories";
 
 const RESUME_GALLERY_HIDDEN_TEMPLATE_IDS = new Set(["t001", "t002", "t003"]);
 
-/** Maps template id → TEMPLATE_CATEGORIES `id` until template data carries `categoryId`. */
-const TEMPLATE_ID_TO_FILTER: Partial<Record<string, (typeof TEMPLATE_CATEGORIES)[number]["id"]>> = {
+/** Legacy fallback for older templates with weak category metadata. */
+const TEMPLATE_ID_TO_FILTER_LEGACY: Partial<Record<string, (typeof TEMPLATE_CATEGORIES)[number]["id"]>> = {
   t001: "others",
   t002: "creative",
   t003: "business",
@@ -39,6 +39,39 @@ const TEMPLATE_ID_TO_FILTER: Partial<Record<string, (typeof TEMPLATE_CATEGORIES)
 
 type TemplateFilterId = (typeof TEMPLATE_CATEGORIES)[number]["id"];
 type FilterKey = "all" | TemplateFilterId;
+
+const FILTER_CATEGORY_ALIASES: Record<TemplateFilterId, string[]> = {
+  business: ["business", "business-management"],
+  creative: ["creative", "creative-designing"],
+  finance: ["finance", "finance-accounting"],
+  government: ["government", "government-public-sector"],
+  healthcare: ["healthcare", "healthcare-medical"],
+  hospitality: ["hospitality", "hospitality-travel"],
+  it: ["it", "it-software"],
+  sales: ["sales", "sales-marketing-advertising"],
+  "customer-service": ["customer-service", "customer-service-administration"],
+  others: ["others", "student-entry-level", "others-student-entry-level"],
+};
+
+function normalizeSearchText(input: string): string {
+  return String(input || "")
+    .toLowerCase()
+    .replace(/[\/_\-&+]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function toCompactSearchText(input: string): string {
+  return normalizeSearchText(input).replace(/\s+/g, "");
+}
+
+const CATEGORY_LABEL_BY_ALIAS = new Map<string, string>();
+for (const category of TEMPLATE_CATEGORIES) {
+  const aliases = FILTER_CATEGORY_ALIASES[category.id] ?? [category.id];
+  for (const alias of aliases) {
+    CATEGORY_LABEL_BY_ALIAS.set(alias, category.label);
+  }
+}
 
 /** Thumbnail frame: subtle shadow + light ring (no heavy outer card). */
 const THUMB_FRAME =
@@ -124,16 +157,46 @@ export default function ResumeTemplatesPage() {
   }, [user]);
 
   const filteredTemplates = useMemo(() => {
-    const q = queryText.trim().toLowerCase();
+    const q = normalizeSearchText(queryText);
+    const compactQ = toCompactSearchText(q);
+    const hasQuery = q.length > 0;
+
     return TEMPLATES.filter((t) => {
       if (RESUME_GALLERY_HIDDEN_TEMPLATE_IDS.has(t.id)) return false;
-      if (filterKey !== "all") {
-        const mapped = TEMPLATE_ID_TO_FILTER[t.id];
-        if (mapped !== filterKey) return false;
+
+      const categoryId = String((t as any).categoryId || "").toLowerCase().trim();
+      const category = String((t as any).category || "").toLowerCase().trim();
+      const categoryLabel =
+        CATEGORY_LABEL_BY_ALIAS.get(categoryId) ||
+        CATEGORY_LABEL_BY_ALIAS.get(category) ||
+        "";
+
+      if (!hasQuery && filterKey !== "all") {
+        const allowed = new Set(
+          (FILTER_CATEGORY_ALIASES[filterKey] ?? [filterKey]).map((item) => item.toLowerCase())
+        );
+        const matchesAlias = (categoryId && allowed.has(categoryId)) || (category && allowed.has(category));
+        if (!matchesAlias) {
+          const legacy = TEMPLATE_ID_TO_FILTER_LEGACY[t.id];
+          if (legacy !== filterKey) return false;
+        }
       }
-      if (!q) return true;
-      const hay = `${t.id} ${t.title} ${t.category} ${t.tags.join(" ")}`.toLowerCase();
-      return hay.includes(q);
+
+      if (!hasQuery) return true;
+
+      const hay = normalizeSearchText(
+        [
+          t.id,
+          t.title,
+          categoryId,
+          category,
+          categoryLabel,
+          ...(Array.isArray(t.tags) ? t.tags : []),
+        ].join(" ")
+      );
+      const compactHay = toCompactSearchText(hay);
+
+      return hay.includes(q) || (compactQ.length > 0 && compactHay.includes(compactQ));
     });
   }, [queryText, filterKey]);
 

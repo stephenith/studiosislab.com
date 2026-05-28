@@ -49,6 +49,11 @@ import tpl45 from "./template-json/t046.json";
 import tpl46 from "./template-json/t047.json";
 import tpl47 from "./template-json/t048.json";
 import tpl48 from "./template-json/t049.json";
+import tpl49 from "./template-json/t050.json";
+import tpl50 from "./template-json/t051.json";
+import tpl51 from "./template-json/t052.json";
+import tpl52 from "./template-json/t053.json";
+import tpl53 from "./template-json/t054.json";
 
 export type Template = {
   id: string;
@@ -506,6 +511,51 @@ export const TEMPLATES: Template[] = [
     thumb: "/templates/t049.png",
     status: "published",
   },
+  {
+    id: "t050",
+    title: "IT Support Specialist Resume",
+    categoryId: "it-software",
+    category: "it-software",
+    tags: ["it support","technical support","help desk","it specialist","resume"],
+    thumb: "/templates/t050.png",
+    status: "published",
+  },
+  {
+    id: "t051",
+    title: "Marketing Manager Resume",
+    categoryId: "sales-marketing-advertising",
+    category: "sales-marketing-advertising",
+    tags: ["marketing manager","marketing","digital marketing","brand management","resume"],
+    thumb: "/templates/t051.png",
+    status: "published",
+  },
+  {
+    id: "t052",
+    title: "Medical Assistant Resume",
+    categoryId: "healthcare-medical",
+    category: "healthcare-medical",
+    tags: ["medical assistant","healthcare","clinical assistant","medical support","resume"],
+    thumb: "/templates/t052.png",
+    status: "published",
+  },
+  {
+    id: "t053",
+    title: "UX Designer Resume",
+    categoryId: "creative-designing",
+    category: "creative-designing",
+    tags: ["ux designer","ui ux","user experience","product design","resume"],
+    thumb: "/templates/t053.png",
+    status: "published",
+  },
+  {
+    id: "t054",
+    title: "Sales Associate Resume",
+    categoryId: "sales-marketing-advertising",
+    category: "sales-marketing-advertising",
+    tags: ["sales associate","retail sales","customer service","sales","resume"],
+    thumb: "/templates/t054.png",
+    status: "published",
+  },
 ];
 
 export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
@@ -705,5 +755,25 @@ export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
   "t049":
     (tpl48 as any)?.objects && (tpl48 as any).objects.length > 0
       ? (tpl48 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t050":
+    (tpl49 as any)?.objects && (tpl49 as any).objects.length > 0
+      ? (tpl49 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t051":
+    (tpl50 as any)?.objects && (tpl50 as any).objects.length > 0
+      ? (tpl50 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t052":
+    (tpl51 as any)?.objects && (tpl51 as any).objects.length > 0
+      ? (tpl51 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t053":
+    (tpl52 as any)?.objects && (tpl52 as any).objects.length > 0
+      ? (tpl52 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t054":
+    (tpl53 as any)?.objects && (tpl53 as any).objects.length > 0
+      ? (tpl53 as TemplateSnapshot)
       : ({ objects: [] } as TemplateSnapshot),
 };

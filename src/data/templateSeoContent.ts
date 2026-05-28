@@ -560,4 +560,274 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     relatedTemplateIds: ["t044", "t048", "t046"],
     isPublished: true,
   },
+  {
+    templateId: "t050",
+    slug: "it-support-specialist-resume",
+    seoTitle: "IT Support Specialist Resume Template | StudiosisLab",
+    seoDescription:
+      "ATS-friendly IT support resume template focused on troubleshooting, help desk workflows, technical support, and end-user assistance.",
+    h1: "IT Support Specialist Resume Template",
+    intro:
+      "IT support hiring teams want proof that you can solve technical issues without slowing people down. This template helps you present troubleshooting depth, ticket handling, and user communication in a clean format employers can scan quickly.",
+    bestFor: [
+      "Help desk specialists supporting office or remote teams.",
+      "Desktop support professionals moving into broader IT support roles.",
+      "IT technicians handling hardware, software, and account access issues.",
+      "Candidates transitioning from general IT operations into support-focused jobs.",
+    ],
+    whatToInclude: [
+      "A summary that covers your support scope, systems familiarity, and service mindset.",
+      "Ticketing experience with examples of incident volume, priorities, and response quality.",
+      "Troubleshooting responsibilities across devices, operating systems, and core business apps.",
+      "Experience with account administration, permissions, and user onboarding support.",
+      "Certifications or training such as CompTIA, Microsoft, or role-specific support credentials.",
+    ],
+    atsTips: [
+      "Use the same technical terms listed in job descriptions, such as help desk, ticket triage, and root cause analysis.",
+      "Name the tools you use, including ticketing systems, remote support tools, and directory management.",
+      "Keep section headings standard so ATS can classify skills, work experience, and certifications correctly.",
+      "Write out full product or platform names at least once instead of only abbreviations.",
+    ],
+    writingTips: [
+      "Show how you resolved issues, not just that you answered tickets.",
+      "Include user-facing communication examples, especially where you translated technical issues clearly.",
+      "Use measurable context when possible, such as resolution time, queue size, or repeat-issue reduction.",
+      "Highlight teamwork with security, infrastructure, and business teams where relevant.",
+    ],
+    faq: [
+      {
+        question: "Should I include ticket volume on an IT support resume?",
+        answer:
+          "Yes. Ticket volume, response time, and resolution quality help hiring managers understand your day-to-day workload and effectiveness.",
+      },
+      {
+        question: "Do entry-level IT support resumes need certifications?",
+        answer:
+          "Certifications can help, but practical support examples and clear troubleshooting results are just as important.",
+      },
+      {
+        question: "How do I show soft skills in a technical support resume?",
+        answer:
+          "Include short examples of communicating with non-technical users, managing expectations, and resolving issues calmly.",
+      },
+    ],
+    relatedTemplateIds: ["t040", "t047", "t043"],
+    isPublished: true,
+  },
+  {
+    templateId: "t051",
+    slug: "marketing-manager-resume",
+    seoTitle: "Marketing Manager Resume Template | StudiosisLab",
+    seoDescription:
+      "Professional marketing manager resume template designed for campaign strategy, digital growth, brand management, and ROI-focused resumes.",
+    h1: "Marketing Manager Resume Template",
+    intro:
+      "Marketing manager resumes perform best when they connect strategy to measurable growth. This template is built to help you present campaign leadership, cross-channel performance, and business impact in language hiring teams actually care about.",
+    bestFor: [
+      "Marketing managers leading integrated campaigns across digital and offline channels.",
+      "Growth-focused marketers responsible for leads, conversion, and pipeline outcomes.",
+      "Brand and demand generation professionals moving into broader management roles.",
+      "Candidates managing agencies, partners, and cross-functional go-to-market execution.",
+    ],
+    whatToInclude: [
+      "A short summary describing your channel strengths, industry focus, and leadership scope.",
+      "Campaign achievements with metrics such as pipeline growth, cost efficiency, or return on ad spend.",
+      "Team and stakeholder collaboration across creative, sales, product, and analytics functions.",
+      "Budget ownership, forecasting, and optimization examples tied to business goals.",
+      "Tooling and reporting experience with platforms used for execution and performance analysis.",
+    ],
+    atsTips: [
+      "Use role-specific keywords naturally, including campaign strategy, demand generation, and performance marketing.",
+      "Include both strategic language and execution terms so ATS captures your full scope.",
+      "Mention channels explicitly, such as email, paid search, social, content, or lifecycle marketing.",
+      "Keep metric language consistent and easy to parse in bullet points.",
+    ],
+    writingTips: [
+      "Lead with outcomes first, then explain the campaign actions that created them.",
+      "Show how your decisions improved efficiency, quality of leads, or revenue impact.",
+      "Balance leadership claims with concrete examples of execution ownership.",
+      "Avoid listing every platform unless it supports your target role.",
+    ],
+    faq: [
+      {
+        question: "What metrics should a marketing manager include on a resume?",
+        answer:
+          "Include metrics tied to growth and efficiency, such as lead volume, conversion rate, CAC, ROAS, or campaign-influenced revenue.",
+      },
+      {
+        question: "Should I separate brand and performance marketing experience?",
+        answer:
+          "Yes, when both are relevant. Distinguishing them helps recruiters quickly see your strategic range.",
+      },
+      {
+        question: "Do marketing managers need to list team size?",
+        answer:
+          "If you managed people or vendors, include team scope because it adds context to your leadership claims.",
+      },
+    ],
+    relatedTemplateIds: ["t042", "t045", "t054"],
+    isPublished: true,
+  },
+  {
+    templateId: "t052",
+    slug: "medical-assistant-resume",
+    seoTitle: "Medical Assistant Resume Template | StudiosisLab",
+    seoDescription:
+      "Medical assistant resume template built for clinical support, patient care workflows, scheduling, charting, and healthcare administration.",
+    h1: "Medical Assistant Resume Template",
+    intro:
+      "Medical assistant roles require a careful mix of clinical reliability and front-office coordination. This template helps you show patient-facing support, documentation accuracy, and workflow consistency in a way clinics and healthcare employers can evaluate quickly.",
+    bestFor: [
+      "Medical assistants working in outpatient clinics, urgent care, or specialty practices.",
+      "Candidates balancing clinical support with scheduling and administrative duties.",
+      "Certified assistants applying for roles with patient intake and exam-room preparation.",
+      "Healthcare support professionals transitioning into full medical assistant positions.",
+    ],
+    whatToInclude: [
+      "A focused summary that reflects your clinical support strengths and patient interaction experience.",
+      "Patient intake, vitals, room preparation, and provider support responsibilities.",
+      "Charting and records workflows, including EHR usage and documentation accuracy.",
+      "Administrative duties such as appointment coordination, follow-up communication, and insurance basics.",
+      "Relevant certifications, training, and compliance practices used in daily work.",
+    ],
+    atsTips: [
+      "Use exact role terms from postings, such as patient intake, charting, and clinical support.",
+      "Include certification names and credential abbreviations in a consistent format.",
+      "List EHR and healthcare systems by full names where possible.",
+      "Keep section headings straightforward so ATS can parse clinical and administrative experience clearly.",
+    ],
+    writingTips: [
+      "Demonstrate reliability with specific examples of workflow accuracy and patient support.",
+      "Show both clinical and admin contributions instead of focusing on one side only.",
+      "Use concise bullets that describe action, context, and practical outcome.",
+      "Highlight communication with providers and patients in a professional, factual tone.",
+    ],
+    faq: [
+      {
+        question: "Should I include both clinical and front-desk tasks on my resume?",
+        answer:
+          "Yes. Many medical assistant roles expect both, and showing that range can make your profile more competitive.",
+      },
+      {
+        question: "How should I present EHR experience?",
+        answer:
+          "Name the systems you used and briefly describe how you handled charting, updates, or documentation workflows.",
+      },
+      {
+        question: "Do medical assistant resumes need certifications at the top?",
+        answer:
+          "If certification is required for the role, place it in a visible section near the top half of the resume.",
+      },
+    ],
+    relatedTemplateIds: ["t041", "t046", "t044"],
+    isPublished: true,
+  },
+  {
+    templateId: "t053",
+    slug: "ux-designer-resume",
+    seoTitle: "UX Designer Resume Template | StudiosisLab",
+    seoDescription:
+      "UX designer resume template focused on user research, interaction design, wireframes, prototypes, and product design impact.",
+    h1: "UX Designer Resume Template",
+    intro:
+      "A strong UX resume should make your process and impact easy to understand in seconds. This template helps you communicate research decisions, interaction design work, and collaboration outcomes without overwhelming recruiters with portfolio-only language.",
+    bestFor: [
+      "UX designers building products for web or mobile experiences.",
+      "Designers moving from UI-heavy work into broader user experience roles.",
+      "Product designers who combine research, prototyping, and collaboration.",
+      "Candidates applying to cross-functional UX roles in startup or enterprise teams.",
+    ],
+    whatToInclude: [
+      "A summary that defines your UX focus, product context, and design strengths.",
+      "Project experience showing research methods, design decisions, and user-centered outcomes.",
+      "Examples of wireframes, prototypes, usability testing, and iteration cycles.",
+      "Collaboration details with product managers, engineers, researchers, and stakeholders.",
+      "Portfolio links and selected case studies aligned to the role you are targeting.",
+    ],
+    atsTips: [
+      "Use keywords found in job postings, such as user research, interaction design, prototyping, and usability testing.",
+      "Mention core tools and workflows with clear naming, including Figma and prototyping platforms.",
+      "Avoid overly stylized section titles that ATS systems may not parse well.",
+      "Include both research and execution terms if the role spans end-to-end product design.",
+    ],
+    writingTips: [
+      "Describe design challenges and outcomes, not only deliverables.",
+      "Show how your work improved clarity, usability, adoption, or conversion where possible.",
+      "Keep bullets tied to one clear decision or contribution each.",
+      "Use your portfolio to expand details, and keep resume bullets concise and outcome-focused.",
+    ],
+    faq: [
+      {
+        question: "Should a UX resume include a portfolio link in the header?",
+        answer:
+          "Yes. A clear portfolio link is expected for most UX roles and helps reviewers quickly validate your work.",
+      },
+      {
+        question: "How much research detail should I include on the resume?",
+        answer:
+          "Include concise highlights of methods and impact, then use case studies for deeper process detail.",
+      },
+      {
+        question: "Can UI-heavy experience still fit a UX designer resume?",
+        answer:
+          "Yes, if you frame your UI work around user problems, testing insights, and product outcomes.",
+      },
+    ],
+    relatedTemplateIds: ["t040", "t043", "t051"],
+    isPublished: true,
+  },
+  {
+    templateId: "t054",
+    slug: "sales-associate-resume",
+    seoTitle: "Sales Associate Resume Template | StudiosisLab",
+    seoDescription:
+      "Sales associate resume template that highlights retail sales, customer service, merchandising, and upselling experience.",
+    h1: "Sales Associate Resume Template",
+    intro:
+      "Sales associate resumes should show more than friendliness at the register. This template helps you present customer-facing sales results, floor execution, and day-to-day retail reliability in a practical format for hiring managers.",
+    bestFor: [
+      "Retail sales associates working on floor sales, customer service, and checkout support.",
+      "Candidates applying to store, showroom, or brand-specific sales roles.",
+      "Job seekers with upselling, merchandising, and product recommendation experience.",
+      "Entry-level applicants with strong customer interaction and sales potential.",
+    ],
+    whatToInclude: [
+      "A concise summary covering sales strengths, customer approach, and store operations experience.",
+      "Sales outcomes such as target attainment, upsell conversion, or average transaction value improvements.",
+      "Customer support examples including product guidance, issue resolution, and service consistency.",
+      "Operational contributions like merchandising, inventory checks, and opening or closing routines.",
+      "Point-of-sale and retail systems used for transactions, returns, and stock workflows.",
+    ],
+    atsTips: [
+      "Use role terms from job postings, including sales associate, merchandising, and customer service.",
+      "Include measurable sales details where possible instead of generic responsibility lists.",
+      "Name POS platforms or retail systems if they are relevant to the target role.",
+      "Keep formatting simple and chronological so ATS can parse employment history accurately.",
+    ],
+    writingTips: [
+      "Show how you contributed to revenue, not just that you assisted customers.",
+      "Highlight situations where your recommendations improved customer decisions or basket size.",
+      "Pair retail operations work with outcomes like shelf readiness or stock accuracy.",
+      "Use clear, realistic language and avoid exaggerated performance claims.",
+    ],
+    faq: [
+      {
+        question: "What metrics matter most on a sales associate resume?",
+        answer:
+          "Useful metrics include sales target attainment, upsell rate, conversion contribution, and customer satisfaction indicators.",
+      },
+      {
+        question: "Should I include cashier duties on a sales resume?",
+        answer:
+          "Yes, if relevant. Frame cashier work with accuracy, speed, and customer service impact.",
+      },
+      {
+        question: "Can I apply for sales associate roles without formal sales titles?",
+        answer:
+          "Yes. Retail, service, and customer-facing experience can translate well when you show practical sales contributions.",
+      },
+    ],
+    relatedTemplateIds: ["t044", "t049", "t051"],
+    isPublished: true,
+  },
 ];

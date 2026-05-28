@@ -6,6 +6,7 @@ import BlogCTA from "@/components/blog/BlogCTA";
 import RelatedArticles from "@/components/blog/RelatedArticles";
 import MarketingPageShell from "@/components/layout/MarketingPageShell";
 import { getAllArticles, getArticleBySlug, getRelatedArticles } from "@/lib/blog";
+import { getTemplateSeoById } from "@/lib/templateSeo";
 
 type BlogArticlePageProps = {
   params: Promise<{ slug: string }>;
@@ -42,6 +43,10 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
   if (!article) notFound();
 
   const related = getRelatedArticles(article, 3);
+  const relatedResumeTemplates = (article.relatedResumeTemplateIds ?? [])
+    .slice(0, 4)
+    .map((templateId) => getTemplateSeoById(templateId))
+    .filter((template): template is NonNullable<typeof template> => !!template);
   const articleUrl = `https://studiosislab.com/blog/${article.slug}`;
   const dateModified = article.updatedAt ?? article.publishedAt;
 
@@ -102,6 +107,23 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
             </div>
           </section>
         ))}
+
+        {relatedResumeTemplates.length ? (
+          <section className="rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-sm sm:p-6">
+            <h2 className="font-heading text-xl font-semibold tracking-tight text-zinc-900">
+              Related Resume Templates
+            </h2>
+            <ul className="mt-4 space-y-2 text-sm leading-relaxed text-zinc-700 sm:text-base">
+              {relatedResumeTemplates.map((template) => (
+                <li key={template.templateId}>
+                  <Link href={`/resume/${template.slug}`} className="font-medium text-zinc-900 underline">
+                    {template.h1}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         <BlogCTA cta={article.cta} />
         <RelatedArticles articles={related} />

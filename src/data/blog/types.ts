@@ -35,5 +35,6 @@ export type BlogArticle = {
   readTime: string;
   sections: ArticleSection[];
   faq?: ArticleFaqItem[];
+  relatedResumeTemplateIds?: string[];
   cta: ArticleCta;
 };

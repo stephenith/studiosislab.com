@@ -53,11 +53,23 @@ export const blogArticles: BlogArticle[] = [
           "Before submitting, run a fast quality check for section clarity, keyword relevance, and consistency in formatting.",
         ],
         links: [
+          {
+            label: "Entry-Level Software Engineer resume template",
+            href: "/resume/entry-level-software-engineer-resume",
+          },
+          {
+            label: "Project Manager resume template",
+            href: "/resume/project-manager-resume",
+          },
+          {
+            label: "Data Analyst resume template",
+            href: "/resume/data-analyst-resume",
+          },
           { label: "Resume Builder overview", href: "/resume-builder" },
-          { label: "Open Resume tool", href: "/resume" },
         ],
       },
     ],
+    relatedResumeTemplateIds: ["t040", "t042", "t043"],
     cta: {
       label: "Start Building Your Resume",
       href: "/resume",
@@ -101,6 +113,16 @@ export const blogArticles: BlogArticle[] = [
           "No internship yet: highlight project depth + consistency",
           "Career pivot fresher: highlight transferable strengths",
         ],
+        links: [
+          {
+            label: "Entry-Level Software Engineer resume template",
+            href: "/resume/entry-level-software-engineer-resume",
+          },
+          {
+            label: "Teacher resume template",
+            href: "/resume/teacher-resume",
+          },
+        ],
       },
       {
         heading: "Common mistakes to avoid",
@@ -121,6 +143,7 @@ export const blogArticles: BlogArticle[] = [
         ],
       },
     ],
+    relatedResumeTemplateIds: ["t040", "t046", "t054"],
     cta: {
       label: "Create a Better Resume Summary",
       href: "/resume",
@@ -173,11 +196,13 @@ export const blogArticles: BlogArticle[] = [
           "This increases alignment without rewriting from scratch each time.",
         ],
         links: [
+          { label: "Business Analyst resume template", href: "/resume/business-analyst-resume" },
+          { label: "IT Support Specialist resume template", href: "/resume/it-support-specialist-resume" },
           { label: "Explore Resume Builder page", href: "/resume-builder" },
-          { label: "Open resume templates", href: "/resume" },
         ],
       },
     ],
+    relatedResumeTemplateIds: ["t045", "t050", "t054"],
     cta: {
       label: "Build a Career-Switch Resume",
       href: "/resume",
@@ -229,11 +254,13 @@ export const blogArticles: BlogArticle[] = [
           "Strong bullets mirror the language used in target job descriptions without copying them verbatim.",
         ],
         links: [
+          { label: "Marketing Manager resume template", href: "/resume/marketing-manager-resume" },
+          { label: "Data Analyst resume template", href: "/resume/data-analyst-resume" },
           { label: "Resume writing workflow", href: "/resume-builder" },
-          { label: "Start editing resume bullets", href: "/resume" },
         ],
       },
     ],
+    relatedResumeTemplateIds: ["t042", "t043", "t051"],
     cta: {
       label: "Upgrade Your Resume Bullets",
       href: "/resume",
@@ -279,6 +306,10 @@ export const blogArticles: BlogArticle[] = [
           "Before every submission, run a 5-minute quality check: role alignment, summary relevance, top 5 bullets, formatting consistency, and export readability.",
           "Use saved role variants so you can submit quickly without compromising quality.",
         ],
+        links: [
+          { label: "Registered Nurse resume template", href: "/resume/registered-nurse-resume" },
+          { label: "Teacher resume template", href: "/resume/teacher-resume" },
+        ],
       },
       {
         heading: "Build repeatable quality habits",
@@ -292,6 +323,7 @@ export const blogArticles: BlogArticle[] = [
         ],
       },
     ],
+    relatedResumeTemplateIds: ["t041", "t046", "t054"],
     cta: {
       label: "Fix Resume Quality Fast",
       href: "/resume",

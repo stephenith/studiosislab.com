@@ -406,88 +406,115 @@
                 "jsonPath": "src/data/template-json/t045.json",
                 "status": "published",
                 "tags": ["business analyst", "analysis", "corporate", "management", "resume"]
-                },
-                {
-                  "id": "t046",
-                  "title": "Teacher Resume",
-                  "categoryId": "others-student-entry-level",
-                  "thumbnailPath": "/templates/t046.png",
-                  "jsonPath": "src/data/template-json/t046.json",
-                  "status": "published",
-                  "tags": ["teacher", "education", "school", "academic", "resume"]
-                },
-                {
-                  "id": "t047",
-                  "title": "Cybersecurity Analyst Resume",
-                  "categoryId": "it-software",
-                  "thumbnailPath": "/templates/t047.png",
-                  "jsonPath": "src/data/template-json/t047.json",
-                  "status": "published",
-                  "tags": ["cybersecurity", "security analyst", "cyber security", "it", "resume"]
-                  },
-                  {
-                    "id": "t048",
-                    "title": "Human Resources Resume",
-                    "categoryId": "business-management",
-                    "thumbnailPath": "/templates/t048.png",
-                    "jsonPath": "src/data/template-json/t048.json",
-                    "status": "published",
-                    "tags": ["human resources", "hr", "recruitment", "management", "resume"]
-                    },
-                    {
-                      "id": "t049",
-                      "title": "Warehouse Worker Resume",
-                      "categoryId": "customer-service-administration",
-                      "thumbnailPath": "/templates/t049.png",
-                      "jsonPath": "src/data/template-json/t049.json",
-                      "status": "published",
-                      "tags": ["warehouse worker", "warehouse", "logistics", "operations", "resume"]
-                      },
-                      {
-                        "id": "t050",
-                        "title": "IT Support Specialist Resume",
-                        "categoryId": "it-software",
-                        "thumbnailPath": "/templates/t050.png",
-                        "jsonPath": "src/data/template-json/t050.json",
-                        "status": "published",
-                        "tags": ["it support", "technical support", "help desk", "it specialist", "resume"]
-                      },
-                      {
-                        "id": "t051",
-                        "title": "Marketing Manager Resume",
-                        "categoryId": "sales-marketing-advertising",
-                        "thumbnailPath": "/templates/t051.png",
-                        "jsonPath": "src/data/template-json/t051.json",
-                        "status": "published",
-                        "tags": ["marketing manager", "marketing", "digital marketing", "brand management", "resume"]
-                      },
-                      {
-                        "id": "t052",
-                        "title": "Medical Assistant Resume",
-                        "categoryId": "healthcare-medical",
-                        "thumbnailPath": "/templates/t052.png",
-                        "jsonPath": "src/data/template-json/t052.json",
-                        "status": "published",
-                        "tags": ["medical assistant", "healthcare", "clinical assistant", "medical support", "resume"]
-                      },
-                      {
-                        "id": "t053",
-                        "title": "UX Designer Resume",
-                        "categoryId": "creative-designing",
-                        "thumbnailPath": "/templates/t053.png",
-                        "jsonPath": "src/data/template-json/t053.json",
-                        "status": "published",
-                        "tags": ["ux designer", "ui ux", "user experience", "product design", "resume"]
-                      },
-                      {
-                        "id": "t054",
-                        "title": "Sales Associate Resume",
-                        "categoryId": "sales-marketing-advertising",
-                        "thumbnailPath": "/templates/t054.png",
-                        "jsonPath": "src/data/template-json/t054.json",
-                        "status": "published",
-                        "tags": ["sales associate", "retail sales", "customer service", "sales", "resume"]
-                      }
+              },
+              {
+                "id": "t046",
+                "title": "Teacher Resume",
+                "categoryId": "others-student-entry-level",
+                "thumbnailPath": "/templates/t046.png",
+                "jsonPath": "src/data/template-json/t046.json",
+                "status": "published",
+                "tags": ["teacher", "education", "school", "academic", "resume"]
+              },
+              {
+                "id": "t047",
+                "title": "Cybersecurity Analyst Resume",
+                "categoryId": "it-software",
+                "thumbnailPath": "/templates/t047.png",
+                "jsonPath": "src/data/template-json/t047.json",
+                "status": "published",
+                "tags": ["cybersecurity", "security analyst", "cyber security", "it", "resume"]
+              },
+              {
+                "id": "t048",
+                "title": "Human Resources Resume",
+                "categoryId": "business-management",
+                "thumbnailPath": "/templates/t048.png",
+                "jsonPath": "src/data/template-json/t048.json",
+                "status": "published",
+                "tags": ["human resources", "hr", "recruitment", "management", "resume"]
+              },
+              {
+                "id": "t049",
+                "title": "Warehouse Worker Resume",
+                "categoryId": "customer-service-administration",
+                "thumbnailPath": "/templates/t049.png",
+                "jsonPath": "src/data/template-json/t049.json",
+                "status": "published",
+                "tags": ["warehouse worker", "warehouse", "logistics", "operations", "resume"]
+              },
+              {
+                "id": "t050",
+                "title": "IT Support Specialist Resume",
+                "categoryId": "it-software",
+                "thumbnailPath": "/templates/t050.png",
+                "jsonPath": "src/data/template-json/t050.json",
+                "status": "published",
+                "tags": ["it support", "technical support", "help desk", "it specialist", "resume"]
+              },
+              {
+                "id": "t051",
+                "title": "Marketing Manager Resume",
+                "categoryId": "sales-marketing-advertising",
+                "thumbnailPath": "/templates/t051.png",
+                "jsonPath": "src/data/template-json/t051.json",
+                "status": "published",
+                "tags": ["marketing manager", "marketing", "digital marketing", "brand management", "resume"]
+              },
+              {
+                "id": "t052",
+                "title": "Medical Assistant Resume",
+                "categoryId": "healthcare-medical",
+                "thumbnailPath": "/templates/t052.png",
+                "jsonPath": "src/data/template-json/t052.json",
+                "status": "published",
+                "tags": ["medical assistant", "healthcare", "clinical assistant", "medical support", "resume"]
+              },
+              {
+                "id": "t053",
+                "title": "UX Designer Resume",
+                "categoryId": "creative-designing",
+                "thumbnailPath": "/templates/t053.png",
+                "jsonPath": "src/data/template-json/t053.json",
+                "status": "published",
+                "tags": ["ux designer", "ui ux", "user experience", "product design", "resume"]
+              },
+              {
+                "id": "t054",
+                "title": "Sales Associate Resume",
+                "categoryId": "sales-marketing-advertising",
+                "thumbnailPath": "/templates/t054.png",
+                "jsonPath": "src/data/template-json/t054.json",
+                "status": "published",
+                "tags": ["sales associate", "retail sales", "customer service", "sales", "resume"]
+              },
+              {
+                "id": "t055",
+                "title": "Accountant Resume",
+                "categoryId": "finance-accounting",
+                "thumbnailPath": "/templates/t055.png",
+                "jsonPath": "src/data/template-json/t055.json",
+                "status": "published",
+                "tags": ["accountant", "accounting", "bookkeeping", "financial reporting", "resume"]
+              },
+              {
+                "id": "t056",
+                "title": "Graphic Designer Resume",
+                "categoryId": "creative-designing",
+                "thumbnailPath": "/templates/t056.png",
+                "jsonPath": "src/data/template-json/t056.json",
+                "status": "published",
+                "tags": ["graphic designer", "design", "branding", "creative", "resume"]
+              },
+              {
+                "id": "t057",
+                "title": "Administrative Assistant Resume",
+                "categoryId": "customer-service-administration",
+                "thumbnailPath": "/templates/t057.png",
+                "jsonPath": "src/data/template-json/t057.json",
+                "status": "published",
+                "tags": ["administrative assistant", "office administration", "executive assistant", "administration", "resume"]
+              }
 
   ]
 }

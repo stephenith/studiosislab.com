@@ -54,6 +54,9 @@ import tpl50 from "./template-json/t051.json";
 import tpl51 from "./template-json/t052.json";
 import tpl52 from "./template-json/t053.json";
 import tpl53 from "./template-json/t054.json";
+import tpl54 from "./template-json/t055.json";
+import tpl55 from "./template-json/t056.json";
+import tpl56 from "./template-json/t057.json";
 
 export type Template = {
   id: string;
@@ -556,6 +559,33 @@ export const TEMPLATES: Template[] = [
     thumb: "/templates/t054.png",
     status: "published",
   },
+  {
+    id: "t055",
+    title: "Accountant Resume",
+    categoryId: "finance-accounting",
+    category: "finance-accounting",
+    tags: ["accountant","accounting","bookkeeping","financial reporting","resume"],
+    thumb: "/templates/t055.png",
+    status: "published",
+  },
+  {
+    id: "t056",
+    title: "Graphic Designer Resume",
+    categoryId: "creative-designing",
+    category: "creative-designing",
+    tags: ["graphic designer","design","branding","creative","resume"],
+    thumb: "/templates/t056.png",
+    status: "published",
+  },
+  {
+    id: "t057",
+    title: "Administrative Assistant Resume",
+    categoryId: "customer-service-administration",
+    category: "customer-service-administration",
+    tags: ["administrative assistant","office administration","executive assistant","administration","resume"],
+    thumb: "/templates/t057.png",
+    status: "published",
+  },
 ];
 
 export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
@@ -775,5 +805,17 @@ export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
   "t054":
     (tpl53 as any)?.objects && (tpl53 as any).objects.length > 0
       ? (tpl53 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t055":
+    (tpl54 as any)?.objects && (tpl54 as any).objects.length > 0
+      ? (tpl54 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t056":
+    (tpl55 as any)?.objects && (tpl55 as any).objects.length > 0
+      ? (tpl55 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t057":
+    (tpl56 as any)?.objects && (tpl56 as any).objects.length > 0
+      ? (tpl56 as TemplateSnapshot)
       : ({ objects: [] } as TemplateSnapshot),
 };

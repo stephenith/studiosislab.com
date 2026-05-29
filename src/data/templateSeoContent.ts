@@ -830,4 +830,166 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     relatedTemplateIds: ["t044", "t049", "t051"],
     isPublished: true,
   },
+  {
+    templateId: "t055",
+    slug: "accountant-resume",
+    seoTitle: "Accountant Resume Template | StudiosisLab",
+    seoDescription:
+      "Accountant resume template focused on bookkeeping, financial reporting, reconciliations, tax support, and accounting software skills.",
+    h1: "Accountant Resume Template",
+    intro:
+      "Hiring teams for accounting roles look for reliable financial accuracy and strong reporting discipline. This template helps you present reconciliations, close-cycle work, and system skills in a clear format that works for ATS screening and hiring manager review.",
+    bestFor: [
+      "Accountants handling general ledger, reconciliations, and month-end close tasks.",
+      "Bookkeeping professionals moving into broader accounting roles.",
+      "Candidates supporting AP/AR, payroll coordination, and tax preparation workflows.",
+      "Finance team members applying for staff accountant or junior accountant openings.",
+    ],
+    whatToInclude: [
+      "A concise summary showing accounting scope, reporting strengths, and software proficiency.",
+      "Hands-on work in reconciliations, journal entries, month-end close, and variance review.",
+      "Examples of AP/AR support, invoice workflows, and payment tracking accuracy.",
+      "Financial reporting responsibilities, including schedules, statements, and audit prep support.",
+      "Tools and certifications such as QuickBooks, Excel, ERP systems, and accounting coursework.",
+    ],
+    atsTips: [
+      "Use role-specific terms naturally, including reconciliations, AP/AR, financial reporting, and month-end close.",
+      "Include software names exactly as listed in job posts, such as QuickBooks, Excel, and ERP platforms.",
+      "Keep headings standard so ATS can parse accounting experience, skills, and education correctly.",
+      "Add both technical keywords and process terms to reflect day-to-day accounting responsibilities.",
+    ],
+    writingTips: [
+      "Show measurable outcomes such as reduced errors, faster close cycles, or reporting accuracy improvements.",
+      "Pair accounting tasks with clear context so reviewers understand business impact.",
+      "Use concise bullet points that demonstrate consistency, detail orientation, and deadline reliability.",
+      "Avoid generic claims and focus on concrete contributions within finance operations.",
+    ],
+    faq: [
+      {
+        question: "Which accounting tools should I list on an accountant resume?",
+        answer:
+          "List tools you actively use, such as QuickBooks, Excel, and relevant ERP systems, especially those requested in the job description.",
+      },
+      {
+        question: "How do I present month-end close experience clearly?",
+        answer:
+          "Include your specific responsibilities in the close cycle, timelines you supported, and any improvements in speed or accuracy.",
+      },
+      {
+        question: "Should AP/AR work be included for staff accountant roles?",
+        answer:
+          "Yes. AP/AR ownership or support can strengthen your profile when tied to accuracy, controls, and reporting outcomes.",
+      },
+    ],
+    relatedTemplateIds: ["t023", "t024", "t025", "t026"],
+    isPublished: true,
+  },
+  {
+    templateId: "t056",
+    slug: "graphic-designer-resume",
+    seoTitle: "Graphic Designer Resume Template | StudiosisLab",
+    seoDescription:
+      "Graphic designer resume template for showcasing branding, visual design, portfolio projects, creative tools, and design impact.",
+    h1: "Graphic Designer Resume Template",
+    intro:
+      "Graphic design resumes work best when creative quality is paired with practical outcomes. This template helps you present branding projects, layout work, and production-ready skills in a way recruiters can scan quickly before opening your portfolio.",
+    bestFor: [
+      "Graphic designers building brand assets for marketing, product, or editorial teams.",
+      "Designers applying to in-house, agency, or freelance-to-full-time roles.",
+      "Professionals focused on visual identity, campaign creatives, and digital design systems.",
+      "Candidates with portfolio work across print, social, web, and presentation formats.",
+    ],
+    whatToInclude: [
+      "A focused summary describing your design style, core strengths, and project scope.",
+      "Portfolio-linked projects with role, deliverables, and measurable design impact.",
+      "Examples of branding, layout, typography, and visual hierarchy decisions.",
+      "Collaboration details with marketing, content, product, or development teams.",
+      "Tool stack such as Adobe Creative Suite, Figma, and production workflow platforms.",
+    ],
+    atsTips: [
+      "Use exact role terms like branding, layout design, typography, and visual communication from job descriptions.",
+      "List tool names clearly, including Adobe Illustrator, Photoshop, InDesign, and Figma where relevant.",
+      "Include both creative and execution keywords to reflect concept-to-delivery work.",
+      "Keep section labels simple so ATS can identify skills, experience, and portfolio context correctly.",
+    ],
+    writingTips: [
+      "Describe what design problem you solved, not just what asset you created.",
+      "Use outcome-driven bullets with practical results such as engagement lift or conversion support.",
+      "Show range across brand consistency, campaign work, and production accuracy.",
+      "Let portfolio links provide depth while resume bullets stay concise and relevant.",
+    ],
+    faq: [
+      {
+        question: "Where should portfolio links appear on a graphic designer resume?",
+        answer:
+          "Place your primary portfolio link near the top and reference relevant project links in the experience section when helpful.",
+      },
+      {
+        question: "Should I list every design tool I have used?",
+        answer:
+          "List tools you can use confidently in a role and prioritize those mentioned in the target job posting.",
+      },
+      {
+        question: "How can I show design impact on a resume?",
+        answer:
+          "Pair each project with outcomes such as campaign performance, brand consistency gains, or faster production workflows.",
+      },
+    ],
+    relatedTemplateIds: ["t031", "t032", "t053"],
+    isPublished: true,
+  },
+  {
+    templateId: "t057",
+    slug: "administrative-assistant-resume",
+    seoTitle: "Administrative Assistant Resume Template | StudiosisLab",
+    seoDescription:
+      "Administrative assistant resume template focused on scheduling, office coordination, communication, documentation, and administrative support.",
+    h1: "Administrative Assistant Resume Template",
+    intro:
+      "Administrative assistant roles depend on precision, communication, and reliable follow-through. This template helps you organize calendar support, documentation, and office coordination achievements into a resume format that is easy for ATS tools and hiring teams to review.",
+    bestFor: [
+      "Administrative assistants supporting executives, teams, or department operations.",
+      "Office coordinators handling scheduling, documentation, and communication workflows.",
+      "Candidates moving from customer-facing operations into formal admin support roles.",
+      "Professionals applying for assistant roles in healthcare, education, legal, or business offices.",
+    ],
+    whatToInclude: [
+      "A summary that highlights organization, communication, and execution strengths.",
+      "Calendar management, meeting coordination, and travel or event support responsibilities.",
+      "Documentation and records work, including data entry, filing, and process tracking.",
+      "Office operations contributions such as vendor coordination, supply workflows, and follow-ups.",
+      "Tools and systems like Microsoft Office, Google Workspace, CRM, and scheduling software.",
+    ],
+    atsTips: [
+      "Use job-post language such as calendar management, office coordination, and administrative support.",
+      "Include software skills explicitly, especially Microsoft Office, Google Workspace, and CRM tools.",
+      "Keep headings conventional so ATS can parse responsibilities and systems experience accurately.",
+      "Add practical workflow terms like documentation, correspondence, and scheduling support.",
+    ],
+    writingTips: [
+      "Show how your support improved team efficiency, scheduling reliability, or documentation quality.",
+      "Use concise bullets that combine task ownership with measurable or observable results.",
+      "Highlight communication strengths with examples of stakeholder coordination.",
+      "Prioritize recent, role-relevant admin experience over broad generic responsibility lists.",
+    ],
+    faq: [
+      {
+        question: "What should I prioritize on an administrative assistant resume?",
+        answer:
+          "Prioritize scheduling, communication, documentation, and office support outcomes that directly match the target role requirements.",
+      },
+      {
+        question: "Do I need to include software tools for admin roles?",
+        answer:
+          "Yes. Listing tools like Microsoft Office, Google Workspace, and CRM systems helps recruiters quickly assess readiness.",
+      },
+      {
+        question: "How can I make administrative work sound impactful?",
+        answer:
+          "Focus on outcomes such as smoother scheduling, reduced errors, faster coordination, or improved document handling consistency.",
+      },
+    ],
+    relatedTemplateIds: ["t027", "t028", "t030", "t044"],
+    isPublished: true,
+  },
 ];

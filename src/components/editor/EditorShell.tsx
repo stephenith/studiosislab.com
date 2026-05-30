@@ -452,6 +452,24 @@ export default function EditorShell({
         }
       }
 
+      if (!mod) {
+        const step = e.shiftKey ? 10 : 1;
+        let dx = 0;
+        let dy = 0;
+        if (e.key === "ArrowLeft") dx = -step;
+        else if (e.key === "ArrowRight") dx = step;
+        else if (e.key === "ArrowUp") dy = -step;
+        else if (e.key === "ArrowDown") dy = step;
+
+        if (dx !== 0 || dy !== 0) {
+          const moved = editor.nudgeSelected?.(dx, dy) ?? false;
+          if (moved) {
+            e.preventDefault();
+            return;
+          }
+        }
+      }
+
       if ((e.key === "Delete" || e.key === "Backspace") && !mod) {
         e.preventDefault();
         if (editor.isImageFrameSelected?.()) {

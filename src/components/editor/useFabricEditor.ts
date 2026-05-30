@@ -5614,6 +5614,61 @@ try {
     [pushHistory, updateLayers]
   );
 
+  const nudgeSelected = useCallback(
+    (dx: number, dy: number): boolean => {
+      const c = getCanvas();
+      if (!c) return false;
+      if (!Number.isFinite(dx) || !Number.isFinite(dy)) return false;
+      if (dx === 0 && dy === 0) return false;
+
+      const active: any = c.getActiveObject?.();
+      if (!active) return false;
+      if (active?.isEditing) return false;
+
+      const { w: pageW, h: pageH } = pageSizePxRef.current;
+      const isBlockedObject = (obj: any): boolean => {
+        if (!obj) return true;
+        if (obj?.isEditing) return true;
+        if (obj?.role === "grid" || obj?.data?.role === "grid") return true;
+        if (obj?.data?.system === true || obj?.system === true) return true;
+        if (isPageBackgroundObject(obj, pageW, pageH)) return true;
+        return false;
+      };
+
+      const targets: any[] =
+        isActiveSelectionLike(active) && typeof active.getObjects === "function"
+          ? active.getObjects()
+          : [active];
+
+      let moved = false;
+      for (const target of targets) {
+        if (isBlockedObject(target)) continue;
+
+        const canMoveX = dx !== 0 && target?.lockMovementX !== true;
+        const canMoveY = dy !== 0 && target?.lockMovementY !== true;
+        if (!canMoveX && !canMoveY) continue;
+
+        const patch: Record<string, number> = {};
+        if (canMoveX) patch.left = (target.left ?? 0) + dx;
+        if (canMoveY) patch.top = (target.top ?? 0) + dy;
+        target.set?.(patch);
+        target.setCoords?.();
+        moved = true;
+      }
+
+      if (!moved) return false;
+
+      active.setCoords?.();
+      c.requestRenderAll();
+      syncSelectionKind();
+      updateSelectionRef.current?.();
+      updateLayers();
+      pushHistory("modified");
+      return true;
+    },
+    [getCanvas, isPageBackgroundObject, pushHistory, syncSelectionKind, updateLayers]
+  );
+
   const exportPNG = useCallback(
     (pageIndexes?: number[]) => {
       const c = getCanvas();
@@ -6082,6 +6137,7 @@ try {
     undo,
     redo,
     alignSelected,
+    nudgeSelected,
     distributeSelected,
     exportPNG,
     exportPDF,

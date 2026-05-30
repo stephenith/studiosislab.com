@@ -514,6 +514,24 @@
                 "jsonPath": "src/data/template-json/t057.json",
                 "status": "published",
                 "tags": ["administrative assistant", "office administration", "executive assistant", "administration", "resume"]
+              },
+              {
+                "id": "t058",
+                "title": "Customer Success Manager Resume",
+                "categoryId": "customer-service-administration",
+                "thumbnailPath": "/templates/t058.png",
+                "jsonPath": "src/data/template-json/t058.json",
+                "status": "published",
+                "tags": ["customer success manager", "customer success", "client success", "account management", "customer retention", "saas", "customer experience", "client relationship", "renewals", "upselling", "customer onboarding", "success manager", "crm", "subscription business", "resume"]
+              },
+              {
+                "id": "t059",
+                "title": "Registered Nurse Practitioner Resume",
+                "categoryId": "healthcare-medical",
+                "thumbnailPath": "/templates/t059.png",
+                "jsonPath": "src/data/template-json/t059.json",
+                "status": "published",
+                "tags": ["nurse practitioner", "registered nurse practitioner", "np resume", "advanced practice nurse", "family nurse practitioner", "healthcare", "clinical care", "patient assessment", "treatment planning", "diagnosis", "prescription management", "primary care", "acute care", "medical resume", "resume"]
               }
 
   ]

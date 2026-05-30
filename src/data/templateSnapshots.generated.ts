@@ -57,6 +57,8 @@ import tpl53 from "./template-json/t054.json";
 import tpl54 from "./template-json/t055.json";
 import tpl55 from "./template-json/t056.json";
 import tpl56 from "./template-json/t057.json";
+import tpl57 from "./template-json/t058.json";
+import tpl58 from "./template-json/t059.json";
 
 export type TemplateSnapshot = {
   objects: any[];
@@ -291,5 +293,13 @@ export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
   "t057":
     (tpl56 as any)?.objects && (tpl56 as any).objects.length > 0
       ? (tpl56 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t058":
+    (tpl57 as any)?.objects && (tpl57 as any).objects.length > 0
+      ? (tpl57 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t059":
+    (tpl58 as any)?.objects && (tpl58 as any).objects.length > 0
+      ? (tpl58 as TemplateSnapshot)
       : ({ objects: [] } as TemplateSnapshot),
 };

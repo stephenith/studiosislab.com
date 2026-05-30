@@ -409,6 +409,20 @@ export const SYSTEM_TEMPLATES: SystemTemplate[] = [
     thumbnail: "/templates/t057.png",
     load: async () => (await import("../template-json/t057.json")).default,
   },
+  {
+    id: "t058",
+    name: "Customer Success Manager Resume",
+    tags: ["customer success manager","customer success","client success","account management","customer retention","saas","customer experience","client relationship","renewals","upselling","customer onboarding","success manager","crm","subscription business","resume"],
+    thumbnail: "/templates/t058.png",
+    load: async () => (await import("../template-json/t058.json")).default,
+  },
+  {
+    id: "t059",
+    name: "Registered Nurse Practitioner Resume",
+    tags: ["nurse practitioner","registered nurse practitioner","np resume","advanced practice nurse","family nurse practitioner","healthcare","clinical care","patient assessment","treatment planning","diagnosis","prescription management","primary care","acute care","medical resume","resume"],
+    thumbnail: "/templates/t059.png",
+    load: async () => (await import("../template-json/t059.json")).default,
+  },
 ];
 
 export const SYSTEM_TEMPLATE_IDS = SYSTEM_TEMPLATES.map((template) => template.id);

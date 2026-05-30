@@ -525,4 +525,22 @@ export const TEMPLATES: Template[] = [
     thumb: "/templates/t057.png",
     status: "published",
   },
+  {
+    id: "t058",
+    title: "Customer Success Manager Resume",
+    categoryId: "customer-service-administration",
+    category: "customer-service-administration",
+    tags: ["customer success manager","customer success","client success","account management","customer retention","saas","customer experience","client relationship","renewals","upselling","customer onboarding","success manager","crm","subscription business","resume"],
+    thumb: "/templates/t058.png",
+    status: "published",
+  },
+  {
+    id: "t059",
+    title: "Registered Nurse Practitioner Resume",
+    categoryId: "healthcare-medical",
+    category: "healthcare-medical",
+    tags: ["nurse practitioner","registered nurse practitioner","np resume","advanced practice nurse","family nurse practitioner","healthcare","clinical care","patient assessment","treatment planning","diagnosis","prescription management","primary care","acute care","medical resume","resume"],
+    thumb: "/templates/t059.png",
+    status: "published",
+  },
 ];

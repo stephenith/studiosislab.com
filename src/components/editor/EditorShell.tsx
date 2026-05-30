@@ -850,7 +850,7 @@ export default function EditorShell({
           <div
             ref={editor.viewportRef}
             id="slb-editor-viewport"
-            className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-[#ebecf0] flex flex-col items-center"
+            className="relative flex-1 min-h-0 overflow-y-auto overflow-x-auto bg-[#ebecf0] flex flex-col"
           >
             <FloatingSelectionToolbar
               visible={editor.hasSelection && !editor.isRotatingObject}
@@ -920,7 +920,7 @@ export default function EditorShell({
                 </div>
               </div>
             )}
-            <div className="editor-viewport flex flex-col items-center py-6">
+            <div className="editor-viewport mx-auto flex w-max min-w-full flex-col items-center py-6">
               {editor.pages.map((page, idx) => {
                 const isActive = editor.activePageIndex === idx;
                 return (

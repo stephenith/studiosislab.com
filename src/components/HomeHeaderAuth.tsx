@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 import AccountAvatar from "@/components/AccountAvatar";
+import AuthModal from "@/app/components/AuthModal";
 import { useAuth } from "@/lib/useAuth";
 import { trackEvent } from "@/lib/analytics";
 
 export default function HomeHeaderAuth() {
   const { user, authReady, signInWithGoogle } = useAuth();
   const [signInError, setSignInError] = useState<string | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   useEffect(() => {
     if (!signInError) return;
@@ -41,14 +44,7 @@ export default function HomeHeaderAuth() {
         type="button"
         onClick={() => {
           setSignInError(null);
-          trackEvent("sign_in_click", { surface: "header", method: "google" });
-          void signInWithGoogle()
-            .then(() => {
-              trackEvent("sign_in_success", { surface: "header", method: "google" });
-            })
-            .catch(() => {
-              setSignInError("Sign-in didn’t complete. Please try again.");
-            });
+          setIsAuthModalOpen(true);
         }}
         className="rounded-full bg-black px-4 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-black/80 transition-colors"
       >
@@ -59,6 +55,31 @@ export default function HomeHeaderAuth() {
           {signInError}
         </p>
       ) : null}
+      <AuthModal
+        open={isAuthModalOpen}
+        loading={isSigningIn}
+        error={signInError}
+        onClose={() => {
+          if (isSigningIn) return;
+          setIsAuthModalOpen(false);
+        }}
+        onContinueWithGoogle={() => {
+          setSignInError(null);
+          setIsSigningIn(true);
+          trackEvent("sign_in_click", { surface: "header", method: "google" });
+          void signInWithGoogle()
+            .then(() => {
+              trackEvent("sign_in_success", { surface: "header", method: "google" });
+              setIsAuthModalOpen(false);
+            })
+            .catch(() => {
+              setSignInError("Sign-in didn’t complete. Please try again.");
+            })
+            .finally(() => {
+              setIsSigningIn(false);
+            });
+        }}
+      />
     </div>
   );
 }

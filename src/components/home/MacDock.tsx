@@ -4,6 +4,7 @@ import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import AuthModal from "@/app/components/AuthModal";
 import { useAuth } from "@/lib/useAuth";
 import { trackEvent } from "@/lib/analytics";
 
@@ -99,6 +100,9 @@ export default function MacDock() {
   const router = useRouter();
   const { user, authReady, signInWithGoogle } = useAuth();
   const [dockAuthError, setDockAuthError] = useState<string | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [pendingPath, setPendingPath] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const pendingXRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -152,23 +156,18 @@ export default function MacDock() {
     return () => window.clearTimeout(t);
   }, [dockAuthError]);
 
-  const navigateWithAuth = useCallback(
-    async (path: string) => {
+  const requestProtectedNavigation = useCallback(
+    (path: string) => {
       setDockAuthError(null);
       if (!authReady) return;
-      if (!user) {
-        try {
-          trackEvent("sign_in_click", { surface: "dock", method: "google" });
-          await signInWithGoogle();
-          trackEvent("sign_in_success", { surface: "dock", method: "google" });
-        } catch {
-          setDockAuthError("Sign-in didn’t complete. You can try again from the dock.");
-          return;
-        }
+      if (user) {
+        router.push(path);
+        return;
       }
-      router.push(path);
+      setPendingPath(path);
+      setIsAuthModalOpen(true);
     },
-    [authReady, user, signInWithGoogle, router]
+    [authReady, router, user]
   );
 
   const handleItem = useCallback(
@@ -190,10 +189,10 @@ export default function MacDock() {
         return;
       }
       if (item.path) {
-        void navigateWithAuth(item.path);
+        requestProtectedNavigation(item.path);
       }
     },
-    [navigateWithAuth, router]
+    [requestProtectedNavigation, router]
   );
 
   const onMouseMove = useCallback(
@@ -286,6 +285,36 @@ export default function MacDock() {
           {dockAuthError}
         </p>
       ) : null}
+      <AuthModal
+        open={isAuthModalOpen}
+        loading={isSigningIn}
+        error={dockAuthError}
+        onClose={() => {
+          if (isSigningIn) return;
+          setIsAuthModalOpen(false);
+          setPendingPath(null);
+        }}
+        onContinueWithGoogle={() => {
+          setDockAuthError(null);
+          setIsSigningIn(true);
+          trackEvent("sign_in_click", { surface: "dock", method: "google" });
+          void signInWithGoogle()
+            .then(() => {
+              trackEvent("sign_in_success", { surface: "dock", method: "google" });
+              setIsAuthModalOpen(false);
+              if (pendingPath) {
+                router.push(pendingPath);
+              }
+              setPendingPath(null);
+            })
+            .catch(() => {
+              setDockAuthError("Sign-in didn’t complete. Please try again.");
+            })
+            .finally(() => {
+              setIsSigningIn(false);
+            });
+        }}
+      />
     </div>
   );
 }

@@ -25,7 +25,14 @@ const REGISTRY_OUT_PATH = path.join(
   ROOT,
   "src/data/systemTemplates/registry.generated.ts"
 );
-const TEMPLATES_OUT_PATH = path.join(ROOT, "src/data/templates.generated.ts");
+const TEMPLATE_CATALOG_OUT_PATH = path.join(
+  ROOT,
+  "src/data/templateCatalog.generated.ts"
+);
+const TEMPLATE_SNAPSHOTS_OUT_PATH = path.join(
+  ROOT,
+  "src/data/templateSnapshots.generated.ts"
+);
 
 function ensurePosix(input: string): string {
   return input.split(path.sep).join("/");
@@ -67,9 +74,9 @@ function toRegistryImportPath(jsonPathFromRoot: string): string {
   return rel.startsWith(".") ? rel : `./${rel}`;
 }
 
-function toTemplatesImportPath(jsonPathFromRoot: string): string {
+function toImportPathFromOutput(jsonPathFromRoot: string, outputFilePath: string): string {
   const jsonAbs = path.resolve(ROOT, jsonPathFromRoot);
-  const templatesDir = path.dirname(TEMPLATES_OUT_PATH);
+  const templatesDir = path.dirname(outputFilePath);
   const rel = ensurePosix(path.relative(templatesDir, jsonAbs));
   return rel.startsWith(".") ? rel : `./${rel}`;
 }
@@ -116,14 +123,7 @@ export const getSystemTemplateById = (id: string) => {
   fs.writeFileSync(REGISTRY_OUT_PATH, content, "utf8");
 }
 
-function writeGeneratedTemplates(manifest: Manifest) {
-  const imports = manifest.templates
-    .map((template, index) => {
-      const importPath = toTemplatesImportPath(template.jsonPath);
-      return `import tpl${index} from ${JSON.stringify(importPath)};`;
-    })
-    .join("\n");
-
+function writeGeneratedTemplateCatalog(manifest: Manifest) {
   const galleryRows = manifest.templates
     .map((template) => {
       const tags = JSON.stringify(template.tags ?? []);
@@ -136,6 +136,39 @@ function writeGeneratedTemplates(manifest: Manifest) {
     thumb: ${JSON.stringify(template.thumbnailPath)},
     status: ${JSON.stringify(template.status)},
   },`;
+    })
+    .join("\n");
+
+  const content = `/* AUTO-GENERATED FILE. DO NOT EDIT MANUALLY. */
+/* Generated from templates.manifest.json by scripts/templates/generate.ts */
+
+export type Template = {
+  id: string;
+  title: string;
+  categoryId: string;
+  category: string;
+  tags: string[];
+  thumb: string;
+  status: "draft" | "published";
+};
+
+export const TEMPLATES: Template[] = [
+${galleryRows}
+];
+`;
+
+  fs.mkdirSync(path.dirname(TEMPLATE_CATALOG_OUT_PATH), { recursive: true });
+  fs.writeFileSync(TEMPLATE_CATALOG_OUT_PATH, content, "utf8");
+}
+
+function writeGeneratedTemplateSnapshots(manifest: Manifest) {
+  const imports = manifest.templates
+    .map((template, index) => {
+      const importPath = toImportPathFromOutput(
+        template.jsonPath,
+        TEMPLATE_SNAPSHOTS_OUT_PATH
+      );
+      return `import tpl${index} from ${JSON.stringify(importPath)};`;
     })
     .join("\n");
 
@@ -152,23 +185,9 @@ function writeGeneratedTemplates(manifest: Manifest) {
 /* Generated from templates.manifest.json by scripts/templates/generate.ts */
 ${imports}
 
-export type Template = {
-  id: string;
-  title: string;
-  categoryId: string;
-  category: string;
-  tags: string[];
-  thumb: string;
-  status: "draft" | "published";
-};
-
 export type TemplateSnapshot = {
   objects: any[];
 };
-
-export const TEMPLATES: Template[] = [
-${galleryRows}
-];
 
 export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
   blank: { objects: [] },
@@ -176,14 +195,15 @@ ${snapshotRows}
 };
 `;
 
-  fs.mkdirSync(path.dirname(TEMPLATES_OUT_PATH), { recursive: true });
-  fs.writeFileSync(TEMPLATES_OUT_PATH, content, "utf8");
+  fs.mkdirSync(path.dirname(TEMPLATE_SNAPSHOTS_OUT_PATH), { recursive: true });
+  fs.writeFileSync(TEMPLATE_SNAPSHOTS_OUT_PATH, content, "utf8");
 }
 
 function main() {
   const manifest = readManifest();
   writeGeneratedRegistry(manifest);
-  writeGeneratedTemplates(manifest);
+  writeGeneratedTemplateCatalog(manifest);
+  writeGeneratedTemplateSnapshots(manifest);
   console.log(
     `[templates] generated ${manifest.templates.length} templates from templates.manifest.json`
   );

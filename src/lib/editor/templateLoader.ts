@@ -4,7 +4,7 @@
  */
 
 import { Canvas, Rect, Shadow } from "fabric";
-import { TEMPLATE_SNAPSHOTS } from "@/data/templates";
+import { TEMPLATE_SNAPSHOTS } from "@/data/templateSnapshots";
 import { CANVAS_BG } from "@/types/editor";
 
 export type TemplateSnapshot = { objects: any[] };

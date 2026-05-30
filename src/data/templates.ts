@@ -1,1 +1,1 @@
-export * from "./templates.generated";
+export * from "./templateCatalog.generated";

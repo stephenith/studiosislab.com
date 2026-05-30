@@ -2,12 +2,14 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import AuthModal from "@/app/components/AuthModal";
 import { useAuth } from "@/lib/useAuth";
 import { trackEvent } from "@/lib/analytics";
 import { isSafeInternalNextPath } from "@/lib/safeNextPath";
 
 function LoginInner() {
   const [loading, setLoading] = useState(false);
+  const [signInError, setSignInError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextRaw = searchParams.get("next");
@@ -22,6 +24,7 @@ function LoginInner() {
   }, [authReady, user, router, next]);
 
   async function signIn() {
+    setSignInError(null);
     try {
       setLoading(true);
       trackEvent("sign_in_click", { surface: "login_page", method: "google" });
@@ -33,7 +36,7 @@ function LoginInner() {
         router.push("/resume");
       }
     } catch {
-      alert("Login failed");
+      setSignInError("Sign-in didn’t complete. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -56,21 +59,15 @@ function LoginInner() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-md rounded-2xl border p-6">
-        <h1 className="text-2xl font-semibold">StudiosisLab</h1>
-        <p className="mt-2 text-sm text-zinc-600">
-          Login with Google to continue
-        </p>
-
-        <button
-          onClick={signIn}
-          disabled={loading}
-          className="mt-6 w-full bg-black text-white py-3 rounded-xl"
-        >
-          {loading ? "Signing in..." : "Continue with Google"}
-        </button>
-      </div>
+    <main className="min-h-screen flex items-center justify-center bg-zinc-50 p-6">
+      <AuthModal
+        variant="inline"
+        open
+        loading={loading}
+        error={signInError}
+        onContinueWithGoogle={signIn}
+        onClose={() => router.push("/")}
+      />
     </main>
   );
 }

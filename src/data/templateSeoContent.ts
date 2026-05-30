@@ -992,4 +992,112 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     relatedTemplateIds: ["t027", "t028", "t030", "t044"],
     isPublished: true,
   },
+  {
+    templateId: "t058",
+    slug: "customer-success-manager-resume",
+    seoTitle: "Customer Success Manager Resume Template | StudiosisLab",
+    seoDescription:
+      "Customer success manager resume template focused on client retention, onboarding, renewals, account growth, and SaaS customer relationships.",
+    h1: "Customer Success Manager Resume Template",
+    intro:
+      "Customer success teams are measured on retention, expansion, and customer outcomes, not just support responsiveness. This template helps you present onboarding execution, churn reduction efforts, QBR ownership, and account growth contributions in a way ATS systems and hiring managers can evaluate quickly.",
+    bestFor: [
+      "Customer success managers owning onboarding, adoption, and renewal outcomes in SaaS teams.",
+      "CS professionals managing strategic accounts, customer health scores, and expansion opportunities.",
+      "Account-facing candidates moving from support or implementation into CSM roles.",
+      "Customer success candidates working cross-functionally with sales, product, and support teams.",
+    ],
+    whatToInclude: [
+      "A role-focused summary with customer segment, book-of-business scope, and retention strengths.",
+      "Onboarding and activation work tied to time-to-value and adoption milestones.",
+      "Renewal and churn performance with metrics such as renewal rate, GRR/NRR, or retention lift.",
+      "Account growth contributions including upsell identification, expansion planning, and QBR delivery.",
+      "Tools and workflows such as CRM, customer success platforms, health scoring, and lifecycle reporting.",
+    ],
+    atsTips: [
+      "Use role terms naturally, including customer onboarding, renewals, retention, churn reduction, and account growth.",
+      "Include SaaS and CRM keywords from postings where they match your actual experience.",
+      "Write out business metrics clearly so ATS can parse renewal and customer health context.",
+      "Keep section headings standard so systems can classify summary, experience, and skills correctly.",
+    ],
+    writingTips: [
+      "Lead bullets with outcomes, then show the customer success actions that produced them.",
+      "Show how you partnered with product, support, and sales to unblock customer goals.",
+      "Include realistic metrics such as renewal performance, adoption changes, or risk account recovery.",
+      "Avoid generic relationship claims and focus on specific customer lifecycle contributions.",
+    ],
+    faq: [
+      {
+        question: "What metrics matter most on a customer success manager resume?",
+        answer:
+          "Renewal rate, retention trends, churn reduction, expansion impact, and customer adoption metrics are the most useful when accurate.",
+      },
+      {
+        question: "Should I mention QBRs and customer health scores?",
+        answer:
+          "Yes. They show how you managed strategic communication, risk visibility, and account planning in recurring-revenue environments.",
+      },
+      {
+        question: "Can support experience help when applying for a CSM role?",
+        answer:
+          "Yes, especially when you frame it around onboarding, customer outcomes, proactive communication, and account retention impact.",
+      },
+    ],
+    relatedTemplateIds: ["t044", "t045", "t054"],
+    isPublished: true,
+  },
+  {
+    templateId: "t059",
+    slug: "registered-nurse-practitioner-resume",
+    seoTitle: "Registered Nurse Practitioner Resume Template | StudiosisLab",
+    seoDescription:
+      "Registered nurse practitioner resume template focused on patient assessment, treatment planning, clinical documentation, primary care, and advanced nursing skills.",
+    h1: "Registered Nurse Practitioner Resume Template",
+    intro:
+      "Nurse practitioner hiring teams look for clear evidence of advanced clinical judgment, patient management, and documentation quality. This template helps you present patient assessment, diagnosis, treatment planning, and chronic disease management in a practical format for ATS review and clinical hiring decisions.",
+    bestFor: [
+      "Registered nurse practitioners applying to primary care, family practice, or outpatient NP roles.",
+      "NP candidates managing diagnosis, treatment planning, and medication management workflows.",
+      "Advanced practice nurses supporting chronic disease management and continuity of care.",
+      "Nurse practitioners documenting care in EHR-driven clinical environments.",
+    ],
+    whatToInclude: [
+      "A concise clinical summary with specialty focus, patient population, and care setting.",
+      "Patient assessment and diagnostic responsibilities with examples of evidence-based clinical decisions.",
+      "Treatment planning, medication management, and follow-up care coordination details.",
+      "Chronic disease management outcomes across common conditions and longitudinal care plans.",
+      "Clinical documentation and EHR proficiency, including chart quality and care compliance support.",
+    ],
+    atsTips: [
+      "Use role-relevant terms from postings, such as patient assessment, diagnosis, treatment planning, and primary care.",
+      "Include complete credential wording and common abbreviations where applicable for ATS matching.",
+      "Mention EHR and clinical documentation explicitly so systems and recruiters can parse core workflow skills.",
+      "Keep chronology and section names clear to avoid ATS ambiguity across licenses, experience, and certifications.",
+    ],
+    writingTips: [
+      "Prioritize clinical outcomes and patient management scope over broad duty lists.",
+      "Show collaboration with physicians, nurses, and care teams in complex treatment decisions.",
+      "Use concise bullets that connect assessment, intervention, and patient follow-up.",
+      "Avoid overclaiming and keep clinical language precise, practical, and role-specific.",
+    ],
+    faq: [
+      {
+        question: "How is a nurse practitioner resume different from an RN resume?",
+        answer:
+          "A nurse practitioner resume should emphasize advanced assessment, diagnosis, treatment planning, and independent clinical decision-making scope.",
+      },
+      {
+        question: "Should I include EHR systems on an NP resume?",
+        answer:
+          "Yes. EHR proficiency and strong clinical documentation are core requirements in most nurse practitioner roles.",
+      },
+      {
+        question: "What should I highlight for chronic disease management experience?",
+        answer:
+          "Highlight patient panel context, treatment plan execution, follow-up consistency, and measurable care outcomes where available.",
+      },
+    ],
+    relatedTemplateIds: ["t041", "t052", "t057"],
+    isPublished: true,
+  },
 ];

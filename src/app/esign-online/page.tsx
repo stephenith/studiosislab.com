@@ -87,16 +87,17 @@ export default function EsignOnlineLandingPage() {
             </p>
           </SectionBlock>
 
-          <SectionBlock title="Free electronic signature">
+          <SectionBlock title="Free electronic signature and secure online signing">
             <p>
-              Explore how to start electronic signature workflows with current core free access.
+              Explore how to start electronic signature workflows with current core free access, secure
+              online document handling, and account-based workflow visibility.
             </p>
             <p>
               <Link
                 href="/esign-online/free-electronic-signature"
                 className="font-medium text-zinc-900 underline"
               >
-                Visit Free Electronic Signature
+                Visit Free Electronic Signature and Security Workflow Guide
               </Link>
             </p>
           </SectionBlock>

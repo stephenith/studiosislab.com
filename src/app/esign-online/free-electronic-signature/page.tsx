@@ -34,6 +34,21 @@ const faqItems = [
     answer:
       "Visit the Security page for current information about connection security and account-based access controls.",
   },
+  {
+    question: "How is a secure electronic signature workflow supported on StudiosisLab?",
+    answer:
+      "Workflows use authenticated account access, controlled document actions, and agreement visibility so users can monitor active signing progress.",
+  },
+  {
+    question: "Can I use this for secure online signing across recurring documents?",
+    answer:
+      "Yes. You can use the same online signing flow across recurring documents while keeping status and recent agreements visible in your workspace.",
+  },
+  {
+    question: "What should I review for document signing security details?",
+    answer:
+      "For current details, review the Security page for information on secure transport, access control, and document handling practices.",
+  },
 ] as const;
 
 const pageSchema = {
@@ -100,6 +115,28 @@ export default function FreeElectronicSignaturePage() {
               <li>Set up signature-related steps and document details.</li>
               <li>Complete the workflow and return to recent agreements as needed.</li>
             </ol>
+          </SectionBlock>
+        </section>
+
+        <section className="mt-6">
+          <SectionBlock title="How secure electronic signature workflows are handled">
+            <p>
+              StudiosisLab uses authenticated user access so document actions are tied to the account
+              running the workflow. This helps keep signing access and progress visibility scoped to the
+              active workspace.
+            </p>
+            <p>
+              Signing steps follow controlled workflow stages, from upload and preparation to completion,
+              with agreement tracking visibility for active and recent documents.
+            </p>
+            <p>
+              The platform is built for secure online document handling through account-based access and
+              secure transport. For current trust details, review the{" "}
+              <Link href="/security" className="font-medium text-zinc-900 underline">
+                Security page
+              </Link>
+              .
+            </p>
           </SectionBlock>
         </section>
 

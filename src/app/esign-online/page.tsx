@@ -75,6 +75,47 @@ export default function EsignOnlineLandingPage() {
           <EsignOnlineIllustration />
         </section>
 
+        <section className="mt-10 grid gap-6 md:grid-cols-3">
+          <SectionBlock title="Sign PDF online">
+            <p>
+              For direct PDF signing tasks, use the focused signing workflow page.
+            </p>
+            <p>
+              <Link href="/esign-online/sign-pdf-online" className="font-medium text-zinc-900 underline">
+                Visit Sign PDF Online
+              </Link>
+            </p>
+          </SectionBlock>
+
+          <SectionBlock title="Free electronic signature">
+            <p>
+              Explore how to start electronic signature workflows with current core free access.
+            </p>
+            <p>
+              <Link
+                href="/esign-online/free-electronic-signature"
+                className="font-medium text-zinc-900 underline"
+              >
+                Visit Free Electronic Signature
+              </Link>
+            </p>
+          </SectionBlock>
+
+          <SectionBlock title="E-sign for small business">
+            <p>
+              See a practical overview designed for lean teams and recurring document operations.
+            </p>
+            <p>
+              <Link
+                href="/esign-online/e-sign-for-small-business"
+                className="font-medium text-zinc-900 underline"
+              >
+                Visit E-Sign for Small Business
+              </Link>
+            </p>
+          </SectionBlock>
+        </section>
+
         <section className="mt-10 grid gap-6 md:grid-cols-2">
           <SectionBlock title="Benefits">
             <ul className="list-disc space-y-2 pl-5">

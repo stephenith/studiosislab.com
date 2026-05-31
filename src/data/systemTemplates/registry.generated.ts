@@ -423,6 +423,41 @@ export const SYSTEM_TEMPLATES: SystemTemplate[] = [
     thumbnail: "/templates/t059.png",
     load: async () => (await import("../template-json/t059.json")).default,
   },
+  {
+    id: "t060",
+    name: "Financial Analyst Resume",
+    tags: ["financial analyst","finance","financial planning","budgeting","forecasting","financial modeling","accounting","investment analysis","data analysis","excel","fp&a","corporate finance","financial reporting","business analysis","resume"],
+    thumbnail: "/templates/t060.png",
+    load: async () => (await import("../template-json/t060.json")).default,
+  },
+  {
+    id: "t061",
+    name: "Operations Manager Resume",
+    tags: ["operations manager","operations","business operations","process improvement","team management","project management","operations strategy","workflow optimization","supply chain","logistics","performance management","leadership","operations planning","business management","resume"],
+    thumbnail: "/templates/t061.png",
+    load: async () => (await import("../template-json/t061.json")).default,
+  },
+  {
+    id: "t062",
+    name: "Human Resources Manager Resume",
+    tags: ["human resources manager","hr manager","human resources","talent acquisition","recruitment","employee relations","performance management","hr operations","workforce planning","onboarding","training and development","compliance","people management","hr leadership","resume"],
+    thumbnail: "/templates/t062.png",
+    load: async () => (await import("../template-json/t062.json")).default,
+  },
+  {
+    id: "t063",
+    name: "Physical Therapist Resume",
+    tags: ["physical therapist","physiotherapist","physical therapy","rehabilitation","patient care","treatment planning","mobility training","injury recovery","musculoskeletal therapy","clinical assessment","healthcare","therapy services","patient rehabilitation","medical resume","resume"],
+    thumbnail: "/templates/t063.png",
+    load: async () => (await import("../template-json/t063.json")).default,
+  },
+  {
+    id: "t064",
+    name: "Product Manager Resume",
+    tags: ["product manager","product management","product strategy","roadmap planning","agile","scrum","stakeholder management","product development","user research","market analysis","cross functional teams","product lifecycle","business strategy","saas","resume"],
+    thumbnail: "/templates/t064.png",
+    load: async () => (await import("../template-json/t064.json")).default,
+  },
 ];
 
 export const SYSTEM_TEMPLATE_IDS = SYSTEM_TEMPLATES.map((template) => template.id);

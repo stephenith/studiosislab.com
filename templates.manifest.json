@@ -532,6 +532,51 @@
                 "jsonPath": "src/data/template-json/t059.json",
                 "status": "published",
                 "tags": ["nurse practitioner", "registered nurse practitioner", "np resume", "advanced practice nurse", "family nurse practitioner", "healthcare", "clinical care", "patient assessment", "treatment planning", "diagnosis", "prescription management", "primary care", "acute care", "medical resume", "resume"]
+              },
+              {
+                "id": "t060",
+                "title": "Financial Analyst Resume",
+                "categoryId": "finance-accounting",
+                "thumbnailPath": "/templates/t060.png",
+                "jsonPath": "src/data/template-json/t060.json",
+                "status": "published",
+                "tags": ["financial analyst", "finance", "financial planning", "budgeting", "forecasting", "financial modeling", "accounting", "investment analysis", "data analysis", "excel", "fp&a", "corporate finance", "financial reporting", "business analysis", "resume"]
+              },
+              {
+                "id": "t061",
+                "title": "Operations Manager Resume",
+                "categoryId": "business-management",
+                "thumbnailPath": "/templates/t061.png",
+                "jsonPath": "src/data/template-json/t061.json",
+                "status": "published",
+                "tags": ["operations manager", "operations", "business operations", "process improvement", "team management", "project management", "operations strategy", "workflow optimization", "supply chain", "logistics", "performance management", "leadership", "operations planning", "business management", "resume"]
+              },
+              {
+                "id": "t062",
+                "title": "Human Resources Manager Resume",
+                "categoryId": "business-management",
+                "thumbnailPath": "/templates/t062.png",
+                "jsonPath": "src/data/template-json/t062.json",
+                "status": "published",
+                "tags": ["human resources manager", "hr manager", "human resources", "talent acquisition", "recruitment", "employee relations", "performance management", "hr operations", "workforce planning", "onboarding", "training and development", "compliance", "people management", "hr leadership", "resume"]
+              },
+              {
+                "id": "t063",
+                "title": "Physical Therapist Resume",
+                "categoryId": "healthcare-medical",
+                "thumbnailPath": "/templates/t063.png",
+                "jsonPath": "src/data/template-json/t063.json",
+                "status": "published",
+                "tags": ["physical therapist", "physiotherapist", "physical therapy", "rehabilitation", "patient care", "treatment planning", "mobility training", "injury recovery", "musculoskeletal therapy", "clinical assessment", "healthcare", "therapy services", "patient rehabilitation", "medical resume", "resume"]
+              },
+              {
+                "id": "t064",
+                "title": "Product Manager Resume",
+                "categoryId": "business-management",
+                "thumbnailPath": "/templates/t064.png",
+                "jsonPath": "src/data/template-json/t064.json",
+                "status": "published",
+                "tags": ["product manager", "product management", "product strategy", "roadmap planning", "agile", "scrum", "stakeholder management", "product development", "user research", "market analysis", "cross functional teams", "product lifecycle", "business strategy", "saas", "resume"]
               }
 
   ]

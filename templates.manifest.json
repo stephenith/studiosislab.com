@@ -577,6 +577,51 @@
                 "jsonPath": "src/data/template-json/t064.json",
                 "status": "published",
                 "tags": ["product manager", "product management", "product strategy", "roadmap planning", "agile", "scrum", "stakeholder management", "product development", "user research", "market analysis", "cross functional teams", "product lifecycle", "business strategy", "saas", "resume"]
+              },
+              {
+                "id": "t065",
+                "title": "Software Developer Resume",
+                "categoryId": "it-software",
+                "thumbnailPath": "/templates/t065.png",
+                "jsonPath": "src/data/template-json/t065.json",
+                "status": "published",
+                "tags": ["software developer", "software engineer", "full stack developer", "frontend developer", "backend developer", "web development", "javascript", "python", "java", "react", "nodejs", "api development", "agile", "problem solving", "resume"]
+              },
+              {
+                "id": "t066",
+                "title": "Executive Assistant Resume",
+                "categoryId": "customer-service-administration",
+                "thumbnailPath": "/templates/t066.png",
+                "jsonPath": "src/data/template-json/t066.json",
+                "status": "published",
+                "tags": ["executive assistant", "administrative assistant", "office administration", "calendar management", "executive support", "meeting coordination", "travel arrangements", "document management", "stakeholder communication", "scheduling", "office operations", "confidential information", "business support", "administration", "resume"]
+              },
+              {
+                "id": "t067",
+                "title": "Data Scientist Resume",
+                "categoryId": "it-software",
+                "thumbnailPath": "/templates/t067.png",
+                "jsonPath": "src/data/template-json/t067.json",
+                "status": "published",
+                "tags": ["data scientist", "data science", "machine learning", "artificial intelligence", "data analysis", "python", "sql", "statistics", "predictive analytics", "data visualization", "deep learning", "business intelligence", "big data", "research", "resume"]
+              },
+              {
+                "id": "t068",
+                "title": "Social Media Manager Resume",
+                "categoryId": "sales-marketing-advertising",
+                "thumbnailPath": "/templates/t068.png",
+                "jsonPath": "src/data/template-json/t068.json",
+                "status": "published",
+                "tags": ["social media manager", "social media marketing", "content strategy", "digital marketing", "facebook marketing", "instagram marketing", "linkedin marketing", "community management", "content creation", "brand awareness", "social media analytics", "campaign management", "engagement growth", "marketing", "resume"]
+              },
+              {
+                "id": "t069",
+                "title": "Occupational Therapist Resume",
+                "categoryId": "healthcare-medical",
+                "thumbnailPath": "/templates/t069.png",
+                "jsonPath": "src/data/template-json/t069.json",
+                "status": "published",
+                "tags": ["occupational therapist", "occupational therapy", "patient rehabilitation", "therapy services", "treatment planning", "patient assessment", "healthcare", "clinical care", "adaptive equipment", "mobility training", "activities of daily living", "rehabilitation therapy", "patient recovery", "medical resume", "resume"]
               }
 
   ]

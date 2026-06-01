@@ -458,6 +458,41 @@ export const SYSTEM_TEMPLATES: SystemTemplate[] = [
     thumbnail: "/templates/t064.png",
     load: async () => (await import("../template-json/t064.json")).default,
   },
+  {
+    id: "t065",
+    name: "Software Developer Resume",
+    tags: ["software developer","software engineer","full stack developer","frontend developer","backend developer","web development","javascript","python","java","react","nodejs","api development","agile","problem solving","resume"],
+    thumbnail: "/templates/t065.png",
+    load: async () => (await import("../template-json/t065.json")).default,
+  },
+  {
+    id: "t066",
+    name: "Executive Assistant Resume",
+    tags: ["executive assistant","administrative assistant","office administration","calendar management","executive support","meeting coordination","travel arrangements","document management","stakeholder communication","scheduling","office operations","confidential information","business support","administration","resume"],
+    thumbnail: "/templates/t066.png",
+    load: async () => (await import("../template-json/t066.json")).default,
+  },
+  {
+    id: "t067",
+    name: "Data Scientist Resume",
+    tags: ["data scientist","data science","machine learning","artificial intelligence","data analysis","python","sql","statistics","predictive analytics","data visualization","deep learning","business intelligence","big data","research","resume"],
+    thumbnail: "/templates/t067.png",
+    load: async () => (await import("../template-json/t067.json")).default,
+  },
+  {
+    id: "t068",
+    name: "Social Media Manager Resume",
+    tags: ["social media manager","social media marketing","content strategy","digital marketing","facebook marketing","instagram marketing","linkedin marketing","community management","content creation","brand awareness","social media analytics","campaign management","engagement growth","marketing","resume"],
+    thumbnail: "/templates/t068.png",
+    load: async () => (await import("../template-json/t068.json")).default,
+  },
+  {
+    id: "t069",
+    name: "Occupational Therapist Resume",
+    tags: ["occupational therapist","occupational therapy","patient rehabilitation","therapy services","treatment planning","patient assessment","healthcare","clinical care","adaptive equipment","mobility training","activities of daily living","rehabilitation therapy","patient recovery","medical resume","resume"],
+    thumbnail: "/templates/t069.png",
+    load: async () => (await import("../template-json/t069.json")).default,
+  },
 ];
 
 export const SYSTEM_TEMPLATE_IDS = SYSTEM_TEMPLATES.map((template) => template.id);

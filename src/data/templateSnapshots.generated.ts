@@ -64,6 +64,11 @@ import tpl60 from "./template-json/t061.json";
 import tpl61 from "./template-json/t062.json";
 import tpl62 from "./template-json/t063.json";
 import tpl63 from "./template-json/t064.json";
+import tpl64 from "./template-json/t065.json";
+import tpl65 from "./template-json/t066.json";
+import tpl66 from "./template-json/t067.json";
+import tpl67 from "./template-json/t068.json";
+import tpl68 from "./template-json/t069.json";
 
 export type TemplateSnapshot = {
   objects: any[];
@@ -326,5 +331,25 @@ export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
   "t064":
     (tpl63 as any)?.objects && (tpl63 as any).objects.length > 0
       ? (tpl63 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t065":
+    (tpl64 as any)?.objects && (tpl64 as any).objects.length > 0
+      ? (tpl64 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t066":
+    (tpl65 as any)?.objects && (tpl65 as any).objects.length > 0
+      ? (tpl65 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t067":
+    (tpl66 as any)?.objects && (tpl66 as any).objects.length > 0
+      ? (tpl66 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t068":
+    (tpl67 as any)?.objects && (tpl67 as any).objects.length > 0
+      ? (tpl67 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t069":
+    (tpl68 as any)?.objects && (tpl68 as any).objects.length > 0
+      ? (tpl68 as TemplateSnapshot)
       : ({ objects: [] } as TemplateSnapshot),
 };

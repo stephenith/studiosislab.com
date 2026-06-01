@@ -1370,4 +1370,274 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     relatedTemplateIds: ["t040", "t045", "t053"],
     isPublished: true,
   },
+  {
+    templateId: "t065",
+    slug: "software-developer-resume",
+    seoTitle: "Software Developer Resume Template | StudiosisLab",
+    seoDescription:
+      "Software developer resume template focused on programming skills, web development, APIs, frameworks, agile teams, and technical projects.",
+    h1: "Software Developer Resume Template",
+    intro:
+      "Software developer hiring teams want clear evidence that you can build, debug, and ship reliable features. This template helps you present programming strengths, project ownership, and collaboration with product and QA in language that works for ATS scans and technical interview screening.",
+    bestFor: [
+      "Software developers applying for front-end, back-end, or full-stack roles.",
+      "Developers with project-driven experience in web applications and API integrations.",
+      "Candidates moving from junior engineering work into broader delivery ownership.",
+      "Professionals working in agile teams with iterative release cycles.",
+    ],
+    whatToInclude: [
+      "A summary that states your development focus, primary stack, and problem-solving strengths.",
+      "Project and work examples showing programming languages, frameworks, and system impact.",
+      "API development or integration responsibilities with practical implementation outcomes.",
+      "Software delivery context including collaboration with product, design, QA, or DevOps teams.",
+      "Technical skills grouped by languages, frameworks, tools, and databases for quick review.",
+    ],
+    atsTips: [
+      "Use exact role keywords naturally, such as software developer, APIs, JavaScript, Python, and agile workflows.",
+      "Include complete framework and tool names as listed in target job descriptions.",
+      "Keep section headings standard so ATS can parse skills, projects, and experience clearly.",
+      "Balance technical keywords with business-facing outcomes in bullet points.",
+    ],
+    writingTips: [
+      "Show how your code changed product behavior, reliability, or delivery speed.",
+      "Use concise bullets with action, technical context, and measurable result where possible.",
+      "Highlight debugging, testing, and code quality contributions, not just feature delivery.",
+      "Avoid broad tool lists and focus on technologies you can discuss confidently in interviews.",
+    ],
+    faq: [
+      {
+        question: "Should software developers include both projects and work experience?",
+        answer:
+          "Yes. Professional work demonstrates production impact, while strong projects can show technical depth and initiative.",
+      },
+      {
+        question: "How do I make a software developer resume ATS-friendly?",
+        answer:
+          "Use clear headings, include exact technical terms from the posting, and describe outcomes in readable bullet points.",
+      },
+      {
+        question: "Is it important to mention API experience explicitly?",
+        answer:
+          "Yes. API design, integration, and reliability work are commonly screened in software developer hiring.",
+      },
+    ],
+    relatedTemplateIds: ["t040", "t043", "t067"],
+    isPublished: true,
+  },
+  {
+    templateId: "t066",
+    slug: "executive-assistant-resume",
+    seoTitle: "Executive Assistant Resume Template | StudiosisLab",
+    seoDescription:
+      "Executive assistant resume template focused on calendar management, executive support, meeting coordination, travel planning, and office operations.",
+    h1: "Executive Assistant Resume Template",
+    intro:
+      "Executive assistant roles require high-trust coordination and consistent follow-through. This template helps you present executive scheduling, communication support, and operational reliability in a format that ATS systems and hiring managers can review quickly.",
+    bestFor: [
+      "Executive assistants supporting founders, senior leadership, or department heads.",
+      "Administrative professionals handling high-volume scheduling and meeting preparation.",
+      "Candidates coordinating travel, documentation, and executive communications workflows.",
+      "Office support specialists moving into senior assistant responsibilities.",
+    ],
+    whatToInclude: [
+      "A focused summary covering executive support scope and organizational strengths.",
+      "Calendar management examples with prioritization across meetings, deadlines, and stakeholders.",
+      "Meeting coordination contributions including agendas, logistics, and follow-up tracking.",
+      "Travel planning and itinerary management responsibilities for leadership schedules.",
+      "Office operations and communication support with tools such as Google Workspace and Microsoft Office.",
+    ],
+    atsTips: [
+      "Use posting language such as executive support, calendar management, travel coordination, and office operations.",
+      "Include software skills clearly, especially calendar, communication, and documentation platforms.",
+      "Keep chronology and section names simple so ATS can parse responsibilities accurately.",
+      "Use practical workflow terms instead of generic assistant buzzwords.",
+    ],
+    writingTips: [
+      "Show how your coordination work improved leadership focus and decision readiness.",
+      "Write bullets that pair task ownership with concrete outcomes like fewer scheduling conflicts.",
+      "Highlight discretion, communication, and prioritization with short real-world examples.",
+      "Keep language precise and avoid vague claims like fast learner without evidence.",
+    ],
+    faq: [
+      {
+        question: "What should an executive assistant resume emphasize most?",
+        answer:
+          "It should emphasize calendar control, communication support, and reliable coordination for executive priorities.",
+      },
+      {
+        question: "Should I include travel planning and event support experience?",
+        answer:
+          "Yes. Those responsibilities are common in executive assistant roles and help demonstrate operational range.",
+      },
+      {
+        question: "How can I make executive support work sound more impactful?",
+        answer:
+          "Tie your work to outcomes such as smoother scheduling, faster follow-up, and improved executive efficiency.",
+      },
+    ],
+    relatedTemplateIds: ["t057", "t030", "t062"],
+    isPublished: true,
+  },
+  {
+    templateId: "t067",
+    slug: "data-scientist-resume",
+    seoTitle: "Data Scientist Resume Template | StudiosisLab",
+    seoDescription:
+      "Data scientist resume template focused on machine learning, Python, SQL, statistics, predictive analytics, data visualization, and business impact.",
+    h1: "Data Scientist Resume Template",
+    intro:
+      "Data scientist resumes should show both modeling depth and business value. This template helps you present machine learning projects, statistical reasoning, and decision impact in a structure that ATS tools and technical hiring teams can evaluate efficiently.",
+    bestFor: [
+      "Data scientists building predictive models and analytical solutions for product or business teams.",
+      "Candidates applying to machine learning, experimentation, or applied analytics roles.",
+      "Professionals using Python, SQL, and statistics to drive measurable decisions.",
+      "Analysts transitioning into data science roles with model-building experience.",
+    ],
+    whatToInclude: [
+      "A concise summary with domain focus, modeling strengths, and business context.",
+      "Machine learning projects with data sources, methods, and measurable outcomes.",
+      "Python and SQL usage for data preparation, analysis, and model deployment support.",
+      "Statistical and predictive analytics examples tied to product, operations, or revenue impact.",
+      "Data visualization and stakeholder communication examples for non-technical decision-making.",
+    ],
+    atsTips: [
+      "Include role-relevant terms from postings, such as machine learning, feature engineering, predictive modeling, and experimentation.",
+      "Name tools and libraries explicitly when relevant, including Python ecosystem and SQL workflows.",
+      "Use clear section labels so ATS can parse technical skills and project outcomes effectively.",
+      "Balance modeling keywords with practical business impact language.",
+    ],
+    writingTips: [
+      "Explain each project in a simple arc: problem, approach, model, and business result.",
+      "Highlight model performance responsibly with context, not isolated metrics only.",
+      "Show collaboration with product, engineering, and business stakeholders.",
+      "Avoid jargon-heavy bullets that do not explain why the analysis mattered.",
+    ],
+    faq: [
+      {
+        question: "How is a data scientist resume different from a data analyst resume?",
+        answer:
+          "A data scientist resume should emphasize modeling, statistical methods, and predictive outcomes in addition to analysis and reporting.",
+      },
+      {
+        question: "Should I include model metrics on a data scientist resume?",
+        answer:
+          "Yes, when meaningful. Include them with problem context and business relevance rather than metric-only claims.",
+      },
+      {
+        question: "Do ATS systems parse technical libraries and tools well?",
+        answer:
+          "Generally yes when listed clearly with standard names in skills and project descriptions.",
+      },
+    ],
+    relatedTemplateIds: ["t043", "t060", "t065"],
+    isPublished: true,
+  },
+  {
+    templateId: "t068",
+    slug: "social-media-manager-resume",
+    seoTitle: "Social Media Manager Resume Template | StudiosisLab",
+    seoDescription:
+      "Social media manager resume template focused on content strategy, campaign management, engagement growth, social analytics, and brand awareness.",
+    h1: "Social Media Manager Resume Template",
+    intro:
+      "Social media manager hiring teams look for strategic planning and consistent execution, not only posting frequency. This template helps you present content strategy, campaign performance, and audience growth in a way ATS systems and marketing leaders can quickly understand.",
+    bestFor: [
+      "Social media managers leading multi-channel content and campaign execution.",
+      "Marketers responsible for engagement growth, community responses, and brand consistency.",
+      "Candidates managing social reporting, content calendars, and campaign optimization.",
+      "Professionals moving from coordinator roles into broader social strategy ownership.",
+    ],
+    whatToInclude: [
+      "A summary that reflects platform strengths, audience focus, and campaign leadership scope.",
+      "Content strategy and publishing workflow examples tied to business or brand objectives.",
+      "Campaign management achievements with engagement, reach, or conversion-oriented outcomes.",
+      "Social analytics responsibilities with reporting insights used to refine strategy.",
+      "Cross-team collaboration with design, content, product marketing, or paid media teams.",
+    ],
+    atsTips: [
+      "Use role keywords naturally, including content strategy, social analytics, engagement growth, and campaign management.",
+      "Include platform and tooling terms from postings where they match your experience.",
+      "Keep bullets readable and outcome-driven so ATS and recruiters can scan quickly.",
+      "Combine creative and performance language to reflect full social ownership.",
+    ],
+    writingTips: [
+      "Lead with measurable impact such as engagement lift, response improvements, or audience growth trends.",
+      "Show how your strategy changed based on performance data and campaign insights.",
+      "Include examples of balancing brand voice with timely operational execution.",
+      "Avoid vague social media claims and focus on specific campaign or calendar outcomes.",
+    ],
+    faq: [
+      {
+        question: "What metrics should a social media manager include on a resume?",
+        answer:
+          "Include engagement rate, follower growth quality, campaign reach, and conversions when relevant to the role.",
+      },
+      {
+        question: "Should I mention both organic and paid campaign work?",
+        answer:
+          "Yes, if you have both. It shows broader strategy range and execution ability.",
+      },
+      {
+        question: "How can I make social content work ATS-friendly?",
+        answer:
+          "Use standard headings and role-specific terminology while keeping campaign outcomes clear and specific.",
+      },
+    ],
+    relatedTemplateIds: ["t020", "t051", "t054"],
+    isPublished: true,
+  },
+  {
+    templateId: "t069",
+    slug: "occupational-therapist-resume",
+    seoTitle: "Occupational Therapist Resume Template | StudiosisLab",
+    seoDescription:
+      "Occupational therapist resume template focused on rehabilitation, patient assessment, treatment planning, adaptive equipment, and clinical care.",
+    h1: "Occupational Therapist Resume Template",
+    intro:
+      "Occupational therapist resumes should demonstrate patient-centered clinical planning and practical recovery support. This template helps you present patient assessment, treatment plans, adaptive equipment training, and interdisciplinary care coordination in a format employers can review efficiently.",
+    bestFor: [
+      "Occupational therapists working in hospitals, outpatient clinics, schools, or rehabilitation settings.",
+      "Clinicians supporting functional recovery and daily living skill development.",
+      "Candidates creating treatment plans across pediatric, adult, or geriatric care populations.",
+      "OT professionals collaborating with interdisciplinary teams for long-term patient progress.",
+    ],
+    whatToInclude: [
+      "A focused summary with care setting, patient population, and therapeutic strengths.",
+      "Patient assessment responsibilities and treatment planning process across common case types.",
+      "Adaptive equipment and assistive strategy training used to improve daily function.",
+      "Clinical care coordination with physicians, PTs, nurses, and caregivers.",
+      "Documentation quality, progress tracking, and care plan adjustments based on patient response.",
+    ],
+    atsTips: [
+      "Use posting terminology naturally, such as occupational therapy, patient assessment, treatment planning, and adaptive equipment.",
+      "Include complete credential and licensure wording so ATS can match clinical requirements.",
+      "Use standard section headers for easier parsing of experience and certifications.",
+      "Reference care-setting context when it aligns with the target employer environment.",
+    ],
+    writingTips: [
+      "Describe patient progress outcomes with clear clinical context and realistic scope.",
+      "Show how assessment findings informed treatment modifications over time.",
+      "Highlight communication with families and care teams in recovery planning.",
+      "Keep claims practical and avoid overstating outcome guarantees.",
+    ],
+    faq: [
+      {
+        question: "How should occupational therapists show treatment planning on a resume?",
+        answer:
+          "Show assessment inputs, intervention approach, and how plans were adjusted as patient function changed.",
+      },
+      {
+        question: "Should adaptive equipment training be listed explicitly?",
+        answer:
+          "Yes. It is a core part of many occupational therapy roles and demonstrates practical care delivery.",
+      },
+      {
+        question: "What ATS keywords are useful for occupational therapist roles?",
+        answer:
+          "Common terms include patient assessment, treatment planning, rehabilitation, adaptive equipment, and clinical documentation.",
+      },
+    ],
+    relatedTemplateIds: ["t063", "t052", "t059"],
+    isPublished: true,
+  },
 ];

@@ -1640,4 +1640,220 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     relatedTemplateIds: ["t063", "t052", "t059"],
     isPublished: true,
   },
+  {
+    templateId: "t071",
+    slug: "business-development-manager-resume",
+    seoTitle: "Business Development Manager Resume Template | StudiosisLab",
+    seoDescription:
+      "Business development manager resume template focused on lead generation, client acquisition, partnerships, pipeline management, and revenue growth.",
+    h1: "Business Development Manager Resume Template",
+    intro:
+      "Business development manager hiring teams look for growth outcomes backed by consistent execution. This template helps you present lead generation, partnership development, and pipeline performance in language that ATS systems and hiring managers can quickly assess.",
+    bestFor: [
+      "Business development managers owning outbound strategy, pipeline growth, and deal progression.",
+      "Professionals focused on client acquisition, account expansion, and strategic partnerships.",
+      "Sales and partnerships candidates moving into manager-level business development roles.",
+      "Revenue-focused applicants working with cross-functional teams across sales, marketing, and operations.",
+    ],
+    whatToInclude: [
+      "A summary describing your market focus, growth strengths, and revenue-oriented leadership scope.",
+      "Lead generation achievements with pipeline metrics, conversion movement, and deal outcomes.",
+      "Client acquisition examples tied to territory growth, account wins, or strategic vertical expansion.",
+      "Partnership development work including channel relationships, alliance execution, or co-sell efforts.",
+      "Pipeline management details using CRM tools, forecasting, and cross-team handoff coordination.",
+    ],
+    atsTips: [
+      "Use target-role terms naturally, including business development, client acquisition, pipeline management, and partnerships.",
+      "Include measurable revenue or pipeline indicators to support growth claims with concrete outcomes.",
+      "List CRM and reporting tools clearly for ATS matching against required platform experience.",
+      "Keep headings clean and standard so systems can parse sales, strategy, and management contributions.",
+    ],
+    writingTips: [
+      "Frame each major bullet with market opportunity, action taken, and growth result.",
+      "Show how you collaborated with sales, marketing, and product teams to move deals forward.",
+      "Use practical metrics such as pipeline value, qualified opportunities, or win-rate improvements.",
+      "Avoid generic relationship-building language unless it is tied to specific commercial impact.",
+    ],
+    faq: [
+      {
+        question: "Which metrics matter most on a business development manager resume?",
+        answer:
+          "Pipeline growth, qualified opportunity volume, conversion rates, and revenue outcomes are typically the most useful metrics.",
+      },
+      {
+        question: "Should partnerships be listed separately from direct sales work?",
+        answer:
+          "Yes, when relevant. It helps hiring teams quickly see your strategic channel and alliance experience.",
+      },
+      {
+        question: "How do I show pipeline management clearly?",
+        answer:
+          "Describe the stages you owned, forecasting responsibilities, and how your actions improved deal progression.",
+      },
+    ],
+    relatedTemplateIds: ["t045", "t058", "t061"],
+    isPublished: true,
+  },
+  {
+    templateId: "t072",
+    slug: "customer-support-representative-resume",
+    seoTitle: "Customer Support Representative Resume Template | StudiosisLab",
+    seoDescription:
+      "Customer support representative resume template focused on ticket resolution, call center experience, CRM tools, communication, and customer satisfaction.",
+    h1: "Customer Support Representative Resume Template",
+    intro:
+      "Customer support representative resumes should demonstrate fast issue resolution and clear communication under pressure. This template helps you present ticket handling, call center workflows, and customer satisfaction outcomes in an ATS-friendly format.",
+    bestFor: [
+      "Customer support representatives handling email, chat, and phone-based issue resolution.",
+      "Call center professionals supporting high-volume queues and escalation workflows.",
+      "Candidates with CRM-driven support experience across SaaS, e-commerce, or service teams.",
+      "Support specialists aiming to show customer satisfaction and retention-oriented impact.",
+    ],
+    whatToInclude: [
+      "A summary covering support channels, ticket volume context, and communication strengths.",
+      "Ticket resolution examples with response quality, turnaround improvements, or escalation handling.",
+      "Call center or support desk responsibilities tied to queue management and customer outcomes.",
+      "CRM and help-desk tools used for case tracking, documentation, and follow-up workflows.",
+      "Service performance indicators such as CSAT trends, resolution rates, or first-contact improvements.",
+    ],
+    atsTips: [
+      "Use posting keywords naturally, including customer support, ticket resolution, CRM, and call center experience.",
+      "Include both communication skills and platform/tool terminology for balanced ATS matching.",
+      "Keep role titles and dates clear so systems can interpret support experience chronology accurately.",
+      "Use standard section names to improve parsing of skills, work history, and service metrics.",
+    ],
+    writingTips: [
+      "Show how you resolved issues efficiently while maintaining customer trust.",
+      "Use concise bullets with channel context, action taken, and measurable service result.",
+      "Highlight escalation ownership and cross-team coordination when cases required deeper support.",
+      "Avoid vague service claims and focus on practical examples that show day-to-day reliability.",
+    ],
+    faq: [
+      {
+        question: "How should I present ticket resolution metrics on my resume?",
+        answer:
+          "Use clear metrics such as resolution rate, average response time, or CSAT movement when they are available and accurate.",
+      },
+      {
+        question: "Do call center roles and digital support roles belong on the same resume?",
+        answer:
+          "Yes, if relevant. Group them with clear context to show breadth across phone, chat, and email support channels.",
+      },
+      {
+        question: "What ATS keywords help customer support resumes rank better?",
+        answer:
+          "Terms like ticket resolution, CRM, call center, escalation handling, and customer satisfaction are commonly used in support job postings.",
+      },
+    ],
+    relatedTemplateIds: ["t044", "t054", "t058"],
+    isPublished: true,
+  },
+  {
+    templateId: "t073",
+    slug: "mechanical-engineer-resume",
+    seoTitle: "Mechanical Engineer Resume Template | StudiosisLab",
+    seoDescription:
+      "Mechanical engineer resume template focused on CAD design, manufacturing, engineering projects, quality improvement, and technical documentation.",
+    h1: "Mechanical Engineer Resume Template",
+    intro:
+      "Mechanical engineer resumes perform best when they connect technical design work to production results. This template helps you present CAD projects, manufacturing collaboration, and quality improvement contributions in a structure ATS systems and engineering teams can review efficiently.",
+    bestFor: [
+      "Mechanical engineers working on design, prototyping, and production-ready product development.",
+      "Candidates supporting manufacturing processes, equipment improvements, and technical project execution.",
+      "Engineers applying for roles involving CAD modeling, testing, and validation workflows.",
+      "Professionals moving from junior design positions into broader engineering ownership.",
+    ],
+    whatToInclude: [
+      "A summary that outlines engineering focus, industry context, and technical strengths.",
+      "CAD design and engineering project work with scope, constraints, and outcome context.",
+      "Manufacturing collaboration examples tied to production readiness or process improvements.",
+      "Quality improvement contributions including root-cause analysis, testing, and corrective actions.",
+      "Technical documentation work such as drawings, specifications, and design change communication.",
+    ],
+    atsTips: [
+      "Use role-aligned terms naturally, including CAD, mechanical design, manufacturing support, and quality improvement.",
+      "List key software and engineering tools by full names where possible for better ATS matching.",
+      "Include both design and production-oriented keywords to reflect full engineering workflow coverage.",
+      "Keep section labels conventional so ATS can parse technical skills and project outcomes accurately.",
+    ],
+    writingTips: [
+      "Describe engineering decisions with constraints, method, and measurable result.",
+      "Show how your work improved manufacturability, performance, reliability, or cost efficiency.",
+      "Use concise bullets that balance technical precision with practical business impact.",
+      "Avoid dense jargon-only phrasing and keep accomplishments understandable to cross-functional reviewers.",
+    ],
+    faq: [
+      {
+        question: "What should mechanical engineers include besides CAD software on a resume?",
+        answer:
+          "Include project outcomes, manufacturing collaboration, testing results, and quality improvements to show broader engineering impact.",
+      },
+      {
+        question: "How can I show engineering project ownership clearly?",
+        answer:
+          "State the project goal, your technical contribution, and the measurable outcome from your design or process decisions.",
+      },
+      {
+        question: "Are technical documentation skills important for ATS matching?",
+        answer:
+          "Yes. Many roles screen for documentation, specification writing, and communication of design changes.",
+      },
+    ],
+    relatedTemplateIds: ["t064", "t061", "t060"],
+    isPublished: true,
+  },
+  {
+    templateId: "t074",
+    slug: "supply-chain-manager-resume",
+    seoTitle: "Supply Chain Manager Resume Template | StudiosisLab",
+    seoDescription:
+      "Supply chain manager resume template focused on logistics, procurement, inventory management, vendor coordination, forecasting, and supply chain optimization.",
+    h1: "Supply Chain Manager Resume Template",
+    intro:
+      "Supply chain manager resumes need to show how operational decisions improve flow, cost, and reliability. This template helps you present logistics leadership, procurement strategy, and inventory optimization in language ATS systems and hiring teams can evaluate quickly.",
+    bestFor: [
+      "Supply chain managers overseeing logistics, procurement, and inventory planning across operations.",
+      "Professionals managing vendor performance, fulfillment consistency, and cost optimization initiatives.",
+      "Candidates responsible for forecasting accuracy and cross-functional supply coordination.",
+      "Operations leaders moving into end-to-end supply chain management roles.",
+    ],
+    whatToInclude: [
+      "A summary with supply chain scope, industry context, and core optimization strengths.",
+      "Logistics and distribution outcomes tied to delivery reliability and service-level performance.",
+      "Procurement and vendor coordination work including sourcing strategy and supplier management.",
+      "Inventory management responsibilities focused on stock efficiency, turnover, and availability.",
+      "Forecasting and planning contributions that improved supply chain consistency and operational decisions.",
+    ],
+    atsTips: [
+      "Use role-specific language naturally, including logistics, procurement, inventory management, and supply chain optimization.",
+      "Include forecasting and vendor management terms from target job descriptions when relevant.",
+      "Use clear section headings so ATS can parse operations achievements and tool proficiency accurately.",
+      "Support keyword usage with measurable outcomes such as lead-time, cost, or service-level improvements.",
+    ],
+    writingTips: [
+      "Show how your decisions impacted cost, lead times, inventory balance, or fulfillment reliability.",
+      "Use concise bullets with baseline challenge, action taken, and operational result.",
+      "Highlight collaboration across procurement, warehouse, finance, and planning stakeholders.",
+      "Avoid generic operations wording and focus on measurable supply chain improvements.",
+    ],
+    faq: [
+      {
+        question: "What metrics are most useful on a supply chain manager resume?",
+        answer:
+          "Lead-time reduction, inventory turns, service-level performance, and cost optimization outcomes are usually the most useful metrics.",
+      },
+      {
+        question: "Should I include vendor management responsibilities explicitly?",
+        answer:
+          "Yes. Supplier performance, sourcing coordination, and relationship management are core parts of many supply chain roles.",
+      },
+      {
+        question: "How can I make a supply chain resume ATS-friendly?",
+        answer:
+          "Use standard headings and include job-aligned terms like logistics, procurement, forecasting, and inventory optimization in context.",
+      },
+    ],
+    relatedTemplateIds: ["t061", "t049", "t064"],
+    isPublished: true,
+  },
 ];

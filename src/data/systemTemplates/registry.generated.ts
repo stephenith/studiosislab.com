@@ -493,6 +493,41 @@ export const SYSTEM_TEMPLATES: SystemTemplate[] = [
     thumbnail: "/templates/t069.png",
     load: async () => (await import("../template-json/t069.json")).default,
   },
+  {
+    id: "t070",
+    name: "Cybersecurity Analyst Resume",
+    tags: ["cybersecurity analyst","information security","threat detection","incident response","vulnerability management","network security","risk assessment","security operations center","SOC analyst","compliance","penetration testing","security monitoring","cyber defense","security analyst","resume"],
+    thumbnail: "/templates/t070.png",
+    load: async () => (await import("../template-json/t070.json")).default,
+  },
+  {
+    id: "t071",
+    name: "Business Development Manager Resume",
+    tags: ["business development manager","business development","lead generation","client acquisition","sales strategy","revenue growth","partnership development","account management","B2B sales","market research","negotiation","relationship management","pipeline management","business growth","resume"],
+    thumbnail: "/templates/t071.png",
+    load: async () => (await import("../template-json/t071.json")).default,
+  },
+  {
+    id: "t072",
+    name: "Customer Support Representative Resume",
+    tags: ["customer support representative","customer service","customer support","ticket resolution","CRM","call center","help desk","customer satisfaction","problem solving","communication skills","technical support","client assistance","issue resolution","customer experience","resume"],
+    thumbnail: "/templates/t072.png",
+    load: async () => (await import("../template-json/t072.json")).default,
+  },
+  {
+    id: "t073",
+    name: "Mechanical Engineer Resume",
+    tags: ["mechanical engineer","mechanical engineering","product design","manufacturing","CAD design","solidworks","autocad","engineering projects","quality assurance","process improvement","technical documentation","production engineering","problem solving","engineering resume","resume"],
+    thumbnail: "/templates/t073.png",
+    load: async () => (await import("../template-json/t073.json")).default,
+  },
+  {
+    id: "t074",
+    name: "Supply Chain Manager Resume",
+    tags: ["supply chain manager","supply chain","logistics management","inventory management","procurement","vendor management","operations management","warehouse management","demand planning","forecasting","distribution","supply chain optimization","inventory control","logistics","resume"],
+    thumbnail: "/templates/t074.png",
+    load: async () => (await import("../template-json/t074.json")).default,
+  },
 ];
 
 export const SYSTEM_TEMPLATE_IDS = SYSTEM_TEMPLATES.map((template) => template.id);

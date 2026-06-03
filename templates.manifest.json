@@ -622,7 +622,53 @@
                 "jsonPath": "src/data/template-json/t069.json",
                 "status": "published",
                 "tags": ["occupational therapist", "occupational therapy", "patient rehabilitation", "therapy services", "treatment planning", "patient assessment", "healthcare", "clinical care", "adaptive equipment", "mobility training", "activities of daily living", "rehabilitation therapy", "patient recovery", "medical resume", "resume"]
+              },
+              {
+                "id": "t070",
+                "title": "Cybersecurity Analyst Resume",
+                "categoryId": "it-software",
+                "thumbnailPath": "/templates/t070.png",
+                "jsonPath": "src/data/template-json/t070.json",
+                "status": "published",
+                "tags": ["cybersecurity analyst", "information security", "threat detection", "incident response", "vulnerability management", "network security", "risk assessment", "security operations center", "SOC analyst", "compliance", "penetration testing", "security monitoring", "cyber defense", "security analyst", "resume"]
+              },
+              {
+                "id": "t071",
+                "title": "Business Development Manager Resume",
+                "categoryId": "business-management",
+                "thumbnailPath": "/templates/t071.png",
+                "jsonPath": "src/data/template-json/t071.json",
+                "status": "published",
+                "tags": ["business development manager", "business development", "lead generation", "client acquisition", "sales strategy", "revenue growth", "partnership development", "account management", "B2B sales", "market research", "negotiation", "relationship management", "pipeline management", "business growth", "resume"]
+              },
+              {
+                "id": "t072",
+                "title": "Customer Support Representative Resume",
+                "categoryId": "customer-service-administration",
+                "thumbnailPath": "/templates/t072.png",
+                "jsonPath": "src/data/template-json/t072.json",
+                "status": "published",
+                "tags": ["customer support representative", "customer service", "customer support", "ticket resolution", "CRM", "call center", "help desk", "customer satisfaction", "problem solving", "communication skills", "technical support", "client assistance", "issue resolution", "customer experience", "resume"]
+              },
+              {
+                "id": "t073",
+                "title": "Mechanical Engineer Resume",
+                "categoryId": "engineering",
+                "thumbnailPath": "/templates/t073.png",
+                "jsonPath": "src/data/template-json/t073.json",
+                "status": "published",
+                "tags": ["mechanical engineer", "mechanical engineering", "product design", "manufacturing", "CAD design", "solidworks", "autocad", "engineering projects", "quality assurance", "process improvement", "technical documentation", "production engineering", "problem solving", "engineering resume", "resume"]
+              },
+              {
+                "id": "t074",
+                "title": "Supply Chain Manager Resume",
+                "categoryId": "logistics-operations",
+                "thumbnailPath": "/templates/t074.png",
+                "jsonPath": "src/data/template-json/t074.json",
+                "status": "published",
+                "tags": ["supply chain manager", "supply chain", "logistics management", "inventory management", "procurement", "vendor management", "operations management", "warehouse management", "demand planning", "forecasting", "distribution", "supply chain optimization", "inventory control", "logistics", "resume"]
               }
+
 
   ]
 }

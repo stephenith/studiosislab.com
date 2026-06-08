@@ -9,6 +9,7 @@ import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/lib/useAuthUser";
 import type { EsignDocument } from "@/lib/esign";
 import { removeBackgroundFromDataUrl } from "@/lib/esignRemoveBackground";
+import { trackEvent } from "@/lib/analytics";
 import SignatureToolsPanel from "@/components/esign/SignatureToolsPanel";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 
@@ -867,6 +868,7 @@ export default function EsignViewerClient({
   const initialLoadDoneRef = useRef(false);
   const insertingRef = useRef(false);
   const clientSignatureInsertedRef = useRef(false);
+  const completionTrackedRef = useRef(false);
   const pendingRecipientInsertRef = useRef(false);
   const lastMobileSignatureRef = useRef<string | null>(null);
   signaturesRef.current = signatures;
@@ -1468,6 +1470,10 @@ export default function EsignViewerClient({
       if (!res.ok || !json?.ok) {
         alert(json?.error ?? "Failed to complete signing.");
         return;
+      }
+      if (!completionTrackedRef.current) {
+        trackEvent("esign_completion_success", { surface: "esign" });
+        completionTrackedRef.current = true;
       }
       setRecipientComplete(true);
       setShowCompletionPopup(true);

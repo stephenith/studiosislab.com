@@ -15,6 +15,7 @@ export type AnalyticsEventName =
   | "export_success"
   | "esign_upload_start"
   | "esign_upload_success"
+  | "esign_completion_success"
   | "verify_submit"
   | "verify_success"
   | "blog_article_click"

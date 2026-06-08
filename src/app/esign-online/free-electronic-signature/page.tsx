@@ -161,6 +161,14 @@ export default function FreeElectronicSignaturePage() {
             </li>
             <li>
               <Link
+                href="/esign-online/electronic-signature-vs-paper-signature"
+                className="font-medium text-zinc-900 underline"
+              >
+                Electronic Signature vs Paper Signature
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/esign-online/e-sign-for-small-business"
                 className="font-medium text-zinc-900 underline"
               >

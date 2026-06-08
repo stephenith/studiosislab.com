@@ -117,6 +117,37 @@ export default function EsignOnlineLandingPage() {
           </SectionBlock>
         </section>
 
+        <section className="mt-6 grid gap-6 md:grid-cols-2">
+          <SectionBlock title="Send documents for signature">
+            <p>
+              Need a sender-focused workflow? Learn how to prepare, share, and track signature requests
+              without print-scan delays.
+            </p>
+            <p>
+              <Link
+                href="/esign-online/send-documents-for-signature"
+                className="font-medium text-zinc-900 underline"
+              >
+                Visit Send Documents for Signature Online
+              </Link>
+            </p>
+          </SectionBlock>
+
+          <SectionBlock title="Electronic signature vs paper signature">
+            <p>
+              Compare practical tradeoffs between paper signing and digital workflows for modern teams.
+            </p>
+            <p>
+              <Link
+                href="/esign-online/electronic-signature-vs-paper-signature"
+                className="font-medium text-zinc-900 underline"
+              >
+                Visit Electronic Signature vs Paper Signature
+              </Link>
+            </p>
+          </SectionBlock>
+        </section>
+
         <section className="mt-10 grid gap-6 md:grid-cols-2">
           <SectionBlock title="Benefits">
             <ul className="list-disc space-y-2 pl-5">

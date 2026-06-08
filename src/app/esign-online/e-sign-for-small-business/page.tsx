@@ -136,6 +136,14 @@ export default function EsignForSmallBusinessPage() {
               </Link>
             </li>
             <li>
+              <Link
+                href="/blog/improving-document-turnaround-time-with-digital-signing"
+                className="font-medium text-zinc-900 underline"
+              >
+                How Digital Signing Can Improve Document Turnaround Time
+              </Link>
+            </li>
+            <li>
               <Link href="/security" className="font-medium text-zinc-900 underline">
                 Security information
               </Link>

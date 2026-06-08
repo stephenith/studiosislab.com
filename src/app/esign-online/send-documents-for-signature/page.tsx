@@ -5,44 +5,44 @@ import SectionBlock from "@/components/legal/SectionBlock";
 import EsignOnlineIllustration from "@/components/marketing/illustrations/EsignOnlineIllustration";
 
 export const metadata: Metadata = {
-  title: "Sign PDF Online | StudiosisLab",
+  title: "Send Documents for Signature Online | StudiosisLab",
   description:
-    "Sign PDF files online with a simple workflow for upload, signature prep, and document completion in StudiosisLab.",
+    "Send documents for signature online with StudiosisLab. Prepare PDFs, guide recipients through signing, and manage document signing workflows from one place.",
   alternates: {
-    canonical: "/esign-online/sign-pdf-online",
+    canonical: "/esign-online/send-documents-for-signature",
   },
 };
 
 const faqItems = [
   {
-    question: "Can I sign a PDF from my browser without installing software?",
+    question: "Can I send documents for signature without printing and scanning?",
     answer:
-      "Yes. You can upload a PDF and complete signature steps directly in the browser workflow.",
+      "Yes. You can upload a PDF, prepare signature steps, and move recipients through the workflow without print-scan loops.",
   },
   {
-    question: "Do I need to create an account before signing a PDF?",
+    question: "Is this useful for teams that collect approvals frequently?",
     answer:
-      "Account sign-in helps keep document actions tied to your workspace so you can reopen and continue later.",
+      "Yes. It is useful for recurring approvals, onboarding packets, service agreements, and internal signoff workflows.",
   },
   {
-    question: "Can I return to a draft PDF after closing the page?",
+    question: "How can I keep track of signing progress after sending?",
     answer:
-      "Yes. Draft agreements can be reopened from your tools workspace when they are still active.",
+      "Workflow visibility helps you monitor draft and active agreements so you can follow up with better timing.",
   },
   {
-    question: "Where can I review document handling practices?",
+    question: "Where can I review security details for document handling?",
     answer:
-      "You can review StudiosisLab security details on the Security page for current handling and access practices.",
+      "For current trust details, review the Security page for information about account-based access and handling practices.",
   },
 ] as const;
 
 const pageSchema = {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  name: "Sign PDF Online",
+  name: "Send Documents for Signature Online",
   description:
-    "Sign PDF files online with a simple workflow for upload, signature prep, and document completion in StudiosisLab.",
-  url: "https://studiosislab.com/esign-online/sign-pdf-online",
+    "Send documents for signature online with StudiosisLab. Prepare PDFs, guide recipients through signing, and manage document signing workflows from one place.",
+  url: "https://studiosislab.com/esign-online/send-documents-for-signature",
   isPartOf: {
     "@type": "WebSite",
     name: "StudiosisLab",
@@ -63,7 +63,7 @@ const faqSchema = {
   })),
 };
 
-export default function SignPdfOnlinePage() {
+export default function SendDocumentsForSignaturePage() {
   return (
     <MarketingPageShell>
       <article className="mx-auto w-full max-w-4xl pt-2 text-zinc-900 sm:pt-4">
@@ -72,11 +72,11 @@ export default function SignPdfOnlinePage() {
 
         <section className="text-center">
           <h1 className="font-heading text-3xl font-semibold tracking-tight md:text-5xl">
-            Sign PDF Online
+            Send Documents for Signature Online
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600">
-            Need to sign a PDF quickly? StudiosisLab gives you a focused browser workflow to upload a file,
-            place signatures, and keep document progress organized in one place.
+            Send signature-ready documents without printing, scanning, or chasing scattered email threads.
+            StudiosisLab helps you prepare PDFs, share signing steps with recipients, and keep progress visible.
           </p>
         </section>
 
@@ -87,19 +87,33 @@ export default function SignPdfOnlinePage() {
         <section className="mt-10 grid gap-6 md:grid-cols-2">
           <SectionBlock title="Benefits">
             <ul className="list-disc space-y-2 pl-5">
-              <li>Sign PDF files without switching between multiple apps.</li>
-              <li>Keep active agreements visible in a single workflow view.</li>
-              <li>Reduce delays caused by manual back-and-forth handoffs.</li>
-              <li>Continue drafts later when a document needs updates.</li>
+              <li>Send documents from one browser workflow instead of fragmented tools.</li>
+              <li>Reduce manual follow-ups with clearer signing progress visibility.</li>
+              <li>Keep draft and in-progress agreements in one organized workspace.</li>
+              <li>Support repeatable signature collection across recurring workflows.</li>
             </ul>
           </SectionBlock>
 
-          <SectionBlock title="How it works">
+          <SectionBlock title="How the workflow works">
             <ol className="list-decimal space-y-2 pl-5">
-              <li>Upload your PDF to start a signing flow.</li>
-              <li>Prepare fields and signature steps for the document.</li>
-              <li>Complete signing and track progress from the tools workspace.</li>
+              <li>Upload the PDF that needs signatures.</li>
+              <li>Prepare signature steps and document details.</li>
+              <li>Share and track agreement progress until completion.</li>
             </ol>
+          </SectionBlock>
+        </section>
+
+        <section className="mt-6">
+          <SectionBlock title="When this is useful">
+            <p>
+              This workflow is useful when your team regularly sends agreements for client approvals,
+              onboarding documents, vendor paperwork, or internal signoffs. It is especially practical for
+              remote teams that need clear handoffs and faster document turnaround.
+            </p>
+            <p>
+              If your process currently depends on attachments and reminder emails, centralizing signature
+              steps can reduce delays and version confusion.
+            </p>
           </SectionBlock>
         </section>
 
@@ -118,19 +132,13 @@ export default function SignPdfOnlinePage() {
           <h2 className="font-heading text-xl font-semibold tracking-tight text-zinc-900">Related reading</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-zinc-700 sm:text-base">
             <li>
-              <Link
-                href="/esign-online"
-                className="font-medium text-zinc-900 underline"
-              >
+              <Link href="/esign-online" className="font-medium text-zinc-900 underline">
                 E-Sign Documents Online hub
               </Link>
             </li>
             <li>
-              <Link
-                href="/esign-online/send-documents-for-signature"
-                className="font-medium text-zinc-900 underline"
-              >
-                Send Documents for Signature Online
+              <Link href="/esign-online/sign-pdf-online" className="font-medium text-zinc-900 underline">
+                Sign PDF Online
               </Link>
             </li>
             <li>
@@ -142,14 +150,6 @@ export default function SignPdfOnlinePage() {
               </Link>
             </li>
             <li>
-              <Link
-                href="/blog/how-online-esign-workflows-save-time-for-small-teams"
-                className="font-medium text-zinc-900 underline"
-              >
-                How Online E-Sign Workflows Save Time for Small Teams
-              </Link>
-            </li>
-            <li>
               <Link href="/security" className="font-medium text-zinc-900 underline">
                 Security information
               </Link>
@@ -158,9 +158,11 @@ export default function SignPdfOnlinePage() {
         </section>
 
         <section className="mt-8 rounded-2xl border border-zinc-200/80 bg-white/90 p-6 text-center shadow-sm">
-          <h2 className="font-heading text-2xl font-semibold tracking-tight">Start signing your PDF</h2>
+          <h2 className="font-heading text-2xl font-semibold tracking-tight">
+            Start sending documents for signature
+          </h2>
           <p className="mt-2 text-sm text-zinc-600">
-            Upload your file and move from draft to signed document with a practical online flow.
+            Upload your PDF, prepare signature steps, and move agreements forward with less friction.
           </p>
           <div className="mt-5">
             <Link

@@ -84,6 +84,41 @@ const RECENTS_STRIP_GRID =
 const TEMPLATE_GALLERY_GRID =
   "grid w-full grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
 
+const INITIAL_VISIBLE_TEMPLATE_COUNT = 12;
+const EAGER_TEMPLATE_COUNT = 8;
+
+function TemplateThumbnail({
+  templateId,
+  templateTitle,
+  loading,
+}: {
+  templateId: string;
+  templateTitle: string;
+  loading: "eager" | "lazy";
+}) {
+  const pngSrc = `/templates/${templateId}.png`;
+  const webpSrc = `/templates/${templateId}.webp`;
+  const [src, setSrc] = useState(webpSrc);
+
+  useEffect(() => {
+    setSrc(webpSrc);
+  }, [webpSrc]);
+
+  return (
+    <img
+      src={src}
+      alt={`${templateTitle} preview`}
+      className="h-full w-full object-cover"
+      loading={loading}
+      decoding="async"
+      fetchPriority={loading === "eager" ? "high" : "auto"}
+      onError={() => {
+        if (src !== pngSrc) setSrc(pngSrc);
+      }}
+    />
+  );
+}
+
 type RecentDoc = {
   id: string;
   title?: string;
@@ -104,6 +139,8 @@ export default function ResumeTemplatesPage() {
 
   const [queryText, setQueryText] = useState("");
   const [filterKey, setFilterKey] = useState<FilterKey>("all");
+  const [openingTemplateId, setOpeningTemplateId] = useState<string | null>(null);
+  const [showDeferredTemplates, setShowDeferredTemplates] = useState(false);
 
   const [recents, setRecents] = useState<RecentDoc[]>([]);
   const [recentsLoading, setRecentsLoading] = useState(false);
@@ -201,6 +238,21 @@ export default function ResumeTemplatesPage() {
   }, [queryText, filterKey]);
 
   const isSearching = queryText.trim().length > 0;
+  const templatesToRender = useMemo(
+    () =>
+      showDeferredTemplates
+        ? filteredTemplates
+        : filteredTemplates.slice(0, INITIAL_VISIBLE_TEMPLATE_COUNT),
+    [filteredTemplates, showDeferredTemplates]
+  );
+
+  useEffect(() => {
+    setShowDeferredTemplates(false);
+    const id = window.requestAnimationFrame(() => {
+      setShowDeferredTemplates(true);
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [filteredTemplates]);
 
   const formatUpdated = (ts: any) => {
     try {
@@ -602,32 +654,46 @@ export default function ResumeTemplatesPage() {
             </div>
           ) : (
             <div className={`${TEMPLATE_GALLERY_GRID}`}>
-              {filteredTemplates.map((template) => (
-                <button
-                  key={template.id}
-                  type="button"
-                  onClick={() => {
-                    trackEvent("template_open", {
-                      template_id: template.id,
-                      surface: "resume_hub",
-                    });
-                    router.push(`/editor/template/${template.id}`);
-                  }}
-                  className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-                >
-                  <div className={THUMB_FRAME}>
-                    <img
-                      src={`/templates/${template.id}.png`}
-                      alt={`${template.title} preview`}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="min-w-0 pt-0.5">
-                    <div className="text-sm font-semibold leading-tight text-zinc-900">{template.title}</div>
-                    <div className="mt-0.5 text-xs text-zinc-500">{template.category}</div>
-                  </div>
-                </button>
-              ))}
+              {templatesToRender.map((template, index) => {
+                const isOpening = openingTemplateId === template.id;
+                const isAnyTemplateOpening = openingTemplateId !== null;
+                const loadingMode: "eager" | "lazy" = index < EAGER_TEMPLATE_COUNT ? "eager" : "lazy";
+
+                return (
+                  <button
+                    key={template.id}
+                    type="button"
+                    disabled={isAnyTemplateOpening}
+                    onClick={() => {
+                      if (isAnyTemplateOpening) return;
+                      setOpeningTemplateId(template.id);
+                      trackEvent("template_open", {
+                        template_id: template.id,
+                        surface: "resume_hub",
+                      });
+                      router.push(`/editor/template/${template.id}`);
+                    }}
+                    className={`group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
+                      isAnyTemplateOpening ? "cursor-wait opacity-80" : ""
+                    }`}
+                  >
+                    <div className={THUMB_FRAME}>
+                      <TemplateThumbnail
+                        templateId={template.id}
+                        templateTitle={template.title}
+                        loading={loadingMode}
+                      />
+                    </div>
+                    <div className="min-w-0 pt-0.5">
+                      <div className="text-sm font-semibold leading-tight text-zinc-900">{template.title}</div>
+                      <div className="mt-0.5 text-xs text-zinc-500">{template.category}</div>
+                      {isOpening ? (
+                        <div className="mt-1 text-[11px] font-medium text-violet-600">Opening editor…</div>
+                      ) : null}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
         </section>

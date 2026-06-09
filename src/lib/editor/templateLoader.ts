@@ -23,23 +23,6 @@ export function loadTemplateJson(templateId: string): TemplateSnapshot | null {
     : { objects: [] };
 }
 
-/**
- * Normalize various snapshot shapes to { objects: any[] }.
- */
-export function normalizeToFabricJson(snap: any): { objects: any[] } {
-  if (!snap) return { objects: [] };
-  if (typeof snap === "string") {
-    try {
-      return normalizeToFabricJson(JSON.parse(snap));
-    } catch {
-      return { objects: [] };
-    }
-  }
-  if (snap?.canvas) return normalizeToFabricJson(snap.canvas);
-  if (Array.isArray(snap?.objects)) return snap;
-  return { objects: [] };
-}
-
 export interface ApplyTemplateToCanvasOptions {
   reviver?: (key: string, value: any) => any;
   finalize?: () => void;

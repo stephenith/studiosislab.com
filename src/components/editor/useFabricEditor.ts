@@ -40,7 +40,7 @@ import {
   FIT_RESIZE_DEBOUNCE_MS,
 } from "@/types/editor";
 import { initFabricCanvas, applyCanvasBackground as applyCanvasBackgroundModule } from "@/lib/editor/canvasInitializer";
-import { normalizeToFabricJson } from "@/lib/editor/templateLoader";
+import { normalizeToFabricJson } from "@/lib/editor/fabricJson";
 import { clampEffectiveZoom as clampEffectiveZoomFn } from "@/lib/editor/zoomController";
 import { addTextbox as addTextboxTool, applyTextBoxNoStretch } from "@/lib/editor/textTools";
 import { getShapeDefinitionById } from "@/data/shapes/catalog";

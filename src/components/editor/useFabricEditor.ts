@@ -84,6 +84,13 @@ function devDebug(...args: unknown[]) {
 // Ensure global Fabric defaults allow interaction unless explicitly overridden.
 (FabricNS as any).Object.prototype.selectable = true;
 (FabricNS as any).Object.prototype.evented = true;
+const fabricCustomPropsTarget = (FabricNS as any).FabricObject ?? (FabricNS as any).Object;
+if (fabricCustomPropsTarget && Array.isArray(fabricCustomPropsTarget.customProperties)) {
+  const requiredCustomProps = ["slbAssetId", "slbSource", "data", "role", "id", "name"];
+  fabricCustomPropsTarget.customProperties = Array.from(
+    new Set([...(fabricCustomPropsTarget.customProperties || []), ...requiredCustomProps])
+  );
+}
 
 function refreshCanvasOffset(canvas: any) {
   if (!canvas) return;
@@ -288,7 +295,65 @@ type LocalImageMeta = {
   slbSource?: "local" | "cloud" | "template";
 };
 
-const TEMPLATE_IMAGE_FALLBACK_SRC = "/templates/avatar-placeholder.png";
+type ResolvedLocalImageMeta = {
+  source: string;
+  assetId: string;
+  isLocalAssetRef: boolean;
+  hasAssetId: boolean;
+};
+
+function readLocalImageMeta(node: any): ResolvedLocalImageMeta {
+  const sourceCandidates = [
+    node?.slbSource,
+    node?.data?.slbSource,
+    node?.customData?.slbSource,
+    node?.metadata?.slbSource,
+  ];
+  const assetIdCandidates = [
+    node?.slbAssetId,
+    node?.data?.slbAssetId,
+    node?.customData?.slbAssetId,
+    node?.metadata?.slbAssetId,
+  ];
+
+  const source = String(
+    sourceCandidates.find((value) => String(value || "").trim().length > 0) || ""
+  )
+    .trim()
+    .toLowerCase();
+  const assetId = String(
+    assetIdCandidates.find((value) => String(value || "").trim().length > 0) || ""
+  ).trim();
+  const hasAssetId = assetId.length > 0;
+  const sourceMissing = source.length === 0;
+  const isLocalAssetRef = hasAssetId && (source === "local" || sourceMissing);
+
+  return { source, assetId, isLocalAssetRef, hasAssetId };
+}
+
+const DUPLICATE_SNAPSHOT_PROPS = [
+  "excludeFromExport",
+  "selectable",
+  "evented",
+  "role",
+  "data",
+  "id",
+  "name",
+  "slbId",
+  "slbAssetId",
+  "slbSource",
+  "isPageBg",
+  "locked",
+  "hidden",
+  "lockMovementX",
+  "lockMovementY",
+  "lockScalingX",
+  "lockScalingY",
+  "lockRotation",
+] as const;
+
+// Keep fallback on an existing asset path so sanitation never points to a missing file.
+const TEMPLATE_IMAGE_FALLBACK_SRC = "/templates/t004.png";
 
 function walkFabricLikeTree(root: any, onNode: (node: any) => void): void {
   const seen = new WeakSet<object>();
@@ -318,6 +383,17 @@ function isPortableImageSrc(src: string): boolean {
   return false;
 }
 
+function srcPrefix(src: string): string {
+  const normalized = String(src || "").trim().toLowerCase();
+  if (!normalized) return "(empty)";
+  if (normalized.startsWith("blob:")) return "blob:";
+  if (normalized.startsWith("data:")) return "data:";
+  if (normalized.startsWith("https://")) return "https://";
+  if (normalized.startsWith("http://")) return "http://";
+  if (normalized.startsWith("/")) return "/";
+  return normalized.slice(0, 24);
+}
+
 function sanitizeImageSourcesForLoad(
   payload: any,
   opts?: { stripLocalAssetFields?: boolean; fallbackSrc?: string }
@@ -330,7 +406,8 @@ function sanitizeImageSourcesForLoad(
   walkFabricLikeTree(payload, (node) => {
     if (!node || typeof node !== "object") return;
     const type = String((node as any).type || "").toLowerCase();
-    if (opts?.stripLocalAssetFields && String((node as any).slbSource || "").toLowerCase() === "local") {
+    const { source, assetId, isLocalAssetRef, hasAssetId } = readLocalImageMeta(node);
+    if (opts?.stripLocalAssetFields && source === "local") {
       delete (node as any).slbSource;
       delete (node as any).slbAssetId;
     }
@@ -342,6 +419,10 @@ function sanitizeImageSourcesForLoad(
       return;
     }
     if (src.toLowerCase().startsWith("blob:")) {
+      // Preserve hydrated local asset blobs so loadFromJSON can resolve actual uploaded images.
+      if (isLocalAssetRef) {
+        return;
+      }
       (node as any).src = fallbackSrc;
       blobCount += 1;
       return;
@@ -366,14 +447,20 @@ async function hydrateLocalImageSourcesInJson(
       return;
     }
 
-    const source = String((node as LocalImageMeta).slbSource || "").toLowerCase();
-    const assetId = String((node as LocalImageMeta).slbAssetId || "").trim();
+    const { source, assetId, isLocalAssetRef } = readLocalImageMeta(node);
     const isImage = String(node.type || "").toLowerCase() === "image";
-    if (isImage && source === "local" && assetId) {
+    if (isImage && isLocalAssetRef) {
       const blob = await getAsset(assetId);
       if (blob) {
         const localUrl = URL.createObjectURL(blob);
         node.src = localUrl;
+        // Canonicalize for downstream paths (sanitize/duplicate/save) even when metadata came from nested fields.
+        if (!(node as LocalImageMeta).slbAssetId) {
+          (node as LocalImageMeta).slbAssetId = assetId;
+        }
+        if (!(node as LocalImageMeta).slbSource && (source === "local" || !source)) {
+          (node as LocalImageMeta).slbSource = "local";
+        }
         onObjectUrlCreated?.(localUrl);
         void touchLocalAsset(assetId).catch(() => {});
       }
@@ -805,26 +892,28 @@ export function useFabricEditor({
       const srcCanvas = srcId ? pageCanvasesRef.current.get(srcId) : null;
       const id = createPageId();
       if (srcCanvas) {
-        const json = (srcCanvas as any).toJSON([
-          "excludeFromExport",
-          "selectable",
-          "evented",
-          "role",
-          "name",
-          "slbId",
-          "slbAssetId",
-          "slbSource",
-          "isPageBg",
-          "locked",
-          "hidden",
-        ]);
+        const json = (srcCanvas as any).toJSON([...DUPLICATE_SNAPSHOT_PROPS]);
         const vpt = srcCanvas.viewportTransform;
         const objects = Array.isArray((json as any)?.objects) ? (json as any).objects : [];
-        pendingPageLoadRef.current.set(id, {
-          type: "duplicate",
-          objects,
-          viewportTransform: vpt && vpt.length >= 6 ? [...vpt] : null,
+        if (!objects.length) {
+          console.warn("[duplicatePage] Source snapshot has no objects; duplicate will fall back to blank", {
+            srcId,
+            index,
+          });
+          pendingPageLoadRef.current.set(id, { type: "blank" });
+        } else {
+          pendingPageLoadRef.current.set(id, {
+            type: "duplicate",
+            snapshot: json,
+            viewportTransform: vpt && vpt.length >= 6 ? [...vpt] : null,
+          });
+        }
+      } else {
+        console.warn("[duplicatePage] Source canvas missing; duplicate will fall back to blank", {
+          srcId,
+          index,
         });
+        pendingPageLoadRef.current.set(id, { type: "blank" });
       }
       setPages((prev) => {
         const next = [...prev];
@@ -1155,6 +1244,7 @@ export function useFabricEditor({
       "selectable",
       "evented",
       "role",
+      "data",
       "name",
       "slbId",
       "slbAssetId",
@@ -1185,6 +1275,7 @@ export function useFabricEditor({
       "selectable",
       "evented",
       "role",
+      "data",
       "name",
       "slbId",
       "slbAssetId",
@@ -1210,6 +1301,7 @@ export function useFabricEditor({
         "selectable",
         "evented",
         "role",
+        "data",
         "name",
         "slbId",
         "slbAssetId",
@@ -2230,6 +2322,7 @@ export function useFabricEditor({
         "selectable",
         "evented",
         "role",
+        "data",
         "name",
         "slbId",
         "slbAssetId",
@@ -3889,90 +3982,43 @@ try {
         if (process.env.NODE_ENV !== "production") {
           devLog("[initCanvas] baseFitZoomRef reset before load (duplicate)", { pageId });
         }
-        const { objects, viewportTransform } = pending;
-        const z = getZoom();
-        const { w: pageW, h: pageH } = pageSizePxRef.current;
-        const displayW = Math.max(1, Math.round(pageW * z));
-        const displayH = Math.max(1, Math.round(pageH * z));
-        c.setDimensions({ width: displayW, height: displayH }, { backstoreOnly: false });
-        c.setViewportTransform(
-          viewportTransform && viewportTransform.length >= 6
-            ? (viewportTransform as [number, number, number, number, number, number])
-            : [z, 0, 0, z, 0, 0]
-        );
-        if (process.env.NODE_ENV !== "production") {
-          devLog("[initCanvas] loadFromJSON (duplicate)", { pageId, objectsCount: (objects?.length ?? 0) });
-        }
-        c.clear();
-        const objectsOnly = { objects: objects ?? [] };
-        const reviver = (_: any, obj: any) => {
-          const target = pageSizePxRef.current;
-          if (isPageBackgroundObject(obj, target.w, target.h)) {
-            applyPageBackgroundProps(
-              obj,
-              target.w,
-              target.h,
-              bgColorRef.current || "#ffffff"
-            );
-          }
-        };
+        const duplicateSnapshot = pending?.snapshot;
         try {
-          const finalizeDuplicateLoad = () => {
-            const allBeforeDup = c.getObjects();
-            allBeforeDup.forEach((o: any) => {
-              ensureObjectId(o);
-              applyTextBoxNoStretch(o);
-            });
-            c.getObjects().forEach((o: any) => {
-              if (o?.type === "group" && isImageFrame(o)) {
-                o.set({
-                  selectable: true,
-                  evented: true,
-                  hasControls: true,
-                  hasBorders: true,
-                  lockMovementX: false,
-                  lockMovementY: false,
-                  subTargetCheck: false,
-                  interactive: false,
-                });
-                const nestedImg = getFrameImage(o);
-                if (nestedImg) {
-                  nestedImg.set({
-                    selectable: false,
-                    evented: false,
-                    lockMovementX: true,
-                    lockMovementY: true,
-                    lockScalingX: true,
-                    lockScalingY: true,
-                    hasBorders: false,
-                    hasControls: false,
-                  });
-                  nestedImg.setCoords?.();
-                }
-                return;
-              }
-              applyRotationDefaults(o);
-            });
+          if (!duplicateSnapshot || !Array.isArray(duplicateSnapshot.objects) || duplicateSnapshot.objects.length === 0) {
+            console.warn("[initCanvas] Duplicate snapshot missing/empty; using blank fallback", { pageId });
+            c.clear();
             ensurePageBackground(pageSizePxRef.current.w, pageSizePxRef.current.h, {
               discardSelection: true,
             });
-            c.discardActiveObject();
+            (c as any).discardActiveObject?.();
             c.requestRenderAll();
-            requestAnimationFrame(() => {
-              if (hadStoredZoomRef.current) {
-                applyZoomToCanvases(getZoom());
-              } else {
-                scheduleFitRef.current("doc-load");
-              }
-            });
-          };
-          const result = (c as any).loadFromJSON(objectsOnly, reviver);
-          if (result && typeof result.then === "function") {
-            await result;
+            const z = getZoom();
+            const { w: pageW, h: pageH } = pageSizePxRef.current;
+            const w = Math.max(1, Math.round(pageW * z));
+            const h = Math.max(1, Math.round(pageH * z));
+            c.setDimensions({ width: w, height: h }, { backstoreOnly: false });
+            (c as any).calcOffset?.();
+            applyZoomToCanvas(c, z);
+            scheduleFitRef.current("page-add");
+          } else {
+            await applySnapshotToCanvasRef.current(c, duplicateSnapshot, "page-duplicate");
           }
-          finalizeDuplicateLoad();
         } catch (err) {
-          console.error("[editor] Failed to load duplicate page JSON", err);
+          console.error("[editor] Failed to load duplicate page snapshot", err);
+          c.clear();
+          ensurePageBackground(pageSizePxRef.current.w, pageSizePxRef.current.h, {
+            discardSelection: true,
+          });
+          (c as any).discardActiveObject?.();
+          c.requestRenderAll();
+          const z = getZoom();
+          const { w: pageW, h: pageH } = pageSizePxRef.current;
+          const w = Math.max(1, Math.round(pageW * z));
+          const h = Math.max(1, Math.round(pageH * z));
+          c.setDimensions({ width: w, height: h }, { backstoreOnly: false });
+          (c as any).calcOffset?.();
+          applyZoomToCanvas(c, z);
+          scheduleFitRef.current("page-add");
         }
       } else if (pending?.type === "doc-load") {
         baseFitZoomRef.current = null;
@@ -4461,18 +4507,23 @@ try {
       const c = getCanvas();
       if (!c || !frame || !isImageFrame(frame)) return;
 
-      try {
-        const url = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
+      if (process.env.NODE_ENV !== "production") {
+        devWarn(
+          "[addImageToFrame] Legacy file path used. Prefer local-asset pipeline for user uploads."
+        );
+      }
 
-        const img = await FabricImage.fromURL(url);
+      // Avoid data: URL creation here. This path should be migrated to assetId-based local uploads.
+      const objectUrl = URL.createObjectURL(file);
+      try {
+        const img = await FabricImage.fromURL(objectUrl);
         attachImageToFrame(frame, img);
       } catch (err) {
         console.error("[addImageToFrame]", err);
+      } finally {
+        try {
+          URL.revokeObjectURL(objectUrl);
+        } catch {}
       }
     },
     [attachImageToFrame]
@@ -4505,10 +4556,22 @@ try {
         });
         if (meta?.slbAssetId) {
           img.set("slbAssetId", meta.slbAssetId);
+          (img as any).slbAssetId = meta.slbAssetId;
           void touchLocalAsset(meta.slbAssetId).catch(() => {});
         }
         if (meta?.slbSource) {
           img.set("slbSource", meta.slbSource);
+          (img as any).slbSource = meta.slbSource;
+        }
+        if (meta?.slbAssetId || meta?.slbSource) {
+          const existingData = ((img as any).data && typeof (img as any).data === "object")
+            ? (img as any).data
+            : {};
+          (img as any).data = {
+            ...existingData,
+            ...(meta?.slbAssetId ? { slbAssetId: meta.slbAssetId } : {}),
+            ...(meta?.slbSource ? { slbSource: meta.slbSource } : {}),
+          };
         }
 
         const id = ensureObjectId(img);
@@ -4533,6 +4596,11 @@ try {
 
   const addImage = useCallback(
     (file: File) => {
+      if (process.env.NODE_ENV !== "production") {
+        devWarn(
+          "[addImage] Legacy API called. Route user uploads through processLocalImageFiles to preserve slbAssetId/slbSource and avoid data URL save skips."
+        );
+      }
       const reader = new FileReader();
       reader.onload = async () => {
         try {

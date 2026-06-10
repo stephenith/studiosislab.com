@@ -1643,9 +1643,30 @@ export default function EditorShell({
         type="file"
         accept="image/*"
         className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) editor.addImage(file);
+        onChange={async (e) => {
+          const files = e.target.files;
+          if (!files?.length) {
+            e.target.value = "";
+            return;
+          }
+
+          const uid = auth.currentUser?.uid;
+          if (!uid) {
+            console.warn("[editor-upload] user session not ready; ignoring local image upload");
+            e.target.value = "";
+            return;
+          }
+
+          try {
+            await processLocalImageFiles({
+              files: Array.from(files),
+              uid,
+              docId: String(editor?.docId || "draft"),
+              addImageFromUrl: editor?.addImageFromUrl,
+            });
+          } finally {
+            e.target.value = "";
+          }
         }}
       />
     </div>

@@ -623,31 +623,14 @@ export default function ResumeTemplatesPage() {
           </section>
         )}
 
-        {!isSearching && isGuest && (
-          <section className="mx-auto mt-12 w-full max-w-[16rem] sm:mt-14" aria-label="Create blank resume">
-            <button
-              type="button"
-              onClick={() => {
-                trackEvent("resume_create_blank", { surface: "resume_hub_guest" });
-                router.push(getLoginPathWithNext("/editor/new"));
-              }}
-              className="group flex w-full flex-col gap-1.5 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-            >
-              <div
-                className={`${THUMB_FRAME} flex items-center justify-center border border-dashed border-zinc-300/90 bg-zinc-50/80 text-2xl font-semibold text-zinc-400 transition-colors group-hover:border-zinc-400 group-hover:text-zinc-600 sm:text-3xl`}
-              >
-                +
-              </div>
-              <div className="min-w-0 pt-0.5">
-                <div className="text-xs font-semibold leading-tight text-zinc-900 sm:text-sm">Create blank</div>
-                <div className="mt-0.5 text-[11px] text-zinc-500 sm:text-xs">Sign in to start from a clean canvas.</div>
-              </div>
-            </button>
-          </section>
-        )}
-
         <section
-          className={`${isSearching ? "mt-10 sm:mt-12" : "mt-12 sm:mt-14"}`}
+          className={`${
+            isSearching
+              ? "mt-10 sm:mt-12"
+              : isGuest
+                ? "mt-8 sm:mt-10"
+                : "mt-12 sm:mt-14"
+          }`}
           aria-label="Resume templates"
         >
           {filteredTemplates.length === 0 ? (
@@ -715,6 +698,29 @@ export default function ResumeTemplatesPage() {
             </div>
           )}
         </section>
+
+        {!isSearching && isGuest && (
+          <section className="mx-auto mt-8 w-full max-w-[16rem] sm:mt-10" aria-label="Create blank resume">
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("resume_create_blank", { surface: "resume_hub_guest" });
+                router.push(getLoginPathWithNext("/editor/new"));
+              }}
+              className="group flex w-full flex-col gap-1.5 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+            >
+              <div
+                className={`${THUMB_FRAME} flex items-center justify-center border border-dashed border-zinc-300/90 bg-zinc-50/80 text-2xl font-semibold text-zinc-400 transition-colors group-hover:border-zinc-400 group-hover:text-zinc-600 sm:text-3xl`}
+              >
+                +
+              </div>
+              <div className="min-w-0 pt-0.5">
+                <div className="text-xs font-semibold leading-tight text-zinc-900 sm:text-sm">Create blank</div>
+                <div className="mt-0.5 text-[11px] text-zinc-500 sm:text-xs">Sign in to start from a clean canvas.</div>
+              </div>
+            </button>
+          </section>
+        )}
 
         <footer className="mt-20 text-center text-sm text-zinc-500">
           designed and powered by Studiosis

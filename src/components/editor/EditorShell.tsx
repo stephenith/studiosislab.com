@@ -36,6 +36,11 @@ import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 import { auth, db } from "@/lib/firebase";
 import { trackEvent } from "@/lib/analytics";
+import {
+  dataTransferHasImageFiles,
+  extractImageFiles,
+  processLocalImageFiles,
+} from "@/components/editor/processLocalImageFiles";
 
 const IS_DEV = process.env.NODE_ENV !== "production";
 function devLog(...args: unknown[]) {
@@ -228,6 +233,8 @@ export default function EditorShell({
   >("select");
   const [showFrameDeleteModal, setShowFrameDeleteModal] = useState(false);
   const [showPageGrid, setShowPageGrid] = useState(false);
+  const [isDragOverViewport, setIsDragOverViewport] = useState(false);
+  const dragDepthRef = useRef(0);
 
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [resumeCreatedAt, setResumeCreatedAt] = useState<any>(null);
@@ -277,6 +284,68 @@ export default function EditorShell({
   }, [editor?.docId, editor?.docCreatedAt]);
 
   const autosaveStatus = editor.autosaveStatus;
+
+  useEffect(() => {
+    const preventWindowFileDrop = (e: DragEvent) => {
+      if (!dataTransferHasImageFiles(e.dataTransfer)) return;
+      e.preventDefault();
+    };
+    window.addEventListener("dragover", preventWindowFileDrop);
+    window.addEventListener("drop", preventWindowFileDrop);
+    return () => {
+      window.removeEventListener("dragover", preventWindowFileDrop);
+      window.removeEventListener("drop", preventWindowFileDrop);
+    };
+  }, []);
+
+  const handleViewportDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    if (!dataTransferHasImageFiles(e.dataTransfer)) return;
+    e.preventDefault();
+    dragDepthRef.current += 1;
+    setIsDragOverViewport(true);
+  }, []);
+
+  const handleViewportDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    if (!dataTransferHasImageFiles(e.dataTransfer)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+    if (!isDragOverViewport) setIsDragOverViewport(true);
+  }, [isDragOverViewport]);
+
+  const handleViewportDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    if (!dataTransferHasImageFiles(e.dataTransfer)) return;
+    e.preventDefault();
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+    if (dragDepthRef.current === 0) {
+      setIsDragOverViewport(false);
+    }
+  }, []);
+
+  const handleViewportDrop = useCallback(
+    async (e: React.DragEvent<HTMLDivElement>) => {
+      if (!dataTransferHasImageFiles(e.dataTransfer)) return;
+      e.preventDefault();
+      dragDepthRef.current = 0;
+      setIsDragOverViewport(false);
+
+      const files = extractImageFiles(e.dataTransfer.files || []);
+      if (!files.length) return;
+
+      const uid = auth.currentUser?.uid;
+      if (!uid) {
+        console.warn("[editor-drop] user session not ready; ignoring dropped files");
+        return;
+      }
+
+      await processLocalImageFiles({
+        files,
+        uid,
+        docId: String(editor?.docId || "draft"),
+        addImageFromUrl: editor?.addImageFromUrl,
+      });
+    },
+    [editor?.addImageFromUrl, editor?.docId]
+  );
 
   const handleAdComplete = useCallback(() => {
     if (!pendingExport) {
@@ -869,7 +938,18 @@ export default function EditorShell({
             ref={editor.viewportRef}
             id="slb-editor-viewport"
             className="relative flex-1 min-h-0 overflow-y-auto overflow-x-auto bg-[#ebecf0] flex flex-col"
+            onDragEnter={handleViewportDragEnter}
+            onDragOver={handleViewportDragOver}
+            onDragLeave={handleViewportDragLeave}
+            onDrop={handleViewportDrop}
           >
+            {isDragOverViewport && (
+              <div className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center bg-indigo-500/10 border-2 border-dashed border-indigo-400">
+                <div className="rounded-lg bg-white/90 px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm">
+                  Drop images here
+                </div>
+              </div>
+            )}
             <FloatingSelectionToolbar
               visible={editor.hasSelection && !editor.isRotatingObject}
               position={toolbarPosition}

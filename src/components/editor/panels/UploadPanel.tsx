@@ -4,11 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthUser } from "@/lib/useAuthUser";
 import {
   listAssets,
-  saveAsset,
   type LocalAssetRecord,
   updateLastAccess,
 } from "@/lib/localAssets";
 import { SidebarSection } from "../sidebar/SidebarSection";
+import {
+  LOCAL_ASSETS_CHANGED_EVENT,
+  processLocalImageFiles,
+} from "../processLocalImageFiles";
 
 export type UploadEditorApi = {
   docId?: string | null;
@@ -66,6 +69,16 @@ export function UploadPanel({ onClose, editor }: UploadPanelProps) {
   }, [loadAssets]);
 
   useEffect(() => {
+    const onAssetsChanged = () => {
+      void loadAssets();
+    };
+    window.addEventListener(LOCAL_ASSETS_CHANGED_EVENT, onAssetsChanged);
+    return () => {
+      window.removeEventListener(LOCAL_ASSETS_CHANGED_EVENT, onAssetsChanged);
+    };
+  }, [loadAssets]);
+
+  useEffect(() => {
     const next = new Map<string, string>();
     const thumbs: AssetThumb[] = assets.map((asset) => {
       const existing = thumbUrlsRef.current.get(asset.assetId);
@@ -104,38 +117,14 @@ export function UploadPanel({ onClose, editor }: UploadPanelProps) {
 
     setUploading(true);
     setError(null);
-    let failedCount = 0;
 
-    const tasks = Array.from(files)
-      .filter((file) => {
-        const mime = (file.type || "").toLowerCase();
-        if (mime.startsWith("image/")) return true;
-        return /\.(png|jpe?g|webp|gif|bmp|svg|heic|heif)$/i.test(file.name || "");
-      })
-      .map(async (file) => {
-        const localUrl = URL.createObjectURL(file);
+    const { failedCount } = await processLocalImageFiles({
+      files: Array.from(files),
+      uid: user.uid,
+      docId: String(editor?.docId || "draft"),
+      addImageFromUrl: editor?.addImageFromUrl,
+    });
 
-        try {
-          const assetId = await saveAsset({
-            uid: user.uid,
-            docId: String(editor?.docId || "draft"),
-            file,
-          });
-          if (editor?.addImageFromUrl) {
-            await editor.addImageFromUrl(localUrl, {
-              slbAssetId: assetId,
-              slbSource: "local",
-            });
-          }
-        } catch (err) {
-          console.error("[UploadPanel] upload failed", err);
-          failedCount += 1;
-        } finally {
-          URL.revokeObjectURL(localUrl);
-        }
-      });
-
-    await Promise.allSettled(tasks);
     await loadAssets();
     if (failedCount > 0) {
       setError("Some uploads failed. Please retry.");

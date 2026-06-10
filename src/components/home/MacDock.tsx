@@ -176,6 +176,10 @@ export default function MacDock() {
       if (destination) {
         trackEvent("dock_click", { item_id: item.id, destination });
       }
+      if (item.id === "resume") {
+        router.push("/resume");
+        return;
+      }
       if (item.id === "tools") {
         router.push("/dashboard/login");
         return;
@@ -233,11 +237,13 @@ export default function MacDock() {
         {ITEMS.map((item, index) => {
           const [scale, lift] = scaleAndLiftForIndex(index, hoverIndex);
           const isHovered = hoverIndex != null && index === hoverIndex;
+          const isResumeItem = item.id === "resume";
+          const isDisabled = isResumeItem ? false : !authReady;
           return (
             <button
               key={item.id}
               type="button"
-              disabled={!authReady}
+              disabled={isDisabled}
               onClick={() => void handleItem(item)}
               className="flex min-w-0 flex-col items-center gap-0.5 pb-0.5 text-[10px] text-zinc-200 disabled:pointer-events-none disabled:opacity-50 sm:gap-0.5 sm:pb-0.5"
             >

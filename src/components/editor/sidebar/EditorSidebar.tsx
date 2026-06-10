@@ -12,6 +12,7 @@ import { GraphicsPanel } from "../panels/GraphicsPanel";
 import { QRPanel } from "../panels/QRPanel";
 import { DrawPanel } from "../panels/DrawPanel";
 import { UploadPanel } from "../panels/UploadPanel";
+import { GuidePanel } from "../panels/GuidePanel";
 
 export type PanelId =
   | "templates"
@@ -24,6 +25,7 @@ export type PanelId =
   | "qr"
   | "draw"
   | "upload"
+  | "guide"
   | null;
 
 export type EditorSidebarApi = {
@@ -185,6 +187,17 @@ export function EditorSidebar({ editor }: EditorSidebarProps) {
           active={openPanel === "upload"}
           onClick={() => toggle("upload")}
         />
+        <SidebarIcon
+          icon={
+            <svg viewBox="0 0 24 24" className={iconClass} fill="none" stroke="currentColor" strokeWidth="1.8">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 16v-4m0-3h.01" strokeLinecap="round" />
+            </svg>
+          }
+          label="Guide"
+          active={openPanel === "guide"}
+          onClick={() => toggle("guide")}
+        />
       </div>
 
       {/* Sliding panel */}
@@ -203,6 +216,7 @@ export function EditorSidebar({ editor }: EditorSidebarProps) {
           {openPanel === "qr" && <QRPanel onClose={closePanel} editor={editor} />}
           {openPanel === "draw" && <DrawPanel onClose={closePanel} editor={editor} />}
           {openPanel === "upload" && <UploadPanel onClose={closePanel} editor={editor} />}
+          {openPanel === "guide" && <GuidePanel onClose={closePanel} />}
         </div>
       )}
     </div>

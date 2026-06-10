@@ -20,7 +20,7 @@ import {
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/useAuth";
 import { trackEvent } from "@/lib/analytics";
-import { getLoginRedirectUrl } from "@/lib/safeNextPath";
+import { isSafeInternalNextPath } from "@/lib/safeNextPath";
 
 import NoiseBackground from "@/components/home/NoiseBackground";
 import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
@@ -136,6 +136,7 @@ type RecentDoc = {
 export default function ResumeTemplatesPage() {
   const router = useRouter();
   const { user, authReady } = useAuth();
+  const isGuest = authReady && !user;
 
   const [queryText, setQueryText] = useState("");
   const [filterKey, setFilterKey] = useState<FilterKey>("all");
@@ -146,18 +147,16 @@ export default function ResumeTemplatesPage() {
   const [recentsLoading, setRecentsLoading] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!authReady) return;
-    if (!user) {
-      router.replace(getLoginRedirectUrl());
-    }
-  }, [authReady, user, router]);
-
   // Load recents
   useEffect(() => {
     let alive = true;
     const run = async () => {
-      if (!user) return;
+      if (!authReady || !user) {
+        if (!alive) return;
+        setRecents([]);
+        setRecentsLoading(false);
+        return;
+      }
       try {
         if (!alive) return;
         setRecentsLoading(true);
@@ -191,7 +190,7 @@ export default function ResumeTemplatesPage() {
     return () => {
       alive = false;
     };
-  }, [user]);
+  }, [authReady, user]);
 
   const filteredTemplates = useMemo(() => {
     const q = normalizeSearchText(queryText);
@@ -298,6 +297,11 @@ export default function ResumeTemplatesPage() {
     setFilterKey("all");
   }, []);
 
+  const getLoginPathWithNext = useCallback((nextPath: string) => {
+    if (!isSafeInternalNextPath(nextPath)) return "/login";
+    return `/login?next=${encodeURIComponent(nextPath)}`;
+  }, []);
+
   if (!authReady) {
     return (
       <main className="relative min-h-dvh w-full bg-white">
@@ -308,24 +312,6 @@ export default function ResumeTemplatesPage() {
             aria-hidden
           />
           <p className="mt-4 text-sm text-zinc-600">Loading…</p>
-        </div>
-      </main>
-    );
-  }
-
-  if (!user) {
-    return (
-      <main className="relative min-h-dvh w-full bg-white">
-        <NoiseBackground />
-        <div className="relative z-10 flex min-h-dvh flex-col items-center justify-center px-4">
-          <div
-            className="h-8 w-8 rounded-full border-2 border-zinc-200 border-t-violet-600 animate-spin"
-            aria-hidden
-          />
-          <p className="mt-4 text-center text-sm font-medium text-zinc-800">Redirecting to sign in…</p>
-          <p className="mt-2 max-w-sm text-center text-xs text-zinc-500">
-            Sign in with Google to use the resume hub.
-          </p>
         </div>
       </main>
     );
@@ -355,6 +341,11 @@ export default function ResumeTemplatesPage() {
           <p className="mx-auto mt-4 max-w-lg text-sm text-zinc-600 sm:text-base">
             Create, edit, and manage resumes in one place.
           </p>
+          {isGuest ? (
+            <p className="mx-auto mt-3 max-w-lg text-xs text-zinc-500 sm:text-sm">
+              Sign in to save and edit resumes.
+            </p>
+          ) : null}
         </header>
 
         <div className="mx-auto mt-10 flex w-full max-w-2xl flex-col items-center gap-3 sm:mt-12 sm:gap-3.5">
@@ -395,7 +386,7 @@ export default function ResumeTemplatesPage() {
           </div>
         </div>
 
-        {!isSearching && (
+        {!isSearching && !!user && (
           <div className="mt-12 flex items-center justify-between gap-3 sm:mt-14">
             <h2 className="text-lg font-semibold tracking-tight">Recent resumes</h2>
             <button
@@ -408,7 +399,7 @@ export default function ResumeTemplatesPage() {
           </div>
         )}
 
-        {!isSearching && (
+        {!isSearching && !!user && (
           <section
             className={`${RECENTS_STRIP_GRID} mx-auto mt-8 max-w-[60rem] sm:mt-10`}
             aria-label="Recent resumes and create blank"
@@ -418,7 +409,7 @@ export default function ResumeTemplatesPage() {
               type="button"
               onClick={() => {
                 trackEvent("resume_create_blank", { surface: "resume_hub" });
-                router.push("/editor/new");
+                  router.push("/editor/new");
               }}
               className="group flex w-full flex-col gap-1.5 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
             >
@@ -632,6 +623,29 @@ export default function ResumeTemplatesPage() {
           </section>
         )}
 
+        {!isSearching && isGuest && (
+          <section className="mx-auto mt-12 w-full max-w-[16rem] sm:mt-14" aria-label="Create blank resume">
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("resume_create_blank", { surface: "resume_hub_guest" });
+                router.push(getLoginPathWithNext("/editor/new"));
+              }}
+              className="group flex w-full flex-col gap-1.5 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+            >
+              <div
+                className={`${THUMB_FRAME} flex items-center justify-center border border-dashed border-zinc-300/90 bg-zinc-50/80 text-2xl font-semibold text-zinc-400 transition-colors group-hover:border-zinc-400 group-hover:text-zinc-600 sm:text-3xl`}
+              >
+                +
+              </div>
+              <div className="min-w-0 pt-0.5">
+                <div className="text-xs font-semibold leading-tight text-zinc-900 sm:text-sm">Create blank</div>
+                <div className="mt-0.5 text-[11px] text-zinc-500 sm:text-xs">Sign in to start from a clean canvas.</div>
+              </div>
+            </button>
+          </section>
+        )}
+
         <section
           className={`${isSearching ? "mt-10 sm:mt-12" : "mt-12 sm:mt-14"}`}
           aria-label="Resume templates"
@@ -671,7 +685,11 @@ export default function ResumeTemplatesPage() {
                         template_id: template.id,
                         surface: "resume_hub",
                       });
-                      router.push(`/editor/template/${template.id}`);
+                      if (user) {
+                        router.push(`/editor/template/${template.id}`);
+                        return;
+                      }
+                      router.push(getLoginPathWithNext(`/editor/template/${template.id}`));
                     }}
                     className={`group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
                       isAnyTemplateOpening ? "cursor-wait opacity-80" : ""

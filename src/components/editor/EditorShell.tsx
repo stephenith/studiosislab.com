@@ -17,6 +17,9 @@ import {
   ChevronUp,
   Copy,
   Download,
+  Eye,
+  EyeOff,
+  GripVertical,
   LayoutGrid,
   Plus,
   Redo2,
@@ -374,6 +377,7 @@ export default function EditorShell({
 
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
   const [editingLayerValue, setEditingLayerValue] = useState("");
+  const [dragLayerIndex, setDragLayerIndex] = useState<number | null>(null);
 
   type InspectorSectionId = "page" | "position" | "layers";
   const [openSection, setOpenSection] = useState<InspectorSectionId | null>(null);
@@ -1456,24 +1460,84 @@ export default function EditorShell({
 
             {openSection === "layers" && (
               <div className="px-4 pb-3 space-y-2">
-                {editor.layers.map((layer) => (
+                {editor.layers.map((layer, idx) => (
                   <div
                     key={layer.id}
-                    className="flex justify-between items-center text-xs border rounded px-2 py-1"
+                    draggable
+                    onDragStart={(e) => {
+                      setDragLayerIndex(idx);
+                      e.dataTransfer.effectAllowed = "move";
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (dragLayerIndex == null || dragLayerIndex === idx) return;
+                      editor.reorderLayer?.(dragLayerIndex, idx);
+                      setDragLayerIndex(null);
+                    }}
+                    onDragEnd={() => setDragLayerIndex(null)}
+                    onClick={() => editor.selectLayerById?.(layer.id)}
+                    className={`flex justify-between items-center text-xs rounded-lg px-2.5 py-2 border cursor-pointer transition-all
+                      ${
+                        editor.selectedLayerId === layer.id
+                          ? "bg-zinc-900 text-white border-blue-400 ring-1 ring-blue-400 shadow-[0_8px_16px_rgba(0,0,0,0.35)]"
+                          : "bg-zinc-900 text-white border-zinc-700 shadow-[0_4px_10px_rgba(0,0,0,0.25)] hover:border-zinc-500 hover:shadow-[0_6px_14px_rgba(0,0,0,0.32)]"
+                      }
+                      ${layer.visible ? "" : "opacity-65"}`}
                   >
-                    <span className="truncate">{layer.displayName}</span>
-                    <div className="flex gap-1">
+                    <div className="min-w-0 flex items-center gap-2">
+                      <GripVertical size={14} className="text-white/70 shrink-0" />
+                      <span className="truncate">{layer.displayName}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
                       <button
-                        onClick={() => editor.layerBringForward(layer.id)}
-                        className="px-1"
+                        type="button"
+                        title={layer.visible ? "Hide layer" : "Show layer"}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          editor.setLayerVisible?.(layer.id, !layer.visible);
+                        }}
+                        className="p-1 rounded hover:bg-white/10 text-white"
+                      >
+                        {layer.visible ? <Eye size={14} /> : <EyeOff size={14} />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          editor.layerBringForward(layer.id);
+                        }}
+                        className="px-1 rounded hover:bg-white/10 text-white"
                       >
                         ↑
                       </button>
                       <button
-                        onClick={() => editor.layerSendBackward(layer.id)}
-                        className="px-1"
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          editor.layerSendBackward(layer.id);
+                        }}
+                        className="px-1 rounded hover:bg-white/10 text-white"
                       >
                         ↓
+                      </button>
+                      <button
+                        type="button"
+                        title="Delete layer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          editor.deleteLayerById?.(layer.id);
+                        }}
+                        className="p-1 rounded hover:bg-white/10 text-white"
+                      >
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>

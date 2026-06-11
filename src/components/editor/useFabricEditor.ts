@@ -2690,7 +2690,12 @@ try {
       getDisplayName: getDefaultLabel,
       ensureId: (o: any) => ensureObjectId(o),
     });
-    const signature = items.map((i) => i.id).join("|");
+    const signature = items
+      .map(
+        (i) =>
+          `${i.id}:${i.visible ? 1 : 0}:${i.locked ? 1 : 0}:${i.displayName}:${i.index}`
+      )
+      .join("|");
     if (signature !== lastLayersRef.current) {
       lastLayersRef.current = signature;
       setLayers(items);
@@ -5853,6 +5858,41 @@ try {
     updateLayers();
   }, [updateLayers]);
 
+  const deleteLayerById = useCallback(
+    (id: string) => {
+      const c = getCanvas();
+      if (!c || !id) return;
+      let obj = c
+        .getObjects()
+        .find((o: any) => o?.data?.id === id || o?.id === id || o?.uid === id);
+      if (!obj && id.startsWith("__idx_")) {
+        const idx = Number(id.replace("__idx_", ""));
+        obj = c.getObjects()[idx];
+      }
+      if (!obj) return;
+      const size = pageSizePxRef.current;
+      if ((obj as any)?.role === "grid" || isPageBackgroundObject(obj as any, size.w, size.h)) return;
+
+      isInternalMutationRef.current = true;
+      try {
+        const active = c.getActiveObject() as any;
+        const activeObjects = active?.getObjects?.() || active?._objects || [];
+        if (active === obj || activeObjects.includes(obj)) {
+          c.discardActiveObject();
+        }
+        c.remove(obj);
+        c.requestRenderAll();
+      } finally {
+        isInternalMutationRef.current = false;
+      }
+      syncSelectionKind();
+      updateSelectionRef.current?.();
+      updateLayers();
+      pushHistory("object:removed");
+    },
+    [getCanvas, isPageBackgroundObject, pushHistory, syncSelectionKind, updateLayers]
+  );
+
   const setPageSizePx = useCallback((widthPx: number, heightPx: number) => {
     if (!Number.isFinite(widthPx) || !Number.isFinite(heightPx)) return;
     const w = Math.max(1, Math.round(widthPx));
@@ -6211,6 +6251,7 @@ try {
     exportPDF,
     setLayerVisible,
     setLayerLocked,
+    deleteLayerById,
     selectLayerById,
     reorderLayer,
     layerBringToFront,

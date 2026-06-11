@@ -184,8 +184,9 @@ const PAGE_HEADER_HEIGHT = 48;
 const PAGE_GAP = 48;
 const TOP_EDITOR_OFFSET = 88;
 const PAGE_REVEAL_OFFSET = 16;
-const PINCH_WHEEL_SENSITIVITY = 0.0025;
+const PINCH_WHEEL_SENSITIVITY = 0.006;
 const PINCH_MAX_DELTA = 80;
+const PINCH_WHEEL_DEAD_ZONE = 0.75;
 function getInitials(name: string | null | undefined): string {
   if (!name || typeof name !== "string") return "?";
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -222,6 +223,9 @@ export default function EditorShell({
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const canvasWrapRef = useRef<HTMLDivElement | null>(null);
+  const pinchZoomRafRef = useRef<number | null>(null);
+  const pinchZoomFactorRef = useRef(1);
+  const pinchZoomBaseRef = useRef<number | null>(null);
 
   const [filename, setFilename] = useState("Untitled Resume");
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
@@ -592,18 +596,41 @@ export default function EditorShell({
       // Trackpad pinch emits wheel+ctrlKey on macOS browsers.
       if (!e.ctrlKey) return;
       e.preventDefault();
-      const currentZoom = editor.getZoom?.() ?? editor.zoom ?? 1;
+      if (!Number.isFinite(e.deltaY)) return;
+      if (Math.abs(e.deltaY) < PINCH_WHEEL_DEAD_ZONE) return;
       const clampedDelta = Math.max(
         -PINCH_MAX_DELTA,
         Math.min(PINCH_MAX_DELTA, e.deltaY)
       );
-      const zoomFactor = Math.exp(-clampedDelta * PINCH_WHEEL_SENSITIVITY);
-      const nextZoom = currentZoom * zoomFactor;
-      editor.setManualZooming?.(true);
-      editor.setZoom?.(nextZoom);
+      const eventZoomFactor = Math.exp(-clampedDelta * PINCH_WHEEL_SENSITIVITY);
+      if (!Number.isFinite(eventZoomFactor) || eventZoomFactor <= 0) return;
+
+      if (pinchZoomBaseRef.current == null) {
+        pinchZoomBaseRef.current = editor.getZoom?.() ?? editor.zoom ?? 1;
+      }
+      pinchZoomFactorRef.current *= eventZoomFactor;
+
+      if (pinchZoomRafRef.current != null) return;
+      pinchZoomRafRef.current = window.requestAnimationFrame(() => {
+        pinchZoomRafRef.current = null;
+        const baseZoom = pinchZoomBaseRef.current ?? (editor.getZoom?.() ?? editor.zoom ?? 1);
+        const factor = pinchZoomFactorRef.current;
+        pinchZoomBaseRef.current = null;
+        pinchZoomFactorRef.current = 1;
+        editor.setManualZooming?.(true);
+        editor.setZoom?.(baseZoom * factor);
+      });
     };
     el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      if (pinchZoomRafRef.current != null) {
+        window.cancelAnimationFrame(pinchZoomRafRef.current);
+        pinchZoomRafRef.current = null;
+      }
+      pinchZoomBaseRef.current = null;
+      pinchZoomFactorRef.current = 1;
+    };
   }, [
     editor.viewportRef,
     editor.getZoom,

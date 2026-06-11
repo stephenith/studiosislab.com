@@ -4058,6 +4058,8 @@ try {
         isInitializingCanvasRef.current = false;
         requestAnimationFrame(() => {
           isCanvasBootingRef.current = false;
+          // Ensure layers are rebuilt once canvas boot completes (especially for doc-load reopen path).
+          updateLayersRef.current();
         });
       }
     },

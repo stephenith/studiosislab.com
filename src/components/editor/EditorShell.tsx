@@ -5,13 +5,13 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  AlignCenterHorizontal,
-  AlignEndHorizontal as AlignRight,
+  AlignCenterHorizontal as AlignMiddle,
+  AlignCenterVertical as AlignCenter,
+  AlignEndHorizontal as AlignBottom,
+  AlignEndVertical as AlignRight,
   AlignHorizontalSpaceBetween,
-  AlignStartHorizontal as AlignLeft,
-  AlignVerticalJustifyCenter,
-  AlignVerticalJustifyEnd,
-  AlignVerticalJustifyStart,
+  AlignStartHorizontal as AlignTop,
+  AlignStartVertical as AlignLeft,
   AlignVerticalSpaceBetween,
   ChevronDown,
   ChevronUp,
@@ -1348,7 +1348,7 @@ export default function EditorShell({
                       className={positionToolBtn}
                     >
                       <div className="flex items-center justify-center gap-2">
-                        <AlignCenterHorizontal size={iconSize} strokeWidth={1.75} />
+                        <AlignCenter size={iconSize} strokeWidth={1.75} />
                         <span className="text-xs font-medium">Center</span>
                       </div>
                     </button>
@@ -1370,7 +1370,7 @@ export default function EditorShell({
                       className={positionToolBtn}
                     >
                       <div className="flex items-center justify-center gap-2">
-                        <AlignVerticalJustifyStart size={iconSize} strokeWidth={1.75} />
+                        <AlignTop size={iconSize} strokeWidth={1.75} />
                         <span className="text-xs font-medium">Top</span>
                       </div>
                     </button>
@@ -1381,7 +1381,7 @@ export default function EditorShell({
                       className={positionToolBtn}
                     >
                       <div className="flex items-center justify-center gap-2">
-                        <AlignVerticalJustifyCenter size={iconSize} strokeWidth={1.75} />
+                        <AlignMiddle size={iconSize} strokeWidth={1.75} />
                         <span className="text-xs font-medium">Middle</span>
                       </div>
                     </button>
@@ -1392,7 +1392,7 @@ export default function EditorShell({
                       className={positionToolBtn}
                     >
                       <div className="flex items-center justify-center gap-2">
-                        <AlignVerticalJustifyEnd size={iconSize} strokeWidth={1.75} />
+                        <AlignBottom size={iconSize} strokeWidth={1.75} />
                         <span className="text-xs font-medium">Bottom</span>
                       </div>
                     </button>

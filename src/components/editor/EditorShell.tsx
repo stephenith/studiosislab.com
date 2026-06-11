@@ -184,6 +184,8 @@ const PAGE_HEADER_HEIGHT = 48;
 const PAGE_GAP = 48;
 const TOP_EDITOR_OFFSET = 88;
 const PAGE_REVEAL_OFFSET = 16;
+const PINCH_WHEEL_SENSITIVITY = 0.0025;
+const PINCH_MAX_DELTA = 80;
 function getInitials(name: string | null | undefined): string {
   if (!name || typeof name !== "string") return "?";
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -584,15 +586,31 @@ export default function EditorShell({
   }, [editor.setViewportEl, editor.viewportRef]);
 
   useEffect(() => {
-    const el = canvasWrapRef.current;
+    const el = editor.viewportRef?.current ?? canvasWrapRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
+      // Trackpad pinch emits wheel+ctrlKey on macOS browsers.
       if (!e.ctrlKey) return;
       e.preventDefault();
+      const currentZoom = editor.getZoom?.() ?? editor.zoom ?? 1;
+      const clampedDelta = Math.max(
+        -PINCH_MAX_DELTA,
+        Math.min(PINCH_MAX_DELTA, e.deltaY)
+      );
+      const zoomFactor = Math.exp(-clampedDelta * PINCH_WHEEL_SENSITIVITY);
+      const nextZoom = currentZoom * zoomFactor;
+      editor.setManualZooming?.(true);
+      editor.setZoom?.(nextZoom);
     };
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => el.removeEventListener("wheel", onWheel);
-  }, []);
+  }, [
+    editor.viewportRef,
+    editor.getZoom,
+    editor.setManualZooming,
+    editor.setZoom,
+    editor.zoom,
+  ]);
 
   useEffect(() => {
     if (editor.pageSize === "Custom") return;

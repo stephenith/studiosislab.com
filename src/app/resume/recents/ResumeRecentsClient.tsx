@@ -333,7 +333,6 @@ export default function ResumeRecentsPage() {
                               onClick={async (e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                if (!window.confirm("Delete this resume?")) return;
                                 if (!user) return;
                                 await deleteDoc(
                                   doc(

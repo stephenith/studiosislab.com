@@ -565,7 +565,6 @@ export default function ResumeTemplatesPage() {
                                   onClick={async (e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    if (!window.confirm("Delete this resume?")) return;
                                     if (!user) return;
                                     await deleteDoc(
                                       doc(db, "users", user.uid, "resume_docs", r.id)

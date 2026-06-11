@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { Lock, RotateCcw, RotateCw, Square } from "lucide-react";
+import { Lock, RotateCcw, RotateCw } from "lucide-react";
 import type { ShapeProps } from "@/types/editor";
 import { toHexColor } from "@/lib/color";
 import { getShapeCapabilities } from "@/data/shapes/catalog";
@@ -39,6 +39,15 @@ function normalizeAngle(value: number): number {
   return ((n % 360) + 360) % 360;
 }
 
+function normalizeHexIfValid(input: string): string | null {
+  const trimmed = String(input || "").trim();
+  if (!trimmed) return null;
+  const hex = trimmed.startsWith("#") ? trimmed.slice(1) : trimmed;
+  if (!/^[0-9a-fA-F]+$/.test(hex)) return null;
+  if (hex.length !== 3 && hex.length !== 6) return null;
+  return `#${hex.toUpperCase()}`;
+}
+
 export interface ShapeInspectorPanelProps {
   shapeProps: ShapeProps;
   activeObjectSnapshot: {
@@ -68,9 +77,7 @@ export function ShapeInspectorPanel({
   updateActiveObject,
 }: ShapeInspectorPanelProps) {
   const colorPopoverRef = useRef<HTMLDivElement>(null);
-  const borderPopoverRef = useRef<HTMLDivElement>(null);
   const [colorOpen, setColorOpen] = useState(false);
-  const [borderOpen, setBorderOpen] = useState(false);
 
   const fill = toHexColor(shapeProps?.fill ?? activeObjectSnapshot?.fill, "#111827");
   const stroke = shapeProps?.stroke ?? activeObjectSnapshot?.stroke;
@@ -82,6 +89,10 @@ export function ShapeInspectorPanel({
   const shapeKind = String((activeObjectSnapshot as any)?.data?.shapeKind ?? "").toLowerCase();
   const capabilities = getShapeCapabilities(objectType, shapeKind);
   const isRect = objectType === "rect" || shapeKind === "rect";
+  const isLine = objectType === "line" || shapeKind === "line";
+  const styleLabel = isLine ? "Line Style" : "Border Style";
+  const colorLabel = isLine ? "Line Color" : "Border Color";
+  const thicknessLabel = isLine ? "Line Thickness" : "Border Thickness";
 
   const dashArr = activeObjectSnapshot?.strokeDashArray ?? null;
   const borderStyle = getBorderStyleFromDashArray(dashArr, stroke);
@@ -93,6 +104,10 @@ export function ShapeInspectorPanel({
     activeObjectSnapshot?.lockScalingY === true ||
     activeObjectSnapshot?.lockRotation === true;
   const angle = normalizeAngle(Number(activeObjectSnapshot?.angle ?? 0));
+  const canonicalFill = fill.toUpperCase();
+  const canonicalStroke = strokeHex.toUpperCase();
+  const [fillHexInput, setFillHexInput] = useState(canonicalFill);
+  const [strokeHexInput, setStrokeHexInput] = useState(canonicalStroke);
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
@@ -100,14 +115,18 @@ export function ShapeInspectorPanel({
         colorPopoverRef.current && !colorPopoverRef.current.contains(e.target as Node) &&
         !(e.target as HTMLElement).closest("[data-shape-color-swatch]")
       ) setColorOpen(false);
-      if (
-        borderPopoverRef.current && !borderPopoverRef.current.contains(e.target as Node) &&
-        !(e.target as HTMLElement).closest("[data-shape-border-trigger]")
-      ) setBorderOpen(false);
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
   }, []);
+
+  useEffect(() => {
+    setFillHexInput(canonicalFill);
+  }, [canonicalFill]);
+
+  useEffect(() => {
+    setStrokeHexInput(canonicalStroke);
+  }, [canonicalStroke]);
 
   const setFill = (value: string) => setShapeProp({ fill: value });
   const setStroke = (value: string) => setShapeProp({ stroke: value, strokeWidth: strokeWidth > 0 ? strokeWidth : 2 });
@@ -183,15 +202,41 @@ export function ShapeInspectorPanel({
                   <input
                     type="color"
                     value={fill}
-                    onChange={(e) => setFill(e.target.value)}
+                    onChange={(e) => {
+                      const next = normalizeHexIfValid(e.target.value) ?? canonicalFill;
+                      setFill(next);
+                      setFillHexInput(next);
+                    }}
                     className="w-10 h-8 rounded border cursor-pointer"
                   />
                   <input
                     type="text"
-                    value={fill}
+                    value={fillHexInput}
                     onChange={(e) => {
-                      const v = e.target.value.trim();
-                      if (v.startsWith("#") || /^[0-9a-fA-F]{3,6}$/.test(v)) setFill(v.startsWith("#") ? v : `#${v}`);
+                      const raw = e.target.value;
+                      setFillHexInput(raw);
+                      const normalized = normalizeHexIfValid(raw);
+                      if (normalized) setFill(normalized);
+                    }}
+                    onBlur={() => {
+                      const normalized = normalizeHexIfValid(fillHexInput);
+                      if (normalized) {
+                        setFill(normalized);
+                        setFillHexInput(normalized);
+                      } else {
+                        setFillHexInput(canonicalFill);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key !== "Enter") return;
+                      e.preventDefault();
+                      const normalized = normalizeHexIfValid(fillHexInput);
+                      if (normalized) {
+                        setFill(normalized);
+                        setFillHexInput(normalized);
+                      } else {
+                        setFillHexInput(canonicalFill);
+                      }
                     }}
                     className="flex-1 rounded border border-zinc-200 px-2 py-1 text-xs font-mono"
                   />
@@ -203,113 +248,142 @@ export function ShapeInspectorPanel({
       )}
 
       {(capabilities.stroke || capabilities.strokeWidth) && (
-      <div>
-        <label className="text-xs text-zinc-500 block mb-1">Border</label>
-        <div className="relative">
-          <button
-            type="button"
-            data-shape-border-trigger
-            onClick={() => setBorderOpen((o) => !o)}
-            className="w-full h-9 rounded-lg border border-zinc-200 flex items-center gap-2 px-3 hover:bg-zinc-50"
-          >
-            <Square size={16} className="text-zinc-500" />
-            <span className="text-sm text-zinc-700">Border</span>
-          </button>
-          {borderOpen && (
-            <div
-              ref={borderPopoverRef}
-              className="absolute left-0 top-full mt-1 z-50 w-64 rounded-xl bg-white border border-zinc-200 shadow-lg p-3 space-y-3"
+      <div className="space-y-3">
+        <div>
+          <div className="text-xs text-zinc-500 mb-1">{styleLabel}</div>
+          <div className="flex gap-1 flex-wrap">
+            {(
+              [
+                { value: "solid", label: "Solid" },
+                { value: "dashed", label: "Dash" },
+                { value: "double", label: "Double Dash" },
+                { value: "dotted", label: "Dotted" },
+              ] as const
+            ).map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                onClick={() => setStrokeStyle(item.value)}
+                className={`px-2 py-1.5 rounded-lg border text-xs ${
+                  borderStyle === item.value
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "border-zinc-200 hover:bg-zinc-50"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setStrokeStyle("none")}
+              className={`px-2 py-1.5 rounded-lg border text-xs ${
+                borderStyle === "none"
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
+              }`}
             >
-              <div className="text-xs font-medium text-zinc-600">Style</div>
-              <div className="flex gap-1 flex-wrap">
-                {(["none", "solid", "dashed", "double", "dotted"] as BorderStyle[]).map((style) => (
-                  <button
-                    key={style}
-                    type="button"
-                    onClick={() => setStrokeStyle(style)}
-                    className={`px-2 py-1.5 rounded-lg border text-xs capitalize ${
-                      borderStyle === style ? "bg-blue-600 text-white border-blue-600" : "border-zinc-200 hover:bg-zinc-50"
-                    }`}
-                  >
-                    {style === "none" ? "No border" : style === "double" ? "Double dash" : style}
-                  </button>
-                ))}
-              </div>
-
-              {capabilities.stroke && (
-              <div>
-                <div className="text-xs text-zinc-500 mb-1">Border color</div>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="color"
-                    value={strokeHex}
-                    onChange={(e) => setStroke(e.target.value)}
-                    className="w-10 h-8 rounded border cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value={strokeHex}
-                    onChange={(e) => {
-                      const v = e.target.value.trim();
-                      if (v.startsWith("#") || /^[0-9a-fA-F]{3,6}$/.test(v)) setStroke(v.startsWith("#") ? v : `#${v}`);
-                    }}
-                    className="flex-1 rounded border border-zinc-200 px-2 py-1 text-xs font-mono"
-                  />
-                </div>
-              </div>
-              )}
-
-              {capabilities.strokeWidth && (
-              <div>
-                <div className="text-xs text-zinc-500 mb-1">Border weight</div>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="range"
-                    min={0}
-                    max={50}
-                    value={strokeWidth}
-                    onChange={(e) => setStrokeWidth(Number(e.target.value))}
-                    className="flex-1 h-2 rounded-full appearance-none bg-zinc-200 accent-blue-600"
-                  />
-                  <input
-                    type="number"
-                    min={0}
-                    max={50}
-                    value={strokeWidth}
-                    onChange={(e) => setStrokeWidth(Number(e.target.value) || 0)}
-                    className="w-14 rounded border border-zinc-200 px-2 py-1 text-sm text-center"
-                  />
-                </div>
-              </div>
-              )}
-
-              {capabilities.cornerRadius && isRect && (
-                <div>
-                  <div className="text-xs text-zinc-500 mb-1">Corner rounding</div>
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="range"
-                      min={0}
-                      max={100}
-                      value={cornerRadius}
-                      onChange={(e) => setCornerRadius(Number(e.target.value))}
-                      className="flex-1 h-2 rounded-full appearance-none bg-zinc-200 accent-blue-600"
-                    />
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={cornerRadius}
-                      onChange={(e) => setCornerRadius(Number(e.target.value) || 0)}
-                      className="w-14 rounded border border-zinc-200 px-2 py-1 text-sm text-center"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+              No Border
+            </button>
+          </div>
         </div>
+
+        {capabilities.stroke && (
+        <div>
+          <div className="text-xs text-zinc-500 mb-1">{colorLabel}</div>
+          <div className="flex gap-2 items-center">
+            <input
+              type="color"
+              value={strokeHex}
+              onChange={(e) => {
+                const next = normalizeHexIfValid(e.target.value) ?? canonicalStroke;
+                setStroke(next);
+                setStrokeHexInput(next);
+              }}
+              className="w-10 h-8 rounded border cursor-pointer"
+            />
+            <input
+              type="text"
+              value={strokeHexInput}
+              onChange={(e) => {
+                const raw = e.target.value;
+                setStrokeHexInput(raw);
+                const normalized = normalizeHexIfValid(raw);
+                if (normalized) setStroke(normalized);
+              }}
+              onBlur={() => {
+                const normalized = normalizeHexIfValid(strokeHexInput);
+                if (normalized) {
+                  setStroke(normalized);
+                  setStrokeHexInput(normalized);
+                } else {
+                  setStrokeHexInput(canonicalStroke);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                e.preventDefault();
+                const normalized = normalizeHexIfValid(strokeHexInput);
+                if (normalized) {
+                  setStroke(normalized);
+                  setStrokeHexInput(normalized);
+                } else {
+                  setStrokeHexInput(canonicalStroke);
+                }
+              }}
+              className="flex-1 rounded border border-zinc-200 px-2 py-1 text-xs font-mono"
+            />
+          </div>
+        </div>
+        )}
+
+        {capabilities.strokeWidth && (
+        <div>
+          <div className="text-xs text-zinc-500 mb-1">{thicknessLabel}</div>
+          <div className="flex gap-2 items-center">
+            <input
+              type="range"
+              min={0}
+              max={50}
+              value={strokeWidth}
+              onChange={(e) => setStrokeWidth(Number(e.target.value))}
+              className="flex-1 h-2 rounded-full appearance-none bg-zinc-200 accent-blue-600"
+            />
+            <input
+              type="number"
+              min={0}
+              max={50}
+              value={strokeWidth}
+              onChange={(e) => setStrokeWidth(Number(e.target.value) || 0)}
+              className="w-14 rounded border border-zinc-200 px-2 py-1 text-sm text-center"
+            />
+          </div>
+        </div>
+        )}
       </div>
+      )}
+
+      {capabilities.cornerRadius && isRect && (
+        <div>
+          <div className="text-xs text-zinc-500 mb-1">Corner rounding</div>
+          <div className="flex gap-2 items-center">
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={cornerRadius}
+              onChange={(e) => setCornerRadius(Number(e.target.value))}
+              className="flex-1 h-2 rounded-full appearance-none bg-zinc-200 accent-blue-600"
+            />
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={cornerRadius}
+              onChange={(e) => setCornerRadius(Number(e.target.value) || 0)}
+              className="w-14 rounded border border-zinc-200 px-2 py-1 text-sm text-center"
+            />
+          </div>
+        </div>
       )}
 
       {/* 3. Opacity */}

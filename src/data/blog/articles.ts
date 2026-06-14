@@ -2,6 +2,256 @@ import type { BlogArticle } from "@/data/blog/types";
 
 export const blogArticles: BlogArticle[] = [
   {
+    slug: "is-esigning-legally-valid-in-the-us",
+    title: "Is E-Signing Legally Valid in the US?",
+    description:
+      "Understand when e-signing is commonly accepted in the US, where extra caution is needed, and how to handle everyday business documents responsibly.",
+    excerpt:
+      "A simple guide to US e-sign legality for common business workflows, with practical limits and next steps.",
+    publishedAt: "2026-06-14",
+    category: "E-Sign",
+    tags: ["e-sign legality us", "electronic signature law", "digital signing", "business documents"],
+    readTime: "9 min read",
+    sections: [
+      {
+        heading: "The short answer for most everyday business use",
+        paragraphs: [
+          "In many common US business scenarios, e-signatures are widely used and generally accepted for routine agreements, approvals, and internal paperwork.",
+          "That said, acceptance depends on document type, industry rules, and local requirements. E-signing is a practical default for many workflows, but it should not be treated as universal for every legal situation.",
+        ],
+      },
+      {
+        heading: "What people mean by e-signing in practice",
+        paragraphs: [
+          "E-signing usually means placing a digital signature on a document in an online workflow where the document, signer action, and completion steps are tracked.",
+          "For small teams, this helps reduce print-scan delays and keeps status visible without endless email follow-ups.",
+        ],
+        links: [
+          { label: "Open E-Sign tools", href: "/tools" },
+          { label: "Sign PDF Online", href: "/esign-online/sign-pdf-online" },
+        ],
+      },
+      {
+        heading: "Documents that are often suitable for e-sign",
+        paragraphs: [
+          "Common business agreements, service documents, onboarding forms, and internal approvals are often handled through e-sign workflows.",
+          "If your team repeats these document types frequently, standardizing one signing process can reduce delay and confusion.",
+        ],
+        bullets: [
+          "Routine client service agreements",
+          "Internal approvals and acknowledgements",
+          "Vendor and onboarding documents",
+          "Low-risk operational paperwork",
+        ],
+      },
+      {
+        heading: "When to verify before relying on e-sign",
+        paragraphs: [
+          "Some high-risk legal, regulatory, government, or court-related documents can have stricter requirements. In those cases, confirm legal and compliance expectations before choosing an e-sign workflow.",
+          "If your team is unsure, ask qualified counsel or the relevant authority what signature format is required for that exact document category.",
+        ],
+        bullets: [
+          "Court filings and litigation-sensitive forms",
+          "Certain government forms and filings",
+          "Documents with strict notarization rules",
+          "Industry-specific compliance-heavy agreements",
+        ],
+      },
+      {
+        heading: "A safe decision framework for teams",
+        paragraphs: [
+          "Use a simple checklist: classify the document, confirm risk level, verify requirements, then decide the signing method.",
+          "This approach keeps operations fast for everyday documents while reducing avoidable risk on sensitive agreements.",
+        ],
+      },
+      {
+        heading: "FAQ: e-sign legality in the US",
+        paragraphs: [
+          "Q: Is e-signing valid for every document in the US? A: No. Many documents are fine, but some categories require extra validation or specific formats.",
+          "Q: Can small businesses rely on e-sign for regular contracts? A: Often yes for everyday workflows, as long as document type requirements are reviewed.",
+          "Q: Should we check requirements for government or court-related documents? A: Yes. Always verify rules for high-risk or regulated document types.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Is e-signing valid for every document in the US?",
+        answer:
+          "No. Many documents are commonly accepted with e-signatures, but some categories require extra validation or specific formats.",
+      },
+      {
+        question: "Can small businesses rely on e-sign for regular contracts?",
+        answer:
+          "Often yes for everyday workflows, as long as document type requirements are reviewed before rollout.",
+      },
+      {
+        question: "Should we check requirements for government or court-related documents?",
+        answer:
+          "Yes. Always verify rules for high-risk or regulated document types before relying only on e-signatures.",
+      },
+    ],
+    cta: {
+      label: "Use StudiosisLab E-Sign tools",
+      href: "/tools",
+      note: "Upload and sign common business PDFs in a clean online workflow.",
+    },
+  },
+  {
+    slug: "how-to-add-a-signature-to-a-pdf-online",
+    title: "How to Add a Signature to a PDF Online",
+    description:
+      "Learn a simple step-by-step process to upload a PDF, place your signature, review document details, and download your signed file.",
+    excerpt:
+      "A beginner-friendly checklist for adding a signature to a PDF online without printing or scanning.",
+    publishedAt: "2026-06-14",
+    category: "E-Sign",
+    tags: ["add signature to pdf", "sign pdf online", "digital signature workflow", "paperless signing"],
+    readTime: "8 min read",
+    sections: [
+      {
+        heading: "Why online PDF signing is easier for beginners",
+        paragraphs: [
+          "Adding a signature online removes the print-sign-scan cycle and helps you finish documents faster from any browser.",
+          "For most users, the best workflow is simple: upload once, place signature clearly, review, then download and store the final file.",
+        ],
+      },
+      {
+        heading: "Step 1: Upload the correct PDF file",
+        paragraphs: [
+          "Start with the final version of your PDF before signing. This avoids rework caused by signing an older draft.",
+          "Use a clear file name so you can easily identify the signed copy later.",
+        ],
+        links: [
+          { label: "Open E-Sign tools", href: "/tools" },
+          { label: "Sign PDF Online", href: "/esign-online/sign-pdf-online" },
+        ],
+      },
+      {
+        heading: "Step 2: Place your signature in the right location",
+        paragraphs: [
+          "Add your signature where the document requests signer confirmation. Double-check that placement is readable and does not overlap critical text.",
+          "If multiple signature points are required, complete each one before moving forward.",
+        ],
+        bullets: [
+          "Zoom in before placing a signature",
+          "Keep alignment clean and readable",
+          "Check every required field once",
+        ],
+      },
+      {
+        heading: "Step 3: Review details before finalizing",
+        paragraphs: [
+          "Review names, dates, and the final page order before completing the workflow. A short review prevents avoidable corrections later.",
+          "If anything looks wrong, fix it before download so your final copy stays reliable.",
+        ],
+      },
+      {
+        heading: "Step 4: Download and save with a clear naming format",
+        paragraphs: [
+          "After signing, download your PDF and save it using a consistent name such as document-name-signed-date.",
+          "If this is part of a team process, also store the file in your shared location so others can find the final version quickly.",
+        ],
+      },
+      {
+        heading: "Common mistakes and quick fixes",
+        paragraphs: [
+          "Most issues come from wrong file versions, missed signature spots, or unclear file naming after download.",
+          "A lightweight checklist before finalizing solves most of these problems in less than a minute.",
+        ],
+        bullets: [
+          "Confirm you uploaded the final draft",
+          "Verify all required signer fields",
+          "Use a clear final filename after signing",
+        ],
+      },
+    ],
+    cta: {
+      label: "Sign your PDF with StudiosisLab",
+      href: "/esign-online/sign-pdf-online",
+      note: "Upload, place your signature, and download in a few guided steps.",
+    },
+  },
+  {
+    slug: "how-to-choose-the-right-resume-template",
+    title: "How to Choose the Right Resume Template for Your Role",
+    description:
+      "Choose a resume template based on your target role, experience level, ATS readability, and design style without overcomplicating your job search.",
+    excerpt:
+      "A practical framework to pick the right resume template for fresher, mid-level, and specialized roles.",
+    publishedAt: "2026-06-14",
+    category: "Resume",
+    tags: ["resume template", "ATS resume format", "job applications", "resume design"],
+    readTime: "10 min read",
+    sections: [
+      {
+        heading: "Start with role clarity before design choice",
+        paragraphs: [
+          "The best resume template depends first on the role you are targeting, not the most decorative layout.",
+          "A clean role-matched template helps recruiters understand fit faster and improves ATS parsing consistency.",
+        ],
+        links: [{ label: "Build your resume", href: "/resume" }],
+      },
+      {
+        heading: "Match template style to your experience level",
+        paragraphs: [
+          "Entry-level applicants often need stronger emphasis on skills, projects, and education. Mid-level and senior professionals usually need more room for measurable work history and outcomes.",
+          "Choose a template that gives your strongest proof the most visible space on page one.",
+        ],
+        bullets: [
+          "Students and freshers: prioritize projects and skills",
+          "Mid-level: prioritize role progression and achievements",
+          "Senior roles: prioritize leadership and business impact",
+        ],
+      },
+      {
+        heading: "Keep ATS readability as a non-negotiable baseline",
+        paragraphs: [
+          "Use templates with clear headings, simple structure, and readable formatting. Complex visual layouts can hurt parser reliability in some hiring systems.",
+          "A good approach is to keep design modern but not overloaded with columns, icons, or decorative blocks.",
+        ],
+        links: [{ label: "ATS resume guide", href: "/blog/how-to-build-a-resume-that-passes-ats-in-2026" }],
+      },
+      {
+        heading: "Choose based on industry tone and design expectations",
+        paragraphs: [
+          "Some roles prefer conservative layouts, while others allow more visual expression. Align your template style with what hiring managers in that field expect.",
+          "When in doubt, choose clarity over creativity and let your achievements create differentiation.",
+        ],
+        links: [
+          { label: "Project Manager resume template", href: "/resume/project-manager-resume" },
+          { label: "Data Analyst resume template", href: "/resume/data-analyst-resume" },
+          { label: "Marketing Manager resume template", href: "/resume/marketing-manager-resume" },
+        ],
+      },
+      {
+        heading: "Test one base template and one role-specific variant",
+        paragraphs: [
+          "Instead of rewriting from scratch for every application, keep one base resume and create a tailored version for each role family.",
+          "This saves time while keeping your applications focused and relevant.",
+        ],
+      },
+      {
+        heading: "Quick checklist before final export",
+        paragraphs: [
+          "Before sending, verify section order, bullet quality, and consistency in spacing and dates.",
+          "A final two-minute check can significantly improve readability and callback potential.",
+        ],
+        bullets: [
+          "Role title and summary aligned",
+          "Top bullets include measurable outcomes",
+          "Formatting is consistent across sections",
+          "Template style fits industry expectations",
+        ],
+      },
+    ],
+    relatedResumeTemplateIds: ["t040", "t042", "t043"],
+    cta: {
+      label: "Choose a resume template on StudiosisLab",
+      href: "/resume",
+      note: "Pick a clean template and tailor it to your exact role target.",
+    },
+  },
+  {
     slug: "send-documents-for-signature-online-step-by-step",
     title: "How to Send Documents for Signature Online: Step-by-Step Guide",
     description:

@@ -25,6 +25,7 @@ import { trackEvent, uploadSizeBucket } from "@/lib/analytics";
 import { getLoginRedirectUrl } from "@/lib/safeNextPath";
 
 const IS_DEV = process.env.NODE_ENV !== "production";
+const MAX_ESIGN_PDF_BYTES = 50 * 1024 * 1024;
 
 function devLog(...args: unknown[]) {
   if (IS_DEV) globalThis["console"].log(...args);
@@ -400,6 +401,12 @@ export default function EsignToolsPage() {
       setSelectedFile(null);
       return;
     }
+    if (file.size > MAX_ESIGN_PDF_BYTES) {
+      setHubNotice("This PDF is too large. Please upload a PDF under 50 MB.");
+      e.target.value = "";
+      setSelectedFile(null);
+      return;
+    }
     setHubNotice(null);
     setSelectedFile(file);
   };
@@ -557,6 +564,10 @@ export default function EsignToolsPage() {
       setHubNotice("Please select a document first.");
       return;
     }
+    if (selectedFile.size > MAX_ESIGN_PDF_BYTES) {
+      setHubNotice("This PDF is too large. Please upload a PDF under 50 MB.");
+      return;
+    }
 
     try {
       setHubNotice(null);
@@ -587,7 +598,7 @@ export default function EsignToolsPage() {
       if (!res.ok || !json?.ok) {
         if (res.status === 413) {
           setHubNotice(
-            "This PDF is too large. Please upload a file under 15 MB."
+            "This PDF is too large. Please upload a PDF under 50 MB."
           );
         } else {
           const serverMsg =
@@ -783,7 +794,7 @@ export default function EsignToolsPage() {
             </div>
 
             <p className="mt-2 text-xs text-zinc-400">
-              Upload the PDF that needs to be signed. PDF only, max 15 MB.
+              Upload the PDF that needs to be signed. PDF only • Up to 50 MB.
             </p>
           </div>
         </section>

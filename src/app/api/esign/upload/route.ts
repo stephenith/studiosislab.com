@@ -5,7 +5,7 @@ import { adminStorage } from "@/lib/firebaseAdmin";
 export const runtime = "nodejs";
 
 /** Maximum PDF upload size for e-sign originals (bytes). */
-const MAX_PDF_BYTES = 15 * 1024 * 1024;
+const MAX_PDF_BYTES = 50 * 1024 * 1024;
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           ok: false,
-          error: "PDF exceeds the maximum upload size (15 MB). Try compressing the file or splitting the document.",
+          error: "PDF exceeds the maximum upload size (50 MB). Try compressing the file or splitting the document.",
         },
         { status: 413 }
       );

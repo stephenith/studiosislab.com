@@ -34,6 +34,10 @@ export type EsignDocument = {
   placements?: EsignPlacement[];
   countersignPlaceholder?: EsignCountersignPlacement | null;
   countersignStatus?: string | null;
+  originalStoragePath?: string;
+  originalSizeBytes?: number;
+  contentType?: string;
+  uploadStatus?: "ready" | "pending" | "failed";
 };
 
 export type EsignDocumentWithId = EsignDocument & {

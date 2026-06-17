@@ -6,13 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   collection,
-  doc,
   getDocs,
   limit,
   orderBy,
   query as fsQuery,
-  serverTimestamp,
-  setDoc,
   Timestamp,
   where,
 } from "firebase/firestore";
@@ -20,12 +17,15 @@ import HomeHeaderAuth from "@/components/HomeHeaderAuth";
 import NoiseBackground from "@/components/home/NoiseBackground";
 import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
 import { db } from "@/lib/firebase";
+import {
+  putPdfToSignedUrl,
+  validateEsignPdfFile,
+} from "@/lib/esignSignedUpload";
 import { useAuth } from "@/lib/useAuth";
 import { trackEvent, uploadSizeBucket } from "@/lib/analytics";
 import { getLoginRedirectUrl } from "@/lib/safeNextPath";
 
 const IS_DEV = process.env.NODE_ENV !== "production";
-const MAX_ESIGN_PDF_BYTES = 50 * 1024 * 1024;
 
 function devLog(...args: unknown[]) {
   if (IS_DEV) globalThis["console"].log(...args);
@@ -391,18 +391,9 @@ export default function EsignToolsPage() {
       setSelectedFile(null);
       return;
     }
-    const name = file.name || "";
-    const lower = name.toLowerCase();
-    const ok =
-      lower.endsWith(".pdf") || file.type === "application/pdf";
-    if (!ok) {
-      setHubNotice("Only PDF files are currently supported for e-signing.");
-      e.target.value = "";
-      setSelectedFile(null);
-      return;
-    }
-    if (file.size > MAX_ESIGN_PDF_BYTES) {
-      setHubNotice("This PDF is too large. Please upload a PDF under 50 MB.");
+    const validationError = validateEsignPdfFile(file);
+    if (validationError) {
+      setHubNotice(validationError);
       e.target.value = "";
       setSelectedFile(null);
       return;
@@ -564,8 +555,10 @@ export default function EsignToolsPage() {
       setHubNotice("Please select a document first.");
       return;
     }
-    if (selectedFile.size > MAX_ESIGN_PDF_BYTES) {
-      setHubNotice("This PDF is too large. Please upload a PDF under 50 MB.");
+
+    const validationError = validateEsignPdfFile(selectedFile);
+    if (validationError) {
+      setHubNotice(validationError);
       return;
     }
 
@@ -574,67 +567,98 @@ export default function EsignToolsPage() {
       setUploading(true);
       trackEvent("esign_upload_start", { flow: "tools_hub" });
 
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-
-      const res = await fetch("/api/esign/upload", {
+      const idToken = await user.getIdToken();
+      const initRes = await fetch("/api/esign/init-upload", {
         method: "POST",
-        body: formData,
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileName: selectedFile.name || "document.pdf",
+          sizeBytes: selectedFile.size,
+          contentType: selectedFile.type || "application/pdf",
+        }),
       });
 
-      type UploadJson = {
+      type InitJson = {
         ok?: boolean;
         error?: string;
         documentId?: string;
-        originalFilename?: string;
+        objectPath?: string;
+        uploadUrl?: string;
       };
-      let json: UploadJson = {};
+      let initJson: InitJson = {};
       try {
-        json = (await res.json()) as UploadJson;
+        initJson = (await initRes.json()) as InitJson;
       } catch {
-        json = {};
+        initJson = {};
       }
 
-      if (!res.ok || !json?.ok) {
-        if (res.status === 413) {
-          setHubNotice(
-            "This PDF is too large. Please upload a PDF under 50 MB."
-          );
-        } else {
-          const serverMsg =
-            typeof json?.error === "string" && json.error.trim() ? json.error.trim() : null;
-          setHubNotice(
-            serverMsg ||
-              "Something went wrong while uploading. Please try again."
-          );
+      if (
+        !initRes.ok ||
+        !initJson.ok ||
+        !initJson.documentId ||
+        !initJson.uploadUrl
+      ) {
+        if (initRes.status === 413) {
+          setHubNotice("This PDF is too large. Please upload a PDF under 50 MB.");
+          return;
         }
+        const initMsg =
+          typeof initJson.error === "string" && initJson.error.trim()
+            ? initJson.error.trim()
+            : "Failed to start upload. Please try again.";
+        setHubNotice(initMsg);
         return;
       }
 
-      const documentId = json.documentId;
-      if (!documentId) {
-        setHubNotice("Something went wrong while uploading. Please try again.");
+      const { documentId, uploadUrl } = initJson;
+
+      try {
+        await putPdfToSignedUrl(selectedFile, uploadUrl);
+      } catch (uploadErr) {
+        const uploadMsg =
+          uploadErr instanceof Error && uploadErr.message.trim()
+            ? uploadErr.message.trim()
+            : "Failed to upload PDF to storage. Please try again.";
+        setHubNotice(uploadMsg);
         return;
       }
 
-      const originalFilename: string =
-        json.originalFilename || selectedFile.name || "Document";
-
-      const ref = doc(db, "esign_documents", documentId);
-      await setDoc(
-        ref,
-        {
-          id: documentId,
-          ownerUid: user.uid,
-          fileName: originalFilename,
-          status: "draft",
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          finalPdfUrl: null,
-          pagesCount: 0,
+      const finalizeRes = await fetch("/api/esign/finalize-upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+          "Content-Type": "application/json",
         },
-        { merge: true }
-      );
+        body: JSON.stringify({
+          documentId,
+          fileName: selectedFile.name || "document.pdf",
+          sizeBytes: selectedFile.size,
+        }),
+      });
+
+      type FinalizeJson = { ok?: boolean; error?: string; documentId?: string };
+      let finalizeJson: FinalizeJson = {};
+      try {
+        finalizeJson = (await finalizeRes.json()) as FinalizeJson;
+      } catch {
+        finalizeJson = {};
+      }
+
+      if (!finalizeRes.ok || !finalizeJson.ok) {
+        if (finalizeRes.status === 413) {
+          setHubNotice("This PDF is too large. Please upload a PDF under 50 MB.");
+          return;
+        }
+        const finalizeMsg =
+          typeof finalizeJson.error === "string" && finalizeJson.error.trim()
+            ? finalizeJson.error.trim()
+            : "Failed to save document metadata. Please try again.";
+        setHubNotice(finalizeMsg);
+        return;
+      }
 
       trackEvent("esign_upload_success", {
         flow: "tools_hub",
@@ -642,7 +666,8 @@ export default function EsignToolsPage() {
       });
 
       router.push(`/tools/esign/${documentId}`);
-    } catch {
+    } catch (err) {
+      devWarn("E-sign upload failed", err);
       setHubNotice("Something went wrong while uploading. Please try again.");
     } finally {
       setUploading(false);

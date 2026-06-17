@@ -1,3 +1,7 @@
+/**
+ * @deprecated Use /api/esign/init-upload + signed GCS PUT + /api/esign/finalize-upload.
+ * Kept for rollback; hits Vercel's ~4.5 MB request body limit for large PDFs.
+ */
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { adminStorage } from "@/lib/firebaseAdmin";

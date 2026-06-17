@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { adminAuth, adminDb, adminStorage } from "@/lib/firebaseAdmin";
 import { getPublicAppUrl } from "@/lib/getPublicAppUrl";
+import { renderEsignEmailHeader } from "@/lib/mail/esignEmailLayout";
 import { sendEmail } from "@/lib/mail/sendEmail";
 import { buildAuditRecord, appendAuditCertificatePage } from "@/lib/esignAudit";
 import crypto from "crypto";
@@ -86,14 +87,7 @@ async function sendCompletionEmails(params: {
       <tr>
         <td align="center">
           <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="max-width:600px;background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.06);">
-            <tr>
-              <td style="padding:20px 24px 12px 24px;border-bottom:1px solid #e5e5e5;">
-                <div style="font-size:18px;font-weight:600;color:#111827;">StudiosisLab</div>
-                <div style="margin-top:4px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#6b7280;">
-                  Final Signed Document
-                </div>
-              </td>
-            </tr>
+${renderEsignEmailHeader("Final Signed Document")}
             <tr>
               <td style="padding:18px 24px 6px 24px;font-size:14px;color:#111827;line-height:1.5;">
                 <p style="margin:0 0 10px 0;">

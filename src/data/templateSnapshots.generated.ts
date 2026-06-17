@@ -74,6 +74,11 @@ import tpl70 from "./template-json/t071.json";
 import tpl71 from "./template-json/t072.json";
 import tpl72 from "./template-json/t073.json";
 import tpl73 from "./template-json/t074.json";
+import tpl74 from "./template-json/t075.json";
+import tpl75 from "./template-json/t076.json";
+import tpl76 from "./template-json/t077.json";
+import tpl77 from "./template-json/t078.json";
+import tpl78 from "./template-json/t079.json";
 
 export type TemplateSnapshot = {
   objects: any[];
@@ -376,5 +381,25 @@ export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
   "t074":
     (tpl73 as any)?.objects && (tpl73 as any).objects.length > 0
       ? (tpl73 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t075":
+    (tpl74 as any)?.objects && (tpl74 as any).objects.length > 0
+      ? (tpl74 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t076":
+    (tpl75 as any)?.objects && (tpl75 as any).objects.length > 0
+      ? (tpl75 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t077":
+    (tpl76 as any)?.objects && (tpl76 as any).objects.length > 0
+      ? (tpl76 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t078":
+    (tpl77 as any)?.objects && (tpl77 as any).objects.length > 0
+      ? (tpl77 as TemplateSnapshot)
+      : ({ objects: [] } as TemplateSnapshot),
+  "t079":
+    (tpl78 as any)?.objects && (tpl78 as any).objects.length > 0
+      ? (tpl78 as TemplateSnapshot)
       : ({ objects: [] } as TemplateSnapshot),
 };

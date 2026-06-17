@@ -528,6 +528,41 @@ export const SYSTEM_TEMPLATES: SystemTemplate[] = [
     thumbnail: "/templates/t074.png",
     load: async () => (await import("../template-json/t074.json")).default,
   },
+  {
+    id: "t075",
+    name: "Registered Nurse Resume",
+    tags: ["registered nurse","nurse resume","rn resume","healthcare","hospital","clinical","patient care","ats resume"],
+    thumbnail: "/templates/t075.webp",
+    load: async () => (await import("../template-json/t075.json")).default,
+  },
+  {
+    id: "t076",
+    name: "Human Resources Manager Resume",
+    tags: ["human resources manager","hr manager","human resources","talent acquisition","recruitment","employee relations","performance management","workforce planning","hr leadership","ats resume"],
+    thumbnail: "/templates/t076.webp",
+    load: async () => (await import("../template-json/t076.json")).default,
+  },
+  {
+    id: "t077",
+    name: "Customer Success Manager Resume",
+    tags: ["customer success manager","customer success","client success","account management","customer retention","customer experience","saas","client relationship management","renewals","ats resume"],
+    thumbnail: "/templates/t077.webp",
+    load: async () => (await import("../template-json/t077.json")).default,
+  },
+  {
+    id: "t078",
+    name: "Financial Analyst Resume",
+    tags: ["financial analyst","finance analyst","financial planning","budgeting","forecasting","financial modeling","data analysis","excel","fp&a","ats resume"],
+    thumbnail: "/templates/t078.webp",
+    load: async () => (await import("../template-json/t078.json")).default,
+  },
+  {
+    id: "t079",
+    name: "Operations Manager Resume",
+    tags: ["operations manager","operations management","business operations","process improvement","project management","team leadership","supply chain","operational excellence","kpi management","ats resume"],
+    thumbnail: "/templates/t079.webp",
+    load: async () => (await import("../template-json/t079.json")).default,
+  },
 ];
 
 export const SYSTEM_TEMPLATE_IDS = SYSTEM_TEMPLATES.map((template) => template.id);

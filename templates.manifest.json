@@ -667,6 +667,104 @@
                 "jsonPath": "src/data/template-json/t074.json",
                 "status": "published",
                 "tags": ["supply chain manager", "supply chain", "logistics management", "inventory management", "procurement", "vendor management", "operations management", "warehouse management", "demand planning", "forecasting", "distribution", "supply chain optimization", "inventory control", "logistics", "resume"]
+              },
+              {
+                "id": "t075",
+                "title": "Registered Nurse Resume",
+                "categoryId": "healthcare",
+                "thumbnailPath": "/templates/t075.webp",
+                "jsonPath": "src/data/template-json/t075.json",
+                "status": "published",
+                "tags": [
+                  "registered nurse",
+                  "nurse resume",
+                  "rn resume",
+                  "healthcare",
+                  "hospital",
+                  "clinical",
+                  "patient care",
+                  "ats resume"
+                ]
+              },
+              {
+                "id": "t076",
+                "title": "Human Resources Manager Resume",
+                "categoryId": "business-management",
+                "thumbnailPath": "/templates/t076.webp",
+                "jsonPath": "src/data/template-json/t076.json",
+                "status": "published",
+                "tags": [
+                  "human resources manager",
+                  "hr manager",
+                  "human resources",
+                  "talent acquisition",
+                  "recruitment",
+                  "employee relations",
+                  "performance management",
+                  "workforce planning",
+                  "hr leadership",
+                  "ats resume"
+                ]
+              },
+              {
+                "id": "t077",
+                "title": "Customer Success Manager Resume",
+                "categoryId": "sales-marketing",
+                "thumbnailPath": "/templates/t077.webp",
+                "jsonPath": "src/data/template-json/t077.json",
+                "status": "published",
+                "tags": [
+                  "customer success manager",
+                  "customer success",
+                  "client success",
+                  "account management",
+                  "customer retention",
+                  "customer experience",
+                  "saas",
+                  "client relationship management",
+                  "renewals",
+                  "ats resume"
+                ]
+              },
+              {
+                "id": "t078",
+                "title": "Financial Analyst Resume",
+                "categoryId": "finance-accounting",
+                "thumbnailPath": "/templates/t078.webp",
+                "jsonPath": "src/data/template-json/t078.json",
+                "status": "published",
+                "tags": [
+                  "financial analyst",
+                  "finance analyst",
+                  "financial planning",
+                  "budgeting",
+                  "forecasting",
+                  "financial modeling",
+                  "data analysis",
+                  "excel",
+                  "fp&a",
+                  "ats resume"
+                ]
+              },
+              {
+                "id": "t079",
+                "title": "Operations Manager Resume",
+                "categoryId": "business-management",
+                "thumbnailPath": "/templates/t079.webp",
+                "jsonPath": "src/data/template-json/t079.json",
+                "status": "published",
+                "tags": [
+                  "operations manager",
+                  "operations management",
+                  "business operations",
+                  "process improvement",
+                  "project management",
+                  "team leadership",
+                  "supply chain",
+                  "operational excellence",
+                  "kpi management",
+                  "ats resume"
+                ]
               }
 
 

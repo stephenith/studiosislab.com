@@ -6109,12 +6109,16 @@ try {
   const addImageFrameRef = useRef(addImageFrame);
   addImageFrameRef.current = addImageFrame;
 
+  const getPagesJsonForSaveRef = useRef(getPagesJsonForSave);
+  getPagesJsonForSaveRef.current = getPagesJsonForSave;
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     (window as any).editor = {
       addImageFrame: (type: "square" | "circle") =>
         addImageFrameRef.current(type),
+      getPagesJsonForSave: () => getPagesJsonForSaveRef.current(),
     };
   }, []);
 

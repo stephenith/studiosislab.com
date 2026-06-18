@@ -84,322 +84,99 @@ export type TemplateSnapshot = {
   objects: any[];
 };
 
+function toTemplateSnapshot(raw: unknown): TemplateSnapshot {
+  if (Array.isArray(raw)) {
+    const first = raw[0];
+    if (first && typeof first === "object" && Array.isArray((first as { objects?: unknown[] }).objects)) {
+      return { objects: (first as { objects: any[] }).objects };
+    }
+    return { objects: [] };
+  }
+  if (raw && typeof raw === "object" && Array.isArray((raw as { objects?: unknown[] }).objects)) {
+    return { objects: (raw as { objects: any[] }).objects };
+  }
+  return { objects: [] };
+}
+
 export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
   blank: { objects: [] },
-  "t001":
-    (tpl0 as any)?.objects && (tpl0 as any).objects.length > 0
-      ? (tpl0 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t002":
-    (tpl1 as any)?.objects && (tpl1 as any).objects.length > 0
-      ? (tpl1 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t003":
-    (tpl2 as any)?.objects && (tpl2 as any).objects.length > 0
-      ? (tpl2 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t004":
-    (tpl3 as any)?.objects && (tpl3 as any).objects.length > 0
-      ? (tpl3 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t005":
-    (tpl4 as any)?.objects && (tpl4 as any).objects.length > 0
-      ? (tpl4 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t006":
-    (tpl5 as any)?.objects && (tpl5 as any).objects.length > 0
-      ? (tpl5 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t007":
-    (tpl6 as any)?.objects && (tpl6 as any).objects.length > 0
-      ? (tpl6 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t008":
-    (tpl7 as any)?.objects && (tpl7 as any).objects.length > 0
-      ? (tpl7 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t009":
-    (tpl8 as any)?.objects && (tpl8 as any).objects.length > 0
-      ? (tpl8 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t010":
-    (tpl9 as any)?.objects && (tpl9 as any).objects.length > 0
-      ? (tpl9 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t011":
-    (tpl10 as any)?.objects && (tpl10 as any).objects.length > 0
-      ? (tpl10 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t012":
-    (tpl11 as any)?.objects && (tpl11 as any).objects.length > 0
-      ? (tpl11 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t013":
-    (tpl12 as any)?.objects && (tpl12 as any).objects.length > 0
-      ? (tpl12 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t014":
-    (tpl13 as any)?.objects && (tpl13 as any).objects.length > 0
-      ? (tpl13 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t015":
-    (tpl14 as any)?.objects && (tpl14 as any).objects.length > 0
-      ? (tpl14 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t016":
-    (tpl15 as any)?.objects && (tpl15 as any).objects.length > 0
-      ? (tpl15 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t017":
-    (tpl16 as any)?.objects && (tpl16 as any).objects.length > 0
-      ? (tpl16 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t018":
-    (tpl17 as any)?.objects && (tpl17 as any).objects.length > 0
-      ? (tpl17 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t019":
-    (tpl18 as any)?.objects && (tpl18 as any).objects.length > 0
-      ? (tpl18 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t020":
-    (tpl19 as any)?.objects && (tpl19 as any).objects.length > 0
-      ? (tpl19 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t021":
-    (tpl20 as any)?.objects && (tpl20 as any).objects.length > 0
-      ? (tpl20 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t022":
-    (tpl21 as any)?.objects && (tpl21 as any).objects.length > 0
-      ? (tpl21 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t023":
-    (tpl22 as any)?.objects && (tpl22 as any).objects.length > 0
-      ? (tpl22 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t024":
-    (tpl23 as any)?.objects && (tpl23 as any).objects.length > 0
-      ? (tpl23 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t025":
-    (tpl24 as any)?.objects && (tpl24 as any).objects.length > 0
-      ? (tpl24 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t026":
-    (tpl25 as any)?.objects && (tpl25 as any).objects.length > 0
-      ? (tpl25 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t027":
-    (tpl26 as any)?.objects && (tpl26 as any).objects.length > 0
-      ? (tpl26 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t028":
-    (tpl27 as any)?.objects && (tpl27 as any).objects.length > 0
-      ? (tpl27 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t029":
-    (tpl28 as any)?.objects && (tpl28 as any).objects.length > 0
-      ? (tpl28 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t030":
-    (tpl29 as any)?.objects && (tpl29 as any).objects.length > 0
-      ? (tpl29 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t031":
-    (tpl30 as any)?.objects && (tpl30 as any).objects.length > 0
-      ? (tpl30 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t032":
-    (tpl31 as any)?.objects && (tpl31 as any).objects.length > 0
-      ? (tpl31 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t033":
-    (tpl32 as any)?.objects && (tpl32 as any).objects.length > 0
-      ? (tpl32 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t034":
-    (tpl33 as any)?.objects && (tpl33 as any).objects.length > 0
-      ? (tpl33 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t035":
-    (tpl34 as any)?.objects && (tpl34 as any).objects.length > 0
-      ? (tpl34 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t036":
-    (tpl35 as any)?.objects && (tpl35 as any).objects.length > 0
-      ? (tpl35 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t037":
-    (tpl36 as any)?.objects && (tpl36 as any).objects.length > 0
-      ? (tpl36 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t038":
-    (tpl37 as any)?.objects && (tpl37 as any).objects.length > 0
-      ? (tpl37 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t039":
-    (tpl38 as any)?.objects && (tpl38 as any).objects.length > 0
-      ? (tpl38 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t040":
-    (tpl39 as any)?.objects && (tpl39 as any).objects.length > 0
-      ? (tpl39 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t041":
-    (tpl40 as any)?.objects && (tpl40 as any).objects.length > 0
-      ? (tpl40 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t042":
-    (tpl41 as any)?.objects && (tpl41 as any).objects.length > 0
-      ? (tpl41 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t043":
-    (tpl42 as any)?.objects && (tpl42 as any).objects.length > 0
-      ? (tpl42 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t044":
-    (tpl43 as any)?.objects && (tpl43 as any).objects.length > 0
-      ? (tpl43 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t045":
-    (tpl44 as any)?.objects && (tpl44 as any).objects.length > 0
-      ? (tpl44 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t046":
-    (tpl45 as any)?.objects && (tpl45 as any).objects.length > 0
-      ? (tpl45 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t047":
-    (tpl46 as any)?.objects && (tpl46 as any).objects.length > 0
-      ? (tpl46 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t048":
-    (tpl47 as any)?.objects && (tpl47 as any).objects.length > 0
-      ? (tpl47 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t049":
-    (tpl48 as any)?.objects && (tpl48 as any).objects.length > 0
-      ? (tpl48 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t050":
-    (tpl49 as any)?.objects && (tpl49 as any).objects.length > 0
-      ? (tpl49 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t051":
-    (tpl50 as any)?.objects && (tpl50 as any).objects.length > 0
-      ? (tpl50 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t052":
-    (tpl51 as any)?.objects && (tpl51 as any).objects.length > 0
-      ? (tpl51 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t053":
-    (tpl52 as any)?.objects && (tpl52 as any).objects.length > 0
-      ? (tpl52 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t054":
-    (tpl53 as any)?.objects && (tpl53 as any).objects.length > 0
-      ? (tpl53 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t055":
-    (tpl54 as any)?.objects && (tpl54 as any).objects.length > 0
-      ? (tpl54 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t056":
-    (tpl55 as any)?.objects && (tpl55 as any).objects.length > 0
-      ? (tpl55 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t057":
-    (tpl56 as any)?.objects && (tpl56 as any).objects.length > 0
-      ? (tpl56 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t058":
-    (tpl57 as any)?.objects && (tpl57 as any).objects.length > 0
-      ? (tpl57 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t059":
-    (tpl58 as any)?.objects && (tpl58 as any).objects.length > 0
-      ? (tpl58 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t060":
-    (tpl59 as any)?.objects && (tpl59 as any).objects.length > 0
-      ? (tpl59 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t061":
-    (tpl60 as any)?.objects && (tpl60 as any).objects.length > 0
-      ? (tpl60 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t062":
-    (tpl61 as any)?.objects && (tpl61 as any).objects.length > 0
-      ? (tpl61 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t063":
-    (tpl62 as any)?.objects && (tpl62 as any).objects.length > 0
-      ? (tpl62 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t064":
-    (tpl63 as any)?.objects && (tpl63 as any).objects.length > 0
-      ? (tpl63 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t065":
-    (tpl64 as any)?.objects && (tpl64 as any).objects.length > 0
-      ? (tpl64 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t066":
-    (tpl65 as any)?.objects && (tpl65 as any).objects.length > 0
-      ? (tpl65 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t067":
-    (tpl66 as any)?.objects && (tpl66 as any).objects.length > 0
-      ? (tpl66 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t068":
-    (tpl67 as any)?.objects && (tpl67 as any).objects.length > 0
-      ? (tpl67 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t069":
-    (tpl68 as any)?.objects && (tpl68 as any).objects.length > 0
-      ? (tpl68 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t070":
-    (tpl69 as any)?.objects && (tpl69 as any).objects.length > 0
-      ? (tpl69 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t071":
-    (tpl70 as any)?.objects && (tpl70 as any).objects.length > 0
-      ? (tpl70 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t072":
-    (tpl71 as any)?.objects && (tpl71 as any).objects.length > 0
-      ? (tpl71 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t073":
-    (tpl72 as any)?.objects && (tpl72 as any).objects.length > 0
-      ? (tpl72 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t074":
-    (tpl73 as any)?.objects && (tpl73 as any).objects.length > 0
-      ? (tpl73 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t075":
-    (tpl74 as any)?.objects && (tpl74 as any).objects.length > 0
-      ? (tpl74 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t076":
-    (tpl75 as any)?.objects && (tpl75 as any).objects.length > 0
-      ? (tpl75 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t077":
-    (tpl76 as any)?.objects && (tpl76 as any).objects.length > 0
-      ? (tpl76 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t078":
-    (tpl77 as any)?.objects && (tpl77 as any).objects.length > 0
-      ? (tpl77 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
-  "t079":
-    (tpl78 as any)?.objects && (tpl78 as any).objects.length > 0
-      ? (tpl78 as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),
+  "t001": toTemplateSnapshot(tpl0),
+  "t002": toTemplateSnapshot(tpl1),
+  "t003": toTemplateSnapshot(tpl2),
+  "t004": toTemplateSnapshot(tpl3),
+  "t005": toTemplateSnapshot(tpl4),
+  "t006": toTemplateSnapshot(tpl5),
+  "t007": toTemplateSnapshot(tpl6),
+  "t008": toTemplateSnapshot(tpl7),
+  "t009": toTemplateSnapshot(tpl8),
+  "t010": toTemplateSnapshot(tpl9),
+  "t011": toTemplateSnapshot(tpl10),
+  "t012": toTemplateSnapshot(tpl11),
+  "t013": toTemplateSnapshot(tpl12),
+  "t014": toTemplateSnapshot(tpl13),
+  "t015": toTemplateSnapshot(tpl14),
+  "t016": toTemplateSnapshot(tpl15),
+  "t017": toTemplateSnapshot(tpl16),
+  "t018": toTemplateSnapshot(tpl17),
+  "t019": toTemplateSnapshot(tpl18),
+  "t020": toTemplateSnapshot(tpl19),
+  "t021": toTemplateSnapshot(tpl20),
+  "t022": toTemplateSnapshot(tpl21),
+  "t023": toTemplateSnapshot(tpl22),
+  "t024": toTemplateSnapshot(tpl23),
+  "t025": toTemplateSnapshot(tpl24),
+  "t026": toTemplateSnapshot(tpl25),
+  "t027": toTemplateSnapshot(tpl26),
+  "t028": toTemplateSnapshot(tpl27),
+  "t029": toTemplateSnapshot(tpl28),
+  "t030": toTemplateSnapshot(tpl29),
+  "t031": toTemplateSnapshot(tpl30),
+  "t032": toTemplateSnapshot(tpl31),
+  "t033": toTemplateSnapshot(tpl32),
+  "t034": toTemplateSnapshot(tpl33),
+  "t035": toTemplateSnapshot(tpl34),
+  "t036": toTemplateSnapshot(tpl35),
+  "t037": toTemplateSnapshot(tpl36),
+  "t038": toTemplateSnapshot(tpl37),
+  "t039": toTemplateSnapshot(tpl38),
+  "t040": toTemplateSnapshot(tpl39),
+  "t041": toTemplateSnapshot(tpl40),
+  "t042": toTemplateSnapshot(tpl41),
+  "t043": toTemplateSnapshot(tpl42),
+  "t044": toTemplateSnapshot(tpl43),
+  "t045": toTemplateSnapshot(tpl44),
+  "t046": toTemplateSnapshot(tpl45),
+  "t047": toTemplateSnapshot(tpl46),
+  "t048": toTemplateSnapshot(tpl47),
+  "t049": toTemplateSnapshot(tpl48),
+  "t050": toTemplateSnapshot(tpl49),
+  "t051": toTemplateSnapshot(tpl50),
+  "t052": toTemplateSnapshot(tpl51),
+  "t053": toTemplateSnapshot(tpl52),
+  "t054": toTemplateSnapshot(tpl53),
+  "t055": toTemplateSnapshot(tpl54),
+  "t056": toTemplateSnapshot(tpl55),
+  "t057": toTemplateSnapshot(tpl56),
+  "t058": toTemplateSnapshot(tpl57),
+  "t059": toTemplateSnapshot(tpl58),
+  "t060": toTemplateSnapshot(tpl59),
+  "t061": toTemplateSnapshot(tpl60),
+  "t062": toTemplateSnapshot(tpl61),
+  "t063": toTemplateSnapshot(tpl62),
+  "t064": toTemplateSnapshot(tpl63),
+  "t065": toTemplateSnapshot(tpl64),
+  "t066": toTemplateSnapshot(tpl65),
+  "t067": toTemplateSnapshot(tpl66),
+  "t068": toTemplateSnapshot(tpl67),
+  "t069": toTemplateSnapshot(tpl68),
+  "t070": toTemplateSnapshot(tpl69),
+  "t071": toTemplateSnapshot(tpl70),
+  "t072": toTemplateSnapshot(tpl71),
+  "t073": toTemplateSnapshot(tpl72),
+  "t074": toTemplateSnapshot(tpl73),
+  "t075": toTemplateSnapshot(tpl74),
+  "t076": toTemplateSnapshot(tpl75),
+  "t077": toTemplateSnapshot(tpl76),
+  "t078": toTemplateSnapshot(tpl77),
+  "t079": toTemplateSnapshot(tpl78),
 };

@@ -174,10 +174,7 @@ function writeGeneratedTemplateSnapshots(manifest: Manifest) {
 
   const snapshotRows = manifest.templates
     .map((template, index) => {
-      return `  ${JSON.stringify(template.id)}:
-    (tpl${index} as any)?.objects && (tpl${index} as any).objects.length > 0
-      ? (tpl${index} as TemplateSnapshot)
-      : ({ objects: [] } as TemplateSnapshot),`;
+      return `  ${JSON.stringify(template.id)}: toTemplateSnapshot(tpl${index}),`;
     })
     .join("\n");
 
@@ -188,6 +185,20 @@ ${imports}
 export type TemplateSnapshot = {
   objects: any[];
 };
+
+function toTemplateSnapshot(raw: unknown): TemplateSnapshot {
+  if (Array.isArray(raw)) {
+    const first = raw[0];
+    if (first && typeof first === "object" && Array.isArray((first as { objects?: unknown[] }).objects)) {
+      return { objects: (first as { objects: any[] }).objects };
+    }
+    return { objects: [] };
+  }
+  if (raw && typeof raw === "object" && Array.isArray((raw as { objects?: unknown[] }).objects)) {
+    return { objects: (raw as { objects: any[] }).objects };
+  }
+  return { objects: [] };
+}
 
 export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
   blank: { objects: [] },

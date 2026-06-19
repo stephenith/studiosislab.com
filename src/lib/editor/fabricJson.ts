@@ -12,6 +12,10 @@ export function normalizeToFabricJson(snap: any): { objects: any[] } {
     }
   }
   if (snap?.canvas) return normalizeToFabricJson(snap.canvas);
+  if (Array.isArray(snap)) {
+    if (snap.length === 0) return { objects: [] };
+    return normalizeToFabricJson(snap[0]);
+  }
   if (Array.isArray(snap?.objects)) return snap;
   return { objects: [] };
 }

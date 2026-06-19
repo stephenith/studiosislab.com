@@ -2529,7 +2529,7 @@
                         "globalCompositeOperation": "source-over",
                         "skewX": 0,
                         "skewY": 0,
-                        "src": "/images/profile-35.png",
+                        "src": "/images/profile-35.svg",
                         "crossOrigin": "anonymous",
                         "filters": []
                     }

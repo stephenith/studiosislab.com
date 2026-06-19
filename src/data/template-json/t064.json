@@ -1425,7 +1425,7 @@
                         "globalCompositeOperation": "source-over",
                         "skewX": 0,
                         "skewY": 0,
-                        "src": "/images/profile-32.png",
+                        "src": "/images/profile-32.svg",
                         "crossOrigin": "anonymous",
                         "filters": []
                     }

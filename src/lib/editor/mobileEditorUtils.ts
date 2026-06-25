@@ -337,26 +337,35 @@ export function applyMobileInteractionLocks(c: Canvas, pageW: number, pageH: num
   c.discardActiveObject();
 }
 
+export type FitCanvasResult = {
+  scaledW: number;
+  scaledH: number;
+};
+
+/**
+ * Fit the resume page to the mobile viewport width (with padding).
+ * Uses CSS-only canvas scaling so the DOM element matches the visible page size
+ * and stays horizontally centered without horizontal scroll.
+ */
 export function fitCanvasToViewport(
   c: Canvas,
   containerWidth: number,
-  containerHeight: number,
-  pageW: number,
-  pageH: number
-): number {
+  pageBounds: { left: number; top: number; width: number; height: number }
+): FitCanvasResult {
   const padding = 16;
   const availW = Math.max(1, containerWidth - padding * 2);
-  const availH = Math.max(1, containerHeight - padding * 2);
-  const scaleW = availW / pageW;
-  const scaleH = availH / pageH;
-  const z = Math.min(scaleW, scaleH, 1);
-  const scaledW = pageW * z;
-  const scaledH = pageH * z;
-  const tx = (containerWidth - scaledW) / 2;
-  const ty = Math.max(padding, (containerHeight - scaledH) / 2);
-  c.setViewportTransform([z, 0, 0, z, tx, ty]);
+  const pageW = Math.max(1, pageBounds.width);
+  const pageH = Math.max(1, pageBounds.height);
+  const z = availW / pageW;
+  const scaledW = Math.round(availW);
+  const scaledH = Math.round(pageH * z);
+
+  c.setViewportTransform([1, 0, 0, 1, 0, 0]);
+  c.setDimensions({ width: scaledW, height: scaledH }, { cssOnly: true });
+  c.calcOffset?.();
   c.requestRenderAll();
-  return z;
+
+  return { scaledW, scaledH };
 }
 
 export function getPageBounds(c: Canvas, pageSize: PageSize = "A4") {

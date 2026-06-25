@@ -20,6 +20,7 @@ const inter = Inter({
 
 export const viewport: Viewport = {
   themeColor: "#ffffff",
+  viewportFit: "cover",
 };
 
 const ORGANIZATION_JSON_LD = {

@@ -31,6 +31,7 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
   const { user } = useAuth();
   const canvasRef = useRef<Canvas | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const canvasWrapRef = useRef<HTMLDivElement | null>(null);
   const pageSizeRef = useRef(PAGE_SIZES.A4);
   const editingObjectRef = useRef<any>(null);
   const docIdRef = useRef<string | null>(null);
@@ -47,11 +48,16 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
   const fitToContainer = useCallback(() => {
     const c = canvasRef.current;
     const vp = viewportRef.current;
+    const wrap = canvasWrapRef.current;
     if (!c || !vp) return;
     const rect = vp.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) return;
-    const { w, h } = pageSizeRef.current;
-    fitCanvasToViewport(c, rect.width, rect.height, w, h);
+    if (rect.width <= 0) return;
+    const pageBounds = getPageBounds(c, "A4");
+    const { scaledW, scaledH } = fitCanvasToViewport(c, rect.width, pageBounds);
+    if (wrap) {
+      wrap.style.width = `${scaledW}px`;
+      wrap.style.height = `${scaledH}px`;
+    }
   }, []);
 
   const attachCanvasEl = useCallback(
@@ -272,6 +278,7 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
     isDownloading,
     attachCanvasEl,
     viewportRef,
+    canvasWrapRef,
     closeTextEdit,
     commitTextEdit,
     save,

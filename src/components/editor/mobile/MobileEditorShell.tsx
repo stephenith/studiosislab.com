@@ -94,12 +94,12 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
           />
         </div>
 
-        <div className="grid w-full max-w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-1.5 pb-3">
-          <p className="min-w-0 truncate text-xs text-white/60">
+        <div className="flex w-full min-w-0 items-center gap-x-1.5 pb-3">
+          <p className="min-w-0 flex-1 truncate text-xs text-white/60">
             {saveStatusLabel(editor.saveStatus)}
           </p>
 
-          <div className="flex max-w-full shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-1">
             <button
               type="button"
               onClick={editor.resetView}

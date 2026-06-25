@@ -396,10 +396,10 @@ export function fitCanvasToViewport(
   const pageW = Math.max(1, pageBounds.width);
   const pageH = Math.max(1, pageBounds.height);
   const baseZoom = availW / pageW;
-  const scaledW = Math.round(availW);
+  const scaledW = Math.round(pageW * baseZoom);
   const scaledH = Math.round(pageH * baseZoom);
-  const panX = padding - pageBounds.left * baseZoom;
-  const panY = padding - pageBounds.top * baseZoom;
+  const panX = (containerWidth - scaledW) / 2 - pageBounds.left * baseZoom;
+  const panY = (containerHeight - scaledH) / 2 - pageBounds.top * baseZoom;
   const state: MobileViewportState = { zoom: baseZoom, panX, panY };
 
   c.setDimensions(

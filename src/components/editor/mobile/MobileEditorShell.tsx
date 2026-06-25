@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Download, Loader2 } from "lucide-react";
+import { ArrowLeft, Download, Loader2, Scan } from "lucide-react";
 import TextEditSheet from "@/components/editor/mobile/TextEditSheet";
 import { useMobileFabricEditor } from "@/components/editor/mobile/useMobileFabricEditor";
 
@@ -66,8 +66,11 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
 
   return (
     <main className="flex h-[100dvh] flex-col overflow-hidden bg-[#ebecf0] font-[family-name:var(--font-inter)]">
-      <header className="z-20 shrink-0 bg-[#1f1f28] text-white" style={MOBILE_SAFE_AREA}>
-        <div className="flex items-center gap-3 pb-2 pt-1">
+      <header
+        className="z-20 shrink-0 overflow-hidden bg-[#1f1f28] text-white"
+        style={MOBILE_SAFE_AREA}
+      >
+        <div className="flex min-w-0 items-center gap-2 pb-2 pt-1">
           <Link
             href="/resume"
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 active:bg-white/20"
@@ -87,33 +90,46 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
           />
         </div>
 
-        <div className="flex items-center gap-3 pb-3">
+        <div className="flex min-w-0 items-center gap-2 overflow-hidden pb-3">
           <p className="min-w-0 flex-1 truncate text-xs text-white/60">
             {saveStatusLabel(editor.saveStatus)}
           </p>
 
-          <button
-            type="button"
-            onClick={() => void editor.save()}
-            disabled={editor.saveStatus === "saving" || editor.loading}
-            className="inline-flex min-h-11 min-w-[5.5rem] shrink-0 items-center justify-center rounded-xl bg-white/10 px-5 text-sm font-medium text-white active:bg-white/20 disabled:opacity-50"
-          >
-            {editor.saveStatus === "saving" ? "Saving…" : "Save"}
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={editor.resetView}
+              disabled={editor.loading}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white active:bg-white/20 disabled:opacity-50"
+              aria-label="Reset view"
+            >
+              <Scan className="h-4 w-4" />
+            </button>
 
-          <button
-            type="button"
-            onClick={() => void editor.downloadPdf()}
-            disabled={editor.loading || editor.isDownloading}
-            className="inline-flex min-h-11 min-w-[5.5rem] shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 text-sm font-medium text-black active:bg-gray-200 disabled:opacity-50"
-          >
-            {editor.isDownloading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="h-4 w-4" />
-            )}
-            PDF
-          </button>
+            <button
+              type="button"
+              onClick={() => void editor.save()}
+              disabled={editor.saveStatus === "saving" || editor.loading}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white/10 px-3 text-sm font-medium text-white active:bg-white/20 disabled:opacity-50"
+            >
+              {editor.saveStatus === "saving" ? "Saving…" : "Save"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => void editor.downloadPdf()}
+              disabled={editor.loading || editor.isDownloading}
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-white px-3 text-sm font-medium text-black active:bg-gray-200 disabled:opacity-50"
+              aria-label="Download PDF"
+            >
+              {editor.isDownloading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+              <span>PDF</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -138,18 +154,19 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
         </div>
       </div>
 
-      {!editor.loading && (
-        <div
-          className="shrink-0 border-t border-zinc-200 bg-white px-4 py-3 text-center text-xs text-zinc-500"
-          style={{
-            paddingLeft: "max(1rem, env(safe-area-inset-left))",
-            paddingRight: "max(1rem, env(safe-area-inset-right))",
-            paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
-          }}
-        >
-          Pinch to zoom, drag to pan, tap text to edit.
-        </div>
-      )}
+      <div
+        className={`shrink-0 border-t border-zinc-200 bg-white px-4 py-3 text-center text-xs text-zinc-500 ${
+          editor.loading ? "invisible" : ""
+        }`}
+        style={{
+          paddingLeft: "max(1rem, env(safe-area-inset-left))",
+          paddingRight: "max(1rem, env(safe-area-inset-right))",
+          paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
+        }}
+        aria-hidden={editor.loading}
+      >
+        Pinch to zoom, drag to pan, tap text to edit.
+      </div>
 
       <TextEditSheet
         open={!!editor.textEdit}

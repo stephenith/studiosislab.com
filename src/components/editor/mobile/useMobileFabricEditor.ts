@@ -111,8 +111,11 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
     applyMobileViewportTransform(c, state);
   }, []);
 
-  const fitToContainer = useCallback(() => {
-    if (userAdjustedViewRef.current) return;
+  const lastContainerWidthRef = useRef(0);
+  const resizeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const fitToContainer = useCallback((options?: { force?: boolean }) => {
+    if (userAdjustedViewRef.current && !options?.force) return;
     const c = canvasRef.current;
     const vp = viewportRef.current;
     if (!c || !vp) return;
@@ -122,7 +125,35 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
     const result = fitCanvasToViewport(c, rect.width, rect.height, pageBounds);
     viewStateRef.current = result.state;
     baseZoomRef.current = result.baseZoom;
+    lastContainerWidthRef.current = rect.width;
   }, []);
+
+  const resetView = useCallback(() => {
+    userAdjustedViewRef.current = false;
+    fitToContainer({ force: true });
+  }, [fitToContainer]);
+
+  const beginPinchGesture = useCallback(
+    (t0: Touch, t1: Touch, container: HTMLElement, markAdjusted: boolean) => {
+      const center = touchCenter(t0, t1, container);
+      const state = viewStateRef.current;
+      gestureRef.current = {
+        ...gestureRef.current,
+        mode: "pinch",
+        startDistance: touchDistance(t0, t1),
+        startZoom: state.zoom,
+        startPanX: state.panX,
+        startPanY: state.panY,
+        pinchCenterX: center.x,
+        pinchCenterY: center.y,
+        hadGesture: true,
+      };
+      if (markAdjusted) {
+        userAdjustedViewRef.current = true;
+      }
+    },
+    []
+  );
 
   const attachCanvasEl = useCallback((el: HTMLCanvasElement | null) => {
     if (!el) return;
@@ -205,9 +236,31 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
     const vp = viewportRef.current;
     if (!vp) return;
 
-    const ro = new ResizeObserver(() => fitToContainer());
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const width = entry.contentRect.width;
+      if (
+        lastContainerWidthRef.current > 0 &&
+        Math.abs(width - lastContainerWidthRef.current) < 1
+      ) {
+        return;
+      }
+
+      if (resizeDebounceRef.current) {
+        clearTimeout(resizeDebounceRef.current);
+      }
+      resizeDebounceRef.current = setTimeout(() => {
+        fitToContainer();
+      }, 120);
+    });
     ro.observe(vp);
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+      if (resizeDebounceRef.current) {
+        clearTimeout(resizeDebounceRef.current);
+      }
+    };
   }, [fitToContainer, loading]);
 
   useEffect(() => {
@@ -238,22 +291,12 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
         };
         isCanvasInteractingRef.current = true;
       } else if (e.touches.length >= 2) {
-        const t0 = e.touches[0];
-        const t1 = e.touches[1];
-        const center = touchCenter(t0, t1, vp);
-        const state = viewStateRef.current;
         gestureRef.current = {
           ...emptyGesture(),
           mode: "pinch",
           startTime: Date.now(),
-          startDistance: touchDistance(t0, t1),
-          startZoom: state.zoom,
-          startPanX: state.panX,
-          startPanY: state.panY,
-          pinchCenterX: center.x,
-          pinchCenterY: center.y,
-          hadGesture: true,
         };
+        beginPinchGesture(e.touches[0], e.touches[1], vp, false);
         isCanvasInteractingRef.current = true;
         e.preventDefault();
       }
@@ -288,23 +331,20 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
         const dist = touchDistance(t0, t1);
         const center = touchCenter(t0, t1, vp);
         if (g.mode !== "pinch" || g.startDistance <= 0) {
-          g.mode = "pinch";
-          g.startDistance = dist;
-          g.startZoom = viewStateRef.current.zoom;
-          g.startPanX = viewStateRef.current.panX;
-          g.startPanY = viewStateRef.current.panY;
+          beginPinchGesture(t0, t1, vp, true);
         }
-        const scaleFactor = dist / g.startDistance;
-        const newZoom = g.startZoom * scaleFactor;
+        const pinch = gestureRef.current;
+        const scaleFactor = dist / pinch.startDistance;
+        const newZoom = pinch.startZoom * scaleFactor;
         const next = zoomViewportAroundPoint(
-          { zoom: g.startZoom, panX: g.startPanX, panY: g.startPanY },
+          { zoom: pinch.startZoom, panX: pinch.startPanX, panY: pinch.startPanY },
           newZoom,
           center.x,
           center.y,
           baseZoomRef.current
         );
         applyViewState(next);
-        g.hadGesture = true;
+        pinch.hadGesture = true;
         markUserAdjusted();
         e.preventDefault();
       }
@@ -370,7 +410,7 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
       vp.removeEventListener("touchend", onTouchEnd);
       vp.removeEventListener("touchcancel", onTouchCancel);
     };
-  }, [applyViewState, canvasReady, loading]);
+  }, [applyViewState, beginPinchGesture, canvasReady, loading]);
 
   const closeTextEdit = useCallback(() => {
     editingObjectRef.current = null;
@@ -499,5 +539,6 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
     commitTextEdit,
     save,
     downloadPdf,
+    resetView,
   };
 }

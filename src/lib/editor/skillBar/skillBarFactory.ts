@@ -104,28 +104,52 @@ export function buildSkillBarChildren(model: SkillBarModel): any[] {
   return children;
 }
 
+function replaceSkillBarOnCanvas(oldGroup: any, newGroup: any): void {
+  const canvas = oldGroup?.canvas;
+  if (!canvas) return;
+
+  const zIndex = canvas.getObjects?.().indexOf(oldGroup) ?? -1;
+  const wasActive = canvas.getActiveObject?.() === oldGroup;
+
+  canvas.remove(oldGroup);
+  if (zIndex >= 0 && typeof canvas.insertAt === "function") {
+    canvas.insertAt(zIndex, newGroup);
+  } else {
+    canvas.add(newGroup);
+  }
+
+  if (wasActive) {
+    canvas.setActiveObject?.(newGroup);
+  }
+  newGroup.setCoords?.();
+}
+
 export function renderSkillBarFromModel(group: any, modelPatch?: Partial<SkillBarModel>): void {
   const model = normalizeSkillBarModel({ ...getSkillBarModel(group), ...modelPatch });
-  const children = buildSkillBarChildren(model);
 
-  const existing = [...(group.getObjects?.() || group._objects || [])];
-  for (const child of existing) {
-    try {
-      group.remove?.(child);
-    } catch {
-      /* ignore */
-    }
-  }
+  const left = Number(group.left ?? 0);
+  const top = Number(group.top ?? 0);
+  const scaleX = Number(group.scaleX ?? 1);
+  const scaleY = Number(group.scaleY ?? 1);
+  const angle = Number(group.angle ?? 0);
+  const flipX = Boolean(group.flipX);
+  const flipY = Boolean(group.flipY);
+  const id = group.id;
+  const role = group.role;
+  const dataId = group.data?.id;
 
-  for (const child of children) {
-    group.add?.(child);
-  }
+  const newGroup = createSkillBarGroup(model, { left, top });
+  newGroup.set?.({ scaleX, scaleY, angle, flipX, flipY });
+  if (id != null) newGroup.id = id;
+  if (role != null) newGroup.role = role;
+  newGroup.data = {
+    role: SKILL_BAR_ROLE,
+    model,
+    ...(dataId != null ? { id: dataId } : {}),
+  };
+  applySkillBarInteractionLocks(newGroup);
 
-  group.data = { role: SKILL_BAR_ROLE, model };
-  group.set?.({ subTargetCheck: false, objectCaching: false });
-  group._calcBounds?.();
-  group.setCoords?.();
-  applySkillBarInteractionLocks(group);
+  replaceSkillBarOnCanvas(group, newGroup);
 }
 
 export function setSkillBarValueOnGroup(group: any, value: number): SkillBarModel {

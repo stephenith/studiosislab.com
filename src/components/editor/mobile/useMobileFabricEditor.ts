@@ -439,6 +439,12 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
   const closeSkillBarEdit = useCallback(() => {
     editingSkillBarRef.current = null;
     setSkillBarEdit(null);
+    const c = canvasRef.current;
+    if (c) {
+      c.discardActiveObject();
+      c.requestRenderAll();
+      (c as any)._resetTransformEventData?.();
+    }
   }, []);
 
   const previewSkillBarValue = useCallback((value: number) => {
@@ -468,7 +474,6 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
       return;
     }
     setSkillBarValueOnGroup(group, skillBarEdit.draftValue);
-    c.requestRenderAll();
     if (skillBarEdit.draftValue !== skillBarEdit.originalValue) {
       isDirtyRef.current = true;
       setSaveStatus("unsaved");

@@ -446,6 +446,8 @@ export function findEditableTargetAtContainerPoint(
   clientX: number,
   clientY: number
 ): EditableTarget | null {
+  (c as any)._resetTransformEventData?.();
+
   const synthetic = {
     clientX,
     clientY,

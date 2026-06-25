@@ -65,12 +65,16 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
   }
 
   return (
-    <main className="flex h-[100dvh] flex-col overflow-hidden bg-[#ebecf0] font-[family-name:var(--font-inter)]">
+    <main className="flex h-[100dvh] w-full max-w-[100vw] flex-col overflow-x-hidden bg-[#ebecf0] font-[family-name:var(--font-inter)]">
       <header
-        className="z-20 shrink-0 overflow-hidden bg-[#1f1f28] text-white"
-        style={MOBILE_SAFE_AREA}
+        className="z-20 w-full max-w-full shrink-0 overflow-x-clip bg-[#1f1f28] text-white"
+        style={{
+          ...MOBILE_SAFE_AREA,
+          touchAction: "pan-y",
+          overscrollBehaviorX: "none",
+        }}
       >
-        <div className="flex min-w-0 items-center gap-2 pb-2 pt-1">
+        <div className="flex w-full max-w-full min-w-0 items-center gap-2 pb-2 pt-1">
           <Link
             href="/resume"
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 active:bg-white/20"
@@ -85,22 +89,22 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
             onChange={(e) => {
               editor.setDocTitle(e.target.value);
             }}
-            className="min-h-11 min-w-0 flex-1 truncate border-none bg-transparent text-sm font-medium text-white outline-none placeholder:text-white/60"
+            className="min-h-11 w-0 min-w-0 flex-1 truncate border-none bg-transparent text-sm font-medium text-white outline-none placeholder:text-white/60"
             aria-label="Resume title"
           />
         </div>
 
-        <div className="flex min-w-0 items-center gap-2 overflow-hidden pb-3">
-          <p className="min-w-0 flex-1 truncate text-xs text-white/60">
+        <div className="grid w-full max-w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 pb-3">
+          <p className="min-w-0 truncate text-xs text-white/60">
             {saveStatusLabel(editor.saveStatus)}
           </p>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5">
             <button
               type="button"
               onClick={editor.resetView}
               disabled={editor.loading}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white active:bg-white/20 disabled:opacity-50"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white active:bg-white/20 disabled:opacity-50"
               aria-label="Reset view"
             >
               <Scan className="h-4 w-4" />
@@ -110,16 +114,23 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
               type="button"
               onClick={() => void editor.save()}
               disabled={editor.saveStatus === "saving" || editor.loading}
-              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white/10 px-3 text-sm font-medium text-white active:bg-white/20 disabled:opacity-50"
+              className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-xl bg-white/10 px-2.5 text-sm font-medium text-white active:bg-white/20 disabled:opacity-50"
             >
-              {editor.saveStatus === "saving" ? "Saving…" : "Save"}
+              {editor.saveStatus === "saving" ? (
+                <>
+                  <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                  <span className="hidden min-[400px]:inline min-[400px]:pl-1.5">Saving…</span>
+                </>
+              ) : (
+                "Save"
+              )}
             </button>
 
             <button
               type="button"
               onClick={() => void editor.downloadPdf()}
               disabled={editor.loading || editor.isDownloading}
-              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-white px-3 text-sm font-medium text-black active:bg-gray-200 disabled:opacity-50"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-black active:bg-gray-200 min-[400px]:w-auto min-[400px]:gap-1.5 min-[400px]:px-2.5 disabled:opacity-50"
               aria-label="Download PDF"
             >
               {editor.isDownloading ? (
@@ -127,7 +138,7 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
               ) : (
                 <Download className="h-4 w-4" />
               )}
-              <span>PDF</span>
+              <span className="hidden text-sm font-medium min-[400px]:inline">PDF</span>
             </button>
           </div>
         </div>

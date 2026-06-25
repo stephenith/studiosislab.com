@@ -119,9 +119,8 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
 
       <div
         ref={editor.viewportRef}
-        className="relative min-h-0 flex-1 overflow-x-hidden overflow-y-auto touch-manipulation"
+        className="relative min-h-0 flex-1 overflow-hidden touch-none"
         style={{
-          WebkitOverflowScrolling: "touch",
           paddingLeft: "max(0.5rem, env(safe-area-inset-left))",
           paddingRight: "max(0.5rem, env(safe-area-inset-right))",
         }}
@@ -134,10 +133,8 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
             </div>
           </div>
         )}
-        <div className="flex justify-center py-3">
-          <div ref={editor.canvasWrapRef} className="shrink-0 overflow-hidden">
-            <canvas ref={editor.attachCanvasEl} className="block max-w-full" />
-          </div>
+        <div ref={editor.canvasWrapRef} className="h-full w-full">
+          <canvas ref={editor.attachCanvasEl} className="block h-full w-full" />
         </div>
       </div>
 
@@ -150,7 +147,7 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
             paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
           }}
         >
-          Tap any text on the resume to edit it.
+          Pinch to zoom, drag to pan, tap text to edit.
         </div>
       )}
 

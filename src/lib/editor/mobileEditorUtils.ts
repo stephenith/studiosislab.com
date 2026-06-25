@@ -340,32 +340,93 @@ export function applyMobileInteractionLocks(c: Canvas, pageW: number, pageH: num
 export type FitCanvasResult = {
   scaledW: number;
   scaledH: number;
+  baseZoom: number;
+  state: MobileViewportState;
 };
+
+export type MobileViewportState = {
+  zoom: number;
+  panX: number;
+  panY: number;
+};
+
+export const MOBILE_TAP_MOVE_THRESHOLD_PX = 10;
+export const MOBILE_TAP_MAX_DURATION_MS = 300;
+export const MOBILE_ZOOM_MAX_MULTIPLIER = 3;
+
+export function applyMobileViewportTransform(c: Canvas, state: MobileViewportState): void {
+  c.setViewportTransform([state.zoom, 0, 0, state.zoom, state.panX, state.panY]);
+  c.calcOffset?.();
+  c.requestRenderAll();
+}
+
+export function clampMobileZoom(zoom: number, baseZoom: number): number {
+  const min = baseZoom;
+  const max = baseZoom * MOBILE_ZOOM_MAX_MULTIPLIER;
+  return Math.max(min, Math.min(max, zoom));
+}
+
+/** Zoom the viewport around a point in container-local coordinates. */
+export function zoomViewportAroundPoint(
+  state: MobileViewportState,
+  newZoom: number,
+  pointX: number,
+  pointY: number,
+  baseZoom: number
+): MobileViewportState {
+  const zoom = clampMobileZoom(newZoom, baseZoom);
+  const oldZoom = state.zoom || 1;
+  const panX = pointX - ((pointX - state.panX) * zoom) / oldZoom;
+  const panY = pointY - ((pointY - state.panY) * zoom) / oldZoom;
+  return { zoom, panX, panY };
+}
 
 /**
  * Fit the resume page to the mobile viewport width (with padding).
- * Uses CSS-only canvas scaling so the DOM element matches the visible page size
- * and stays horizontally centered without horizontal scroll.
+ * Uses Fabric viewportTransform for pan/zoom; canvas display fills the container.
  */
 export function fitCanvasToViewport(
   c: Canvas,
   containerWidth: number,
+  containerHeight: number,
   pageBounds: { left: number; top: number; width: number; height: number }
 ): FitCanvasResult {
   const padding = 16;
   const availW = Math.max(1, containerWidth - padding * 2);
   const pageW = Math.max(1, pageBounds.width);
   const pageH = Math.max(1, pageBounds.height);
-  const z = availW / pageW;
+  const baseZoom = availW / pageW;
   const scaledW = Math.round(availW);
-  const scaledH = Math.round(pageH * z);
+  const scaledH = Math.round(pageH * baseZoom);
+  const panX = padding - pageBounds.left * baseZoom;
+  const panY = padding - pageBounds.top * baseZoom;
+  const state: MobileViewportState = { zoom: baseZoom, panX, panY };
 
-  c.setViewportTransform([1, 0, 0, 1, 0, 0]);
-  c.setDimensions({ width: scaledW, height: scaledH }, { cssOnly: true });
-  c.calcOffset?.();
-  c.requestRenderAll();
+  c.setDimensions(
+    { width: Math.max(1, Math.round(containerWidth)), height: Math.max(1, Math.round(containerHeight)) },
+    { cssOnly: true }
+  );
+  applyMobileViewportTransform(c, state);
 
-  return { scaledW, scaledH };
+  return { scaledW, scaledH, baseZoom, state };
+}
+
+/** Resolve a Fabric target at container-local touch coordinates. */
+export function findTextTargetAtContainerPoint(
+  c: Canvas,
+  _containerEl: HTMLElement,
+  clientX: number,
+  clientY: number
+): any | null {
+  const synthetic = {
+    clientX,
+    clientY,
+    touches: [{ clientX, clientY }],
+    target: c.upperCanvasEl,
+  };
+  const target = (c as any).findTarget?.(synthetic, false);
+  if (!target || !isTextObject(target)) return null;
+  return target;
 }
 
 export function getPageBounds(c: Canvas, pageSize: PageSize = "A4") {

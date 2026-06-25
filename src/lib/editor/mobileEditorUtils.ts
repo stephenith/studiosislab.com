@@ -8,7 +8,13 @@ import { Rect, Shadow } from "fabric";
 import { normalizeToFabricJson } from "@/lib/editor/fabricJson";
 import { applyTextBoxNoStretch } from "@/lib/editor/textTools";
 import { ensureObjectId } from "@/components/editor/editor/utils/fabricHelpers";
+import { isSkillBar, resolveSkillBarFromTarget } from "@/lib/editor/skillBar/skillBarDetection";
+import { normalizeSkillBars } from "@/lib/editor/skillBar/skillBarFactory";
 import { CANVAS_BG, PAGE_SIZES, type PageSize } from "@/types/editor";
+
+export type EditableTarget =
+  | { type: "text"; object: any }
+  | { type: "skill-bar"; object: any };
 
 export const FABRIC_JSON_PROPS = [
   "excludeFromExport",
@@ -293,6 +299,28 @@ export function applyMobileInteractionLocks(c: Canvas, pageW: number, pageH: num
 
     const type = String(obj.type || "").toLowerCase();
     if (type === "group") {
+      if (isSkillBar(obj)) {
+        obj.set?.({
+          selectable: false,
+          evented: true,
+          hasControls: false,
+          hasBorders: false,
+          subTargetCheck: false,
+          interactive: false,
+        });
+        const nested = obj.getObjects?.() || obj._objects || [];
+        for (const child of nested) {
+          child?.set?.({
+            selectable: false,
+            evented: false,
+            editable: false,
+            hasControls: false,
+            hasBorders: false,
+          });
+        }
+        return;
+      }
+
       obj.set?.({
         selectable: false,
         evented: false,
@@ -412,12 +440,12 @@ export function fitCanvasToViewport(
 }
 
 /** Resolve a Fabric target at container-local touch coordinates. */
-export function findTextTargetAtContainerPoint(
+export function findEditableTargetAtContainerPoint(
   c: Canvas,
   _containerEl: HTMLElement,
   clientX: number,
   clientY: number
-): any | null {
+): EditableTarget | null {
   const synthetic = {
     clientX,
     clientY,
@@ -425,8 +453,28 @@ export function findTextTargetAtContainerPoint(
     target: c.upperCanvasEl,
   };
   const target = (c as any).findTarget?.(synthetic, false);
-  if (!target || !isTextObject(target)) return null;
-  return target;
+  if (!target) return null;
+
+  const skillBar = resolveSkillBarFromTarget(target);
+  if (skillBar) return { type: "skill-bar", object: skillBar };
+
+  if (isTextObject(target) && !resolveSkillBarFromTarget(target)) {
+    return { type: "text", object: target };
+  }
+
+  return null;
+}
+
+/** @deprecated Use findEditableTargetAtContainerPoint */
+export function findTextTargetAtContainerPoint(
+  c: Canvas,
+  containerEl: HTMLElement,
+  clientX: number,
+  clientY: number
+): any | null {
+  const hit = findEditableTargetAtContainerPoint(c, containerEl, clientX, clientY);
+  if (!hit || hit.type !== "text") return null;
+  return hit.object;
 }
 
 export function getPageBounds(c: Canvas, pageSize: PageSize = "A4") {
@@ -482,6 +530,7 @@ export async function loadSnapshotOntoCanvas(
     (pageObj?.fill as string) ||
     (typeof jsonAny.background === "string" ? jsonAny.background : "#ffffff");
   ensurePageBackground(c, pageW, pageH, fill || "#ffffff");
+  normalizeSkillBars(c);
   applyMobileInteractionLocks(c, pageW, pageH);
   c.requestRenderAll();
 }

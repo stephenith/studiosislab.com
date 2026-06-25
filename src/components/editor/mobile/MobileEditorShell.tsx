@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowLeft, Download, Loader2, Scan } from "lucide-react";
 import TextEditSheet from "@/components/editor/mobile/TextEditSheet";
+import SkillBarEditSheet from "@/components/editor/mobile/SkillBarEditSheet";
 import { useMobileFabricEditor } from "@/components/editor/mobile/useMobileFabricEditor";
 
 type MobileEditorShellProps = {
@@ -185,6 +186,16 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
         onChange={(draft) => editor.setTextEdit({ draft })}
         onCancel={editor.closeTextEdit}
         onSave={editor.commitTextEdit}
+      />
+
+      <SkillBarEditSheet
+        open={!!editor.skillBarEdit}
+        label={editor.skillBarEdit?.label ?? ""}
+        value={editor.skillBarEdit?.draftValue ?? 0}
+        max={editor.skillBarEdit?.max ?? 100}
+        onChange={editor.setSkillBarDraftValue}
+        onCancel={editor.cancelSkillBarEdit}
+        onDone={editor.commitSkillBarEdit}
       />
     </main>
   );

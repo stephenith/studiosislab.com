@@ -8,7 +8,7 @@ import { exportToDataURL, buildPDFFromPages } from "@/lib/editor/exportCanvas";
 import {
   applyMobileViewportTransform,
   fabricSavePayloadHasDataImageSrc,
-  findTextTargetAtContainerPoint,
+  findEditableTargetAtContainerPoint,
   fitCanvasToViewport,
   getPageBounds,
   loadSnapshotOntoCanvas,
@@ -18,6 +18,7 @@ import {
   type MobileViewportState,
   zoomViewportAroundPoint,
 } from "@/lib/editor/mobileEditorUtils";
+import { getSkillBarModel, setSkillBarValueOnGroup } from "@/lib/editor/skillBar/skillBarFactory";
 import { createResumeDoc, updateResumeDoc } from "@/lib/resumeDocs";
 import { useAuth } from "@/lib/useAuth";
 import { PAGE_SIZES, type PageSize } from "@/types/editor";
@@ -26,6 +27,13 @@ export type MobileSaveStatus = "idle" | "unsaved" | "saving" | "saved" | "error"
 
 export type MobileTextEditState = {
   draft: string;
+} | null;
+
+export type MobileSkillBarEditState = {
+  draftValue: number;
+  max: number;
+  label: string;
+  originalValue: number;
 } | null;
 
 type UseMobileFabricEditorOptions = {
@@ -88,6 +96,7 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
   const canvasWrapRef = useRef<HTMLDivElement | null>(null);
   const pageSizeRef = useRef(PAGE_SIZES.A4);
   const editingObjectRef = useRef<any>(null);
+  const editingSkillBarRef = useRef<any>(null);
   const docIdRef = useRef<string | null>(null);
   const isDirtyRef = useRef(false);
   const viewStateRef = useRef<MobileViewportState>({ zoom: 1, panX: 0, panY: 0 });
@@ -102,6 +111,7 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
   const [docTitle, setDocTitle] = useState("Untitled Resume");
   const [saveStatus, setSaveStatus] = useState<MobileSaveStatus>("idle");
   const [textEdit, setTextEdit] = useState<MobileTextEditState>(null);
+  const [skillBarEdit, setSkillBarEdit] = useState<MobileSkillBarEditState>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
   const applyViewState = useCallback((state: MobileViewportState) => {
@@ -370,10 +380,19 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
             touch.clientY - (vp.getBoundingClientRect().top + g.startY)
           );
           if (totalMove <= MOBILE_TAP_MOVE_THRESHOLD_PX) {
-            const target = findTextTargetAtContainerPoint(c, vp, touch.clientX, touch.clientY);
-            if (target) {
-              editingObjectRef.current = target;
-              setTextEdit({ draft: String(target.text ?? "") });
+            const hit = findEditableTargetAtContainerPoint(c, vp, touch.clientX, touch.clientY);
+            if (hit?.type === "skill-bar") {
+              const model = getSkillBarModel(hit.object);
+              editingSkillBarRef.current = hit.object;
+              setSkillBarEdit({
+                draftValue: model.value,
+                max: model.max,
+                label: model.label,
+                originalValue: model.value,
+              });
+            } else if (hit?.type === "text") {
+              editingObjectRef.current = hit.object;
+              setTextEdit({ draft: String(hit.object.text ?? "") });
             }
           }
         }
@@ -416,6 +435,54 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
     editingObjectRef.current = null;
     setTextEdit(null);
   }, []);
+
+  const closeSkillBarEdit = useCallback(() => {
+    editingSkillBarRef.current = null;
+    setSkillBarEdit(null);
+  }, []);
+
+  const previewSkillBarValue = useCallback((value: number) => {
+    const c = canvasRef.current;
+    const group = editingSkillBarRef.current;
+    if (!c || !group) return;
+    setSkillBarValueOnGroup(group, value);
+    setSkillBarEdit((prev) => (prev ? { ...prev, draftValue: getSkillBarModel(group).value } : prev));
+    c.requestRenderAll();
+  }, []);
+
+  const cancelSkillBarEdit = useCallback(() => {
+    const c = canvasRef.current;
+    const group = editingSkillBarRef.current;
+    if (c && group && skillBarEdit) {
+      setSkillBarValueOnGroup(group, skillBarEdit.originalValue);
+      c.requestRenderAll();
+    }
+    closeSkillBarEdit();
+  }, [closeSkillBarEdit, skillBarEdit]);
+
+  const commitSkillBarEdit = useCallback(() => {
+    const c = canvasRef.current;
+    const group = editingSkillBarRef.current;
+    if (!c || !group || !skillBarEdit) {
+      closeSkillBarEdit();
+      return;
+    }
+    setSkillBarValueOnGroup(group, skillBarEdit.draftValue);
+    c.requestRenderAll();
+    if (skillBarEdit.draftValue !== skillBarEdit.originalValue) {
+      isDirtyRef.current = true;
+      setSaveStatus("unsaved");
+    }
+    closeSkillBarEdit();
+  }, [closeSkillBarEdit, skillBarEdit]);
+
+  const setSkillBarDraftValue = useCallback(
+    (draftValue: number) => {
+      setSkillBarEdit((prev) => (prev ? { ...prev, draftValue } : prev));
+      previewSkillBarValue(draftValue);
+    },
+    [previewSkillBarValue]
+  );
 
   const commitTextEdit = useCallback(() => {
     const c = canvasRef.current;
@@ -531,12 +598,17 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
     saveStatus,
     textEdit,
     setTextEdit,
+    skillBarEdit,
+    setSkillBarDraftValue,
     isDownloading,
     attachCanvasEl,
     viewportRef,
     canvasWrapRef,
     closeTextEdit,
     commitTextEdit,
+    closeSkillBarEdit,
+    cancelSkillBarEdit,
+    commitSkillBarEdit,
     save,
     downloadPdf,
     resetView,

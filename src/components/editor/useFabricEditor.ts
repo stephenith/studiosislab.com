@@ -32,6 +32,7 @@ import type {
   ImageProps,
   ImageAdjustments,
   TableProps,
+  SkillBarProps,
   LayerItem,
 } from "@/types/editor";
 import {
@@ -47,6 +48,13 @@ import { getShapeDefinitionById } from "@/data/shapes/catalog";
 import { createShapeFromDefinition } from "@/lib/editor/shapeFactory";
 import { createTableModel, type TableModel } from "@/lib/editor/tableModel";
 import { renderTableFromModel } from "@/lib/editor/tableFactory";
+import { isSkillBar } from "@/lib/editor/skillBar/skillBarDetection";
+import {
+  applySkillBarInteractionLocks,
+  getSkillBarModel,
+  normalizeSkillBars,
+  setSkillBarValueOnGroup,
+} from "@/lib/editor/skillBar/skillBarFactory";
 import { generateQrDataUrl } from "@/lib/editor/qrGenerator";
 import { getLayers as getLayersFromModule } from "@/lib/editor/layerManager";
 import { exportToDataURL as exportToDataURLModule } from "@/lib/editor/exportCanvas";
@@ -608,6 +616,13 @@ export function useFabricEditor({
     borderColor: "#111827",
     borderWidth: 1,
   });
+  const [skillBarProps, setSkillBarProps] = useState<SkillBarProps>({
+    label: "",
+    value: 0,
+    max: 100,
+  });
+  const skillBarSessionRef = useRef<{ objectId: string; originalValue: number } | null>(null);
+  const skillBarCommittedRef = useRef(false);
   const [activeDrawTool, setActiveDrawToolState] = useState<"none" | "pencil" | "highlighter" | "eraser">("none");
   const [pencilColor, setPencilColor] = useState("#111827");
   const [pencilThickness, setPencilThickness] = useState(3);
@@ -2425,6 +2440,7 @@ try {
             pageObj.moveTo(0);
           }
         }
+        normalizeSkillBars(c);
         //if (reason === "template-loaded" && !normalizedContentRef.current.has(c)) {
         // TEMP FIX: disable second normalization
         if (false && reason === "template-loaded" && !normalizedContentRef.current.has(c)) {
@@ -2488,6 +2504,12 @@ try {
               selectable: false,
               evented: false,
             });
+            return;
+          }
+
+          // Skill bar widget groups
+          if (obj.type === "group" && isSkillBar(obj)) {
+            applySkillBarInteractionLocks(obj);
             return;
           }
 
@@ -2951,6 +2973,26 @@ try {
         currentId = ensureObjectId(active);
       }
     }
+
+    const prevSession = skillBarSessionRef.current;
+    if (prevSession && currentId !== prevSession.objectId && !skillBarCommittedRef.current) {
+      const objs = c.getObjects() || [];
+      const prevGroup = objs.find((o: any) => ensureObjectId(o) === prevSession.objectId);
+      if (prevGroup && isSkillBar(prevGroup)) {
+        isInternalMutationRef.current = true;
+        try {
+          setSkillBarValueOnGroup(prevGroup, prevSession.originalValue);
+          c.requestRenderAll();
+        } finally {
+          isInternalMutationRef.current = false;
+        }
+      }
+    }
+    if (prevSession && currentId !== prevSession.objectId) {
+      skillBarSessionRef.current = null;
+      skillBarCommittedRef.current = false;
+    }
+
     if (lastSelectionRef.current === currentId) {
       return;
     }
@@ -2978,7 +3020,28 @@ try {
     setActiveObjectSnapshot((prev: any) => (prev === nextSnapshot ? prev : nextSnapshot));
     const activeId = ensureObjectId(active);
     setSelectedLayerId((prev: string | null) => (prev === activeId ? prev : activeId));
-    if (type === "textbox" || type === "i-text" || type === "text") {
+    if (isSkillBar(active)) {
+      setSelectionType((prev) => (prev === "skillBar" ? prev : "skillBar"));
+      setSelectedFrameHasImage((prev) => (prev === false ? prev : false));
+      const model = getSkillBarModel(active);
+      const nextSkillBar = {
+        label: model.label,
+        value: model.value,
+        max: model.max,
+      };
+      setSkillBarProps((prev) =>
+        prev &&
+        prev.label === nextSkillBar.label &&
+        prev.value === nextSkillBar.value &&
+        prev.max === nextSkillBar.max
+          ? prev
+          : nextSkillBar
+      );
+      if (activeId) {
+        skillBarSessionRef.current = { objectId: activeId, originalValue: model.value };
+        skillBarCommittedRef.current = false;
+      }
+    } else if (type === "textbox" || type === "i-text" || type === "text") {
       setSelectionType((prev) => (prev === "text" ? prev : "text"));
       setSelectedFrameHasImage((prev) => (prev === false ? prev : false));
       logTextSync("hydrate");
@@ -4898,6 +4961,55 @@ try {
     pushHistory("table:update");
   }, [getCanvas, isTableLike, pushHistory]);
 
+  const previewSkillBarValue = useCallback((value: number) => {
+    const c = getCanvas();
+    if (!c) return;
+    const active: any = c.getActiveObject();
+    if (!active || !isSkillBar(active)) return;
+    isInternalMutationRef.current = true;
+    try {
+      const model = setSkillBarValueOnGroup(active, value);
+      setSkillBarProps({
+        label: model.label,
+        value: model.value,
+        max: model.max,
+      });
+      const nextSnapshot = active.toObject ? active.toObject() : active;
+      setActiveObjectSnapshot(nextSnapshot);
+      c.requestRenderAll();
+    } finally {
+      isInternalMutationRef.current = false;
+    }
+  }, [getCanvas]);
+
+  const commitSkillBarValue = useCallback(() => {
+    skillBarCommittedRef.current = true;
+    skillBarSessionRef.current = null;
+    pushHistory("skill-bar");
+  }, [pushHistory]);
+
+  const cancelSkillBarEdit = useCallback(() => {
+    const c = getCanvas();
+    if (!c) return;
+    const active: any = c.getActiveObject();
+    const session = skillBarSessionRef.current;
+    if (!active || !isSkillBar(active) || !session) return;
+    isInternalMutationRef.current = true;
+    try {
+      const model = setSkillBarValueOnGroup(active, session.originalValue);
+      setSkillBarProps({
+        label: model.label,
+        value: model.value,
+        max: model.max,
+      });
+      c.requestRenderAll();
+    } finally {
+      isInternalMutationRef.current = false;
+    }
+    skillBarCommittedRef.current = true;
+    skillBarSessionRef.current = null;
+  }, [getCanvas]);
+
   const getActiveImageObject = useCallback(() => {
     const c = getCanvas();
     if (!c) return null;
@@ -6185,6 +6297,7 @@ try {
     shapeProps,
     imageProps,
     tableProps,
+    skillBarProps,
     activeDrawTool,
     pencilColor,
     pencilThickness,
@@ -6226,6 +6339,9 @@ try {
     setTextProp,
     setShapeProp,
     setTableProp,
+    previewSkillBarValue,
+    commitSkillBarValue,
+    cancelSkillBarEdit,
     updateActiveObject,
     updateActiveObjectLive,
     commitActiveObjectUpdate,

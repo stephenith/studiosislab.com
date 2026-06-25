@@ -6,7 +6,14 @@
 export type EditorMode = "new" | "template" | "doc";
 export type PageSize = "A4" | "Letter" | "Custom";
 
-export type SelectionType = "none" | "text" | "shape" | "image" | "frame" | "table";
+export type SelectionType =
+  | "none"
+  | "text"
+  | "shape"
+  | "image"
+  | "frame"
+  | "table"
+  | "skillBar";
 export type AlignAction =
   | "left"
   | "centerX"
@@ -63,6 +70,12 @@ export type ImageProps = {
 export type TableProps = {
   borderColor: string;
   borderWidth: number;
+};
+
+export type SkillBarProps = {
+  label: string;
+  value: number;
+  max: number;
 };
 
 export type LayerItem = {

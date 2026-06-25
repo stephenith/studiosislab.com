@@ -12,7 +12,7 @@ type MobileEditorShellProps = {
 const MOBILE_SAFE_AREA = {
   paddingTop: "max(0.75rem, env(safe-area-inset-top))",
   paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
-  paddingRight: "max(0.75rem, env(safe-area-inset-right))",
+  paddingRight: "max(1.25rem, calc(env(safe-area-inset-right, 0px) + 0.625rem))",
 } as const;
 
 function saveStatusLabel(status: string): string {
@@ -94,12 +94,12 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
           />
         </div>
 
-        <div className="grid w-full max-w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 pb-3">
+        <div className="grid w-full max-w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-1.5 pb-3">
           <p className="min-w-0 truncate text-xs text-white/60">
             {saveStatusLabel(editor.saveStatus)}
           </p>
 
-          <div className="flex shrink-0 items-center gap-1.5">
+          <div className="flex max-w-full shrink-0 items-center gap-1">
             <button
               type="button"
               onClick={editor.resetView}
@@ -114,12 +114,12 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
               type="button"
               onClick={() => void editor.save()}
               disabled={editor.saveStatus === "saving" || editor.loading}
-              className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-xl bg-white/10 px-2.5 text-sm font-medium text-white active:bg-white/20 disabled:opacity-50"
+              className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-xl bg-white/10 px-1.5 text-sm font-medium text-white active:bg-white/20 disabled:opacity-50"
             >
               {editor.saveStatus === "saving" ? (
                 <>
                   <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-                  <span className="hidden min-[400px]:inline min-[400px]:pl-1.5">Saving…</span>
+                  <span className="hidden min-[400px]:inline min-[400px]:pl-1">Saving…</span>
                 </>
               ) : (
                 "Save"
@@ -130,7 +130,7 @@ export default function MobileEditorShell({ templateId }: MobileEditorShellProps
               type="button"
               onClick={() => void editor.downloadPdf()}
               disabled={editor.loading || editor.isDownloading}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-black active:bg-gray-200 min-[400px]:w-auto min-[400px]:gap-1.5 min-[400px]:px-2.5 disabled:opacity-50"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-black active:bg-gray-200 min-[400px]:w-auto min-[400px]:gap-1 min-[400px]:px-2 disabled:opacity-50"
               aria-label="Download PDF"
             >
               {editor.isDownloading ? (

@@ -19,6 +19,11 @@ import {
   zoomViewportAroundPoint,
 } from "@/lib/editor/mobileEditorUtils";
 import { getSkillBarModel, setSkillBarValueOnGroup } from "@/lib/editor/skillBar/skillBarFactory";
+import {
+  getStarRatingModel,
+  resolveStarRatingValueFromPointer,
+  setStarRatingValueOnGroup,
+} from "@/lib/editor/starRating/starRatingFactory";
 import { createResumeDoc, updateResumeDoc } from "@/lib/resumeDocs";
 import { useAuth } from "@/lib/useAuth";
 import { PAGE_SIZES, type PageSize } from "@/types/editor";
@@ -390,6 +395,24 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
                 label: model.label,
                 originalValue: model.value,
               });
+            } else if (hit?.type === "star-rating") {
+              const nextValue = resolveStarRatingValueFromPointer(
+                c,
+                hit.object,
+                touch.clientX,
+                touch.clientY
+              );
+              if (nextValue == null) return;
+              const originalValue = getStarRatingModel(hit.object).value;
+              setStarRatingValueOnGroup(hit.object, nextValue);
+              c.requestRenderAll();
+              if (nextValue !== originalValue) {
+                isDirtyRef.current = true;
+                setSaveStatus("unsaved");
+              }
+              c.discardActiveObject();
+              c.requestRenderAll();
+              (c as any)._resetTransformEventData?.();
             } else if (hit?.type === "text") {
               editingObjectRef.current = hit.object;
               setTextEdit({ draft: String(hit.object.text ?? "") });

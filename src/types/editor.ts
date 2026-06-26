@@ -13,7 +13,8 @@ export type SelectionType =
   | "image"
   | "frame"
   | "table"
-  | "skillBar";
+  | "skillBar"
+  | "starRating";
 export type AlignAction =
   | "left"
   | "centerX"
@@ -73,6 +74,12 @@ export type TableProps = {
 };
 
 export type SkillBarProps = {
+  label: string;
+  value: number;
+  max: number;
+};
+
+export type StarRatingProps = {
   label: string;
   value: number;
   max: number;

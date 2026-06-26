@@ -33,6 +33,7 @@ import type {
   ImageAdjustments,
   TableProps,
   SkillBarProps,
+  StarRatingProps,
   LayerItem,
 } from "@/types/editor";
 import {
@@ -55,6 +56,13 @@ import {
   normalizeSkillBars,
   setSkillBarValueOnGroup,
 } from "@/lib/editor/skillBar/skillBarFactory";
+import { isStarRating } from "@/lib/editor/starRating/starRatingDetection";
+import {
+  applyStarRatingInteractionLocks,
+  getStarRatingModel,
+  normalizeStarRatings,
+  setStarRatingValueOnGroup,
+} from "@/lib/editor/starRating/starRatingFactory";
 import { generateQrDataUrl } from "@/lib/editor/qrGenerator";
 import { getLayers as getLayersFromModule } from "@/lib/editor/layerManager";
 import { exportToDataURL as exportToDataURLModule } from "@/lib/editor/exportCanvas";
@@ -623,6 +631,13 @@ export function useFabricEditor({
   });
   const skillBarSessionRef = useRef<{ objectId: string; originalValue: number } | null>(null);
   const skillBarCommittedRef = useRef(false);
+  const [starRatingProps, setStarRatingProps] = useState<StarRatingProps>({
+    label: "",
+    value: 1,
+    max: 5,
+  });
+  const starRatingSessionRef = useRef<{ objectId: string; originalValue: number } | null>(null);
+  const starRatingCommittedRef = useRef(false);
   const [activeDrawTool, setActiveDrawToolState] = useState<"none" | "pencil" | "highlighter" | "eraser">("none");
   const [pencilColor, setPencilColor] = useState("#111827");
   const [pencilThickness, setPencilThickness] = useState(3);
@@ -2441,6 +2456,7 @@ try {
           }
         }
         normalizeSkillBars(c);
+        normalizeStarRatings(c);
         //if (reason === "template-loaded" && !normalizedContentRef.current.has(c)) {
         // TEMP FIX: disable second normalization
         if (false && reason === "template-loaded" && !normalizedContentRef.current.has(c)) {
@@ -2510,6 +2526,12 @@ try {
           // Skill bar widget groups
           if (obj.type === "group" && isSkillBar(obj)) {
             applySkillBarInteractionLocks(obj);
+            return;
+          }
+
+          // Star rating widget groups
+          if (obj.type === "group" && isStarRating(obj)) {
+            applyStarRatingInteractionLocks(obj);
             return;
           }
 
@@ -2974,23 +2996,50 @@ try {
       }
     }
 
-    const prevSession = skillBarSessionRef.current;
-    if (prevSession && currentId !== prevSession.objectId && !skillBarCommittedRef.current) {
+    const prevSkillBarSession = skillBarSessionRef.current;
+    if (
+      prevSkillBarSession &&
+      currentId !== prevSkillBarSession.objectId &&
+      !skillBarCommittedRef.current
+    ) {
       const objs = c.getObjects() || [];
-      const prevGroup = objs.find((o: any) => ensureObjectId(o) === prevSession.objectId);
+      const prevGroup = objs.find((o: any) => ensureObjectId(o) === prevSkillBarSession.objectId);
       if (prevGroup && isSkillBar(prevGroup)) {
         isInternalMutationRef.current = true;
         try {
-          setSkillBarValueOnGroup(prevGroup, prevSession.originalValue);
+          setSkillBarValueOnGroup(prevGroup, prevSkillBarSession.originalValue);
           c.requestRenderAll();
         } finally {
           isInternalMutationRef.current = false;
         }
       }
     }
-    if (prevSession && currentId !== prevSession.objectId) {
+    if (prevSkillBarSession && currentId !== prevSkillBarSession.objectId) {
       skillBarSessionRef.current = null;
       skillBarCommittedRef.current = false;
+    }
+
+    const prevStarRatingSession = starRatingSessionRef.current;
+    if (
+      prevStarRatingSession &&
+      currentId !== prevStarRatingSession.objectId &&
+      !starRatingCommittedRef.current
+    ) {
+      const objs = c.getObjects() || [];
+      const prevGroup = objs.find((o: any) => ensureObjectId(o) === prevStarRatingSession.objectId);
+      if (prevGroup && isStarRating(prevGroup)) {
+        isInternalMutationRef.current = true;
+        try {
+          setStarRatingValueOnGroup(prevGroup, prevStarRatingSession.originalValue);
+          c.requestRenderAll();
+        } finally {
+          isInternalMutationRef.current = false;
+        }
+      }
+    }
+    if (prevStarRatingSession && currentId !== prevStarRatingSession.objectId) {
+      starRatingSessionRef.current = null;
+      starRatingCommittedRef.current = false;
     }
 
     if (lastSelectionRef.current === currentId) {
@@ -3040,6 +3089,27 @@ try {
       if (activeId) {
         skillBarSessionRef.current = { objectId: activeId, originalValue: model.value };
         skillBarCommittedRef.current = false;
+      }
+    } else if (isStarRating(active)) {
+      setSelectionType((prev) => (prev === "starRating" ? prev : "starRating"));
+      setSelectedFrameHasImage((prev) => (prev === false ? prev : false));
+      const model = getStarRatingModel(active);
+      const nextStarRating = {
+        label: model.label,
+        value: model.value,
+        max: model.max,
+      };
+      setStarRatingProps((prev) =>
+        prev &&
+        prev.label === nextStarRating.label &&
+        prev.value === nextStarRating.value &&
+        prev.max === nextStarRating.max
+          ? prev
+          : nextStarRating
+      );
+      if (activeId) {
+        starRatingSessionRef.current = { objectId: activeId, originalValue: model.value };
+        starRatingCommittedRef.current = false;
       }
     } else if (type === "textbox" || type === "i-text" || type === "text") {
       setSelectionType((prev) => (prev === "text" ? prev : "text"));
@@ -5010,6 +5080,55 @@ try {
     skillBarSessionRef.current = null;
   }, [getCanvas]);
 
+  const previewStarRatingValue = useCallback((value: number) => {
+    const c = getCanvas();
+    if (!c) return;
+    const active: any = c.getActiveObject();
+    if (!active || !isStarRating(active)) return;
+    isInternalMutationRef.current = true;
+    try {
+      const model = setStarRatingValueOnGroup(active, value);
+      setStarRatingProps({
+        label: model.label,
+        value: model.value,
+        max: model.max,
+      });
+      const nextSnapshot = active.toObject ? active.toObject() : active;
+      setActiveObjectSnapshot(nextSnapshot);
+      c.requestRenderAll();
+    } finally {
+      isInternalMutationRef.current = false;
+    }
+  }, [getCanvas]);
+
+  const commitStarRatingValue = useCallback(() => {
+    starRatingCommittedRef.current = true;
+    starRatingSessionRef.current = null;
+    pushHistory("star-rating");
+  }, [pushHistory]);
+
+  const cancelStarRatingEdit = useCallback(() => {
+    const c = getCanvas();
+    if (!c) return;
+    const active: any = c.getActiveObject();
+    const session = starRatingSessionRef.current;
+    if (!active || !isStarRating(active) || !session) return;
+    isInternalMutationRef.current = true;
+    try {
+      const model = setStarRatingValueOnGroup(active, session.originalValue);
+      setStarRatingProps({
+        label: model.label,
+        value: model.value,
+        max: model.max,
+      });
+      c.requestRenderAll();
+    } finally {
+      isInternalMutationRef.current = false;
+    }
+    starRatingCommittedRef.current = true;
+    starRatingSessionRef.current = null;
+  }, [getCanvas]);
+
   const getActiveImageObject = useCallback(() => {
     const c = getCanvas();
     if (!c) return null;
@@ -6298,6 +6417,7 @@ try {
     imageProps,
     tableProps,
     skillBarProps,
+    starRatingProps,
     activeDrawTool,
     pencilColor,
     pencilThickness,
@@ -6342,6 +6462,9 @@ try {
     previewSkillBarValue,
     commitSkillBarValue,
     cancelSkillBarEdit,
+    previewStarRatingValue,
+    commitStarRatingValue,
+    cancelStarRatingEdit,
     updateActiveObject,
     updateActiveObjectLive,
     commitActiveObjectUpdate,

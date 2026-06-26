@@ -33,6 +33,7 @@ import { ShapeInspectorPanel } from "@/components/editor/ShapeInspectorPanel";
 import { ImageInspectorPanel } from "@/components/editor/ImageInspectorPanel";
 import { TableInspectorPanel } from "@/components/editor/TableInspectorPanel";
 import { SkillBarInspectorPanel } from "@/components/editor/SkillBarInspectorPanel";
+import { StarRatingInspectorPanel } from "@/components/editor/StarRatingInspectorPanel";
 import { FloatingSelectionToolbar } from "@/components/editor/FloatingSelectionToolbar";
 import { useFloatingToolbarPosition } from "@/components/editor/useFloatingToolbarPosition";
 import { toHexColor } from "@/lib/color";
@@ -1294,6 +1295,14 @@ export default function EditorShell({
               onPreviewValue={editor.previewSkillBarValue}
               onDone={editor.commitSkillBarValue}
               onCancel={editor.cancelSkillBarEdit}
+            />
+          )}
+          {editor.selectionType === "starRating" && (
+            <StarRatingInspectorPanel
+              starRatingProps={editor.starRatingProps}
+              onPreviewValue={editor.previewStarRatingValue}
+              onDone={editor.commitStarRatingValue}
+              onCancel={editor.cancelStarRatingEdit}
             />
           )}
           <div className="rounded-2xl bg-white border border-[#d6deeb] shadow-[0_6px_14px_rgba(30,64,175,0.08)] transition-shadow transition-colors duration-200 hover:shadow-lg hover:border-slate-400">

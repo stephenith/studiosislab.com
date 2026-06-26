@@ -10,11 +10,14 @@ import { applyTextBoxNoStretch } from "@/lib/editor/textTools";
 import { ensureObjectId } from "@/components/editor/editor/utils/fabricHelpers";
 import { isSkillBar, resolveSkillBarFromTarget } from "@/lib/editor/skillBar/skillBarDetection";
 import { normalizeSkillBars } from "@/lib/editor/skillBar/skillBarFactory";
+import { isStarRating, resolveStarRatingFromTarget } from "@/lib/editor/starRating/starRatingDetection";
+import { normalizeStarRatings } from "@/lib/editor/starRating/starRatingFactory";
 import { CANVAS_BG, PAGE_SIZES, type PageSize } from "@/types/editor";
 
 export type EditableTarget =
   | { type: "text"; object: any }
-  | { type: "skill-bar"; object: any };
+  | { type: "skill-bar"; object: any }
+  | { type: "star-rating"; object: any };
 
 export const FABRIC_JSON_PROPS = [
   "excludeFromExport",
@@ -299,7 +302,7 @@ export function applyMobileInteractionLocks(c: Canvas, pageW: number, pageH: num
 
     const type = String(obj.type || "").toLowerCase();
     if (type === "group") {
-      if (isSkillBar(obj)) {
+      if (isSkillBar(obj) || isStarRating(obj)) {
         obj.set?.({
           selectable: false,
           evented: true,
@@ -460,7 +463,14 @@ export function findEditableTargetAtContainerPoint(
   const skillBar = resolveSkillBarFromTarget(target);
   if (skillBar) return { type: "skill-bar", object: skillBar };
 
-  if (isTextObject(target) && !resolveSkillBarFromTarget(target)) {
+  const starRating = resolveStarRatingFromTarget(target);
+  if (starRating) return { type: "star-rating", object: starRating };
+
+  if (
+    isTextObject(target) &&
+    !resolveSkillBarFromTarget(target) &&
+    !resolveStarRatingFromTarget(target)
+  ) {
     return { type: "text", object: target };
   }
 
@@ -533,6 +543,7 @@ export async function loadSnapshotOntoCanvas(
     (typeof jsonAny.background === "string" ? jsonAny.background : "#ffffff");
   ensurePageBackground(c, pageW, pageH, fill || "#ffffff");
   normalizeSkillBars(c);
+  normalizeStarRatings(c);
   applyMobileInteractionLocks(c, pageW, pageH);
   c.requestRenderAll();
 }

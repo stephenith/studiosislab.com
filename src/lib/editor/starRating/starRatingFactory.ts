@@ -31,6 +31,8 @@ const STAR_POINTS = [
 ];
 
 export type StarRatingLayout = {
+  labelLeft: number;
+  labelTop: number;
   starRowLeft: number;
   starRowTop: number;
   starRowWidth: number;
@@ -44,18 +46,23 @@ export function getStarRatingModel(group: any): StarRatingModel {
   return normalizeStarRatingModel(raw);
 }
 
+/** Layout in Fabric v6 group-local plane (center-origin child coordinates). */
 export function computeStarRatingLayout(model: StarRatingModel): StarRatingLayout {
   const labelHeight =
     model.showLabel && model.label.trim() ? LABEL_FONT_SIZE * LABEL_LINE_HEIGHT : 0;
-  const starRowTop = labelHeight > 0 ? labelHeight + model.labelGap : 0;
-  const starRowLeft = 0;
+  const starRowTopFromOrigin = labelHeight > 0 ? labelHeight + model.labelGap : 0;
   const starRowWidth = (model.max - 1) * model.starGap + model.starSize;
   const starRowHeight = model.starSize;
   const groupWidth = starRowWidth;
-  const groupHeight = starRowTop + starRowHeight;
+  const groupHeight = starRowTopFromOrigin + starRowHeight;
+  const halfW = groupWidth / 2;
+  const halfH = groupHeight / 2;
+
   return {
-    starRowLeft,
-    starRowTop,
+    labelLeft: -halfW,
+    labelTop: -halfH,
+    starRowLeft: -halfW,
+    starRowTop: starRowTopFromOrigin - halfH,
     starRowWidth,
     starRowHeight,
     groupWidth,
@@ -99,8 +106,8 @@ function buildStarRatingChildren(model: StarRatingModel): any[] {
 
   if (model.showLabel && model.label.trim()) {
     const label = new Textbox(model.label, {
-      left: 0,
-      top: 0,
+      left: layout.labelLeft,
+      top: layout.labelTop,
       width: layout.groupWidth,
       fontSize: LABEL_FONT_SIZE,
       fill: LABEL_COLOR,

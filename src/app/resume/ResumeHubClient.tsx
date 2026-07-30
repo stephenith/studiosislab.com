@@ -24,8 +24,8 @@ import { isSafeInternalNextPath } from "@/lib/safeNextPath";
 
 import NoiseBackground from "@/components/home/NoiseBackground";
 import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
-import { TEMPLATES } from "@/data/templates";
 import { TEMPLATE_CATEGORIES } from "@/data/templateCategories";
+import { useRuntimeResumeCatalog } from "@/lib/runtimeResumeCatalogClient";
 
 const RESUME_GALLERY_HIDDEN_TEMPLATE_IDS = new Set(["t001", "t002", "t003"]);
 
@@ -90,19 +90,22 @@ const EAGER_TEMPLATE_COUNT = 8;
 function TemplateThumbnail({
   templateId,
   templateTitle,
+  templateThumb,
   loading,
 }: {
   templateId: string;
   templateTitle: string;
+  templateThumb?: string;
   loading: "eager" | "lazy";
 }) {
-  const pngSrc = `/templates/${templateId}.png`;
-  const webpSrc = `/templates/${templateId}.webp`;
-  const [src, setSrc] = useState(webpSrc);
+  const pngSrc = templateThumb?.endsWith(".png") ? templateThumb : `/templates/${templateId}.png`;
+  const webpSrc =
+    templateThumb?.endsWith(".webp") ? templateThumb : `/templates/${templateId}.webp`;
+  const [src, setSrc] = useState(webpSrc || pngSrc);
 
   useEffect(() => {
-    setSrc(webpSrc);
-  }, [webpSrc]);
+    setSrc(webpSrc || pngSrc);
+  }, [pngSrc, webpSrc]);
 
   return (
     <img
@@ -142,6 +145,8 @@ export default function ResumeTemplatesPage() {
   const [filterKey, setFilterKey] = useState<FilterKey>("all");
   const [openingTemplateId, setOpeningTemplateId] = useState<string | null>(null);
   const [showDeferredTemplates, setShowDeferredTemplates] = useState(false);
+  const { templates, featuredTemplates, recentTemplates: recentReleaseTemplates } =
+    useRuntimeResumeCatalog();
 
   const [recents, setRecents] = useState<RecentDoc[]>([]);
   const [recentsLoading, setRecentsLoading] = useState(false);
@@ -197,7 +202,7 @@ export default function ResumeTemplatesPage() {
     const compactQ = toCompactSearchText(q);
     const hasQuery = q.length > 0;
 
-    return TEMPLATES.filter((t) => {
+    return templates.filter((t) => {
       if (RESUME_GALLERY_HIDDEN_TEMPLATE_IDS.has(t.id)) return false;
 
       const categoryId = String((t as any).categoryId || "").toLowerCase().trim();
@@ -234,15 +239,67 @@ export default function ResumeTemplatesPage() {
 
       return hay.includes(q) || (compactQ.length > 0 && compactHay.includes(compactQ));
     });
-  }, [queryText, filterKey]);
+  }, [filterKey, queryText, templates]);
 
   const isSearching = queryText.trim().length > 0;
+  /** Default gallery browse only — search/category must still surface every matching ID. */
+  const isDefaultBrowse = !isSearching && filterKey === "all";
+
+  /**
+   * Published-template section priority (by template id):
+   * 1. Recent templates
+   * 2. Featured templates (exclude Recent ids)
+   * 3. Remaining collection (exclude Recent + Featured ids) — default browse only
+   */
+  const recentSectionTemplates = useMemo(() => {
+    if (isSearching) return [];
+    const seen = new Set<string>();
+    const out: typeof recentReleaseTemplates = [];
+    for (const template of recentReleaseTemplates) {
+      if (RESUME_GALLERY_HIDDEN_TEMPLATE_IDS.has(template.id)) continue;
+      if (seen.has(template.id)) continue;
+      seen.add(template.id);
+      out.push(template);
+      if (out.length >= 5) break;
+    }
+    return out;
+  }, [isSearching, recentReleaseTemplates]);
+
+  const featuredSectionTemplates = useMemo(() => {
+    if (isSearching) return [];
+    const exclude = new Set(recentSectionTemplates.map((template) => template.id));
+    const seen = new Set<string>();
+    const out: typeof featuredTemplates = [];
+    for (const template of featuredTemplates) {
+      if (RESUME_GALLERY_HIDDEN_TEMPLATE_IDS.has(template.id)) continue;
+      if (exclude.has(template.id) || seen.has(template.id)) continue;
+      seen.add(template.id);
+      out.push(template);
+      if (out.length >= 5) break;
+    }
+    return out;
+  }, [featuredTemplates, isSearching, recentSectionTemplates]);
+
+  const remainingTemplates = useMemo(() => {
+    if (!isDefaultBrowse) return filteredTemplates;
+    const exclude = new Set<string>([
+      ...recentSectionTemplates.map((template) => template.id),
+      ...featuredSectionTemplates.map((template) => template.id),
+    ]);
+    return filteredTemplates.filter((template) => !exclude.has(template.id));
+  }, [
+    featuredSectionTemplates,
+    filteredTemplates,
+    isDefaultBrowse,
+    recentSectionTemplates,
+  ]);
+
   const templatesToRender = useMemo(
     () =>
       showDeferredTemplates
-        ? filteredTemplates
-        : filteredTemplates.slice(0, INITIAL_VISIBLE_TEMPLATE_COUNT),
-    [filteredTemplates, showDeferredTemplates]
+        ? remainingTemplates
+        : remainingTemplates.slice(0, INITIAL_VISIBLE_TEMPLATE_COUNT),
+    [remainingTemplates, showDeferredTemplates]
   );
 
   useEffect(() => {
@@ -251,7 +308,7 @@ export default function ResumeTemplatesPage() {
       setShowDeferredTemplates(true);
     });
     return () => window.cancelAnimationFrame(id);
-  }, [filteredTemplates]);
+  }, [remainingTemplates]);
 
   const formatUpdated = (ts: any) => {
     try {
@@ -270,7 +327,7 @@ export default function ResumeTemplatesPage() {
 
   // allow only known static template ids for fallback
   const KNOWN_TEMPLATE_IDS = new Set(
-    TEMPLATES.map((t) => t.id).concat(["blank"])
+    templates.map((t) => t.id).concat(["blank"])
   );
 
   useEffect(() => {
@@ -385,6 +442,37 @@ export default function ResumeTemplatesPage() {
             ))}
           </div>
         </div>
+
+        {!isSearching && isGuest && (
+          <section
+            className="mt-8 w-full sm:mt-10"
+            aria-label="Create blank resume"
+          >
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("resume_create_blank", { surface: "resume_hub_guest" });
+                router.push(getLoginPathWithNext("/editor/new"));
+              }}
+              className="group flex w-full max-w-xl items-center gap-3 rounded-xl border border-dashed border-zinc-300/90 bg-zinc-50/80 px-4 py-3.5 text-left shadow-none outline-none transition-colors hover:border-zinc-400 hover:bg-zinc-50 focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:gap-4 sm:px-5 sm:py-4"
+            >
+              <span
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white text-xl font-semibold leading-none text-zinc-500 transition-colors group-hover:border-zinc-300 group-hover:text-zinc-700 sm:h-11 sm:w-11 sm:text-2xl"
+                aria-hidden
+              >
+                +
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold leading-tight text-zinc-900 sm:text-base">
+                  Create blank
+                </span>
+                <span className="mt-0.5 block text-xs leading-snug text-zinc-500 sm:text-sm">
+                  Start from a clean canvas
+                </span>
+              </span>
+            </button>
+          </section>
+        )}
 
         {!isSearching && !!user && (
           <div className="mt-12 flex items-center justify-between gap-3 sm:mt-14">
@@ -622,6 +710,75 @@ export default function ResumeTemplatesPage() {
           </section>
         )}
 
+        {!isSearching && recentSectionTemplates.length > 0 ? (
+          <section className="mt-12 sm:mt-14" aria-label="Recent templates">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold tracking-tight">Recent templates</h2>
+            </div>
+            <div className={TEMPLATE_GALLERY_GRID}>
+              {recentSectionTemplates.map((template, index) => (
+                <button
+                  key={`recent-${template.id}`}
+                  type="button"
+                  onClick={() => {
+                    setOpeningTemplateId(template.id);
+                    router.push(user ? `/editor/template/${template.id}` : getLoginPathWithNext(`/editor/template/${template.id}`));
+                  }}
+                  className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none"
+                >
+                  <div className={THUMB_FRAME}>
+                    <TemplateThumbnail
+                      templateId={template.id}
+                      templateTitle={template.title}
+                      templateThumb={template.thumb}
+                      loading={index < 3 ? "eager" : "lazy"}
+                    />
+                  </div>
+                  <div className="min-w-0 pt-0.5">
+                    <div className="text-sm font-semibold leading-tight text-zinc-900">{template.title}</div>
+                    <div className="mt-0.5 text-xs text-zinc-500">{template.category}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {!isSearching && featuredSectionTemplates.length > 0 ? (
+          <section className="mt-12 sm:mt-14" aria-label="Featured templates">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold tracking-tight">Featured templates</h2>
+            </div>
+            <div className={TEMPLATE_GALLERY_GRID}>
+              {featuredSectionTemplates.map((template, index) => (
+                <button
+                  key={`featured-${template.id}`}
+                  type="button"
+                  onClick={() => {
+                    setOpeningTemplateId(template.id);
+                    router.push(user ? `/editor/template/${template.id}` : getLoginPathWithNext(`/editor/template/${template.id}`));
+                  }}
+                  className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none"
+                >
+                  <div className={THUMB_FRAME}>
+                    <TemplateThumbnail
+                      templateId={template.id}
+                      templateTitle={template.title}
+                      templateThumb={template.thumb}
+                      loading={index < 3 ? "eager" : "lazy"}
+                    />
+                  </div>
+                  <div className="min-w-0 pt-0.5">
+                    <div className="text-sm font-semibold leading-tight text-zinc-900">{template.title}</div>
+                    <div className="mt-0.5 text-xs text-zinc-500">{template.category}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {(remainingTemplates.length > 0 || filteredTemplates.length === 0) && (
         <section
           className={`${
             isSearching
@@ -668,7 +825,11 @@ export default function ResumeTemplatesPage() {
                         surface: "resume_hub",
                       });
                       if (user) {
-                        router.push(`/editor/template/${template.id}`);
+                        router.push(
+                        typeof window !== "undefined" && window.innerWidth <= 767
+                          ? `/editor/mobile/template/${template.id}`
+                          : `/editor/template/${template.id}`
+                      );
                         return;
                       }
                       router.push(getLoginPathWithNext(`/editor/template/${template.id}`));
@@ -681,6 +842,7 @@ export default function ResumeTemplatesPage() {
                       <TemplateThumbnail
                         templateId={template.id}
                         templateTitle={template.title}
+                        templateThumb={template.thumb}
                         loading={loadingMode}
                       />
                     </div>
@@ -697,28 +859,6 @@ export default function ResumeTemplatesPage() {
             </div>
           )}
         </section>
-
-        {!isSearching && isGuest && (
-          <section className="mx-auto mt-8 w-full max-w-[16rem] sm:mt-10" aria-label="Create blank resume">
-            <button
-              type="button"
-              onClick={() => {
-                trackEvent("resume_create_blank", { surface: "resume_hub_guest" });
-                router.push(getLoginPathWithNext("/editor/new"));
-              }}
-              className="group flex w-full flex-col gap-1.5 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-            >
-              <div
-                className={`${THUMB_FRAME} flex items-center justify-center border border-dashed border-zinc-300/90 bg-zinc-50/80 text-2xl font-semibold text-zinc-400 transition-colors group-hover:border-zinc-400 group-hover:text-zinc-600 sm:text-3xl`}
-              >
-                +
-              </div>
-              <div className="min-w-0 pt-0.5">
-                <div className="text-xs font-semibold leading-tight text-zinc-900 sm:text-sm">Create blank</div>
-                <div className="mt-0.5 text-[11px] text-zinc-500 sm:text-xs">Sign in to start from a clean canvas.</div>
-              </div>
-            </button>
-          </section>
         )}
 
         <footer className="mt-20 text-center text-sm text-zinc-500">

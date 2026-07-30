@@ -22,7 +22,7 @@ import { trackEvent } from "@/lib/analytics";
 import { getLoginRedirectUrl } from "@/lib/safeNextPath";
 
 import NoiseBackground from "@/components/home/NoiseBackground";
-import { TEMPLATES } from "@/data/templates";
+import { useRuntimeResumeCatalog } from "@/lib/runtimeResumeCatalogClient";
 
 const THUMB_FRAME =
   "relative w-full overflow-hidden rounded-xl bg-zinc-100 aspect-[210/297] shadow-[0_4px_16px_-6px_rgba(0,0,0,0.14)] ring-1 ring-zinc-200/80 transition-shadow duration-200 group-hover:shadow-[0_8px_22px_-8px_rgba(0,0,0,0.18)]";
@@ -39,11 +39,13 @@ type RecentDoc = {
   canvasJson?: any;
 };
 
-const KNOWN_TEMPLATE_IDS = new Set(TEMPLATES.map((t) => t.id).concat(["blank"]));
-
 export default function ResumeRecentsPage() {
   const router = useRouter();
   const { user, authReady } = useAuth();
+  const { templates } = useRuntimeResumeCatalog();
+  const knownTemplateIds = new Set(templates.map((t) => t.id).concat(["blank"]));
+  const templateThumbById = new Map(templates.map((template) => [template.id, template.thumb]));
+
 
   const [recents, setRecents] = useState<RecentDoc[]>([]);
   const [recentsLoading, setRecentsLoading] = useState(false);
@@ -182,9 +184,9 @@ export default function ResumeRecentsPage() {
               const fallbackTemplateId = String(
                 r.sourceTemplateId || r.templateId || "blank"
               );
-              const canUseStaticFallback =
-                KNOWN_TEMPLATE_IDS.has(fallbackTemplateId);
+              const canUseStaticFallback = knownTemplateIds.has(fallbackTemplateId);
               const isBlank = fallbackTemplateId === "blank";
+              const fallbackThumb = templateThumbById.get(fallbackTemplateId) || `/templates/${fallbackTemplateId}.png`;
 
               return (
                 <div
@@ -367,7 +369,7 @@ export default function ResumeRecentsPage() {
                         </div>
                       ) : canUseStaticFallback && !isBlank ? (
                         <Image
-                          src={`/templates/${fallbackTemplateId}.png`}
+                          src={fallbackThumb}
                           alt="Recent resume preview"
                           fill
                           className="object-cover"

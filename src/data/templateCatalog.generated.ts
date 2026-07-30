@@ -723,4 +723,13 @@ export const TEMPLATES: Template[] = [
     thumb: "/templates/t079.webp",
     status: "published",
   },
+  {
+    id: "t101",
+    title: "Marketing Manager Resume",
+    categoryId: "sales-marketing-advertising",
+    category: "sales-marketing-advertising",
+    tags: ["marketing manager","marketing manager resume","sales marketing advertising","ats resume","resume template","resume"],
+    thumb: "/templates/t101.png",
+    status: "published",
+  },
 ];

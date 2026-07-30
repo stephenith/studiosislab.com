@@ -765,8 +765,22 @@
                   "kpi management",
                   "ats resume"
                 ]
-              }
-
-
+              },
+    {
+      "id": "t101",
+      "title": "Marketing Manager Resume",
+      "categoryId": "sales-marketing-advertising",
+      "thumbnailPath": "/templates/t101.png",
+      "jsonPath": "src/data/template-json/t101.json",
+      "status": "published",
+      "tags": [
+        "marketing manager",
+        "marketing manager resume",
+        "sales marketing advertising",
+        "ats resume",
+        "resume template",
+        "resume"
+      ]
+    }
   ]
 }

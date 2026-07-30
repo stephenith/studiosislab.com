@@ -1856,4 +1856,24 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     relatedTemplateIds: ["t061", "t049", "t064"],
     isPublished: true,
   },
+  {
+    templateId: "t101",
+    slug: "marketing-manager-ats-resume",
+    seoTitle: "Marketing Manager Resume Template | StudiosisLab",
+    seoDescription: "Use this marketing manager resume template to present marketing manager experience clearly for ATS and hiring managers.",
+    h1: "Marketing Manager Resume Template",
+    intro: "Use this marketing manager resume template to present marketing manager experience clearly for ATS and hiring managers.",
+    bestFor: ["ATS job applications", "StudiosisLab editor workflows", "Professional one-page resumes"],
+    whatToInclude: ["Professional summary", "Experience", "Skills", "Education"],
+    atsTips: ["Use standard headings", "Keep text machine-readable", "Preserve ATS-safe single-column structure"],
+    writingTips: ["Lead with outcomes", "Keep bullets concise", "Match the role with relevant terminology"],
+    faq: [
+      {
+        "question": "Is the Marketing Manager Resume ATS-friendly?",
+        "answer": "Yes. This StudiosisLab template uses a clear single-page structure suited for ATS parsing."
+      }
+    ],
+    relatedTemplateIds: [],
+    isPublished: true,
+  },
 ];

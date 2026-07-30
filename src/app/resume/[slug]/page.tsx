@@ -9,6 +9,9 @@ import {
   getTemplateSeoBySlug,
 } from "@/lib/templateSeo";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type TemplateSeoPageProps = {
   params: Promise<{ slug: string }>;
 };

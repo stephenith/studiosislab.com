@@ -79,6 +79,7 @@ import tpl75 from "./template-json/t076.json";
 import tpl76 from "./template-json/t077.json";
 import tpl77 from "./template-json/t078.json";
 import tpl78 from "./template-json/t079.json";
+import tpl79 from "./template-json/t101.json";
 
 export type TemplateSnapshot = {
   objects: any[];
@@ -179,4 +180,5 @@ export const TEMPLATE_SNAPSHOTS: Record<string, TemplateSnapshot> = {
   "t077": toTemplateSnapshot(tpl76),
   "t078": toTemplateSnapshot(tpl77),
   "t079": toTemplateSnapshot(tpl78),
+  "t101": toTemplateSnapshot(tpl79),
 };

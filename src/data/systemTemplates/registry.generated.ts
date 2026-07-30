@@ -563,6 +563,13 @@ export const SYSTEM_TEMPLATES: SystemTemplate[] = [
     thumbnail: "/templates/t079.webp",
     load: async () => (await import("../template-json/t079.json")).default,
   },
+  {
+    id: "t101",
+    name: "Marketing Manager Resume",
+    tags: ["marketing manager","marketing manager resume","sales marketing advertising","ats resume","resume template","resume"],
+    thumbnail: "/templates/t101.png",
+    load: async () => (await import("../template-json/t101.json")).default,
+  },
 ];
 
 export const SYSTEM_TEMPLATE_IDS = SYSTEM_TEMPLATES.map((template) => template.id);

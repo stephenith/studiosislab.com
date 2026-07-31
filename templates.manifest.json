@@ -41,7 +41,11 @@
       "thumbnailPath": "/templates/t005.png",
       "jsonPath": "src/data/template-json/t005.json",
       "status": "published",
-      "tags": ["business", "manager", "resume"]
+      "tags": [
+        "business",
+        "manager",
+        "resume"
+      ]
     },
     {
       "id": "t006",
@@ -50,7 +54,11 @@
       "thumbnailPath": "/templates/t006.png",
       "jsonPath": "src/data/template-json/t006.json",
       "status": "published",
-      "tags": ["business", "operations", "resume"]
+      "tags": [
+        "business",
+        "operations",
+        "resume"
+      ]
     },
     {
       "id": "t007",
@@ -59,7 +67,12 @@
       "thumbnailPath": "/templates/t007.png",
       "jsonPath": "src/data/template-json/t007.json",
       "status": "published",
-      "tags": ["business", "product", "manager", "resume"]
+      "tags": [
+        "business",
+        "product",
+        "manager",
+        "resume"
+      ]
     },
     {
       "id": "t008",
@@ -68,7 +81,12 @@
       "thumbnailPath": "/templates/t008.png",
       "jsonPath": "src/data/template-json/t008.json",
       "status": "published",
-      "tags": ["business", "operations", "resume", "image"]
+      "tags": [
+        "business",
+        "operations",
+        "resume",
+        "image"
+      ]
     },
     {
       "id": "t009",
@@ -77,7 +95,11 @@
       "thumbnailPath": "/templates/t009.png",
       "jsonPath": "src/data/template-json/t009.json",
       "status": "published",
-      "tags": ["business", "executive", "resume"]
+      "tags": [
+        "business",
+        "executive",
+        "resume"
+      ]
     },
     {
       "id": "t010",
@@ -126,7 +148,11 @@
       "thumbnailPath": "/templates/t014.png",
       "jsonPath": "src/data/template-json/t014.json",
       "status": "published",
-      "tags": ["uiux", "designer", "resume"]
+      "tags": [
+        "uiux",
+        "designer",
+        "resume"
+      ]
     },
     {
       "id": "t015",
@@ -135,7 +161,12 @@
       "thumbnailPath": "/templates/t015.png",
       "jsonPath": "src/data/template-json/t015.json",
       "status": "published",
-      "tags": ["nursing", "healthcare", "medical", "resume"]
+      "tags": [
+        "nursing",
+        "healthcare",
+        "medical",
+        "resume"
+      ]
     },
     {
       "id": "t016",
@@ -144,7 +175,12 @@
       "thumbnailPath": "/templates/t016.png",
       "jsonPath": "src/data/template-json/t016.json",
       "status": "published",
-      "tags": ["medical", "assistant", "healthcare", "resume"]
+      "tags": [
+        "medical",
+        "assistant",
+        "healthcare",
+        "resume"
+      ]
     },
     {
       "id": "t017",
@@ -153,7 +189,12 @@
       "thumbnailPath": "/templates/t017.png",
       "jsonPath": "src/data/template-json/t017.json",
       "status": "published",
-      "tags": ["caretaker", "healthcare", "medical", "resume"]
+      "tags": [
+        "caretaker",
+        "healthcare",
+        "medical",
+        "resume"
+      ]
     },
     {
       "id": "t018",
@@ -162,7 +203,11 @@
       "thumbnailPath": "/templates/t018.png",
       "jsonPath": "src/data/template-json/t018.json",
       "status": "published",
-      "tags": ["healthcare", "medical", "resume"]
+      "tags": [
+        "healthcare",
+        "medical",
+        "resume"
+      ]
     },
     {
       "id": "t019",
@@ -171,7 +216,12 @@
       "thumbnailPath": "/templates/t019.png",
       "jsonPath": "src/data/template-json/t019.json",
       "status": "published",
-      "tags": ["sales", "marketing", "advertising", "resume"]
+      "tags": [
+        "sales",
+        "marketing",
+        "advertising",
+        "resume"
+      ]
     },
     {
       "id": "t020",
@@ -180,7 +230,12 @@
       "thumbnailPath": "/templates/t020.png",
       "jsonPath": "src/data/template-json/t020.json",
       "status": "published",
-      "tags": ["digital-marketing", "marketing", "advertising", "resume"]
+      "tags": [
+        "digital-marketing",
+        "marketing",
+        "advertising",
+        "resume"
+      ]
     },
     {
       "id": "t021",
@@ -189,7 +244,12 @@
       "thumbnailPath": "/templates/t021.png",
       "jsonPath": "src/data/template-json/t021.json",
       "status": "published",
-      "tags": ["social-media", "manager", "marketing", "resume"]
+      "tags": [
+        "social-media",
+        "manager",
+        "marketing",
+        "resume"
+      ]
     },
     {
       "id": "t022",
@@ -198,7 +258,12 @@
       "thumbnailPath": "/templates/t022.png",
       "jsonPath": "src/data/template-json/t022.json",
       "status": "published",
-      "tags": ["account-manager", "sales", "marketing", "resume"]
+      "tags": [
+        "account-manager",
+        "sales",
+        "marketing",
+        "resume"
+      ]
     },
     {
       "id": "t023",
@@ -207,7 +272,12 @@
       "thumbnailPath": "/templates/t023.png",
       "jsonPath": "src/data/template-json/t023.json",
       "status": "published",
-      "tags": ["accountant", "finance", "accounting", "resume"]
+      "tags": [
+        "accountant",
+        "finance",
+        "accounting",
+        "resume"
+      ]
     },
     {
       "id": "t024",
@@ -216,7 +286,12 @@
       "thumbnailPath": "/templates/t024.png",
       "jsonPath": "src/data/template-json/t024.json",
       "status": "published",
-      "tags": ["financial-analyst", "finance", "accounting", "resume"]
+      "tags": [
+        "financial-analyst",
+        "finance",
+        "accounting",
+        "resume"
+      ]
     },
     {
       "id": "t025",
@@ -225,7 +300,12 @@
       "thumbnailPath": "/templates/t025.png",
       "jsonPath": "src/data/template-json/t025.json",
       "status": "published",
-      "tags": ["bookkeeper", "finance", "accounting", "resume"]
+      "tags": [
+        "bookkeeper",
+        "finance",
+        "accounting",
+        "resume"
+      ]
     },
     {
       "id": "t026",
@@ -234,7 +314,12 @@
       "thumbnailPath": "/templates/t026.png",
       "jsonPath": "src/data/template-json/t026.json",
       "status": "published",
-      "tags": ["accounts-payable", "finance", "accounting", "resume"]
+      "tags": [
+        "accounts-payable",
+        "finance",
+        "accounting",
+        "resume"
+      ]
     },
     {
       "id": "t027",
@@ -243,7 +328,12 @@
       "thumbnailPath": "/templates/t027.png",
       "jsonPath": "src/data/template-json/t027.json",
       "status": "published",
-      "tags": ["customer-service", "administration", "support", "resume"]
+      "tags": [
+        "customer-service",
+        "administration",
+        "support",
+        "resume"
+      ]
     },
     {
       "id": "t028",
@@ -252,7 +342,12 @@
       "thumbnailPath": "/templates/t028.png",
       "jsonPath": "src/data/template-json/t028.json",
       "status": "published",
-      "tags": ["administrative-assistant", "administration", "customer-service", "resume"]
+      "tags": [
+        "administrative-assistant",
+        "administration",
+        "customer-service",
+        "resume"
+      ]
     },
     {
       "id": "t029",
@@ -261,7 +356,12 @@
       "thumbnailPath": "/templates/t029.png",
       "jsonPath": "src/data/template-json/t029.json",
       "status": "published",
-      "tags": ["receptionist", "administration", "customer-service", "resume"]
+      "tags": [
+        "receptionist",
+        "administration",
+        "customer-service",
+        "resume"
+      ]
     },
     {
       "id": "t030",
@@ -270,7 +370,12 @@
       "thumbnailPath": "/templates/t030.png",
       "jsonPath": "src/data/template-json/t030.json",
       "status": "published",
-      "tags": ["office-assistant", "administration", "customer-service", "resume"]
+      "tags": [
+        "office-assistant",
+        "administration",
+        "customer-service",
+        "resume"
+      ]
     },
     {
       "id": "t031",
@@ -279,7 +384,12 @@
       "thumbnailPath": "/templates/t031.png",
       "jsonPath": "src/data/template-json/t031.json",
       "status": "published",
-      "tags": ["graphic-designer", "creative", "design", "resume"]
+      "tags": [
+        "graphic-designer",
+        "creative",
+        "design",
+        "resume"
+      ]
     },
     {
       "id": "t032",
@@ -288,7 +398,12 @@
       "thumbnailPath": "/templates/t032.png",
       "jsonPath": "src/data/template-json/t032.json",
       "status": "published",
-      "tags": ["ui-ux-designer", "creative", "design", "resume"]
+      "tags": [
+        "ui-ux-designer",
+        "creative",
+        "design",
+        "resume"
+      ]
     },
     {
       "id": "t033",
@@ -297,7 +412,12 @@
       "thumbnailPath": "/templates/t033.png",
       "jsonPath": "src/data/template-json/t033.json",
       "status": "published",
-      "tags": ["content-writer", "creative", "writing", "resume"]
+      "tags": [
+        "content-writer",
+        "creative",
+        "writing",
+        "resume"
+      ]
     },
     {
       "id": "t034",
@@ -306,7 +426,12 @@
       "thumbnailPath": "/templates/t034.png",
       "jsonPath": "src/data/template-json/t034.json",
       "status": "published",
-      "tags": ["hotel-manager", "hospitality", "travel", "resume"]
+      "tags": [
+        "hotel-manager",
+        "hospitality",
+        "travel",
+        "resume"
+      ]
     },
     {
       "id": "t035",
@@ -315,7 +440,12 @@
       "thumbnailPath": "/templates/t035.png",
       "jsonPath": "src/data/template-json/t035.json",
       "status": "published",
-      "tags": ["front-desk", "hospitality", "travel", "resume"]
+      "tags": [
+        "front-desk",
+        "hospitality",
+        "travel",
+        "resume"
+      ]
     },
     {
       "id": "t036",
@@ -324,7 +454,12 @@
       "thumbnailPath": "/templates/t036.png",
       "jsonPath": "src/data/template-json/t036.json",
       "status": "published",
-      "tags": ["flight-attendant", "hospitality", "travel", "resume"]
+      "tags": [
+        "flight-attendant",
+        "hospitality",
+        "travel",
+        "resume"
+      ]
     },
     {
       "id": "t037",
@@ -333,7 +468,12 @@
       "thumbnailPath": "/templates/t037.png",
       "jsonPath": "src/data/template-json/t037.json",
       "status": "published",
-      "tags": ["restaurant-manager", "hospitality", "travel", "resume"]
+      "tags": [
+        "restaurant-manager",
+        "hospitality",
+        "travel",
+        "resume"
+      ]
     },
     {
       "id": "t038",
@@ -342,7 +482,12 @@
       "thumbnailPath": "/templates/t038.png",
       "jsonPath": "src/data/template-json/t038.json",
       "status": "published",
-      "tags": ["student", "entry-level", "fresher", "resume"]
+      "tags": [
+        "student",
+        "entry-level",
+        "fresher",
+        "resume"
+      ]
     },
     {
       "id": "t039",
@@ -351,7 +496,12 @@
       "thumbnailPath": "/templates/t039.png",
       "jsonPath": "src/data/template-json/t039.json",
       "status": "published",
-      "tags": ["internship", "student", "entry-level", "resume"]
+      "tags": [
+        "internship",
+        "student",
+        "entry-level",
+        "resume"
+      ]
     },
     {
       "id": "t040",
@@ -360,412 +510,792 @@
       "thumbnailPath": "/templates/t040.png",
       "jsonPath": "src/data/template-json/t040.json",
       "status": "published",
-      "tags": ["software engineer", "entry level", "developer", "it", "resume"]
-      },
-      {
-        "id": "t041",
-        "title": "Registered Nurse Resume",
-        "categoryId": "healthcare-medical",
-        "thumbnailPath": "/templates/t041.png",
-        "jsonPath": "src/data/template-json/t041.json",
-        "status": "published",
-        "tags": ["registered nurse", "nurse", "healthcare", "medical", "resume"]
-        },
-        {
-          "id": "t042",
-          "title": "Project Manager Resume",
-          "categoryId": "business-management",
-          "thumbnailPath": "/templates/t042.png",
-          "jsonPath": "src/data/template-json/t042.json",
-          "status": "published",
-          "tags": ["project manager", "management", "business", "corporate", "resume"]
-          },
-          {
-            "id": "t043",
-            "title": "Data Analyst Resume",
-            "categoryId": "it-software",
-            "thumbnailPath": "/templates/t043.png",
-            "jsonPath": "src/data/template-json/t043.json",
-            "status": "published",
-            "tags": ["data analyst", "analytics", "data", "it", "resume"]
-            },
-            {
-              "id": "t044",
-              "title": "Customer Service Representative Resume",
-              "categoryId": "customer-service-administration",
-              "thumbnailPath": "/templates/t044.png",
-              "jsonPath": "src/data/template-json/t044.json",
-              "status": "published",
-              "tags": ["customer service", "representative", "support", "administration", "resume"]
-              },
-              {
-                "id": "t045",
-                "title": "Business Analyst Resume",
-                "categoryId": "business-management",
-                "thumbnailPath": "/templates/t045.png",
-                "jsonPath": "src/data/template-json/t045.json",
-                "status": "published",
-                "tags": ["business analyst", "analysis", "corporate", "management", "resume"]
-              },
-              {
-                "id": "t046",
-                "title": "Teacher Resume",
-                "categoryId": "others-student-entry-level",
-                "thumbnailPath": "/templates/t046.png",
-                "jsonPath": "src/data/template-json/t046.json",
-                "status": "published",
-                "tags": ["teacher", "education", "school", "academic", "resume"]
-              },
-              {
-                "id": "t047",
-                "title": "Cybersecurity Analyst Resume",
-                "categoryId": "it-software",
-                "thumbnailPath": "/templates/t047.png",
-                "jsonPath": "src/data/template-json/t047.json",
-                "status": "published",
-                "tags": ["cybersecurity", "security analyst", "cyber security", "it", "resume"]
-              },
-              {
-                "id": "t048",
-                "title": "Human Resources Resume",
-                "categoryId": "business-management",
-                "thumbnailPath": "/templates/t048.png",
-                "jsonPath": "src/data/template-json/t048.json",
-                "status": "published",
-                "tags": ["human resources", "hr", "recruitment", "management", "resume"]
-              },
-              {
-                "id": "t049",
-                "title": "Warehouse Worker Resume",
-                "categoryId": "customer-service-administration",
-                "thumbnailPath": "/templates/t049.png",
-                "jsonPath": "src/data/template-json/t049.json",
-                "status": "published",
-                "tags": ["warehouse worker", "warehouse", "logistics", "operations", "resume"]
-              },
-              {
-                "id": "t050",
-                "title": "IT Support Specialist Resume",
-                "categoryId": "it-software",
-                "thumbnailPath": "/templates/t050.png",
-                "jsonPath": "src/data/template-json/t050.json",
-                "status": "published",
-                "tags": ["it support", "technical support", "help desk", "it specialist", "resume"]
-              },
-              {
-                "id": "t051",
-                "title": "Marketing Manager Resume",
-                "categoryId": "sales-marketing-advertising",
-                "thumbnailPath": "/templates/t051.png",
-                "jsonPath": "src/data/template-json/t051.json",
-                "status": "published",
-                "tags": ["marketing manager", "marketing", "digital marketing", "brand management", "resume"]
-              },
-              {
-                "id": "t052",
-                "title": "Medical Assistant Resume",
-                "categoryId": "healthcare-medical",
-                "thumbnailPath": "/templates/t052.png",
-                "jsonPath": "src/data/template-json/t052.json",
-                "status": "published",
-                "tags": ["medical assistant", "healthcare", "clinical assistant", "medical support", "resume"]
-              },
-              {
-                "id": "t053",
-                "title": "UX Designer Resume",
-                "categoryId": "creative-designing",
-                "thumbnailPath": "/templates/t053.png",
-                "jsonPath": "src/data/template-json/t053.json",
-                "status": "published",
-                "tags": ["ux designer", "ui ux", "user experience", "product design", "resume"]
-              },
-              {
-                "id": "t054",
-                "title": "Sales Associate Resume",
-                "categoryId": "sales-marketing-advertising",
-                "thumbnailPath": "/templates/t054.png",
-                "jsonPath": "src/data/template-json/t054.json",
-                "status": "published",
-                "tags": ["sales associate", "retail sales", "customer service", "sales", "resume"]
-              },
-              {
-                "id": "t055",
-                "title": "Accountant Resume",
-                "categoryId": "finance-accounting",
-                "thumbnailPath": "/templates/t055.png",
-                "jsonPath": "src/data/template-json/t055.json",
-                "status": "published",
-                "tags": ["accountant", "accounting", "bookkeeping", "financial reporting", "resume"]
-              },
-              {
-                "id": "t056",
-                "title": "Graphic Designer Resume",
-                "categoryId": "creative-designing",
-                "thumbnailPath": "/templates/t056.png",
-                "jsonPath": "src/data/template-json/t056.json",
-                "status": "published",
-                "tags": ["graphic designer", "design", "branding", "creative", "resume"]
-              },
-              {
-                "id": "t057",
-                "title": "Administrative Assistant Resume",
-                "categoryId": "customer-service-administration",
-                "thumbnailPath": "/templates/t057.png",
-                "jsonPath": "src/data/template-json/t057.json",
-                "status": "published",
-                "tags": ["administrative assistant", "office administration", "executive assistant", "administration", "resume"]
-              },
-              {
-                "id": "t058",
-                "title": "Customer Success Manager Resume",
-                "categoryId": "customer-service-administration",
-                "thumbnailPath": "/templates/t058.png",
-                "jsonPath": "src/data/template-json/t058.json",
-                "status": "published",
-                "tags": ["customer success manager", "customer success", "client success", "account management", "customer retention", "saas", "customer experience", "client relationship", "renewals", "upselling", "customer onboarding", "success manager", "crm", "subscription business", "resume"]
-              },
-              {
-                "id": "t059",
-                "title": "Registered Nurse Practitioner Resume",
-                "categoryId": "healthcare-medical",
-                "thumbnailPath": "/templates/t059.png",
-                "jsonPath": "src/data/template-json/t059.json",
-                "status": "published",
-                "tags": ["nurse practitioner", "registered nurse practitioner", "np resume", "advanced practice nurse", "family nurse practitioner", "healthcare", "clinical care", "patient assessment", "treatment planning", "diagnosis", "prescription management", "primary care", "acute care", "medical resume", "resume"]
-              },
-              {
-                "id": "t060",
-                "title": "Financial Analyst Resume",
-                "categoryId": "finance-accounting",
-                "thumbnailPath": "/templates/t060.png",
-                "jsonPath": "src/data/template-json/t060.json",
-                "status": "published",
-                "tags": ["financial analyst", "finance", "financial planning", "budgeting", "forecasting", "financial modeling", "accounting", "investment analysis", "data analysis", "excel", "fp&a", "corporate finance", "financial reporting", "business analysis", "resume"]
-              },
-              {
-                "id": "t061",
-                "title": "Operations Manager Resume",
-                "categoryId": "business-management",
-                "thumbnailPath": "/templates/t061.png",
-                "jsonPath": "src/data/template-json/t061.json",
-                "status": "published",
-                "tags": ["operations manager", "operations", "business operations", "process improvement", "team management", "project management", "operations strategy", "workflow optimization", "supply chain", "logistics", "performance management", "leadership", "operations planning", "business management", "resume"]
-              },
-              {
-                "id": "t062",
-                "title": "Human Resources Manager Resume",
-                "categoryId": "business-management",
-                "thumbnailPath": "/templates/t062.png",
-                "jsonPath": "src/data/template-json/t062.json",
-                "status": "published",
-                "tags": ["human resources manager", "hr manager", "human resources", "talent acquisition", "recruitment", "employee relations", "performance management", "hr operations", "workforce planning", "onboarding", "training and development", "compliance", "people management", "hr leadership", "resume"]
-              },
-              {
-                "id": "t063",
-                "title": "Physical Therapist Resume",
-                "categoryId": "healthcare-medical",
-                "thumbnailPath": "/templates/t063.png",
-                "jsonPath": "src/data/template-json/t063.json",
-                "status": "published",
-                "tags": ["physical therapist", "physiotherapist", "physical therapy", "rehabilitation", "patient care", "treatment planning", "mobility training", "injury recovery", "musculoskeletal therapy", "clinical assessment", "healthcare", "therapy services", "patient rehabilitation", "medical resume", "resume"]
-              },
-              {
-                "id": "t064",
-                "title": "Product Manager Resume",
-                "categoryId": "business-management",
-                "thumbnailPath": "/templates/t064.png",
-                "jsonPath": "src/data/template-json/t064.json",
-                "status": "published",
-                "tags": ["product manager", "product management", "product strategy", "roadmap planning", "agile", "scrum", "stakeholder management", "product development", "user research", "market analysis", "cross functional teams", "product lifecycle", "business strategy", "saas", "resume"]
-              },
-              {
-                "id": "t065",
-                "title": "Software Developer Resume",
-                "categoryId": "it-software",
-                "thumbnailPath": "/templates/t065.png",
-                "jsonPath": "src/data/template-json/t065.json",
-                "status": "published",
-                "tags": ["software developer", "software engineer", "full stack developer", "frontend developer", "backend developer", "web development", "javascript", "python", "java", "react", "nodejs", "api development", "agile", "problem solving", "resume"]
-              },
-              {
-                "id": "t066",
-                "title": "Executive Assistant Resume",
-                "categoryId": "customer-service-administration",
-                "thumbnailPath": "/templates/t066.png",
-                "jsonPath": "src/data/template-json/t066.json",
-                "status": "published",
-                "tags": ["executive assistant", "administrative assistant", "office administration", "calendar management", "executive support", "meeting coordination", "travel arrangements", "document management", "stakeholder communication", "scheduling", "office operations", "confidential information", "business support", "administration", "resume"]
-              },
-              {
-                "id": "t067",
-                "title": "Data Scientist Resume",
-                "categoryId": "it-software",
-                "thumbnailPath": "/templates/t067.png",
-                "jsonPath": "src/data/template-json/t067.json",
-                "status": "published",
-                "tags": ["data scientist", "data science", "machine learning", "artificial intelligence", "data analysis", "python", "sql", "statistics", "predictive analytics", "data visualization", "deep learning", "business intelligence", "big data", "research", "resume"]
-              },
-              {
-                "id": "t068",
-                "title": "Social Media Manager Resume",
-                "categoryId": "sales-marketing-advertising",
-                "thumbnailPath": "/templates/t068.png",
-                "jsonPath": "src/data/template-json/t068.json",
-                "status": "published",
-                "tags": ["social media manager", "social media marketing", "content strategy", "digital marketing", "facebook marketing", "instagram marketing", "linkedin marketing", "community management", "content creation", "brand awareness", "social media analytics", "campaign management", "engagement growth", "marketing", "resume"]
-              },
-              {
-                "id": "t069",
-                "title": "Occupational Therapist Resume",
-                "categoryId": "healthcare-medical",
-                "thumbnailPath": "/templates/t069.png",
-                "jsonPath": "src/data/template-json/t069.json",
-                "status": "published",
-                "tags": ["occupational therapist", "occupational therapy", "patient rehabilitation", "therapy services", "treatment planning", "patient assessment", "healthcare", "clinical care", "adaptive equipment", "mobility training", "activities of daily living", "rehabilitation therapy", "patient recovery", "medical resume", "resume"]
-              },
-              {
-                "id": "t070",
-                "title": "Cybersecurity Analyst Resume",
-                "categoryId": "it-software",
-                "thumbnailPath": "/templates/t070.png",
-                "jsonPath": "src/data/template-json/t070.json",
-                "status": "published",
-                "tags": ["cybersecurity analyst", "information security", "threat detection", "incident response", "vulnerability management", "network security", "risk assessment", "security operations center", "SOC analyst", "compliance", "penetration testing", "security monitoring", "cyber defense", "security analyst", "resume"]
-              },
-              {
-                "id": "t071",
-                "title": "Business Development Manager Resume",
-                "categoryId": "business-management",
-                "thumbnailPath": "/templates/t071.png",
-                "jsonPath": "src/data/template-json/t071.json",
-                "status": "published",
-                "tags": ["business development manager", "business development", "lead generation", "client acquisition", "sales strategy", "revenue growth", "partnership development", "account management", "B2B sales", "market research", "negotiation", "relationship management", "pipeline management", "business growth", "resume"]
-              },
-              {
-                "id": "t072",
-                "title": "Customer Support Representative Resume",
-                "categoryId": "customer-service-administration",
-                "thumbnailPath": "/templates/t072.png",
-                "jsonPath": "src/data/template-json/t072.json",
-                "status": "published",
-                "tags": ["customer support representative", "customer service", "customer support", "ticket resolution", "CRM", "call center", "help desk", "customer satisfaction", "problem solving", "communication skills", "technical support", "client assistance", "issue resolution", "customer experience", "resume"]
-              },
-              {
-                "id": "t073",
-                "title": "Mechanical Engineer Resume",
-                "categoryId": "engineering",
-                "thumbnailPath": "/templates/t073.png",
-                "jsonPath": "src/data/template-json/t073.json",
-                "status": "published",
-                "tags": ["mechanical engineer", "mechanical engineering", "product design", "manufacturing", "CAD design", "solidworks", "autocad", "engineering projects", "quality assurance", "process improvement", "technical documentation", "production engineering", "problem solving", "engineering resume", "resume"]
-              },
-              {
-                "id": "t074",
-                "title": "Supply Chain Manager Resume",
-                "categoryId": "logistics-operations",
-                "thumbnailPath": "/templates/t074.png",
-                "jsonPath": "src/data/template-json/t074.json",
-                "status": "published",
-                "tags": ["supply chain manager", "supply chain", "logistics management", "inventory management", "procurement", "vendor management", "operations management", "warehouse management", "demand planning", "forecasting", "distribution", "supply chain optimization", "inventory control", "logistics", "resume"]
-              },
-              {
-                "id": "t075",
-                "title": "Registered Nurse Resume",
-                "categoryId": "healthcare",
-                "thumbnailPath": "/templates/t075.webp",
-                "jsonPath": "src/data/template-json/t075.json",
-                "status": "published",
-                "tags": [
-                  "registered nurse",
-                  "nurse resume",
-                  "rn resume",
-                  "healthcare",
-                  "hospital",
-                  "clinical",
-                  "patient care",
-                  "ats resume"
-                ]
-              },
-              {
-                "id": "t076",
-                "title": "Human Resources Manager Resume",
-                "categoryId": "business-management",
-                "thumbnailPath": "/templates/t076.webp",
-                "jsonPath": "src/data/template-json/t076.json",
-                "status": "published",
-                "tags": [
-                  "human resources manager",
-                  "hr manager",
-                  "human resources",
-                  "talent acquisition",
-                  "recruitment",
-                  "employee relations",
-                  "performance management",
-                  "workforce planning",
-                  "hr leadership",
-                  "ats resume"
-                ]
-              },
-              {
-                "id": "t077",
-                "title": "Customer Success Manager Resume",
-                "categoryId": "sales-marketing",
-                "thumbnailPath": "/templates/t077.webp",
-                "jsonPath": "src/data/template-json/t077.json",
-                "status": "published",
-                "tags": [
-                  "customer success manager",
-                  "customer success",
-                  "client success",
-                  "account management",
-                  "customer retention",
-                  "customer experience",
-                  "saas",
-                  "client relationship management",
-                  "renewals",
-                  "ats resume"
-                ]
-              },
-              {
-                "id": "t078",
-                "title": "Financial Analyst Resume",
-                "categoryId": "finance-accounting",
-                "thumbnailPath": "/templates/t078.webp",
-                "jsonPath": "src/data/template-json/t078.json",
-                "status": "published",
-                "tags": [
-                  "financial analyst",
-                  "finance analyst",
-                  "financial planning",
-                  "budgeting",
-                  "forecasting",
-                  "financial modeling",
-                  "data analysis",
-                  "excel",
-                  "fp&a",
-                  "ats resume"
-                ]
-              },
-              {
-                "id": "t079",
-                "title": "Operations Manager Resume",
-                "categoryId": "business-management",
-                "thumbnailPath": "/templates/t079.webp",
-                "jsonPath": "src/data/template-json/t079.json",
-                "status": "published",
-                "tags": [
-                  "operations manager",
-                  "operations management",
-                  "business operations",
-                  "process improvement",
-                  "project management",
-                  "team leadership",
-                  "supply chain",
-                  "operational excellence",
-                  "kpi management",
-                  "ats resume"
-                ]
-              },
+      "tags": [
+        "software engineer",
+        "entry level",
+        "developer",
+        "it",
+        "resume"
+      ]
+    },
+    {
+      "id": "t041",
+      "title": "Registered Nurse Resume",
+      "categoryId": "healthcare-medical",
+      "thumbnailPath": "/templates/t041.png",
+      "jsonPath": "src/data/template-json/t041.json",
+      "status": "published",
+      "tags": [
+        "registered nurse",
+        "nurse",
+        "healthcare",
+        "medical",
+        "resume"
+      ]
+    },
+    {
+      "id": "t042",
+      "title": "Project Manager Resume",
+      "categoryId": "business-management",
+      "thumbnailPath": "/templates/t042.png",
+      "jsonPath": "src/data/template-json/t042.json",
+      "status": "published",
+      "tags": [
+        "project manager",
+        "management",
+        "business",
+        "corporate",
+        "resume"
+      ]
+    },
+    {
+      "id": "t043",
+      "title": "Data Analyst Resume",
+      "categoryId": "it-software",
+      "thumbnailPath": "/templates/t043.png",
+      "jsonPath": "src/data/template-json/t043.json",
+      "status": "published",
+      "tags": [
+        "data analyst",
+        "analytics",
+        "data",
+        "it",
+        "resume"
+      ]
+    },
+    {
+      "id": "t044",
+      "title": "Customer Service Representative Resume",
+      "categoryId": "customer-service-administration",
+      "thumbnailPath": "/templates/t044.png",
+      "jsonPath": "src/data/template-json/t044.json",
+      "status": "published",
+      "tags": [
+        "customer service",
+        "representative",
+        "support",
+        "administration",
+        "resume"
+      ]
+    },
+    {
+      "id": "t045",
+      "title": "Business Analyst Resume",
+      "categoryId": "business-management",
+      "thumbnailPath": "/templates/t045.png",
+      "jsonPath": "src/data/template-json/t045.json",
+      "status": "published",
+      "tags": [
+        "business analyst",
+        "analysis",
+        "corporate",
+        "management",
+        "resume"
+      ]
+    },
+    {
+      "id": "t046",
+      "title": "Teacher Resume",
+      "categoryId": "others-student-entry-level",
+      "thumbnailPath": "/templates/t046.png",
+      "jsonPath": "src/data/template-json/t046.json",
+      "status": "published",
+      "tags": [
+        "teacher",
+        "education",
+        "school",
+        "academic",
+        "resume"
+      ]
+    },
+    {
+      "id": "t047",
+      "title": "Cybersecurity Analyst Resume",
+      "categoryId": "it-software",
+      "thumbnailPath": "/templates/t047.png",
+      "jsonPath": "src/data/template-json/t047.json",
+      "status": "published",
+      "tags": [
+        "cybersecurity",
+        "security analyst",
+        "cyber security",
+        "it",
+        "resume"
+      ]
+    },
+    {
+      "id": "t048",
+      "title": "Human Resources Resume",
+      "categoryId": "business-management",
+      "thumbnailPath": "/templates/t048.png",
+      "jsonPath": "src/data/template-json/t048.json",
+      "status": "published",
+      "tags": [
+        "human resources",
+        "hr",
+        "recruitment",
+        "management",
+        "resume"
+      ]
+    },
+    {
+      "id": "t049",
+      "title": "Warehouse Worker Resume",
+      "categoryId": "customer-service-administration",
+      "thumbnailPath": "/templates/t049.png",
+      "jsonPath": "src/data/template-json/t049.json",
+      "status": "published",
+      "tags": [
+        "warehouse worker",
+        "warehouse",
+        "logistics",
+        "operations",
+        "resume"
+      ]
+    },
+    {
+      "id": "t050",
+      "title": "IT Support Specialist Resume",
+      "categoryId": "it-software",
+      "thumbnailPath": "/templates/t050.png",
+      "jsonPath": "src/data/template-json/t050.json",
+      "status": "published",
+      "tags": [
+        "it support",
+        "technical support",
+        "help desk",
+        "it specialist",
+        "resume"
+      ]
+    },
+    {
+      "id": "t051",
+      "title": "Marketing Manager Resume",
+      "categoryId": "sales-marketing-advertising",
+      "thumbnailPath": "/templates/t051.png",
+      "jsonPath": "src/data/template-json/t051.json",
+      "status": "published",
+      "tags": [
+        "marketing manager",
+        "marketing",
+        "digital marketing",
+        "brand management",
+        "resume"
+      ]
+    },
+    {
+      "id": "t052",
+      "title": "Medical Assistant Resume",
+      "categoryId": "healthcare-medical",
+      "thumbnailPath": "/templates/t052.png",
+      "jsonPath": "src/data/template-json/t052.json",
+      "status": "published",
+      "tags": [
+        "medical assistant",
+        "healthcare",
+        "clinical assistant",
+        "medical support",
+        "resume"
+      ]
+    },
+    {
+      "id": "t053",
+      "title": "UX Designer Resume",
+      "categoryId": "creative-designing",
+      "thumbnailPath": "/templates/t053.png",
+      "jsonPath": "src/data/template-json/t053.json",
+      "status": "published",
+      "tags": [
+        "ux designer",
+        "ui ux",
+        "user experience",
+        "product design",
+        "resume"
+      ]
+    },
+    {
+      "id": "t054",
+      "title": "Sales Associate Resume",
+      "categoryId": "sales-marketing-advertising",
+      "thumbnailPath": "/templates/t054.png",
+      "jsonPath": "src/data/template-json/t054.json",
+      "status": "published",
+      "tags": [
+        "sales associate",
+        "retail sales",
+        "customer service",
+        "sales",
+        "resume"
+      ]
+    },
+    {
+      "id": "t055",
+      "title": "Accountant Resume",
+      "categoryId": "finance-accounting",
+      "thumbnailPath": "/templates/t055.png",
+      "jsonPath": "src/data/template-json/t055.json",
+      "status": "published",
+      "tags": [
+        "accountant",
+        "accounting",
+        "bookkeeping",
+        "financial reporting",
+        "resume"
+      ]
+    },
+    {
+      "id": "t056",
+      "title": "Graphic Designer Resume",
+      "categoryId": "creative-designing",
+      "thumbnailPath": "/templates/t056.png",
+      "jsonPath": "src/data/template-json/t056.json",
+      "status": "published",
+      "tags": [
+        "graphic designer",
+        "design",
+        "branding",
+        "creative",
+        "resume"
+      ]
+    },
+    {
+      "id": "t057",
+      "title": "Administrative Assistant Resume",
+      "categoryId": "customer-service-administration",
+      "thumbnailPath": "/templates/t057.png",
+      "jsonPath": "src/data/template-json/t057.json",
+      "status": "published",
+      "tags": [
+        "administrative assistant",
+        "office administration",
+        "executive assistant",
+        "administration",
+        "resume"
+      ]
+    },
+    {
+      "id": "t058",
+      "title": "Customer Success Manager Resume",
+      "categoryId": "customer-service-administration",
+      "thumbnailPath": "/templates/t058.png",
+      "jsonPath": "src/data/template-json/t058.json",
+      "status": "published",
+      "tags": [
+        "customer success manager",
+        "customer success",
+        "client success",
+        "account management",
+        "customer retention",
+        "saas",
+        "customer experience",
+        "client relationship",
+        "renewals",
+        "upselling",
+        "customer onboarding",
+        "success manager",
+        "crm",
+        "subscription business",
+        "resume"
+      ]
+    },
+    {
+      "id": "t059",
+      "title": "Registered Nurse Practitioner Resume",
+      "categoryId": "healthcare-medical",
+      "thumbnailPath": "/templates/t059.png",
+      "jsonPath": "src/data/template-json/t059.json",
+      "status": "published",
+      "tags": [
+        "nurse practitioner",
+        "registered nurse practitioner",
+        "np resume",
+        "advanced practice nurse",
+        "family nurse practitioner",
+        "healthcare",
+        "clinical care",
+        "patient assessment",
+        "treatment planning",
+        "diagnosis",
+        "prescription management",
+        "primary care",
+        "acute care",
+        "medical resume",
+        "resume"
+      ]
+    },
+    {
+      "id": "t060",
+      "title": "Financial Analyst Resume",
+      "categoryId": "finance-accounting",
+      "thumbnailPath": "/templates/t060.png",
+      "jsonPath": "src/data/template-json/t060.json",
+      "status": "published",
+      "tags": [
+        "financial analyst",
+        "finance",
+        "financial planning",
+        "budgeting",
+        "forecasting",
+        "financial modeling",
+        "accounting",
+        "investment analysis",
+        "data analysis",
+        "excel",
+        "fp&a",
+        "corporate finance",
+        "financial reporting",
+        "business analysis",
+        "resume"
+      ]
+    },
+    {
+      "id": "t061",
+      "title": "Operations Manager Resume",
+      "categoryId": "business-management",
+      "thumbnailPath": "/templates/t061.png",
+      "jsonPath": "src/data/template-json/t061.json",
+      "status": "published",
+      "tags": [
+        "operations manager",
+        "operations",
+        "business operations",
+        "process improvement",
+        "team management",
+        "project management",
+        "operations strategy",
+        "workflow optimization",
+        "supply chain",
+        "logistics",
+        "performance management",
+        "leadership",
+        "operations planning",
+        "business management",
+        "resume"
+      ]
+    },
+    {
+      "id": "t062",
+      "title": "Human Resources Manager Resume",
+      "categoryId": "business-management",
+      "thumbnailPath": "/templates/t062.png",
+      "jsonPath": "src/data/template-json/t062.json",
+      "status": "published",
+      "tags": [
+        "human resources manager",
+        "hr manager",
+        "human resources",
+        "talent acquisition",
+        "recruitment",
+        "employee relations",
+        "performance management",
+        "hr operations",
+        "workforce planning",
+        "onboarding",
+        "training and development",
+        "compliance",
+        "people management",
+        "hr leadership",
+        "resume"
+      ]
+    },
+    {
+      "id": "t063",
+      "title": "Physical Therapist Resume",
+      "categoryId": "healthcare-medical",
+      "thumbnailPath": "/templates/t063.png",
+      "jsonPath": "src/data/template-json/t063.json",
+      "status": "published",
+      "tags": [
+        "physical therapist",
+        "physiotherapist",
+        "physical therapy",
+        "rehabilitation",
+        "patient care",
+        "treatment planning",
+        "mobility training",
+        "injury recovery",
+        "musculoskeletal therapy",
+        "clinical assessment",
+        "healthcare",
+        "therapy services",
+        "patient rehabilitation",
+        "medical resume",
+        "resume"
+      ]
+    },
+    {
+      "id": "t064",
+      "title": "Product Manager Resume",
+      "categoryId": "business-management",
+      "thumbnailPath": "/templates/t064.png",
+      "jsonPath": "src/data/template-json/t064.json",
+      "status": "published",
+      "tags": [
+        "product manager",
+        "product management",
+        "product strategy",
+        "roadmap planning",
+        "agile",
+        "scrum",
+        "stakeholder management",
+        "product development",
+        "user research",
+        "market analysis",
+        "cross functional teams",
+        "product lifecycle",
+        "business strategy",
+        "saas",
+        "resume"
+      ]
+    },
+    {
+      "id": "t065",
+      "title": "Software Developer Resume",
+      "categoryId": "it-software",
+      "thumbnailPath": "/templates/t065.png",
+      "jsonPath": "src/data/template-json/t065.json",
+      "status": "published",
+      "tags": [
+        "software developer",
+        "software engineer",
+        "full stack developer",
+        "frontend developer",
+        "backend developer",
+        "web development",
+        "javascript",
+        "python",
+        "java",
+        "react",
+        "nodejs",
+        "api development",
+        "agile",
+        "problem solving",
+        "resume"
+      ]
+    },
+    {
+      "id": "t066",
+      "title": "Executive Assistant Resume",
+      "categoryId": "customer-service-administration",
+      "thumbnailPath": "/templates/t066.png",
+      "jsonPath": "src/data/template-json/t066.json",
+      "status": "published",
+      "tags": [
+        "executive assistant",
+        "administrative assistant",
+        "office administration",
+        "calendar management",
+        "executive support",
+        "meeting coordination",
+        "travel arrangements",
+        "document management",
+        "stakeholder communication",
+        "scheduling",
+        "office operations",
+        "confidential information",
+        "business support",
+        "administration",
+        "resume"
+      ]
+    },
+    {
+      "id": "t067",
+      "title": "Data Scientist Resume",
+      "categoryId": "it-software",
+      "thumbnailPath": "/templates/t067.png",
+      "jsonPath": "src/data/template-json/t067.json",
+      "status": "published",
+      "tags": [
+        "data scientist",
+        "data science",
+        "machine learning",
+        "artificial intelligence",
+        "data analysis",
+        "python",
+        "sql",
+        "statistics",
+        "predictive analytics",
+        "data visualization",
+        "deep learning",
+        "business intelligence",
+        "big data",
+        "research",
+        "resume"
+      ]
+    },
+    {
+      "id": "t068",
+      "title": "Social Media Manager Resume",
+      "categoryId": "sales-marketing-advertising",
+      "thumbnailPath": "/templates/t068.png",
+      "jsonPath": "src/data/template-json/t068.json",
+      "status": "published",
+      "tags": [
+        "social media manager",
+        "social media marketing",
+        "content strategy",
+        "digital marketing",
+        "facebook marketing",
+        "instagram marketing",
+        "linkedin marketing",
+        "community management",
+        "content creation",
+        "brand awareness",
+        "social media analytics",
+        "campaign management",
+        "engagement growth",
+        "marketing",
+        "resume"
+      ]
+    },
+    {
+      "id": "t069",
+      "title": "Occupational Therapist Resume",
+      "categoryId": "healthcare-medical",
+      "thumbnailPath": "/templates/t069.png",
+      "jsonPath": "src/data/template-json/t069.json",
+      "status": "published",
+      "tags": [
+        "occupational therapist",
+        "occupational therapy",
+        "patient rehabilitation",
+        "therapy services",
+        "treatment planning",
+        "patient assessment",
+        "healthcare",
+        "clinical care",
+        "adaptive equipment",
+        "mobility training",
+        "activities of daily living",
+        "rehabilitation therapy",
+        "patient recovery",
+        "medical resume",
+        "resume"
+      ]
+    },
+    {
+      "id": "t070",
+      "title": "Cybersecurity Analyst Resume",
+      "categoryId": "it-software",
+      "thumbnailPath": "/templates/t070.png",
+      "jsonPath": "src/data/template-json/t070.json",
+      "status": "published",
+      "tags": [
+        "cybersecurity analyst",
+        "information security",
+        "threat detection",
+        "incident response",
+        "vulnerability management",
+        "network security",
+        "risk assessment",
+        "security operations center",
+        "SOC analyst",
+        "compliance",
+        "penetration testing",
+        "security monitoring",
+        "cyber defense",
+        "security analyst",
+        "resume"
+      ]
+    },
+    {
+      "id": "t071",
+      "title": "Business Development Manager Resume",
+      "categoryId": "business-management",
+      "thumbnailPath": "/templates/t071.png",
+      "jsonPath": "src/data/template-json/t071.json",
+      "status": "published",
+      "tags": [
+        "business development manager",
+        "business development",
+        "lead generation",
+        "client acquisition",
+        "sales strategy",
+        "revenue growth",
+        "partnership development",
+        "account management",
+        "B2B sales",
+        "market research",
+        "negotiation",
+        "relationship management",
+        "pipeline management",
+        "business growth",
+        "resume"
+      ]
+    },
+    {
+      "id": "t072",
+      "title": "Customer Support Representative Resume",
+      "categoryId": "customer-service-administration",
+      "thumbnailPath": "/templates/t072.png",
+      "jsonPath": "src/data/template-json/t072.json",
+      "status": "published",
+      "tags": [
+        "customer support representative",
+        "customer service",
+        "customer support",
+        "ticket resolution",
+        "CRM",
+        "call center",
+        "help desk",
+        "customer satisfaction",
+        "problem solving",
+        "communication skills",
+        "technical support",
+        "client assistance",
+        "issue resolution",
+        "customer experience",
+        "resume"
+      ]
+    },
+    {
+      "id": "t073",
+      "title": "Mechanical Engineer Resume",
+      "categoryId": "engineering",
+      "thumbnailPath": "/templates/t073.png",
+      "jsonPath": "src/data/template-json/t073.json",
+      "status": "published",
+      "tags": [
+        "mechanical engineer",
+        "mechanical engineering",
+        "product design",
+        "manufacturing",
+        "CAD design",
+        "solidworks",
+        "autocad",
+        "engineering projects",
+        "quality assurance",
+        "process improvement",
+        "technical documentation",
+        "production engineering",
+        "problem solving",
+        "engineering resume",
+        "resume"
+      ]
+    },
+    {
+      "id": "t074",
+      "title": "Supply Chain Manager Resume",
+      "categoryId": "logistics-operations",
+      "thumbnailPath": "/templates/t074.png",
+      "jsonPath": "src/data/template-json/t074.json",
+      "status": "published",
+      "tags": [
+        "supply chain manager",
+        "supply chain",
+        "logistics management",
+        "inventory management",
+        "procurement",
+        "vendor management",
+        "operations management",
+        "warehouse management",
+        "demand planning",
+        "forecasting",
+        "distribution",
+        "supply chain optimization",
+        "inventory control",
+        "logistics",
+        "resume"
+      ]
+    },
+    {
+      "id": "t075",
+      "title": "Registered Nurse Resume",
+      "categoryId": "healthcare",
+      "thumbnailPath": "/templates/t075.webp",
+      "jsonPath": "src/data/template-json/t075.json",
+      "status": "published",
+      "tags": [
+        "registered nurse",
+        "nurse resume",
+        "rn resume",
+        "healthcare",
+        "hospital",
+        "clinical",
+        "patient care",
+        "ats resume"
+      ]
+    },
+    {
+      "id": "t076",
+      "title": "Human Resources Manager Resume",
+      "categoryId": "business-management",
+      "thumbnailPath": "/templates/t076.webp",
+      "jsonPath": "src/data/template-json/t076.json",
+      "status": "published",
+      "tags": [
+        "human resources manager",
+        "hr manager",
+        "human resources",
+        "talent acquisition",
+        "recruitment",
+        "employee relations",
+        "performance management",
+        "workforce planning",
+        "hr leadership",
+        "ats resume"
+      ]
+    },
+    {
+      "id": "t077",
+      "title": "Customer Success Manager Resume",
+      "categoryId": "sales-marketing",
+      "thumbnailPath": "/templates/t077.webp",
+      "jsonPath": "src/data/template-json/t077.json",
+      "status": "published",
+      "tags": [
+        "customer success manager",
+        "customer success",
+        "client success",
+        "account management",
+        "customer retention",
+        "customer experience",
+        "saas",
+        "client relationship management",
+        "renewals",
+        "ats resume"
+      ]
+    },
+    {
+      "id": "t078",
+      "title": "Financial Analyst Resume",
+      "categoryId": "finance-accounting",
+      "thumbnailPath": "/templates/t078.webp",
+      "jsonPath": "src/data/template-json/t078.json",
+      "status": "published",
+      "tags": [
+        "financial analyst",
+        "finance analyst",
+        "financial planning",
+        "budgeting",
+        "forecasting",
+        "financial modeling",
+        "data analysis",
+        "excel",
+        "fp&a",
+        "ats resume"
+      ]
+    },
+    {
+      "id": "t079",
+      "title": "Operations Manager Resume",
+      "categoryId": "business-management",
+      "thumbnailPath": "/templates/t079.webp",
+      "jsonPath": "src/data/template-json/t079.json",
+      "status": "published",
+      "tags": [
+        "operations manager",
+        "operations management",
+        "business operations",
+        "process improvement",
+        "project management",
+        "team leadership",
+        "supply chain",
+        "operational excellence",
+        "kpi management",
+        "ats resume"
+      ]
+    },
     {
       "id": "t101",
       "title": "Marketing Manager Resume",
@@ -777,6 +1307,38 @@
         "marketing manager",
         "marketing manager resume",
         "sales marketing advertising",
+        "ats resume",
+        "resume template",
+        "resume"
+      ]
+    },
+    {
+      "id": "t102",
+      "title": "Accountant Resume",
+      "categoryId": "finance-accounting",
+      "thumbnailPath": "/templates/t102.png",
+      "jsonPath": "src/data/template-json/t102.json",
+      "status": "published",
+      "tags": [
+        "accountant",
+        "accountant resume",
+        "finance accounting",
+        "ats resume",
+        "resume template",
+        "resume"
+      ]
+    },
+    {
+      "id": "t103",
+      "title": "Graphic Designer Resume",
+      "categoryId": "creative-designing",
+      "thumbnailPath": "/templates/t103.png",
+      "jsonPath": "src/data/template-json/t103.json",
+      "status": "published",
+      "tags": [
+        "graphic designer",
+        "graphic designer resume",
+        "creative designing",
         "ats resume",
         "resume template",
         "resume"

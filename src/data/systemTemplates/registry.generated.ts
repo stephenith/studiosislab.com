@@ -1,5 +1,5 @@
 /* AUTO-GENERATED FILE. DO NOT EDIT MANUALLY. */
-/* Generated from templates.manifest.json by scripts/templates/generate.ts */
+/* Generated from templates.manifest.json by release manager */
 
 export type SystemTemplate = {
   id: string;
@@ -569,6 +569,20 @@ export const SYSTEM_TEMPLATES: SystemTemplate[] = [
     tags: ["marketing manager","marketing manager resume","sales marketing advertising","ats resume","resume template","resume"],
     thumbnail: "/templates/t101.png",
     load: async () => (await import("../template-json/t101.json")).default,
+  },
+  {
+    id: "t102",
+    name: "Accountant Resume",
+    tags: ["accountant","accountant resume","finance accounting","ats resume","resume template","resume"],
+    thumbnail: "/templates/t102.png",
+    load: async () => (await import("../template-json/t102.json")).default,
+  },
+  {
+    id: "t103",
+    name: "Graphic Designer Resume",
+    tags: ["graphic designer","graphic designer resume","creative designing","ats resume","resume template","resume"],
+    thumbnail: "/templates/t103.png",
+    load: async () => (await import("../template-json/t103.json")).default,
   },
 ];
 

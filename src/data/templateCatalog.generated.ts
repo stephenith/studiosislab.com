@@ -1,5 +1,5 @@
 /* AUTO-GENERATED FILE. DO NOT EDIT MANUALLY. */
-/* Generated from templates.manifest.json by scripts/templates/generate.ts */
+/* Generated from templates.manifest.json by release manager */
 
 export type Template = {
   id: string;
@@ -730,6 +730,24 @@ export const TEMPLATES: Template[] = [
     category: "sales-marketing-advertising",
     tags: ["marketing manager","marketing manager resume","sales marketing advertising","ats resume","resume template","resume"],
     thumb: "/templates/t101.png",
+    status: "published",
+  },
+  {
+    id: "t102",
+    title: "Accountant Resume",
+    categoryId: "finance-accounting",
+    category: "finance-accounting",
+    tags: ["accountant","accountant resume","finance accounting","ats resume","resume template","resume"],
+    thumb: "/templates/t102.png",
+    status: "published",
+  },
+  {
+    id: "t103",
+    title: "Graphic Designer Resume",
+    categoryId: "creative-designing",
+    category: "creative-designing",
+    tags: ["graphic designer","graphic designer resume","creative designing","ats resume","resume template","resume"],
+    thumb: "/templates/t103.png",
     status: "published",
   },
 ];

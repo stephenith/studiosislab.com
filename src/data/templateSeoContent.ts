@@ -1876,4 +1876,44 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     relatedTemplateIds: [],
     isPublished: true,
   },
+  {
+    templateId: "t102",
+    slug: "accountant-ats-resume",
+    seoTitle: "Accountant Resume Template | StudiosisLab",
+    seoDescription: "Use this accountant resume template to present accountant experience clearly for ATS and hiring managers.",
+    h1: "Accountant Resume Template",
+    intro: "Use this accountant resume template to present accountant experience clearly for ATS and hiring managers.",
+    bestFor: ["ATS job applications", "StudiosisLab editor workflows", "Professional one-page resumes"],
+    whatToInclude: ["Professional summary", "Experience", "Skills", "Education"],
+    atsTips: ["Use standard headings", "Keep text machine-readable", "Preserve ATS-safe single-column structure"],
+    writingTips: ["Lead with outcomes", "Keep bullets concise", "Match the role with relevant terminology"],
+    faq: [
+      {
+        "question": "Is the Accountant Resume ATS-friendly?",
+        "answer": "Yes. This StudiosisLab template uses a clear single-page structure suited for ATS parsing."
+      }
+    ],
+    relatedTemplateIds: [],
+    isPublished: true,
+  },
+  {
+    templateId: "t103",
+    slug: "graphic-designer-ats-resume",
+    seoTitle: "Graphic Designer Resume Template | StudiosisLab",
+    seoDescription: "Use this graphic designer resume template to present graphic designer experience clearly for ATS and hiring managers.",
+    h1: "Graphic Designer Resume Template",
+    intro: "Use this graphic designer resume template to present graphic designer experience clearly for ATS and hiring managers.",
+    bestFor: ["ATS job applications", "StudiosisLab editor workflows", "Professional one-page resumes"],
+    whatToInclude: ["Professional summary", "Experience", "Skills", "Education"],
+    atsTips: ["Use standard headings", "Keep text machine-readable", "Preserve ATS-safe single-column structure"],
+    writingTips: ["Lead with outcomes", "Keep bullets concise", "Match the role with relevant terminology"],
+    faq: [
+      {
+        "question": "Is the Graphic Designer Resume ATS-friendly?",
+        "answer": "Yes. This StudiosisLab template uses a clear single-page structure suited for ATS parsing."
+      }
+    ],
+    relatedTemplateIds: [],
+    isPublished: true,
+  },
 ];

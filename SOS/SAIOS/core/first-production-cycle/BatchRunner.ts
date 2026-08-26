@@ -159,8 +159,10 @@ function openaiEligible(): boolean {
   const key =
     process.env.OPENAI_API_KEY?.trim() ||
     process.env.SOS_OPENAI_API_KEY?.trim();
+  if (!key) return false;
   return (
-    process.env.SOS_AI_FOUNDER_OPENAI_ONE_TEST === "1" && Boolean(key)
+    process.env.SOS_AI_FOUNDER_OPENAI_BOUNDED === "1" ||
+    process.env.SOS_AI_FOUNDER_OPENAI_ONE_TEST === "1"
   );
 }
 

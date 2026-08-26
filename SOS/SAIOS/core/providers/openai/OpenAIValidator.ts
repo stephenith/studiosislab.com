@@ -7,6 +7,7 @@ import type { ReasoningResponse } from "../../ai-brain/ReasoningResponse.js";
 import { validateReasoningResponseShape } from "../../ai-brain/ResponseValidator.js";
 import { canFallbackToExternal } from "../../ai-brain/FallbackPolicy.js";
 import { isOpenAISupported } from "./OpenAICapabilities.js";
+import { isFounderOpenAIBoundedEnabled } from "../../resume-integration/FounderOpenAIOneTest.js";
 
 export function validateOpenAIRequest(request: ReasoningRequest): {
   ok: boolean;
@@ -30,14 +31,14 @@ export function validateOpenAIRequest(request: ReasoningRequest): {
     );
   }
   if (process.env.SOS_AIOS_LIVE === "1") {
-    errors.push("LIVE must remain OFF for OpenAI V1 founder single-test path");
+    errors.push("LIVE must remain OFF for OpenAI bounded Founder path");
   }
   if (!process.env.OPENAI_API_KEY?.trim()) {
     errors.push("OPENAI_API_KEY is required");
   }
-  if (process.env.SOS_AI_FOUNDER_OPENAI_ONE_TEST !== "1") {
+  if (!isFounderOpenAIBoundedEnabled()) {
     errors.push(
-      "SOS_AI_FOUNDER_OPENAI_ONE_TEST=1 required for Founder-authorized single test",
+      "SOS_AI_FOUNDER_OPENAI_BOUNDED=1 (or legacy ONE_TEST=1) required for Founder-authorized OpenAI",
     );
   }
   return { ok: errors.length === 0, errors };

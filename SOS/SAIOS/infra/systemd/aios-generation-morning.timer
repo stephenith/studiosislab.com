@@ -2,8 +2,7 @@
 Description=AIOS generation morning timer (08:50 Asia/Kolkata)
 
 [Timer]
-Timezone=Asia/Kolkata
-OnCalendar=*-*-* 08:50:00
+OnCalendar=*-*-* 08:50:00 Asia/Kolkata
 Persistent=true
 Unit=aios-generation.service
 

@@ -5,11 +5,9 @@
 # Dashboard must remain bound to 127.0.0.1:4310
 
 founder.studiosislab.com {
-	basic_auth {
-		# Replace HASH with: caddy hash-password --plaintext '...'
+	# Caddy 2.6.x uses `basicauth` (not `basic_auth`)
+	basicauth {
 		founder HASH_REPLACE_ME
 	}
-
-	# Optional mild rate limit (Caddy v2 rate_limit plugin may vary by install)
 	reverse_proxy 127.0.0.1:4310
 }

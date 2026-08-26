@@ -16,7 +16,14 @@ LOG="${LOG_DIR}/run-${STAMP}.log"
   npm run aios:publication:status || true
   # Plan + multi-verify stay non-destructive
   npm run aios:publication:plan || true
-  npm run aios:publication:verify || true
+  # Verify latest plan if created (best-effort; status/plan already logged)
+  LATEST_PLAN=$(ls -1t SOS/07_LOGS/saios/publication/plans/plan-*.json 2>/dev/null | head -1 || true)
+  if [[ -n "${LATEST_PLAN}" ]]; then
+    PLAN_ID=$(basename "${LATEST_PLAN}" .json)
+    npm run aios:publication:verify -- --plan-id="${PLAN_ID}" || true
+  else
+    echo "No publication plan file found to verify"
+  fi
 
   if [[ "${SOS_AIOS_PUBLICATION_AUTO_APPLY:-0}" == "1" ]]; then
     echo "AUTO_APPLY=1 — refusing silent apply without plan confirm phrase; run apply manually or extend runner."

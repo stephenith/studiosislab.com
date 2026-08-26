@@ -65,7 +65,10 @@ export class OpenAIProvider implements ProviderAdapter {
 
   async healthCheck(): Promise<ProviderHealth> {
     const key = Boolean(process.env.OPENAI_API_KEY?.trim());
-    const founder = process.env.SOS_AI_FOUNDER_OPENAI_ONE_TEST === "1";
+    const { isFounderOpenAIBoundedEnabled } = await import(
+      "../../resume-integration/FounderOpenAIOneTest.js"
+    );
+    const founder = isFounderOpenAIBoundedEnabled();
     const liveOff = process.env.SOS_AIOS_LIVE !== "1";
     return {
       provider: "openai",
@@ -74,9 +77,9 @@ export class OpenAIProvider implements ProviderAdapter {
       detail: key
         ? founder
           ? liveOff
-            ? "OpenAI adapter ready for Founder one-test"
+            ? "OpenAI adapter ready for Founder bounded mode"
             : "LIVE must be OFF"
-          : "Founder one-test flag required"
+          : "Founder bounded flag required (BOUNDED=1 or ONE_TEST=1)"
         : "OPENAI_API_KEY missing",
     };
   }

@@ -11,7 +11,7 @@ Environment=NODE_ENV=production
 Environment=SOS_AIOS_LIVE=0
 EnvironmentFile=-/etc/aios/aios.env
 # flock prevents timer overlap; exit 0 if already running
-ExecStart=/usr/bin/flock -n /run/aios-generation.lock /usr/bin/npm run aios:autonomous:run -- --size 5 --queue-max 20
+ExecStart=/usr/bin/flock -n /run/aios-generation.lock /usr/bin/npm run aios:autonomous:run -- --size 5 --queue-max 20 --max-iterations 1 --adaptive
 Nice=10
 
 [Install]

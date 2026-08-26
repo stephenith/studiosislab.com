@@ -1,0 +1,10 @@
+{
+  "name": "@saios/skills",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AIOS Skill Library contracts (Agent #117.5)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts"
+  }
+}

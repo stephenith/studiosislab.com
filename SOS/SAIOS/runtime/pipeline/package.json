@@ -1,0 +1,14 @@
+{
+  "name": "@saios/resume-autonomous-production-pipeline",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StudiosisLab Resume Autonomous Production Pipeline — integrates existing SAIOS components end-to-end",
+  "type": "module",
+  "scripts": {
+    "verify": "tsx verify.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}

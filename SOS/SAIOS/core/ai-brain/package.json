@@ -1,0 +1,10 @@
+{
+  "name": "@saios/ai-brain",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Provider-neutral AI Brain contracts (Agent #117) — no SDK",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts"
+  }
+}

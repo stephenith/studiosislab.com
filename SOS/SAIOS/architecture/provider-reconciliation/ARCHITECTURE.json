@@ -1,0 +1,16 @@
+{
+  "agent": "200",
+  "component": "provider-reconciliation-audit-v1",
+  "mode": "strictly_read_only_architectural_audit",
+  "live": false,
+  "path": "SOS/SAIOS/architecture/provider-reconciliation",
+  "documents": ["README.md", "ARCHITECTURE.json", "verify-provider-reconciliation.ts"],
+  "primary_artifacts": [
+    "SOS/09_REPORTS/AIOS_PROVIDER_RECONCILIATION_AUDIT_V1_REPORT.md",
+    "SOS/SAIOS/AIOS_PROVIDER_RECONCILIATION_AUDIT_V1_REPORT.md"
+  ],
+  "verdict": "REQUIRES_CONSOLIDATION",
+  "superseded_by": "SOS/SAIOS/architecture/provider-authority",
+  "verify": "npm run provider-reconciliation:verify",
+  "note": "Agent #200: package metadata completed for consistency (F4). Audit body remains in 09_REPORTS."
+}

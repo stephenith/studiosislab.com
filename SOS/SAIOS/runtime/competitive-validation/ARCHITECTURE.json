@@ -1,0 +1,17 @@
+{
+  "agent": "159",
+  "module_id": "runtime.competitive-validation",
+  "path": "SOS/SAIOS/runtime/competitive-validation",
+  "architecture_role": "WORKER",
+  "layer": "Evaluation",
+  "allowed_dependencies": [
+    "core.resume-critic"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

@@ -1,0 +1,38 @@
+{
+  "agent": "179",
+  "module_id": "runtime.execution-controller",
+  "path": "SOS/SAIOS/runtime/execution-controller",
+  "architecture_role": "EXECUTION_AUTHORITY_SCAFFOLD",
+  "layer": "Phase 3 execution authorization-record owner (scaffold only)",
+  "allowed_dependencies": [
+    "runtime.system-readiness_readonly",
+    "runtime.runtime-release_readonly",
+    "runtime.planner_readonly",
+    "core.company-brain_readonly",
+    "platform.foundation"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "scheduler_activation",
+    "worker_execute",
+    "worker_spawn",
+    "provider_direct",
+    "publication_write",
+    "queue_enqueue",
+    "queue_manager",
+    "brain_router"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Execution Controller Scaffold V1 — authorization-record owner; one stage in the distributed Execution Authority Model. Never executes. Not the sole execution authority.",
+  "execution_controller": "execution-controller-1.0.0",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": false,
+  "safety": {
+    "execution_allowed": false,
+    "dispatch_allowed": false,
+    "worker_spawn_allowed": false,
+    "provider_allowed": false,
+    "publishing_allowed": false,
+    "live_enabled": false
+  }
+}

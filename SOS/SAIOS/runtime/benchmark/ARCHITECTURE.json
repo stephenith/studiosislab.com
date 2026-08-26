@@ -1,0 +1,20 @@
+{
+  "agent": "159",
+  "module_id": "runtime.benchmark",
+  "path": "SOS/SAIOS/runtime/benchmark",
+  "architecture_role": "WORKER",
+  "layer": "Workers",
+  "allowed_dependencies": [
+    "core.resume-integration",
+    "core.knowledge"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "fabric_json_write",
+    "src_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

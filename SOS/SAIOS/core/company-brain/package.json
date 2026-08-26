@@ -1,0 +1,11 @@
+{
+  "name": "@saios/company-brain",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Company Brain Planning Engine V1 — planning only (Agent #161)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts",
+    "plan": "npx --yes tsx run.ts"
+  }
+}

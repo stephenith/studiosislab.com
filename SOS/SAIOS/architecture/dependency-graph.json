@@ -1,0 +1,275 @@
+{
+  "agent": "159",
+  "generated_at": "2026-07-12T00:00:00.000Z",
+  "circular_execution_dependencies": [],
+  "note": "No circular *execution* dependency found on the canonical spine. Legacy engines form parallel DAGs that do not feed back into core.",
+  "nodes": [
+    {
+      "id": "core.knowledge",
+      "consumes": ["KnowledgeEntry seeds", "LearningEvent"],
+      "produces": ["KnowledgeSnapshot"],
+      "depends_on": [],
+      "observed_by": ["dashboard"],
+      "called_by": ["core.resume-integration", "core.first-production-cycle"],
+      "feeds": ["core.resume-integration"]
+    },
+    {
+      "id": "core.skills",
+      "consumes": ["SkillRequest"],
+      "produces": ["Skill definitions / routing metadata"],
+      "depends_on": ["core.ai-brain contracts"],
+      "observed_by": ["dashboard"],
+      "called_by": ["core.ai-brain", "core.resume-integration"],
+      "feeds": ["core.ai-brain"]
+    },
+    {
+      "id": "core.ai-brain",
+      "consumes": ["SkillRequest / ReasoningRequest"],
+      "produces": ["routed provider call"],
+      "depends_on": ["core.providers.mock", "core.providers.openai"],
+      "observed_by": ["dashboard BrainStudio"],
+      "called_by": ["core.resume-integration"],
+      "feeds": ["core.providers.mock", "core.providers.openai"]
+    },
+    {
+      "id": "core.providers.mock",
+      "consumes": ["routed request"],
+      "produces": ["ReasoningResponse"],
+      "depends_on": ["core.ai-brain"],
+      "observed_by": ["dashboard"],
+      "called_by": ["core.ai-brain"],
+      "feeds": ["core.designbrief via resume-integration"]
+    },
+    {
+      "id": "core.providers.openai",
+      "consumes": ["routed request"],
+      "produces": ["ReasoningResponse"],
+      "depends_on": ["core.ai-brain", "openai_sdk"],
+      "observed_by": ["dashboard"],
+      "called_by": ["core.ai-brain"],
+      "feeds": ["core.resume-integration via BrainRouter"]
+    },
+    {
+      "id": "core.resume-integration",
+      "consumes": ["operation + objective"],
+      "produces": ["gateway result (knowledge + skill + response)"],
+      "depends_on": ["core.knowledge", "core.skills", "core.ai-brain"],
+      "observed_by": ["dashboard"],
+      "called_by": ["core.first-production-cycle", "ResumeFactoryEntryBridge"],
+      "feeds": ["core.designbrief"]
+    },
+    {
+      "id": "core.designbrief",
+      "consumes": ["brain structured_output"],
+      "produces": ["DesignBrief", "ResumeJSON", "layout-blueprint"],
+      "depends_on": ["core.resume-integration"],
+      "observed_by": ["dashboard"],
+      "called_by": ["core.first-production-cycle"],
+      "feeds": ["core.resume-renderer"]
+    },
+    {
+      "id": "core.resume-renderer",
+      "consumes": ["ResumeJSON", "layout-blueprint"],
+      "produces": ["CanvasJSON", "overflow", "validation"],
+      "depends_on": ["core.designbrief"],
+      "observed_by": ["dashboard artifacts"],
+      "called_by": ["core.first-production-cycle", "core.editor-compatibility"],
+      "feeds": ["core.editor-compatibility", "core.resume-critic"]
+    },
+    {
+      "id": "core.editor-compatibility",
+      "consumes": ["CanvasJSON", "t094 reference"],
+      "produces": ["certification report"],
+      "depends_on": ["core.resume-renderer"],
+      "observed_by": ["verify"],
+      "called_by": ["core.first-production-cycle"],
+      "feeds": ["core.resume-critic (gate ordering)"]
+    },
+    {
+      "id": "core.resume-critic",
+      "consumes": ["CanvasJSON", "ResumeJSON", "overflow", "validation"],
+      "produces": ["CriticResult"],
+      "depends_on": ["core.resume-renderer"],
+      "observed_by": ["dashboard"],
+      "called_by": ["core.first-production-cycle", "core.critic-gate", "dashboard server"],
+      "feeds": ["core.critic-gate"]
+    },
+    {
+      "id": "core.critic-gate",
+      "consumes": ["CriticResult"],
+      "produces": ["GateResult", "blocked-candidates"],
+      "depends_on": ["core.resume-critic"],
+      "observed_by": ["dashboard exceptions"],
+      "called_by": ["core.first-production-cycle", "dashboard server"],
+      "feeds": ["core.founder-gate-runtime"]
+    },
+    {
+      "id": "core.founder-gate-runtime",
+      "consumes": ["GateResult", "FounderDecision"],
+      "produces": ["WAITING_FOUNDER checkpoints", "resume events"],
+      "depends_on": ["core.critic-gate", "core.founder-decisions"],
+      "observed_by": ["dashboard"],
+      "called_by": ["core.first-production-cycle", "dashboard server"],
+      "feeds": ["core.knowledge-learning"]
+    },
+    {
+      "id": "core.founder-decisions",
+      "consumes": ["dashboard POST decision"],
+      "produces": ["FounderDecision jsonl"],
+      "depends_on": [],
+      "observed_by": ["dashboard review_queue"],
+      "called_by": ["dashboard server"],
+      "feeds": ["core.founder-gate-runtime", "core.knowledge-learning"]
+    },
+    {
+      "id": "core.knowledge-learning",
+      "consumes": ["FounderDecision"],
+      "produces": ["LearningEvent"],
+      "depends_on": ["core.founder-decisions"],
+      "observed_by": ["dashboard"],
+      "called_by": ["core.founder-decisions / gate resume"],
+      "feeds": ["core.knowledge"]
+    },
+    {
+      "id": "core.provider-validation",
+      "consumes": ["FounderDecision APPROVED"],
+      "produces": ["ProviderValidationPackage"],
+      "depends_on": ["core.founder-gate-runtime"],
+      "observed_by": ["dashboard"],
+      "called_by": ["verify / founder action"],
+      "feeds": ["future Models (blocked)"]
+    },
+    {
+      "id": "dashboard",
+      "consumes": ["DashboardSnapshot sources (~20 artifact paths)"],
+      "produces": ["UI", "FounderDecision write"],
+      "depends_on": ["core.* artifacts"],
+      "observed_by": ["Founder"],
+      "called_by": ["Founder"],
+      "feeds": ["core.founder-decisions"]
+    },
+    {
+      "id": "runtime.chief",
+      "consumes": ["FounderCommand"],
+      "produces": ["ExecutionPlan", "QueueJobs", "assignments"],
+      "depends_on": ["runtime.queue", "runtime.registry"],
+      "observed_by": ["verify"],
+      "called_by": ["runtime.controller (intended)"],
+      "feeds": ["runtime.directors / workers via queue"]
+    },
+    {
+      "id": "runtime.queue",
+      "consumes": ["job create/assign"],
+      "produces": ["job JSON"],
+      "depends_on": [],
+      "observed_by": ["runtime.chief", "runtime.runtime-loop"],
+      "called_by": ["runtime.chief", "runtime.directors"],
+      "feeds": ["workers"]
+    },
+    {
+      "id": "runtime.registry",
+      "consumes": ["worker register/status"],
+      "produces": ["worker JSON"],
+      "depends_on": [],
+      "observed_by": ["runtime.chief"],
+      "called_by": ["runtime.chief", "runtime.directors"],
+      "feeds": ["dispatcher"]
+    },
+    {
+      "id": "runtime.unified-production",
+      "consumes": ["objective"],
+      "produces": ["unified run artifacts"],
+      "depends_on": ["runtime workers / research / benchmark / design-brain / publication"],
+      "observed_by": ["verify"],
+      "called_by": ["runtime.scheduler.ProductionExecutor"],
+      "feeds": ["LEGACY — must not feed canonical dashboard as primary"],
+      "status": "ARCHIVED_EXECUTION_PATH"
+    },
+    {
+      "id": "runtime.execution-controller",
+      "consumes": ["system readiness / runtime release / runtime plan refs"],
+      "produces": ["execution-controller-1.0.0 scaffold records"],
+      "depends_on": ["core.company-brain", "platform.foundation"],
+      "observed_by": ["dashboard", "runtime.activation-gate"],
+      "called_by": ["dashboard (read-only)"],
+      "feeds": ["runtime.activation-gate (metadata refs only)"],
+      "status": "PHASE3_SCAFFOLD_NON_EXECUTABLE"
+    },
+    {
+      "id": "platform.department-sdk",
+      "consumes": ["department contract definitions"],
+      "produces": ["department-sdk-1.0.0 registry"],
+      "depends_on": ["platform.foundation"],
+      "observed_by": ["dashboard", "runtime.activation-gate"],
+      "called_by": ["dashboard (read-only)"],
+      "feeds": ["runtime.activation-gate (metadata refs only)"],
+      "status": "PHASE3_SCAFFOLD_NON_EXECUTABLE"
+    },
+    {
+      "id": "runtime.worker-runtime",
+      "consumes": ["worker assignment / session contracts"],
+      "produces": ["worker-runtime-1.0.0 records"],
+      "depends_on": ["platform.foundation"],
+      "observed_by": ["dashboard", "runtime.activation-gate"],
+      "called_by": ["dashboard (read-only)"],
+      "feeds": ["runtime.activation-gate (metadata refs only)"],
+      "status": "PHASE3_SCAFFOLD_NON_EXECUTABLE"
+    },
+    {
+      "id": "platform.cost-ledger",
+      "consumes": ["budget / cost session contracts"],
+      "produces": ["cost-ledger-1.0.0 records"],
+      "depends_on": ["platform.foundation"],
+      "observed_by": ["dashboard", "runtime.activation-gate"],
+      "called_by": ["dashboard (read-only)"],
+      "feeds": ["runtime.activation-gate (metadata refs only)"],
+      "status": "PHASE3_SCAFFOLD_NON_EXECUTABLE"
+    },
+    {
+      "id": "platform.telemetry",
+      "consumes": ["telemetry session / timeline / correlation contracts"],
+      "produces": ["telemetry-session-1.0.0 records"],
+      "depends_on": ["platform.foundation"],
+      "observed_by": ["dashboard", "runtime.activation-gate"],
+      "called_by": ["dashboard (read-only)"],
+      "feeds": ["runtime.activation-gate (metadata refs only)"],
+      "status": "PHASE3_SCAFFOLD_NON_EXECUTABLE"
+    },
+    {
+      "id": "runtime.activation-gate",
+      "consumes": ["Phase 3 + governance metadata refs"],
+      "produces": ["activation-eligibility-1.0.0", "activation-certificate-1.0.0"],
+      "depends_on": ["platform.foundation"],
+      "observed_by": ["dashboard", "verify", "runtime.execution-authorization"],
+      "called_by": ["dashboard (read-only)", "activation-gate:verify"],
+      "feeds": ["eligibility certificates only — never enables execution"],
+      "status": "PHASE3_SCAFFOLD_NON_EXECUTABLE"
+    },
+    {
+      "id": "runtime.execution-authorization",
+      "consumes": ["activation refs + mission metadata (reference only)"],
+      "produces": [
+        "execution-authorization-1.0.0",
+        "execution-authorization-certificate-1.0.0"
+      ],
+      "depends_on": ["platform.foundation"],
+      "observed_by": ["dashboard", "verify", "runtime.pre-dispatch-simulation"],
+      "called_by": ["dashboard (read-only)", "execution-authorization:verify"],
+      "feeds": ["founder intent certificates only — never enables execution"],
+      "status": "PHASE3_SCAFFOLD_NON_EXECUTABLE"
+    },
+    {
+      "id": "runtime.pre-dispatch-simulation",
+      "consumes": ["Phase 2/3 governance metadata refs"],
+      "produces": [
+        "pre-dispatch-simulation-1.0.0",
+        "pre-dispatch-simulation-certificate-1.0.0"
+      ],
+      "depends_on": ["platform.foundation"],
+      "observed_by": ["dashboard", "verify"],
+      "called_by": ["dashboard (read-only)", "pre-dispatch-simulation:verify"],
+      "feeds": ["simulation certificates only — never executes or dispatches"],
+      "status": "PHASE3_SCAFFOLD_NON_EXECUTABLE"
+    }
+  ]
+}

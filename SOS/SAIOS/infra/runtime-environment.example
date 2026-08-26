@@ -1,0 +1,86 @@
+# AIOS runtime environment template — Agent #116
+# Copy to SOS/runtime/.env on the VPS (git-ignored). NEVER commit secrets.
+# Variable names only — no real credentials in this file.
+
+# =============================================================================
+# 1. Core runtime
+# =============================================================================
+NODE_ENV=production
+SOS_TIMEZONE=Asia/Kolkata
+SOS_REPO_ROOT=/opt/aios
+
+# =============================================================================
+# 2. Safety gates (defaults must remain off for first bring-up)
+# =============================================================================
+SOS_AIOS_LIVE=0
+SOS_AIOS_NOTIFY_LIVE=0
+SOS_RUNTIME_LOOP_DRY_RUN=1
+SOS_SUPERVISOR_DRY_RUN=1
+SOS_AIOS_MAX_CYCLES=1
+SOS_SUPERVISOR_MAX_CYCLES=1
+SOS_FOUNDER_APPROVAL_REQUIRED=1
+SOS_RESUME_AUTO_PUBLISH=0
+
+# =============================================================================
+# 3. Scheduler
+# =============================================================================
+# SOS_SCHEDULER_ENABLED=0
+# Keep scheduler PM2 app stopped until dry-run gate is explicit.
+
+# =============================================================================
+# 4. Resume production
+# =============================================================================
+SOS_RESUME_DEPARTMENT_ENABLED=1
+SOS_RESUME_DEPARTMENT_DRY_RUN=1
+SOS_RESUME_BATCH_SIZE=1
+SOS_WEBSITE_DEPARTMENT_ENABLED=0
+# SOS_RESUME_OBJECTIVE=
+
+# =============================================================================
+# 5. Telegram
+# =============================================================================
+TELEGRAM_BOT_TOKEN=
+SOS_TELEGRAM_CHAT_ID=
+SOS_TELEGRAM_ALLOWED_USER_IDS=
+SOS_QUIET_HOURS_START=22:00
+SOS_QUIET_HOURS_END=07:00
+
+# =============================================================================
+# 6. Founder Dashboard
+# =============================================================================
+# SOS_DASHBOARD_PORT=8787
+# SOS_DASHBOARD_HOST=127.0.0.1
+
+# =============================================================================
+# 7. Model provider placeholders (no real keys — do not activate in Agent #116)
+# =============================================================================
+# SOS_MODEL_PROVIDER=mock
+# OPENAI_API_KEY=
+# SOS_OPENAI_BASE_URL=
+# SOS_MODEL_STRONG=
+# SOS_MODEL_ECONOMICAL=
+# SOS_LOCAL_MODEL_ENDPOINT=
+# SOS_LOCAL_MODEL_ENABLED=0
+
+# =============================================================================
+# 8. Cost controls (founder-required before API activation — leave unset)
+# =============================================================================
+# SOS_AI_MONTHLY_BUDGET_USD=
+# SOS_AI_DAILY_LIMIT_USD=
+# SOS_AI_PER_TASK_TOKEN_LIMIT=
+# SOS_AI_AUTO_PAUSE_THRESHOLD_PCT=
+# SOS_AI_FOUNDER_ALERT_THRESHOLD_PCT=
+
+# =============================================================================
+# 9. Logging
+# =============================================================================
+# SOS_LOG_ROOT=SOS/07_LOGS/saios
+# SOS_LOG_LEVEL=info
+
+# =============================================================================
+# 10. Backups / email (optional)
+# =============================================================================
+# RESEND_API_KEY=
+# SOS_NOTIFY_TO=
+# SOS_NOTIFY_FROM=SOS <notifications@studiosis.in>
+# SOS_BACKUP_DIR=

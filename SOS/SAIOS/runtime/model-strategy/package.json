@@ -1,0 +1,10 @@
+{
+  "name": "@saios/model-strategy",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AIOS Model Strategy lock & gap audit verify (Agent #115)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts"
+  }
+}

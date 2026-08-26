@@ -1,0 +1,45 @@
+{
+  "agent": "193",
+  "component": "cost-authority-certification-v1",
+  "mode": "certification_and_static_boundary_enforcement",
+  "live": false,
+  "billing": false,
+  "execution": false,
+  "responsibility_mergers": false,
+  "path": "SOS/SAIOS/architecture/cost-authority",
+  "documents": [
+    "COST_AUTHORITY.md",
+    "FINANCIAL_BOUNDARIES.md",
+    "ESTIMATION_VS_ACCOUNTING.md",
+    "BUDGET_POLICY_AUTHORITY.md",
+    "COST_LEDGER_AUTHORITY.md",
+    "IMPORT_BOUNDARIES.md",
+    "README.md",
+    "ARCHITECTURE.json",
+    "verify-cost-authority.ts"
+  ],
+  "authorities": {
+    "activation_budget_policy": "SOS/SAIOS/core/ai-brain/BudgetPolicy.ts",
+    "provider_estimation": "ProviderAdapter implementations",
+    "financial_accounting": "SOS/SAIOS/platform/cost-ledger",
+    "execution_lifecycle": "SOS/SAIOS/runtime/execution-controller (reference only)",
+    "department_consumer": "SOS/SAIOS/platform/department-sdk",
+    "worker_reference": "SOS/SAIOS/runtime/worker-runtime",
+    "company_brain_planning": "SOS/SAIOS/core/company-brain"
+  },
+  "invariant": "estimation_neq_accounting",
+  "forbidden_import_edges": [
+    "execution-controller → cost-ledger",
+    "worker-runtime → cost-ledger",
+    "department-sdk → cost-ledger",
+    "company-brain → cost-ledger",
+    "cost-ledger → providers|ProviderAdapter|BrainRouter",
+    "providers → cost-ledger"
+  ],
+  "verify": "npm run cost-authority:verify",
+  "related": {
+    "cost_ledger": "SOS/SAIOS/platform/cost-ledger",
+    "provider_authority": "SOS/SAIOS/architecture/provider-authority",
+    "report": "SOS/09_REPORTS/AIOS_COST_AUTHORITY_CERTIFICATION_V1_REPORT.md"
+  }
+}

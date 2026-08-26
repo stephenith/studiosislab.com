@@ -1,0 +1,17 @@
+{
+  "agent": "159",
+  "module_id": "runtime.memory",
+  "path": "SOS/SAIOS/runtime/memory",
+  "architecture_role": "SERVICE",
+  "layer": "Services",
+  "allowed_dependencies": [
+    "core.knowledge"
+  ],
+  "forbidden_dependencies": [
+    "parallel_knowledge_authority"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

@@ -1,0 +1,177 @@
+{
+  "agent": "159",
+  "generated_at": "2026-07-12T00:00:00.000Z",
+  "note": "Inventory only. Schemas NOT modified.",
+  "artifacts": [
+    {
+      "id": "KnowledgeSnapshot",
+      "producer": "core.knowledge (KnowledgeManager / KnowledgeRetriever)",
+      "consumers": ["core.resume-integration", "dashboard (knowledge_snapshot)", "core.first-production-cycle"],
+      "version": "1.0.0 (entry.version fields)",
+      "location": "in-memory + SOS/07_LOGS/saios/knowledge-system/* / knowledge-gateway/*",
+      "schema_owner": "SOS/SAIOS/core/knowledge",
+      "missing_version": false,
+      "contract_violations": []
+    },
+    {
+      "id": "SkillRequest",
+      "producer": "core.resume-integration (ResumeSkillRequest)",
+      "consumers": ["core.ai-brain (BrainRouter)", "core.providers.mock"],
+      "version": "implicit (no top-level version field)",
+      "location": "SOS/07_LOGS/saios/knowledge-gateway/skill-request.json",
+      "schema_owner": "SOS/SAIOS/core/resume-integration + core/skills",
+      "missing_version": true,
+      "contract_violations": ["No explicit schema version on SkillRequest envelope"]
+    },
+    {
+      "id": "ReasoningResponse / ProviderResponse",
+      "producer": "core.providers.mock (via Brain Router)",
+      "consumers": ["core.resume-integration", "core.designbrief", "dashboard /api/founder-review"],
+      "version": "provider registry 1.0.0",
+      "location": "SOS/07_LOGS/saios/first-production-cycle/mock-provider.json",
+      "schema_owner": "SOS/SAIOS/core/ai-brain",
+      "missing_version": false,
+      "contract_violations": []
+    },
+    {
+      "id": "DesignBrief",
+      "producer": "core.designbrief (DesignBriefEngine)",
+      "consumers": ["core.resume-renderer", "core.first-production-cycle", "dashboard"],
+      "version": "1.0.0",
+      "location": "SOS/07_LOGS/saios/designbrief/design-brief.json",
+      "schema_owner": "SOS/SAIOS/core/designbrief",
+      "missing_version": false,
+      "contract_violations": []
+    },
+    {
+      "id": "ResumeJSON (resume-json-instructions)",
+      "producer": "core.designbrief (ResumeJsonMapper)",
+      "consumers": ["core.resume-renderer", "core.resume-critic"],
+      "version": "designbrief-resume-json-1.0.0",
+      "location": "SOS/07_LOGS/saios/designbrief/resume-json-instructions.json",
+      "schema_owner": "SOS/SAIOS/core/designbrief",
+      "missing_version": false,
+      "contract_violations": []
+    },
+    {
+      "id": "CanvasJSON",
+      "producer": "core.resume-renderer",
+      "consumers": ["core.editor-compatibility", "core.resume-critic", "preview assets", "dashboard /artifacts"],
+      "version": "Fabric 6.9.1 (canvas.version)",
+      "location": "SOS/07_LOGS/saios/resume-renderer/canvas.json",
+      "schema_owner": "SOS/SAIOS/core/resume-renderer (cert vs src/data/template-json/t094.json)",
+      "missing_version": false,
+      "contract_violations": []
+    },
+    {
+      "id": "CriticResult / CriticScores",
+      "producer": "core.resume-critic",
+      "consumers": ["core.critic-gate", "dashboard (critic)", "server.ts decision gate"],
+      "version": "implicit via package 1.0.0",
+      "location": "SOS/07_LOGS/saios/resume-critic/readiness.json",
+      "schema_owner": "SOS/SAIOS/core/resume-critic",
+      "missing_version": true,
+      "contract_violations": [
+        "CriticScoresView re-normalized independently in loadSnapshot.ts, buildFounderReviewQueue.ts, and CriticResultLoader"
+      ]
+    },
+    {
+      "id": "GateResult",
+      "producer": "core.critic-gate",
+      "consumers": ["core.founder-gate-runtime", "dashboard exceptions", "server.ts"],
+      "version": "package 1.0.0",
+      "location": "SOS/07_LOGS/saios/critic-gate/* + first-production-cycle/gate.json",
+      "schema_owner": "SOS/SAIOS/core/critic-gate",
+      "missing_version": true,
+      "contract_violations": []
+    },
+    {
+      "id": "FounderDecision",
+      "producer": "core.founder-decisions (FounderDecisionManager) via dashboard POST",
+      "consumers": ["core.founder-gate-runtime", "core.knowledge-learning", "dashboard review_queue"],
+      "version": "implicit (decision_id)",
+      "location": "SOS/07_LOGS/saios/founder-decisions/decisions.jsonl",
+      "schema_owner": "SOS/SAIOS/core/founder-decisions",
+      "missing_version": true,
+      "contract_violations": []
+    },
+    {
+      "id": "LearningEvent",
+      "producer": "core.knowledge-learning",
+      "consumers": ["core.knowledge (Learning domain)", "dashboard production_cycle.recent_learning"],
+      "version": "implicit",
+      "location": "SOS/07_LOGS/saios/knowledge/learning/",
+      "schema_owner": "SOS/SAIOS/core/knowledge-learning",
+      "missing_version": true,
+      "contract_violations": [
+        "Parallel learning stores still exist under runtime workers (learning-append, benchmark/memory)"
+      ]
+    },
+    {
+      "id": "ProviderValidationPackage",
+      "producer": "core.provider-validation",
+      "consumers": ["dashboard ProviderValidationView"],
+      "version": "1.0.0",
+      "location": "SOS/07_LOGS/saios/provider-validation/*",
+      "schema_owner": "SOS/SAIOS/core/provider-validation",
+      "missing_version": false,
+      "contract_violations": []
+    },
+    {
+      "id": "QueueJob",
+      "producer": "runtime.queue (QueueManager) / runtime.chief",
+      "consumers": ["runtime.registry workers", "runtime.runtime-loop"],
+      "version": "queue module v1",
+      "location": "SOS/07_LOGS/saios/jobs/{job_id}.json",
+      "schema_owner": "SOS/SAIOS/runtime/queue",
+      "missing_version": false,
+      "contract_violations": [
+        "Canonical first-production-cycle still simulates queue stages instead of writing real QueueJobs"
+      ]
+    },
+    {
+      "id": "WorkerRegistration",
+      "producer": "runtime.registry",
+      "consumers": ["runtime.chief", "runtime.directors"],
+      "version": "registry module v1",
+      "location": "SOS/07_LOGS/saios/registry/{worker_id}.json",
+      "schema_owner": "SOS/SAIOS/runtime/registry",
+      "missing_version": false,
+      "contract_violations": []
+    },
+    {
+      "id": "DashboardSnapshot",
+      "producer": "dashboard/src/data/loadSnapshot.ts (ephemeral)",
+      "consumers": ["dashboard React views via /api/snapshot"],
+      "version": "implicit types.ts",
+      "location": "not persisted — assembled per request",
+      "schema_owner": "SOS/SAIOS/dashboard/src/data/types.ts",
+      "missing_version": true,
+      "contract_violations": []
+    },
+    {
+      "id": "PublicationPackage",
+      "producer": "runtime.publication",
+      "consumers": ["release / batch-release", "project-state (historical)"],
+      "version": "publication package states",
+      "location": "SOS/07_LOGS/saios/publication/packages/{catalog_id}/",
+      "schema_owner": "SOS/SAIOS/runtime/publication",
+      "missing_version": false,
+      "contract_violations": [
+        "Not wired through core Founder Gate Runtime as the sole choke point"
+      ]
+    },
+    {
+      "id": "FactoryTemplateJSON",
+      "producer": "runtime.workers.resume-production (template-builder)",
+      "consumers": ["runtime.workers.resume-qa", "publication", "missions", "live catalog historically"],
+      "version": "Fabric via template",
+      "location": "SOS/07_LOGS/saios/generated-resumes/*",
+      "schema_owner": "runtime workers (LEGACY path)",
+      "missing_version": false,
+      "contract_violations": [
+        "Parallel to canonical ResumeJSON→Canvas path; two template producers"
+      ]
+    }
+  ]
+}

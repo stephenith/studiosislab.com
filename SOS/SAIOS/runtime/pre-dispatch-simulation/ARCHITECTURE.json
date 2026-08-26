@@ -1,0 +1,46 @@
+{
+  "agent": "187",
+  "module_id": "runtime.pre-dispatch-simulation",
+  "path": "SOS/SAIOS/runtime/pre-dispatch-simulation",
+  "architecture_role": "PRE_DISPATCH_SIMULATION_CONTRACT",
+  "layer": "Phase 3 pre-dispatch simulation (scaffold only)",
+  "allowed_dependencies": [
+    "platform.foundation",
+    "platform.checksums",
+    "platform.reporters"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "cursor_sdk",
+    "firecrawl",
+    "scheduler_activation",
+    "worker_execute",
+    "worker_spawn",
+    "provider_direct",
+    "publication_write",
+    "queue_enqueue",
+    "queue_manager",
+    "billing_api",
+    "core.first-production-cycle_write",
+    "runtime.guard_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Pre-Dispatch Simulation V1 — deterministic metadata simulation only. Never executes, dispatches, enqueues, or enables LIVE.",
+  "pre_dispatch_simulation": "pre-dispatch-simulation-1.0.0",
+  "pre_dispatch_simulation_certificate": "pre-dispatch-simulation-certificate-1.0.0",
+  "frozen": false,
+  "safety": {
+    "execution_allowed": false,
+    "dispatch_allowed": false,
+    "queue_insert_allowed": false,
+    "scheduler_allowed": false,
+    "worker_spawn_allowed": false,
+    "provider_allowed": false,
+    "publishing_allowed": false,
+    "billing_allowed": false,
+    "telemetry_collection_enabled": false,
+    "learning_write_enabled": false,
+    "live_enabled": false,
+    "simulation_only": true
+  }
+}

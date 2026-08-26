@@ -1,0 +1,20 @@
+{
+  "agent": "159",
+  "module_id": "core.designbrief",
+  "path": "SOS/SAIOS/core/designbrief",
+  "architecture_role": "CORE_ENGINE",
+  "layer": "Workers (spec)",
+  "allowed_dependencies": [
+    "core.resume-integration"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "brain_direct",
+    "src_product",
+    "publication_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

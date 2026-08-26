@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "agent": "117",
+  "generated_at": "2026-07-11T08:25:35.000Z",
+  "provider_neutral": true,
+  "hardcoded_model_names": false,
+  "sdk_installed": false,
+  "live_enabled": false,
+  "default_dry_run": true,
+  "contracts_root": "SOS/SAIOS/core/ai-brain",
+  "cursor_role": "execution_tool_not_brain",
+  "active_provider": "mock",
+  "notes": [
+    "Departments request capabilities, not model names",
+    "Mock only until Agent #118+",
+    "Real providers blocked until founder budget env set"
+  ]
+}

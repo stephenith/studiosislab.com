@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "agent": "117.5",
+  "generated_at": "2026-07-11T08:32:21.000Z",
+  "rules": [
+    "Departments cannot send prompts directly",
+    "Departments request Skills",
+    "Skills may compose other Skills",
+    "Brain Router routes Skills",
+    "Provider Adapter executes Skills",
+    "Providers never know which department requested them"
+  ],
+  "domains": ["resume", "website", "common"],
+  "skills": [
+    { "id": "resume.ats_analysis", "domain": "resume", "name": "ATS Analysis" },
+    { "id": "resume.layout_planning", "domain": "resume", "name": "Layout Planning" },
+    { "id": "resume.typography_planning", "domain": "resume", "name": "Typography Planning" },
+    { "id": "resume.visual_hierarchy", "domain": "resume", "name": "Visual Hierarchy" },
+    { "id": "resume.resume_critique", "domain": "resume", "name": "Resume Critique" },
+    { "id": "resume.founder_feedback_interpretation", "domain": "resume", "name": "Founder Feedback Interpretation" },
+    { "id": "resume.resume_json_planning", "domain": "resume", "name": "Resume JSON Planning" },
+    { "id": "resume.template_naming", "domain": "resume", "name": "Template Naming" },
+    { "id": "resume.duplicate_detection", "domain": "resume", "name": "Duplicate Detection" },
+    { "id": "website.ux_audit", "domain": "website", "name": "UX Audit" },
+    { "id": "website.accessibility_audit", "domain": "website", "name": "Accessibility Audit" },
+    { "id": "website.design_critique", "domain": "website", "name": "Design Critique" },
+    { "id": "website.seo_review", "domain": "website", "name": "SEO Review" },
+    { "id": "website.competitor_analysis", "domain": "website", "name": "Competitor Analysis" },
+    { "id": "website.performance_review", "domain": "website", "name": "Performance Review" },
+    { "id": "website.bug_analysis", "domain": "website", "name": "Bug Analysis" },
+    { "id": "common.report_generation", "domain": "common", "name": "Report Generation" },
+    { "id": "common.task_summarization", "domain": "common", "name": "Task Summarization" },
+    { "id": "common.cost_analysis", "domain": "common", "name": "Cost Analysis" },
+    { "id": "common.risk_analysis", "domain": "common", "name": "Risk Analysis" },
+    { "id": "common.planning", "domain": "common", "name": "Planning" },
+    { "id": "common.revision_planning", "domain": "common", "name": "Revision Planning" }
+  ],
+  "count": 22,
+  "hardcoded_model_names": false,
+  "source": "SOS/SAIOS/core/skills/SkillRegistry.ts"
+}

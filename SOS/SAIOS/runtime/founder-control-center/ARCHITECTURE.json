@@ -1,0 +1,15 @@
+{
+  "agent": "159",
+  "module_id": "runtime.founder-control-center",
+  "path": "SOS/SAIOS/runtime/founder-control-center",
+  "architecture_role": "SERVICE",
+  "layer": "Services",
+  "allowed_dependencies": [],
+  "forbidden_dependencies": [
+    "orchestrate"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

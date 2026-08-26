@@ -1,0 +1,10 @@
+{
+  "name": "@saios/aios-pm2",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AIOS PM2 runtime promotion verify (Agent #116)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts"
+  }
+}

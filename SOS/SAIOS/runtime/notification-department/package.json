@@ -1,0 +1,9 @@
+{
+  "name": "@saios/notification-department",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "tsx verify.ts"
+  }
+}

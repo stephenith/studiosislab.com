@@ -1,0 +1,36 @@
+{
+  "agent": "183",
+  "module_id": "platform.telemetry",
+  "path": "SOS/SAIOS/platform/telemetry",
+  "architecture_role": "EXECUTION_TELEMETRY_CONTRACT",
+  "layer": "Platform foundation (Phase 3)",
+  "allowed_dependencies": [
+    "platform.foundation",
+    "platform.checksums",
+    "platform.state-machine",
+    "platform.reporters"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "scheduler_activation",
+    "worker_execute",
+    "worker_spawn",
+    "provider_direct",
+    "publication_write",
+    "queue_enqueue",
+    "metrics_collector",
+    "runtime.execution-controller_write",
+    "runtime.worker-runtime_write",
+    "platform.cost-ledger_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Telemetry Contract V1 — observability contracts only. No collection. No emission.",
+  "telemetry_session": "telemetry-session-1.0.0",
+  "frozen": false,
+  "safety": {
+    "execution_allowed": false,
+    "collection_allowed": false,
+    "emission_allowed": false,
+    "live_enabled": false
+  }
+}

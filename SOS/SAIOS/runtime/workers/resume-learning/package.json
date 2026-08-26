@@ -1,0 +1,15 @@
+{
+  "name": "@saios/resume-learning-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StudiosisLab Resume Learning Engine — founder feedback to persistent design memory",
+  "type": "module",
+  "scripts": {
+    "learn": "tsx run.ts",
+    "verify": "tsx verify.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}

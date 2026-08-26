@@ -1,0 +1,15 @@
+{
+  "name": "@saios/domain-studiosislab-resume",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StudiosisLab resume design knowledge pack",
+  "type": "module",
+  "scripts": {
+    "verify": "tsx verify.ts",
+    "intelligence:build": "node scripts/build-intelligence-corpus.mjs"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}

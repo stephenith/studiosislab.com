@@ -1,0 +1,10 @@
+{
+  "name": "@saios/founder-gate-runtime",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Interactive founder gate pause/resume (Agent #133)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts"
+  }
+}

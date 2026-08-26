@@ -1,0 +1,20 @@
+{
+  "agent": "200",
+  "module_id": "runtime.workers.resume-learning",
+  "path": "SOS/SAIOS/runtime/workers/resume-learning",
+  "architecture_role": "WORKER",
+  "layer": "Learning",
+  "allowed_dependencies": [],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "parallel_learning_store_new"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour. Agent #200: intentionally independent from core.knowledge-learning (no runtime import). parallel_learning_store_new = no NEW undeclared parallel stores; saios/learning/ grandfathered (Persistence Ownership #197).",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true,
+  "resolutions": {
+    "F2": "declaration_corrected_intentionally_independent",
+    "F3": "existing_saios_learning_grandfathered"
+  }
+}

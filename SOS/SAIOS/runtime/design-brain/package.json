@@ -1,0 +1,14 @@
+{
+  "name": "@saios/resume-design-brain",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StudiosisLab Resume Design Brain — primary design authority before generation",
+  "type": "module",
+  "scripts": {
+    "verify": "tsx verify.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}

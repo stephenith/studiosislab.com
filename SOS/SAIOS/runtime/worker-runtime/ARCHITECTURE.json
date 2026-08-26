@@ -1,0 +1,38 @@
+{
+  "agent": "182",
+  "module_id": "runtime.worker-runtime",
+  "path": "SOS/SAIOS/runtime/worker-runtime",
+  "architecture_role": "WORKER_RUNTIME_CONTRACT",
+  "layer": "Phase 3 execution ownership (scaffold only)",
+  "allowed_dependencies": [
+    "platform.foundation",
+    "platform.checksums",
+    "platform.state-machine",
+    "platform.reporters"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "scheduler_activation",
+    "worker_execute",
+    "worker_spawn",
+    "child_process",
+    "provider_direct",
+    "publication_write",
+    "queue_enqueue",
+    "runtime.execution-controller_write",
+    "platform.department-sdk_write",
+    "platform.cost-ledger_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Worker Runtime Contract V1 — Execution Controller owns sessions (future). Never spawns. Never executes.",
+  "worker_runtime": "worker-runtime-1.0.0",
+  "frozen": false,
+  "safety": {
+    "execution_allowed": false,
+    "worker_spawn_allowed": false,
+    "child_process_allowed": false,
+    "provider_allowed": false,
+    "publishing_allowed": false,
+    "live_enabled": false
+  }
+}

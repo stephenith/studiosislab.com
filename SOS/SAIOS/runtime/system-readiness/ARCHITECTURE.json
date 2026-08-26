@@ -1,0 +1,27 @@
+{
+  "agent": "171",
+  "module_id": "runtime.system-readiness",
+  "path": "SOS/SAIOS/runtime/system-readiness",
+  "architecture_role": "GOVERNANCE",
+  "layer": "System closure",
+  "allowed_dependencies": [
+    "runtime.runtime-release_readonly",
+    "runtime.planner_readonly",
+    "runtime.queue_readonly",
+    "core.company-brain_readonly",
+    "platform.foundation"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "scheduler_activation",
+    "worker_execute",
+    "provider_direct",
+    "publication_write",
+    "queue_enqueue"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "System Readiness Freeze V1 — certifies governance spine complete. Never executes.",
+  "system_readiness": "system-readiness-1.0.0",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": false
+}

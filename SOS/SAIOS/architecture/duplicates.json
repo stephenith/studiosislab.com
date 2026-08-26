@@ -1,0 +1,115 @@
+{
+  "agent": "159",
+  "generated_at": "2026-07-12T00:00:00.000Z",
+  "duplicates": [
+    {
+      "system": "execution",
+      "instances": [
+        "core/first-production-cycle",
+        "runtime/unified-production",
+        "runtime/pipeline",
+        "runtime/workers/resume-production (v2/v3 as engines)",
+        "runtime/controller sessions",
+        "runtime/scheduler/ProductionExecutor → unified"
+      ],
+      "recommendation": "KEEP",
+      "keep": "core/first-production-cycle spine",
+      "archive": ["runtime/unified-production"],
+      "legacy": ["runtime/pipeline", "runtime/workers v2/v3-as-engine", "controller session engine"],
+      "delete_later": [],
+      "why": "One canonical engine required. Others retained for verify/history."
+    },
+    {
+      "system": "evaluation",
+      "instances": [
+        "core/resume-critic + critic-gate",
+        "runtime/workers self-critique / triple-critique",
+        "runtime/founder-critic",
+        "runtime/workers/resume-qa",
+        "runtime/qa"
+      ],
+      "recommendation": "MERGE",
+      "keep": "core/resume-critic + core/critic-gate",
+      "merge": "useful heuristics from founder-critic / resume-qa into core critic",
+      "archive": ["runtime/founder-critic as parallel authority"],
+      "why": "Single quality bar."
+    },
+    {
+      "system": "learning",
+      "instances": [
+        "core/knowledge-learning",
+        "runtime/workers/resume-learning",
+        "runtime/workers/resume-production/learning-append*",
+        "runtime/benchmark/memory",
+        "runtime/design-brain founder memory"
+      ],
+      "recommendation": "MERGE",
+      "keep": "core/knowledge-learning → core/knowledge Learning domain",
+      "merge": "B learning writers into governed Learning",
+      "why": "One append-only learning store."
+    },
+    {
+      "system": "knowledge",
+      "instances": ["core/knowledge", "runtime/knowledge", "runtime/memory", "domain/studiosislab"],
+      "recommendation": "MERGE",
+      "keep": "core/knowledge + domain/studiosislab as corpus",
+      "merge": "runtime/knowledge + runtime/memory into core",
+      "why": "Avoid divergent memory authorities."
+    },
+    {
+      "system": "rendering",
+      "instances": ["core/resume-renderer", "runtime/visual-render", "runtime workers template-builder"],
+      "recommendation": "MERGE",
+      "keep": "core/resume-renderer",
+      "merge": "visual-render + template-builder onto DesignBrief→Renderer path",
+      "why": "One render worker."
+    },
+    {
+      "system": "publishing",
+      "instances": ["runtime/publication", "runtime/batch-release", "workers/resume-qa/publisher"],
+      "recommendation": "KEEP",
+      "keep": "runtime/publication (gated)",
+      "merge": "publisher helpers under publication + Founder Gate choke point",
+      "why": "Publication capability is needed; must not auto-publish."
+    },
+    {
+      "system": "reporting",
+      "instances": ["runtime/reporter", "workers reports-v2/v3", "unified ReportBuilder", "dashboard"],
+      "recommendation": "KEEP",
+      "keep": "dashboard as control center; reporter as service",
+      "archive": ["unified ReportBuilder as primary"],
+      "why": "Reporting is multi-consumer; dashboard is canonical UI."
+    },
+    {
+      "system": "orchestration",
+      "instances": [
+        "runtime/chief",
+        "runtime/controller",
+        "runtime/directors",
+        "runtime/unified-production (as orchestrator)",
+        "core/first-production-cycle (hardcoded intake)"
+      ],
+      "recommendation": "KEEP",
+      "keep": "chief + directors + queue + registry",
+      "archive": ["unified-production orchestration role"],
+      "reference": ["first-production-cycle intake until Company Brain wired"],
+      "why": "Orchestration belongs in Pipeline B hierarchy."
+    },
+    {
+      "system": "dashboard_ui",
+      "instances": ["dashboard", "runtime/founder-dashboard", "runtime/production-dashboard"],
+      "recommendation": "ARCHIVE",
+      "keep": "SOS/SAIOS/dashboard",
+      "archive": ["runtime/founder-dashboard", "runtime/production-dashboard"],
+      "why": "One control center."
+    },
+    {
+      "system": "model_routing",
+      "instances": ["core/ai-brain", "runtime/model-strategy"],
+      "recommendation": "MERGE",
+      "keep": "core/ai-brain",
+      "merge": "model-strategy into Brain Router policies",
+      "why": "Single reasoning gateway."
+    }
+  ]
+}

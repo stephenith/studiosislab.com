@@ -1,0 +1,13 @@
+{
+  "agent": "159",
+  "module_id": "interfaces",
+  "path": "SOS/SAIOS/interfaces",
+  "architecture_role": "CORE_ENGINE",
+  "layer": "Contracts",
+  "allowed_dependencies": [],
+  "forbidden_dependencies": [],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

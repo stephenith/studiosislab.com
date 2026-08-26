@@ -1,0 +1,21 @@
+{
+  "agent": "159",
+  "module_id": "core.resume-critic",
+  "path": "SOS/SAIOS/core/resume-critic",
+  "architecture_role": "CORE_ENGINE",
+  "layer": "Evaluation",
+  "allowed_dependencies": [
+    "core.resume-renderer",
+    "core.designbrief"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "brain_direct",
+    "mock_provider",
+    "publication_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

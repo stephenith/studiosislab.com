@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "agent": "117.5",
+  "flow": [
+    "Department emits SkillRequest (no prompt, no model name)",
+    "SkillValidator validates request",
+    "SkillExecutionPlan expands composition",
+    "Brain Router routes each non-deterministic step via capability + tier",
+    "Deterministic skills execute in code path (not providers)",
+    "Provider Adapter executes Skills with department stripped",
+    "Provider returns structured output; department identity never required"
+  ],
+  "provider_visibility": {
+    "sees_skill_id": true,
+    "sees_capability": true,
+    "sees_department": false,
+    "sees_model_name_from_department": false
+  },
+  "website_department_skills_enabled_for_routing": false,
+  "note": "Website Department remains disabled at department level; skills are catalogued for future enablement"
+}

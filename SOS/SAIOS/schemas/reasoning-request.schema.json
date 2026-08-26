@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiosislab.com/sos/schemas/reasoning-request.schema.json",
+  "title": "ReasoningRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "task_id",
+    "department",
+    "capability",
+    "objective",
+    "instructions",
+    "context_references",
+    "memory_references",
+    "expected_response_schema",
+    "quality_tier",
+    "priority",
+    "maximum_input_tokens",
+    "maximum_output_tokens",
+    "timeout_ms",
+    "retry_policy",
+    "fallback_policy",
+    "privacy_classification",
+    "created_at",
+    "dry_run",
+    "founder_approval_requirement"
+  ],
+  "properties": {
+    "request_id": { "type": "string" },
+    "task_id": { "type": "string" },
+    "department": { "type": "string" },
+    "capability": { "type": "string" },
+    "objective": { "type": "string" },
+    "instructions": { "type": "string" },
+    "context_references": { "type": "array", "items": { "type": "string" } },
+    "memory_references": { "type": "array", "items": { "type": "string" } },
+    "expected_response_schema": {},
+    "quality_tier": {
+      "type": "string",
+      "enum": ["strong", "economical", "deterministic", "local_preferred", "provider_fallback"]
+    },
+    "priority": { "type": "string", "enum": ["low", "normal", "high", "critical"] },
+    "maximum_input_tokens": { "type": "integer", "minimum": 1 },
+    "maximum_output_tokens": { "type": "integer", "minimum": 1 },
+    "estimated_cost_ceiling_usd": { "type": ["number", "null"] },
+    "timeout_ms": { "type": "integer", "minimum": 1 },
+    "retry_policy": { "type": "object" },
+    "fallback_policy": { "type": "object" },
+    "privacy_classification": {
+      "type": "string",
+      "enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "HIGHLY_RESTRICTED"]
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "deadline": { "type": ["string", "null"] },
+    "dry_run": { "type": "boolean" },
+    "founder_approval_requirement": { "type": "boolean" },
+    "metadata": { "type": "object" }
+  },
+  "not": {
+    "anyOf": [
+      { "required": ["model"] },
+      { "required": ["model_name"] },
+      { "required": ["openai_model"] }
+    ]
+  }
+}

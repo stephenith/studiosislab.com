@@ -1,0 +1,10 @@
+{
+  "name": "@saios/knowledge",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AIOS Knowledge System — permanent scoped knowledge layer (Agent #120)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts"
+  }
+}

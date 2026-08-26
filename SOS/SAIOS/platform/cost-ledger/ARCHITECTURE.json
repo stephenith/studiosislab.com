@@ -1,0 +1,38 @@
+{
+  "agent": "181",
+  "module_id": "platform.cost-ledger",
+  "path": "SOS/SAIOS/platform/cost-ledger",
+  "architecture_role": "FINANCIAL_AUTHORITY_SCAFFOLD",
+  "layer": "Platform foundation (Phase 3)",
+  "allowed_dependencies": [
+    "platform.foundation",
+    "platform.checksums",
+    "platform.state-machine",
+    "platform.reporters"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "scheduler_activation",
+    "worker_execute",
+    "worker_spawn",
+    "provider_direct",
+    "publication_write",
+    "queue_enqueue",
+    "billing_api",
+    "runtime.execution-controller_write",
+    "platform.department-sdk_write",
+    "core.company-brain_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Cost Ledger V1 — bookkeeping contracts only. Execution Controller owns sessions (future). Never bills.",
+  "cost_ledger": "cost-ledger-1.0.0",
+  "cost_session": "cost-session-1.0.0",
+  "frozen": false,
+  "safety": {
+    "execution_allowed": false,
+    "billing_allowed": false,
+    "provider_allowed": false,
+    "publishing_allowed": false,
+    "live_enabled": false
+  }
+}

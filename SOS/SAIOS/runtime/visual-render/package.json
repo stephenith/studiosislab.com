@@ -1,0 +1,18 @@
+{
+  "name": "@saios/visual-render-evaluation-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StudiosisLab Visual Render Evaluation Engine — founder vision on rendered resumes",
+  "type": "module",
+  "scripts": {
+    "verify": "tsx verify.ts"
+  },
+  "dependencies": {
+    "canvas": "^3.1.0",
+    "fabric": "^6.9.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}

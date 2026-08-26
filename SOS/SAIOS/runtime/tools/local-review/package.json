@@ -1,0 +1,16 @@
+{
+  "name": "@saios/local-template-review",
+  "version": "1.0.0",
+  "private": true,
+  "description": "One-click local dev review for Resume Worker template-preview.json",
+  "type": "module",
+  "scripts": {
+    "review:template": "tsx review-template.ts",
+    "verify": "tsx verify.ts"
+  },
+  "devDependencies": {
+    "playwright": "^1.59.1",
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}

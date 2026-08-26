@@ -1,0 +1,20 @@
+{
+  "agent": "159",
+  "module_id": "core.editor-compatibility",
+  "path": "SOS/SAIOS/core/editor-compatibility",
+  "architecture_role": "CORE_ENGINE",
+  "layer": "Evaluation (schema gate)",
+  "allowed_dependencies": [
+    "core.resume-renderer",
+    "src_data_template_json_readonly"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "src_write",
+    "publication_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

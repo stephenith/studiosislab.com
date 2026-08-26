@@ -1,0 +1,527 @@
+/**
+ * Mission Control UI styles — Agent #222B.
+ * Elevates Founder Dashboard language. Restrained accents. Subtle motion.
+ */
+
+.mc-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-7);
+  animation: ds-fade-in 220ms ease-out;
+}
+
+.mc-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--ds-space-5);
+  align-items: flex-start;
+  padding-bottom: var(--ds-space-5);
+  border-bottom: 1px solid var(--ds-border);
+}
+
+.mc-eyebrow {
+  margin: 0 0 var(--ds-space-1);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ds-text-secondary);
+  font-weight: 600;
+}
+
+.mc-title {
+  margin: 0;
+  font-size: clamp(1.6rem, 2.2vw, 2rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--ds-text);
+  line-height: 1.15;
+}
+
+.mc-subtitle {
+  margin: var(--ds-space-2) 0 0;
+  color: var(--ds-text-secondary);
+  font-size: 0.95rem;
+}
+
+.mc-header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-space-3);
+  align-items: center;
+  justify-content: flex-end;
+  max-width: 520px;
+}
+
+.mc-meta-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--ds-space-2) var(--ds-space-3);
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-md, 8px);
+  min-width: 140px;
+}
+
+.mc-meta-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ds-text-secondary);
+  font-weight: 600;
+}
+
+.mc-header-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-space-2);
+}
+
+.mc-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--ds-space-4);
+  margin-bottom: var(--ds-space-4);
+}
+
+.mc-section-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.mc-section-sub {
+  margin: 4px 0 0;
+  color: var(--ds-text-secondary);
+  font-size: 0.85rem;
+}
+
+.mc-section-actions {
+  display: flex;
+  gap: var(--ds-space-2);
+  align-items: center;
+}
+
+.mc-row-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.mc-row {
+  display: grid;
+  gap: var(--ds-space-4);
+}
+
+.mc-row-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.mc-row-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.mc-row-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mc-card {
+  background: var(--ds-card);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-md, 10px);
+  padding: var(--ds-space-4) var(--ds-space-5);
+  box-shadow: 0 1px 0 rgba(17, 17, 17, 0.03);
+  transition:
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.mc-card:hover {
+  border-color: var(--ds-border-strong);
+  box-shadow: 0 6px 18px rgba(17, 17, 17, 0.05);
+  transform: translateY(-1px);
+}
+
+.mc-card-empty {
+  opacity: 0.92;
+}
+
+.mc-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--ds-space-2);
+  margin-bottom: var(--ds-space-3);
+}
+
+.mc-card-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ds-text-secondary);
+  font-weight: 600;
+}
+
+.mc-card-heading {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.mc-card-value {
+  font-size: 1.45rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--ds-text);
+  word-break: break-word;
+}
+
+.mc-card-detail {
+  margin: var(--ds-space-2) 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.mc-status-card[data-tone="approved"] {
+  border-left: 3px solid var(--ds-status-approved);
+}
+
+.mc-status-card[data-tone="waiting"] {
+  border-left: 3px solid var(--ds-status-waiting);
+}
+
+.mc-status-card[data-tone="rejected"] {
+  border-left: 3px solid var(--ds-status-rejected);
+}
+
+.mc-status-card[data-tone="processing"] {
+  border-left: 3px solid var(--ds-status-processing);
+}
+
+.mc-queue-hero {
+  padding: var(--ds-space-6);
+}
+
+.mc-queue-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--ds-space-5);
+  margin-top: var(--ds-space-2);
+}
+
+.mc-queue-value {
+  margin: var(--ds-space-2) 0 0;
+  font-size: 2rem;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+
+.mc-queue-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-space-3);
+  margin-top: var(--ds-space-6);
+  padding-top: var(--ds-space-5);
+  border-top: 1px solid var(--ds-border);
+}
+
+.mc-advisor-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: var(--ds-space-4);
+  align-items: start;
+}
+
+.mc-advisor-list {
+  background: var(--ds-card);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-md, 10px);
+  padding: var(--ds-space-4) var(--ds-space-5);
+}
+
+.mc-rec-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-3);
+}
+
+.mc-rec-card {
+  padding: var(--ds-space-3) var(--ds-space-4);
+}
+
+.mc-rec-title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 550;
+}
+
+.mc-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+}
+
+.mc-timeline-item {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: var(--ds-space-3);
+  align-items: start;
+}
+
+.mc-timeline-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--ds-border-strong);
+}
+
+.mc-timeline-item[data-kind="ok"] .mc-timeline-dot {
+  background: var(--ds-status-approved);
+}
+
+.mc-timeline-item[data-kind="warn"] .mc-timeline-dot {
+  background: var(--ds-status-waiting);
+}
+
+.mc-timeline-item[data-kind="error"] .mc-timeline-dot {
+  background: var(--ds-status-rejected);
+}
+
+.mc-timeline-title {
+  margin: 0;
+  font-weight: 550;
+  font-size: 0.92rem;
+}
+
+.mc-timeline-time {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--ds-text-secondary);
+}
+
+.mc-safety-card {
+  background: linear-gradient(
+    180deg,
+    var(--ds-card) 0%,
+    var(--ds-surface) 100%
+  );
+}
+
+.mc-safety-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--ds-space-5);
+}
+
+.mc-safety-value {
+  margin: var(--ds-space-2) 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.mc-freshness-compact {
+  font-size: 10px;
+  padding: 2px 6px;
+}
+
+.mc-skeleton {
+  gap: var(--ds-space-5);
+}
+
+.mc-skel-card {
+  border-radius: var(--ds-radius-md, 10px);
+}
+
+@media (max-width: 1100px) {
+  .mc-row-5 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .mc-row-4,
+  .mc-queue-grid,
+  .mc-safety-grid,
+  .mc-advisor-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .mc-row-5,
+  .mc-row-4,
+  .mc-row-3,
+  .mc-queue-grid,
+  .mc-safety-grid,
+  .mc-advisor-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .mc-header-meta {
+    max-width: none;
+    justify-content: flex-start;
+  }
+
+  .mc-queue-value {
+    font-size: 1.6rem;
+  }
+}
+
+/* —— Engineering Review (Agent #224) —— */
+.mc-eng-review-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-space-3);
+  align-items: flex-end;
+  margin: var(--ds-space-5) 0 var(--ds-space-4);
+}
+
+.mc-eng-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ds-text-secondary);
+  font-weight: 600;
+}
+
+.mc-eng-filter select {
+  min-width: 140px;
+  padding: 8px 10px;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-md, 8px);
+  background: var(--ds-card);
+  color: var(--ds-text);
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 500;
+}
+
+.mc-eng-review-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: var(--ds-space-4);
+  align-items: start;
+}
+
+.mc-eng-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-3);
+  max-height: 560px;
+  overflow: auto;
+}
+
+.mc-eng-rec-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--ds-radius-md, 10px);
+  transition: opacity 140ms ease;
+}
+
+.mc-eng-rec-btn:hover {
+  opacity: 0.92;
+}
+
+.mc-eng-rec-btn.is-active .mc-card,
+.mc-eng-rec-btn.is-active .mc-rec-card {
+  border-color: var(--ds-border-strong);
+  box-shadow: 0 6px 18px rgba(17, 17, 17, 0.06);
+}
+
+.mc-eng-dl {
+  display: grid;
+  gap: var(--ds-space-3);
+  margin: var(--ds-space-4) 0 0;
+}
+
+.mc-eng-dl dt {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ds-text-secondary);
+  font-weight: 600;
+  margin: 0 0 2px;
+}
+
+.mc-eng-dl dd {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.mc-eng-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-space-2);
+  margin-top: var(--ds-space-5);
+}
+
+@media (max-width: 1100px) {
+  .mc-eng-review-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Founder Action Adapters — Agent #225 */
+.mc-faa-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ds-space-4);
+}
+
+.mc-faa-group .mc-faa-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-space-2);
+  margin-top: var(--ds-space-3);
+}
+
+.mc-faa-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-3);
+}
+
+.mc-faa-history-item {
+  padding-bottom: var(--ds-space-2);
+  border-bottom: 1px solid color-mix(in srgb, var(--ds-border) 70%, transparent);
+}
+
+.mc-faa-history-item:last-child {
+  border-bottom: none;
+}
+
+.mc-faa-history-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-space-2);
+}
+
+.mc-faa-type {
+  font-size: 0.85rem;
+}
+
+@media (max-width: 1100px) {
+  .mc-faa-groups {
+    grid-template-columns: 1fr;
+  }
+}

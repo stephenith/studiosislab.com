@@ -1,0 +1,11 @@
+{
+  "name": "@saios/deployment-package",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AI OS Deployment Package V1 — deployable assets only, no deploy (Agent #112)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts",
+    "run": "npx --yes tsx DeploymentPackageManager.ts"
+  }
+}

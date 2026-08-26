@@ -1,0 +1,37 @@
+{
+  "version": "1.0.0",
+  "reject_deterministic_to_provider": true,
+  "founder_override_deterministic_ai": false,
+  "tier_preferences": {
+    "strong": ["local", "openai", "mock"],
+    "economical": ["local", "openai", "mock"],
+    "deterministic": [],
+    "local_preferred": ["local", "openai", "mock"],
+    "provider_fallback": ["openai", "mock"]
+  },
+  "privacy_external_allowed": {
+    "PUBLIC": true,
+    "INTERNAL": true,
+    "CONFIDENTIAL": false,
+    "HIGHLY_RESTRICTED": false
+  },
+  "steps": [
+    "Validate capability",
+    "Reject deterministic-only requests from model routing",
+    "Check privacy classification",
+    "Check task and daily budgets",
+    "Check provider health",
+    "Use preferred provider for the requested tier",
+    "Validate structured output",
+    "Retry only under policy",
+    "Use fallback only when permitted",
+    "Record usage and event",
+    "Return normalized response"
+  ],
+  "future_local_rule": {
+    "prefer_local_when_healthy": true,
+    "api_fallback_when_local_unavailable": true,
+    "never_silently_send_highly_private_externally": true
+  },
+  "hardcoded_model_names": false
+}

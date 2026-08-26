@@ -1,0 +1,24 @@
+{
+  "agent": "168",
+  "module_id": "runtime.queue",
+  "path": "SOS/SAIOS/runtime/queue",
+  "architecture_role": "SERVICE",
+  "layer": "Orchestration substrate",
+  "allowed_dependencies": [
+    "runtime.shared",
+    "core.company-brain_readonly"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "src_write",
+    "worker_logic",
+    "scheduler_activation",
+    "provider_direct",
+    "publication_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Execution queue unchanged. Shadow Queue Receiver V1 accepts immutable submissions only — never dispatches.",
+  "shadow_queue": "shadow-queue-1.0.0",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": false
+}

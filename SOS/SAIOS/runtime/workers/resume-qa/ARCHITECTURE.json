@@ -1,0 +1,18 @@
+{
+  "agent": "159",
+  "module_id": "runtime.workers.resume-qa",
+  "path": "SOS/SAIOS/runtime/workers/resume-qa",
+  "architecture_role": "WORKER",
+  "layer": "Evaluation",
+  "allowed_dependencies": [
+    "core.resume-critic"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "auto_publish"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

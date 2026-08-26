@@ -1,0 +1,18 @@
+{
+  "agent": "159",
+  "module_id": "core.first-dry-run",
+  "path": "SOS/SAIOS/core/first-dry-run",
+  "architecture_role": "REFERENCE",
+  "layer": "Reference",
+  "allowed_dependencies": [
+    "core.resume-integration"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "publication_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

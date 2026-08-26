@@ -1,0 +1,17 @@
+{
+  "agent": "159",
+  "module_id": "runtime.production-dashboard",
+  "path": "SOS/SAIOS/runtime/production-dashboard",
+  "architecture_role": "LEGACY",
+  "layer": "UI (superseded)",
+  "allowed_dependencies": [
+    "dashboard"
+  ],
+  "forbidden_dependencies": [
+    "primary_ui"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

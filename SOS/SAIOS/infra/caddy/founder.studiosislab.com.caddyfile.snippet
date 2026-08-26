@@ -1,0 +1,15 @@
+# Append to /etc/caddy/Caddyfile on VPS (do not replace os.studiosislab.com).
+# Requires: /etc/caddy/founder.htpasswd (caddy hash-password), mode 600.
+#
+# DNS: founder.studiosislab.com A → VPS public IP
+# Dashboard must remain bound to 127.0.0.1:4310
+
+founder.studiosislab.com {
+	basic_auth {
+		# Replace HASH with: caddy hash-password --plaintext '...'
+		founder HASH_REPLACE_ME
+	}
+
+	# Optional mild rate limit (Caddy v2 rate_limit plugin may vary by install)
+	reverse_proxy 127.0.0.1:4310
+}

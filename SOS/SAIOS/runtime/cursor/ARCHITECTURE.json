@@ -1,0 +1,16 @@
+{
+  "agent": "159",
+  "module_id": "runtime.cursor",
+  "path": "SOS/SAIOS/runtime/cursor",
+  "architecture_role": "TOOL",
+  "layer": "Tools",
+  "allowed_dependencies": [],
+  "forbidden_dependencies": [
+    "product_ai_brain",
+    "routine_resume_production"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

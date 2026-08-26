@@ -1,0 +1,10 @@
+{
+  "name": "@saios/designbrief",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "DesignBrief Engine V1 — Brain/Mock → resume construction instructions (Agent #127)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts"
+  }
+}

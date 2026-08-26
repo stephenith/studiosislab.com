@@ -1,0 +1,11 @@
+{
+  "name": "@saios/vps-provisioning",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AI OS VPS Provisioning Runbook V1 — documentation & assets only, no deploy (Agent #114)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts",
+    "run": "npx --yes tsx VPSProvisioningManager.ts"
+  }
+}

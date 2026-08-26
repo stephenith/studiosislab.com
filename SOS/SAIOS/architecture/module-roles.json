@@ -1,0 +1,1205 @@
+{
+  "agent": "159",
+  "generated_at": "2026-07-12T00:00:00.000Z",
+  "roles": [
+    "CORE_ENGINE",
+    "ORCHESTRATION",
+    "WORKER",
+    "SERVICE",
+    "KNOWLEDGE",
+    "TOOL",
+    "UI",
+    "LEGACY",
+    "REFERENCE"
+  ],
+  "modules": [
+    {
+      "id": "core.ai-brain",
+      "path": "SOS/SAIOS/core/ai-brain",
+      "role": "CORE_ENGINE",
+      "layer": "Brain Router",
+      "allowed_dependencies": [
+        "core.providers",
+        "core.skills",
+        "interfaces"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "src_product",
+        "runtime.unified-production",
+        "runtime.pipeline"
+      ]
+    },
+    {
+      "id": "core.skills",
+      "path": "SOS/SAIOS/core/skills",
+      "role": "CORE_ENGINE",
+      "layer": "Skills",
+      "allowed_dependencies": [
+        "core.ai-brain",
+        "interfaces"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "provider_direct",
+        "src_product"
+      ]
+    },
+    {
+      "id": "core.providers.mock",
+      "path": "SOS/SAIOS/core/providers/mock",
+      "role": "CORE_ENGINE",
+      "layer": "Models",
+      "allowed_dependencies": [
+        "core.ai-brain"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "network_api",
+        "src_product"
+      ]
+    },
+    {
+      "id": "core.providers.openai",
+      "path": "SOS/SAIOS/core/providers/openai",
+      "role": "CORE_ENGINE",
+      "layer": "Models",
+      "allowed_dependencies": [
+        "core.ai-brain",
+        "openai_sdk"
+      ],
+      "forbidden_dependencies": [
+        "src_product",
+        "runtime.unified-production",
+        "runtime.pipeline",
+        "publication_write"
+      ]
+    },
+    {
+      "id": "core.knowledge",
+      "path": "SOS/SAIOS/core/knowledge",
+      "role": "KNOWLEDGE",
+      "layer": "Knowledge",
+      "allowed_dependencies": [
+        "interfaces"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "src_product",
+        "runtime.unified-production"
+      ]
+    },
+    {
+      "id": "core.knowledge-learning",
+      "path": "SOS/SAIOS/core/knowledge-learning",
+      "role": "KNOWLEDGE",
+      "layer": "Learning",
+      "allowed_dependencies": [
+        "core.knowledge",
+        "core.founder-decisions"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "publication_write"
+      ]
+    },
+    {
+      "id": "core.resume-integration",
+      "path": "SOS/SAIOS/core/resume-integration",
+      "role": "CORE_ENGINE",
+      "layer": "Workers→Skills bridge",
+      "allowed_dependencies": [
+        "core.knowledge",
+        "core.skills",
+        "core.ai-brain"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "src_product",
+        "publication_write",
+        "provider_direct"
+      ]
+    },
+    {
+      "id": "core.designbrief",
+      "path": "SOS/SAIOS/core/designbrief",
+      "role": "CORE_ENGINE",
+      "layer": "Workers (spec)",
+      "allowed_dependencies": [
+        "core.resume-integration"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "brain_direct",
+        "src_product",
+        "publication_write"
+      ]
+    },
+    {
+      "id": "core.resume-renderer",
+      "path": "SOS/SAIOS/core/resume-renderer",
+      "role": "WORKER",
+      "layer": "Workers (render)",
+      "allowed_dependencies": [
+        "core.designbrief"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "brain_direct",
+        "core.ai-brain",
+        "publication_write"
+      ]
+    },
+    {
+      "id": "core.editor-compatibility",
+      "path": "SOS/SAIOS/core/editor-compatibility",
+      "role": "CORE_ENGINE",
+      "layer": "Evaluation (schema gate)",
+      "allowed_dependencies": [
+        "core.resume-renderer",
+        "src_data_template_json_readonly"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "src_write",
+        "publication_write"
+      ]
+    },
+    {
+      "id": "core.resume-critic",
+      "path": "SOS/SAIOS/core/resume-critic",
+      "role": "CORE_ENGINE",
+      "layer": "Evaluation",
+      "allowed_dependencies": [
+        "core.resume-renderer",
+        "core.designbrief"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "brain_direct",
+        "mock_provider",
+        "publication_write"
+      ]
+    },
+    {
+      "id": "core.critic-gate",
+      "path": "SOS/SAIOS/core/critic-gate",
+      "role": "CORE_ENGINE",
+      "layer": "Evaluation",
+      "allowed_dependencies": [
+        "core.resume-critic"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "publication_write"
+      ]
+    },
+    {
+      "id": "core.founder-decisions",
+      "path": "SOS/SAIOS/core/founder-decisions",
+      "role": "CORE_ENGINE",
+      "layer": "Founder Gate",
+      "allowed_dependencies": [
+        "core.knowledge-learning"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "publication_write",
+        "live_enable"
+      ]
+    },
+    {
+      "id": "core.founder-gate-runtime",
+      "path": "SOS/SAIOS/core/founder-gate-runtime",
+      "role": "CORE_ENGINE",
+      "layer": "Founder Gate",
+      "allowed_dependencies": [
+        "core.founder-decisions",
+        "core.critic-gate"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "publication_write",
+        "auto_decision_real"
+      ]
+    },
+    {
+      "id": "core.provider-validation",
+      "path": "SOS/SAIOS/core/provider-validation",
+      "role": "CORE_ENGINE",
+      "layer": "Models (onboarding gate)",
+      "allowed_dependencies": [
+        "core.ai-brain",
+        "core.founder-decisions",
+        "core.founder-gate-runtime"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk_install",
+        "real_provider_execute",
+        "publication_write"
+      ]
+    },
+    {
+      "id": "core.first-production-cycle",
+      "path": "SOS/SAIOS/core/first-production-cycle",
+      "role": "CORE_ENGINE",
+      "layer": "Canonical execution spine",
+      "allowed_dependencies": [
+        "core.resume-integration",
+        "core.designbrief",
+        "core.resume-renderer",
+        "core.resume-critic",
+        "core.critic-gate",
+        "core.founder-gate-runtime"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "runtime.unified-production",
+        "publication_write",
+        "live_on"
+      ]
+    },
+    {
+      "id": "core.first-dry-run",
+      "path": "SOS/SAIOS/core/first-dry-run",
+      "role": "REFERENCE",
+      "layer": "Reference",
+      "allowed_dependencies": [
+        "core.resume-integration"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "publication_write"
+      ]
+    },
+    {
+      "id": "dashboard",
+      "path": "SOS/SAIOS/dashboard",
+      "role": "UI",
+      "layer": "Dashboard",
+      "allowed_dependencies": [
+        "core.founder-decisions",
+        "core.founder-gate-runtime",
+        "core.critic-gate",
+        "artifact_logs_readonly"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "publication_write",
+        "live_enable",
+        "orchestrate_jobs"
+      ]
+    },
+    {
+      "id": "runtime.chief",
+      "path": "SOS/SAIOS/runtime/chief",
+      "role": "ORCHESTRATION",
+      "layer": "Company Brain",
+      "allowed_dependencies": [
+        "runtime.queue",
+        "runtime.registry"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "cursor_spawn",
+        "src_write",
+        "worker_execute_inline"
+      ]
+    },
+    {
+      "id": "runtime.controller",
+      "path": "SOS/SAIOS/runtime/controller",
+      "role": "ORCHESTRATION",
+      "layer": "Company Brain (intake)",
+      "allowed_dependencies": [
+        "runtime.chief",
+        "runtime.queue",
+        "runtime.directors"
+      ],
+      "forbidden_dependencies": [
+        "src_write",
+        "openai_sdk"
+      ]
+    },
+    {
+      "id": "runtime.queue",
+      "path": "SOS/SAIOS/runtime/queue",
+      "role": "SERVICE",
+      "layer": "Orchestration substrate",
+      "allowed_dependencies": [
+        "runtime.shared"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "src_write",
+        "worker_logic"
+      ]
+    },
+    {
+      "id": "runtime.registry",
+      "path": "SOS/SAIOS/runtime/registry",
+      "role": "SERVICE",
+      "layer": "Orchestration substrate",
+      "allowed_dependencies": [
+        "runtime.shared"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "src_write"
+      ]
+    },
+    {
+      "id": "runtime.directors.resume-production",
+      "path": "SOS/SAIOS/runtime/directors/resume-production",
+      "role": "ORCHESTRATION",
+      "layer": "Directors",
+      "allowed_dependencies": [
+        "runtime.queue",
+        "runtime.registry"
+      ],
+      "forbidden_dependencies": [
+        "design_resumes",
+        "fabric_json_write",
+        "src_write"
+      ]
+    },
+    {
+      "id": "runtime.directors.engineering",
+      "path": "SOS/SAIOS/runtime/directors/engineering",
+      "role": "ORCHESTRATION",
+      "layer": "Directors",
+      "allowed_dependencies": [
+        "runtime.queue",
+        "runtime.registry"
+      ],
+      "forbidden_dependencies": [
+        "code_edit",
+        "cursor_spawn_inline",
+        "shell_execute"
+      ]
+    },
+    {
+      "id": "runtime.scheduler",
+      "path": "SOS/SAIOS/runtime/scheduler",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [
+        "runtime.queue"
+      ],
+      "forbidden_dependencies": [
+        "src_write"
+      ]
+    },
+    {
+      "id": "runtime.research",
+      "path": "SOS/SAIOS/runtime/research",
+      "role": "WORKER",
+      "layer": "Workers",
+      "allowed_dependencies": [
+        "core.resume-integration",
+        "runtime.tools"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "provider_direct",
+        "src_write"
+      ]
+    },
+    {
+      "id": "runtime.benchmark",
+      "path": "SOS/SAIOS/runtime/benchmark",
+      "role": "WORKER",
+      "layer": "Workers",
+      "allowed_dependencies": [
+        "core.resume-integration",
+        "core.knowledge"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "fabric_json_write",
+        "src_write"
+      ]
+    },
+    {
+      "id": "runtime.design-brain",
+      "path": "SOS/SAIOS/runtime/design-brain",
+      "role": "WORKER",
+      "layer": "Workers",
+      "allowed_dependencies": [
+        "core.resume-integration",
+        "core.designbrief"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "fabric_json_write",
+        "src_write"
+      ]
+    },
+    {
+      "id": "runtime.adaptive-composer",
+      "path": "SOS/SAIOS/runtime/adaptive-composer",
+      "role": "WORKER",
+      "layer": "Workers",
+      "allowed_dependencies": [
+        "runtime.design-brain",
+        "core.designbrief"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "src_write"
+      ]
+    },
+    {
+      "id": "runtime.workers.resume-production",
+      "path": "SOS/SAIOS/runtime/workers/resume-production",
+      "role": "WORKER",
+      "layer": "Workers",
+      "allowed_dependencies": [
+        "core.designbrief",
+        "core.resume-renderer",
+        "core.resume-integration"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "provider_direct",
+        "auto_publish"
+      ]
+    },
+    {
+      "id": "runtime.workers.resume-qa",
+      "path": "SOS/SAIOS/runtime/workers/resume-qa",
+      "role": "WORKER",
+      "layer": "Evaluation",
+      "allowed_dependencies": [
+        "core.resume-critic"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "auto_publish"
+      ]
+    },
+    {
+      "id": "runtime.workers.resume-learning",
+      "path": "SOS/SAIOS/runtime/workers/resume-learning",
+      "role": "WORKER",
+      "layer": "Learning",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "parallel_learning_store_new"
+      ]
+    },
+    {
+      "id": "runtime.visual-render",
+      "path": "SOS/SAIOS/runtime/visual-render",
+      "role": "WORKER",
+      "layer": "Workers",
+      "allowed_dependencies": [
+        "core.resume-renderer"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "src_write"
+      ]
+    },
+    {
+      "id": "runtime.founder-critic",
+      "path": "SOS/SAIOS/runtime/founder-critic",
+      "role": "LEGACY",
+      "layer": "Evaluation (duplicate)",
+      "allowed_dependencies": [
+        "core.resume-critic"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk"
+      ]
+    },
+    {
+      "id": "runtime.publication",
+      "path": "SOS/SAIOS/runtime/publication",
+      "role": "WORKER",
+      "layer": "Publishing",
+      "allowed_dependencies": [
+        "core.founder-gate-runtime",
+        "core.founder-decisions"
+      ],
+      "forbidden_dependencies": [
+        "auto_publish",
+        "src_write",
+        "manifest_write_without_gate"
+      ]
+    },
+    {
+      "id": "runtime.batch-release",
+      "path": "SOS/SAIOS/runtime/batch-release",
+      "role": "WORKER",
+      "layer": "Publishing",
+      "allowed_dependencies": [
+        "runtime.publication"
+      ],
+      "forbidden_dependencies": [
+        "auto_publish"
+      ]
+    },
+    {
+      "id": "runtime.unified-production",
+      "path": "SOS/SAIOS/runtime/unified-production",
+      "role": "LEGACY",
+      "layer": "Legacy execution engine",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "primary_entry_after_freeze"
+      ]
+    },
+    {
+      "id": "runtime.pipeline",
+      "path": "SOS/SAIOS/runtime/pipeline",
+      "role": "LEGACY",
+      "layer": "Legacy execution engine",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "primary_entry_after_freeze"
+      ]
+    },
+    {
+      "id": "runtime.cursor",
+      "path": "SOS/SAIOS/runtime/cursor",
+      "role": "TOOL",
+      "layer": "Tools",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "product_ai_brain",
+        "routine_resume_production"
+      ]
+    },
+    {
+      "id": "runtime.tools",
+      "path": "SOS/SAIOS/runtime/tools",
+      "role": "TOOL",
+      "layer": "Tools",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decision_authority"
+      ]
+    },
+    {
+      "id": "runtime.event-bus",
+      "path": "SOS/SAIOS/runtime/event-bus",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide",
+        "execute_work"
+      ]
+    },
+    {
+      "id": "runtime.memory",
+      "path": "SOS/SAIOS/runtime/memory",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [
+        "core.knowledge"
+      ],
+      "forbidden_dependencies": [
+        "parallel_knowledge_authority"
+      ]
+    },
+    {
+      "id": "runtime.knowledge",
+      "path": "SOS/SAIOS/runtime/knowledge",
+      "role": "LEGACY",
+      "layer": "Knowledge (duplicate)",
+      "allowed_dependencies": [
+        "core.knowledge"
+      ],
+      "forbidden_dependencies": [
+        "parallel_authority"
+      ]
+    },
+    {
+      "id": "runtime.notifications",
+      "path": "SOS/SAIOS/runtime/notifications",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.notification-department",
+      "path": "SOS/SAIOS/runtime/notification-department",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [
+        "runtime.notifications"
+      ],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.reporter",
+      "path": "SOS/SAIOS/runtime/reporter",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.security-department",
+      "path": "SOS/SAIOS/runtime/security-department",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.live-monitoring",
+      "path": "SOS/SAIOS/runtime/live-monitoring",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.live-runtime",
+      "path": "SOS/SAIOS/runtime/live-runtime",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.runtime-loop",
+      "path": "SOS/SAIOS/runtime/runtime-loop",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [
+        "runtime.queue",
+        "runtime.registry"
+      ],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.runtime-supervisor",
+      "path": "SOS/SAIOS/runtime/runtime-supervisor",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.runtime-manager",
+      "path": "SOS/SAIOS/runtime/runtime-manager",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.deployment-manager",
+      "path": "SOS/SAIOS/runtime/deployment-manager",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.deployment-package",
+      "path": "SOS/SAIOS/runtime/deployment-package",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.deployment-readiness",
+      "path": "SOS/SAIOS/runtime/deployment-readiness",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.vps-provisioning",
+      "path": "SOS/SAIOS/runtime/vps-provisioning",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.aios-pm2",
+      "path": "SOS/SAIOS/runtime/aios-pm2",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [
+        "infra"
+      ],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.founder-control-center",
+      "path": "SOS/SAIOS/runtime/founder-control-center",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "orchestrate"
+      ]
+    },
+    {
+      "id": "runtime.founder-dashboard",
+      "path": "SOS/SAIOS/runtime/founder-dashboard",
+      "role": "LEGACY",
+      "layer": "UI (superseded)",
+      "allowed_dependencies": [
+        "dashboard"
+      ],
+      "forbidden_dependencies": [
+        "primary_ui"
+      ]
+    },
+    {
+      "id": "runtime.production-dashboard",
+      "path": "SOS/SAIOS/runtime/production-dashboard",
+      "role": "LEGACY",
+      "layer": "UI (superseded)",
+      "allowed_dependencies": [
+        "dashboard"
+      ],
+      "forbidden_dependencies": [
+        "primary_ui"
+      ]
+    },
+    {
+      "id": "runtime.website-department",
+      "path": "SOS/SAIOS/runtime/website-department",
+      "role": "ORCHESTRATION",
+      "layer": "Departments (dormant)",
+      "allowed_dependencies": [
+        "runtime.queue",
+        "runtime.registry"
+      ],
+      "forbidden_dependencies": [
+        "enable_without_founder",
+        "execute_while_disabled"
+      ]
+    },
+    {
+      "id": "runtime.timeline-department",
+      "path": "SOS/SAIOS/runtime/timeline-department",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.model-strategy",
+      "path": "SOS/SAIOS/runtime/model-strategy",
+      "role": "LEGACY",
+      "layer": "Models (merge into Brain Router)",
+      "allowed_dependencies": [
+        "core.ai-brain"
+      ],
+      "forbidden_dependencies": [
+        "parallel_routing_authority"
+      ]
+    },
+    {
+      "id": "runtime.qa",
+      "path": "SOS/SAIOS/runtime/qa",
+      "role": "SERVICE",
+      "layer": "Evaluation",
+      "allowed_dependencies": [
+        "core.resume-critic"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk"
+      ]
+    },
+    {
+      "id": "runtime.catalog-integrity",
+      "path": "SOS/SAIOS/runtime/catalog-integrity",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "auto_publish"
+      ]
+    },
+    {
+      "id": "runtime.factory-state",
+      "path": "SOS/SAIOS/runtime/factory-state",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.factory-finalization",
+      "path": "SOS/SAIOS/runtime/factory-finalization",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "auto_publish"
+      ]
+    },
+    {
+      "id": "runtime.competitive-validation",
+      "path": "SOS/SAIOS/runtime/competitive-validation",
+      "role": "WORKER",
+      "layer": "Evaluation",
+      "allowed_dependencies": [
+        "core.resume-critic"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk"
+      ]
+    },
+    {
+      "id": "runtime.design-system",
+      "path": "SOS/SAIOS/runtime/design-system",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.product",
+      "path": "SOS/SAIOS/runtime/product",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.integration",
+      "path": "SOS/SAIOS/runtime/integration",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "runtime.shared",
+      "path": "SOS/SAIOS/runtime/shared",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": []
+    },
+    {
+      "id": "runtime.config",
+      "path": "SOS/SAIOS/runtime/config",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": []
+    },
+    {
+      "id": "runtime.logs",
+      "path": "SOS/SAIOS/runtime/logs",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": []
+    },
+    {
+      "id": "runtime.shadow",
+      "path": "SOS/SAIOS/runtime/shadow",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "decide"
+      ]
+    },
+    {
+      "id": "domain.studiosislab",
+      "path": "SOS/SAIOS/domain/studiosislab",
+      "role": "KNOWLEDGE",
+      "layer": "Knowledge",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "openai_sdk"
+      ]
+    },
+    {
+      "id": "interfaces",
+      "path": "SOS/SAIOS/interfaces",
+      "role": "CORE_ENGINE",
+      "layer": "Contracts",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": []
+    },
+    {
+      "id": "infra",
+      "path": "SOS/SAIOS/infra",
+      "role": "SERVICE",
+      "layer": "Services",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": []
+    },
+    {
+      "id": "missions",
+      "path": "SOS/SAIOS/missions",
+      "role": "REFERENCE",
+      "layer": "Reference",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "primary_engine"
+      ]
+    },
+    {
+      "id": "core.company-brain",
+      "path": "SOS/SAIOS/core/company-brain",
+      "role": "ORCHESTRATION",
+      "layer": "Company Brain",
+      "allowed_dependencies": [
+        "artifact_logs_readonly",
+        "infra",
+        "platform.foundation"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "queue_enqueue",
+        "worker_execute",
+        "provider_direct",
+        "publication_write"
+      ]
+    },
+    {
+      "id": "platform.foundation",
+      "path": "SOS/SAIOS/platform",
+      "role": "SERVICE",
+      "layer": "Platform",
+      "allowed_dependencies": [],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "queue_enqueue",
+        "worker_execute",
+        "provider_direct",
+        "publication_write",
+        "company_brain_logic",
+        "mission_logic",
+        "resume_logic"
+      ]
+    },
+    {
+      "id": "platform.dashboard",
+      "path": "SOS/SAIOS/platform/dashboard",
+      "role": "SERVICE",
+      "layer": "Dashboard infrastructure",
+      "allowed_dependencies": [
+        "platform.foundation"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "scheduler_activation",
+        "worker_execute",
+        "provider_direct",
+        "publication_write",
+        "queue_enqueue"
+      ]
+    },
+    {
+      "id": "runtime.execution-controller",
+      "path": "SOS/SAIOS/runtime/execution-controller",
+      "role": "ORCHESTRATION",
+      "layer": "Phase 3 execution authorization-record owner (scaffold)",
+      "allowed_dependencies": [
+        "core.company-brain",
+        "platform.foundation",
+        "runtime.system-readiness_readonly",
+        "runtime.runtime-release_readonly",
+        "runtime.planner_readonly"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "scheduler_activation",
+        "worker_execute",
+        "worker_spawn",
+        "provider_direct",
+        "publication_write",
+        "queue_enqueue"
+      ]
+    },
+    {
+      "id": "platform.department-sdk",
+      "path": "SOS/SAIOS/platform/department-sdk",
+      "role": "SERVICE",
+      "layer": "Phase 3 department contracts",
+      "allowed_dependencies": [
+        "platform.foundation"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "scheduler_activation",
+        "worker_execute",
+        "worker_spawn",
+        "provider_direct",
+        "publication_write",
+        "queue_enqueue",
+        "runtime.execution-controller_write",
+        "core.company-brain_write"
+      ]
+    },
+    {
+      "id": "platform.cost-ledger",
+      "path": "SOS/SAIOS/platform/cost-ledger",
+      "role": "SERVICE",
+      "layer": "Phase 3 financial contracts",
+      "allowed_dependencies": [
+        "platform.foundation"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "billing_api",
+        "worker_execute",
+        "provider_direct",
+        "publication_write",
+        "queue_enqueue"
+      ]
+    },
+    {
+      "id": "runtime.worker-runtime",
+      "path": "SOS/SAIOS/runtime/worker-runtime",
+      "role": "ORCHESTRATION",
+      "layer": "Phase 3 worker runtime contracts",
+      "allowed_dependencies": [
+        "platform.foundation"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "worker_execute",
+        "worker_spawn",
+        "child_process",
+        "provider_direct",
+        "publication_write",
+        "queue_enqueue"
+      ]
+    },
+    {
+      "id": "platform.telemetry",
+      "path": "SOS/SAIOS/platform/telemetry",
+      "role": "SERVICE",
+      "layer": "Phase 3 observability contracts",
+      "allowed_dependencies": [
+        "platform.foundation"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "metrics_collector",
+        "worker_execute",
+        "provider_direct",
+        "publication_write",
+        "queue_enqueue"
+      ]
+    },
+    {
+      "id": "runtime.activation-gate",
+      "path": "SOS/SAIOS/runtime/activation-gate",
+      "role": "ORCHESTRATION",
+      "layer": "Phase 3 activation eligibility",
+      "allowed_dependencies": [
+        "platform.foundation"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "scheduler_activation",
+        "worker_execute",
+        "worker_spawn",
+        "provider_direct",
+        "publication_write",
+        "queue_enqueue",
+        "runtime.execution-controller_write",
+        "platform.department-sdk_write",
+        "platform.cost-ledger_write",
+        "platform.telemetry_write",
+        "runtime.worker-runtime_write",
+        "core.company-brain_write"
+      ]
+    },
+    {
+      "id": "runtime.execution-authorization",
+      "path": "SOS/SAIOS/runtime/execution-authorization",
+      "role": "ORCHESTRATION",
+      "layer": "Phase 3 founder execution intent",
+      "allowed_dependencies": [
+        "platform.foundation"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "scheduler_activation",
+        "worker_execute",
+        "worker_spawn",
+        "provider_direct",
+        "publication_write",
+        "queue_enqueue",
+        "runtime.activation-gate_write",
+        "runtime.execution-controller_write",
+        "core.company-brain_write"
+      ]
+    },
+    {
+      "id": "runtime.pre-dispatch-simulation",
+      "path": "SOS/SAIOS/runtime/pre-dispatch-simulation",
+      "role": "ORCHESTRATION",
+      "layer": "Phase 3 pre-dispatch simulation",
+      "allowed_dependencies": [
+        "platform.foundation"
+      ],
+      "forbidden_dependencies": [
+        "openai_sdk",
+        "cursor_sdk",
+        "firecrawl",
+        "scheduler_activation",
+        "worker_execute",
+        "worker_spawn",
+        "provider_direct",
+        "publication_write",
+        "queue_enqueue",
+        "queue_manager",
+        "billing_api"
+      ]
+    }
+  ]
+}

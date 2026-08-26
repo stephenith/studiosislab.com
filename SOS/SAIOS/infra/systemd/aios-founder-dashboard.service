@@ -1,0 +1,18 @@
+[Unit]
+Description=AIOS Founder Dashboard (Resume Template Department)
+After=network-online.target caddy.service
+Wants=network-online.target caddy.service sos-commander.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/studiosislab.com/SOS/SAIOS/dashboard
+Environment=NODE_ENV=production
+Environment=SOS_AIOS_LIVE=0
+EnvironmentFile=-/etc/aios/aios.env
+ExecStart=/usr/bin/npm run dev
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

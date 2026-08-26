@@ -1,0 +1,15 @@
+{
+  "agent": "200",
+  "component": "provider-registry-charter",
+  "path": "SOS/SAIOS/architecture/provider-registry",
+  "live": false,
+  "documents": [
+    "PROVIDER_REGISTRY_CHARTER.md",
+    "PROVIDER_REGISTRY_MANIFEST.json",
+    "README.md",
+    "verify-provider-registry-charter.ts",
+    "ARCHITECTURE.json"
+  ],
+  "verify": "npm run provider-registry-charter:verify",
+  "note": "Agent #200: ARCHITECTURE.json added for package metadata consistency (F5)."
+}

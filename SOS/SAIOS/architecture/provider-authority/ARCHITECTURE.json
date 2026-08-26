@@ -1,0 +1,20 @@
+{
+  "agent": "200",
+  "component": "provider-authority-certification-v1",
+  "path": "SOS/SAIOS/architecture/provider-authority",
+  "live": false,
+  "documents": [
+    "PROVIDER_AUTHORITIES.md",
+    "PROVIDER_PLATFORM.md",
+    "BOUNDARY_RULES.md",
+    "CAPABILITY_CROSSWALK.md",
+    "README.md",
+    "verify-provider-authority.ts",
+    "ARCHITECTURE.json"
+  ],
+  "verify": "npm run provider-authority:verify",
+  "related": {
+    "report": "SOS/09_REPORTS/AIOS_PROVIDER_AUTHORITY_CERTIFICATION_V1_REPORT.md"
+  },
+  "note": "Agent #200: ARCHITECTURE.json added for package metadata consistency (F5)."
+}

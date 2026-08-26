@@ -1,0 +1,117 @@
+{
+  "agent": "190",
+  "charter": "provider-registry-architecture-v1",
+  "mode": "documentation_only",
+  "providers": "not_implemented",
+  "adapters": "not_implemented",
+  "inference": "not_implemented",
+  "live": false,
+  "architecture_version": "1.0.0-canonical-runtime-freeze",
+  "provider_registry_charter_version": "provider-registry-charter-1.0.0",
+  "documents": [
+    "PROVIDER_REGISTRY_CHARTER.md",
+    "PROVIDER_REGISTRY_ARCHITECTURE.md",
+    "PROVIDER_CAPABILITY_MODEL.md",
+    "PROVIDER_SELECTION_POLICY.md",
+    "PROVIDER_VALIDATION_FLOW.md",
+    "PROVIDER_COST_POLICY.md",
+    "PROVIDER_SECURITY_MODEL.md",
+    "PROVIDER_FAILURE_MODEL.md",
+    "PROVIDER_LIFECYCLE.md",
+    "README.md"
+  ],
+  "reconciled_agent": "192",
+  "architecture": "distributed_ai_brain_provider_platform",
+  "provider_registry_module_owns": [
+    "provider_registration",
+    "provider_enablement"
+  ],
+  "distributed_ownership": {
+    "capability_catalog": "CapabilityRegistry",
+    "routing": "ModelRoutingPolicy",
+    "retry": "RetryPolicy",
+    "fallback": "FallbackPolicy",
+    "budget_policy": "BudgetPolicy",
+    "budget_accounting": "CostLedger",
+    "validation": "ProviderValidation_and_validators",
+    "health": "ProviderAdapter.healthCheck",
+    "reasoning_entrypoint": "BrainRouter",
+    "authority_reference": "SOS/SAIOS/architecture/provider-authority/PROVIDER_AUTHORITIES.md"
+  },
+  "sole_owner_of": [
+    "provider_registration"
+  ],
+  "deferred_not_implemented": [
+    "model_catalog",
+    "full_versioning",
+    "lifecycle_REGISTERED_to_ARCHIVED"
+  ],
+  "provider_types_documented": [
+    "Mock",
+    "OpenAI",
+    "Anthropic",
+    "Gemini",
+    "Azure OpenAI",
+    "Local Models",
+    "Ollama",
+    "Custom Provider"
+  ],
+  "capabilities_documented": [
+    "Reasoning",
+    "Vision",
+    "Code",
+    "Embeddings",
+    "Function Calling",
+    "JSON Mode",
+    "Streaming",
+    "Long Context",
+    "Tool Use",
+    "Cost Metadata",
+    "Latency Metadata",
+    "Availability"
+  ],
+  "selection_chain": [
+    "Skills",
+    "Brain Router",
+    "Provider Registry",
+    "Validation",
+    "Cost Policy",
+    "Provider Adapter",
+    "Provider"
+  ],
+  "validation_states": [
+    "REGISTERED",
+    "VALIDATED",
+    "CERTIFIED",
+    "ACTIVE",
+    "DEPRECATED",
+    "ARCHIVED"
+  ],
+  "principles": [
+    "One Provider Registry",
+    "One Provider Validation authority",
+    "One Brain Router",
+    "One Cost authority",
+    "One Provider lifecycle",
+    "No direct model access",
+    "No worker-to-provider communication"
+  ],
+  "out_of_scope": [
+    "providers",
+    "adapters",
+    "api_keys",
+    "requests",
+    "responses",
+    "billing",
+    "inference",
+    "execution",
+    "dispatch",
+    "live"
+  ],
+  "cross_references": {
+    "phase4_execution": "SOS/SAIOS/architecture/phase4-execution/",
+    "phase3_planning": "SOS/SAIOS/architecture/phase3-planning/",
+    "cost_ledger": "SOS/SAIOS/platform/cost-ledger/",
+    "module_roles": "SOS/SAIOS/architecture/module-roles.json"
+  }
+}

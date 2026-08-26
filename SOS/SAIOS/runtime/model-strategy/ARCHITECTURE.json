@@ -1,0 +1,17 @@
+{
+  "agent": "159",
+  "module_id": "runtime.model-strategy",
+  "path": "SOS/SAIOS/runtime/model-strategy",
+  "architecture_role": "LEGACY",
+  "layer": "Models (merge into Brain Router)",
+  "allowed_dependencies": [
+    "core.ai-brain"
+  ],
+  "forbidden_dependencies": [
+    "parallel_routing_authority"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

@@ -1,0 +1,19 @@
+{
+  "agent": "159",
+  "module_id": "core.knowledge-learning",
+  "path": "SOS/SAIOS/core/knowledge-learning",
+  "architecture_role": "KNOWLEDGE",
+  "layer": "Learning",
+  "allowed_dependencies": [
+    "core.knowledge",
+    "core.founder-decisions"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "publication_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

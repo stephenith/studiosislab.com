@@ -1,0 +1,39 @@
+{
+  "agent": "180",
+  "module_id": "platform.department-sdk",
+  "path": "SOS/SAIOS/platform/department-sdk",
+  "architecture_role": "DEPARTMENT_CONTRACT_SDK",
+  "layer": "Platform foundation (Phase 3)",
+  "allowed_dependencies": [
+    "platform.foundation",
+    "platform.checksums",
+    "platform.state-machine",
+    "platform.reporters"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "scheduler_activation",
+    "worker_execute",
+    "worker_spawn",
+    "provider_direct",
+    "publication_write",
+    "queue_enqueue",
+    "queue_manager",
+    "brain_router",
+    "runtime.execution-controller_write",
+    "core.company-brain_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Department SDK V1 — canonical contracts for all departments. Never executes. Resume is reference metadata only.",
+  "department_sdk": "department-sdk-1.0.0",
+  "department_contract": "department-contract-1.0.0",
+  "frozen": false,
+  "safety": {
+    "execution_allowed": false,
+    "dispatch_allowed": false,
+    "worker_spawn_allowed": false,
+    "provider_allowed": false,
+    "publishing_allowed": false,
+    "live_enabled": false
+  }
+}

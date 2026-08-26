@@ -1,0 +1,70 @@
+{
+  "agent": "197",
+  "component": "persistence-ownership-taxonomy-declaration-v1",
+  "mode": "documentation_only_architectural_declaration",
+  "live": false,
+  "execution": false,
+  "runtime_modification": false,
+  "persistence_modification": false,
+  "migrations": false,
+  "memory_service_implementation": false,
+  "base_append_only_adoption": false,
+  "path": "SOS/SAIOS/architecture/persistence-ownership",
+  "source_inventory": "SOS/SAIOS/architecture/persistence-memory-topology",
+  "source_agent": "196",
+  "documents": [
+    "PERSISTENCE_TAXONOMY.md",
+    "OWNERSHIP_MODEL.md",
+    "DECLARATION.md",
+    "EXCEPTIONS.md",
+    "SURFACES.json",
+    "README.md",
+    "ARCHITECTURE.json",
+    "verify-persistence-ownership.ts"
+  ],
+  "taxonomy": [
+    "Knowledge",
+    "Founder Learning",
+    "Department Learning",
+    "Operational Memory",
+    "Execution Memory",
+    "Telemetry",
+    "History",
+    "State",
+    "Configuration",
+    "Artifacts",
+    "Reports",
+    "Snapshots"
+  ],
+  "authorities": {
+    "knowledge": "core/knowledge",
+    "founder_learning": "core/knowledge-learning",
+    "telemetry": "platform/telemetry",
+    "cost_accounting": "platform/cost-ledger"
+  },
+  "totals": {
+    "persistence_surfaces": 42,
+    "native_base_append_only": 15,
+    "native_memory_service": 0,
+    "orphaned_abstraction": 2
+  },
+  "exceptions": [
+    "E1_memory_service_orphan",
+    "E2_learning_bypasses_base_append_only",
+    "E3_scheduler_operational_memory",
+    "E4_design_memory_cross_cutting",
+    "E5_founder_critic_legacy",
+    "E6_worker_append_temporary",
+    "E7_department_learning_no_feed",
+    "E8_knowledge_consumer_misnomer",
+    "E9_design_memory_filename_collision",
+    "E10_agent_195_inventory_superseded"
+  ],
+  "verdict": "DECLARED",
+  "runtime_behaviour_introduced": false,
+  "verify": "npm run persistence-ownership:verify",
+  "related": {
+    "inventory_196": "SOS/SAIOS/architecture/persistence-memory-topology",
+    "report": "SOS/09_REPORTS/AIOS_PERSISTENCE_OWNERSHIP_TAXONOMY_DECLARATION_V1_REPORT.md"
+  }
+}

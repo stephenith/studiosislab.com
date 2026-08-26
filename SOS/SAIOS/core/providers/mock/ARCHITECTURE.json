@@ -1,0 +1,19 @@
+{
+  "agent": "159",
+  "module_id": "core.providers.mock",
+  "path": "SOS/SAIOS/core/providers/mock",
+  "architecture_role": "CORE_ENGINE",
+  "layer": "Models",
+  "allowed_dependencies": [
+    "core.ai-brain"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "network_api",
+    "src_product"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

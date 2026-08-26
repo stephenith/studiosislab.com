@@ -36,6 +36,17 @@ yarn-error.log*
 # vercel
 .vercel
 
+# AIOS / SOS — secrets and nested installs (SOS/.gitignore also applies under SOS/)
+SOS/**/node_modules/
+SOS/**/.env
+SOS/**/.env.local
+# Persistent AIOS runtime data (Founder decisions, Resume Templates, memory, logs)
+SOS/07_LOGS/saios/
+!SOS/07_LOGS/saios/**/.gitkeep
+# On-box / off-box backup staging
+/aios-backups/
+/root-aios-backups/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

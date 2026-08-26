@@ -1,0 +1,37 @@
+{
+  "version": "1.0.0",
+  "active_provider_allowed": ["mock"],
+  "providers": [
+    {
+      "id": "mock",
+      "enabled": true,
+      "mode": "dry_run",
+      "credentials_configured": false,
+      "implemented": true,
+      "notes": "Only active provider — implemented Agent #118"
+    },
+    {
+      "id": "openai",
+      "enabled": false,
+      "mode": "disabled",
+      "credentials_configured": false,
+      "implemented": true,
+      "notes": "OpenAI ProviderAdapter implemented Agent #201 — disabled until Founder one-test (in-memory overlay)"
+    },
+    {
+      "id": "local",
+      "enabled": false,
+      "mode": "disabled",
+      "credentials_configured": false,
+      "endpoint_configured": false,
+      "notes": "Future local machine — disabled"
+    },
+    {
+      "id": "future_provider",
+      "enabled": false,
+      "mode": "disabled",
+      "credentials_configured": false,
+      "notes": "Reserved"
+    }
+  ]
+}

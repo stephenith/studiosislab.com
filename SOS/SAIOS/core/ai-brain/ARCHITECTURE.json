@@ -1,0 +1,22 @@
+{
+  "agent": "159",
+  "module_id": "core.ai-brain",
+  "path": "SOS/SAIOS/core/ai-brain",
+  "architecture_role": "CORE_ENGINE",
+  "layer": "Brain Router",
+  "allowed_dependencies": [
+    "core.providers",
+    "core.skills",
+    "interfaces"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "src_product",
+    "runtime.unified-production",
+    "runtime.pipeline"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

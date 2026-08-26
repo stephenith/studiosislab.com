@@ -1,0 +1,40 @@
+{
+  "agent": "186",
+  "module_id": "runtime.execution-authorization",
+  "path": "SOS/SAIOS/runtime/execution-authorization",
+  "architecture_role": "FOUNDER_EXECUTION_AUTHORIZATION_INTENT",
+  "layer": "Phase 3 founder intent (scaffold only)",
+  "allowed_dependencies": [
+    "platform.foundation",
+    "platform.checksums",
+    "platform.state-machine",
+    "platform.reporters"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "scheduler_activation",
+    "worker_execute",
+    "worker_spawn",
+    "provider_direct",
+    "publication_write",
+    "queue_enqueue",
+    "runtime.activation-gate_write",
+    "runtime.execution-controller_write",
+    "core.company-brain_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Execution Authorization V1 — founder intent only. Never enables execution. Never overrides Activation Gate.",
+  "execution_authorization": "execution-authorization-1.0.0",
+  "execution_authorization_certificate": "execution-authorization-certificate-1.0.0",
+  "frozen": false,
+  "safety": {
+    "execution_allowed": false,
+    "dispatch_allowed": false,
+    "worker_spawn_allowed": false,
+    "provider_allowed": false,
+    "publishing_allowed": false,
+    "live_enabled": false,
+    "authorization_enables_execution": false,
+    "overrides_activation_gate": false
+  }
+}

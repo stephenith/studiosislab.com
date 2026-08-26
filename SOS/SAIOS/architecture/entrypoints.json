@@ -1,0 +1,132 @@
+{
+  "agent": "160",
+  "generated_at": "2026-07-12T00:30:00.000Z",
+  "architecture_version": "1.0.0-canonical-runtime-freeze",
+  "canonical_entrypoint": {
+    "id": "core.first-production-cycle",
+    "cli": "npx tsx SOS/SAIOS/core/first-production-cycle/run.ts",
+    "npm": "npm run aios:canonical:run",
+    "library": "runFirstProductionCycle()",
+    "verify": "npm run first-production-cycle:verify"
+  },
+  "entrypoints": [
+    {
+      "id": "core.first-production-cycle.run",
+      "path": "SOS/SAIOS/core/first-production-cycle/run.ts",
+      "kind": "CLI",
+      "classification": "CANONICAL",
+      "guarded": true
+    },
+    {
+      "id": "core.first-production-cycle.library",
+      "path": "SOS/SAIOS/core/first-production-cycle/runFirstProductionCycle.ts",
+      "kind": "library",
+      "classification": "CANONICAL",
+      "guarded": true
+    },
+    {
+      "id": "core.first-dry-run",
+      "path": "SOS/SAIOS/core/first-dry-run/runFirstDryRun.ts",
+      "kind": "library+npm_run",
+      "classification": "REFERENCE",
+      "guarded": true
+    },
+    {
+      "id": "runtime.unified-production",
+      "path": "SOS/SAIOS/runtime/unified-production/UnifiedProductionDirector.ts",
+      "kind": "library",
+      "classification": "ARCHIVED",
+      "guarded": true
+    },
+    {
+      "id": "runtime.pipeline",
+      "path": "SOS/SAIOS/runtime/pipeline/PipelineOrchestrator.ts",
+      "kind": "library",
+      "classification": "LEGACY",
+      "guarded": true
+    },
+    {
+      "id": "runtime.workers.v1.cli",
+      "path": "SOS/SAIOS/runtime/workers/resume-production/run.ts",
+      "kind": "CLI",
+      "classification": "LEGACY",
+      "guarded": true
+    },
+    {
+      "id": "runtime.workers.v2.cli",
+      "path": "SOS/SAIOS/runtime/workers/resume-production/run-v2.ts",
+      "kind": "CLI",
+      "classification": "LEGACY",
+      "guarded": true
+    },
+    {
+      "id": "runtime.workers.v2.library",
+      "path": "SOS/SAIOS/runtime/workers/resume-production/production-pipeline.ts",
+      "kind": "library",
+      "classification": "LEGACY",
+      "guarded": true
+    },
+    {
+      "id": "runtime.workers.v3.cli",
+      "path": "SOS/SAIOS/runtime/workers/resume-production/run-v3.ts",
+      "kind": "CLI",
+      "classification": "LEGACY",
+      "guarded": true
+    },
+    {
+      "id": "runtime.workers.v3.library",
+      "path": "SOS/SAIOS/runtime/workers/resume-production/production-pipeline-v3.ts",
+      "kind": "library",
+      "classification": "LEGACY",
+      "guarded": true
+    },
+    {
+      "id": "runtime.scheduler.cli",
+      "path": "SOS/SAIOS/runtime/scheduler/run.ts",
+      "kind": "CLI",
+      "classification": "LEGACY",
+      "guarded": true
+    },
+    {
+      "id": "runtime.scheduler.ProductionExecutor",
+      "path": "SOS/SAIOS/runtime/scheduler/ProductionExecutor.ts",
+      "kind": "library",
+      "classification": "LEGACY",
+      "guarded": true
+    },
+    {
+      "id": "runtime.controller",
+      "path": "SOS/SAIOS/runtime/controller/ProductionController.ts",
+      "kind": "library",
+      "classification": "LEGACY",
+      "guarded": true
+    },
+    {
+      "id": "pm2.aios-resume-worker",
+      "path": "SOS/SAIOS/infra/aios-processes.json",
+      "kind": "PM2",
+      "classification": "LEGACY",
+      "guarded": "pm2_enabled=false + CLI guard on run-v3",
+      "note": "Already disabled; points at run-v3.ts"
+    },
+    {
+      "id": "pm2.aios-scheduler",
+      "path": "SOS/SAIOS/infra/aios-processes.json",
+      "kind": "PM2",
+      "classification": "LEGACY",
+      "guarded": "pm2_enabled=false + CLI guard on scheduler/run.ts"
+    },
+    {
+      "id": "missions.*",
+      "path": "SOS/SAIOS/missions/*",
+      "kind": "mission_scripts",
+      "classification": "REFERENCE",
+      "guarded": "allowed via stack detect /missions/ for backward compatibility"
+    }
+  ],
+  "allow_env": {
+    "SOS_AIOS_ALLOW_LEGACY_ENGINE": "Set to 1 for intentional legacy CLI/library runs",
+    "SOS_AIOS_VERIFY": "Set to 1 to mark verify context",
+    "SOS_AIOS_EXECUTION_LOCK": "Set to 1 to enable single-flight lock (off by default)"
+  }
+}

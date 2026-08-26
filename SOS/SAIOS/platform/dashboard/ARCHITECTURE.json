@@ -1,0 +1,22 @@
+{
+  "agent": "174",
+  "module_id": "platform.dashboard",
+  "path": "SOS/SAIOS/platform/dashboard",
+  "architecture_role": "PLATFORM",
+  "layer": "Dashboard infrastructure",
+  "allowed_dependencies": [
+    "platform.foundation"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "scheduler_activation",
+    "worker_execute",
+    "provider_direct",
+    "publication_write",
+    "queue_enqueue"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Dashboard Snapshot Plugin Architecture V1 — registration only. No execution. Snapshot JSON unchanged.",
+  "platform_version": "dashboard-plugins-1.0.0",
+  "frozen": false
+}

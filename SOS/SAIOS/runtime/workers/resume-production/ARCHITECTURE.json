@@ -1,0 +1,21 @@
+{
+  "agent": "159",
+  "module_id": "runtime.workers.resume-production",
+  "path": "SOS/SAIOS/runtime/workers/resume-production",
+  "architecture_role": "WORKER",
+  "layer": "Workers",
+  "allowed_dependencies": [
+    "core.designbrief",
+    "core.resume-renderer",
+    "core.resume-integration"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "provider_direct",
+    "auto_publish"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

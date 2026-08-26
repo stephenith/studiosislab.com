@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.studiosis.sos-commander</string>
+  <key>Comment</key>
+  <string>SOS Autonomous Runtime — Commander supervisor (PM, Developer, QA, Telegram, Dispatcher)</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/node</string>
+    <string>/usr/local/bin/npm</string>
+    <string>run</string>
+    <string>commander:start</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/stephenpereira/studiosislab/SOS/runtime</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/Cursor.app/Contents/Resources/app/node_modules/@vscode/ripgrep/bin</string>
+    <key>HOME</key>
+    <string>/Users/stephenpereira</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/Users/stephenpereira/studiosislab/SOS/07_LOGS/commander/launchd.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/stephenpereira/studiosislab/SOS/07_LOGS/commander/launchd.stderr.log</string>
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>ProcessType</key>
+  <string>Background</string>
+</dict>
+</plist>

@@ -1,0 +1,15 @@
+{
+  "agent": "159",
+  "module_id": "runtime.shadow",
+  "path": "SOS/SAIOS/runtime/shadow",
+  "architecture_role": "SERVICE",
+  "layer": "Services",
+  "allowed_dependencies": [],
+  "forbidden_dependencies": [
+    "decide"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

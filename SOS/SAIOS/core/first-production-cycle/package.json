@@ -1,0 +1,11 @@
+{
+  "name": "@saios/first-production-cycle",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "First complete autonomous Resume Department cycle (Agent #132)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts",
+    "run": "npx --yes tsx run.ts"
+  }
+}

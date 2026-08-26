@@ -1,0 +1,18 @@
+{
+  "agent": "159",
+  "module_id": "core.critic-gate",
+  "path": "SOS/SAIOS/core/critic-gate",
+  "architecture_role": "CORE_ENGINE",
+  "layer": "Evaluation",
+  "allowed_dependencies": [
+    "core.resume-critic"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "publication_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@saios/knowledge-learning",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Learning write-back from founder decisions (Agent #125)",
+  "scripts": {
+    "verify": "npx --yes tsx ../founder-decisions/verify.ts"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "agent": "159",
+  "module_id": "core.first-production-cycle",
+  "path": "SOS/SAIOS/core/first-production-cycle",
+  "architecture_role": "CORE_ENGINE",
+  "layer": "Canonical execution spine",
+  "allowed_dependencies": [
+    "core.resume-integration",
+    "core.designbrief",
+    "core.resume-renderer",
+    "core.resume-critic",
+    "core.critic-gate",
+    "core.founder-gate-runtime"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "runtime.unified-production",
+    "publication_write",
+    "live_on"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

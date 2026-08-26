@@ -1,0 +1,27 @@
+{
+  "agent": "167",
+  "module_id": "core.company-brain",
+  "path": "SOS/SAIOS/core/company-brain",
+  "architecture_role": "ORCHESTRATION",
+  "layer": "Company Brain",
+  "allowed_dependencies": [
+    "artifact_logs_readonly",
+    "infra.department-enablement",
+    "architecture.runtime-guard"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "queue_enqueue",
+    "worker_execute",
+    "cursor_spawn",
+    "provider_direct",
+    "publication_write",
+    "runtime.unified-production"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Planning through Queue Submission Contract (shadow). Runtime Queue untouched. No enqueue.",
+  "execution_package_ack": "execution-package-ack-1.0.0",
+  "queue_submission": "queue-submission-1.0.0",
+  "mission_execution_mode": "shadow_submission_only",
+  "frozen": false
+}

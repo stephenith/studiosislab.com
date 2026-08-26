@@ -1,0 +1,20 @@
+{
+  "agent": "159",
+  "module_id": "runtime.publication",
+  "path": "SOS/SAIOS/runtime/publication",
+  "architecture_role": "WORKER",
+  "layer": "Publishing",
+  "allowed_dependencies": [
+    "core.founder-gate-runtime",
+    "core.founder-decisions"
+  ],
+  "forbidden_dependencies": [
+    "auto_publish",
+    "src_write",
+    "manifest_write_without_gate"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

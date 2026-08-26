@@ -1,0 +1,49 @@
+{
+  "agent": "194",
+  "component": "execution-authority-model-certification-v1",
+  "mode": "distributed_model_certification_and_static_boundary_enforcement",
+  "live": false,
+  "execution": false,
+  "dispatch": false,
+  "worker_spawn": false,
+  "scheduler_activation": false,
+  "provider_activation": false,
+  "central_execution_authority": false,
+  "responsibility_mergers": false,
+  "path": "SOS/SAIOS/architecture/execution-authority-model",
+  "documents": [
+    "EXECUTION_AUTHORITY_MODEL.md",
+    "EXECUTION_BOUNDARIES.md",
+    "DECISION_OWNERSHIP.md",
+    "DISPATCH_BOUNDARIES.md",
+    "EXECUTION_CHAIN.md",
+    "EXECUTION_GUARDRAILS.md",
+    "README.md",
+    "ARCHITECTURE.json",
+    "verify-execution-authority-model.ts"
+  ],
+  "decision_owners": {
+    "planning": "SOS/SAIOS/core/company-brain",
+    "eligibility": "SOS/SAIOS/runtime/activation-gate",
+    "founder_intent": "SOS/SAIOS/runtime/execution-authorization",
+    "simulation": "SOS/SAIOS/runtime/pre-dispatch-simulation",
+    "authorization_record": "SOS/SAIOS/runtime/execution-controller",
+    "queue_infrastructure": "SOS/SAIOS/runtime/queue",
+    "scheduler_infrastructure": "SOS/SAIOS/runtime/scheduler",
+    "worker_contracts": "SOS/SAIOS/runtime/worker-runtime",
+    "department_capabilities": "SOS/SAIOS/platform/department-sdk",
+    "provider_reasoning": "SOS/SAIOS/core/ai-brain",
+    "engine_enforcement": "SOS/SAIOS/architecture/runtime-guard.ts"
+  },
+  "execution_controller_role": "authorization_record_owner_one_stage_not_sole_authority",
+  "chain_terminates_at": "execution-controller",
+  "dispatch_after_controller": false,
+  "invariant": "distributed_decision_ownership_no_central_executor",
+  "verify": "npm run execution-authority-model:verify",
+  "related": {
+    "phase3_foundation": "SOS/SAIOS/architecture/phase3-foundation",
+    "cost_authority": "SOS/SAIOS/architecture/cost-authority",
+    "provider_authority": "SOS/SAIOS/architecture/provider-authority",
+    "report": "SOS/09_REPORTS/AIOS_EXECUTION_AUTHORITY_MODEL_CERTIFICATION_V1_REPORT.md"
+  }
+}

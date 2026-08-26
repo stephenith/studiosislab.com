@@ -1,0 +1,11 @@
+{
+  "name": "@saios/security-department",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AI OS Security Department — operational health & protection (Agent #104)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts",
+    "run": "npx --yes tsx SecurityDepartmentDirector.ts"
+  }
+}

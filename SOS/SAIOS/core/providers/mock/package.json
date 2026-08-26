@@ -1,0 +1,10 @@
+{
+  "name": "@saios/mock-provider",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AIOS Mock Provider dry-run adapter (Agent #118)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts"
+  }
+}

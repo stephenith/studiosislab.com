@@ -1,0 +1,52 @@
+{
+  "agent": "159",
+  "generated_at": "2026-07-12T00:00:00.000Z",
+  "responsibility_map": {
+    "schedules": {
+      "intended": ["runtime.scheduler", "runtime.chief (via plans)", "runtime.directors (batch plans)"],
+      "current_reality": [
+        "core.first-production-cycle writes simulated scheduler.json (not real scheduler)",
+        "runtime.scheduler/ProductionExecutor may call unified-production (bypass)"
+      ]
+    },
+    "allocates": {
+      "intended": ["runtime.chief (Dispatcher + Registry)", "runtime.directors"],
+      "current_reality": [
+        "runtime.chief/ExecutiveOrchestrator selects idle workers and assigns via Queue+Registry",
+        "Managers tier not yet implemented as separate modules"
+      ]
+    },
+    "executes": {
+      "intended": ["Workers only (core + runtime workers)"],
+      "current_reality": [
+        "core DesignBrief/Renderer/Critic execute on canonical spine",
+        "runtime workers/resume-production still execute full legacy generation pipelines",
+        "Directors documented as never-execute; Engineering Director complies",
+        "Resume Production Director still coordinates Cursor research (orchestration boundary gray)"
+      ]
+    },
+    "evaluates": {
+      "intended": ["core.resume-critic", "core.critic-gate"],
+      "current_reality": [
+        "Canonical path uses core critic+gate",
+        "Legacy path uses self-critique, triple-critique, founder-critic, resume-qa"
+      ]
+    },
+    "decides": {
+      "intended": ["Founder (HITL)", "Company Brain (prioritize/delegate only)"],
+      "current_reality": [
+        "Founder via dashboard /api/founder-decision",
+        "ExecutiveOrchestrator DecisionEngine is deterministic intent classification (no AI)",
+        "Real cycles never auto-decide"
+      ]
+    },
+    "publishes": {
+      "intended": ["Publishing worker after Founder Gate only"],
+      "current_reality": [
+        "runtime.publication prepares drafts",
+        "Canonical spine has publication_allowed=false hardcoded",
+        "Historical publications came from Pipeline B missions"
+      ]
+    }
+  }
+}

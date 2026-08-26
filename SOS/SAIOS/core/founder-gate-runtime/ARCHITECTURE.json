@@ -1,0 +1,20 @@
+{
+  "agent": "159",
+  "module_id": "core.founder-gate-runtime",
+  "path": "SOS/SAIOS/core/founder-gate-runtime",
+  "architecture_role": "CORE_ENGINE",
+  "layer": "Founder Gate",
+  "allowed_dependencies": [
+    "core.founder-decisions",
+    "core.critic-gate"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "publication_write",
+    "auto_decision_real"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

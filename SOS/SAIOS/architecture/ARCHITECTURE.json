@@ -1,0 +1,9 @@
+{
+  "agent": "159",
+  "module_id": "architecture",
+  "path": "SOS/SAIOS/architecture",
+  "architecture_role": "SERVICE",
+  "layer": "Architecture metadata",
+  "note": "Canonical architecture registry. Metadata only.",
+  "frozen": true
+}

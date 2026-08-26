@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-07-11T08:04:53.000Z",
+  "agent": "116",
+  "version": "1.0.0",
+  "defaults": {
+    "future_departments_enabled": false,
+    "note": "All future departments default to disabled unless explicitly enabled by founder configuration."
+  },
+  "departments": {
+    "resume": {
+      "id": "resume",
+      "label": "Resume Department",
+      "enabled": true,
+      "production_mode": false,
+      "dry_run": true,
+      "initial_batch_size": 1,
+      "founder_approval_required": true,
+      "auto_publish": false,
+      "scheduled": false,
+      "notes": "Enabled for AIOS topology; production scheduling and generation remain off until later agents."
+    },
+    "website": {
+      "id": "website",
+      "label": "Website Department",
+      "enabled": false,
+      "reason": "held by founder until Resume Department is stable",
+      "scheduled_checks": false,
+      "autonomous_changes": false,
+      "deleted": false,
+      "notes": "Installed under SOS/SAIOS/runtime/website-department/; must not run."
+    }
+  }
+}

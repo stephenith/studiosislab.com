@@ -1,0 +1,62 @@
+{
+  "generated_at": "2026-07-11T08:04:53.000Z",
+  "agent": "116",
+  "note": "Graceful shutdown. No task may disappear silently. Do not execute on VPS in Agent #116.",
+  "order": [
+    {
+      "step": 1,
+      "action": "pause scheduler",
+      "pm2_app": "aios-scheduler",
+      "method": "pm2 stop aios-scheduler"
+    },
+    {
+      "step": 2,
+      "action": "stop new task intake",
+      "detail": "Ensure scheduler stopped; orchestrator not enqueueing"
+    },
+    {
+      "step": 3,
+      "action": "allow active deterministic workers to finish or checkpoint",
+      "pm2_apps": ["aios-resume-worker", "aios-render-worker", "aios-qa-worker"],
+      "detail": "Wait for current oneshot/job or write checkpoint events to queue log"
+    },
+    {
+      "step": 4,
+      "action": "persist queue and memory state",
+      "detail": "Confirm SOS/07_LOGS/saios queue/events and project-state flushed"
+    },
+    {
+      "step": 5,
+      "action": "stop Resume worker",
+      "pm2_app": "aios-resume-worker"
+    },
+    {
+      "step": 6,
+      "action": "stop render and QA workers",
+      "pm2_apps": ["aios-render-worker", "aios-qa-worker"]
+    },
+    {
+      "step": 7,
+      "action": "stop Telegram intake",
+      "pm2_app": "aios-telegram"
+    },
+    {
+      "step": 8,
+      "action": "stop dashboard",
+      "pm2_app": "aios-dashboard"
+    },
+    {
+      "step": 9,
+      "action": "stop supervisor",
+      "pm2_app": "aios-supervisor"
+    },
+    {
+      "step": 10,
+      "action": "stop orchestrator last",
+      "pm2_app": "aios-orchestrator"
+    }
+  ],
+  "do_not_touch": [
+    "studiosislab (temporary website PM2) — separate founder-approved migration"
+  ]
+}

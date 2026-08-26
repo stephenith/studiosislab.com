@@ -1,0 +1,10 @@
+[Unit]
+Description=AIOS nightly publication timer (02:00 UTC)
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+Persistent=true
+Unit=aios-publication-nightly.service
+
+[Install]
+WantedBy=timers.target

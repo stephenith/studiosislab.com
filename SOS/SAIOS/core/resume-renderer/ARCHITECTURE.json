@@ -1,0 +1,20 @@
+{
+  "agent": "159",
+  "module_id": "core.resume-renderer",
+  "path": "SOS/SAIOS/core/resume-renderer",
+  "architecture_role": "WORKER",
+  "layer": "Workers (render)",
+  "allowed_dependencies": [
+    "core.designbrief"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "brain_direct",
+    "core.ai-brain",
+    "publication_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

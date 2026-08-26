@@ -1,0 +1,164 @@
+{
+  "agent": "161",
+  "generated_at": "2026-07-12T00:00:00.000Z",
+  "rule": "Every repository module appears exactly once.",
+  "tree": {
+    "Founder": {
+      "modules": []
+    },
+    "Company Brain": {
+      "modules": [
+        "runtime.chief",
+        "runtime.controller",
+        "core.company-brain"
+      ]
+    },
+    "Departments": {
+      "modules": [
+        "runtime.website-department",
+        "infra (department-enablement.json)"
+      ]
+    },
+    "Directors": {
+      "modules": [
+        "runtime.directors.resume-production",
+        "runtime.directors.engineering"
+      ]
+    },
+    "Managers": {
+      "modules": [],
+      "note": "Not yet a separate module — Batch Director currently blends Director+Manager. Do not implement in Agent #159."
+    },
+    "Workers": {
+      "modules": [
+        "core.designbrief",
+        "core.resume-renderer",
+        "runtime.research",
+        "runtime.benchmark",
+        "runtime.design-brain",
+        "runtime.adaptive-composer",
+        "runtime.workers.resume-production",
+        "runtime.workers.resume-qa",
+        "runtime.workers.resume-learning",
+        "runtime.visual-render",
+        "runtime.publication",
+        "runtime.batch-release",
+        "runtime.competitive-validation"
+      ]
+    },
+    "Skills": {
+      "modules": [
+        "core.skills"
+      ]
+    },
+    "Brain Router": {
+      "modules": [
+        "core.ai-brain",
+        "core.resume-integration"
+      ]
+    },
+    "Models": {
+      "modules": [
+        "core.providers.mock",
+        "core.provider-validation",
+        "runtime.model-strategy (LEGACY merge target)"
+      ]
+    },
+    "Tools": {
+      "modules": [
+        "runtime.cursor",
+        "runtime.tools"
+      ]
+    },
+    "Evaluation": {
+      "modules": [
+        "core.editor-compatibility",
+        "core.resume-critic",
+        "core.critic-gate",
+        "runtime.qa"
+      ]
+    },
+    "Founder Gate": {
+      "modules": [
+        "core.founder-decisions",
+        "core.founder-gate-runtime"
+      ]
+    },
+    "Learning": {
+      "modules": [
+        "core.knowledge-learning"
+      ]
+    },
+    "Knowledge": {
+      "modules": [
+        "core.knowledge",
+        "domain.studiosislab"
+      ]
+    },
+    "Publishing": {
+      "modules": [
+        "runtime.publication",
+        "runtime.batch-release",
+        "runtime.catalog-integrity",
+        "runtime.factory-finalization"
+      ]
+    },
+    "Dashboard": {
+      "modules": [
+        "dashboard"
+      ]
+    },
+    "Services": {
+      "modules": [
+        "runtime.queue",
+        "runtime.registry",
+        "runtime.scheduler",
+        "runtime.event-bus",
+        "runtime.memory",
+        "runtime.notifications",
+        "runtime.notification-department",
+        "runtime.reporter",
+        "runtime.security-department",
+        "runtime.live-monitoring",
+        "runtime.live-runtime",
+        "runtime.runtime-loop",
+        "runtime.runtime-supervisor",
+        "runtime.runtime-manager",
+        "runtime.deployment-manager",
+        "runtime.deployment-package",
+        "runtime.deployment-readiness",
+        "runtime.vps-provisioning",
+        "runtime.aios-pm2",
+        "runtime.founder-control-center",
+        "runtime.timeline-department",
+        "runtime.design-system",
+        "runtime.product",
+        "runtime.integration",
+        "runtime.shared",
+        "runtime.config",
+        "runtime.logs",
+        "runtime.shadow",
+        "runtime.factory-state",
+        "infra",
+        "interfaces"
+      ]
+    },
+    "Canonical Execution Spine": {
+      "modules": [
+        "core.first-production-cycle"
+      ]
+    },
+    "LEGACY / REFERENCE (not in live tree)": {
+      "modules": [
+        "core.first-dry-run",
+        "runtime.unified-production",
+        "runtime.pipeline",
+        "runtime.founder-critic",
+        "runtime.founder-dashboard",
+        "runtime.production-dashboard",
+        "runtime.knowledge",
+        "missions"
+      ]
+    }
+  }
+}

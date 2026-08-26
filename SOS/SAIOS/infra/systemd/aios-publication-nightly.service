@@ -1,0 +1,18 @@
+[Unit]
+Description=AIOS nightly publication plan+verify (AUTO_APPLY off by default)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/root/studiosislab.com
+Environment=NODE_ENV=production
+Environment=SOS_AIOS_LIVE=0
+Environment=SOS_AIOS_PUBLICATION_AUTO_APPLY=0
+EnvironmentFile=-/etc/aios/aios.env
+ExecStart=/usr/bin/flock -n /run/aios-publication.lock /usr/bin/bash /root/studiosislab.com/SOS/SAIOS/infra/scripts/aios-publication-nightly.sh
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

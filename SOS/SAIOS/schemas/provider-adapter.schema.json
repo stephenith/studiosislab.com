@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiosislab.com/sos/schemas/provider-adapter.schema.json",
+  "title": "ProviderAdapterContract",
+  "type": "object",
+  "required": [
+    "provider_id",
+    "supported_capabilities",
+    "methods"
+  ],
+  "properties": {
+    "provider_id": {
+      "type": "string",
+      "enum": ["mock", "openai", "local", "future_provider"]
+    },
+    "supported_capabilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "methods": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "healthCheck",
+          "validateRequest",
+          "estimateCost",
+          "execute",
+          "cancel",
+          "retry",
+          "normalizeResponse",
+          "extractUsage",
+          "normalizeError"
+        ]
+      }
+    },
+    "sdk_dependency_forbidden_in_core": { "type": "boolean", "const": true }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@saios/first-dry-run",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "First complete AIOS Resume Factory dry run (Agent #124)",
+  "scripts": {
+    "run": "npx --yes tsx runFirstDryRun.ts",
+    "verify": "npx --yes tsx verify.ts"
+  }
+}

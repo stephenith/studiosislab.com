@@ -1,0 +1,20 @@
+{
+  "agent": "159",
+  "module_id": "core.skills",
+  "path": "SOS/SAIOS/core/skills",
+  "architecture_role": "CORE_ENGINE",
+  "layer": "Skills",
+  "allowed_dependencies": [
+    "core.ai-brain",
+    "interfaces"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "provider_direct",
+    "src_product"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

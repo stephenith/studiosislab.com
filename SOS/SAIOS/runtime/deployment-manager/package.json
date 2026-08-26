@@ -1,0 +1,11 @@
+{
+  "name": "@saios/deployment-manager",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AI OS Deployment Manager — deployable system layer without VPS/Docker (Agent #106)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts",
+    "run": "npx --yes tsx DeploymentManager.ts"
+  }
+}

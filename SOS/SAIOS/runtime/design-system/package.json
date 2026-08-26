@@ -1,0 +1,14 @@
+{
+  "name": "@saios/resume-design-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StudiosisLab Resume Design System v1 — single source of truth for resume design tokens",
+  "type": "module",
+  "scripts": {
+    "verify": "tsx verify.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}

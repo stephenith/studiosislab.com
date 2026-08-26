@@ -1,0 +1,29 @@
+{
+  "tenant_id": "studiosis",
+  "repo_id": "studiosislab",
+  "timezone": "America/Los_Angeles",
+  "quiet_hours": {
+    "start": "22:00",
+    "end": "07:00"
+  },
+  "retry": {
+    "max_attempts": 5,
+    "base_delay_ms": 60000,
+    "max_delay_ms": 960000
+  },
+  "circuit_breaker": {
+    "failure_threshold": 5,
+    "window_ms": 600000
+  },
+  "rate_limits": {
+    "p0_per_hour": 10,
+    "p1_telegram_per_hour": 20,
+    "email_digests_per_day": 3
+  },
+  "channels": {
+    "P0": { "telegram": true, "email": true },
+    "P1": { "telegram": true, "email": "batch" },
+    "P2": { "telegram": false, "email": "digest" },
+    "P3": { "telegram": false, "email": false }
+  }
+}

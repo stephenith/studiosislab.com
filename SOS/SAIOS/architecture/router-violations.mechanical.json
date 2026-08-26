@@ -1,0 +1,21 @@
+{
+  "agent": "192",
+  "generated_at": "2026-07-12T11:46:52.784Z",
+  "kind": "mechanical",
+  "openai_sdk_installed": true,
+  "openai_sdk_allowed_only_in_adapter": true,
+  "vendor_sdk_installed": true,
+  "forbidden_roots_scanned": [
+    "SOS/SAIOS/runtime/worker-runtime",
+    "SOS/SAIOS/runtime/workers",
+    "SOS/SAIOS/platform/department-sdk",
+    "SOS/SAIOS/core/company-brain",
+    "SOS/SAIOS/runtime/scheduler",
+    "SOS/SAIOS/runtime/queue",
+    "SOS/SAIOS/runtime/execution-controller"
+  ],
+  "files_scanned": 192,
+  "forbidden_import_violations": [],
+  "provider_entrypoint": "BrainRouter",
+  "live": false
+}

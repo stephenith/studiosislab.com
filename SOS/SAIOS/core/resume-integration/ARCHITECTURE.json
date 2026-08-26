@@ -1,0 +1,22 @@
+{
+  "agent": "159",
+  "module_id": "core.resume-integration",
+  "path": "SOS/SAIOS/core/resume-integration",
+  "architecture_role": "CORE_ENGINE",
+  "layer": "Workers→Skills bridge",
+  "allowed_dependencies": [
+    "core.knowledge",
+    "core.skills",
+    "core.ai-brain",
+    "core.providers.mock"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "src_product",
+    "publication_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

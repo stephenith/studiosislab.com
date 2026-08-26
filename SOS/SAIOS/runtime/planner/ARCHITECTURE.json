@@ -1,0 +1,24 @@
+{
+  "agent": "169",
+  "module_id": "runtime.planner",
+  "path": "SOS/SAIOS/runtime/planner",
+  "architecture_role": "SERVICE",
+  "layer": "Orchestration substrate",
+  "allowed_dependencies": [
+    "runtime.queue_readonly",
+    "core.company-brain_readonly"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "scheduler_activation",
+    "worker_execute",
+    "provider_direct",
+    "publication_write",
+    "queue_enqueue"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Shadow Runtime Planner V1 — deterministic plans only. Never dispatches.",
+  "runtime_plan": "runtime-plan-1.0.0",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": false
+}

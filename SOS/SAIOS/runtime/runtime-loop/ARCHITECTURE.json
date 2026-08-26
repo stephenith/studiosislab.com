@@ -1,0 +1,18 @@
+{
+  "agent": "159",
+  "module_id": "runtime.runtime-loop",
+  "path": "SOS/SAIOS/runtime/runtime-loop",
+  "architecture_role": "SERVICE",
+  "layer": "Services",
+  "allowed_dependencies": [
+    "runtime.queue",
+    "runtime.registry"
+  ],
+  "forbidden_dependencies": [
+    "decide"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

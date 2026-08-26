@@ -1,0 +1,21 @@
+{
+  "agent": "201",
+  "module_id": "core.providers.openai",
+  "path": "SOS/SAIOS/core/providers/openai",
+  "architecture_role": "CORE_ENGINE",
+  "layer": "Models",
+  "allowed_dependencies": [
+    "core.ai-brain",
+    "openai_sdk"
+  ],
+  "forbidden_dependencies": [
+    "src_product",
+    "runtime.unified-production",
+    "runtime.pipeline",
+    "publication_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Sole owner of the official OpenAI Node SDK. BrainRouter must not import openai.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

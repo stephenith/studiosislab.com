@@ -1,0 +1,81 @@
+{
+  "generated_at": "2026-07-11T08:04:53.000Z",
+  "agent": "116",
+  "version": "1.0.0",
+  "purpose": "Contract only — no new dashboard built in this agent. Connect existing health artifacts.",
+  "common_fields": [
+    "process_running",
+    "last_heartbeat",
+    "last_completed_task",
+    "current_task",
+    "queue_backlog",
+    "restart_count",
+    "last_error",
+    "memory_usage",
+    "live_dry_run_state",
+    "department_enabled_state",
+    "founder_gate_state"
+  ],
+  "processes": {
+    "aios-orchestrator": {
+      "artifacts": [
+        "SOS/07_LOGS/saios/live-runtime/live-runtime-report.md",
+        "SOS/07_LOGS/saios/runtime-loop/runtime-heartbeat.json",
+        "SOS/07_LOGS/saios/runtime-loop/runtime-health.json"
+      ],
+      "pm2": ["pm2 describe aios-orchestrator", "pm2 jlist"]
+    },
+    "aios-scheduler": {
+      "artifacts": [
+        "SOS/07_LOGS/saios/scheduler/"
+      ],
+      "pm2": ["pm2 describe aios-scheduler"]
+    },
+    "aios-resume-worker": {
+      "artifacts": [
+        "SOS/07_LOGS/saios/generated-resumes/",
+        "SOS/07_LOGS/saios/queue/events (when present)"
+      ],
+      "pm2": ["pm2 describe aios-resume-worker"]
+    },
+    "aios-render-worker": {
+      "artifacts": [
+        "SOS/07_LOGS/saios/visual-render/"
+      ],
+      "status_when_missing_entrypoint": "DISABLED stub — not healthy as a worker"
+    },
+    "aios-qa-worker": {
+      "artifacts": [
+        "QA reports under generated template output dirs"
+      ],
+      "pm2": ["pm2 describe aios-qa-worker"]
+    },
+    "aios-supervisor": {
+      "artifacts": [
+        "SOS/07_LOGS/saios/runtime-supervisor/supervisor-report.md",
+        "SOS/07_LOGS/saios/runtime-supervisor/"
+      ],
+      "pm2": ["pm2 describe aios-supervisor"]
+    },
+    "aios-telegram": {
+      "artifacts": [
+        "SOS/runtime commander status (npm run commander:status)",
+        "notification dry-run logs"
+      ],
+      "pm2": ["pm2 describe aios-telegram"]
+    },
+    "aios-dashboard": {
+      "artifacts": [
+        "SOS/07_LOGS/saios/founder-dashboard/",
+        "SOS/07_LOGS/saios/founder-control-center/"
+      ],
+      "future_http": "GET /health",
+      "status_when_missing_entrypoint": "DISABLED stub — report generators only"
+    }
+  },
+  "global_gates": {
+    "live": "SOS_AIOS_LIVE must be 0 unless founder unlock",
+    "departments": "SOS/SAIOS/infra/department-enablement.json",
+    "founder_gate": "SOS/SAIOS/runtime/live-runtime/FounderRuntimeGate.ts"
+  }
+}

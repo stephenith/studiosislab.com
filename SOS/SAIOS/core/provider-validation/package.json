@@ -1,0 +1,8 @@
+{
+  "name": "@saios/provider-validation",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts"
+  }
+}

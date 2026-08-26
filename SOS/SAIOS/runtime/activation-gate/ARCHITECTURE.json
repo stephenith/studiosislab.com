@@ -1,0 +1,42 @@
+{
+  "agent": "185",
+  "module_id": "runtime.activation-gate",
+  "path": "SOS/SAIOS/runtime/activation-gate",
+  "architecture_role": "ACTIVATION_ELIGIBILITY_AUTHORITY",
+  "layer": "Phase 3 activation eligibility (scaffold only)",
+  "allowed_dependencies": [
+    "platform.foundation",
+    "platform.checksums",
+    "platform.state-machine",
+    "platform.reporters"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "scheduler_activation",
+    "worker_execute",
+    "worker_spawn",
+    "provider_direct",
+    "publication_write",
+    "queue_enqueue",
+    "runtime.execution-controller_write",
+    "platform.department-sdk_write",
+    "platform.cost-ledger_write",
+    "platform.telemetry_write",
+    "runtime.worker-runtime_write",
+    "core.company-brain_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Activation Gate V1 — sole eligibility authority. Computes ACTIVATION_ELIGIBLE | ACTIVATION_BLOCKED. Never enables execution.",
+  "activation_eligibility": "activation-eligibility-1.0.0",
+  "activation_certificate": "activation-certificate-1.0.0",
+  "frozen": false,
+  "safety": {
+    "execution_allowed": false,
+    "dispatch_allowed": false,
+    "worker_spawn_allowed": false,
+    "provider_allowed": false,
+    "publishing_allowed": false,
+    "live_enabled": false,
+    "activation_enables_execution": false
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "agent": "188",
+  "certification": "phase3-planning-stack-v1",
+  "mode": "readiness_certification_only",
+  "execution": "impossible",
+  "live": false,
+  "planning_only": true,
+  "simulation_only": true,
+  "architecture_version": "1.0.0-canonical-runtime-freeze",
+  "planning_version": "phase3-planning-1.0.0",
+  "allowed_dependency_direction": [
+    "core.company-brain",
+    "runtime.execution-controller",
+    "platform.department-sdk",
+    "runtime.worker-runtime",
+    "platform.cost-ledger",
+    "platform.telemetry",
+    "runtime.activation-gate",
+    "runtime.execution-authorization",
+    "runtime.pre-dispatch-simulation"
+  ],
+  "modules": [
+    {
+      "id": "runtime.execution-controller",
+      "path": "SOS/SAIOS/runtime/execution-controller",
+      "ownership": "sole_execution_authority",
+      "schema": "execution-controller-1.0.0",
+      "dashboard_plugin": "execution-controller",
+      "verify_script": "execution-controller:verify"
+    },
+    {
+      "id": "platform.department-sdk",
+      "path": "SOS/SAIOS/platform/department-sdk",
+      "ownership": "departments_only",
+      "schema": "department-sdk-1.0.0",
+      "dashboard_plugin": "department-registry",
+      "verify_script": "department-sdk:verify"
+    },
+    {
+      "id": "platform.cost-ledger",
+      "path": "SOS/SAIOS/platform/cost-ledger",
+      "ownership": "budgeting_only",
+      "schema": "cost-ledger-1.0.0",
+      "dashboard_plugin": "cost-ledger",
+      "verify_script": "cost-ledger:verify"
+    },
+    {
+      "id": "runtime.worker-runtime",
+      "path": "SOS/SAIOS/runtime/worker-runtime",
+      "ownership": "workers_only",
+      "schema": "worker-runtime-1.0.0",
+      "dashboard_plugin": "worker-runtime",
+      "verify_script": "worker-runtime:verify"
+    },
+    {
+      "id": "platform.telemetry",
+      "path": "SOS/SAIOS/platform/telemetry",
+      "ownership": "telemetry_only",
+      "schema": "telemetry-session-1.0.0",
+      "dashboard_plugin": "telemetry-registry",
+      "verify_script": "telemetry:verify"
+    },
+    {
+      "id": "runtime.activation-gate",
+      "path": "SOS/SAIOS/runtime/activation-gate",
+      "ownership": "eligibility_only",
+      "schema": "activation-eligibility-1.0.0",
+      "dashboard_plugin": "activation-gate",
+      "verify_script": "activation-gate:verify"
+    },
+    {
+      "id": "runtime.execution-authorization",
+      "path": "SOS/SAIOS/runtime/execution-authorization",
+      "ownership": "founder_intent_only",
+      "schema": "execution-authorization-1.0.0",
+      "dashboard_plugin": "execution-authorization",
+      "verify_script": "execution-authorization:verify"
+    },
+    {
+      "id": "runtime.pre-dispatch-simulation",
+      "path": "SOS/SAIOS/runtime/pre-dispatch-simulation",
+      "ownership": "execution_modelling_only",
+      "schema": "pre-dispatch-simulation-1.0.0",
+      "dashboard_plugin": "pre-dispatch-simulation",
+      "verify_script": "pre-dispatch-simulation:verify"
+    }
+  ],
+  "prerequisites": [
+    "dashboard-platform:verify",
+    "system-readiness:verify",
+    "aios:canonical:verify"
+  ],
+  "ownership_matrix": {
+    "execution_authority": "runtime.execution-controller",
+    "departments": "platform.department-sdk",
+    "workers": "runtime.worker-runtime",
+    "telemetry": "platform.telemetry",
+    "budgeting": "platform.cost-ledger",
+    "eligibility": "runtime.activation-gate",
+    "founder_intent": "runtime.execution-authorization",
+    "execution_modelling": "runtime.pre-dispatch-simulation",
+    "company_brain_dispatch": false
+  },
+  "safety_flags_required_false": [
+    "execution_allowed",
+    "dispatch_allowed",
+    "worker_spawn_allowed",
+    "provider_allowed",
+    "queue_insert_allowed",
+    "scheduler_allowed",
+    "publishing_allowed",
+    "live_enabled"
+  ],
+  "safety_flags_required_true": [
+    "simulation_only",
+    "planning_only"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@saios/runtime",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Studiosis AI Operating System runtime",
+  "type": "module",
+  "scripts": {
+    "queue:verify": "tsx queue/verify.ts",
+    "registry:verify": "tsx registry/verify.ts",
+    "chief:verify": "tsx chief/verify.ts",
+    "cursor:verify": "tsx cursor/verify.ts",
+    "loop:verify": "tsx verify.ts",
+    "telegram:verify": "tsx integration/verify.ts",
+    "shadow:verify": "SOS_NOTIFICATION_MODE=mock tsx shadow/verify.ts",
+    "engineering:verify": "tsx directors/engineering/verify.ts",
+    "engineering:execution-verify": "tsx directors/engineering/execution-verify.ts",
+    "workforce:verify": "tsx directors/engineering/workforce-verify.ts",
+    "workers:verify": "tsx workers/verify.ts",
+    "product:verify": "tsx product/verify.ts",
+    "product:business-verify": "tsx product/business-verify.ts",
+    "review:template": "npm run review:template --prefix tools/local-review"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}

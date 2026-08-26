@@ -1,0 +1,23 @@
+{
+  "agent": "173",
+  "module_id": "platform.foundation",
+  "path": "SOS/SAIOS/platform",
+  "architecture_role": "PLATFORM",
+  "layer": "Shared infrastructure",
+  "allowed_dependencies": [],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "company_brain_logic",
+    "resume_logic",
+    "mission_logic",
+    "scheduler_activation",
+    "worker_execute",
+    "provider_direct",
+    "publication_write",
+    "queue_enqueue"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Platform Consolidation Foundation V1 — generic primitives only. No business logic. No execution.",
+  "platform_version": "platform-foundation-1.0.0",
+  "frozen": false
+}

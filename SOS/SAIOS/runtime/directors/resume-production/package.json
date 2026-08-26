@@ -1,0 +1,14 @@
+{
+  "name": "@saios/resume-production-batch-director",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StudiosisLab Resume Production Batch Director — orchestrates large-scale resume production via Cursor Agent",
+  "type": "module",
+  "scripts": {
+    "verify": "tsx verify.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}

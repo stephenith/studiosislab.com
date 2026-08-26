@@ -1,0 +1,11 @@
+{
+  "name": "@saios/live-monitoring",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AI OS Live Monitoring & Commander Bridge — reuses SOS/runtime Telegram (Agent #107)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts",
+    "run": "npx --yes tsx -e \"import('./index.ts').then(m => m.runLiveMonitoring({ forceDryRun: true }).then(r => console.log(JSON.stringify({ status: r.status, mode: r.mode }, null, 2))))\""
+  }
+}

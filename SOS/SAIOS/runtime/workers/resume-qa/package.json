@@ -1,0 +1,19 @@
+{
+  "name": "@saios/resume-qa-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StudiosisLab Resume QA & Publishing Pipeline — validates generated templates before publication",
+  "type": "module",
+  "scripts": {
+    "qa": "tsx run.ts",
+    "verify": "tsx verify.ts"
+  },
+  "dependencies": {
+    "canvas": "^3.1.0",
+    "fabric": "^6.9.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}

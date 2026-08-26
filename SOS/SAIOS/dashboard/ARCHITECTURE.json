@@ -1,0 +1,23 @@
+{
+  "agent": "159",
+  "module_id": "dashboard",
+  "path": "SOS/SAIOS/dashboard",
+  "architecture_role": "UI",
+  "layer": "Dashboard",
+  "allowed_dependencies": [
+    "core.founder-decisions",
+    "core.founder-gate-runtime",
+    "core.critic-gate",
+    "artifact_logs_readonly"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "publication_write",
+    "live_enable",
+    "orchestrate_jobs"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

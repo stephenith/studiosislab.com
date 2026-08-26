@@ -1,0 +1,14 @@
+{
+  "name": "@saios/studiosislab-production-controller",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StudiosisLab Production Controller — the only founder entry point for production",
+  "type": "module",
+  "scripts": {
+    "verify": "tsx verify.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "cde_version": "1.0.0",
+  "confidence": {
+    "proceed_autonomous": 95,
+    "proceed_with_qa_optional": 75,
+    "delegate_qa": 50
+  },
+  "budgets": {
+    "approvals_per_day": 3,
+    "blockers_per_day": 2,
+    "p0_notifications_per_day": 5,
+    "total_interruptions_per_day": 8
+  },
+  "limits": {
+    "max_files_changed": 15,
+    "max_tasks_in_flight": 5,
+    "max_runtime_hours": 4
+  },
+  "hard_gate_patterns": [
+    { "id": "H1", "pattern": "merge.*main|push.*main", "description": "Merge or push to main" },
+    { "id": "H2", "pattern": "deploy.*production|production deploy", "description": "Deploy to production" },
+    { "id": "H3", "pattern": "firestore\\.rules|storage\\.rules", "description": "Change Firestore or storage rules" },
+    { "id": "H4", "pattern": "package\\.json", "description": "Change package.json dependencies" },
+    { "id": "H10", "pattern": "accept.*launch risk|launch risk", "description": "Accept launch risk on blocker" },
+    { "id": "H18", "pattern": "routing decision|user-visible|Resume Hub.*route", "description": "UX routing decision" }
+  ],
+  "qa_required_patterns": [
+    "src/",
+    "firestore",
+    "mobile",
+    "resume",
+    "e-sign",
+    "auth",
+    "export"
+  ],
+  "priority_weights": {
+    "Critical": 100,
+    "High": 80,
+    "Medium": 50,
+    "Low": 20
+  }
+}

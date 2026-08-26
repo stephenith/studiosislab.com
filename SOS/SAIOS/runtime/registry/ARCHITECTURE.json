@@ -1,0 +1,18 @@
+{
+  "agent": "159",
+  "module_id": "runtime.registry",
+  "path": "SOS/SAIOS/runtime/registry",
+  "architecture_role": "SERVICE",
+  "layer": "Orchestration substrate",
+  "allowed_dependencies": [
+    "runtime.shared"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "src_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

@@ -1,0 +1,65 @@
+# SOS runtime secrets and local installs
+runtime/.env
+runtime/node_modules/
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Nested installs under SAIOS / runtime packages
+**/node_modules/
+
+# AIOS persistent production data — NEVER commit (Resume Templates, decisions, memory, evidence)
+07_LOGS/saios/
+!07_LOGS/saios/**/.gitkeep
+
+# Local AIOS backup staging (on-box copies)
+../aios-backups/
+aios-backups/
+
+# Dispatch logs may contain delivery metadata — do not commit
+07_LOGS/dispatch/*.jsonl
+
+# PM runtime state and agent handoff (local coordination)
+07_LOGS/pm/state.json
+07_LOGS/pm/execution.log.jsonl
+07_LOGS/pm/decision-history.jsonl
+07_LOGS/pm/task-history.jsonl
+07_LOGS/pm/queues/
+07_LOGS/pm/reports/
+07_LOGS/pm/approvals/responses/
+
+# Developer runtime state (local coordination)
+07_LOGS/developer/state.json
+07_LOGS/developer/developer-status.json
+07_LOGS/developer/locks/
+07_LOGS/developer/plans/
+07_LOGS/developer/reports/
+07_LOGS/developer/progress/
+07_LOGS/developer/artifacts/
+
+# QA runtime state (local coordination)
+07_LOGS/qa/state.json
+07_LOGS/qa/qa-status.json
+07_LOGS/qa/locks/
+07_LOGS/qa/plans/
+07_LOGS/qa/reports/
+07_LOGS/qa/progress/
+07_LOGS/qa/checklists/
+
+# Commander approval loop (local coordination)
+07_LOGS/approvals/inbox/
+07_LOGS/approvals/processed/
+07_LOGS/approvals/invalid/
+07_LOGS/approvals/records/
+07_LOGS/approvals/state.json
+07_LOGS/approvals/approvals-status.json
+07_LOGS/approvals/telegram-offset.json
+07_LOGS/approvals/telegram-outbound.jsonl
+07_LOGS/approvals/telegram-inbound/
+07_LOGS/pm/resume-pending.json
+
+# Commander supervisor
+07_LOGS/commander/health.json
+07_LOGS/commander/commander.pid
+07_LOGS/commander/state.json
+07_LOGS/commander/logs/

@@ -1,0 +1,20 @@
+{
+  "agent": "159",
+  "module_id": "runtime.controller",
+  "path": "SOS/SAIOS/runtime/controller",
+  "architecture_role": "ORCHESTRATION",
+  "layer": "Company Brain (intake)",
+  "allowed_dependencies": [
+    "runtime.chief",
+    "runtime.queue",
+    "runtime.directors"
+  ],
+  "forbidden_dependencies": [
+    "src_write",
+    "openai_sdk"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

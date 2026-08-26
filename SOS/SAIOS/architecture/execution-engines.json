@@ -1,0 +1,183 @@
+{
+  "agent": "159",
+  "generated_at": "2026-07-12T00:00:00.000Z",
+  "canonical_execution_engine": "SOS/SAIOS/core/first-production-cycle (spine: Knowledge→Skills→Brain→Provider→DesignBrief→Renderer→EditorCompat→Critic→Gate→FounderReview→Learning)",
+  "rule": "Exactly one CANONICAL execution engine. All others are LEGACY / ARCHIVED / REFERENCE. Do not delete.",
+  "engines": [
+    {
+      "id": "core.first-production-cycle",
+      "path": "SOS/SAIOS/core/first-production-cycle",
+      "entry_point": "runFirstProductionCycle.ts → runFirstProductionCycle()",
+      "classification": "CANONICAL",
+      "stages": [
+        "scheduler",
+        "queue",
+        "resume_department",
+        "knowledge",
+        "skills",
+        "brain",
+        "mock_provider",
+        "designbrief",
+        "resume_renderer",
+        "canvas_json",
+        "editor_compatibility",
+        "resume_critic",
+        "critic_gate",
+        "founder_review_queue",
+        "waiting_founder",
+        "cycle_paused"
+      ],
+      "outputs": [
+        "SOS/07_LOGS/saios/first-production-cycle/*.json",
+        "SOS/07_LOGS/saios/designbrief/*",
+        "SOS/07_LOGS/saios/resume-renderer/canvas.json",
+        "SOS/07_LOGS/saios/resume-critic/readiness.json",
+        "SOS/07_LOGS/saios/founder-gate-runtime/*"
+      ],
+      "consumers": [
+        "dashboard/server.ts",
+        "dashboard/src/data/loadSnapshot.ts",
+        "dashboard/src/data/buildFounderReviewQueue.ts",
+        "core/founder-gate-runtime",
+        "core/provider-validation"
+      ],
+      "notes": "Dry-run only. Mock provider. LIVE OFF. Stops at WAITING_FOUNDER. Hardcoded objective today — intake remains a Phase 2 concern; engine spine is canonical."
+    },
+    {
+      "id": "core.first-dry-run",
+      "path": "SOS/SAIOS/core/first-dry-run",
+      "entry_point": "runFirstDryRun.ts → runFirstDryRun()",
+      "classification": "REFERENCE",
+      "stages": [
+        "knowledge",
+        "skills",
+        "brain",
+        "mock",
+        "qa_deterministic",
+        "founder_review"
+      ],
+      "outputs": ["SOS/07_LOGS/saios/first-dry-run/*"],
+      "consumers": ["dashboard (fallback founder-review artifacts)", "verify suites"],
+      "notes": "Predecessor dry-run. Keep as reference; do not extend."
+    },
+    {
+      "id": "runtime.unified-production",
+      "path": "SOS/SAIOS/runtime/unified-production",
+      "entry_point": "UnifiedProductionDirector.ts → runUnifiedProduction()",
+      "classification": "ARCHIVED",
+      "stages": [
+        "queued",
+        "researching",
+        "benchmarking",
+        "designing",
+        "composing",
+        "generating",
+        "qa",
+        "render_review",
+        "founder_critic",
+        "publication_ready",
+        "waiting_founder"
+      ],
+      "outputs": ["SOS/07_LOGS/saios/unified-production/runs/{run_id}/*"],
+      "consumers": ["runtime/scheduler/ProductionExecutor.ts", "verify"],
+      "notes": "Full parallel execution engine. ARCHIVED as execution path. Code retained. Must not be the primary production entry after freeze."
+    },
+    {
+      "id": "runtime.pipeline",
+      "path": "SOS/SAIOS/runtime/pipeline",
+      "entry_point": "PipelineOrchestrator.ts / PipelineExecutor.ts",
+      "classification": "LEGACY",
+      "stages": [
+        "objective",
+        "batch_plan",
+        "cursor_research",
+        "generate",
+        "qa",
+        "local_review",
+        "founder_approval",
+        "learning"
+      ],
+      "outputs": ["SOS/07_LOGS/saios/runs/run-YYYYMMDD-NNN/*"],
+      "consumers": ["verify", "historical missions"],
+      "notes": "Resume Autonomous Production Pipeline. Legacy orchestrated generator. Retain for verify; do not extend as second engine."
+    },
+    {
+      "id": "runtime.workers.resume-production.v2",
+      "path": "SOS/SAIOS/runtime/workers/resume-production",
+      "entry_point": "production-pipeline.ts → runProductionV2() / run-v2.ts",
+      "classification": "LEGACY",
+      "stages": [
+        "knowledge_context",
+        "cursor_research",
+        "design_plan",
+        "self_critique_x2",
+        "fabric_json",
+        "editor_validation",
+        "qa",
+        "local_review",
+        "learning_append"
+      ],
+      "outputs": ["SOS/07_LOGS/saios/generated-resumes/{prototype_id}/*"],
+      "consumers": ["pipeline", "missions", "verify:v2"],
+      "notes": "Generation worker stack. Future role: WORKER under canonical engine, not standalone execution engine."
+    },
+    {
+      "id": "runtime.workers.resume-production.v3",
+      "path": "SOS/SAIOS/runtime/workers/resume-production",
+      "entry_point": "production-pipeline-v3.ts → runProductionV3() / run-v3.ts",
+      "classification": "LEGACY",
+      "stages": [
+        "premium_integration",
+        "design_bundle",
+        "family_selection",
+        "duplicate_detection",
+        "pre_generation_checklist",
+        "design_plan_v3",
+        "template_builder",
+        "triple_critique",
+        "editor_validation",
+        "design_qa",
+        "premium_score",
+        "learning_append_v3",
+        "reports"
+      ],
+      "outputs": ["SOS/07_LOGS/saios/generated-resumes/{prototype_id}-v3/*"],
+      "consumers": [
+        "unified-production/StageRunner",
+        "missions/*",
+        "verify:v3",
+        "historically produced t094"
+      ],
+      "notes": "Premium generator that historically produced real templates. Reclassify as WORKER under canonical spine; not a second engine."
+    },
+    {
+      "id": "runtime.controller.sessions",
+      "path": "SOS/SAIOS/runtime/controller",
+      "entry_point": "ProductionController.ts → submitFounderObjective()",
+      "classification": "LEGACY",
+      "stages": [
+        "interpret",
+        "plan",
+        "research",
+        "batch_or_pipeline",
+        "qa",
+        "review",
+        "learning",
+        "session_report"
+      ],
+      "outputs": ["SOS/07_LOGS/saios/controller/sessions/*"],
+      "consumers": ["founder entry (legacy)", "verify"],
+      "notes": "Objective intake is valuable; session engine path is legacy. Future: intake feeds Company Brain → Queue, not a private pipeline."
+    },
+    {
+      "id": "runtime.scheduler.production_executor",
+      "path": "SOS/SAIOS/runtime/scheduler/ProductionExecutor.ts",
+      "entry_point": "ProductionExecutor → runUnifiedProduction()",
+      "classification": "LEGACY",
+      "stages": ["delegates_to_unified_production"],
+      "outputs": ["via unified-production"],
+      "consumers": ["scheduler"],
+      "notes": "Bypasses canonical engine by calling ARCHIVED unified-production. Documented bypass — do not delete; do not use as primary."
+    }
+  ]
+}

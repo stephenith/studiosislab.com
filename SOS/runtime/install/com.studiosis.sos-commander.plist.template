@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.studiosis.sos-commander</string>
+  <key>Comment</key>
+  <string>SOS Autonomous Runtime — Commander supervisor (PM, Developer, QA, Telegram, Dispatcher)</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__NODE_BIN__</string>
+    <string>__NPM_CLI__</string>
+    <string>run</string>
+    <string>commander:start</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>__RUNTIME_DIR__</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>__PATH_ENV__</string>
+    <key>HOME</key>
+    <string>__HOME_DIR__</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>__LOGS_DIR__/commander/launchd.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__LOGS_DIR__/commander/launchd.stderr.log</string>
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>ProcessType</key>
+  <string>Background</string>
+</dict>
+</plist>

@@ -1,0 +1,21 @@
+{
+  "agent": "159",
+  "module_id": "core.provider-validation",
+  "path": "SOS/SAIOS/core/provider-validation",
+  "architecture_role": "CORE_ENGINE",
+  "layer": "Models (onboarding gate)",
+  "allowed_dependencies": [
+    "core.ai-brain",
+    "core.founder-decisions",
+    "core.founder-gate-runtime"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk_install",
+    "real_provider_execute",
+    "publication_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

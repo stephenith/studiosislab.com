@@ -1,0 +1,10 @@
+{
+  "name": "@saios/resume-integration",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Resume Department ↔ Brain Router dry-run integration (Agent #119)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts"
+  }
+}

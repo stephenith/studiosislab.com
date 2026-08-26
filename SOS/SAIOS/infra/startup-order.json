@@ -1,0 +1,79 @@
+{
+  "generated_at": "2026-07-11T08:04:53.000Z",
+  "agent": "116",
+  "note": "Safe conceptual order from dependency graph. All PM2 apps default autostart=false. Do not execute on VPS in Agent #116.",
+  "order": [
+    {
+      "step": 1,
+      "item": "event-bus / queue / registry / department-enablement / env loaded",
+      "type": "dependency",
+      "pm2_app": null
+    },
+    {
+      "step": 2,
+      "item": "aios-orchestrator",
+      "type": "process",
+      "pm2_app": "aios-orchestrator",
+      "depends_on": ["queue", "registry", "event-bus"]
+    },
+    {
+      "step": 3,
+      "item": "aios-scheduler",
+      "type": "process",
+      "pm2_app": "aios-scheduler",
+      "depends_on": ["aios-orchestrator", "department-enablement"],
+      "caution": "Keep stopped until dry-run production gate is explicit"
+    },
+    {
+      "step": 4,
+      "item": "aios-supervisor",
+      "type": "process",
+      "pm2_app": "aios-supervisor",
+      "depends_on": ["aios-orchestrator"]
+    },
+    {
+      "step": 5,
+      "item": "aios-resume-worker",
+      "type": "process",
+      "pm2_app": "aios-resume-worker",
+      "depends_on": ["aios-scheduler"],
+      "caution": "PARTIAL — do not start (would generate via run-v3)"
+    },
+    {
+      "step": 6,
+      "item": "aios-render-worker",
+      "type": "process",
+      "pm2_app": "aios-render-worker",
+      "depends_on": ["aios-resume-worker"],
+      "caution": "MISSING entrypoint — stub only"
+    },
+    {
+      "step": 7,
+      "item": "aios-qa-worker",
+      "type": "process",
+      "pm2_app": "aios-qa-worker",
+      "depends_on": ["aios-resume-worker"]
+    },
+    {
+      "step": 8,
+      "item": "aios-telegram",
+      "type": "process",
+      "pm2_app": "aios-telegram",
+      "depends_on": ["env Telegram secrets", "SOS_AIOS_NOTIFY_LIVE=0"]
+    },
+    {
+      "step": 9,
+      "item": "aios-dashboard",
+      "type": "process",
+      "pm2_app": "aios-dashboard",
+      "depends_on": ["founder-dashboard artifacts"],
+      "caution": "MISSING HTTP entrypoint — stub only"
+    }
+  ],
+  "excluded": [
+    {
+      "pm2_name": "studiosislab",
+      "reason": "Temporary Next.js for os.studiosislab.com — not part of AIOS startup; do not stop in this agent"
+    }
+  ]
+}

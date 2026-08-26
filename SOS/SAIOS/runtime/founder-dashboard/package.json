@@ -1,0 +1,14 @@
+{
+  "name": "@saios/founder-operations-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "tsx verify.ts",
+    "refresh": "tsx -e \"import { refreshFounderDashboard } from './FounderDashboardDirector.js'; refreshFounderDashboard().then(r => console.log(JSON.stringify(r.snapshot,null,2)))\""
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "agent": "159",
+  "module_id": "runtime.founder-critic",
+  "path": "SOS/SAIOS/runtime/founder-critic",
+  "architecture_role": "LEGACY",
+  "layer": "Evaluation (duplicate)",
+  "allowed_dependencies": [
+    "core.resume-critic"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

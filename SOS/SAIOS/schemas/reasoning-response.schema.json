@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiosislab.com/sos/schemas/reasoning-response.schema.json",
+  "title": "ReasoningResponse",
+  "type": "object",
+  "required": [
+    "request_id",
+    "provider",
+    "status",
+    "validation_result",
+    "retry_count",
+    "fallback_used",
+    "completed_at"
+  ],
+  "properties": {
+    "request_id": { "type": "string" },
+    "provider": {
+      "type": "string",
+      "enum": ["mock", "openai", "local", "future_provider"]
+    },
+    "provider_request_id": { "type": ["string", "null"] },
+    "model_identifier_internal": { "type": ["string", "null"] },
+    "status": {
+      "type": "string",
+      "enum": [
+        "COMPLETED",
+        "FAILED",
+        "REJECTED",
+        "BUDGET_PAUSED",
+        "VALIDATION_FAILED"
+      ]
+    },
+    "structured_output": { "type": ["object", "null"] },
+    "raw_output_reference": { "type": ["string", "null"] },
+    "validation_result": { "type": "object" },
+    "confidence": { "type": ["number", "null"] },
+    "input_tokens": { "type": ["integer", "null"] },
+    "output_tokens": { "type": ["integer", "null"] },
+    "estimated_cost_usd": { "type": ["number", "null"] },
+    "actual_cost_usd": { "type": ["number", "null"] },
+    "latency_ms": { "type": ["number", "null"] },
+    "retry_count": { "type": "integer", "minimum": 0 },
+    "fallback_used": { "type": "boolean" },
+    "safety_flags": { "type": "array", "items": { "type": "string" } },
+    "error_details": { "type": ["object", "null"] },
+    "completed_at": { "type": "string" }
+  }
+}

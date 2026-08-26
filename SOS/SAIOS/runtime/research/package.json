@@ -1,0 +1,14 @@
+{
+  "name": "@saios/resume-design-research-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StudiosisLab Resume Design Research & Planning Engine — mandatory pre-generation Design Brief",
+  "type": "module",
+  "scripts": {
+    "verify": "tsx verify.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}

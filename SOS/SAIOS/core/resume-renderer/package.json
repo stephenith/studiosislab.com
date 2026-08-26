@@ -1,0 +1,10 @@
+{
+  "name": "@saios/resume-renderer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Resume Renderer Engine V1 — DesignBrief Resume JSON → Canvas preview (Agent #128)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts"
+  }
+}

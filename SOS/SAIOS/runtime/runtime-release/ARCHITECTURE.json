@@ -1,0 +1,25 @@
+{
+  "agent": "170",
+  "module_id": "runtime.runtime-release",
+  "path": "SOS/SAIOS/runtime/runtime-release",
+  "architecture_role": "GOVERNANCE",
+  "layer": "Runtime governance",
+  "allowed_dependencies": [
+    "runtime.planner_readonly",
+    "runtime.queue_readonly",
+    "core.company-brain_readonly"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "scheduler_activation",
+    "worker_execute",
+    "provider_direct",
+    "publication_write",
+    "queue_enqueue"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Runtime Release Gate V1 — approval contract only. Never executes.",
+  "runtime_release": "runtime-release-1.0.0",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": false
+}

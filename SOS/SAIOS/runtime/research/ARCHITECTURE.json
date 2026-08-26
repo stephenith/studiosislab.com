@@ -1,0 +1,20 @@
+{
+  "agent": "159",
+  "module_id": "runtime.research",
+  "path": "SOS/SAIOS/runtime/research",
+  "architecture_role": "WORKER",
+  "layer": "Workers",
+  "allowed_dependencies": [
+    "core.resume-integration",
+    "runtime.tools"
+  ],
+  "forbidden_dependencies": [
+    "openai_sdk",
+    "provider_direct",
+    "src_write"
+  ],
+  "registry": "SOS/SAIOS/architecture/module-roles.json",
+  "note": "Metadata only. Does not change runtime behaviour.",
+  "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
+  "frozen": true
+}

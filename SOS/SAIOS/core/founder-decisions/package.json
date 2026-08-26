@@ -1,0 +1,10 @@
+{
+  "name": "@saios/founder-decisions",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Founder decision workflow (Agent #125)",
+  "scripts": {
+    "verify": "npx --yes tsx verify.ts"
+  }
+}

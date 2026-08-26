@@ -1,0 +1,475 @@
+import type { DesignFamily, DesignFamilyId } from "./types.js";
+
+/**
+ * Design families clustered from empirical analysis of all 79 published templates.
+ * Scores are corpus averages per family (computed 2026-07-06).
+ */
+export const DESIGN_FAMILIES: readonly DesignFamily[] = [
+  {
+    id: "executive-ats",
+    display_name: "Executive ATS",
+    description:
+      "Single-column or light-accent layouts optimized for C-suite and senior leadership. High text hierarchy, restrained decoration, strong ATS parse reliability.",
+    template_ids: ["t009", "t066"],
+    template_count: 2,
+    strengths: [
+      "High ATS scores (avg 88)",
+      "Clear section hierarchy with large name treatment",
+      "Low widget complexity",
+      "Professional neutral palettes",
+    ],
+    weaknesses: [
+      "Limited visual differentiation between executive templates",
+      "Sparse catalog representation (2 templates)",
+    ],
+    spacing_rules: [
+      "Left gutter 48–72px",
+      "Section gap 32–48px between major blocks",
+      "Header band occupies top 18–22% of page",
+      "Experience bullets indented 16–24px from section title",
+    ],
+    typography_rules: [
+      "Name: 28–40pt bold serif or slab",
+      "Section headings: 12–14pt uppercase or semi-bold",
+      "Body: 10.5–12pt regular",
+      "Maximum 2 font families (display + body)",
+    ],
+    reusable_blocks: ["name-header-band", "section-title-rule", "experience-date-row", "contact-inline-row"],
+    ats_score: 88,
+    visual_score: 88,
+    preferred_for_roles: ["executive", "director", "vp", "c-suite"],
+    tier: "ats_safe",
+  },
+  {
+    id: "corporate-modern",
+    display_name: "Corporate Modern",
+    description:
+      "Clean business layouts with balanced whitespace and minimal sidebar accents. General-purpose professional templates.",
+    template_ids: ["t002"],
+    template_count: 1,
+    strengths: ["Balanced ATS/visual tradeoff", "Readable single-flow content"],
+    weaknesses: ["Small family size", "Limited role-specific signaling"],
+    spacing_rules: ["40px minimum margins", "24–32px section gaps", "Consistent left alignment"],
+    typography_rules: ["Sans-serif body (Inter, Roboto, Open Sans)", "Heading 14–18pt", "Body 11–12pt"],
+    reusable_blocks: ["contact-block", "summary-paragraph", "skills-inline-list"],
+    ats_score: 90,
+    visual_score: 67,
+    preferred_for_roles: ["general-business", "manager"],
+    tier: "hybrid",
+  },
+  {
+    id: "corporate-sidebar",
+    display_name: "Corporate Sidebar",
+    description:
+      "Two-column layouts with colored left or right sidebar for contact, skills, and visual branding. High visual impact, moderate ATS risk.",
+    template_ids: [
+      "t001", "t003", "t008", "t011", "t028", "t029", "t030", "t044", "t058", "t072", "t074", "t079",
+    ],
+    template_count: 12,
+    strengths: [
+      "Strong visual identity with accent sidebar",
+      "Efficient use of horizontal space",
+      "Clear separation of contact/skills from narrative",
+      "Popular pattern in corpus (15% of templates)",
+    ],
+    weaknesses: [
+      "Lower ATS scores (avg 58) due to column structure",
+      "Sidebar content may parse out of linear order",
+      "Dark sidebar rects increase decoration density",
+    ],
+    spacing_rules: [
+      "Sidebar width 28–35% of page (220–280px at A4)",
+      "Main column gutter 40–56px from sidebar edge",
+      "Sidebar internal padding 24–32px",
+      "Section gap in main column 24–36px",
+    ],
+    typography_rules: [
+      "Sidebar labels: 10–11pt uppercase or semi-bold",
+      "Main headings: 14–16pt",
+      "Body in main column: 10.5–12pt",
+      "Light-on-dark text in sidebar must meet contrast",
+    ],
+    reusable_blocks: [
+      "accent-sidebar-block",
+      "sidebar-contact-stack",
+      "sidebar-skills-list",
+      "main-column-section-stack",
+    ],
+    ats_score: 58,
+    visual_score: 92,
+    preferred_for_roles: ["manager", "operations", "business", "general-professional"],
+    tier: "visual",
+  },
+  {
+    id: "minimal-ats",
+    display_name: "Minimal ATS",
+    description:
+      "Ultra-clean single-column templates with near-zero decoration. Maximum parse reliability for strict ATS pipelines. Corpus exemplar: t057 (clustered with administrative-ats).",
+    template_ids: [],
+    template_count: 0,
+    strengths: ["Highest ATS reliability", "Fastest scan for recruiters", "Smallest export payload"],
+    weaknesses: ["Low visual differentiation", "May feel generic to creative roles"],
+    spacing_rules: [
+      "Uniform 48px left/right margins",
+      "32px minimum between sections",
+      "No decorative lines or shapes",
+    ],
+    typography_rules: [
+      "Single sans-serif family throughout",
+      "Name 24–28pt bold",
+      "Sections 12pt bold",
+      "Body 11pt regular",
+    ],
+    reusable_blocks: ["plain-section-heading", "bullet-experience-block", "skills-comma-list"],
+    ats_score: 95,
+    visual_score: 82,
+    preferred_for_roles: ["any-ats-strict", "federal", "enterprise-ats"],
+    tier: "ats_safe",
+  },
+  {
+    id: "creative-visual",
+    display_name: "Creative Visual",
+    description:
+      "High-decoration layouts with imagery, color blocks, and expressive typography for portfolio-forward roles.",
+    template_ids: ["t005", "t045"],
+    template_count: 2,
+    strengths: ["Highest visual impact (avg 97)", "Memorable brand expression", "Supports hero imagery"],
+    weaknesses: ["Low ATS scores (avg 46)", "Images and heavy decoration harm parse reliability"],
+    spacing_rules: [
+      "Asymmetric layouts allowed in visual tier",
+      "Hero image zone top 20–30%",
+      "Section gaps 28–40px",
+    ],
+    typography_rules: [
+      "Display font for name (28–48pt)",
+      "Contrast pairing (serif + sans)",
+      "Accent color on section titles",
+    ],
+    reusable_blocks: ["hero-image-band", "color-block-header", "asymmetric-two-column"],
+    ats_score: 46,
+    visual_score: 97,
+    preferred_for_roles: ["creative-director", "brand", "portfolio"],
+    tier: "visual",
+  },
+  {
+    id: "designer-portfolio",
+    display_name: "Designer Portfolio",
+    description:
+      "Graphic/UI/UX designer templates emphasizing visual craft, project showcases, and portfolio links.",
+    template_ids: ["t031", "t032", "t053", "t056"],
+    template_count: 4,
+    strengths: ["Showcases design sensibility", "Project section prominence", "Visual hierarchy experimentation"],
+    weaknesses: ["ATS scores avg 46", "Often multi-font and image-heavy"],
+    spacing_rules: [
+      "Portfolio grid spacing 16–24px",
+      "Project blocks separated by 32px",
+      "Wide margins 56–72px for gallery feel",
+    ],
+    typography_rules: [
+      "Display type for name up to 48pt",
+      "Project titles 14–16pt semi-bold",
+      "Body 10.5–11.5pt",
+    ],
+    reusable_blocks: ["project-card-row", "portfolio-link-line", "tool-tags-row"],
+    ats_score: 46,
+    visual_score: 99,
+    preferred_for_roles: ["graphic-designer", "ui-ux-designer", "creative"],
+    tier: "visual",
+  },
+  {
+    id: "healthcare-professional",
+    display_name: "Healthcare Professional",
+    description:
+      "Clinical and care-role templates with licensure blocks, certifications, and calm trustworthy palettes.",
+    template_ids: [
+      "t015", "t016", "t017", "t018", "t041", "t052", "t059", "t063", "t069", "t075",
+    ],
+    template_count: 10,
+    strengths: [
+      "Role-appropriate section ordering (licensure, clinical skills)",
+      "Calm blue/teal/green palettes",
+      "Certification and credential blocks",
+    ],
+    weaknesses: [
+      "Moderate ATS scores (avg 56) due to sidebars and images",
+      "Some templates include star ratings (ATS risk)",
+    ],
+    spacing_rules: [
+      "Credentials block near top after contact",
+      "Clinical skills grouped separately from soft skills",
+      "Section gap 24–32px",
+    ],
+    typography_rules: [
+      "Trustworthy sans-serif (Roboto, Open Sans, Lato)",
+      "License numbers in 10–11pt monospace or regular",
+      "Section headings 12–14pt",
+    ],
+    reusable_blocks: [
+      "license-cert-block",
+      "clinical-skills-list",
+      "shift-availability-line",
+      "patient-care-summary",
+    ],
+    ats_score: 56,
+    visual_score: 94,
+    preferred_for_roles: ["nurse", "medical-assistant", "therapist", "healthcare"],
+    tier: "hybrid",
+  },
+  {
+    id: "engineering-technical",
+    display_name: "Engineering Technical",
+    description:
+      "Software, data, and IT templates with skills stacks, project sections, and monospace accents.",
+    template_ids: [
+      "t010", "t012", "t013", "t014", "t040", "t043", "t047", "t050", "t065", "t067", "t070", "t073",
+    ],
+    template_count: 12,
+    strengths: [
+      "Strong skills and project sections",
+      "Technical keyword density",
+      "Balanced visual/ATS for many variants",
+    ],
+    weaknesses: [
+      "Skill bars in some templates reduce ATS score",
+      "Wide font variety across family",
+    ],
+    spacing_rules: [
+      "Skills section 24px below summary",
+      "Project entries separated by 20–28px",
+      "Tech stack as comma-separated or tag row",
+    ],
+    typography_rules: [
+      "Sans-serif primary (Inter, Roboto)",
+      "Monospace optional for stack lists (11pt)",
+      "Project titles 13–14pt semi-bold",
+    ],
+    reusable_blocks: [
+      "tech-stack-tags",
+      "project-entry-block",
+      "github-link-line",
+      "skills-category-group",
+    ],
+    ats_score: 70,
+    visual_score: 91,
+    preferred_for_roles: ["software-engineer", "data-analyst", "cybersecurity", "it-support"],
+    tier: "hybrid",
+  },
+  {
+    id: "academic-entry",
+    display_name: "Academic Entry",
+    description:
+      "Student, intern, and entry-level templates emphasizing education, coursework, and limited experience.",
+    template_ids: ["t038", "t039", "t046"],
+    template_count: 3,
+    strengths: ["Education-first section order", "High ATS scores (avg 91)", "Appropriate for limited experience"],
+    weaknesses: ["May lack visual distinction", "Small family"],
+    spacing_rules: [
+      "Education section above or equal to experience",
+      "GPA and coursework sub-blocks indented 16px",
+      "32px gap before experience section",
+    ],
+    typography_rules: [
+      "Clean sans-serif throughout",
+      "University name 13pt semi-bold",
+      "Coursework 10.5–11pt",
+    ],
+    reusable_blocks: ["education-block", "coursework-list", "activities-row", "objective-line"],
+    ats_score: 91,
+    visual_score: 76,
+    preferred_for_roles: ["student", "intern", "entry-level", "graduate"],
+    tier: "ats_safe",
+  },
+  {
+    id: "finance-conservative",
+    display_name: "Finance Conservative",
+    description:
+      "Accountant and financial analyst templates with conservative typography and structured experience rows.",
+    template_ids: ["t023", "t024", "t025", "t026", "t055", "t060", "t078"],
+    template_count: 7,
+    strengths: [
+      "Conservative trustworthy aesthetic",
+      "Quantified bullet patterns",
+      "Clear experience chronology",
+    ],
+    weaknesses: [
+      "Lower ATS scores when sidebars used (avg 57)",
+      "Dense text in some variants",
+    ],
+    spacing_rules: [
+      "Experience rows with right-aligned dates",
+      "Section dividers as thin 1px lines",
+      "40–56px side margins",
+    ],
+    typography_rules: [
+      "Serif or traditional sans (Times, Georgia, Lato)",
+      "Numbers and metrics in body text",
+      "Section headings 12pt uppercase",
+    ],
+    reusable_blocks: [
+      "experience-date-row",
+      "metrics-bullet",
+      "certification-line",
+      "skills-competency-list",
+    ],
+    ats_score: 57,
+    visual_score: 89,
+    preferred_for_roles: ["accountant", "financial-analyst", "bookkeeper", "finance"],
+    tier: "hybrid",
+  },
+  {
+    id: "sales-marketing-visual",
+    display_name: "Sales & Marketing Visual",
+    description:
+      "Bold marketing and sales templates with metrics callouts, brand color, and achievement emphasis.",
+    template_ids: [
+      "t004", "t019", "t020", "t021", "t022", "t033", "t051", "t054", "t068", "t071",
+    ],
+    template_count: 10,
+    strengths: [
+      "Achievement and metrics prominence",
+      "Strong visual hierarchy",
+      "Brand-forward color usage",
+    ],
+    weaknesses: [
+      "Moderate ATS scores (avg 64)",
+      "Images and multi-column in several templates",
+    ],
+    spacing_rules: [
+      "KPI callout row below name",
+      "Achievement bullets with 8–12px line spacing",
+      "Campaign/project blocks 28px apart",
+    ],
+    typography_rules: [
+      "Bold name treatment 32–40pt",
+      "Metrics in semi-bold inline",
+      "Section titles with accent color",
+    ],
+    reusable_blocks: [
+      "kpi-metrics-row",
+      "campaign-highlight-block",
+      "achievement-bullet",
+      "social-handle-line",
+    ],
+    ats_score: 64,
+    visual_score: 93,
+    preferred_for_roles: ["marketing-manager", "sales", "digital-marketing", "social-media"],
+    tier: "visual",
+  },
+  {
+    id: "sales-marketing-ats",
+    display_name: "Sales & Marketing ATS",
+    description: "ATS-optimized sales/marketing variant with minimal decoration and linear content flow.",
+    template_ids: ["t077"],
+    template_count: 1,
+    strengths: ["Perfect ATS score in corpus sample", "Role-appropriate keywords"],
+    weaknesses: ["Single template representation"],
+    spacing_rules: ["Single column 48px margins", "28px section gaps"],
+    typography_rules: ["One sans-serif family", "Name 28pt", "Body 11pt"],
+    reusable_blocks: ["quota-metrics-line", "territory-summary", "crm-skills-list"],
+    ats_score: 100,
+    visual_score: 67,
+    preferred_for_roles: ["sales-rep", "account-executive", "business-development"],
+    tier: "ats_safe",
+  },
+  {
+    id: "operations-management",
+    display_name: "Operations Management",
+    description:
+      "PM, operations, and supply chain templates emphasizing process improvement, KPIs, and leadership scope.",
+    template_ids: ["t006", "t007", "t042", "t049", "t061", "t064"],
+    template_count: 6,
+    strengths: [
+      "High ATS scores (avg 94)",
+      "Process and KPI language patterns",
+      "Clear scope/impact bullets",
+    ],
+    weaknesses: ["Visual similarity across variants"],
+    spacing_rules: [
+      "Summary leads with years of experience",
+      "Cross-functional skills block",
+      "32px between role entries",
+    ],
+    typography_rules: [
+      "Professional sans-serif",
+      "Role titles 13–14pt bold",
+      "Company names 11–12pt regular",
+    ],
+    reusable_blocks: [
+      "scope-leadership-summary",
+      "process-improvement-bullet",
+      "cross-functional-skills",
+      "p-and-l-metrics-line",
+    ],
+    ats_score: 94,
+    visual_score: 84,
+    preferred_for_roles: ["operations-manager", "project-manager", "product-manager", "supply-chain"],
+    tier: "ats_safe",
+  },
+  {
+    id: "administrative-ats",
+    display_name: "Administrative ATS",
+    description:
+      "Admin, reception, and customer service templates optimized for clarity and ATS compliance.",
+    template_ids: ["t027", "t057"],
+    template_count: 2,
+    strengths: ["High ATS scores (avg 95)", "Skills-forward layout", "Clear contact block"],
+    weaknesses: ["Limited visual personality"],
+    spacing_rules: ["Skills near top after summary", "40px margins", "24px section gaps"],
+    typography_rules: ["Single sans-serif", "11–12pt body", "12pt section headings"],
+    reusable_blocks: ["software-proficiency-list", "scheduling-skills-block", "customer-service-summary"],
+    ats_score: 95,
+    visual_score: 78,
+    preferred_for_roles: ["administrative-assistant", "receptionist", "customer-service"],
+    tier: "ats_safe",
+  },
+  {
+    id: "hospitality-service",
+    display_name: "Hospitality Service",
+    description:
+      "Hotel, restaurant, and travel templates with service-oriented language and guest-experience focus.",
+    template_ids: ["t034", "t035", "t036", "t037"],
+    template_count: 4,
+    strengths: ["Service and guest-experience vocabulary", "High visual scores (avg 100)"],
+    weaknesses: ["Low ATS scores (avg 50)", "Image-heavy variants"],
+    spacing_rules: [
+      "Service highlights near top",
+      "Language skills line in contact area",
+      "28px between property/venue entries",
+    ],
+    typography_rules: [
+      "Warm professional sans-serif",
+      "Role titles 14pt",
+      "Property names italic or semi-bold",
+    ],
+    reusable_blocks: ["guest-satisfaction-metrics", "venue-property-line", "language-fluency-row"],
+    ats_score: 50,
+    visual_score: 100,
+    preferred_for_roles: ["hotel-manager", "restaurant-manager", "flight-attendant", "front-desk"],
+    tier: "visual",
+  },
+  {
+    id: "hr-people-ops",
+    display_name: "HR & People Ops",
+    description:
+      "Human resources templates emphasizing policy, talent acquisition, and employee relations competencies.",
+    template_ids: ["t048", "t062", "t076"],
+    template_count: 3,
+    strengths: ["HR-specific keyword patterns", "High ATS scores (avg 93)"],
+    weaknesses: ["Small family; one template overlaps hospitality visual patterns"],
+    spacing_rules: ["HRIS/skills block prominent", "32px section gaps"],
+    typography_rules: ["Professional sans-serif", "Compliance and policy language in body"],
+    reusable_blocks: ["hris-skills-list", "talent-acquisition-block", "employee-relations-summary"],
+    ats_score: 93,
+    visual_score: 82,
+    preferred_for_roles: ["human-resources", "recruiter", "people-ops"],
+    tier: "ats_safe",
+  },
+] as const;
+
+export function getDesignFamilyById(id: DesignFamilyId): DesignFamily | undefined {
+  return DESIGN_FAMILIES.find((f) => f.id === id);
+}
+
+export function getTemplatesInFamily(id: DesignFamilyId): string[] {
+  return DESIGN_FAMILIES.find((f) => f.id === id)?.template_ids ?? [];
+}

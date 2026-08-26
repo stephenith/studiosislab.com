@@ -1,0 +1,23 @@
+[Unit]
+Description=SOS Autonomous Runtime Commander
+Documentation=file://__RUNTIME_DIR__/install/PRODUCTION_INSTALL.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__SERVICE_USER__
+WorkingDirectory=__RUNTIME_DIR__
+Environment=PATH=__PATH_ENV__
+Environment=HOME=__HOME_DIR__
+ExecStart=__NODE_BIN__ __NPM_CLI__ run commander:start
+Restart=always
+RestartSec=10
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=180
+StandardOutput=append:__LOGS_DIR__/commander/systemd.stdout.log
+StandardError=append:__LOGS_DIR__/commander/systemd.stderr.log
+
+[Install]
+WantedBy=multi-user.target

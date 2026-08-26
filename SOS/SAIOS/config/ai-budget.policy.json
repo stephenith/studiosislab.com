@@ -1,0 +1,28 @@
+{
+  "version": "1.0.0",
+  "env_keys": {
+    "monthly_budget_usd": "SOS_AI_MONTHLY_BUDGET_USD",
+    "daily_limit_usd": "SOS_AI_DAILY_LIMIT_USD",
+    "per_task_token_limit": "SOS_AI_PER_TASK_TOKEN_LIMIT",
+    "auto_pause_threshold_pct": "SOS_AI_AUTO_PAUSE_THRESHOLD_PCT",
+    "founder_alert_threshold_pct": "SOS_AI_FOUNDER_ALERT_THRESHOLD_PCT"
+  },
+  "values": {
+    "monthly_budget_usd": null,
+    "daily_limit_usd": null,
+    "per_task_token_limit": null,
+    "auto_pause_threshold_pct": null,
+    "founder_alert_threshold_pct": null
+  },
+  "monetary_ceilings_invented": false,
+  "real_provider_activation_allowed": false,
+  "cost_ledger_path": "SOS/07_LOGS/saios/cost/ledger.jsonl",
+  "rules": [
+    "No real provider can activate if required limits are unset",
+    "Estimated task cost must be checked before execution",
+    "Automatically pause new model tasks at the configured threshold",
+    "Existing deterministic operations may continue",
+    "Founder must receive an alert when the alert threshold is reached",
+    "Usage must be written to a cost ledger later"
+  ]
+}

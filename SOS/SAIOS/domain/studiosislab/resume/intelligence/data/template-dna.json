@@ -1,0 +1,4184 @@
+{
+  "analyzed_at": "2026-07-06",
+  "count": 79,
+  "families": {
+    "corporate-sidebar": [
+      "t001",
+      "t003",
+      "t008",
+      "t011",
+      "t028",
+      "t029",
+      "t030",
+      "t044",
+      "t058",
+      "t072",
+      "t074",
+      "t079"
+    ],
+    "corporate-modern": [
+      "t002"
+    ],
+    "sales-marketing-visual": [
+      "t004",
+      "t019",
+      "t020",
+      "t021",
+      "t022",
+      "t033",
+      "t051",
+      "t054",
+      "t068",
+      "t071"
+    ],
+    "creative-visual": [
+      "t005",
+      "t045"
+    ],
+    "operations-management": [
+      "t006",
+      "t007",
+      "t042",
+      "t049",
+      "t061",
+      "t064"
+    ],
+    "executive-ats": [
+      "t009",
+      "t066"
+    ],
+    "engineering-technical": [
+      "t010",
+      "t012",
+      "t013",
+      "t014",
+      "t040",
+      "t043",
+      "t047",
+      "t050",
+      "t065",
+      "t067",
+      "t070",
+      "t073"
+    ],
+    "healthcare-professional": [
+      "t015",
+      "t016",
+      "t017",
+      "t018",
+      "t041",
+      "t052",
+      "t059",
+      "t063",
+      "t069",
+      "t075"
+    ],
+    "finance-conservative": [
+      "t023",
+      "t024",
+      "t025",
+      "t026",
+      "t055",
+      "t060",
+      "t078"
+    ],
+    "administrative-ats": [
+      "t027",
+      "t057"
+    ],
+    "designer-portfolio": [
+      "t031",
+      "t032",
+      "t053",
+      "t056"
+    ],
+    "hospitality-service": [
+      "t034",
+      "t035",
+      "t036",
+      "t037"
+    ],
+    "academic-entry": [
+      "t038",
+      "t039",
+      "t046"
+    ],
+    "hr-people-ops": [
+      "t048",
+      "t062",
+      "t076"
+    ],
+    "sales-marketing-ats": [
+      "t077"
+    ]
+  },
+  "entries": [
+    {
+      "id": "t001",
+      "family": "corporate-sidebar",
+      "ats_score": 90,
+      "visual_score": 76,
+      "spacing_profile": {
+        "median_vertical_gap_px": 24,
+        "left_gutter_px": 240,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [],
+        "font_family_count": 0,
+        "size_min": 28,
+        "size_max": 64,
+        "size_avg": 46
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#0f172a",
+          "#334155",
+          "#ffffff",
+          "#e2e8f0"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "High decoration density may distract from content hierarchy"
+      ],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t002",
+      "family": "corporate-modern",
+      "ats_score": 90,
+      "visual_score": 67,
+      "spacing_profile": {
+        "median_vertical_gap_px": 24,
+        "left_gutter_px": 40,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [],
+        "font_family_count": 0,
+        "size_min": 26,
+        "size_max": 56,
+        "size_avg": 41
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#334155",
+          "#ffffff",
+          "#fde68a",
+          "#f1f5f9"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "large-name-header"
+      ],
+      "weaknesses": [
+        "High decoration density may distract from content hierarchy"
+      ],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy",
+        "Add stronger visual identity for creative portfolio use case"
+      ]
+    },
+    {
+      "id": "t003",
+      "family": "corporate-sidebar",
+      "ats_score": 90,
+      "visual_score": 67,
+      "spacing_profile": {
+        "median_vertical_gap_px": 79,
+        "left_gutter_px": 20,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Times New Roman"
+        ],
+        "font_family_count": 1,
+        "size_min": 10.5,
+        "size_max": 19.5,
+        "size_avg": 15
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#1e1b4b",
+          "#312e81",
+          "#ffffff",
+          "#cbd5f5",
+          "#eef2ff"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block"
+      ],
+      "weaknesses": [
+        "High decoration density may distract from content hierarchy"
+      ],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t004",
+      "family": "sales-marketing-visual",
+      "ats_score": 80,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 15,
+        "left_gutter_px": 45,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Arimo",
+          "Inter"
+        ],
+        "font_family_count": 2,
+        "size_min": 12,
+        "size_max": 43,
+        "size_avg": 16
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#ffffff",
+          "#6b7280",
+          "#000000",
+          "rgb(0,0,0)",
+          "#002699",
+          "#111827"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "contact",
+          "experience",
+          "education"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header"
+      ],
+      "weaknesses": [
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy",
+        "Increase section gap to at least 24px"
+      ]
+    },
+    {
+      "id": "t005",
+      "family": "creative-visual",
+      "ats_score": 45,
+      "visual_score": 96,
+      "spacing_profile": {
+        "median_vertical_gap_px": 22,
+        "left_gutter_px": 85,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Montserrat",
+          "Roboto",
+          "Inter"
+        ],
+        "font_family_count": 3,
+        "size_min": 12,
+        "size_max": 39,
+        "size_avg": 14.6
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#6b7280",
+          "#374151",
+          "#976802",
+          "rgb(0,0,0)",
+          "#111827",
+          "#804400"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "project",
+          "summary",
+          "skills",
+          "certification"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "Uses 3 font families — exceeds two-family guideline",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Consolidate to two font families maximum"
+      ]
+    },
+    {
+      "id": "t006",
+      "family": "operations-management",
+      "ats_score": 90,
+      "visual_score": 86,
+      "spacing_profile": {
+        "median_vertical_gap_px": 37,
+        "left_gutter_px": 50,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "DM Sans"
+        ],
+        "font_family_count": 1,
+        "size_min": 13,
+        "size_max": 40,
+        "size_avg": 16.3
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#d1e0ff",
+          "#ffffff",
+          "rgb(0,0,0)"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "experience",
+          "education",
+          "skills"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t007",
+      "family": "operations-management",
+      "ats_score": 95,
+      "visual_score": 78,
+      "spacing_profile": {
+        "median_vertical_gap_px": 31,
+        "left_gutter_px": 75,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "DM Sans"
+        ],
+        "font_family_count": 1,
+        "size_min": 13,
+        "size_max": 40,
+        "size_avg": 15.9
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#000000",
+          "#ffffff",
+          "rgb(0,0,0)",
+          "#2563eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "experience",
+          "education",
+          "skills"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t008",
+      "family": "corporate-sidebar",
+      "ats_score": 33,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 28,
+        "left_gutter_px": 80,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Montserrat"
+        ],
+        "font_family_count": 1,
+        "size_min": 12,
+        "size_max": 39,
+        "size_avg": 14.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "rgb(0,0,0)",
+          "#000000",
+          "#111827",
+          "#ea580c",
+          "#ffffff",
+          "#f1eae0"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "profile"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "High decoration density may distract from content hierarchy",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t009",
+      "family": "executive-ats",
+      "ats_score": 85,
+      "visual_score": 89,
+      "spacing_profile": {
+        "median_vertical_gap_px": 24,
+        "left_gutter_px": 55,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Inter"
+        ],
+        "font_family_count": 1,
+        "size_min": 12,
+        "size_max": 37,
+        "size_avg": 15.4
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#6b7280",
+          "#7c3aed",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "education",
+          "experience",
+          "certification",
+          "skills"
+        ],
+        "column_structure": "two-column-balanced"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "profile-image-slot",
+        "minimal-decoration",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t010",
+      "family": "engineering-technical",
+      "ats_score": 24,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 30,
+        "left_gutter_px": 30,
+        "negative_position_count": 6
+      },
+      "typography_profile": {
+        "font_families": [
+          "Google Sans"
+        ],
+        "font_family_count": 1,
+        "size_min": 14,
+        "size_max": 42,
+        "size_avg": 17.2
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#6b7280",
+          "#000000",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#2563eb",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "profile",
+          "experience",
+          "education"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "6 objects use negative coordinates",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t011",
+      "family": "corporate-sidebar",
+      "ats_score": 33,
+      "visual_score": 76,
+      "spacing_profile": {
+        "median_vertical_gap_px": 17,
+        "left_gutter_px": 50,
+        "negative_position_count": 19
+      },
+      "typography_profile": {
+        "font_families": [
+          "Heebo"
+        ],
+        "font_family_count": 1,
+        "size_min": 11,
+        "size_max": 33,
+        "size_avg": 13
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#374151",
+          "#111827",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#f5f0f0"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "education",
+          "certification",
+          "skills",
+          "experience"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "minimal-decoration",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "19 objects use negative coordinates"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Increase section gap to at least 24px"
+      ]
+    },
+    {
+      "id": "t012",
+      "family": "engineering-technical",
+      "ats_score": 90,
+      "visual_score": 83,
+      "spacing_profile": {
+        "median_vertical_gap_px": 21,
+        "left_gutter_px": 40,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins",
+          "Open Sans"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 39,
+        "size_avg": 16
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff",
+          "#000000"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "skills",
+          "profile",
+          "experience",
+          "education"
+        ],
+        "column_structure": "two-column-balanced"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "section-divider-lines",
+        "large-name-header"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t013",
+      "family": "engineering-technical",
+      "ats_score": 85,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 18,
+        "left_gutter_px": 35,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Archivo",
+          "Roboto"
+        ],
+        "font_family_count": 2,
+        "size_min": 13,
+        "size_max": 41,
+        "size_avg": 14.3
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#000000",
+          "#ffffff",
+          "rgb(0,0,0)",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "contact",
+          "profile",
+          "experience"
+        ],
+        "column_structure": "two-column-balanced"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "large-name-header"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t014",
+      "family": "engineering-technical",
+      "ats_score": 72,
+      "visual_score": 99,
+      "spacing_profile": {
+        "median_vertical_gap_px": 50,
+        "left_gutter_px": 35,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "BIZ UDPGothic",
+          "Poppins",
+          "Roboto"
+        ],
+        "font_family_count": 3,
+        "size_min": 14,
+        "size_max": 35,
+        "size_avg": 18.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff",
+          "rgb(0,0,0)",
+          "#413a3a",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "skills",
+          "education"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "Uses 3 font families — exceeds two-family guideline",
+        "High decoration density may distract from content hierarchy"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy",
+        "Consolidate to two font families maximum"
+      ]
+    },
+    {
+      "id": "t015",
+      "family": "healthcare-professional",
+      "ats_score": 77,
+      "visual_score": 96,
+      "spacing_profile": {
+        "median_vertical_gap_px": 31,
+        "left_gutter_px": 50,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Roboto Slab",
+          "Poppins",
+          "Open Sans"
+        ],
+        "font_family_count": 3,
+        "size_min": 16,
+        "size_max": 52,
+        "size_avg": 18.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#ffffff",
+          "#111827",
+          "#0035a8",
+          "rgb(0,0,0)",
+          "#0037ad",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "skills",
+          "education"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "profile-image-slot",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "Uses 3 font families — exceeds two-family guideline",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy",
+        "Consolidate to two font families maximum"
+      ]
+    },
+    {
+      "id": "t016",
+      "family": "healthcare-professional",
+      "ats_score": 26,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 32,
+        "left_gutter_px": 55,
+        "negative_position_count": 4
+      },
+      "typography_profile": {
+        "font_families": [
+          "Inter",
+          "Poppins",
+          "Open Sans"
+        ],
+        "font_family_count": 3,
+        "size_min": 12,
+        "size_max": 51,
+        "size_avg": 16.5
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#e2e5e9",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "education",
+          "experience",
+          "profile"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "4 objects use negative coordinates",
+        "Uses 3 font families — exceeds two-family guideline",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy",
+        "Consolidate to two font families maximum"
+      ]
+    },
+    {
+      "id": "t017",
+      "family": "healthcare-professional",
+      "ats_score": 39,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 21,
+        "left_gutter_px": 55,
+        "negative_position_count": 4
+      },
+      "typography_profile": {
+        "font_families": [
+          "Montserrat",
+          "Lato"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 32,
+        "size_avg": 16.1
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#eae8dc",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "profile",
+          "experience",
+          "education"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "4 objects use negative coordinates",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t018",
+      "family": "healthcare-professional",
+      "ats_score": 80,
+      "visual_score": 87,
+      "spacing_profile": {
+        "median_vertical_gap_px": 39,
+        "left_gutter_px": 40,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Montserrat"
+        ],
+        "font_family_count": 1,
+        "size_min": 16,
+        "size_max": 62,
+        "size_avg": 20.5
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "profile"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header"
+      ],
+      "weaknesses": [
+        "High decoration density may distract from content hierarchy"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t019",
+      "family": "sales-marketing-visual",
+      "ats_score": 85,
+      "visual_score": 88,
+      "spacing_profile": {
+        "median_vertical_gap_px": 35,
+        "left_gutter_px": 75,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Nunito",
+          "Material Icons"
+        ],
+        "font_family_count": 2,
+        "size_min": 15,
+        "size_max": 38,
+        "size_avg": 18.3
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "experience",
+          "education"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t020",
+      "family": "sales-marketing-visual",
+      "ats_score": 85,
+      "visual_score": 88,
+      "spacing_profile": {
+        "median_vertical_gap_px": 43,
+        "left_gutter_px": 70,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Mulish",
+          "Inter"
+        ],
+        "font_family_count": 2,
+        "size_min": 16,
+        "size_max": 43,
+        "size_avg": 18.6
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#0891b2",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "experience",
+          "education"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t021",
+      "family": "sales-marketing-visual",
+      "ats_score": 64,
+      "visual_score": 92,
+      "spacing_profile": {
+        "median_vertical_gap_px": 39,
+        "left_gutter_px": 75,
+        "negative_position_count": 2
+      },
+      "typography_profile": {
+        "font_families": [
+          "Montserrat"
+        ],
+        "font_family_count": 1,
+        "size_min": 14,
+        "size_max": 38,
+        "size_avg": 18.3
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ea580c",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#ebedef"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "skills"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "2 objects use negative coordinates",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t022",
+      "family": "sales-marketing-visual",
+      "ats_score": 20,
+      "visual_score": 83,
+      "spacing_profile": {
+        "median_vertical_gap_px": 32,
+        "left_gutter_px": 70,
+        "negative_position_count": 10
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins"
+        ],
+        "font_family_count": 1,
+        "size_min": 14,
+        "size_max": 37,
+        "size_avg": 15.8
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#374151",
+          "#111827",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "contact",
+          "experience",
+          "education",
+          "skills"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "10 objects use negative coordinates"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images"
+      ]
+    },
+    {
+      "id": "t023",
+      "family": "finance-conservative",
+      "ats_score": 20,
+      "visual_score": 97,
+      "spacing_profile": {
+        "median_vertical_gap_px": 27,
+        "left_gutter_px": 65,
+        "negative_position_count": 4
+      },
+      "typography_profile": {
+        "font_families": [
+          "Work Sans",
+          "Fjalla One"
+        ],
+        "font_family_count": 2,
+        "size_min": 13,
+        "size_max": 58,
+        "size_avg": 16.9
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "skills",
+          "experience",
+          "education",
+          "certification"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "4 objects use negative coordinates",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images"
+      ]
+    },
+    {
+      "id": "t024",
+      "family": "finance-conservative",
+      "ats_score": 20,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 17,
+        "left_gutter_px": 65,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Roboto",
+          "Poppins"
+        ],
+        "font_family_count": 2,
+        "size_min": 15,
+        "size_max": 50,
+        "size_avg": 17
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#2563eb",
+          "#000000",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "certification",
+          "education",
+          "project",
+          "skills"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "High decoration density may distract from content hierarchy",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Increase section gap to at least 24px"
+      ]
+    },
+    {
+      "id": "t025",
+      "family": "finance-conservative",
+      "ats_score": 69,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 31,
+        "left_gutter_px": 70,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins",
+          "Inter"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 37,
+        "size_avg": 17.5
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#2563eb",
+          "#9ca3af",
+          "#ffffff",
+          "rgb(0,0,0)",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "skills",
+          "experience",
+          "education",
+          "certification",
+          "project"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "High decoration density may distract from content hierarchy",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images"
+      ]
+    },
+    {
+      "id": "t026",
+      "family": "finance-conservative",
+      "ats_score": 85,
+      "visual_score": 83,
+      "spacing_profile": {
+        "median_vertical_gap_px": 20,
+        "left_gutter_px": 60,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins",
+          "Roboto"
+        ],
+        "font_family_count": 2,
+        "size_min": 13,
+        "size_max": 48,
+        "size_avg": 15.8
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#dc2626",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "experience",
+          "education",
+          "skills"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "High decoration density may distract from content hierarchy"
+      ],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t027",
+      "family": "administrative-ats",
+      "ats_score": 90,
+      "visual_score": 73,
+      "spacing_profile": {
+        "median_vertical_gap_px": 48,
+        "left_gutter_px": 90,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Inter",
+          "Montserrat"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 39,
+        "size_avg": 17
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#e9b90c",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "education",
+          "contact"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "High decoration density may distract from content hierarchy"
+      ],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t028",
+      "family": "corporate-sidebar",
+      "ats_score": 48,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 30,
+        "left_gutter_px": 70,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Montserrat",
+          "Roboto",
+          "Fjalla One"
+        ],
+        "font_family_count": 3,
+        "size_min": 16,
+        "size_max": 41,
+        "size_avg": 18.1
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "rgb(0,0,0)",
+          "#9ca3af",
+          "#000000",
+          "#ffffff",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "education",
+          "skills"
+        ],
+        "column_structure": "two-column-balanced"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "Uses 3 font families — exceeds two-family guideline",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy",
+        "Consolidate to two font families maximum"
+      ]
+    },
+    {
+      "id": "t029",
+      "family": "corporate-sidebar",
+      "ats_score": 75,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 23,
+        "left_gutter_px": 65,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins"
+        ],
+        "font_family_count": 1,
+        "size_min": 12,
+        "size_max": 47,
+        "size_avg": 16.6
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#6b7280",
+          "#374151",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#f0f1f4"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "contact",
+          "skills",
+          "education"
+        ],
+        "column_structure": "two-column-balanced"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "High decoration density may distract from content hierarchy",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images"
+      ]
+    },
+    {
+      "id": "t030",
+      "family": "corporate-sidebar",
+      "ats_score": 49,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 20,
+        "left_gutter_px": 85,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins"
+        ],
+        "font_family_count": 1,
+        "size_min": 14,
+        "size_max": 45,
+        "size_avg": 15.8
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#002a85",
+          "#000000",
+          "rgb(0,0,0)",
+          "#022e8d",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "summary",
+          "skills"
+        ],
+        "column_structure": "two-column-balanced"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "High decoration density may distract from content hierarchy",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t031",
+      "family": "designer-portfolio",
+      "ats_score": 42,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 26,
+        "left_gutter_px": 80,
+        "negative_position_count": 4
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins",
+          "Inter"
+        ],
+        "font_family_count": 2,
+        "size_min": 16,
+        "size_max": 36,
+        "size_avg": 17.8
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#2563eb",
+          "#374151",
+          "rgb(0,0,0)",
+          "#6b7280",
+          "#fff5eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "profile"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "4 objects use negative coordinates",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t032",
+      "family": "designer-portfolio",
+      "ats_score": 29,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 16,
+        "left_gutter_px": 95,
+        "negative_position_count": 6
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins",
+          "Inter"
+        ],
+        "font_family_count": 2,
+        "size_min": 12,
+        "size_max": 47,
+        "size_avg": 14.6
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ca8a04",
+          "#6b7280",
+          "rgb(0,0,0)",
+          "#000000",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "education",
+          "summary",
+          "profile",
+          "certification",
+          "skills"
+        ],
+        "column_structure": "two-column-balanced"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "6 objects use negative coordinates",
+        "High decoration density may distract from content hierarchy",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Increase section gap to at least 24px"
+      ]
+    },
+    {
+      "id": "t033",
+      "family": "sales-marketing-visual",
+      "ats_score": 95,
+      "visual_score": 86,
+      "spacing_profile": {
+        "median_vertical_gap_px": 25,
+        "left_gutter_px": 75,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Inter"
+        ],
+        "font_family_count": 1,
+        "size_min": 12,
+        "size_max": 39,
+        "size_avg": 14.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#2563eb",
+          "#fff0f0"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "education",
+          "skills"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t034",
+      "family": "hospitality-service",
+      "ats_score": 34,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 20,
+        "left_gutter_px": 50,
+        "negative_position_count": 4
+      },
+      "typography_profile": {
+        "font_families": [
+          "Google Sans",
+          "Inter"
+        ],
+        "font_family_count": 2,
+        "size_min": 13,
+        "size_max": 40,
+        "size_avg": 15.6
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#5e0303",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "contact",
+          "experience",
+          "education",
+          "skills"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "4 objects use negative coordinates",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images"
+      ]
+    },
+    {
+      "id": "t035",
+      "family": "hospitality-service",
+      "ats_score": 72,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 25,
+        "left_gutter_px": 80,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Roboto",
+          "Montserrat",
+          "Poppins"
+        ],
+        "font_family_count": 3,
+        "size_min": 13,
+        "size_max": 44,
+        "size_avg": 18.2
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#6b7280",
+          "#111827",
+          "#ffffff",
+          "rgb(0,0,0)",
+          "#ededed",
+          "#000000"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "education",
+          "skills"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "Uses 3 font families — exceeds two-family guideline",
+        "High decoration density may distract from content hierarchy",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy",
+        "Consolidate to two font families maximum"
+      ]
+    },
+    {
+      "id": "t036",
+      "family": "hospitality-service",
+      "ats_score": 61,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 24,
+        "left_gutter_px": 65,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins",
+          "Inter"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 42,
+        "size_avg": 16.4
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#400c0c",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#fff9f0",
+          "#2b0d0d",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t037",
+      "family": "hospitality-service",
+      "ats_score": 32,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 38,
+        "left_gutter_px": 80,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins",
+          "Google Sans",
+          "Inter"
+        ],
+        "font_family_count": 3,
+        "size_min": 13,
+        "size_max": 38,
+        "size_avg": 16.9
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "rgb(0,0,0)",
+          "#9ca3af",
+          "#fff7e0",
+          "#e2dacb",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "skills",
+          "contact",
+          "education",
+          "project"
+        ],
+        "column_structure": "two-column-balanced"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "Uses 3 font families — exceeds two-family guideline",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Consolidate to two font families maximum"
+      ]
+    },
+    {
+      "id": "t038",
+      "family": "academic-entry",
+      "ats_score": 95,
+      "visual_score": 68,
+      "spacing_profile": {
+        "median_vertical_gap_px": 27,
+        "left_gutter_px": 70,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Inter"
+        ],
+        "font_family_count": 1,
+        "size_min": 13,
+        "size_max": 46,
+        "size_avg": 15.6
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "education",
+          "experience"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t039",
+      "family": "academic-entry",
+      "ats_score": 95,
+      "visual_score": 79,
+      "spacing_profile": {
+        "median_vertical_gap_px": 21,
+        "left_gutter_px": 75,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Prompt",
+          "Roboto"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 57,
+        "size_avg": 16.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#000000",
+          "#dc2626",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "contact"
+        ],
+        "column_structure": "two-column-balanced"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "minimal-decoration",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t040",
+      "family": "engineering-technical",
+      "ats_score": 90,
+      "visual_score": 83,
+      "spacing_profile": {
+        "median_vertical_gap_px": 24,
+        "left_gutter_px": 35,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Montserrat",
+          "Roboto"
+        ],
+        "font_family_count": 2,
+        "size_min": 16,
+        "size_max": 38,
+        "size_avg": 17.5
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#490daf",
+          "#ffffff",
+          "#f2ebff"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "contact",
+          "experience",
+          "skills",
+          "education",
+          "project"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "section-divider-lines",
+        "large-name-header"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t041",
+      "family": "healthcare-professional",
+      "ats_score": 67,
+      "visual_score": 98,
+      "spacing_profile": {
+        "median_vertical_gap_px": 20,
+        "left_gutter_px": 45,
+        "negative_position_count": 4
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins",
+          "Roboto"
+        ],
+        "font_family_count": 2,
+        "size_min": 16,
+        "size_max": 40,
+        "size_avg": 17.9
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#6b7280",
+          "rgb(0,0,0)",
+          "#ffeed6",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "education",
+          "certification",
+          "summary"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "large-name-header"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "4 objects use negative coordinates"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images"
+      ]
+    },
+    {
+      "id": "t042",
+      "family": "operations-management",
+      "ats_score": 100,
+      "visual_score": 82,
+      "spacing_profile": {
+        "median_vertical_gap_px": 29,
+        "left_gutter_px": 50,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Roboto",
+          "Lora"
+        ],
+        "font_family_count": 2,
+        "size_min": 16,
+        "size_max": 53,
+        "size_avg": 19.8
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff",
+          "#f0f0f0",
+          "#098b82"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "project",
+          "contact",
+          "summary",
+          "education",
+          "experience",
+          "skills"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t043",
+      "family": "engineering-technical",
+      "ats_score": 20,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 34,
+        "left_gutter_px": 25,
+        "negative_position_count": 11
+      },
+      "typography_profile": {
+        "font_families": [
+          "Lora",
+          "Montserrat"
+        ],
+        "font_family_count": 2,
+        "size_min": 15,
+        "size_max": 37,
+        "size_avg": 18.6
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#ffffff",
+          "rgb(0,0,0)",
+          "#000000",
+          "#4f46e5"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "skills",
+          "summary",
+          "education"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "section-divider-lines",
+        "large-name-header"
+      ],
+      "weaknesses": [
+        "11 objects use negative coordinates",
+        "High decoration density may distract from content hierarchy",
+        "Heavy grouping may affect export reading order",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t044",
+      "family": "corporate-sidebar",
+      "ats_score": 61,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 23,
+        "left_gutter_px": 65,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins",
+          "Inter"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 42,
+        "size_avg": 16.3
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#ffffff",
+          "rgb(0,0,0)",
+          "#0090a3",
+          "#0d4e5e",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t045",
+      "family": "creative-visual",
+      "ats_score": 47,
+      "visual_score": 97,
+      "spacing_profile": {
+        "median_vertical_gap_px": 35,
+        "left_gutter_px": 65,
+        "negative_position_count": 4
+      },
+      "typography_profile": {
+        "font_families": [
+          "Roboto"
+        ],
+        "font_family_count": 1,
+        "size_min": 12,
+        "size_max": 41,
+        "size_avg": 16.2
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ba1212",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "contact",
+          "skills",
+          "experience"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "4 objects use negative coordinates",
+        "High decoration density may distract from content hierarchy",
+        "Heavy grouping may affect export reading order",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images"
+      ]
+    },
+    {
+      "id": "t046",
+      "family": "academic-entry",
+      "ats_score": 82,
+      "visual_score": 81,
+      "spacing_profile": {
+        "median_vertical_gap_px": 28,
+        "left_gutter_px": 50,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Google Sans",
+          "Open Sans",
+          "Roboto"
+        ],
+        "font_family_count": 3,
+        "size_min": 16,
+        "size_max": 43,
+        "size_avg": 19.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#000000",
+          "#4106a7",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "education",
+          "skills",
+          "certification"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Uses 3 font families — exceeds two-family guideline",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Consolidate to two font families maximum"
+      ]
+    },
+    {
+      "id": "t047",
+      "family": "engineering-technical",
+      "ats_score": 100,
+      "visual_score": 68,
+      "spacing_profile": {
+        "median_vertical_gap_px": 25,
+        "left_gutter_px": 45,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "DM Sans"
+        ],
+        "font_family_count": 1,
+        "size_min": 13,
+        "size_max": 40,
+        "size_avg": 16.4
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "rgb(0,0,0)",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "education",
+          "skills",
+          "certification"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "section-divider-lines",
+        "large-name-header"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t048",
+      "family": "hr-people-ops",
+      "ats_score": 100,
+      "visual_score": 82,
+      "spacing_profile": {
+        "median_vertical_gap_px": 29,
+        "left_gutter_px": 50,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Roboto",
+          "Lora"
+        ],
+        "font_family_count": 2,
+        "size_min": 16,
+        "size_max": 53,
+        "size_avg": 19.8
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff",
+          "#f0f0f0",
+          "#002066"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "contact",
+          "summary",
+          "education",
+          "experience",
+          "skills"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t049",
+      "family": "operations-management",
+      "ats_score": 95,
+      "visual_score": 74,
+      "spacing_profile": {
+        "median_vertical_gap_px": 28,
+        "left_gutter_px": 60,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Inter",
+          "Playfair Display"
+        ],
+        "font_family_count": 2,
+        "size_min": 16,
+        "size_max": 34,
+        "size_avg": 17.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "education",
+          "skills"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "section-divider-lines",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t050",
+      "family": "engineering-technical",
+      "ats_score": 54,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 30,
+        "left_gutter_px": 45,
+        "negative_position_count": 3
+      },
+      "typography_profile": {
+        "font_families": [
+          "Playfair Display",
+          "Roboto",
+          "Roboto Slab"
+        ],
+        "font_family_count": 3,
+        "size_min": 16,
+        "size_max": 54,
+        "size_avg": 18.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff",
+          "rgb(0,0,0)",
+          "#0891b2"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "contact",
+          "summary",
+          "certification",
+          "skills",
+          "education"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "3 objects use negative coordinates",
+        "Uses 3 font families — exceeds two-family guideline",
+        "High decoration density may distract from content hierarchy",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Consolidate to two font families maximum"
+      ]
+    },
+    {
+      "id": "t051",
+      "family": "sales-marketing-visual",
+      "ats_score": 75,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 35,
+        "left_gutter_px": 30,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Montserrat",
+          "Roboto"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 46,
+        "size_avg": 19.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#0891b2",
+          "#000000",
+          "#ffffff",
+          "#05bdeb",
+          "rgb(0,0,0)"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "education",
+          "experience",
+          "skills",
+          "certification"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "large-name-header"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "High decoration density may distract from content hierarchy",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images"
+      ]
+    },
+    {
+      "id": "t052",
+      "family": "healthcare-professional",
+      "ats_score": 42,
+      "visual_score": 97,
+      "spacing_profile": {
+        "median_vertical_gap_px": 19,
+        "left_gutter_px": 75,
+        "negative_position_count": 7
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins",
+          "Roboto"
+        ],
+        "font_family_count": 2,
+        "size_min": 12,
+        "size_max": 50,
+        "size_avg": 16.1
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#000000",
+          "rgb(0,0,0)",
+          "#6b7280",
+          "#ffffff",
+          "#e6edf4"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "skills",
+          "summary",
+          "certification",
+          "education"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "7 objects use negative coordinates",
+        "High decoration density may distract from content hierarchy",
+        "Heavy grouping may affect export reading order",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images"
+      ]
+    },
+    {
+      "id": "t053",
+      "family": "designer-portfolio",
+      "ats_score": 50,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 42,
+        "left_gutter_px": 40,
+        "negative_position_count": 5
+      },
+      "typography_profile": {
+        "font_families": [
+          "Roboto",
+          "Poppins"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 44,
+        "size_avg": 17.4
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff",
+          "#0891b2",
+          "rgba(17,24,39,0.1)",
+          "rgb(0,0,0)",
+          "#000000"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "experience",
+          "contact",
+          "education",
+          "skills"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "5 objects use negative coordinates",
+        "High decoration density may distract from content hierarchy",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images"
+      ]
+    },
+    {
+      "id": "t054",
+      "family": "sales-marketing-visual",
+      "ats_score": 20,
+      "visual_score": 89,
+      "spacing_profile": {
+        "median_vertical_gap_px": 40,
+        "left_gutter_px": 45,
+        "negative_position_count": 7
+      },
+      "typography_profile": {
+        "font_families": [
+          "Montserrat",
+          "Poppins"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 32,
+        "size_avg": 16.6
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#7c3aed",
+          "rgb(0,0,0)",
+          "#9ca3af",
+          "#ffffff",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "skills",
+          "experience"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "profile-image-slot",
+        "section-divider-lines"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "7 objects use negative coordinates",
+        "Heavy grouping may affect export reading order"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t055",
+      "family": "finance-conservative",
+      "ats_score": 90,
+      "visual_score": 77,
+      "spacing_profile": {
+        "median_vertical_gap_px": 33,
+        "left_gutter_px": 70,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins"
+        ],
+        "font_family_count": 1,
+        "size_min": 12,
+        "size_max": 32,
+        "size_avg": 15.2
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "skills",
+          "experience",
+          "education"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "section-divider-lines",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t056",
+      "family": "designer-portfolio",
+      "ats_score": 63,
+      "visual_score": 94,
+      "spacing_profile": {
+        "median_vertical_gap_px": 48,
+        "left_gutter_px": 40,
+        "negative_position_count": 4
+      },
+      "typography_profile": {
+        "font_families": [
+          "Lora",
+          "Montserrat"
+        ],
+        "font_family_count": 2,
+        "size_min": 13,
+        "size_max": 48,
+        "size_avg": 17.8
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#000000",
+          "#111827",
+          "#ffffff",
+          "rgb(0,0,0)",
+          "#dce1ea",
+          "#6b818e"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "contact",
+          "summary",
+          "skills",
+          "certification",
+          "education"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "section-divider-lines",
+        "large-name-header"
+      ],
+      "weaknesses": [
+        "4 objects use negative coordinates",
+        "High decoration density may distract from content hierarchy",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images"
+      ]
+    },
+    {
+      "id": "t057",
+      "family": "administrative-ats",
+      "ats_score": 100,
+      "visual_score": 82,
+      "spacing_profile": {
+        "median_vertical_gap_px": 29,
+        "left_gutter_px": 55,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Roboto",
+          "Lora"
+        ],
+        "font_family_count": 2,
+        "size_min": 16,
+        "size_max": 53,
+        "size_avg": 19.8
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff",
+          "#f0f0f0",
+          "#0901a7"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "contact",
+          "summary",
+          "education",
+          "experience",
+          "skills",
+          "project"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t058",
+      "family": "corporate-sidebar",
+      "ats_score": 38,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 49,
+        "left_gutter_px": 80,
+        "negative_position_count": 6
+      },
+      "typography_profile": {
+        "font_families": [
+          "Google Sans",
+          "Inter"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 42,
+        "size_avg": 18.1
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#000000",
+          "rgb(0,0,0)",
+          "#9333ea",
+          "#ffffff",
+          "#9743e5",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "project",
+          "experience",
+          "skills",
+          "education"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "6 objects use negative coordinates",
+        "High decoration density may distract from content hierarchy",
+        "Heavy grouping may affect export reading order"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images"
+      ]
+    },
+    {
+      "id": "t059",
+      "family": "healthcare-professional",
+      "ats_score": 85,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 28,
+        "left_gutter_px": 25,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins"
+        ],
+        "font_family_count": 1,
+        "size_min": 15,
+        "size_max": 46,
+        "size_avg": 18.8
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#000000",
+          "#ea580c",
+          "#fc6703",
+          "#ffffff",
+          "#111827",
+          "#eaeaec"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "skills",
+          "education",
+          "certification"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "large-name-header"
+      ],
+      "weaknesses": [
+        "High decoration density may distract from content hierarchy"
+      ],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t060",
+      "family": "finance-conservative",
+      "ats_score": 20,
+      "visual_score": 84,
+      "spacing_profile": {
+        "median_vertical_gap_px": 9,
+        "left_gutter_px": 20,
+        "negative_position_count": 19
+      },
+      "typography_profile": {
+        "font_families": [
+          "Roboto",
+          "Noto Serif"
+        ],
+        "font_family_count": 2,
+        "size_min": 13,
+        "size_max": 54,
+        "size_avg": 17.1
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#0891b2"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "education",
+          "certification",
+          "summary",
+          "skills",
+          "experience"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "large-name-header"
+      ],
+      "weaknesses": [
+        "19 objects use negative coordinates",
+        "Heavy grouping may affect export reading order"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Increase section gap to at least 24px"
+      ]
+    },
+    {
+      "id": "t061",
+      "family": "operations-management",
+      "ats_score": 100,
+      "visual_score": 82,
+      "spacing_profile": {
+        "median_vertical_gap_px": 29,
+        "left_gutter_px": 50,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Roboto",
+          "Lora"
+        ],
+        "font_family_count": 2,
+        "size_min": 16,
+        "size_max": 53,
+        "size_avg": 19.8
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff",
+          "#f0f0f0",
+          "#2cb1dd"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "contact",
+          "summary",
+          "education",
+          "experience",
+          "project",
+          "skills"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t062",
+      "family": "hr-people-ops",
+      "ats_score": 85,
+      "visual_score": 90,
+      "spacing_profile": {
+        "median_vertical_gap_px": 26,
+        "left_gutter_px": 50,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Archivo",
+          "Open Sans"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 32,
+        "size_avg": 15.4
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#2563eb",
+          "#000000",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "experience",
+          "education"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "profile-image-slot",
+        "section-divider-lines",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t063",
+      "family": "healthcare-professional",
+      "ats_score": 90,
+      "visual_score": 91,
+      "spacing_profile": {
+        "median_vertical_gap_px": 37,
+        "left_gutter_px": 50,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Montserrat",
+          "DM Sans"
+        ],
+        "font_family_count": 2,
+        "size_min": 13,
+        "size_max": 40,
+        "size_avg": 16.3
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff",
+          "#0891b2",
+          "rgb(0,0,0)"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "experience",
+          "education",
+          "skills"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t064",
+      "family": "operations-management",
+      "ats_score": 85,
+      "visual_score": 99,
+      "spacing_profile": {
+        "median_vertical_gap_px": 31,
+        "left_gutter_px": 75,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Roboto",
+          "Poppins"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 49,
+        "size_avg": 17.9
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff",
+          "#9ca3af",
+          "#000000",
+          "rgb(0,0,0)",
+          "#ffe45c"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "project",
+          "education"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t065",
+      "family": "engineering-technical",
+      "ats_score": 45,
+      "visual_score": 96,
+      "spacing_profile": {
+        "median_vertical_gap_px": 22,
+        "left_gutter_px": 85,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Montserrat",
+          "Roboto",
+          "Inter"
+        ],
+        "font_family_count": 3,
+        "size_min": 12,
+        "size_max": 39,
+        "size_avg": 14.6
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#6b7280",
+          "#374151",
+          "#2563eb",
+          "rgb(0,0,0)",
+          "#111827",
+          "#012f93"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "skills",
+          "certification"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "Uses 3 font families — exceeds two-family guideline",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy",
+        "Consolidate to two font families maximum"
+      ]
+    },
+    {
+      "id": "t066",
+      "family": "executive-ats",
+      "ats_score": 90,
+      "visual_score": 86,
+      "spacing_profile": {
+        "median_vertical_gap_px": 38,
+        "left_gutter_px": 50,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "DM Sans"
+        ],
+        "font_family_count": 1,
+        "size_min": 13,
+        "size_max": 40,
+        "size_avg": 16.3
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff",
+          "#059669",
+          "rgb(0,0,0)"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "experience",
+          "education",
+          "skills"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t067",
+      "family": "engineering-technical",
+      "ats_score": 95,
+      "visual_score": 78,
+      "spacing_profile": {
+        "median_vertical_gap_px": 31,
+        "left_gutter_px": 75,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "DM Sans"
+        ],
+        "font_family_count": 1,
+        "size_min": 13,
+        "size_max": 40,
+        "size_avg": 15.9
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#000000",
+          "#ffffff",
+          "rgb(0,0,0)"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "experience",
+          "education",
+          "skills"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t068",
+      "family": "sales-marketing-visual",
+      "ats_score": 33,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 28,
+        "left_gutter_px": 80,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Montserrat"
+        ],
+        "font_family_count": 1,
+        "size_min": 12,
+        "size_max": 39,
+        "size_avg": 14.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#000000",
+          "rgb(0,0,0)",
+          "#111827",
+          "#ffffff",
+          "#ff9999",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "profile"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "High decoration density may distract from content hierarchy",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t069",
+      "family": "healthcare-professional",
+      "ats_score": 33,
+      "visual_score": 76,
+      "spacing_profile": {
+        "median_vertical_gap_px": 17,
+        "left_gutter_px": 50,
+        "negative_position_count": 19
+      },
+      "typography_profile": {
+        "font_families": [
+          "Heebo"
+        ],
+        "font_family_count": 1,
+        "size_min": 11,
+        "size_max": 33,
+        "size_avg": 13
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#374151",
+          "#111827",
+          "#ffffff",
+          "rgb(0,0,0)",
+          "#059669"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "education",
+          "certification",
+          "skills",
+          "experience"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "minimal-decoration",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "19 objects use negative coordinates"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Increase section gap to at least 24px"
+      ]
+    },
+    {
+      "id": "t070",
+      "family": "engineering-technical",
+      "ats_score": 90,
+      "visual_score": 83,
+      "spacing_profile": {
+        "median_vertical_gap_px": 21,
+        "left_gutter_px": 40,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins",
+          "Open Sans"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 39,
+        "size_avg": 16
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#2563eb",
+          "rgb(0,0,0)",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "skills",
+          "profile",
+          "experience",
+          "education"
+        ],
+        "column_structure": "two-column-balanced"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "section-divider-lines",
+        "large-name-header"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": []
+    },
+    {
+      "id": "t071",
+      "family": "sales-marketing-visual",
+      "ats_score": 85,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 18,
+        "left_gutter_px": 35,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Archivo",
+          "Roboto"
+        ],
+        "font_family_count": 2,
+        "size_min": 13,
+        "size_max": 41,
+        "size_avg": 14.3
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#000000",
+          "#ffffff",
+          "rgb(0,0,0)",
+          "#2b2777",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "contact",
+          "profile",
+          "experience"
+        ],
+        "column_structure": "two-column-balanced"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "large-name-header"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t072",
+      "family": "corporate-sidebar",
+      "ats_score": 72,
+      "visual_score": 99,
+      "spacing_profile": {
+        "median_vertical_gap_px": 50,
+        "left_gutter_px": 35,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "BIZ UDPGothic",
+          "Poppins",
+          "Roboto"
+        ],
+        "font_family_count": 3,
+        "size_min": 14,
+        "size_max": 35,
+        "size_avg": 18.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff",
+          "rgb(0,0,0)",
+          "#374151",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "skills",
+          "education"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "Uses 3 font families — exceeds two-family guideline",
+        "High decoration density may distract from content hierarchy"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy",
+        "Consolidate to two font families maximum"
+      ]
+    },
+    {
+      "id": "t073",
+      "family": "engineering-technical",
+      "ats_score": 77,
+      "visual_score": 96,
+      "spacing_profile": {
+        "median_vertical_gap_px": 31,
+        "left_gutter_px": 50,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Roboto Slab",
+          "Poppins",
+          "Open Sans"
+        ],
+        "font_family_count": 3,
+        "size_min": 16,
+        "size_max": 52,
+        "size_avg": 18.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#ffffff",
+          "#111827",
+          "#0d9488",
+          "#000000",
+          "rgb(0,0,0)",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "skills",
+          "education"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "profile-image-slot",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "Uses 3 font families — exceeds two-family guideline",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy",
+        "Consolidate to two font families maximum"
+      ]
+    },
+    {
+      "id": "t074",
+      "family": "corporate-sidebar",
+      "ats_score": 26,
+      "visual_score": 100,
+      "spacing_profile": {
+        "median_vertical_gap_px": 32,
+        "left_gutter_px": 55,
+        "negative_position_count": 4
+      },
+      "typography_profile": {
+        "font_families": [
+          "Inter",
+          "Poppins",
+          "Open Sans"
+        ],
+        "font_family_count": 3,
+        "size_min": 12,
+        "size_max": 51,
+        "size_avg": 16.5
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "rgb(0,0,0)",
+          "#ffffff",
+          "#bde6ff",
+          "#e5e7eb"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "education",
+          "experience",
+          "profile"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "accent-sidebar-block",
+        "profile-image-slot",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "4 objects use negative coordinates",
+        "Uses 3 font families — exceeds two-family guideline",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Strengthen explicit section heading hierarchy",
+        "Consolidate to two font families maximum"
+      ]
+    },
+    {
+      "id": "t075",
+      "family": "healthcare-professional",
+      "ats_score": 20,
+      "visual_score": 98,
+      "spacing_profile": {
+        "median_vertical_gap_px": 16,
+        "left_gutter_px": 95,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins",
+          "Inter"
+        ],
+        "font_family_count": 2,
+        "size_min": 12,
+        "size_max": 47,
+        "size_avg": 15.1
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "rgb(0,0,0)",
+          "#000000",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "education",
+          "summary",
+          "profile",
+          "certification",
+          "skills"
+        ],
+        "column_structure": "sidebar-right"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "profile-image-slot",
+        "skill-progress-bars",
+        "star-rating-widget",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [
+        "Contains images that may reduce ATS parse reliability",
+        "Progress bars or star ratings are not ATS-safe widgets",
+        "Heavy grouping may affect export reading order",
+        "Multi-column layout increases ATS reading-order risk"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images",
+        "Increase section gap to at least 24px"
+      ]
+    },
+    {
+      "id": "t076",
+      "family": "hr-people-ops",
+      "ats_score": 95,
+      "visual_score": 75,
+      "spacing_profile": {
+        "median_vertical_gap_px": 25,
+        "left_gutter_px": 75,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Inter"
+        ],
+        "font_family_count": 1,
+        "size_min": 12,
+        "size_max": 39,
+        "size_avg": 14.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#2563eb",
+          "rgb(0,0,0)",
+          "#ffffff"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "education",
+          "skills"
+        ],
+        "column_structure": "sidebar-left"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "section-divider-lines",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t077",
+      "family": "sales-marketing-ats",
+      "ats_score": 100,
+      "visual_score": 67,
+      "spacing_profile": {
+        "median_vertical_gap_px": 27,
+        "left_gutter_px": 70,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Inter"
+        ],
+        "font_family_count": 1,
+        "size_min": 13,
+        "size_max": 46,
+        "size_avg": 15.6
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#ffffff",
+          "rgb(0,0,0)"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "education",
+          "experience"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t078",
+      "family": "finance-conservative",
+      "ats_score": 95,
+      "visual_score": 79,
+      "spacing_profile": {
+        "median_vertical_gap_px": 21,
+        "left_gutter_px": 75,
+        "negative_position_count": 0
+      },
+      "typography_profile": {
+        "font_families": [
+          "Prompt",
+          "Roboto"
+        ],
+        "font_family_count": 2,
+        "size_min": 14,
+        "size_max": 57,
+        "size_avg": 16.7
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#000000",
+          "#2563eb",
+          "rgb(0,0,0)"
+        ],
+        "has_dark_sidebar": false
+      },
+      "section_profile": {
+        "detected_order": [
+          "summary",
+          "contact"
+        ],
+        "column_structure": "two-column-balanced"
+      },
+      "reusable_components": [
+        "two-column-layout",
+        "minimal-decoration",
+        "large-name-header",
+        "wide-left-margin"
+      ],
+      "weaknesses": [],
+      "improvement_opportunities": [
+        "Strengthen explicit section heading hierarchy"
+      ]
+    },
+    {
+      "id": "t079",
+      "family": "corporate-sidebar",
+      "ats_score": 80,
+      "visual_score": 82,
+      "spacing_profile": {
+        "median_vertical_gap_px": 20,
+        "left_gutter_px": 45,
+        "negative_position_count": 4
+      },
+      "typography_profile": {
+        "font_families": [
+          "Poppins",
+          "Roboto"
+        ],
+        "font_family_count": 2,
+        "size_min": 16,
+        "size_max": 40,
+        "size_avg": 17.9
+      },
+      "color_profile": {
+        "dominant_colors": [
+          "#111827",
+          "#6b7280",
+          "rgb(0,0,0)",
+          "#ffeed6"
+        ],
+        "has_dark_sidebar": true
+      },
+      "section_profile": {
+        "detected_order": [
+          "experience",
+          "education",
+          "certification",
+          "summary"
+        ],
+        "column_structure": "single"
+      },
+      "reusable_components": [
+        "accent-sidebar-block",
+        "large-name-header"
+      ],
+      "weaknesses": [
+        "4 objects use negative coordinates"
+      ],
+      "improvement_opportunities": [
+        "Offer ATS-safe variant with single column and no images"
+      ]
+    }
+  ]
+}

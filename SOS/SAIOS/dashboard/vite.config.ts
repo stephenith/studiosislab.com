@@ -12,5 +12,6 @@ export default defineConfig({
   server: {
     port: 4310,
     strictPort: true,
+    allowedHosts: ["founder.studiosislab.com"],
   },
 });

@@ -190,6 +190,7 @@
     "aios:revision:layout-lanes:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-layout-lanes.ts",
     "aios:revision:plan-geometry:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-plan-geometry-safety.ts",
     "aios:revision:planner-hardening:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-revision-planner-hardening.ts",
+    "aios:revision:directional-intent:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-directional-intent-parsing.ts",
     "aios:revision:wrap-aware-height:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-wrap-aware-text-height.ts",
     "aios:terminology:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-resume-template-terminology.ts",
     "aios:revision:feedback:repair-gd": "npx --yes tsx SOS/SAIOS/core/founder-revision/repair-revfb-critic-artifacts.ts --graphic-designer",

@@ -146,8 +146,30 @@ export function stripIdentityPositionOps(
 
 export type VerticalDirection = "up" | "down" | "left" | "right";
 
+/** Movement verbs that can bind a direction (imperative constructions). */
+const MOVE_VERB_RE =
+  /\b(?:mov(?:e|ing|ed)|shift(?:ing|ed)?|nudg(?:e|ing|ed)|reposition(?:ing|ed)?|adjust(?:ing|ed)?)\b/;
+
+/**
+ * Descriptive "lower X" / "the lower X" nouns — NOT imperative movement.
+ * "lower edge", "the lower section", "lower left" must remain direction-none.
+ */
+const LOWER_DESCRIPTIVE_RE =
+  /\b(?:the|a|an)\s+lower\b|\blower\s+(?:edge|half|area|part|portion|band|margin|padding|boundar\w*|region|corner|left|right|quarter|third|side)\b/;
+
+/**
+ * Imperative verb "lower …" (e.g. "lower the contact row"), excluding
+ * descriptive adjective uses matched by LOWER_DESCRIPTIVE_RE.
+ */
+const LOWER_VERB_RE =
+  /(?:^|[.!?;:]\s*|\b(?:please|then|and)\s+)\s*lower\s+(?:the\s+)?(?!edge|half|area|part|portion|band|margin|padding|boundar\w*|region|corner|left|right|quarter|third|side)\S+/;
+
 /**
  * Parse explicit vertical/horizontal direction from Founder or intended_change text.
+ *
+ * Binds only EXPLICIT MOVEMENT INTENT (imperative verbs / *ward forms).
+ * Descriptive location language (lower edge, bottom padding, section below)
+ * must not create a direction requirement.
  */
 export function parseExplicitMoveDirections(text: string): Set<VerticalDirection> {
   const n = text
@@ -158,21 +180,66 @@ export function parseExplicitMoveDirections(text: string): Set<VerticalDirection
     .toLowerCase();
   const out = new Set<VerticalDirection>();
   if (!n) return out;
-  if (/\b(upward|upwards|higher)\b/.test(n) || /\bmove\b[\s\S]{0,40}\bup\b/.test(n)) {
-    out.add("up");
+
+  // Explicit *-ward movement forms.
+  if (/\b(upward|upwards)\b/.test(n)) out.add("up");
+  if (/\b(downward|downwards)\b/.test(n)) out.add("down");
+  if (/\bleftward\b/.test(n)) out.add("left");
+  if (/\brightward\b/.test(n)) out.add("right");
+
+  // Imperative raise → up.
+  if (/\braise\b/.test(n)) out.add("up");
+
+  // Imperative lower → down (not "lower edge" / "the lower section").
+  if (!LOWER_DESCRIPTIVE_RE.test(n) && LOWER_VERB_RE.test(n)) {
+    out.add("down");
   }
+  // Also: sentence-initial / mid-clause "lower the <object>" without needing
+  // leading punctuation when object is clearly a layout target word.
   if (
-    /\b(downward|downwards|lower)\b/.test(n) ||
-    /\bmove\b[\s\S]{0,40}\bdown\b/.test(n)
+    !LOWER_DESCRIPTIVE_RE.test(n) &&
+    /\blower\s+(?:the\s+)?(?:contact[\w-]*|row|block|object|heading|textbox|name|role|title|section|column|sidebar|marker|band)\b/.test(
+      n,
+    )
   ) {
     out.add("down");
   }
-  if (/\b(leftward)\b/.test(n) || /\bmove\b[\s\S]{0,40}\bleft\b/.test(n)) {
-    out.add("left");
+
+  // move/shift/nudge/reposition/adjust … direction (incl. higher/lower as adverbs).
+  if (MOVE_VERB_RE.test(n)) {
+    if (
+      /\b(?:upward|upwards|higher)\b/.test(n) ||
+      /\b(?:mov(?:e|ing|ed)|shift(?:ing|ed)?|nudg(?:e|ing|ed)|reposition(?:ing|ed)?|adjust(?:ing|ed)?)\b[\s\S]{0,48}\bup\b/.test(
+        n,
+      )
+    ) {
+      out.add("up");
+    }
+    if (
+      /\b(?:downward|downwards)\b/.test(n) ||
+      (/\blower\b/.test(n) && !LOWER_DESCRIPTIVE_RE.test(n)) ||
+      /\b(?:mov(?:e|ing|ed)|shift(?:ing|ed)?|nudg(?:e|ing|ed)|reposition(?:ing|ed)?|adjust(?:ing|ed)?)\b[\s\S]{0,48}\bdown\b/.test(
+        n,
+      )
+    ) {
+      out.add("down");
+    }
+    if (
+      /\b(?:mov(?:e|ing|ed)|shift(?:ing|ed)?|nudg(?:e|ing|ed)|reposition(?:ing|ed)?|adjust(?:ing|ed)?)\b[\s\S]{0,48}\bleft\b/.test(
+        n,
+      )
+    ) {
+      out.add("left");
+    }
+    if (
+      /\b(?:mov(?:e|ing|ed)|shift(?:ing|ed)?|nudg(?:e|ing|ed)|reposition(?:ing|ed)?|adjust(?:ing|ed)?)\b[\s\S]{0,48}\bright\b/.test(
+        n,
+      )
+    ) {
+      out.add("right");
+    }
   }
-  if (/\b(rightward)\b/.test(n) || /\bmove\b[\s\S]{0,40}\bright\b/.test(n)) {
-    out.add("right");
-  }
+
   return out;
 }
 

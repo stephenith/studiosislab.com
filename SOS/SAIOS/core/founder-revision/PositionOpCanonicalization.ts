@@ -243,8 +243,17 @@ export function parseExplicitMoveDirections(text: string): Set<VerticalDirection
   return out;
 }
 
+function normalizeFeedbackText(text: string): string {
+  return text
+    .replace(/^\*+\s*/, "")
+    .replace(/^\d+\.\s*/, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
 function sectionTokensFromText(text: string): string[] {
-  const n = text.toLowerCase();
+  const n = normalizeFeedbackText(text);
   const sections = [
     "summary",
     "education",
@@ -255,8 +264,194 @@ function sectionTokensFromText(text: string): string[] {
     "projects",
     "contact",
     "header",
+    "sidebar",
   ];
   return sections.filter((s) => new RegExp(`\\b${s}\\b`).test(n));
+}
+
+/** Object classes that can receive OBJECT_SPECIFIC directional intent. */
+export type DirectionObjectClass =
+  | "contact"
+  | "role"
+  | "name"
+  | "heading"
+  | "body"
+  | "background"
+  | "marker";
+
+export type DirectionScope = "object" | "section";
+
+const SECTION_SCOPE_RE =
+  /\b(?:entire|whole|all)\b|\b(?:summary|education|skills|certifications|languages|experience|projects|header|sidebar|column)s?\s+section\b|\bsection\s+(?:of\s+)?(?:the\s+)?(?:summary|education|skills|certifications|languages|experience|projects|header|sidebar)\b|\b(?:entire|whole)\s+(?:header|sidebar|column|block)\b|\b(?:header|sidebar)\s+block\b/;
+
+/**
+ * Detect object-class nouns in directional feedback.
+ * Containment phrases like "within the blue header" do not create a background
+ * class — only explicit rectangle/background wording does.
+ */
+export function objectClassesFromText(text: string): DirectionObjectClass[] {
+  const n = normalizeFeedbackText(text);
+  const out: DirectionObjectClass[] = [];
+  if (
+    /\bcontact(?:[\s-]*information)?(?:\s+row)?\b|\bcontact\s+details?\b|\bcontact[\s-]*info\b/.test(
+      n,
+    )
+  ) {
+    out.push("contact");
+  }
+  if (/\brole(?:\s+title)?\b|\btitle\s+row\b/.test(n)) {
+    out.push("role");
+  }
+  if (/\b(?:the\s+)?name\b|\bcandidate\s+name\b|\bheader\s+name\b/.test(n)) {
+    out.push("name");
+  }
+  if (/\b(?:section\s+)?headings?\b/.test(n)) {
+    out.push("heading");
+  }
+  if (/\bbody(?:\s+text|\s+content)?\b/.test(n)) {
+    out.push("body");
+  }
+  if (
+    /\b(?:background(?:\s+rectangle)?|header\s+rectangle|rectangle|pale[\s-]?strip|header[\s-]?band|header\s+background)\b/.test(
+      n,
+    )
+  ) {
+    out.push("background");
+  }
+  if (/\bmarkers?\b/.test(n)) {
+    out.push("marker");
+  }
+  return out;
+}
+
+/**
+ * OBJECT_SPECIFIC when feedback names concrete object classes and does not
+ * use section/group-wide wording. Otherwise SECTION_SPECIFIC (fail-closed
+ * for section-token matching).
+ */
+export function detectDirectionScope(text: string): DirectionScope {
+  const n = normalizeFeedbackText(text);
+  if (!n) return "section";
+  if (SECTION_SCOPE_RE.test(n)) return "section";
+  if (objectClassesFromText(n).length > 0) return "object";
+  return "section";
+}
+
+function inventoryObjectForOp(
+  op: CanvasOperation,
+  inventory: CanvasInventoryObject[],
+): CanvasInventoryObject | undefined {
+  const tid = typeof op.target_id === "string" ? op.target_id.trim() : "";
+  if (!tid) return undefined;
+  return inventory.find((o) => o.id === tid);
+}
+
+function isContactLikeObject(obj: CanvasInventoryObject): boolean {
+  const role = String(obj.role ?? "").toLowerCase();
+  const id = String(obj.id ?? "").toLowerCase();
+  const text = String(obj.text ?? "");
+  if (/\bcontact\b/.test(role) || /\bcontact\b/.test(id)) return true;
+  if (/@/.test(text)) return true;
+  if (/\(\s*\d{3}\s*\)/.test(text) || /\b\d{3}[-.\s]\d{3}[-.\s]\d{4}\b/.test(text)) {
+    return true;
+  }
+  return false;
+}
+
+function isBackgroundLikeObject(obj: CanvasInventoryObject): boolean {
+  const role = String(obj.role ?? "").toLowerCase();
+  const type = String(obj.type ?? "").toLowerCase();
+  if (type === "rect" || type === "rectangle") return true;
+  return /band|strip|background|bg|pale/.test(role);
+}
+
+function isNameLikeObject(obj: CanvasInventoryObject): boolean {
+  const role = String(obj.role ?? "").toLowerCase();
+  if (/\bname\b/.test(role) || role === "header-name") return true;
+  // Header textbox without contact signals — typical name line.
+  if (
+    String(obj.section ?? "").toLowerCase() === "header" &&
+    /text/.test(String(obj.type ?? "").toLowerCase()) &&
+    !isContactLikeObject(obj) &&
+    !isBackgroundLikeObject(obj)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function isRoleLikeObject(obj: CanvasInventoryObject): boolean {
+  const role = String(obj.role ?? "").toLowerCase();
+  if (/\brole\b/.test(role) || /\btitle\b/.test(role)) return true;
+  // Combined role+contact rows (common in headers).
+  if (isContactLikeObject(obj) && /text/.test(String(obj.type ?? "").toLowerCase())) {
+    const text = String(obj.text ?? "");
+    if (/[·|]/.test(text) || /\s{2,}/.test(text)) return true;
+  }
+  return false;
+}
+
+function isHeadingLikeObject(obj: CanvasInventoryObject): boolean {
+  const role = String(obj.role ?? "").toLowerCase();
+  return /\bheading\b/.test(role) || /\blabel\b/.test(role);
+}
+
+function isBodyLikeObject(obj: CanvasInventoryObject): boolean {
+  const role = String(obj.role ?? "").toLowerCase();
+  return role === "body" || /\bbody\b/.test(role);
+}
+
+function isMarkerLikeObject(obj: CanvasInventoryObject): boolean {
+  const role = String(obj.role ?? "").toLowerCase();
+  return /\bmarker\b/.test(role) || /\baccent\b/.test(role);
+}
+
+export function inventoryMatchesObjectClass(
+  obj: CanvasInventoryObject,
+  cls: DirectionObjectClass,
+): boolean {
+  switch (cls) {
+    case "contact":
+      return isContactLikeObject(obj);
+    case "role":
+      return isRoleLikeObject(obj);
+    case "name":
+      return isNameLikeObject(obj);
+    case "heading":
+      return isHeadingLikeObject(obj);
+    case "body":
+      return isBodyLikeObject(obj);
+    case "background":
+      return isBackgroundLikeObject(obj);
+    case "marker":
+      return isMarkerLikeObject(obj);
+    default:
+      return false;
+  }
+}
+
+function feedbackAppliesToOp(input: {
+  feedbackText: string;
+  scope: DirectionScope;
+  sections: string[];
+  objectClasses: DirectionObjectClass[];
+  op: CanvasOperation;
+  inventory: CanvasInventoryObject[];
+  section: string | null;
+}): boolean {
+  const { scope, sections, objectClasses, op, inventory, section } = input;
+  if (scope === "object") {
+    if (objectClasses.length === 0) return false;
+    const obj = inventoryObjectForOp(op, inventory);
+    if (!obj) return false;
+    return objectClasses.some((cls) => inventoryMatchesObjectClass(obj, cls));
+  }
+  // SECTION_SPECIFIC — bind by section/group token overlap only.
+  if (sections.length === 0) return false;
+  if (!section) return false;
+  return sections.some(
+    (s) => section === s || section.includes(s) || s.includes(section),
+  );
 }
 
 function opTargetSection(
@@ -302,8 +497,14 @@ function netDeltaLeft(
 
 /**
  * Fail closed when an op's geometry moves opposite to explicit Founder /
- * intended_change direction for the same section (e.g. "move Languages upward"
- * must not produce positive delta_top).
+ * intended_change direction for the matching target scope.
+ *
+ * OBJECT_SPECIFIC feedback (e.g. "move the contact row upward") binds only to
+ * matching objects — mentioning a containing section ("within the header")
+ * does not expand intent to every object in that section.
+ *
+ * SECTION_SPECIFIC feedback (e.g. "move the Languages section upward",
+ * "move the entire header upward") binds to operations in that section/group.
  */
 export function validatePlanVerticalDirections(input: {
   plan: RevisionPlan;
@@ -315,6 +516,8 @@ export function validatePlanVerticalDirections(input: {
     text: string;
     sections: string[];
     dirs: Set<VerticalDirection>;
+    scope: DirectionScope;
+    objectClasses: DirectionObjectClass[];
   }> = [];
 
   for (const change of input.requested_changes) {
@@ -324,6 +527,8 @@ export function validatePlanVerticalDirections(input: {
       text: change,
       sections: sectionTokensFromText(change),
       dirs,
+      scope: detectDirectionScope(change),
+      objectClasses: objectClassesFromText(change),
     });
   }
 
@@ -334,32 +539,40 @@ export function validatePlanVerticalDirections(input: {
     const intendedDirs = parseExplicitMoveDirections(op.intended_change ?? "");
     const fbText = op.founder_feedback_item ?? "";
     const fbDirs = parseExplicitMoveDirections(fbText);
-    const fbSections = sectionTokensFromText(fbText);
     const section = opTargetSection(op, input.inventory);
 
-    const matchedFeedback = feedbackDirs.filter((f) => {
-      if (f.sections.length === 0) return false;
-      if (!section) return false;
-      return f.sections.some(
-        (s) => section === s || section.includes(s) || s.includes(section),
-      );
-    });
+    const matchedFeedback = feedbackDirs.filter((f) =>
+      feedbackAppliesToOp({
+        feedbackText: f.text,
+        scope: f.scope,
+        sections: f.sections,
+        objectClasses: f.objectClasses,
+        op,
+        inventory: input.inventory,
+        section,
+      }),
+    );
 
     const required = new Set<VerticalDirection>();
     // intended_change is op-local — always bind.
     for (const d of intendedDirs) required.add(d);
-    // founder_feedback_item directions only when FB section matches the target
-    // (avoids multi-attributed "Move Summary down" constraining Education ops).
-    const fbSectionMatches =
-      fbSections.length === 0
-        ? false
-        : section != null &&
-          fbSections.some(
-            (s) => section === s || section.includes(s) || s.includes(section),
-          );
-    if (fbSectionMatches) {
-      for (const d of fbDirs) required.add(d);
+
+    // founder_feedback_item directions only when feedback scope matches target.
+    if (fbDirs.size > 0 && fbText.trim()) {
+      const fbApplies = feedbackAppliesToOp({
+        feedbackText: fbText,
+        scope: detectDirectionScope(fbText),
+        sections: sectionTokensFromText(fbText),
+        objectClasses: objectClassesFromText(fbText),
+        op,
+        inventory: input.inventory,
+        section,
+      });
+      if (fbApplies) {
+        for (const d of fbDirs) required.add(d);
+      }
     }
+
     for (const f of matchedFeedback) {
       for (const d of f.dirs) required.add(d);
     }

@@ -42,12 +42,17 @@ import {
 } from "./PlanMutationConflicts.js";
 import { canonicalizeRevisionPlanHorizontalOwnership } from "./EquivalentHorizontalOwnership.js";
 import {
+  stripIdentityPositionOps,
+  stripNonExecutablePositionOpsFromRaw,
+} from "./PositionOpCanonicalization.js";
+import {
   buildRevisionConflictRepairPrompt,
   buildRevisionCoverageRepairPrompt,
   buildRevisionPlannerPrompt,
   extractPlanFromProviderOutput,
   findUncoveredRequestedChanges,
   normalizeFounderFeedbackItem,
+  allRequestedChangesAllowEmptyPlan,
   validateRevisionPlan,
   validateRevisionPlanShapeAndOperations,
   type UncoveredRequestedChange,
@@ -309,6 +314,42 @@ export function restoreMissingConfidenceFromPrimary(
   return { ...root, operations: restoredOps };
 }
 
+/**
+ * Strip empty/identity position ops then shape-validate.
+ * Empty values:{} are omitted (not invented). Coverage revalidated by caller.
+ */
+export function prepareExtractedPlanForValidation(input: {
+  extracted: unknown;
+  inventory: CanvasInventoryObject[];
+  requested_changes: string[];
+}): {
+  ok: boolean;
+  plan: RevisionPlan | null;
+  errors: string[];
+} {
+  const allowEmpty = allRequestedChangesAllowEmptyPlan(input.requested_changes);
+  const strippedEmpty = stripNonExecutablePositionOpsFromRaw(input.extracted);
+  let shape = validateRevisionPlanShapeAndOperations(strippedEmpty.raw, {
+    requested_changes: input.requested_changes,
+    allowEmptyOperations: allowEmpty,
+  });
+  if (!shape.ok || !shape.plan) {
+    return { ok: false, plan: null, errors: shape.errors };
+  }
+  const identity = stripIdentityPositionOps(shape.plan, input.inventory);
+  if (identity.stripped_count === 0) {
+    return { ok: true, plan: shape.plan, errors: [] };
+  }
+  shape = validateRevisionPlanShapeAndOperations(identity.plan, {
+    requested_changes: input.requested_changes,
+    allowEmptyOperations: allowEmpty,
+  });
+  if (!shape.ok || !shape.plan) {
+    return { ok: false, plan: null, errors: shape.errors };
+  }
+  return { ok: true, plan: shape.plan, errors: [] };
+}
+
 async function runConflictPlanRepair(input: {
   task: RevisionTask;
   inventory: CanvasInventoryObject[];
@@ -420,11 +461,13 @@ async function runConflictPlanRepair(input: {
       input.primaryPlan,
       extracted,
     );
-    const shape = validateRevisionPlanShapeAndOperations(withRestoredConfidence, {
+    const prepared = prepareExtractedPlanForValidation({
+      extracted: withRestoredConfidence,
+      inventory: input.inventory,
       requested_changes: input.task.requested_changes,
     });
-    if (!shape.ok || !shape.plan) {
-      const errMsg = `conflict repair failed: ${shape.errors.join("; ")}`;
+    if (!prepared.ok || !prepared.plan) {
+      const errMsg = `conflict repair failed: ${prepared.errors.join("; ")}`;
       return fail(errMsg, "FAILED_PLAN", "repair_plan_invalid", {
         ...providerMeta,
         repair_raw_structured: so,
@@ -435,11 +478,11 @@ async function runConflictPlanRepair(input: {
         frozen_preservation_ok: false,
         completeness_ok: false,
         accepted: false,
-        errors: shape.errors,
+        errors: prepared.errors,
       });
     }
 
-    const repairedPlan = canonicalizeRevisionPlanHorizontalOwnership(shape.plan);
+    const repairedPlan = canonicalizeRevisionPlanHorizontalOwnership(prepared.plan);
     const internal = detectInternalPlanMutationConflicts(repairedPlan.operations);
     if (!internal.ok) {
       const errMsg = `conflict repair still conflicts: ${internal.errors.join("; ")}`;
@@ -670,10 +713,24 @@ async function runCoverageRepair(input: {
     const extracted = extractPlanFromProviderOutput(so);
     // Coverage repair is invoked only when MUTATION_REQUIRED items are missing.
     // A successful repair response must include ≥1 operation (empty is invalid).
-    const repairShape = validateRevisionPlanShapeAndOperations(extracted, {
+    // Still strip empty/identity position placeholders before shape validation.
+    const strippedEmpty = stripNonExecutablePositionOpsFromRaw(extracted);
+    let repairShape = validateRevisionPlanShapeAndOperations(strippedEmpty.raw, {
       allowEmptyOperations: false,
       requested_changes: input.task.requested_changes,
     });
+    if (repairShape.ok && repairShape.plan) {
+      const identity = stripIdentityPositionOps(
+        repairShape.plan,
+        input.inventory,
+      );
+      if (identity.stripped_count > 0) {
+        repairShape = validateRevisionPlanShapeAndOperations(identity.plan, {
+          allowEmptyOperations: false,
+          requested_changes: input.task.requested_changes,
+        });
+      }
+    }
     if (!repairShape.ok || !repairShape.plan) {
       const errMsg = `coverage repair failed: ${repairShape.errors.join("; ")}`;
       return {
@@ -975,20 +1032,22 @@ export async function planFounderCanvasRevision(input: {
     }
 
     const extracted = extractPlanFromProviderOutput(so);
-    const shape = validateRevisionPlanShapeAndOperations(extracted, {
+    const prepared = prepareExtractedPlanForValidation({
+      extracted,
+      inventory: input.inventory,
       requested_changes: input.task.requested_changes,
     });
-    if (!shape.ok || !shape.plan) {
+    if (!prepared.ok || !prepared.plan) {
       return {
         ok: false,
-        error: `invalid revision plan: ${shape.errors.join("; ")}`,
+        error: `invalid revision plan: ${prepared.errors.join("; ")}`,
         status: "FAILED_PLAN",
         prompt,
         raw_structured: so,
       };
     }
 
-    const primaryPlan = canonicalizeRevisionPlanHorizontalOwnership(shape.plan);
+    const primaryPlan = canonicalizeRevisionPlanHorizontalOwnership(prepared.plan);
     const primaryConflicts = detectInternalPlanMutationConflicts(
       primaryPlan.operations,
     );
@@ -1044,6 +1103,9 @@ export async function planFounderCanvasRevision(input: {
       // Path A: complete + conflict-free → full validate (1 provider call).
       const validated = validateRevisionPlan(primaryPlan, {
         requested_changes: input.task.requested_changes,
+        allowEmptyOperations: allRequestedChangesAllowEmptyPlan(
+          input.task.requested_changes,
+        ),
       });
       if (!validated.ok || !validated.plan) {
         return {

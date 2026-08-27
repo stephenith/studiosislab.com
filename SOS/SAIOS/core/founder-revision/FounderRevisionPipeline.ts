@@ -25,6 +25,15 @@ import { buildFeedbackCoverage } from "./FeedbackCoverage.js";
 import { runRevisionAcceptanceChecks } from "./RevisionAcceptanceChecks.js";
 import { normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
 import { planFounderCanvasRevision } from "./RevisionPlanner.js";
+import {
+  buildPlanWithDeterministicSpacingOwnership,
+  isVerticalSpacingRhythmHeavyFeedback,
+} from "./DeterministicSpacingPlan.js";
+import { validatePlanVerticalDirections } from "./PositionOpCanonicalization.js";
+import {
+  allRequestedChangesAllowEmptyPlan,
+  validateRevisionPlan,
+} from "./RevisionPromptBuilder.js";
 import { validateRevisionPlanSelectors } from "./SelectorResolution.js";
 import { validateRevisionPlanAgainstInventory } from "./StructuralAlignmentSafety.js";
 import { validatePlanGeometrySafety } from "./PlanGeometrySafety.js";
@@ -287,10 +296,66 @@ export async function runFounderFeedbackRevision(
     conflict_repair_attempted: planned.conflict_repair?.summary.attempted === true,
   });
 
+  let activePlan: RevisionPlan = planned.plan;
+
+  // Spacing/rhythm-heavy Founder packets: prefer deterministic normalizer geometry
+  // over long AI absolute set_position chains (Task2 failure class).
+  if (isVerticalSpacingRhythmHeavyFeedback(task.requested_changes)) {
+    const det = buildPlanWithDeterministicSpacingOwnership({
+      priorCanvas,
+      requested_changes: task.requested_changes,
+      aiPlan: activePlan,
+    });
+    writeJson(join(evidenceDir, "deterministic-spacing-ownership.json"), det);
+    if (det.ok && det.plan) {
+      const revalidated = validateRevisionPlan(det.plan, {
+        requested_changes: task.requested_changes,
+        allowEmptyOperations: allRequestedChangesAllowEmptyPlan(
+          task.requested_changes,
+        ),
+      });
+      if (revalidated.ok && revalidated.plan) {
+        activePlan = revalidated.plan;
+        writeJson(join(evidenceDir, "revision-plan.json"), activePlan);
+        writeJson(join(evidenceDir, "revision-plan-ai-primary.json"), planned.plan);
+      }
+    }
+  }
+
+  const directionGate = validatePlanVerticalDirections({
+    plan: activePlan,
+    inventory,
+    requested_changes: task.requested_changes,
+  });
+  writeJson(join(evidenceDir, "plan-direction-validation.json"), directionGate);
+  if (!directionGate.ok) {
+    const err = `plan direction validation failed: ${directionGate.errors.join("; ")}`;
+    writeJson(join(evidenceDir, "plan-direction-validation-failure.json"), {
+      error: err,
+      errors: directionGate.errors,
+    });
+    task = updateRevisionTask(task.task_id, {
+      status: "FAILED_GATE",
+      error: err,
+      openai_execution_path: join(
+        "SOS/07_LOGS/saios/founder-revision/evidence",
+        task.task_id,
+        "openai-execution.json",
+      ),
+    });
+    return {
+      ok: false,
+      task,
+      revised_candidate_id: null,
+      error: err,
+      coverage_gate_pass: false,
+    };
+  }
+
   // Selector uniqueness gate — before any canvas mutation.
   const selectorGate = validateRevisionPlanSelectors(
     priorCanvas,
-    planned.plan,
+    activePlan,
   );
   writeJson(join(evidenceDir, "selector-validation.json"), selectorGate);
   if (!selectorGate.ok) {
@@ -316,7 +381,7 @@ export async function runFounderFeedbackRevision(
   // Inventory-aware structural alignment / bounds safety — before mutation.
   const inventoryGate = validateRevisionPlanAgainstInventory({
     canvas: priorCanvas,
-    plan: planned.plan,
+    plan: activePlan,
   });
   writeJson(join(evidenceDir, "inventory-alignment-safety.json"), inventoryGate);
   if (!inventoryGate.ok) {
@@ -347,7 +412,7 @@ export async function runFounderFeedbackRevision(
   // mutating the working canvas (isolated simulation only).
   const planGeometryGate = validatePlanGeometrySafety({
     canvas: priorCanvas,
-    plan: planned.plan,
+    plan: activePlan,
   });
   writeJson(join(evidenceDir, "plan-geometry-safety.json"), planGeometryGate);
   if (!planGeometryGate.ok) {
@@ -387,7 +452,7 @@ export async function runFounderFeedbackRevision(
 
   const executed = executeCanvasOperations({
     canvas: priorCanvas,
-    operations: planned.plan.operations,
+    operations: activePlan.operations,
   });
   writeJson(join(evidenceDir, "operation-log.json"), executed.log);
 
@@ -484,7 +549,7 @@ export async function runFounderFeedbackRevision(
   const acceptanceReport = runRevisionAcceptanceChecks({
     beforeCanvas: priorCanvas,
     afterCanvas: normalized.canvas,
-    plan: planned.plan,
+    plan: activePlan,
     requested_changes: task.requested_changes,
     task_id: task.task_id,
     decision_id: task.decision_id,
@@ -499,7 +564,7 @@ export async function runFounderFeedbackRevision(
   // Coverage geometry proofs use final post-normalization canvas (not op-log after).
   const coverage = buildFeedbackCoverage({
     requested_changes: task.requested_changes,
-    plan: planned.plan,
+    plan: activePlan,
     log: executed.log,
     beforeCanvas: priorCanvas,
     afterCanvas: normalized.canvas,
@@ -543,7 +608,7 @@ export async function runFounderFeedbackRevision(
   }
 
   writeJson(join(outDir, "canvas.json"), normalized.canvas);
-  writeJson(join(outDir, "revision-plan.json"), planned.plan);
+  writeJson(join(outDir, "revision-plan.json"), activePlan);
   writeJson(join(outDir, "operation-log.json"), executed.log);
   writeJson(join(outDir, "revision-layout-normalization.json"), normalized.report);
   writeJson(join(outDir, "revision-acceptance-checks.json"), acceptanceReport);

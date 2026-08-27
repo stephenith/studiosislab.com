@@ -16,6 +16,7 @@ import {
   isDeprecatedPlannerOp,
 } from "./allowedCanvasOps.js";
 import { classifyRequestedChange } from "./RequestedChangeClassification.js";
+import { isDeterministicLayoutNormalizerOwnedChange } from "./DeterministicSpacingPlan.js";
 import {
   detectInternalPlanMutationConflicts,
   geomAxesPresent,
@@ -303,6 +304,10 @@ export function buildFounderItemCoverageLedger(
       lines.push(
         `Requirement: emit ZERO operations for this item. Deterministic post-execution acceptance owns it.`,
       );
+    } else if (isDeterministicLayoutNormalizerOwnedChange(change)) {
+      lines.push(
+        `Requirement: DETERMINISTIC_LAYOUT_OWNED — prefer ZERO hand-placed absolute set_position chains for this spacing/rhythm item. RevisionLayoutNormalizer owns safe geometry. Do not invent identity position ops for coverage.`,
+      );
     } else {
       lines.push(
         `Requirement: BEFORE returning JSON, verify that at least one REAL executable operation contains this EXACT text in founder_feedback_item or founder_feedback_items (primary or secondary attribution — not a dedicated extra operation).`,
@@ -478,9 +483,26 @@ function operationCapabilityGrammarBlock(): string {
     "- set_position / move_object are POSITION-ONLY: require left, top, delta_left, and/or delta_top numbers.",
     "- Legal values: left and/or top (only fields that change).",
     "- Illegal values: width, height, delta_width, delta_height, w, h, delta_w, delta_h.",
+    "- INVALID: set_position or move_object with values:{} (empty object). Position ops MUST include at least one finite left/top/delta_left/delta_top.",
+    "- INVALID: set_position with no finite left/top/delta_left/delta_top (including semantic placeholder booleans).",
+    "- If current inventory geometry already satisfies the Founder item, emit ZERO ops for that item — do not emit an identity set_position.",
     "- Do not include an unchanged left in a set_position operation merely by copying inventory geometry.",
     "- If align_objects legitimately owns a target's left axis, that target's set_position must contain only the axis it actually changes (for example top only).",
     "- set_position does not change text wrapping. The executor ignores width/height on position ops and the plan is rejected.",
+    "INVALID (schema-rejected — empty values on position op):",
+    JSON.stringify({
+      op: "set_position",
+      target_id: "block-example-heading",
+      before_summary:
+        "Textbox id=block-example-heading already at the correct top=165",
+      intended_change:
+        "Ensure heading top remains at 165 for alignment (no actual move)",
+      values: {},
+      founder_feedback_item:
+        "Align the section headings to the same vertical baseline.",
+      confidence: 0.9,
+    }),
+    "Reason: values:{} is never legal on set_position/move_object. If geometry is already correct, emit zero ops for that item.",
     "INVALID (schema-rejected — width on position-only op):",
     JSON.stringify({
       op: "set_position",
@@ -558,7 +580,9 @@ function operationCapabilityGrammarBlock(): string {
     "- When inventory shows effective_height > stored_height (h), the text wraps taller than the Fabric frame — plan clearance using effective_bottom, not stored h.",
     "- If two same-lane text objects overlap under effective geometry (next.top < previous.effective_bottom), you MUST create DIFFERENTIAL clearance: move the lower object down (or raise its top) enough that next.top >= previous.effective_bottom (+ any required gap). Moving BOTH objects by the SAME delta does NOT resolve the collision.",
     "- Prefer set_position / move_object with real numeric tops/deltas for clearance. If a genuine frame-height correction is also required, use resize_object, set_dimensions, or extend_shape — never attach height to set_position.",
-    "- Deterministic RevisionLayoutNormalizer may repair section-stack spacing, heading/body minimum gaps, Founder-gated internal body rhythm, and page-fit AFTER your ops — it will NOT silently rewrite an intentionally impossible same-delta plan into a valid one. Do not submit geometry that already preserves an effective overlap.",
+    "- Deterministic RevisionLayoutNormalizer owns section-stack spacing, heading/body minimum gaps, Founder-gated internal body rhythm, section-to-section rhythm, and page-fit. Prefer ZERO hand-placed absolute coordinate chains for full-page vertical rhythm — do not invent long set_position stacks when spacing/rhythm feedback can be satisfied by deterministic layout ownership.",
+    "- RevisionLayoutNormalizer will NOT silently rewrite an intentionally impossible same-delta plan into a valid one. Do not submit geometry that already preserves an effective overlap.",
+    "- Explicit Founder directions are binding: if feedback says move a section upward, do not propose downward tops/delta_top for that section.",
     "",
     "NO MUTATION REQUIRED / VISUAL-REFERENCE-ONLY:",
     "- If the requested visual relationship is already correct, zero new operations is valid.",
@@ -907,6 +931,7 @@ export function buildRevisionPlannerPrompt(input: {
         "Ungroup the header name textbox from its temporary layout group.",
       confidence: 0.9,
     }),
+    "NOTE: values:{} is legal ONLY for group_objects / ungroup_objects / remove_object / add_object-style ops that do not apply position fields. NEVER copy values:{} onto set_position or move_object.",
     "",
     "FOUNDER REASON (verbatim):",
     task.founder_reason,
@@ -1417,6 +1442,27 @@ function feedbackItemCovered(
  * VERIFICATION_ACCEPTANCE items are exempt from plan-operation completeness only
  * (they still require deterministic post-execution acceptance evidence).
  */
+/** True when plan completeness may omit ops for this Founder line. */
+export function isPlanCoverageExemptRequestedChange(
+  requestedChange: string,
+): boolean {
+  if (
+    classifyRequestedChange(requestedChange).classification ===
+    "VERIFICATION_ACCEPTANCE"
+  ) {
+    return true;
+  }
+  return isDeterministicLayoutNormalizerOwnedChange(requestedChange);
+}
+
+/** All MUTATION_REQUIRED items are verification or normalizer-owned. */
+export function allRequestedChangesAllowEmptyPlan(
+  requestedChanges: string[],
+): boolean {
+  if (requestedChanges.length === 0) return false;
+  return requestedChanges.every((c) => isPlanCoverageExemptRequestedChange(c));
+}
+
 export function validatePlanCoversRequestedChanges(
   plan: RevisionPlan,
   requestedChanges: string[],
@@ -1424,8 +1470,7 @@ export function validatePlanCoversRequestedChanges(
   const errors: string[] = [];
   for (let i = 0; i < requestedChanges.length; i++) {
     const change = requestedChanges[i]!;
-    const classified = classifyRequestedChange(change);
-    if (classified.classification === "VERIFICATION_ACCEPTANCE") {
+    if (isPlanCoverageExemptRequestedChange(change)) {
       continue;
     }
     if (!feedbackItemCovered(change, plan.operations)) {
@@ -1440,7 +1485,7 @@ export function validatePlanCoversRequestedChanges(
 /**
  * MUTATION_REQUIRED items with zero exact-normalized attributions
  * (founder_feedback_item or founder_feedback_items).
- * VERIFICATION_ACCEPTANCE items are never returned.
+ * VERIFICATION_ACCEPTANCE and deterministic-layout-owned items are never returned.
  */
 export function findUncoveredRequestedChanges(
   plan: RevisionPlan,
@@ -1449,7 +1494,7 @@ export function findUncoveredRequestedChanges(
   const missing: UncoveredRequestedChange[] = [];
   for (let i = 0; i < requestedChanges.length; i++) {
     const change = requestedChanges[i]!;
-    if (classifyRequestedChange(change).classification === "VERIFICATION_ACCEPTANCE") {
+    if (isPlanCoverageExemptRequestedChange(change)) {
       continue;
     }
     if (!feedbackItemCovered(change, plan.operations)) {

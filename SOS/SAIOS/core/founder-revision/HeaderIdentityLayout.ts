@@ -146,17 +146,33 @@ export function isHeaderIdentityLayoutOwnedChange(
   ) {
     return false;
   }
+  // Collision / section-body overlap work is not header-identity geometry.
+  if (
+    /\b(collision|collisions|overlap|overlapping|displaced|cover|covers)\b/.test(
+      n,
+    )
+  ) {
+    return false;
+  }
 
   const headerCtx =
     /\bheader\b/.test(n) ||
     /\bidentity\s+block\b/.test(n) ||
-    /\b(name|role|contact)\b/.test(n);
+    (/\b(name|role|contact)\b/.test(n) &&
+      /\b(header|identity|padding|band)\b/.test(n));
 
   if (!headerCtx) return false;
 
   if (
-    /\b(contained|containment|inside|within)\b/.test(n) &&
-    /\b(header|rectangle|band|identity)\b/.test(n)
+    /\b(contained|containment)\b/.test(n) &&
+    /\b(header|identity)\b/.test(n)
+  ) {
+    return true;
+  }
+  if (
+    /\b(inside|within)\b/.test(n) &&
+    /\bheader\b/.test(n) &&
+    /\b(name|contact|role|identity|padding|band|rectangle)\b/.test(n)
   ) {
     return true;
   }
@@ -192,7 +208,8 @@ export function isHeaderIdentityLayoutOwnedChange(
     /\bpreserv(?:e|ing)\b/.test(n) &&
     /\b(alignment|typography|color|header width|visual style|design)\b/.test(
       n,
-    )
+    ) &&
+    /\bheader\b/.test(n)
   ) {
     return true;
   }

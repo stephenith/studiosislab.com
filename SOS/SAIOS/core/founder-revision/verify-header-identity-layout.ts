@@ -210,6 +210,15 @@ function main(): void {
       "recolor excluded",
     ),
   );
+  checks.push(
+    assert(
+      !isHeaderIdentityLayoutOwnedChange(
+        "Correct all element collisions and displaced objects in the Education, Skills, and Certifications area. No dark-blue section-header rectangle or heading text may overlap, cover, or sit inside body text.",
+      ),
+      "collision_line_not_header_identity_owned",
+      "collision excluded",
+    ),
+  );
 
   // --- Fixture A: Teacher-shaped (taller band, mild overflow) ---
   const teacher = headerCanvas({

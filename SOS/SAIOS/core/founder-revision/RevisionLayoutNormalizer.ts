@@ -26,6 +26,10 @@
 
 import type { FabricCanvasDoc } from "./CanvasInventory.js";
 import {
+  applyHeaderIdentityBlockLayout,
+  isHeaderIdentityLayoutFeedback,
+} from "./HeaderIdentityLayout.js";
+import {
   effectiveObjectBBox,
   effectiveTextHeightScaled,
   isFabricTextObject,
@@ -2302,6 +2306,38 @@ export function normalizeRevisionLayout(input: {
     report.ok = false;
     report.error = "Canvas width/height missing or non-positive";
     return { canvas, report };
+  }
+
+  // 0) Header identity containment / internal padding (Founder-gated).
+  if (isHeaderIdentityLayoutFeedback(input.requested_changes ?? [])) {
+    const headerId = applyHeaderIdentityBlockLayout({
+      canvas,
+      requested_changes: input.requested_changes,
+    });
+    if (!headerId.ok) {
+      report.ok = false;
+      report.error =
+        headerId.error ?? "deterministic header identity layout failed";
+      report.warnings.push(...headerId.reason_codes);
+      return { canvas, report };
+    }
+    if (headerId.applied) {
+      report.collision_resolutions.push(
+        `header_identity_block applied (${headerId.reason_codes.join("; ")})`,
+      );
+      if (headerId.band_expanded) {
+        report.collision_resolutions.push("header_band_expanded_for_identity");
+      }
+      if (headerId.summary_shift_px > 0) {
+        report.shifts_applied.push({
+          section: "summary",
+          lane_id: "header-identity",
+          delta_top: headerId.summary_shift_px,
+          object_ids: [],
+          reason: `downstream clearance after header identity (+${headerId.summary_shift_px}px)`,
+        });
+      }
+    }
   }
 
   const { groups, warnings } = buildSectionGroups(objects);

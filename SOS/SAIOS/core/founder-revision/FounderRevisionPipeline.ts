@@ -29,6 +29,7 @@ import {
   buildPlanWithDeterministicSpacingOwnership,
   isVerticalSpacingRhythmHeavyFeedback,
 } from "./DeterministicSpacingPlan.js";
+import { isHeaderIdentityLayoutFeedback } from "./HeaderIdentityLayout.js";
 import { validatePlanVerticalDirections } from "./PositionOpCanonicalization.js";
 import {
   allRequestedChangesAllowEmptyPlan,
@@ -298,9 +299,12 @@ export async function runFounderFeedbackRevision(
 
   let activePlan: RevisionPlan = planned.plan;
 
-  // Spacing/rhythm-heavy Founder packets: prefer deterministic normalizer geometry
-  // over long AI absolute set_position chains (Task2 failure class).
-  if (isVerticalSpacingRhythmHeavyFeedback(task.requested_changes)) {
+  // Spacing/rhythm-heavy or header-identity Founder packets: prefer deterministic
+  // normalizer geometry over unsafe AI absolute set_position chains.
+  if (
+    isVerticalSpacingRhythmHeavyFeedback(task.requested_changes) ||
+    isHeaderIdentityLayoutFeedback(task.requested_changes)
+  ) {
     const det = buildPlanWithDeterministicSpacingOwnership({
       priorCanvas,
       requested_changes: task.requested_changes,
@@ -318,6 +322,12 @@ export async function runFounderFeedbackRevision(
         activePlan = revalidated.plan;
         writeJson(join(evidenceDir, "revision-plan.json"), activePlan);
         writeJson(join(evidenceDir, "revision-plan-ai-primary.json"), planned.plan);
+      } else {
+        writeJson(join(evidenceDir, "deterministic-spacing-revalidation.json"), {
+          ok: false,
+          errors: revalidated.errors,
+          note: "deterministic spacing/header plan not activated; retaining AI plan",
+        });
       }
     }
   }

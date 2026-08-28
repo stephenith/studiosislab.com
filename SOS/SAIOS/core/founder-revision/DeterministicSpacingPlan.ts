@@ -5,6 +5,10 @@
  */
 import type { FabricCanvasDoc } from "./CanvasInventory.js";
 import {
+  isHeaderIdentityLayoutFeedback,
+  isHeaderIdentityLayoutOwnedChange,
+} from "./HeaderIdentityLayout.js";
+import {
   isFounderHeadingToContentEqualityRequest,
   isFounderInternalContentRhythmRequest,
   isFounderSectionToSectionGapEqualityRequest,
@@ -44,6 +48,7 @@ function asNum(v: unknown): number | null {
 export function isDeterministicLayoutNormalizerOwnedChange(
   requestedChange: string,
 ): boolean {
+  if (isHeaderIdentityLayoutOwnedChange(requestedChange)) return true;
   if (isFounderHeadingToContentEqualityRequest(requestedChange)) return true;
   if (isFounderSectionToSectionGapEqualityRequest(requestedChange)) return true;
   if (isFounderInternalContentRhythmRequest(requestedChange)) return true;
@@ -149,6 +154,7 @@ export function isDeterministicLayoutNormalizerOwnedChange(
 export function isVerticalSpacingRhythmHeavyFeedback(
   requestedChanges: string[],
 ): boolean {
+  if (isHeaderIdentityLayoutFeedback(requestedChanges)) return true;
   const owned = requestedChanges.filter((c) =>
     isDeterministicLayoutNormalizerOwnedChange(c),
   );
@@ -259,38 +265,85 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
     const leftBefore = asNum(before.left);
     const topAfter = asNum(after.top);
     const leftAfter = asNum(after.left);
-    if (topAfter == null && leftAfter == null) continue;
+    const heightBefore = asNum(before.height);
+    const widthBefore = asNum(before.width);
+    const heightAfter = asNum(after.height);
+    const widthAfter = asNum(after.width);
 
-    const values: Record<string, unknown> = {};
+    const posValues: Record<string, unknown> = {};
     if (
       topAfter != null &&
       (topBefore == null || snapCoord(topAfter) !== snapCoord(topBefore))
     ) {
-      values.top = snapCoord(topAfter);
+      posValues.top = snapCoord(topAfter);
     }
     if (
       leftAfter != null &&
       (leftBefore == null || snapCoord(leftAfter) !== snapCoord(leftBefore))
     ) {
-      values.left = snapCoord(leftAfter);
+      posValues.left = snapCoord(leftAfter);
     }
-    if (Object.keys(values).length === 0) continue;
+    if (Object.keys(posValues).length > 0) {
+      spacingOps.push({
+        op: "set_position",
+        target_id: id,
+        before_summary: `Inventory object ${id} at left=${leftBefore ?? "n/a"} top=${topBefore ?? "n/a"} before deterministic spacing ownership`,
+        intended_change: `Apply deterministic layout-normalized position for ${id}`,
+        values: posValues,
+        founder_feedback_item: primaryFb,
+        founder_feedback_items: extraFb.length > 0 ? extraFb : undefined,
+        confidence: 1,
+      });
+    }
 
-    spacingOps.push({
-      op: "set_position",
-      target_id: id,
-      before_summary: `Inventory object ${id} at left=${leftBefore ?? "n/a"} top=${topBefore ?? "n/a"} before deterministic spacing ownership`,
-      intended_change: `Apply deterministic layout-normalized position for ${id}`,
-      values,
-      founder_feedback_item: primaryFb,
-      founder_feedback_items: extraFb.length > 0 ? extraFb : undefined,
-      confidence: 1,
-    });
+    const dimValues: Record<string, unknown> = {};
+    if (
+      heightAfter != null &&
+      (heightBefore == null || snapCoord(heightAfter) !== snapCoord(heightBefore))
+    ) {
+      dimValues.height = snapCoord(heightAfter);
+    }
+    if (
+      widthAfter != null &&
+      (widthBefore == null || snapCoord(widthAfter) !== snapCoord(widthBefore))
+    ) {
+      dimValues.width = snapCoord(widthAfter);
+    }
+    if (Object.keys(dimValues).length > 0) {
+      spacingOps.push({
+        op: "set_dimensions",
+        target_id: id,
+        before_summary: `Inventory object ${id} size width=${widthBefore ?? "n/a"} height=${heightBefore ?? "n/a"} before deterministic spacing ownership`,
+        intended_change: `Apply deterministic layout-normalized dimensions for ${id}`,
+        values: dimValues,
+        founder_feedback_item: primaryFb,
+        founder_feedback_items: extraFb.length > 0 ? extraFb : undefined,
+        confidence: 1,
+      });
+    }
   }
 
-  const preserved = input.aiPlan.operations.filter(isPreservedAiOp);
+  const spacingTargetIds = new Set(
+    spacingOps
+      .map((o) => ("target_id" in o ? String(o.target_id ?? "") : ""))
+      .filter(Boolean),
+  );
+  const preserved = input.aiPlan.operations.filter((op) => {
+    if (!isPreservedAiOp(op)) return false;
+    // Deterministic geometry owns position+size for objects it moved/resized.
+    if (
+      (op.op === "set_dimensions" ||
+        op.op === "resize_object" ||
+        op.op === "extend_shape") &&
+      "target_id" in op &&
+      spacingTargetIds.has(String(op.target_id ?? ""))
+    ) {
+      return false;
+    }
+    return true;
+  });
   const replaced_ai_position_ops = input.aiPlan.operations.filter(
-    (o) => !isPreservedAiOp(o),
+    (o) => !preserved.includes(o),
   ).length;
 
   const operations = [...preserved, ...spacingOps];

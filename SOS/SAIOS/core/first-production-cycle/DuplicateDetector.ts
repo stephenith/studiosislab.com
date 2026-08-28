@@ -65,7 +65,22 @@ export type BatchLocalDuplicateState = {
   accepted_fingerprints: Set<string>;
   skipped_fingerprints: Set<string>;
   attempted_fingerprints: Set<string>;
+  /** category|normalizedTitle clusters rejected as EXACT/NEAR this batch. */
+  excluded_clusters: Set<string>;
 };
+
+/**
+ * Title/profile cluster key (seniority-invariant). Used for batch-local
+ * exclusion of COO mid/senior/executive style repeats without weakening
+ * registry near-duplicate thresholds.
+ */
+export function targetClusterKey(
+  target: Pick<ProductionTarget, "category" | "title">,
+): string {
+  const category = normalizeText(target.category);
+  const title = applyTitleSynonyms(normalizeText(target.title));
+  return `${category}|${title}`;
+}
 
 /** Title near-duplicate threshold (Jaccard on tokens). Conservative. */
 export const NEAR_TITLE_JACCARD = 0.85;
@@ -186,6 +201,7 @@ export function createBatchLocalDuplicateState(): BatchLocalDuplicateState {
     accepted_fingerprints: new Set(),
     skipped_fingerprints: new Set(),
     attempted_fingerprints: new Set(),
+    excluded_clusters: new Set(),
   };
 }
 
@@ -300,6 +316,21 @@ export function evaluateDuplicate(
         comparison_registry_size: reserving.length,
       };
     }
+    if (isBatchLocalClusterExcluded(bl, input.target)) {
+      return {
+        decision: "SKIP_DUPLICATE",
+        duplicate_type: "BATCH_REPEAT",
+        target_fingerprint,
+        matched_candidate_id: null,
+        matched_batch_sequence: null,
+        score: 1,
+        threshold: 1,
+        reason: "Target title cluster already excluded in this batch",
+        checked_at,
+        normalization_version: NORMALIZATION_VERSION,
+        comparison_registry_size: reserving.length,
+      };
+    }
   }
 
   // Exact against registry
@@ -387,4 +418,20 @@ export function recordBatchLocalAttempt(
   state.attempted_fingerprints.add(fingerprint);
   if (kind === "accepted") state.accepted_fingerprints.add(fingerprint);
   else state.skipped_fingerprints.add(fingerprint);
+}
+
+export function recordBatchLocalClusterExclusion(
+  state: BatchLocalDuplicateState,
+  target: Pick<ProductionTarget, "category" | "title">,
+): void {
+  if (!state.excluded_clusters) state.excluded_clusters = new Set();
+  state.excluded_clusters.add(targetClusterKey(target));
+}
+
+export function isBatchLocalClusterExcluded(
+  state: BatchLocalDuplicateState | null | undefined,
+  target: Pick<ProductionTarget, "category" | "title">,
+): boolean {
+  if (!state?.excluded_clusters) return false;
+  return state.excluded_clusters.has(targetClusterKey(target));
 }

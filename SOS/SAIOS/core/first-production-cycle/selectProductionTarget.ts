@@ -1,10 +1,17 @@
 /**
- * Deterministic production-target selector — Agent #205.
- * Donor logic lifted from SmartProduction / SchedulerConfig / categoryToIndustry.
- * Does NOT import or activate legacy scheduler engines.
+ * Deterministic production-target selector — Agent #205 / Phase 5F.
+ * Strategy preferences + expanded coverage taxonomy. No DEFAULT fallback when
+ * exhausted. Does NOT import or activate legacy scheduler engines.
  */
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join, resolve } from "node:path";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  renameSync,
+  writeFileSync,
+} from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import {
   DEFAULT_PRODUCTION_TARGET,
   type CategoryCoverage,
@@ -13,13 +20,30 @@ import {
   type ProductionSeniority,
   type ProductionTarget,
 } from "./ProductionTarget.js";
-import { countFounderReviewWaitingByCategory } from "../founder-review/FounderReviewProjection.js";
-import { fingerprintProductionTarget } from "./DuplicateDetector.js";
+import { summarizeFounderReviewProjection } from "../founder-review/FounderReviewProjection.js";
 import {
-  consumeStrategyRecommendation,
+  evaluateDuplicate,
+  fingerprintProductionTarget,
+  targetClusterKey,
+  type BatchLocalDuplicateState,
+} from "./DuplicateDetector.js";
+import {
+  attachStrategyMetadata,
+  loadProductionStrategyFile,
   persistStrategyIntakeReport,
+  type LoadedStrategyRecommendation,
   type StrategyIntakeReport,
 } from "./StrategyIntake.js";
+import {
+  PRIMARY_TITLE_BY_CATEGORY,
+  PRODUCTION_ROLE_TAXONOMY,
+  buildTargetFromRoleEntry,
+  type RoleTaxonomyEntry,
+} from "./ProductionRoleTaxonomy.js";
+import {
+  listCandidateManifests,
+  type CandidateRegistryKind,
+} from "./CandidateStore.js";
 
 const SOS_ROOT = resolve(import.meta.dirname, "../../..");
 const REPO = resolve(import.meta.dirname, "../../../..");
@@ -27,6 +51,10 @@ const PUBLICATION_CATALOG = join(SOS_ROOT, "07_LOGS/saios/publication/catalog.js
 const PUBLICATION_PACKAGES = join(SOS_ROOT, "07_LOGS/saios/publication/packages");
 const CYCLE_LOG = join(SOS_ROOT, "07_LOGS/saios/first-production-cycle");
 const CYCLE_HISTORY = join(CYCLE_LOG, "production-target.json");
+export const TARGET_SELECTION_CURSOR_PATH = join(
+  CYCLE_LOG,
+  "target-selection-cursor.json",
+);
 
 /** Donor: SchedulerConfig.DEFAULT_GOALS (templates only). */
 export const INTAKE_GOAL_SEEDS: ProductionGoalSeed[] = [
@@ -60,7 +88,7 @@ export const INTAKE_GOAL_SEEDS: ProductionGoalSeed[] = [
     enabled: true,
     priority: "P2",
     objective_template:
-      "Student {category} resume optimized for entry-level hiring",
+      "Student {category} resume optimized for early-career hiring",
   },
   {
     id: "daily-healthcare",
@@ -112,18 +140,8 @@ export const INTAKE_GOAL_SEEDS: ProductionGoalSeed[] = [
   },
 ];
 
-const TITLE_BY_CATEGORY: Record<ProductionCategory, string> = {
-  ats: "Operations Analyst",
-  executive: "Chief Operating Officer",
-  creative: "Creative Director",
-  student: "Recent Graduate",
-  healthcare: "Clinical Nurse Manager",
-  marketing: "Marketing Manager",
-  finance: "Financial Analyst",
-  engineering: "Software Engineer",
-  resume_refresh: "Product Manager",
-  seo_expansion: "SEO Specialist",
-};
+/** @deprecated use PRIMARY_TITLE_BY_CATEGORY — kept as alias for callers. */
+export const TITLE_BY_CATEGORY = PRIMARY_TITLE_BY_CATEGORY;
 
 const SENIORITY_BY_CATEGORY: Record<ProductionCategory, ProductionSeniority> = {
   ats: "mid",
@@ -136,6 +154,30 @@ const SENIORITY_BY_CATEGORY: Record<ProductionCategory, ProductionSeniority> = {
   engineering: "mid",
   resume_refresh: "mid",
   seo_expansion: "mid",
+};
+
+export type TargetSelectionTelemetry = {
+  eligible_targets_scanned: number;
+  eligible_targets_remaining: number;
+  duplicate_cluster_skips: number;
+  strategy_targets_scanned: number;
+  coverage_targets_scanned: number;
+  exhaustion_reason: string | null;
+  selected_source: "strategy" | "coverage" | null;
+  selected_cluster: string | null;
+};
+
+export type SelectProductionTargetResult = {
+  target: ProductionTarget | null;
+  exhausted: boolean;
+  telemetry: TargetSelectionTelemetry;
+};
+
+export type TargetSelectionCursor = {
+  schema_version: 1;
+  /** Index into stable PRODUCTION_ROLE_TAXONOMY order. */
+  taxonomy_index: number;
+  updated_at: string;
 };
 
 /** Donor: ProductionExecutor.categoryToIndustry */
@@ -194,7 +236,7 @@ export function analyzeCategoryCoverage(): CategoryCoverage[] {
 
   const catalog = loadCatalog();
   const drafts = countPublicationDrafts();
-  const waiting = countFounderReviewWaitingByCategory(REPO);
+  const waiting = summarizeFounderReviewProjection(REPO).waiting_by_category;
   const recentCycleCategory = readRecentCycleCategory();
 
   return categories.map((category) => {
@@ -225,151 +267,404 @@ export function analyzeCategoryCoverage(): CategoryCoverage[] {
   });
 }
 
+export function readTargetSelectionCursor(
+  cursorPath: string = TARGET_SELECTION_CURSOR_PATH,
+): TargetSelectionCursor {
+  if (!existsSync(cursorPath)) {
+    return {
+      schema_version: 1,
+      taxonomy_index: 0,
+      updated_at: new Date(0).toISOString(),
+    };
+  }
+  try {
+    const raw = JSON.parse(readFileSync(cursorPath, "utf8")) as TargetSelectionCursor;
+    if (
+      raw?.schema_version === 1 &&
+      typeof raw.taxonomy_index === "number" &&
+      Number.isFinite(raw.taxonomy_index)
+    ) {
+      return raw;
+    }
+  } catch {
+    /* fall through */
+  }
+  return {
+    schema_version: 1,
+    taxonomy_index: 0,
+    updated_at: new Date(0).toISOString(),
+  };
+}
+
+export function writeTargetSelectionCursor(
+  cursor: TargetSelectionCursor,
+  cursorPath: string = TARGET_SELECTION_CURSOR_PATH,
+): void {
+  mkdirSync(dirname(cursorPath), { recursive: true });
+  const tmp = `${cursorPath}.${process.pid}.${Date.now()}.tmp`;
+  writeFileSync(tmp, `${JSON.stringify(cursor, null, 2)}\n`, "utf8");
+  renameSync(tmp, cursorPath);
+}
+
+/**
+ * Waiting projection + reserving manifests → reserved title clusters
+ * (category|title), NOT whole categories.
+ */
+export function collectReservedTargetClusters(opts?: {
+  repoRoot?: string;
+  cycleLog?: string;
+  registry_kind?: CandidateRegistryKind;
+  manifests?: ReturnType<typeof listCandidateManifests>;
+}): Set<string> {
+  const repoRoot = opts?.repoRoot ?? REPO;
+  const cycleLog = opts?.cycleLog ?? CYCLE_LOG;
+  const reserved = new Set<string>();
+
+  const projection = summarizeFounderReviewProjection(repoRoot);
+  for (const item of projection.items) {
+    if (item.status !== "waiting_founder") continue;
+    const title = item.production_target?.title;
+    const category = item.production_target?.category;
+    if (typeof title === "string" && typeof category === "string") {
+      reserved.add(targetClusterKey({ category, title }));
+    }
+  }
+
+  const manifests =
+    opts?.manifests ??
+    listCandidateManifests(cycleLog, opts?.registry_kind ?? "production");
+  for (const m of manifests) {
+    if (
+      m.status !== "RUNNING" &&
+      m.status !== "WAITING_FOUNDER" &&
+      m.status !== "CRITIC_BLOCKED" &&
+      m.status !== "APPROVED" &&
+      m.status !== "COMPLETED"
+    ) {
+      continue;
+    }
+    if (m.target?.category && m.target?.title) {
+      reserved.add(
+        targetClusterKey({
+          category: m.target.category,
+          title: m.target.title,
+        }),
+      );
+    }
+  }
+  return reserved;
+}
+
+type RankedCandidate = {
+  target: ProductionTarget;
+  source: "strategy" | "coverage";
+  /** Lower = preferred. Strategy priorities first, then taxonomy rotation. */
+  sort_key: number;
+  taxonomy_index: number | null;
+  strategy_priority: number | null;
+};
+
+function emptyTelemetry(): TargetSelectionTelemetry {
+  return {
+    eligible_targets_scanned: 0,
+    eligible_targets_remaining: 0,
+    duplicate_cluster_skips: 0,
+    strategy_targets_scanned: 0,
+    coverage_targets_scanned: 0,
+    exhaustion_reason: null,
+    selected_source: null,
+    selected_cluster: null,
+  };
+}
+
+/**
+ * Enumerate strategy + coverage taxonomy, filter duplicates/clusters, pick next
+ * by deterministic rotation. Returns null when genuinely exhausted.
+ */
+export function selectEligibleProductionTarget(opts?: {
+  excludeFingerprints?: Set<string> | string[];
+  batchLocal?: BatchLocalDuplicateState | null;
+  disable_strategy?: boolean;
+  strategyPath?: string;
+  commitCursor?: boolean;
+  cursorPath?: string;
+  repoRoot?: string;
+  cycleLog?: string;
+  registry_kind?: CandidateRegistryKind;
+  manifests?: ReturnType<typeof listCandidateManifests>;
+  /** Injected taxonomy (tests). */
+  taxonomy?: RoleTaxonomyEntry[];
+  persist_intake_report?: boolean;
+}): SelectProductionTargetResult {
+  const telemetry = emptyTelemetry();
+  const exclude = new Set(
+    opts?.excludeFingerprints ? [...opts.excludeFingerprints] : [],
+  );
+  const taxonomy = opts?.taxonomy ?? PRODUCTION_ROLE_TAXONOMY;
+  const cursorPath = opts?.cursorPath ?? TARGET_SELECTION_CURSOR_PATH;
+  const cursor = readTargetSelectionCursor(cursorPath);
+  const reservedClusters = collectReservedTargetClusters({
+    repoRoot: opts?.repoRoot,
+    cycleLog: opts?.cycleLog,
+    registry_kind: opts?.registry_kind,
+    manifests: opts?.manifests,
+  });
+
+  const ranked: RankedCandidate[] = [];
+  let duplicate_cluster_skips = 0;
+
+  // Strategy recommendations (preference / ranking — not a blocking finite pool)
+  if (!opts?.disable_strategy) {
+    const loaded = loadProductionStrategyFile(opts?.strategyPath);
+    if (loaded.ok) {
+      const recs = [...loaded.strategy.recommendations].sort(
+        (a, b) => a.priority - b.priority || a.goal_id.localeCompare(b.goal_id),
+      );
+      for (const rec of recs) {
+        if (!rec.target) continue;
+        telemetry.strategy_targets_scanned += 1;
+        const target = attachStrategyMetadata(
+          rec.target,
+          rec,
+          loaded.strategy.strategy_version,
+        );
+        ranked.push({
+          target,
+          source: "strategy",
+          sort_key: rec.priority,
+          taxonomy_index: null,
+          strategy_priority: rec.priority,
+        });
+      }
+      if (opts?.persist_intake_report !== false) {
+        const report: StrategyIntakeReport = {
+          generated_at: new Date().toISOString(),
+          strategy_consumed: false,
+          strategy_path: loaded.path,
+          strategy_version: loaded.strategy.strategy_version,
+          strategy_generated_at: loaded.strategy.generated_at,
+          recommendations_total: loaded.strategy.recommendations.length,
+          recommendations_used: 0,
+          recommendations_skipped: 0,
+          skip_reasons: [],
+          fallback_used: true,
+          fallback_reason: "pending_eligible_scan",
+          selected_goal_id: null,
+          selected_category: null,
+          publication_allowed: false,
+          openai_called: false,
+        };
+        persistStrategyIntakeReport(report);
+      }
+    }
+  }
+
+  // Coverage taxonomy (full scan)
+  const nTax = taxonomy.length;
+  const start = ((cursor.taxonomy_index % Math.max(1, nTax)) + nTax) % Math.max(1, nTax);
+  for (let offset = 0; offset < nTax; offset++) {
+    const idx = (start + offset) % nTax;
+    const role = taxonomy[idx]!;
+    telemetry.coverage_targets_scanned += 1;
+    ranked.push({
+      target: buildTargetFromRoleEntry(role),
+      source: "coverage",
+      // After all strategy priorities (strategy uses small ints); rotate by offset
+      sort_key: 10_000 + offset,
+      taxonomy_index: idx,
+      strategy_priority: null,
+    });
+  }
+
+  const eligible: RankedCandidate[] = [];
+  for (const cand of ranked) {
+    const fp = fingerprintProductionTarget(cand.target);
+    const cluster = targetClusterKey(cand.target);
+    if (exclude.has(fp)) {
+      duplicate_cluster_skips += 1;
+      continue;
+    }
+    if (opts?.batchLocal?.excluded_clusters?.has(cluster)) {
+      duplicate_cluster_skips += 1;
+      continue;
+    }
+    if (reservedClusters.has(cluster)) {
+      duplicate_cluster_skips += 1;
+      continue;
+    }
+    const dup = evaluateDuplicate({
+      target: cand.target,
+      cycleLog: opts?.cycleLog ?? CYCLE_LOG,
+      batchLocal: opts?.batchLocal ?? null,
+      manifests: opts?.manifests,
+      registry_kind: opts?.registry_kind,
+    });
+    if (dup.decision === "SKIP_DUPLICATE") {
+      duplicate_cluster_skips += 1;
+      continue;
+    }
+    eligible.push(cand);
+  }
+
+  telemetry.duplicate_cluster_skips = duplicate_cluster_skips;
+  telemetry.eligible_targets_scanned = ranked.length;
+  telemetry.eligible_targets_remaining = eligible.length;
+
+  eligible.sort((a, b) => {
+    if (a.sort_key !== b.sort_key) return a.sort_key - b.sort_key;
+    return fingerprintProductionTarget(a.target).localeCompare(
+      fingerprintProductionTarget(b.target),
+    );
+  });
+
+  const chosen = eligible[0] ?? null;
+  if (!chosen) {
+    telemetry.exhaustion_reason =
+      "no_eligible_targets_after_full_strategy_and_coverage_scan";
+    if (opts?.persist_intake_report !== false) {
+      try {
+        const path = join(CYCLE_LOG, "strategy-intake-report.json");
+        if (existsSync(path)) {
+          const prior = JSON.parse(
+            readFileSync(path, "utf8"),
+          ) as StrategyIntakeReport;
+          prior.fallback_used = true;
+          prior.fallback_reason = telemetry.exhaustion_reason;
+          prior.strategy_consumed = false;
+          persistStrategyIntakeReport(prior);
+        }
+      } catch {
+        /* non-fatal */
+      }
+    }
+    return { target: null, exhausted: true, telemetry };
+  }
+
+  telemetry.selected_source = chosen.source;
+  telemetry.selected_cluster = targetClusterKey(chosen.target);
+  telemetry.exhaustion_reason = null;
+
+  if (opts?.commitCursor) {
+    const nextIndex =
+      chosen.taxonomy_index != null
+        ? (chosen.taxonomy_index + 1) % Math.max(1, nTax)
+        : (start + 1) % Math.max(1, nTax);
+    writeTargetSelectionCursor(
+      {
+        schema_version: 1,
+        taxonomy_index: nextIndex,
+        updated_at: new Date().toISOString(),
+      },
+      cursorPath,
+    );
+  }
+
+  if (opts?.persist_intake_report !== false && chosen.source === "strategy") {
+    const report: StrategyIntakeReport = {
+      generated_at: new Date().toISOString(),
+      strategy_consumed: true,
+      strategy_path: opts?.strategyPath ?? null,
+      strategy_version: chosen.target.strategy_version ?? null,
+      strategy_generated_at: null,
+      recommendations_total: telemetry.strategy_targets_scanned,
+      recommendations_used: 1,
+      recommendations_skipped: 0,
+      skip_reasons: [],
+      fallback_used: false,
+      fallback_reason: null,
+      selected_goal_id: chosen.target.goal_id ?? null,
+      selected_category: chosen.target.category,
+      publication_allowed: false,
+      openai_called: false,
+    };
+    persistStrategyIntakeReport(report);
+  } else if (opts?.persist_intake_report !== false) {
+    try {
+      const path = join(CYCLE_LOG, "strategy-intake-report.json");
+      if (existsSync(path)) {
+        const prior = JSON.parse(
+          readFileSync(path, "utf8"),
+        ) as StrategyIntakeReport;
+        prior.fallback_used = true;
+        prior.fallback_reason = "coverage_taxonomy_selected";
+        prior.selected_category = chosen.target.category;
+        prior.strategy_consumed = false;
+        persistStrategyIntakeReport(prior);
+      }
+    } catch {
+      /* non-fatal */
+    }
+  }
+
+  return { target: chosen.target, exhausted: false, telemetry };
+}
+
 /**
  * Coverage-based deterministic intake (Agent #205).
- * Used as safe fallback when strategy is missing/invalid/empty/exhausted.
+ * Phase 5F: returns null when exhausted (no DEFAULT synthesis).
  */
 export function selectNextProductionTargetFromCoverage(
   goals: ProductionGoalSeed[] = INTAKE_GOAL_SEEDS,
   opts?: {
     excludeFingerprints?: Set<string> | string[];
+    batchLocal?: BatchLocalDuplicateState | null;
+    commitCursor?: boolean;
+    cursorPath?: string;
+    manifests?: ReturnType<typeof listCandidateManifests>;
+    taxonomy?: RoleTaxonomyEntry[];
   },
-): ProductionTarget {
-  const coverage = analyzeCategoryCoverage();
-  const coverageMap = Object.fromEntries(
-    coverage.map((c) => [c.category, c]),
-  ) as Record<ProductionCategory, CategoryCoverage>;
-
-  const exclude = new Set(
-    opts?.excludeFingerprints
-      ? [...opts.excludeFingerprints]
-      : [],
-  );
-
-  const ranked = goals
-    .filter((g) => g.enabled)
-    .filter((g) => {
-      const cov = coverageMap[g.category];
-      // Canonical WAITING_FOUNDER candidates reserve their category.
-      if ((cov?.waiting_founder ?? 0) > 0) return false;
-      const sat = cov?.saturation_score ?? 0;
-      if (sat > 0.85) return false;
-      if (exclude.size > 0) {
-        const t = buildTargetFromGoal(g);
-        if (exclude.has(fingerprintProductionTarget(t))) return false;
-      }
-      return true;
-    })
-    .sort((a, b) => {
-      const boostA = coverageMap[a.category]?.priority_boost ?? 0;
-      const boostB = coverageMap[b.category]?.priority_boost ?? 0;
-      if (boostB !== boostA) return boostB - boostA;
-      const prio = { P0: 0, P1: 1, P2: 2, P3: 3 };
-      return prio[a.priority] - prio[b.priority];
-    });
-
-  const chosen =
-    ranked[0] ??
-    goals.find((g) => {
-      if (!g.enabled) return false;
-      if ((coverageMap[g.category]?.waiting_founder ?? 0) > 0) return false;
-      if (exclude.size > 0) {
-        const t = buildTargetFromGoal(g);
-        if (exclude.has(fingerprintProductionTarget(t))) return false;
-      }
-      return true;
-    }) ??
-    null;
-  if (!chosen) {
-    return { ...DEFAULT_PRODUCTION_TARGET };
-  }
-  return buildTargetFromGoal(chosen);
+): ProductionTarget | null {
+  void goals;
+  const result = selectEligibleProductionTarget({
+    ...opts,
+    disable_strategy: true,
+    persist_intake_report: false,
+  });
+  return result.target;
 }
 
 /**
  * Select next production target.
- * Prefers Production Strategy Engine recommendations (#217);
- * falls back to coverage-based intake (#205) when strategy unavailable.
+ * Prefers strategy recommendations when eligible; otherwise coverage taxonomy.
+ * Returns null when no genuine eligible target remains (Phase 5F).
  */
 export function selectNextProductionTarget(
   goals: ProductionGoalSeed[] = INTAKE_GOAL_SEEDS,
   opts?: {
-    /** Fingerprints already accepted/skipped this batch (Agent #210). */
     excludeFingerprints?: Set<string> | string[];
-    /** Skip strategy consumption (tests / explicit coverage path). */
+    batchLocal?: BatchLocalDuplicateState | null;
     disable_strategy?: boolean;
     strategyPath?: string;
     persist_intake_report?: boolean;
     respectWaitingFounder?: boolean;
+    commitCursor?: boolean;
+    cursorPath?: string;
+    manifests?: ReturnType<typeof listCandidateManifests>;
+    taxonomy?: RoleTaxonomyEntry[];
+    registry_kind?: CandidateRegistryKind;
   },
-): ProductionTarget {
-  const persist = opts?.persist_intake_report !== false;
-
-  if (!opts?.disable_strategy) {
-    const consumed = consumeStrategyRecommendation({
-      strategyPath: opts?.strategyPath,
-      excludeFingerprints: opts?.excludeFingerprints,
-      respectWaitingFounder: opts?.respectWaitingFounder,
-      persist,
-    });
-    if (consumed) {
-      return consumed.target;
-    }
-    // Fallback report already written by consumeStrategyRecommendation (missing/
-    // invalid/empty/all-skipped). Annotate selected category from coverage path.
-    const target = selectNextProductionTargetFromCoverage(goals, {
-      excludeFingerprints: opts?.excludeFingerprints,
-    });
-    if (persist) {
-      annotateFallbackSelection(target);
-    }
-    return target;
-  }
-
-  const target = selectNextProductionTargetFromCoverage(goals, {
+): ProductionTarget | null {
+  void goals;
+  void opts?.respectWaitingFounder; // title-cluster reservation replaces category gate
+  const result = selectEligibleProductionTarget({
     excludeFingerprints: opts?.excludeFingerprints,
+    batchLocal: opts?.batchLocal,
+    disable_strategy: opts?.disable_strategy,
+    strategyPath: opts?.strategyPath,
+    persist_intake_report: opts?.persist_intake_report,
+    commitCursor: opts?.commitCursor,
+    cursorPath: opts?.cursorPath,
+    manifests: opts?.manifests,
+    taxonomy: opts?.taxonomy,
+    registry_kind: opts?.registry_kind,
   });
-  if (persist) {
-    persistStrategyIntakeReport({
-      generated_at: new Date().toISOString(),
-      strategy_consumed: false,
-      strategy_path: opts?.strategyPath ?? null,
-      strategy_version: null,
-      strategy_generated_at: null,
-      recommendations_total: 0,
-      recommendations_used: 0,
-      recommendations_skipped: 0,
-      skip_reasons: [],
-      fallback_used: true,
-      fallback_reason: "strategy_disabled",
-      selected_goal_id: null,
-      selected_category: target.category,
-      publication_allowed: false,
-      openai_called: false,
-    });
-  }
-  return target;
-}
-
-function annotateFallbackSelection(target: ProductionTarget): void {
-  try {
-    const path = join(CYCLE_LOG, "strategy-intake-report.json");
-    if (!existsSync(path)) return;
-    const prior = JSON.parse(
-      readFileSync(path, "utf8"),
-    ) as StrategyIntakeReport;
-    prior.selected_category = target.category;
-    prior.fallback_used = true;
-    persistStrategyIntakeReport(prior);
-  } catch {
-    /* non-fatal */
-  }
+  return result.target;
 }
 
 export function buildTargetFromGoal(goal: ProductionGoalSeed): ProductionTarget {
   const category = goal.category;
   const industry = categoryToIndustry(category);
-  const title = TITLE_BY_CATEGORY[category];
+  const title = PRIMARY_TITLE_BY_CATEGORY[category];
   const seniority = SENIORITY_BY_CATEGORY[category];
   const objective = buildObjective(goal.objective_template, category, industry);
   return {
@@ -384,7 +679,6 @@ export function buildTargetFromGoal(goal: ProductionGoalSeed): ProductionTarget 
 
 export function resolveProductionTarget(opts?: {
   target?: ProductionTarget;
-  /** When true and target omitted, run strategy-then-coverage selection. */
   select_target?: boolean;
   excludeFingerprints?: Set<string> | string[];
   disable_strategy?: boolean;
@@ -392,12 +686,15 @@ export function resolveProductionTarget(opts?: {
 }): ProductionTarget {
   if (opts?.target) return opts.target;
   if (opts?.select_target) {
-    return selectNextProductionTarget(undefined, {
+    const selected = selectNextProductionTarget(undefined, {
       excludeFingerprints: opts.excludeFingerprints,
       disable_strategy: opts.disable_strategy,
       strategyPath: opts.strategyPath,
     });
+    if (selected) return selected;
   }
+  // Explicit caller path when selection not requested — keep DEFAULT for
+  // backward-compat dry-run cycles (duplicate_preflight often disabled).
   return { ...DEFAULT_PRODUCTION_TARGET };
 }
 
@@ -499,3 +796,6 @@ function readRecentCycleCategory(): ProductionCategory | null {
   }
   return null;
 }
+
+// Silence unused type import in some TS builds
+export type { LoadedStrategyRecommendation };

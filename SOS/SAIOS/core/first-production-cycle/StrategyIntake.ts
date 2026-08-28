@@ -16,8 +16,8 @@ import {
   type ProductionSeniority,
   type ProductionTarget,
 } from "./ProductionTarget.js";
-import { fingerprintProductionTarget } from "./DuplicateDetector.js";
-import { countFounderReviewWaitingByCategory } from "../founder-review/FounderReviewProjection.js";
+import { fingerprintProductionTarget, targetClusterKey } from "./DuplicateDetector.js";
+import { summarizeFounderReviewProjection } from "../founder-review/FounderReviewProjection.js";
 
 const REPO = resolve(import.meta.dirname, "../../../..");
 const CYCLE_LOG = join(REPO, "SOS/07_LOGS/saios/first-production-cycle");
@@ -362,10 +362,18 @@ export function consumeStrategyRecommendation(
     opts?.excludeFingerprints ? [...opts.excludeFingerprints] : [],
   );
   const respectWaiting = opts?.respectWaitingFounder !== false;
-  const waitingByCategory = respectWaiting
-    ? countFounderReviewWaitingByCategory(REPO)
-    : ({} as Record<string, number>);
-
+  const reservedTitleClusters = new Set<string>();
+  if (respectWaiting) {
+    const { items } = summarizeFounderReviewProjection(REPO);
+    for (const item of items) {
+      if (item.status !== "waiting_founder") continue;
+      const title = item.production_target?.title;
+      const category = item.production_target?.category;
+      if (typeof title === "string" && typeof category === "string") {
+        reservedTitleClusters.add(targetClusterKey({ category, title }));
+      }
+    }
+  }
   const ranked = [...strategy.recommendations].sort(
     (a, b) => a.priority - b.priority || a.goal_id.localeCompare(b.goal_id),
   );
@@ -380,10 +388,10 @@ export function consumeStrategyRecommendation(
       continue;
     }
     if (respectWaiting) {
-      const waiting = waitingByCategory[rec.target.category] ?? 0;
-      if (waiting > 0) {
+      const cluster = targetClusterKey(rec.target);
+      if (reservedTitleClusters.has(cluster)) {
         skipped += 1;
-        skip_reasons.push(`${rec.goal_id}:waiting_founder_reserved`);
+        skip_reasons.push(`${rec.goal_id}:waiting_title_cluster_reserved`);
         continue;
       }
     }

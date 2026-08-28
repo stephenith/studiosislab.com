@@ -89,6 +89,7 @@
     "aios:canonical:run": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/run.ts",
     "aios:canonical:verify": "npm run first-production-cycle:verify",
     "aios:production-target:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-production-target.ts",
+    "aios:target-diversity:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-target-diversity.ts",
     "aios:research:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-research.ts",
     "aios:candidate-isolation:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-candidate-isolation.ts",
     "aios:founder-review:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-founder-review.ts",

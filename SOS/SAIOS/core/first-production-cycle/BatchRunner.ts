@@ -18,11 +18,12 @@ import {
   type CycleResult,
 } from "./runFirstProductionCycle.js";
 import { countFounderReviewWaiting } from "../founder-review/FounderReviewProjection.js";
-import { selectNextProductionTarget } from "./selectProductionTarget.js";
+import { selectEligibleProductionTarget } from "./selectProductionTarget.js";
 import {
   createBatchLocalDuplicateState,
   fingerprintProductionTarget,
   recordBatchLocalAttempt,
+  recordBatchLocalClusterExclusion,
   type DuplicateDecision,
 } from "./DuplicateDetector.js";
 import type { ProductionTarget } from "./ProductionTarget.js";
@@ -116,6 +117,12 @@ export type BatchSummary = {
   summary_path: string;
   report_path: string;
   health?: ProductionHealthResult | null;
+  eligible_targets_scanned?: number;
+  eligible_targets_remaining?: number;
+  duplicate_cluster_skips?: number;
+  strategy_targets_scanned?: number;
+  coverage_targets_scanned?: number;
+  exhaustion_reason?: string | null;
 };
 
 export type BatchRunnerOptions = {
@@ -392,6 +399,12 @@ export async function runCanonicalBatch(
   let stop_detail: string | null = null;
   let total_attempts = 0;
   let accepted = 0;
+  let eligible_targets_scanned = 0;
+  let eligible_targets_remaining = 0;
+  let duplicate_cluster_skips = 0;
+  let strategy_targets_scanned = 0;
+  let coverage_targets_scanned = 0;
+  let exhaustion_reason: string | null = null;
 
   while (accepted < batch_size && total_attempts < maximum_attempts) {
     // Agent #231 — verification artifacts do not enter Founder Review / production
@@ -420,23 +433,41 @@ export async function runCanonicalBatch(
     ];
 
     const fromForced = forced_index < forced_targets.length;
-    const target = fromForced
-      ? forced_targets[forced_index++]
-      : select_target
-        ? selectNextProductionTarget(undefined, {
-            excludeFingerprints: exclude,
-          })
-        : undefined;
-
-    // If selection fell back to a still-excluded fingerprint, stop — no alternatives
-    if (!fromForced && target) {
-      const fp = fingerprintProductionTarget(target);
-      if (exclude.includes(fp) && exclude.length > 0) {
+    let target: ProductionTarget | undefined;
+    if (fromForced) {
+      target = forced_targets[forced_index++];
+    } else if (select_target) {
+      const selected = selectEligibleProductionTarget({
+        excludeFingerprints: exclude,
+        batchLocal,
+        commitCursor: true,
+      });
+      eligible_targets_scanned = Math.max(
+        eligible_targets_scanned,
+        selected.telemetry.eligible_targets_scanned,
+      );
+      eligible_targets_remaining = selected.telemetry.eligible_targets_remaining;
+      duplicate_cluster_skips += selected.telemetry.duplicate_cluster_skips;
+      strategy_targets_scanned = Math.max(
+        strategy_targets_scanned,
+        selected.telemetry.strategy_targets_scanned,
+      );
+      coverage_targets_scanned = Math.max(
+        coverage_targets_scanned,
+        selected.telemetry.coverage_targets_scanned,
+      );
+      if (!selected.target || selected.exhausted) {
         stop_reason = "no_eligible_targets";
+        exhaustion_reason =
+          selected.telemetry.exhaustion_reason ??
+          "no_eligible_targets_after_full_strategy_and_coverage_scan";
         stop_detail =
           "No eligible production targets remain after duplicate exclusions";
         break;
       }
+      target = selected.target;
+    } else {
+      target = undefined;
     }
 
     let result: CycleResult;
@@ -490,6 +521,13 @@ export async function runCanonicalBatch(
     if (result.state === "DUPLICATE_SKIPPED" && result.duplicate_decision) {
       const d = result.duplicate_decision;
       recordBatchLocalAttempt(batchLocal, d.target_fingerprint, "skipped");
+      if (
+        d.duplicate_type === "EXACT_TARGET" ||
+        d.duplicate_type === "NEAR_TARGET"
+      ) {
+        recordBatchLocalClusterExclusion(batchLocal, result.production_target);
+        duplicate_cluster_skips += 1;
+      }
       duplicate_skips.push({
         attempt: total_attempts,
         duplicate_type: d.duplicate_type,
@@ -562,6 +600,7 @@ export async function runCanonicalBatch(
 
     if (mappedResult === "WAITING_FOUNDER") {
       recordBatchLocalAttempt(batchLocal, fp, "accepted");
+      recordBatchLocalClusterExclusion(batchLocal, result.production_target);
       accepted += 1;
     } else {
       recordBatchLocalAttempt(batchLocal, fp, "skipped");
@@ -665,6 +704,12 @@ export async function runCanonicalBatch(
     summary_path: relative(REPO, summary_path).replace(/\\/g, "/"),
     report_path: relative(REPO, report_path).replace(/\\/g, "/"),
     health,
+    eligible_targets_scanned,
+    eligible_targets_remaining,
+    duplicate_cluster_skips,
+    strategy_targets_scanned,
+    coverage_targets_scanned,
+    exhaustion_reason,
   };
 
   atomicWriteJson(summary_path, summary);

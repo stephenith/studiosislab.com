@@ -33,15 +33,33 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const a = selectNextProductionTarget();
-  const b = selectNextProductionTarget();
+  const a = selectNextProductionTarget(undefined, {
+    respectWaitingFounder: false,
+    manifests: [],
+    disable_strategy: true,
+  });
+  const b = selectNextProductionTarget(undefined, {
+    respectWaitingFounder: false,
+    manifests: [],
+    disable_strategy: true,
+  });
+  if (!a || !b) {
+    throw new Error("selectNextProductionTarget returned null in verify");
+  }
   const coverage = analyzeCategoryCoverage();
+
+  // Unique objective avoids collisions with prior verification-registry runs.
+  const cycleTarget = {
+    ...a,
+    objective: `${a.objective} [verify-production-target ${Date.now()}]`,
+  };
 
   const cycle = await runFirstProductionCycle({
     verification: true,
     verification_context: "aios-verify",
     pause_for_founder: true,
-    select_target: true,
+    select_target: false,
+    target: cycleTarget,
   });
 
   const targetPath = join(CYCLE_LOG, "production-target.json");
@@ -95,10 +113,11 @@ async function main(): Promise<void> {
     coverage_analysis_runs: coverage.length === 10,
     canonical_cycle_consumes_target:
       cycle.overall === "PASS" &&
-      cycle.production_target.category === a.category &&
-      cycle.production_target.objective === a.objective &&
-      persisted?.category === a.category &&
-      persisted?.objective === a.objective,
+      cycle.production_target.category === cycleTarget.category &&
+      cycle.production_target.title === cycleTarget.title &&
+      cycle.production_target.objective === cycleTarget.objective &&
+      persisted?.category === cycleTarget.category &&
+      persisted?.objective === cycleTarget.objective,
     default_target_backward_compatible:
       defaultCycle.overall === "PASS" &&
       defaultCycle.production_target.title ===

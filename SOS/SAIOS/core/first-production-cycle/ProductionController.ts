@@ -31,6 +31,7 @@ import {
   type ResourceBudgetPolicy,
 } from "./ResourceBudgetGovernor.js";
 import type { ProductionTarget } from "./ProductionTarget.js";
+import { notifyBatchReadyAfterExecution } from "./BatchReadyNotification.js";
 
 const REPO = resolve(import.meta.dirname, "../../../..");
 const CYCLE_LOG = join(REPO, "SOS/07_LOGS/saios/first-production-cycle");
@@ -98,6 +99,20 @@ function atomicWriteJson(path: string, data: unknown): void {
   const tmp = `${path}.${process.pid}.${Date.now()}.tmp`;
   writeFileSync(tmp, `${JSON.stringify(data, null, 2)}\n`, "utf8");
   renameSync(tmp, path);
+}
+
+/** Fail-open batch-ready Telegram after reports are persisted. */
+async function afterExecutionPersisted(
+  result: ProductionExecutionResult,
+  opts?: ProductionControllerOptions,
+): Promise<void> {
+  try {
+    await notifyBatchReadyAfterExecution(result, {
+      verification: opts?.verification === true,
+    });
+  } catch {
+    /* notification must never fail generation */
+  }
 }
 
 export function allocateExecutionId(now: Date = new Date()): string {
@@ -258,6 +273,7 @@ export async function runProduction(
       finished_at,
     });
     atomicWriteJson(join(CYCLE_LOG, "execution-report.json"), result);
+    await afterExecutionPersisted(result, opts);
     return result;
   }
 
@@ -315,6 +331,7 @@ export async function runProduction(
       finished_at,
     });
     atomicWriteJson(join(CYCLE_LOG, "execution-report.json"), result);
+    await afterExecutionPersisted(result, opts);
     return result;
   }
 
@@ -375,6 +392,7 @@ export async function runProduction(
       finished_at,
     });
     atomicWriteJson(join(CYCLE_LOG, "execution-report.json"), result);
+    await afterExecutionPersisted(result, opts);
     return result;
   }
 
@@ -424,6 +442,7 @@ export async function runProduction(
   });
   atomicWriteJson(join(CYCLE_LOG, "execution-report.json"), result);
 
+  await afterExecutionPersisted(result, opts);
   return result;
 }
 

@@ -48,6 +48,9 @@ async function main(): Promise<void> {
     queue_max: queueMax,
     force_mock: true,
     select_target: false,
+    // Offline harness: avoid fail-closed budget DENY when local disk free %
+    // is near the 10% floor (unrelated to controller orchestration).
+    budget_simulate: { disk_free_percent: 40 },
     forced_targets: [
       {
         category: "creative",

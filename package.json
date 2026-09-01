@@ -95,6 +95,7 @@
     "aios:founder-review:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-founder-review.ts",
     "aios:batch:run": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/run-controller.ts",
     "aios:batch:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-batch.ts",
+    "aios:batch-ready:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-batch-ready-notification.ts",
     "aios:duplicates:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-duplicates.ts",
     "aios:revision:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-revision.ts",
     "aios:health:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-health.ts",

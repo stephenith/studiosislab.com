@@ -1,6 +1,7 @@
 /**
  * Immutable multi-eligible publication plans.
  * No website writes. No catalogue reservations.
+ * Optional explicit Resume Template scope (Phase 5Q).
  */
 import { randomUUID } from "node:crypto";
 import {
@@ -22,6 +23,7 @@ import {
 import type {
   PublicationPlan,
   PublicationPlanEntry,
+  PublicationPlanScope,
   PublicationPlanStatus,
 } from "./types.js";
 import { PUBLICATION_WORKFLOW_VERSION } from "./types.js";
@@ -61,7 +63,9 @@ export function listPlans(
     )
     .map((f) => {
       try {
-        return readJson<PublicationPlan>(join(roots.plansRoot, f));
+        return JSON.parse(
+          readFileSync(join(roots.plansRoot, f), "utf8"),
+        ) as PublicationPlan;
       } catch {
         return null;
       }
@@ -108,23 +112,90 @@ function newPlanId(): string {
   return `plan-${day}-${randomUUID().slice(0, 8)}`;
 }
 
+/** Resolve persisted scope; legacy plans without scope → all_eligible. */
+export function resolvePlanScope(plan: PublicationPlan): PublicationPlanScope {
+  if (
+    plan.scope?.mode === "explicit" &&
+    Array.isArray(plan.scope.candidate_ids)
+  ) {
+    return {
+      mode: "explicit",
+      candidate_ids: [...plan.scope.candidate_ids],
+    };
+  }
+  return { mode: "all_eligible", candidate_ids: [] };
+}
+
+export function discoveryOptionsForPlan(plan: PublicationPlan): {
+  candidate_ids?: string[];
+} {
+  const scope = resolvePlanScope(plan);
+  if (scope.mode === "explicit") {
+    return { candidate_ids: scope.candidate_ids };
+  }
+  return {};
+}
+
+export type CreatePublicationPlanOptions = {
+  /** Explicit Resume Template legacy IDs — never silently broaden. */
+  candidate_ids?: string[];
+};
+
 /**
- * Discover all eligible resume templates and write an immutable plan.
- * Idempotent when an active plan already matches the eligibility fingerprint.
+ * Discover eligible resume templates and write an immutable plan.
+ * Idempotent when an active plan already matches the eligibility fingerprint
+ * for the same scope.
  */
 export function createPublicationPlan(
   roots: PublicationRoots = defaultPublicationRoots(),
+  options: CreatePublicationPlanOptions = {},
 ): {
   plan: PublicationPlan;
   idempotent: boolean;
   omitted_eligible: string[];
 } {
-  const discovery = discoverEligibleCandidates(roots);
+  const explicit =
+    options.candidate_ids && options.candidate_ids.length > 0
+      ? [
+          ...new Set(
+            options.candidate_ids.map((id) => id.trim()).filter(Boolean),
+          ),
+        ]
+      : null;
 
-  // Idempotent: same fingerprint active plan
-  const existing = listActivePlans(roots).find(
-    (p) => p.eligibility_fingerprint === discovery.eligibility_fingerprint,
+  const scope: PublicationPlanScope = explicit
+    ? { mode: "explicit", candidate_ids: explicit }
+    : { mode: "all_eligible", candidate_ids: [] };
+
+  const discovery = discoverEligibleCandidates(
+    roots,
+    explicit ? { candidate_ids: explicit } : {},
   );
+
+  if (explicit) {
+    if (discovery.missing_requested.length > 0) {
+      throw new Error(
+        `Explicit Resume Template scope not eligible (no substitute): ${discovery.missing_requested.join(", ")}`,
+      );
+    }
+    if (discovery.eligible.length !== explicit.length) {
+      throw new Error(
+        `Explicit Resume Template scope mismatch: requested=${explicit.length} eligible=${discovery.eligible.length}`,
+      );
+    }
+  }
+
+  // Idempotent: same fingerprint + same scope mode active plan
+  const existing = listActivePlans(roots).find((p) => {
+    const ps = resolvePlanScope(p);
+    if (ps.mode !== scope.mode) return false;
+    if (scope.mode === "explicit") {
+      const a = [...ps.candidate_ids].sort().join("|");
+      const b = [...scope.candidate_ids].sort().join("|");
+      if (a !== b) return false;
+    }
+    return p.eligibility_fingerprint === discovery.eligibility_fingerprint;
+  });
   if (existing) {
     return { plan: existing, idempotent: true, omitted_eligible: [] };
   }
@@ -173,6 +244,9 @@ export function createPublicationPlan(
         `Already published (excluded): ${ex.candidate_id} (${ex.catalogue_id})`,
       );
     }
+    if (ex.reason_code === "NON_PRODUCTION") {
+      warnings.push(`Non-production excluded: ${ex.candidate_id}`);
+    }
   }
 
   const now = new Date().toISOString();
@@ -198,14 +272,22 @@ export function createPublicationPlan(
     },
   }));
 
-  // Fail closed: re-discover and ensure every eligible ID is in entries
-  const rediscovery = discoverEligibleCandidates(roots);
+  // Fail closed: re-discover with same scope and ensure every eligible ID is in entries
+  const rediscovery = discoverEligibleCandidates(
+    roots,
+    explicit ? { candidate_ids: explicit } : {},
+  );
   const omitted_eligible = rediscovery.eligible
     .map((e) => e.candidate_id)
     .filter((id) => !entries.some((x) => x.candidate_id === id));
   if (omitted_eligible.length > 0) {
     throw new Error(
       `Silent omission detected — eligible resume templates missing from plan: ${omitted_eligible.join(", ")}`,
+    );
+  }
+  if (explicit && rediscovery.missing_requested.length > 0) {
+    throw new Error(
+      `Explicit scope became ineligible during plan write: ${rediscovery.missing_requested.join(", ")}`,
     );
   }
 
@@ -217,6 +299,7 @@ export function createPublicationPlan(
     created_at: now,
     updated_at: now,
     eligibility_fingerprint: discovery.eligibility_fingerprint,
+    scope,
     confirm_phrase: `PUBLISH_PLAN_${plan_id}`,
     entries,
     excluded: discovery.excluded,

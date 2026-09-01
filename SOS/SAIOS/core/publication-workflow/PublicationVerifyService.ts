@@ -11,7 +11,9 @@ import {
   type PublicationRoots,
 } from "./paths.js";
 import {
+  discoveryOptionsForPlan,
   readPlan,
+  resolvePlanScope,
   writePlan,
 } from "./PublicationPlanService.js";
 import type {
@@ -61,7 +63,23 @@ export function verifyPublicationPlan(
   const errors: string[] = [];
   const warnings: string[] = [...plan.warnings];
 
-  const discovery = discoverEligibleCandidates(roots);
+  const discovery = discoverEligibleCandidates(
+    roots,
+    discoveryOptionsForPlan(plan),
+  );
+  const scope = resolvePlanScope(plan);
+  if (scope.mode === "explicit" && discovery.missing_requested.length > 0) {
+    errors.push(
+      `Explicit scope Resume Template(s) no longer eligible: ${discovery.missing_requested.join(", ")}`,
+    );
+    checks.push(
+      check(
+        "explicit_scope_still_eligible",
+        false,
+        discovery.missing_requested.join(", "),
+      ),
+    );
+  }
   const planFp =
     typeof plan.eligibility_fingerprint === "string"
       ? plan.eligibility_fingerprint
@@ -149,23 +167,47 @@ export function verifyPublicationPlan(
   const discoveredIds = new Set(discovery.eligible.map((e) => e.candidate_id));
   const omitted = [...discoveredIds].filter((id) => !planIds.has(id));
   const extra = [...planIds].filter((id) => !discoveredIds.has(id));
-  const omission_detected = omitted.length > 0;
+  // Unscoped: any newly eligible ID not in plan is an omission (fail closed).
+  // Explicit: discovery is already scope-filtered — set equality is required.
+  const setsMatch =
+    omitted.length === 0 &&
+    extra.length === 0 &&
+    planIds.size === discoveredIds.size;
+  const omission_detected = scope.mode === "all_eligible" && omitted.length > 0;
   checks.push(
     check(
       "no_candidate_omission",
-      !omission_detected && extra.length === 0,
-      omission_detected
-        ? `Omitted eligible: ${omitted.join(", ")}`
-        : extra.length
-          ? `Plan has non-eligible entries: ${extra.join(", ")}`
-          : "Plan matches current eligible set",
+      setsMatch,
+      !setsMatch
+        ? `Plan/discovery mismatch omitted=[${omitted.join(",")}] extra=[${extra.join(",")}] scope=${scope.mode}`
+        : "Plan matches current eligible set (scoped)",
     ),
   );
   if (omission_detected) {
-    errors.push(`Eligible resume templates omitted from plan: ${omitted.join(", ")}`);
+    errors.push(
+      `Eligible resume templates omitted from plan: ${omitted.join(", ")}`,
+    );
   }
   if (extra.length) {
     errors.push(`Plan entries no longer eligible: ${extra.join(", ")}`);
+  }
+  if (scope.mode === "explicit" && omitted.length > 0) {
+    errors.push(
+      `Explicit scope broadened unexpectedly: ${omitted.join(", ")}`,
+    );
+  }
+  if (scope.mode === "explicit") {
+    const planSorted = [...planIds].sort().join("|");
+    const discSorted = [...discoveredIds].sort().join("|");
+    checks.push(
+      check(
+        "explicit_scope_entry_ids_match",
+        setsMatch,
+        setsMatch
+          ? "PLANNED_ENTRY_IDS == VERIFY_DISCOVERY_IDS"
+          : `planned=[${planSorted}] discovery=[${discSorted}]`,
+      ),
+    );
   }
 
   // Catalogue uniqueness within plan + against live manifest

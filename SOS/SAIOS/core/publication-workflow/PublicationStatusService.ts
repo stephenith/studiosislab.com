@@ -4,6 +4,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { CatalogueReservation } from "../export/types.js";
+import { isNonProductionResumeTemplate } from "../staging/ApprovalStagingHandoff.js";
 import type { CandidateLifecycleRecord } from "../staging/types.js";
 import { discoverEligibleCandidates } from "./EligibilityCollector.js";
 import {
@@ -89,6 +90,12 @@ export function getCandidatePublicationStatus(
   if (cand?.superseded_by_revision) {
     status_label = "EXCLUDED_SUPERSEDED";
     reason = `Superseded by ${cand.superseded_by_revision}`;
+  } else if (
+    isNonProductionResumeTemplate(candidateId, roots.candidatesRoot)
+  ) {
+    status_label = "EXCLUDED_NON_PRODUCTION";
+    reason =
+      "Non-production Resume Template (fixture/debug/test) — not publication eligible";
   } else if (
     life?.lifecycle_status === "PUBLISHED" ||
     reservation?.status === "RELEASE_COMPLETED"

@@ -28,6 +28,7 @@ export type PublicationStatusLabel =
   | "EXCLUDED_REJECTED"
   | "EXCLUDED_VALIDATION_FAILED"
   | "EXCLUDED_MISSING_STAGING"
+  | "EXCLUDED_NON_PRODUCTION"
   | "EXCLUDED_OTHER";
 
 export type ExclusionReasonCode =
@@ -44,7 +45,15 @@ export type ExclusionReasonCode =
   | "CONFLICTING_RESERVATION"
   | "PUBLICATION_FAILURE_MANUAL"
   | "IN_ACTIVE_PLAN"
+  | "NON_PRODUCTION"
   | "OTHER";
+
+/** Persisted plan eligibility scope (Phase 5Q). */
+export type PublicationPlanScope = {
+  mode: "all_eligible" | "explicit";
+  /** Explicit Resume Template legacy IDs; empty when mode=all_eligible. */
+  candidate_ids: string[];
+};
 
 export type EligibilityProof = {
   founder_decision_id: string;
@@ -121,6 +130,8 @@ export type PublicationPlan = {
   created_at: string;
   updated_at: string;
   eligibility_fingerprint: string;
+  /** Scope used for discovery fingerprint + verify/apply re-discovery. */
+  scope: PublicationPlanScope;
   confirm_phrase: string;
   entries: PublicationPlanEntry[];
   excluded: ExcludedCandidate[];

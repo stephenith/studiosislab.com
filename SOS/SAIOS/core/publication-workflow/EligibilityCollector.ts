@@ -1,6 +1,7 @@
 /**
  * Discover all publication-eligible staged resume templates — legacy candidate_id fields still used.
  * Authoritative sources only (decisions, lifecycle, staging packages, reservations).
+ * Non-production (fixture/debug/test) Resume Templates are never eligible.
  */
 import { createHash } from "node:crypto";
 import {
@@ -13,11 +14,13 @@ import {
   computeHighestUsedCatalogueNumber,
 } from "../export/CatalogueReservation.js";
 import type { CatalogueReservation } from "../export/types.js";
+import { isNonProductionResumeTemplate } from "../staging/ApprovalStagingHandoff.js";
 import type { CandidateLifecycleRecord } from "../staging/types.js";
 import {
   expectedGeneratedFilesForCatalogue,
   type PublicationRoots,
   defaultPublicationRoots,
+  QUARANTINED_TEMPLATE_IDS,
 } from "./paths.js";
 import type {
   EligibleCandidate,
@@ -229,63 +232,137 @@ function formatCatalogueId(n: number): string {
   return `t${String(n).padStart(3, "0")}`;
 }
 
+function parseCatalogueNum(id: string): number | null {
+  const m = String(id)
+    .toLowerCase()
+    .match(/^t(\d+)$/);
+  return m ? Number(m[1]) : null;
+}
+
+/**
+ * Collect every occupied catalogue number from authoritative publication sources.
+ * Never reallocates gaps below the max occupied ID (monotonic).
+ */
+export function collectOccupiedCatalogueNumbers(
+  roots: PublicationRoots = defaultPublicationRoots(),
+): Set<number> {
+  const occupied = new Set<number>();
+  const mark = (raw: string) => {
+    const n = parseCatalogueNum(raw);
+    if (n != null) occupied.add(n);
+  };
+
+  for (const q of QUARANTINED_TEMPLATE_IDS) mark(q);
+
+  if (existsSync(roots.manifestPath)) {
+    const manifest = readJson<{ templates?: Array<{ id?: string }> }>(
+      roots.manifestPath,
+    );
+    for (const t of manifest.templates ?? []) mark(String(t.id ?? ""));
+  }
+
+  for (const r of loadReservations(roots)) {
+    mark(r.reserved_catalogue_id);
+  }
+
+  // Generated / on-disk template assets under website target
+  const website = roots.websiteTargetRoot;
+  for (const rel of [
+    "public/templates",
+    "src/data/template-json",
+  ]) {
+    const dir = join(website, rel);
+    if (!existsSync(dir)) continue;
+    for (const name of readdirSync(dir)) {
+      const m = name.toLowerCase().match(/^(t\d+)\.(json|png|webp)$/);
+      if (m) mark(m[1]!);
+    }
+  }
+
+  const registryPath = join(
+    website,
+    "src/data/systemTemplates/registry.generated.ts",
+  );
+  if (existsSync(registryPath)) {
+    const raw = readFileSync(registryPath, "utf8");
+    for (const m of raw.matchAll(/\bid\s*:\s*["'](t\d+)["']/gi)) {
+      mark(m[1]!);
+    }
+  }
+
+  const packagesDir = join(
+    roots.repo,
+    "SOS/07_LOGS/saios/publication/packages",
+  );
+  if (existsSync(packagesDir)) {
+    for (const name of readdirSync(packagesDir)) mark(name);
+  }
+
+  // Align with production monotonic helper when using default repo roots
+  try {
+    if (roots.repo === defaultPublicationRoots().repo) {
+      const live = computeHighestUsedCatalogueNumber();
+      if (live.highest_used > 0) occupied.add(live.highest_used);
+      // Include package/reservation highs already reflected in highest_used
+      if (live.highest_live > 0) occupied.add(live.highest_live);
+      if (live.highest_package > 0) occupied.add(live.highest_package);
+      if (live.highest_reservation > 0) occupied.add(live.highest_reservation);
+    }
+  } catch {
+    /* fixture roots may not have full tree */
+  }
+
+  return occupied;
+}
+
 /**
  * Propose monotonic catalogue IDs for a batch without writing reservations.
- * Skips quarantined and already-live IDs via computeHighestUsedCatalogueNumber.
+ * Skips quarantined and already-occupied IDs from authoritative sources.
  */
 export function proposeCatalogueIds(
   count: number,
   roots: PublicationRoots = defaultPublicationRoots(),
 ): string[] {
-  // Prefer live compute when using default repo reservations; for fixtures
-  // compute from local reservation file + manifest only.
-  let highest = 0;
-  if (existsSync(roots.manifestPath)) {
-    const manifest = readJson<{ templates?: Array<{ id?: string }> }>(
-      roots.manifestPath,
-    );
-    for (const t of manifest.templates ?? []) {
-      const m = String(t.id ?? "")
-        .toLowerCase()
-        .match(/^t(\d+)$/);
-      if (m) highest = Math.max(highest, Number(m[1]));
-    }
-  }
-  for (const r of loadReservations(roots)) {
-    const m = String(r.reserved_catalogue_id)
-      .toLowerCase()
-      .match(/^t(\d+)$/);
-    if (m) highest = Math.max(highest, Number(m[1]));
-  }
-  // Align with production monotonic helper when roots match default
-  try {
-    const live = computeHighestUsedCatalogueNumber();
-    if (roots.repo === defaultPublicationRoots().repo) {
-      highest = Math.max(highest, live.highest_used);
-    }
-  } catch {
-    /* fixture roots may not have full tree */
-  }
+  const occupied = collectOccupiedCatalogueNumbers(roots);
+  const highest = occupied.size > 0 ? Math.max(...occupied) : 0;
   const ids: string[] = [];
   let next = highest + 1;
   while (ids.length < count) {
     const id = formatCatalogueId(next);
-    if (id !== "t094" && id !== "t099") {
+    const n = next;
+    const quarantined = (QUARANTINED_TEMPLATE_IDS as readonly string[]).includes(
+      id,
+    );
+    if (!quarantined && !occupied.has(n)) {
       ids.push(id);
+      occupied.add(n);
     }
     next += 1;
   }
   return ids;
 }
 
+export type DiscoveryOptions = {
+  /**
+   * When set (non-empty), only these production-eligible Resume Templates may
+   * appear in `eligible`. Fingerprint is computed for this scoped set.
+   * Missing requested IDs are reported via `missing_requested` — never substituted.
+   */
+  candidate_ids?: string[] | null;
+};
+
 export type DiscoveryResult = {
   eligible: EligibleCandidate[];
   excluded: ExcludedCandidate[];
   eligibility_fingerprint: string;
+  /** Explicit scope IDs that were not eligible after filters. */
+  missing_requested: string[];
+  scope_candidate_ids: string[] | null;
 };
 
 export function discoverEligibleCandidates(
   roots: PublicationRoots = defaultPublicationRoots(),
+  options: DiscoveryOptions = {},
 ): DiscoveryResult {
   const decisions = loadLatestDecisionsByCandidate(roots);
   const reservations = loadReservations(roots);
@@ -315,6 +392,25 @@ export function discoverEligibleCandidates(
       reservations,
       candidateId,
     );
+
+    if (isNonProductionResumeTemplate(candidateId, roots.candidatesRoot)) {
+      excluded.push(
+        exclude(
+          candidateId,
+          title,
+          "EXCLUDED_NON_PRODUCTION",
+          "NON_PRODUCTION",
+          "Non-production Resume Template (fixture/debug/test) — not publication eligible",
+          {
+            lifecycle_status: life.lifecycle_status,
+            staging_package_id: life.staging_package_id,
+            decision: decision?.decision ?? null,
+            catalogue_id: reservation?.reserved_catalogue_id ?? null,
+          },
+        ),
+      );
+      continue;
+    }
 
     if (supersededIds.has(candidateId) || cand?.superseded_by_revision) {
       excluded.push(
@@ -611,6 +707,19 @@ export function discoverEligibleCandidates(
   // Also surface APPROVED_NOT_STAGED / CHANGES_REQUESTED from decisions without lifecycle
   for (const [candId, decision] of decisions) {
     if (seen.has(candId)) continue;
+    if (isNonProductionResumeTemplate(candId, roots.candidatesRoot)) {
+      excluded.push(
+        exclude(
+          candId,
+          candidateTitle(loadCandidateJson(roots, candId), null),
+          "EXCLUDED_NON_PRODUCTION",
+          "NON_PRODUCTION",
+          "Non-production Resume Template (fixture/debug/test) — not publication eligible",
+          { decision: decision.decision },
+        ),
+      );
+      continue;
+    }
     const cand = loadCandidateJson(roots, candId);
     if (cand?.superseded_by_revision) {
       excluded.push(
@@ -650,20 +759,35 @@ export function discoverEligibleCandidates(
     }
   }
 
-  // Deterministic sort: approval time, then staging time, then candidate_id
-  eligible.sort((a, b) => a.sort_key.localeCompare(b.sort_key));
+  const requested =
+    options.candidate_ids && options.candidate_ids.length > 0
+      ? [...new Set(options.candidate_ids.map((id) => id.trim()).filter(Boolean))]
+      : null;
 
-  const proposed = proposeCatalogueIds(eligible.length, roots);
-  for (let i = 0; i < eligible.length; i++) {
+  let scopedEligible = eligible;
+  const missing_requested: string[] = [];
+  if (requested) {
+    const eligibleIds = new Set(eligible.map((e) => e.candidate_id));
+    for (const id of requested) {
+      if (!eligibleIds.has(id)) missing_requested.push(id);
+    }
+    scopedEligible = eligible.filter((e) => requested.includes(e.candidate_id));
+  }
+
+  // Deterministic sort: approval time, then staging time, then candidate_id
+  scopedEligible.sort((a, b) => a.sort_key.localeCompare(b.sort_key));
+
+  const proposed = proposeCatalogueIds(scopedEligible.length, roots);
+  for (let i = 0; i < scopedEligible.length; i++) {
     const id = proposed[i]!;
-    eligible[i]!.proposed_catalogue_id = id;
-    eligible[i]!.expected_generated_files =
+    scopedEligible[i]!.proposed_catalogue_id = id;
+    scopedEligible[i]!.expected_generated_files =
       expectedGeneratedFilesForCatalogue(id);
   }
 
   const fingerprint = createHash("sha256")
     .update(
-      eligible
+      scopedEligible
         .map(
           (e) =>
             `${e.candidate_id}|${e.staging_package_id}|${e.decision_id}|${e.generation_id}`,
@@ -672,5 +796,11 @@ export function discoverEligibleCandidates(
     )
     .digest("hex");
 
-  return { eligible, excluded, eligibility_fingerprint: fingerprint };
+  return {
+    eligible: scopedEligible,
+    excluded,
+    eligibility_fingerprint: fingerprint,
+    missing_requested,
+    scope_candidate_ids: requested,
+  };
 }

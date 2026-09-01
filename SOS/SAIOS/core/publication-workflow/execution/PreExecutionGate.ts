@@ -6,7 +6,11 @@ import { join } from "node:path";
 import { discoverEligibleCandidates } from "../EligibilityCollector.js";
 import { filterPublicationGitPaths } from "../GitPathAllowlist.js";
 import { defaultPublicationRoots, type PublicationRoots } from "../paths.js";
-import { readPlan } from "../PublicationPlanService.js";
+import {
+  discoveryOptionsForPlan,
+  readPlan,
+  resolvePlanScope,
+} from "../PublicationPlanService.js";
 import { verifyPublicationPlan } from "../PublicationVerifyService.js";
 import { verifyStagingChecksumManifest } from "../../staging/ChecksumManifest.js";
 import type { PublicationPlan } from "../types.js";
@@ -49,7 +53,11 @@ export function runPreExecutionGate(
     errors.push(`Pre-execution verification failed: ${verification.errors.join("; ")}`);
   }
 
-  const discovery = discoverEligibleCandidates(roots);
+  const discovery = discoverEligibleCandidates(
+    roots,
+    discoveryOptionsForPlan(plan),
+  );
+  const scope = resolvePlanScope(plan);
   const planFp =
     typeof plan.eligibility_fingerprint === "string"
       ? plan.eligibility_fingerprint
@@ -74,16 +82,40 @@ export function runPreExecutionGate(
   });
   if (!fpOk) errors.push("Eligibility fingerprint changed since plan");
 
+  if (scope.mode === "explicit" && discovery.missing_requested.length > 0) {
+    errors.push(
+      `Explicit scope Resume Template(s) no longer eligible: ${discovery.missing_requested.join(", ")}`,
+    );
+    checks.push({
+      name: "explicit_scope_still_eligible",
+      pass: false,
+      detail: discovery.missing_requested.join(", "),
+    });
+  }
+
   const planIds = new Set(plan.entries.map((e) => e.candidate_id));
   const discoveredIds = new Set(discovery.eligible.map((e) => e.candidate_id));
   const omitted = [...discoveredIds].filter((id) => !planIds.has(id));
+  const extra = [...planIds].filter((id) => !discoveredIds.has(id));
+  const setsMatch =
+    omitted.length === 0 &&
+    extra.length === 0 &&
+    planIds.size === discoveredIds.size;
   checks.push({
     name: "no_candidate_omission",
-    pass: omitted.length === 0,
-    detail: omitted.length ? `omitted: ${omitted.join(", ")}` : "none omitted",
+    pass: setsMatch,
+    detail: setsMatch
+      ? "PLANNED_ENTRY_IDS == APPLY_DISCOVERY_IDS"
+      : `omitted=[${omitted.join(",")}] extra=[${extra.join(",")}]`,
   });
-  if (omitted.length) errors.push(`Resume template omission: ${omitted.join(", ")}`);
-
+  if (!setsMatch) {
+    errors.push(
+      `Resume template plan/apply scope mismatch: planned=[${[...planIds].sort().join("|")}] discovery=[${[...discoveredIds].sort().join("|")}]`,
+    );
+  }
+  if (scope.mode === "all_eligible" && omitted.length) {
+    errors.push(`Resume template omission: ${omitted.join(", ")}`);
+  }
   for (const entry of plan.entries) {
     const pkg = join(roots.stagingPackagesRoot, entry.staging_package_id);
     const checksumPath = join(pkg, "checksums.json");

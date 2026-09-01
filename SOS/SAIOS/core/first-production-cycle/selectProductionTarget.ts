@@ -315,18 +315,22 @@ export function collectReservedTargetClusters(opts?: {
   cycleLog?: string;
   registry_kind?: CandidateRegistryKind;
   manifests?: ReturnType<typeof listCandidateManifests>;
+  /** When false, skip Founder waiting projection reservation (verify fixtures). */
+  respectWaitingFounder?: boolean;
 }): Set<string> {
   const repoRoot = opts?.repoRoot ?? REPO;
   const cycleLog = opts?.cycleLog ?? CYCLE_LOG;
   const reserved = new Set<string>();
 
-  const projection = summarizeFounderReviewProjection(repoRoot);
-  for (const item of projection.items) {
-    if (item.status !== "waiting_founder") continue;
-    const title = item.production_target?.title;
-    const category = item.production_target?.category;
-    if (typeof title === "string" && typeof category === "string") {
-      reserved.add(targetClusterKey({ category, title }));
+  if (opts?.respectWaitingFounder !== false) {
+    const projection = summarizeFounderReviewProjection(repoRoot);
+    for (const item of projection.items) {
+      if (item.status !== "waiting_founder") continue;
+      const title = item.production_target?.title;
+      const category = item.production_target?.category;
+      if (typeof title === "string" && typeof category === "string") {
+        reserved.add(targetClusterKey({ category, title }));
+      }
     }
   }
 
@@ -395,6 +399,7 @@ export function selectEligibleProductionTarget(opts?: {
   /** Injected taxonomy (tests). */
   taxonomy?: RoleTaxonomyEntry[];
   persist_intake_report?: boolean;
+  respectWaitingFounder?: boolean;
 }): SelectProductionTargetResult {
   const telemetry = emptyTelemetry();
   const exclude = new Set(
@@ -408,6 +413,7 @@ export function selectEligibleProductionTarget(opts?: {
     cycleLog: opts?.cycleLog,
     registry_kind: opts?.registry_kind,
     manifests: opts?.manifests,
+    respectWaitingFounder: opts?.respectWaitingFounder,
   });
 
   const ranked: RankedCandidate[] = [];
@@ -612,6 +618,7 @@ export function selectNextProductionTargetFromCoverage(
     cursorPath?: string;
     manifests?: ReturnType<typeof listCandidateManifests>;
     taxonomy?: RoleTaxonomyEntry[];
+    respectWaitingFounder?: boolean;
   },
 ): ProductionTarget | null {
   void goals;
@@ -645,7 +652,6 @@ export function selectNextProductionTarget(
   },
 ): ProductionTarget | null {
   void goals;
-  void opts?.respectWaitingFounder; // title-cluster reservation replaces category gate
   const result = selectEligibleProductionTarget({
     excludeFingerprints: opts?.excludeFingerprints,
     batchLocal: opts?.batchLocal,
@@ -657,6 +663,7 @@ export function selectNextProductionTarget(
     manifests: opts?.manifests,
     taxonomy: opts?.taxonomy,
     registry_kind: opts?.registry_kind,
+    respectWaitingFounder: opts?.respectWaitingFounder,
   });
   return result.target;
 }

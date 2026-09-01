@@ -133,14 +133,18 @@ async function main(): Promise<void> {
     strategyPath: validPath,
     persist_intake_report: true,
     respectWaitingFounder: false,
+    manifests: [],
   });
-  assert(viaSelect.category === "healthcare", "select consumes strategy");
-  assert(viaSelect.goal_id === "strategy-missing-healthcare", "select metadata");
+  assert(viaSelect != null, "select returns strategy target");
+  assert(viaSelect!.category === "healthcare", "select consumes strategy");
+  assert(viaSelect!.goal_id === "strategy-missing-healthcare", "select metadata");
 
   // Force strategy select without waiting reservation via consume already checked.
   // Also verify select with disable_strategy still works.
-  const coverageOnly = selectNextProductionTargetFromCoverage();
-  assert(Boolean(coverageOnly.category), "coverage fallback target");
+  const coverageOnly = selectNextProductionTargetFromCoverage(undefined, {
+    manifests: [],
+  });
+  assert(coverageOnly != null && Boolean(coverageOnly.category), "coverage fallback target");
 
   // 2) Missing strategy → fallback
   const miss = consumeStrategyRecommendation({
@@ -158,8 +162,10 @@ async function main(): Promise<void> {
   const missSelect = selectNextProductionTarget(undefined, {
     strategyPath: missingPath,
     persist_intake_report: true,
+    respectWaitingFounder: false,
+    manifests: [],
   });
-  assert(Boolean(missSelect.category), "missing → coverage target");
+  assert(missSelect != null && Boolean(missSelect.category), "missing → coverage target");
 
   // 3) Malformed strategy → fallback
   const badValidate = validateProductionStrategy(
@@ -207,8 +213,10 @@ async function main(): Promise<void> {
   // Default path should still produce a target (strategy file may or may not exist)
   const defaultSelect = selectNextProductionTarget(undefined, {
     persist_intake_report: true,
+    respectWaitingFounder: false,
+    manifests: [],
   });
-  assert(Boolean(defaultSelect.category), "default select works");
+  assert(defaultSelect != null && Boolean(defaultSelect.category), "default select works");
   assert(existsSync(STRATEGY_INTAKE_REPORT_PATH), "intake report persisted");
 
   const checks = {
@@ -234,8 +242,8 @@ async function main(): Promise<void> {
         overall: overall ? "PASS" : "FAIL",
         checks,
         sample_goal_id: consumed!.target.goal_id,
-        coverage_category: coverageOnly.category,
-        default_category: defaultSelect.category,
+        coverage_category: coverageOnly!.category,
+        default_category: defaultSelect!.category,
       },
       null,
       2,

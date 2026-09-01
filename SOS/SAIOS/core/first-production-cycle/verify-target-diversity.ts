@@ -139,6 +139,7 @@ function main(): void {
         commitCursor: true,
         cursorPath,
         persist_intake_report: false,
+        respectWaitingFounder: false,
       });
       checks.push(
         assert(
@@ -184,6 +185,7 @@ function main(): void {
       commitCursor: false,
       cursorPath: join(tmp, "coo-cursor.json"),
       persist_intake_report: false,
+      respectWaitingFounder: false,
     });
     checks.push(
       assert(
@@ -216,6 +218,7 @@ function main(): void {
       commitCursor: false,
       cursorPath: join(tmp, "coo-cursor2.json"),
       persist_intake_report: false,
+      respectWaitingFounder: false,
     });
     checks.push(
       assert(
@@ -236,6 +239,7 @@ function main(): void {
       commitCursor: false,
       cursorPath: join(tmp, "busy-cursor.json"),
       persist_intake_report: false,
+      respectWaitingFounder: false,
     });
     checks.push(
       assert(
@@ -266,6 +270,7 @@ function main(): void {
       commitCursor: false,
       cursorPath: join(tmp, "ex-cursor.json"),
       persist_intake_report: false,
+      respectWaitingFounder: false,
     });
     checks.push(
       assert(
@@ -299,6 +304,7 @@ function main(): void {
       commitCursor: true,
       cursorPath,
       persist_intake_report: false,
+      respectWaitingFounder: false,
     });
     const mid = readTargetSelectionCursor(cursorPath);
     // simulate restart: re-read cursor file
@@ -320,6 +326,7 @@ function main(): void {
       disable_strategy: true,
       persist_intake_report: false,
       cursorPath: join(tmp, "empty-cursor.json"),
+      respectWaitingFounder: false,
     });
     checks.push(
       assert(
@@ -336,6 +343,7 @@ function main(): void {
       disable_strategy: true,
       persist_intake_report: false,
       cursorPath: join(tmp, "tel-cursor.json"),
+      respectWaitingFounder: false,
     });
     checks.push(
       assert(

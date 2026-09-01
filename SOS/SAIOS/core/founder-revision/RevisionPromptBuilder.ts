@@ -16,7 +16,10 @@ import {
   isDeprecatedPlannerOp,
 } from "./allowedCanvasOps.js";
 import { classifyRequestedChange } from "./RequestedChangeClassification.js";
-import { isDeterministicLayoutNormalizerOwnedChange } from "./DeterministicSpacingPlan.js";
+import {
+  isDeterministicLayoutNormalizerOwnedChange,
+  isValidationOnlyRequestedChange,
+} from "./DeterministicSpacingPlan.js";
 import {
   detectInternalPlanMutationConflicts,
   geomAxesPresent,
@@ -303,6 +306,10 @@ export function buildFounderItemCoverageLedger(
     if (classified.classification === "VERIFICATION_ACCEPTANCE") {
       lines.push(
         `Requirement: emit ZERO operations for this item. Deterministic post-execution acceptance owns it.`,
+      );
+    } else if (isValidationOnlyRequestedChange(change)) {
+      lines.push(
+        `Requirement: VALIDATION_ONLY — emit ZERO operations for this final validate/verify acceptance line.`,
       );
     } else if (isDeterministicLayoutNormalizerOwnedChange(change)) {
       lines.push(
@@ -1450,6 +1457,9 @@ export function isPlanCoverageExemptRequestedChange(
     classifyRequestedChange(requestedChange).classification ===
     "VERIFICATION_ACCEPTANCE"
   ) {
+    return true;
+  }
+  if (isValidationOnlyRequestedChange(requestedChange)) {
     return true;
   }
   return isDeterministicLayoutNormalizerOwnedChange(requestedChange);

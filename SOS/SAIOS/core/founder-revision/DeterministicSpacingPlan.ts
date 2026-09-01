@@ -15,6 +15,10 @@ import {
   normalizeRevisionLayout,
 } from "./RevisionLayoutNormalizer.js";
 import { parseExplicitMoveDirections } from "./PositionOpCanonicalization.js";
+import {
+  classifyRequestedChange,
+  isVerificationAcceptance,
+} from "./RequestedChangeClassification.js";
 import type { CanvasOperation, RevisionPlan } from "./revision-task-types.js";
 import { snapCoord } from "./EquivalentHorizontalOwnership.js";
 
@@ -25,6 +29,47 @@ function normalizeText(s: string): string {
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
+}
+
+/**
+ * Final validate/verify-only lines — acceptance checks, not geometry ownership
+ * requirements. Must not be attributed onto deterministic spacing ops.
+ */
+export function isValidationOnlyRequestedChange(
+  requestedChange: string,
+): boolean {
+  const n = normalizeText(requestedChange);
+  if (!n) return false;
+  if (isVerificationAcceptance(requestedChange)) return false;
+  if (
+    /^(validate|verify)\b/.test(n) &&
+    /\b(layout|overlap|collision|clipping|spacing|section)\b/.test(n)
+  ) {
+    return true;
+  }
+  if (
+    /\bvalidate the final layout\b/.test(n) ||
+    /\bverify (?:the )?final (?:layout|output|canvas)\b/.test(n)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Lines eligible to appear on deterministic spacing ops as founder attribution.
+ * Never includes VERIFICATION_ACCEPTANCE or validate-only acceptance checks.
+ */
+export function deterministicSpacingAttributionLines(
+  requestedChanges: string[],
+): string[] {
+  return requestedChanges.filter((c) => {
+    if (isVerificationAcceptance(c)) return false;
+    if (isValidationOnlyRequestedChange(c)) return false;
+    return (
+      classifyRequestedChange(c).classification === "MUTATION_REQUIRED"
+    );
+  });
 }
 
 function objectId(o: Record<string, unknown>, index: number): string {
@@ -48,6 +93,11 @@ function asNum(v: unknown): number | null {
 export function isDeterministicLayoutNormalizerOwnedChange(
   requestedChange: string,
 ): boolean {
+  // Preserve / verification-only / validate-only lines are acceptance constraints,
+  // not geometry ownership requirements (Phase 5I).
+  if (isVerificationAcceptance(requestedChange)) return false;
+  if (isValidationOnlyRequestedChange(requestedChange)) return false;
+
   if (isHeaderIdentityLayoutOwnedChange(requestedChange)) return true;
   if (isFounderHeadingToContentEqualityRequest(requestedChange)) return true;
   if (isFounderSectionToSectionGapEqualityRequest(requestedChange)) return true;
@@ -63,6 +113,41 @@ export function isDeterministicLayoutNormalizerOwnedChange(
     )
   ) {
     return false;
+  }
+
+  // Sidebar / column reflow packets.
+  if (
+    /\breflow\b/.test(n) &&
+    /\b(sidebar|column|section)\b/.test(n)
+  ) {
+    return true;
+  }
+  if (
+    /\brebalance\b/.test(n) &&
+    /\b(vertical\s+space|vertical\s+spacing|spacing|column|sidebar)\b/.test(n)
+  ) {
+    return true;
+  }
+  if (
+    /\b(reformat|sequential)\b/.test(n) &&
+    /\b(skills?|projects?|section)\b/.test(n) &&
+    /\b(spacing|gap|structure|separator|bullet|overlap|collision)\b/.test(n)
+  ) {
+    return true;
+  }
+  if (
+    /\bdo not allow\b/.test(n) &&
+    /\boverlap\b/.test(n) &&
+    /\b(section|heading|content|object|textbox|entry)\b/.test(n)
+  ) {
+    return true;
+  }
+  if (
+    /\bcontained within\b/.test(n) &&
+    /\bsection\b/.test(n) &&
+    /\b(heading|entry|content|certification|project)\b/.test(n)
+  ) {
+    return true;
   }
 
   // Section-unit visual grouping still needs attributed ops for coverage
@@ -240,20 +325,24 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
     beforeById.set(objectId(o, i), o);
   }
 
-  const ownedChanges = input.requested_changes.filter((c) =>
+  // Attribute only MUTATION_REQUIRED substantive lines — never VA / validate-only.
+  const attributionLines = deterministicSpacingAttributionLines(
+    input.requested_changes,
+  );
+  const ownedAttribution = attributionLines.filter((c) =>
     isDeterministicLayoutNormalizerOwnedChange(c),
   );
   // Prefer a non-directional owned line so every spacing op is not constrained
   // by an unrelated section's "move X down/up" attribution.
-  const nonDirectionalOwned = ownedChanges.find(
+  const nonDirectionalOwned = ownedAttribution.find(
     (c) => parseExplicitMoveDirections(c).size === 0,
   );
   const primaryFb =
     nonDirectionalOwned ??
-    ownedChanges[0] ??
-    input.requested_changes[0] ??
+    ownedAttribution[0] ??
+    attributionLines[0] ??
     "Normalize vertical spacing with deterministic layout ownership.";
-  const extraFb = ownedChanges.filter((c) => c !== primaryFb);
+  const extraFb = attributionLines.filter((c) => c !== primaryFb);
 
   const spacingOps: CanvasOperation[] = [];
   for (let i = 0; i < afterObjs.length; i++) {

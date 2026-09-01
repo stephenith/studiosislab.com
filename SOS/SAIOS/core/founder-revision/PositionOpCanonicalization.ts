@@ -496,8 +496,15 @@ function netDeltaLeft(
 }
 
 /**
- * Fail closed when an op's geometry moves opposite to explicit Founder /
- * intended_change direction for the matching target scope.
+ * Fail closed when an op's geometry moves opposite to explicit Founder
+ * direction for the matching target scope.
+ *
+ * Founder directional intent is authoritative:
+ * - requested_changes directions that apply to the op
+ * - founder_feedback_item directions when that feedback applies to the target
+ *
+ * AI-authored intended_change may restate Founder direction but MUST NOT invent
+ * a Founder-level hard requirement on its own (Phase 5I).
  *
  * OBJECT_SPECIFIC feedback (e.g. "move the contact row upward") binds only to
  * matching objects — mentioning a containing section ("within the header")
@@ -536,7 +543,6 @@ export function validatePlanVerticalDirections(input: {
     const op = input.plan.operations[i]!;
     if (!isPositionOp(op.op)) continue;
 
-    const intendedDirs = parseExplicitMoveDirections(op.intended_change ?? "");
     const fbText = op.founder_feedback_item ?? "";
     const fbDirs = parseExplicitMoveDirections(fbText);
     const section = opTargetSection(op, input.inventory);
@@ -554,8 +560,6 @@ export function validatePlanVerticalDirections(input: {
     );
 
     const required = new Set<VerticalDirection>();
-    // intended_change is op-local — always bind.
-    for (const d of intendedDirs) required.add(d);
 
     // founder_feedback_item directions only when feedback scope matches target.
     if (fbDirs.size > 0 && fbText.trim()) {

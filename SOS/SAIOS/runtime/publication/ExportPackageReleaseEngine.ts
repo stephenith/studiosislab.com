@@ -344,6 +344,58 @@ ${snapshotRows}
   }
 }
 
+/**
+ * Regenerate registry/catalog/snapshots from the live templates.manifest.json.
+ * Used by controlled website-state recovery (does not touch AIOS lifecycle logs).
+ */
+export function regenerateWebsiteRegistriesFromLiveManifest(
+  target_root: string = REPO_ROOT,
+): void {
+  const liveManifestPath = join(target_root, "templates.manifest.json");
+  const liveManifest = readJson<{ templates: ManifestEntry[] }>(liveManifestPath);
+  regenerateRegistries(target_root, liveManifest, true);
+}
+
+/**
+ * Remove one templateId block from templateSeoContent.ts (website state only).
+ * Returns true when an entry was removed.
+ */
+export function removeTemplateSeoEntry(
+  target_root: string,
+  catalogueId: string,
+): boolean {
+  const seoPath = join(target_root, "src/data/templateSeoContent.ts");
+  const raw = readFileSync(seoPath, "utf8");
+  const id = catalogueId.toLowerCase();
+  const marker = `templateId: "${id}"`;
+  const idx = raw.indexOf(marker);
+  if (idx === -1) return false;
+  // Walk backward to the opening `{` of this array element.
+  let start = idx;
+  while (start > 0 && raw[start] !== "{") start -= 1;
+  // Include leading whitespace/newline before `{`.
+  let lead = start;
+  while (lead > 0 && (raw[lead - 1] === " " || raw[lead - 1] === "\t")) lead -= 1;
+  if (lead > 0 && raw[lead - 1] === "\n") lead -= 1;
+  // Walk forward with brace depth to the end of this object (including trailing comma).
+  let depth = 0;
+  let end = start;
+  for (; end < raw.length; end += 1) {
+    const ch = raw[end];
+    if (ch === "{") depth += 1;
+    else if (ch === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        end += 1;
+        if (raw[end] === ",") end += 1;
+        break;
+      }
+    }
+  }
+  writeFileSync(seoPath, `${raw.slice(0, lead)}${raw.slice(end)}`);
+  return true;
+}
+
 function writeSeoEntry(input: {
   target_root: string;
   catalog_id: string;

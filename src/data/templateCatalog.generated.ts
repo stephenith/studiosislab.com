@@ -751,15 +751,6 @@ export const TEMPLATES: Template[] = [
     status: "published",
   },
   {
-    id: "t104",
-    title: "Sales Development Rep Resume",
-    categoryId: "sales-marketing-advertising",
-    category: "sales-marketing-advertising",
-    tags: ["sales development rep","sales development rep resume","sales marketing advertising","ats resume","resume template","resume"],
-    thumb: "/templates/t104.png",
-    status: "published",
-  },
-  {
     id: "t105",
     title: "Office Manager Resume",
     categoryId: "business-management",

@@ -395,24 +395,37 @@ export function createProductionAdapters(
       return { ok: true, error: null };
     },
 
-    async verifyWebsiteBuild() {
-      const cwd = roots.websiteTargetRoot;
-      const command = "npm run build";
-      const r = spawnSync("npm", ["run", "build"], {
-        cwd,
-        encoding: "utf8",
-        env: { ...process.env, SOS_AIOS_LIVE: "0" },
-        maxBuffer: 32 * 1024 * 1024,
+    async verifyWebsiteBuild(input) {
+      const pendingPaths =
+        input.execution.generated_files_all?.length > 0
+          ? input.execution.generated_files_all
+          : input.execution.entries.flatMap((e) =>
+              e.generated_files.length
+                ? e.generated_files
+                : [
+                    `src/data/template-json/${e.catalogue_id}.json`,
+                    `public/templates/${e.catalogue_id}.png`,
+                    `public/templates/${e.catalogue_id}.webp`,
+                    "templates.manifest.json",
+                    "src/data/systemTemplates/registry.generated.ts",
+                    "src/data/templateCatalog.generated.ts",
+                    "src/data/templateSnapshots.generated.ts",
+                    "src/data/templateSeoContent.ts",
+                  ],
+            );
+      const uniquePending = [...new Set(pendingPaths)];
+      const { runIsolatedPendingTreeBuild } = await import(
+        "../IsolatedPendingTreeBuild.js"
+      );
+      const result = runIsolatedPendingTreeBuild({
+        repoRoot: roots.websiteTargetRoot,
+        pendingPaths: uniquePending,
       });
-      if (r.status !== 0) {
-        const detail = [r.stderr, r.stdout].filter(Boolean).join("\n").trim();
-        return {
-          ok: false,
-          command,
-          error: `Website build failed (exit ${r.status ?? "null"}): ${detail.slice(0, 4000)}`,
-        };
-      }
-      return { ok: true, command, error: null };
+      return {
+        ok: result.ok,
+        command: result.command,
+        error: result.error,
+      };
     },
 
     async checkWorkingTree(input) {

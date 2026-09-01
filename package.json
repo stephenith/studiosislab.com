@@ -159,6 +159,7 @@
     "aios:publication:executor-verify": "npx --yes tsx SOS/SAIOS/core/publication-workflow/verify-publication-executor.ts",
     "aios:publication:readiness-5l:verify": "npx --yes tsx SOS/SAIOS/core/publication-workflow/verify-publication-readiness-5l.ts",
     "aios:publication:scope-5q:verify": "npx --yes tsx SOS/SAIOS/core/publication-workflow/verify-publication-scope-5q.ts",
+    "aios:publication:tracked-tree-5t:verify": "npx --yes tsx SOS/SAIOS/core/publication-workflow/verify-publication-tracked-tree-5t.ts",
     "aios:publication-readiness:verify": "npx --yes tsx SOS/SAIOS/core/publication-readiness/run-publication-verify.ts",
     "aios:publication-readiness:status": "npx --yes tsx SOS/SAIOS/core/publication-readiness/run-publication-status.ts",
     "aios:publication:verify-suite": "npx --yes tsx SOS/SAIOS/core/publication-readiness/verify-publication-readiness.ts",

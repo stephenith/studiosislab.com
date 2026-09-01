@@ -82,8 +82,7 @@ import tpl78 from "./template-json/t079.json";
 import tpl79 from "./template-json/t101.json";
 import tpl80 from "./template-json/t102.json";
 import tpl81 from "./template-json/t103.json";
-import tpl82 from "./template-json/t104.json";
-import tpl83 from "./template-json/t105.json";
+import tpl82 from "./template-json/t105.json";
 
 export const TEMPLATE_SNAPSHOTS: Record<string, unknown> = {
   "t001": tpl0,
@@ -168,6 +167,5 @@ export const TEMPLATE_SNAPSHOTS: Record<string, unknown> = {
   "t101": tpl79,
   "t102": tpl80,
   "t103": tpl81,
-  "t104": tpl82,
-  "t105": tpl83,
+  "t105": tpl82,
 };

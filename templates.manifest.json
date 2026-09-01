@@ -1345,22 +1345,6 @@
       ]
     },
     {
-      "id": "t104",
-      "title": "Sales Development Rep Resume",
-      "categoryId": "sales-marketing-advertising",
-      "thumbnailPath": "/templates/t104.png",
-      "jsonPath": "src/data/template-json/t104.json",
-      "status": "published",
-      "tags": [
-        "sales development rep",
-        "sales development rep resume",
-        "sales marketing advertising",
-        "ats resume",
-        "resume template",
-        "resume"
-      ]
-    },
-    {
       "id": "t105",
       "title": "Office Manager Resume",
       "categoryId": "business-management",

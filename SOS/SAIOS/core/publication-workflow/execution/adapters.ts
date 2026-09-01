@@ -121,7 +121,7 @@ export type ExecutionAdapters = {
   rollbackWebsiteWrites(input: {
     execution: PublicationExecution;
   }): Promise<{ ok: boolean; error: string | null }>;
-  /** After website writes, before Git commit/push. */
+  /** After website writes, before Git commit/push. Uses pending tracked tree. */
   verifyWebsiteBuild(input: {
     execution: PublicationExecution;
   }): Promise<WebsiteBuildResult>;

@@ -1917,26 +1917,6 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     isPublished: true,
   },
   {
-    templateId: "t104",
-    slug: "sales-development-rep-resume",
-    seoTitle: "Sales Development Rep Resume Template | StudiosisLab",
-    seoDescription: "Use this sales development rep resume template to present sales development rep experience clearly for ATS and hiring managers.",
-    h1: "Sales Development Rep Resume Template",
-    intro: "Use this sales development rep resume template to present sales development rep experience clearly for ATS and hiring managers.",
-    bestFor: ["ATS job applications", "StudiosisLab editor workflows", "Professional one-page resumes"],
-    whatToInclude: ["Professional summary", "Experience", "Skills", "Education"],
-    atsTips: ["Use standard headings", "Keep text machine-readable", "Preserve ATS-safe single-column structure"],
-    writingTips: ["Lead with outcomes", "Keep bullets concise", "Match the role with relevant terminology"],
-    faq: [
-      {
-        "question": "Is the Sales Development Rep Resume ATS-friendly?",
-        "answer": "Yes. This StudiosisLab template uses a clear single-page structure suited for ATS parsing."
-      }
-    ],
-    relatedTemplateIds: [],
-    isPublished: true,
-  },
-  {
     templateId: "t105",
     slug: "office-manager-resume",
     seoTitle: "Office Manager Resume Template | StudiosisLab",

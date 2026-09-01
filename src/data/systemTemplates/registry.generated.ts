@@ -584,6 +584,20 @@ export const SYSTEM_TEMPLATES: SystemTemplate[] = [
     thumbnail: "/templates/t103.png",
     load: async () => (await import("../template-json/t103.json")).default,
   },
+  {
+    id: "t104",
+    name: "Sales Development Rep Resume",
+    tags: ["sales development rep","sales development rep resume","sales marketing advertising","ats resume","resume template","resume"],
+    thumbnail: "/templates/t104.png",
+    load: async () => (await import("../template-json/t104.json")).default,
+  },
+  {
+    id: "t105",
+    name: "Office Manager Resume",
+    tags: ["office manager","office manager resume","business management","ats resume","resume template","resume"],
+    thumbnail: "/templates/t105.png",
+    load: async () => (await import("../template-json/t105.json")).default,
+  },
 ];
 
 export const SYSTEM_TEMPLATE_IDS = SYSTEM_TEMPLATES.map((template) => template.id);

@@ -395,6 +395,26 @@ export function createProductionAdapters(
       return { ok: true, error: null };
     },
 
+    async verifyWebsiteBuild() {
+      const cwd = roots.websiteTargetRoot;
+      const command = "npm run build";
+      const r = spawnSync("npm", ["run", "build"], {
+        cwd,
+        encoding: "utf8",
+        env: { ...process.env, SOS_AIOS_LIVE: "0" },
+        maxBuffer: 32 * 1024 * 1024,
+      });
+      if (r.status !== 0) {
+        const detail = [r.stderr, r.stdout].filter(Boolean).join("\n").trim();
+        return {
+          ok: false,
+          command,
+          error: `Website build failed (exit ${r.status ?? "null"}): ${detail.slice(0, 4000)}`,
+        };
+      }
+      return { ok: true, command, error: null };
+    },
+
     async checkWorkingTree(input) {
       const status = git(roots.websiteTargetRoot, ["status", "--porcelain"]);
       if (!status.ok) {

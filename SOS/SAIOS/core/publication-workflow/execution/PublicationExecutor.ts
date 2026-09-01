@@ -769,6 +769,29 @@ export async function runPublicationExecutor(
       }
       exec.rollback_manifest_path = applied.rollback_manifest_path;
       exec.generated_files_all = applied.applied_paths;
+
+      // Phase 5L — production website build AFTER writes, BEFORE commit/push.
+      const build = await adapters.verifyWebsiteBuild({ execution: exec });
+      if (!build.ok) {
+        const rb = await adapters.rollbackWebsiteWrites({ execution: exec });
+        failRecoverable(
+          exec,
+          `Pre-push website build failed (${build.command}): ${build.error ?? "unknown"}`,
+          [
+            rb.ok
+              ? "Publication website paths restored from rollback manifest"
+              : `Rollback incomplete: ${rb.error ?? "unknown"}`,
+            "Do not commit or push",
+            "Fix generated catalog/SEO/TS",
+            "Re-run apply",
+          ],
+          roots,
+        );
+        writeExecution(exec, roots);
+        const apply = applyRecordFromExecution(exec, started_at, true);
+        return { ok: false, plan: readPlan(plan.plan_id, roots), apply, execution: exec };
+      }
+
       for (const e of exec.entries) markStep(e, "website_applied");
       exec.phases_completed.push("WEBSITE_WRITES_APPLIED");
       exec.status = "WEBSITE_WRITES_APPLIED";

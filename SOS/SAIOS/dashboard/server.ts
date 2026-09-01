@@ -59,6 +59,7 @@ import {
   recordFounderLifecycleDecision,
   stageApprovedCandidate,
 } from "../core/staging/StagingService.js";
+import { autoStageAfterFounderApproval } from "../core/staging/ApprovalStagingHandoff.js";
 import {
   getCandidatePublicationStatus,
   findActivePlanForCandidate,
@@ -1218,6 +1219,44 @@ async function main() {
           }
         }
 
+        // Phase 5L — auto-stage after APPROVE (decision + lifecycle already durable).
+        // Staging failure keeps APPROVED; never publishes.
+        let auto_stage: Awaited<
+          ReturnType<typeof autoStageAfterFounderApproval>
+        > | null = null;
+        if (body.decision === "APPROVED" && lifecycleCandidateId) {
+          try {
+            auto_stage = await autoStageAfterFounderApproval({
+              candidate_id: lifecycleCandidateId,
+              decision: "APPROVED",
+              decision_id: result.decision.decision_id,
+              actor: FOUNDER_ACTOR,
+            });
+          } catch (stageErr) {
+            auto_stage = {
+              attempted: true,
+              skipped: false,
+              skip_reason: null,
+              staging: {
+                ok: false,
+                idempotent: false,
+                candidate_id: lifecycleCandidateId,
+                generation_id: "",
+                staging_package_id: null,
+                staging_path: null,
+                lifecycle_status: "STAGING_FAILED",
+                validation: null,
+                error:
+                  stageErr instanceof Error
+                    ? stageErr.message
+                    : String(stageErr),
+                publication_allowed: false,
+              },
+              publication_allowed: false,
+            };
+          }
+        }
+
         let resume: ReturnType<typeof gateRuntime.consumeDashboardDecision> | null =
           null;
         if (waiting) {
@@ -1235,6 +1274,31 @@ async function main() {
           });
         }
 
+        const stagingOk = auto_stage?.staging?.ok === true;
+        const stagingFailed =
+          auto_stage?.attempted === true && auto_stage.staging?.ok === false;
+        const approveMessage = resume?.ok
+          ? resume.duplicate
+            ? "Decision already consumed — no duplicate resume"
+            : stagingOk
+              ? "Cycle resumed · auto-staged for StudiosisLab · no publication"
+              : stagingFailed
+                ? "Cycle resumed · APPROVED retained · auto-staging failed · no publication"
+                : "Cycle resumed · learning write-back complete · no publication"
+          : waiting
+            ? resume?.error ?? "Resume failed"
+            : body.decision === "APPROVED"
+              ? stagingOk
+                ? "Approved · auto-staged for StudiosisLab · publication_allowed=false"
+                : stagingFailed
+                  ? "Approved · staging failed (approval retained) · publication_allowed=false"
+                  : auto_stage?.skipped
+                    ? `Approved · auto-stage skipped (${auto_stage.skip_reason}) · publication_allowed=false`
+                    : "Approved · Stage for StudiosisLab available · publication_allowed=false"
+              : revision_task
+                ? `Decision recorded · revision task ${revision_task.task_id} ${revision_task.created ? "created" : "exists"} · publication_allowed=false`
+                : "Decision recorded (no waiting cycle)";
+
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(
           JSON.stringify({
@@ -1249,17 +1313,8 @@ async function main() {
             cycle_duplicate: resume?.duplicate === true,
             next_action: resume?.next_action ?? result.decision.next_action,
             revision_task,
-            message: resume?.ok
-              ? resume.duplicate
-                ? "Decision already consumed — no duplicate resume"
-                : "Cycle resumed · learning write-back complete · no publication · staging not automatic"
-              : waiting
-                ? resume?.error ?? "Resume failed"
-                : body.decision === "APPROVED"
-                  ? "Approved · Stage for StudiosisLab available · publication_allowed=false"
-                  : revision_task
-                    ? `Decision recorded · revision task ${revision_task.task_id} ${revision_task.created ? "created" : "exists"} · publication_allowed=false`
-                    : "Decision recorded (no waiting cycle)",
+            auto_stage,
+            message: approveMessage,
           }),
         );
       } catch (e) {

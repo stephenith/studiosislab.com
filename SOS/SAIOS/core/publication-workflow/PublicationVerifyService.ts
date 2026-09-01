@@ -33,6 +33,11 @@ function check(
   return { name, pass, detail, candidate_id };
 }
 
+function fingerprintPreview(fp: unknown): string {
+  if (typeof fp !== "string" || fp.length === 0) return "(empty)";
+  return `${fp.slice(0, 12)}…`;
+}
+
 export function verifyPublicationPlan(
   planId: string,
   roots: PublicationRoots = defaultPublicationRoots(),
@@ -57,15 +62,88 @@ export function verifyPublicationPlan(
   const warnings: string[] = [...plan.warnings];
 
   const discovery = discoverEligibleCandidates(roots);
+  const planFp =
+    typeof plan.eligibility_fingerprint === "string"
+      ? plan.eligibility_fingerprint
+      : "";
+  const discoveryFp =
+    typeof discovery.eligibility_fingerprint === "string"
+      ? discovery.eligibility_fingerprint
+      : "";
+  const zeroEligibleNoWork =
+    plan.entries.length === 0 && discovery.eligible.length === 0;
+
+  // Zero-eligible plans are a truthful NO_WORK state (nightly plan/verify).
+  // Never throw on missing/empty fingerprints; do not fabricate work.
+  if (zeroEligibleNoWork) {
+    checks.push(
+      check(
+        "zero_eligible_no_work",
+        true,
+        "No publication-eligible resume templates — verify PASS (NO_WORK)",
+      ),
+    );
+    checks.push(
+      check(
+        "eligibility_fingerprint_stable",
+        true,
+        planFp && discoveryFp && planFp === discoveryFp
+          ? "Empty-set fingerprint matches"
+          : "Zero-eligible NO_WORK — fingerprint comparison skipped when either side empty/missing",
+      ),
+    );
+    checks.push(
+      check(
+        "no_candidate_omission",
+        true,
+        "Empty plan matches empty eligible set",
+      ),
+    );
+    const pass = checks.every((c) => c.pass) && errors.length === 0;
+    const report: PublicationVerificationReport = {
+      plan_id: planId,
+      verified_at: new Date().toISOString(),
+      pass,
+      checks,
+      errors,
+      warnings,
+      eligible_count: 0,
+      discovered_eligible_count: 0,
+      omission_detected: false,
+    };
+    const next = {
+      ...plan,
+      status: pass ? ("VERIFIED" as const) : plan.status,
+      updated_at: new Date().toISOString(),
+      verification: report,
+    };
+    if (!pass && plan.status === "VERIFIED") {
+      next.status = "DRAFT";
+    }
+    writePlan(next, roots);
+    const reportPath = join(roots.plansRoot, `${planId}.verification.json`);
+    mkdirSync(roots.plansRoot, { recursive: true });
+    writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+    return report;
+  }
+
+  const fpOk = planFp.length > 0 && planFp === discoveryFp;
   checks.push(
     check(
       "eligibility_fingerprint_stable",
-      discovery.eligibility_fingerprint === plan.eligibility_fingerprint,
-      discovery.eligibility_fingerprint === plan.eligibility_fingerprint
+      fpOk,
+      fpOk
         ? "Fingerprint matches plan"
-        : `Fingerprint drift: plan=${plan.eligibility_fingerprint.slice(0, 12)}… discovery=${discovery.eligibility_fingerprint.slice(0, 12)}…`,
+        : `Fingerprint drift: plan=${fingerprintPreview(planFp)} discovery=${fingerprintPreview(discoveryFp)}`,
     ),
   );
+  if (!fpOk) {
+    errors.push(
+      planFp.length === 0
+        ? "Plan eligibility_fingerprint missing/empty while eligible set is non-empty"
+        : `Eligibility fingerprint mismatch: plan=${fingerprintPreview(planFp)} discovery=${fingerprintPreview(discoveryFp)}`,
+    );
+  }
 
   const planIds = new Set(plan.entries.map((e) => e.candidate_id));
   const discoveredIds = new Set(discovery.eligible.map((e) => e.candidate_id));

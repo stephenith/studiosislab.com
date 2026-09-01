@@ -479,6 +479,52 @@ async function main(): Promise<void> {
       );
     }
 
+    // ---- Phase 5L: website build failure rolls back, no commit/push ----
+    {
+      const roots = makeRoots(join(base, "build-fail"));
+      seedTwoEligible(roots);
+      const plan = await buildVerifiedPlan(roots);
+      const unrelated = join(roots.websiteTargetRoot, "unrelated-dirty.txt");
+      mkdirSync(roots.websiteTargetRoot, { recursive: true });
+      writeFileSync(unrelated, "keep-me");
+      const r = await applyPublicationPlan(
+        {
+          plan_id: plan.plan_id,
+          confirm_phrase: `PUBLISH_PLAN_${plan.plan_id}`,
+          simulate: true,
+          simulate_hooks: { fail_website_build: true },
+        },
+        roots,
+      );
+      checks.push(
+        assert(
+          !r.ok &&
+            (r.apply.error ?? "").includes("build failed") &&
+            !r.apply.git_committed &&
+            !r.apply.git_pushed &&
+            !r.apply.website_modified,
+          "website_build_failure_blocks_commit",
+          r.apply.error ?? "",
+        ),
+      );
+      checks.push(
+        assert(
+          existsSync(unrelated) &&
+            readFileSync(unrelated, "utf8") === "keep-me",
+          "build_fail_preserves_unrelated_dirty",
+          "ok",
+        ),
+      );
+      checks.push(
+        assert(
+          r.execution?.status === "FAILED_RECOVERABLE" &&
+            !(r.execution?.phases_completed ?? []).includes("COMMITTED"),
+          "build_fail_no_committed_phase",
+          r.execution?.status ?? "none",
+        ),
+      );
+    }
+
     // ---- Crash after commit + retry reuses commit ----
     {
       const roots = makeRoots(join(base, "commit-reuse"));

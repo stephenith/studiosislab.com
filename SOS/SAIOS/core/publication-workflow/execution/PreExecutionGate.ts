@@ -50,11 +50,27 @@ export function runPreExecutionGate(
   }
 
   const discovery = discoverEligibleCandidates(roots);
-  const fpOk = discovery.eligibility_fingerprint === plan.eligibility_fingerprint;
+  const planFp =
+    typeof plan.eligibility_fingerprint === "string"
+      ? plan.eligibility_fingerprint
+      : "";
+  const discoveryFp =
+    typeof discovery.eligibility_fingerprint === "string"
+      ? discovery.eligibility_fingerprint
+      : "";
+  const zeroEligible =
+    plan.entries.length === 0 && discovery.eligible.length === 0;
+  const fpOk = zeroEligible
+    ? true
+    : planFp.length > 0 && planFp === discoveryFp;
   checks.push({
     name: "eligibility_fingerprint_unchanged",
     pass: fpOk,
-    detail: fpOk ? "unchanged" : "fingerprint drifted",
+    detail: zeroEligible
+      ? "zero-eligible NO_WORK"
+      : fpOk
+        ? "unchanged"
+        : "fingerprint drifted or missing",
   });
   if (!fpOk) errors.push("Eligibility fingerprint changed since plan");
 

@@ -94,6 +94,12 @@ export type WorkingTreeCheck = {
   error: string | null;
 };
 
+export type WebsiteBuildResult = {
+  ok: boolean;
+  command: string;
+  error: string | null;
+};
+
 export type ExecutionAdapters = {
   reserveAll(input: {
     plan_id: string;
@@ -115,6 +121,10 @@ export type ExecutionAdapters = {
   rollbackWebsiteWrites(input: {
     execution: PublicationExecution;
   }): Promise<{ ok: boolean; error: string | null }>;
+  /** After website writes, before Git commit/push. */
+  verifyWebsiteBuild(input: {
+    execution: PublicationExecution;
+  }): Promise<WebsiteBuildResult>;
   checkWorkingTree(input: {
     intended_paths: string[];
   }): Promise<WorkingTreeCheck>;
@@ -172,6 +182,7 @@ function saveFixtureReservations(
 export type SimulateHooks = {
   fail_export_after_index?: number;
   fail_website_verify?: boolean;
+  fail_website_build?: boolean;
   fail_commit?: boolean;
   fail_push?: boolean;
   fail_deploy?: boolean;
@@ -563,6 +574,21 @@ export function createSimulateAdapters(
       return { ok: true, error: null };
     },
 
+    async verifyWebsiteBuild() {
+      if (hooks.fail_website_build) {
+        return {
+          ok: false,
+          command: "npm run build",
+          error: "Simulated website build failure",
+        };
+      }
+      return {
+        ok: true,
+        command: "npm run build",
+        error: null,
+      };
+    },
+
     async checkWorkingTree(input) {
       const dirty = hooks.dirty_paths ?? [];
       const conflicting = dirty.filter((p) =>
@@ -862,6 +888,9 @@ export function createDryRunAdapters(
     },
     async rollbackWebsiteWrites() {
       return { ok: true, error: null };
+    },
+    async verifyWebsiteBuild() {
+      return { ok: true, command: "npm run build", error: null };
     },
     async checkWorkingTree() {
       return { ok: true, conflicting_paths: [], error: null };

@@ -17,7 +17,12 @@ LOG="${LOG_DIR}/run-${STAMP}.log"
   # Plan + multi-verify stay non-destructive
   npm run aios:publication:plan || true
   # Verify latest plan if created (best-effort; status/plan already logged)
-  LATEST_PLAN=$(ls -1t SOS/07_LOGS/saios/publication/plans/plan-*.json 2>/dev/null | head -1 || true)
+  # Exclude *.verification.json sidecars — those are reports, not plans.
+  LATEST_PLAN=$(
+    ls -1t SOS/07_LOGS/saios/publication/plans/plan-*.json 2>/dev/null \
+      | grep -v '\.verification\.json$' \
+      | head -1 || true
+  )
   if [[ -n "${LATEST_PLAN}" ]]; then
     PLAN_ID=$(basename "${LATEST_PLAN}" .json)
     npm run aios:publication:verify -- --plan-id="${PLAN_ID}" || true

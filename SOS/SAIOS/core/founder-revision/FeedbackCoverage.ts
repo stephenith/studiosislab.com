@@ -35,6 +35,12 @@ import {
   effectiveTextHeightScaled,
   isFabricTextObject,
 } from "./TextEffectiveHeight.js";
+import {
+  HEADER_IDENTITY_PAD_PX,
+  HEADER_TO_SUMMARY_CLEARANCE_PX,
+  headerIdentityMemberId,
+  resolveHeaderIdentityMembersFromCanvas,
+} from "./HeaderIdentityLayout.js";
 
 function normalize(s: string): string {
   return normalizeFounderFeedbackItem(s);
@@ -1850,6 +1856,196 @@ function evaluateSectionHierarchySpacing(
   };
 }
 
+/**
+ * CONTACT_IN_HEADER_BAND — final containment proof using HeaderIdentityLayout
+ * member detection (pale-strip / margin tops / wrap-aware effective bottoms).
+ * "Extend band OR rebalance content" succeeds when final containment holds.
+ */
+function evaluateContactInHeaderBandProof(
+  beforeInv: CanvasInventoryObject[],
+  afterInv: CanvasInventoryObject[],
+  beforeCanvas: FabricCanvasDoc,
+  afterCanvas: FabricCanvasDoc,
+  ids: string[],
+): StructuralHintResult {
+  const members = resolveHeaderIdentityMembersFromCanvas(afterCanvas);
+  if (!members) {
+    return {
+      status: "partially_addressed",
+      notes:
+        "CONTACT_IN_HEADER_BAND proof unevaluable: header identity members not detected",
+      ids,
+      relation: {
+        type: "CONTACT_IN_HEADER_BAND",
+        pass: false,
+        notes: "members not detected",
+      },
+    };
+  }
+
+  const bandId = headerIdentityMemberId(
+    members.background,
+    members.background_index,
+  );
+  const contactId = headerIdentityMemberId(
+    members.contact,
+    members.contact_index,
+  );
+  const nameId = headerIdentityMemberId(members.name, members.name_index);
+
+  const headerBand =
+    afterInv.find((o) => o.id === bandId) ??
+    ({
+      id: bandId,
+      type: String(members.background.type ?? "Rect"),
+      top:
+        typeof members.background.top === "number"
+          ? members.background.top
+          : null,
+      height:
+        typeof members.background.height === "number"
+          ? members.background.height
+          : null,
+      width:
+        typeof members.background.width === "number"
+          ? members.background.width
+          : null,
+      role: String(
+        (members.background.data as { role?: string } | undefined)?.role ??
+          members.background.role ??
+          "",
+      ),
+      section: "header",
+      text: null,
+      system: false,
+    } as CanvasInventoryObject);
+
+  const contact =
+    afterInv.find((o) => o.id === contactId) ??
+    findHeaderContact(afterInv) ??
+    null;
+  const name = afterInv.find((o) => o.id === nameId) ?? findHeaderName(afterInv);
+
+  if (!contact || headerBand.top == null) {
+    return {
+      status: "partially_addressed",
+      notes:
+        "CONTACT_IN_HEADER_BAND proof unevaluable: contact or header band geometry missing",
+      ids: [bandId, contactId, nameId].filter(Boolean),
+      relation: {
+        type: "CONTACT_IN_HEADER_BAND",
+        contact_id: contactId,
+        summary_id: null,
+        pass: false,
+        notes: "unevaluable geometry",
+      },
+    };
+  }
+
+  const bandTop = headerBand.top;
+  const bandBottomRaw =
+    inventoryObjectEffectiveBottom(afterCanvas, headerBand) ??
+    (headerBand.height != null ? bandTop + headerBand.height : null);
+  const contactBottom = inventoryObjectEffectiveBottom(afterCanvas, contact);
+  const contactTop = contact.top;
+
+  ids.push(bandId, contactId);
+  if (name) ids.push(nameId);
+
+  if (bandBottomRaw == null || contactBottom == null || contactTop == null) {
+    return {
+      status: "partially_addressed",
+      notes: "CONTACT_IN_HEADER_BAND proof unevaluable: missing bottoms",
+      ids,
+      relation: {
+        type: "CONTACT_IN_HEADER_BAND",
+        contact_id: contactId,
+        summary_id: null,
+        pass: false,
+        notes: "unevaluable bottoms",
+      },
+    };
+  }
+
+  const bandBottom = Number(bandBottomRaw.toFixed(2));
+  const bottomPad = Number((bandBottom - contactBottom).toFixed(2));
+  let nameContactGap: number | null = null;
+  let nameGapOk = true;
+  if (name) {
+    const nameBottom = inventoryObjectEffectiveBottom(afterCanvas, name);
+    if (nameBottom != null) {
+      nameContactGap = Number((contactTop - nameBottom).toFixed(2));
+      nameGapOk = nameContactGap + 1e-9 >= HEADER_IDENTITY_PAD_PX - 0.5;
+    }
+  }
+
+  // Optional Summary clearance when a Summary heading/label exists below the band.
+  const summaryHeading = findSummaryHeading(afterInv);
+  let summaryClearance: number | null = null;
+  let summaryClearanceOk = true;
+  if (summaryHeading?.top != null) {
+    summaryClearance = Number((summaryHeading.top - bandBottom).toFixed(2));
+    summaryClearanceOk =
+      summaryClearance + 1e-9 >= HEADER_TO_SUMMARY_CLEARANCE_PX - 0.5;
+  }
+
+  const bandContained =
+    contactTop + 1e-9 >= bandTop - 0.5 &&
+    contactBottom <= bandBottom - HEADER_IDENTITY_PAD_PX + 0.5;
+  const contained = bandContained && nameGapOk && summaryClearanceOk;
+
+  const beforeBand = beforeInv.find((o) => o.id === bandId);
+  const beforeContact = beforeInv.find((o) => o.id === contactId);
+  const beforeMembers = resolveHeaderIdentityMembersFromCanvas(beforeCanvas);
+  const beforeBandBottom =
+    beforeBand && beforeBand.top != null && beforeBand.height != null
+      ? beforeBand.top + beforeBand.height
+      : beforeMembers
+        ? (Number(beforeMembers.background.top ?? 0) || 0) +
+          (Number(beforeMembers.background.height ?? 0) || 0)
+        : null;
+  const beforeContactBottom = beforeContact
+    ? inventoryObjectEffectiveBottom(beforeCanvas, beforeContact)
+    : null;
+  const grew =
+    beforeBand?.height != null &&
+    headerBand.height != null &&
+    headerBand.height > beforeBand.height + 0.5;
+  const rebalanced =
+    beforeContact?.top != null &&
+    contactTop != null &&
+    Math.abs(contactTop - beforeContact.top) > 0.5;
+
+  const relation: FeedbackRelationEvidence = {
+    type: "CONTACT_IN_HEADER_BAND",
+    contact_id: contactId,
+    summary_id: summaryHeading?.id ?? null,
+    pass: contained,
+    notes: `contained=${contained} bottom_pad=${bottomPad} required_pad=${HEADER_IDENTITY_PAD_PX} name_gap=${nameContactGap} summary_clearance=${summaryClearance} grew=${Boolean(grew)} rebalanced=${Boolean(rebalanced)} band=${bandTop}→${bandBottom} contact_bottom=${contactBottom}`,
+  };
+
+  if (contained) {
+    return {
+      status: "addressed",
+      notes: `CONTACT_IN_HEADER_BAND pass: contact effective_bottom=${contactBottom} within band bottom=${bandBottom} (pad=${bottomPad}≥${HEADER_IDENTITY_PAD_PX}); name_gap=${nameContactGap}; summary_clearance=${summaryClearance}; band height ${beforeBand?.height ?? "?"}→${headerBand.height}; branch=${grew ? "extend" : rebalanced ? "rebalance" : "contained"}`,
+      ids,
+      relation,
+    };
+  }
+
+  const beforeOutside =
+    beforeContactBottom != null &&
+    beforeBandBottom != null &&
+    beforeContactBottom > beforeBandBottom - HEADER_IDENTITY_PAD_PX + 0.5;
+
+  return {
+    status: "partially_addressed",
+    notes: `CONTACT_IN_HEADER_BAND unmet: bottom_pad=${bottomPad} (need ≥${HEADER_IDENTITY_PAD_PX}); name_gap=${nameContactGap}; summary_clearance=${summaryClearance}; before_outside=${Boolean(beforeOutside)} grew=${Boolean(grew)} rebalanced=${Boolean(rebalanced)}`,
+    ids,
+    relation: { ...relation, pass: false },
+  };
+}
+
 function structuralHints(
   item: string,
   before: FabricCanvasDoc,
@@ -1989,69 +2185,17 @@ function structuralHints(
     };
   }
 
-  // Header band extension / contact inside banner (narrow band semantics only)
+  // Header band extension / contact inside banner.
+  // Reuse HeaderIdentityLayout member detection (pale-strip, margin tops, etc.).
+  // Final containment state is authoritative — extend OR rebalance both OK.
   if (isContactBandExtensionRequest(n)) {
-    const headerBand = afterInv.find(
-      (o) =>
-        o.role === "header-band" ||
-        (o.type.toLowerCase().includes("rect") &&
-          o.top != null &&
-          o.top <= 5 &&
-          (o.height ?? 0) >= 80 &&
-          (o.width ?? 0) > 400 &&
-          !o.system),
-    );
-    const contact = findHeaderContact(afterInv) ??
-      afterInv.find(
-        (o) => o.text != null && (/@/.test(o.text) || /linkedin/i.test(o.text)),
-      );
-    const name = findHeaderName(afterInv);
-    if (headerBand && contact && contact.top != null && headerBand.top != null) {
-      const bandBottom = (headerBand.top ?? 0) + (headerBand.height ?? 0);
-      ids.push(headerBand.id, contact.id);
-      if (name) ids.push(name.id);
-      const inside = contact.top + 2 <= bandBottom;
-      const beforeBand = beforeInv.find((o) => o.id === headerBand.id);
-      const grew =
-        beforeBand &&
-        headerBand.height != null &&
-        beforeBand.height != null &&
-        headerBand.height > beforeBand.height + 4;
-      const relation: FeedbackRelationEvidence = {
-        type: "CONTACT_IN_HEADER_BAND",
-        contact_id: contact.id,
-        summary_id: null,
-        pass: Boolean(inside && (grew || contact.top < bandBottom - 8)),
-        notes: `inside=${inside} grew=${grew}`,
-      };
-      if (inside && (grew || contact.top < bandBottom - 8)) {
-        return {
-          status: "addressed",
-          notes: `contact top=${contact.top} within header band bottom=${bandBottom}; band height ${beforeBand?.height}→${headerBand.height}`,
-          ids,
-          relation,
-        };
-      }
-      if (inside || grew) {
-        return {
-          status: "partially_addressed",
-          notes: `partial header unification inside=${inside} grew=${grew}`,
-          ids,
-          relation: { ...relation, pass: false },
-        };
-      }
-    }
-    return {
-      status: "partially_addressed",
-      notes:
-        "CONTACT_IN_HEADER_BAND proof unevaluable or unmet for band-extension request",
+    return evaluateContactInHeaderBandProof(
+      beforeInv,
+      afterInv,
+      before,
+      after,
       ids,
-      relation: {
-        type: "CONTACT_IN_HEADER_BAND",
-        pass: false,
-        notes: "unevaluable or unmet",
-      },
-    };
+    );
   }
 
   // Horizontal alignment spread — ONLY for explicit multi-object LEFT alignment.

@@ -245,6 +245,24 @@ export function feedbackRequiresContactUpward(
   });
 }
 
+/** Stable object id for inventory / coverage bridging. */
+export function headerIdentityMemberId(
+  o: FabricObj,
+  index: number,
+): string {
+  return objectId(o, index);
+}
+
+/**
+ * Resolve header identity members from a full canvas document.
+ * Shared by deterministic layout and FeedbackCoverage proofs.
+ */
+export function resolveHeaderIdentityMembersFromCanvas(
+  canvas: FabricCanvasDoc,
+): HeaderIdentityMembers | null {
+  return detectHeaderIdentityMembers(canvas.objects ?? []);
+}
+
 export function detectHeaderIdentityMembers(
   objects: FabricObj[],
 ): HeaderIdentityMembers | null {

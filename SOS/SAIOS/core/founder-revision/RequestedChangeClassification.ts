@@ -368,6 +368,7 @@ function isConcreteLayoutOrGeometryMutationRequest(n: string): boolean {
   for (const clause of splitClassificationClauses(masked)) {
     if (isLayoutPreservationVerificationPattern(clause)) continue;
     if (isArchitecturePreservationVerificationPattern(clause)) continue;
+    if (isRemainderDesignPreservationPattern(clause)) continue;
     if (clauseHasLocalLayoutMutation(clause)) return true;
   }
   return false;
@@ -388,6 +389,42 @@ function isLayoutPreservationVerificationPattern(n: string): boolean {
     /\bexperience\b/.test(n) &&
     /\b(spacing|layout|gap)\b/.test(n);
   return noRegression && sectionPair;
+}
+
+/**
+ * "Preserve the rest of the design/layout/typography… looks good" —
+ * non-mutation acceptance (Phase 5I/5O). Must not swallow "preserve X while move Y".
+ */
+function isRemainderDesignPreservationPattern(n: string): boolean {
+  if (!/\bpreserv(?:e|ing)\b/.test(n)) return false;
+  if (
+    /\b(?:while|and then|then)\s+(?:align|mov|reposition|fix|extend|adjust|shift|raise|nudge)\b/.test(
+      n,
+    )
+  ) {
+    return false;
+  }
+  if (
+    /\b(?:move|extend|adjust|reposition|resize|raise|shift|increase|reduce|tighten)\b/.test(
+      n,
+    ) &&
+    /\b(?:header|contact|section|summary|sidebar|column)\b/.test(n)
+  ) {
+    return false;
+  }
+  const remainder =
+    /\bthe rest\b/.test(n) ||
+    /\bremaining\b/.test(n) ||
+    /\brest of (?:the )?(?:resume|template|design)\b/.test(n);
+  const designSignals =
+    /\b(design|section layout|layout|spacing|typography)\b/.test(n);
+  const satisfaction =
+    /\blooks good\b/.test(n) ||
+    /\balready (?:good|fine|satisfactory)\b/.test(n) ||
+    /\bvisually satisfactory\b/.test(n) ||
+    /\bunchanged\b/.test(n) ||
+    remainder;
+  return remainder && designSignals && satisfaction;
 }
 
 /** Explicit spacing improvement/imperative — remains MUTATION_REQUIRED. */
@@ -538,6 +575,10 @@ export function classifyRequestedChange(
 
   if (isLayoutPreservationVerificationPattern(n)) {
     return verificationResult(["LAYOUT_PRESERVATION"]);
+  }
+
+  if (isRemainderDesignPreservationPattern(n)) {
+    return verificationResult(["COLLISION_BOUNDS", "LAYOUT_PRESERVATION"]);
   }
 
   if (isArchitecturePreservationVerificationPattern(n)) {

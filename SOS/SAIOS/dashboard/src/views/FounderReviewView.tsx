@@ -72,6 +72,18 @@ function isWaitingFounder(status: string | undefined | null): boolean {
   return normalizeStatus(status) === "waiting_founder";
 }
 
+function isRevisionFailed(status: string | undefined | null): boolean {
+  return normalizeStatus(status) === "revision_failed";
+}
+
+function canRequestOrReject(status: string | undefined | null): boolean {
+  return isWaitingFounder(status) || isRevisionFailed(status);
+}
+
+function canApprove(status: string | undefined | null): boolean {
+  return isWaitingFounder(status);
+}
+
 function startOfToday(): number {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
@@ -103,6 +115,7 @@ function statusLabel(status: string): string {
   if (n === "approved") return "Approved";
   if (n === "rejected") return "Rejected";
   if (n === "changes_requested") return "Changes Requested";
+  if (n === "revision_failed") return "Revision Failed";
   if (n === "staging_requested") return "Staging Requested";
   if (n === "staging") return "Staging";
   if (n === "staged") return "Staged";
@@ -184,6 +197,7 @@ function badgeTone(item: FounderReviewQueueItem): BadgeTone {
   if (n === "approved") return "approved";
   if (n === "rejected") return "rejected";
   if (n === "changes_requested") return "processing";
+  if (n === "revision_failed") return "blocked";
   return "neutral";
 }
 
@@ -437,7 +451,11 @@ export function FounderReviewView({ snapshot, onDecided }: Props) {
       if (filter === "waiting" && !isWaitingFounder(item.status)) return false;
       if (filter === "approved" && normalizeStatus(item.status) !== "approved") return false;
       if (filter === "rejected" && normalizeStatus(item.status) !== "rejected") return false;
-      if (filter === "changes" && normalizeStatus(item.status) !== "changes_requested") {
+      if (
+        filter === "changes" &&
+        normalizeStatus(item.status) !== "changes_requested" &&
+        !isRevisionFailed(item.status)
+      ) {
         return false;
       }
       if (filter === "today") {
@@ -731,9 +749,15 @@ export function FounderReviewView({ snapshot, onDecided }: Props) {
       setError("Submission already in progress — wait for it to finish.");
       return;
     }
-    if (!isWaitingFounder(selected.status)) {
+    if (decision === "APPROVED" && !canApprove(selected.status)) {
       setError(
-        `Cannot submit — this review is "${selected.status}" (expected waiting_founder). Refresh the queue and try again.`,
+        `Cannot approve — this review is "${selected.status}". After a failed revision, submit new changes or reject.`,
+      );
+      return;
+    }
+    if ((decision === "REJECTED" || decision === "CHANGES_REQUESTED") && !canRequestOrReject(selected.status)) {
+      setError(
+        `Cannot submit — this review is "${selected.status}" (expected waiting_founder or revision_failed). Refresh the queue and try again.`,
       );
       return;
     }
@@ -1439,9 +1463,14 @@ export function FounderReviewView({ snapshot, onDecided }: Props) {
                     </div>
                   ) : null}
 
-                  {!isWaitingFounder(selected.status) &&
-                  normalizeStatus(selected.status) !== "approved" &&
-                  !stagingInfo?.lifecycle_status ? (
+                  {isRevisionFailed(selected.status) ? (
+                    <p className="muted fr-v3-closed">
+                      Revision failed. No revised Resume Template was produced.
+                      You may submit new changes or reject.
+                    </p>
+                  ) : !isWaitingFounder(selected.status) &&
+                    normalizeStatus(selected.status) !== "approved" &&
+                    !stagingInfo?.lifecycle_status ? (
                     <p className="muted fr-v3-closed">
                       This review is closed. No further founder action.
                     </p>
@@ -1478,21 +1507,21 @@ export function FounderReviewView({ snapshot, onDecided }: Props) {
           <div className="fr-v3-actions">
             <DangerButton
               className="fr-btn fr-action-reject"
-              disabled={busy || !isWaitingFounder(selected.status)}
+              disabled={busy || !canRequestOrReject(selected.status)}
               onClick={() => setModeAction("reject")}
             >
               Reject
             </DangerButton>
             <SecondaryButton
               className="fr-btn fr-action-changes"
-              disabled={busy || !isWaitingFounder(selected.status)}
+              disabled={busy || !canRequestOrReject(selected.status)}
               onClick={() => setModeAction("changes")}
             >
               Request Changes
             </SecondaryButton>
             <PrimaryButton
               className="fr-btn fr-action-approve"
-              disabled={busy || !isWaitingFounder(selected.status)}
+              disabled={busy || !canApprove(selected.status)}
               onClick={() => setModeAction("approve")}
             >
               Approve
@@ -1765,7 +1794,9 @@ export function FounderReviewView({ snapshot, onDecided }: Props) {
             </div>
           ) : null}
 
-          {isWaitingFounder(selected.status) && modeAction !== "idle" ? (
+          {(isWaitingFounder(selected.status) ||
+            (isRevisionFailed(selected.status) && modeAction !== "approve")) &&
+          modeAction !== "idle" ? (
             <div className="fr-v3-action-form">
               {message ? <p className="ok fr-v3-feedback">{message}</p> : null}
               {error ? <p className="fail fr-v3-feedback">{error}</p> : null}

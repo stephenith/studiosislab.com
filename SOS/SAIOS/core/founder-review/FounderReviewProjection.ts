@@ -17,6 +17,7 @@ import type {
   FounderReviewProjectionStatus,
   FounderReviewProjectionSummary,
 } from "./FounderReviewProjectionTypes.js";
+import { projectionStatusForChangesRequested } from "../founder-revision/FailedRevisionRecovery.js";
 
 export const CYCLE_LOG_REL = "SOS/07_LOGS/saios/first-production-cycle";
 
@@ -148,6 +149,26 @@ function parseIso(iso: string | null | undefined): number {
   if (!iso) return 0;
   const t = Date.parse(iso);
   return Number.isNaN(t) ? 0 : t;
+}
+
+function statusFromLatestDecision(
+  repoRoot: string,
+  decision: "APPROVED" | "REJECTED" | "CHANGES_REQUESTED",
+  reviewId: string,
+): FounderReviewProjectionStatus {
+  if (decision === "APPROVED") return "approved";
+  if (decision === "REJECTED") return "rejected";
+  return projectionStatusForChangesRequested(repoRoot, reviewId);
+}
+
+function learningImpactForStatus(status: FounderReviewProjectionStatus): string {
+  if (status === "approved") {
+    return "Approved · Stage for StudiosisLab available · publication_allowed=false";
+  }
+  if (status === "revision_failed") {
+    return "Revision failed · no revised Resume Template · submit new changes or reject · publication_allowed remains false.";
+  }
+  return `Decision recorded · publication_allowed remains false.`;
 }
 
 /**
@@ -446,17 +467,20 @@ export function loadFounderReviewProjection(
       for (const d of latestByReview.values()) {
         const existing = byId.get(d.review_id);
         if (!existing) continue;
-        const status: FounderReviewProjectionStatus =
-          d.decision === "APPROVED"
-            ? "approved"
-            : d.decision === "REJECTED"
-              ? "rejected"
-              : "changes_requested";
+        const status = statusFromLatestDecision(
+          repoRoot,
+          d.decision,
+          d.review_id,
+        );
         byId.set(d.review_id, {
           ...existing,
           status,
           decision_id: d.decision_id,
-          badge: status === "rejected" ? "blocked" : "ready",
+          badge:
+            status === "rejected" || status === "revision_failed"
+              ? "blocked"
+              : "ready",
+          learning_impact: learningImpactForStatus(status),
         });
       }
     }
@@ -565,23 +589,18 @@ export function loadFounderReviewProjection(
     }
   }
   for (const d of latestByReview.values()) {
-    const status: FounderReviewProjectionStatus =
-      d.decision === "APPROVED"
-        ? "approved"
-        : d.decision === "REJECTED"
-          ? "rejected"
-          : "changes_requested";
+    const status = statusFromLatestDecision(repoRoot, d.decision, d.review_id);
     const existing = byId.get(d.review_id);
     if (existing) {
       byId.set(d.review_id, {
         ...existing,
         status,
         decision_id: d.decision_id,
-        badge: status === "rejected" ? "blocked" : "ready",
-        learning_impact:
-          d.decision === "APPROVED"
-            ? "Approved · Stage for StudiosisLab available · publication_allowed=false"
-            : `Decision ${d.decision} recorded · publication_allowed remains false.`,
+        badge:
+          status === "rejected" || status === "revision_failed"
+            ? "blocked"
+            : "ready",
+        learning_impact: learningImpactForStatus(status),
       });
       continue;
     }
@@ -596,12 +615,15 @@ export function loadFounderReviewProjection(
       provider: "Mock",
       status,
       ready: true,
-      badge: status === "rejected" ? "blocked" : "ready",
+      badge:
+        status === "rejected" || status === "revision_failed"
+          ? "blocked"
+          : "ready",
       created_at: d.created_at,
       ...EMPTY_MEDIA,
       critic: null,
       decision_id: d.decision_id,
-      learning_impact: "Decision recorded; publication_allowed remains false.",
+      learning_impact: learningImpactForStatus(status),
       source: "SOS/07_LOGS/saios/founder-decisions",
     });
   }
@@ -622,6 +644,7 @@ export function summarizeFounderReviewProjection(
   let approved = 0;
   let rejected = 0;
   let changes_requested = 0;
+  let revision_failed = 0;
   const waiting_by_category: Record<string, number> = {};
 
   for (const item of items) {
@@ -637,6 +660,8 @@ export function summarizeFounderReviewProjection(
       rejected += 1;
     } else if (item.status === "changes_requested") {
       changes_requested += 1;
+    } else if (item.status === "revision_failed") {
+      revision_failed += 1;
     }
   }
 
@@ -645,6 +670,7 @@ export function summarizeFounderReviewProjection(
     approved,
     rejected,
     changes_requested,
+    revision_failed,
     total_visible: items.length,
     waiting_by_category,
     items,

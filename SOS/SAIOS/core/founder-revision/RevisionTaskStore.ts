@@ -31,7 +31,7 @@ export function setRevisionTasksDirForTests(dir: string | null): void {
   tasksDirOverride = dir;
 }
 
-function tasksDir(): string {
+export function tasksDir(): string {
   return tasksDirOverride ?? REVISION_TASKS_DIR;
 }
 

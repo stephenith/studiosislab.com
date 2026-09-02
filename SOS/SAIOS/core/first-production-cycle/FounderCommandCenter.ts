@@ -447,6 +447,7 @@ export function buildFounderCommandCenterSnapshot(opts?: {
       by_status.approved = projection.approved;
       by_status.rejected = projection.rejected;
       by_status.changes_requested = projection.changes_requested;
+      by_status.revision_failed = projection.revision_failed;
       by_status.APPROVED = projection.approved;
       by_status.REJECTED = projection.rejected;
       founderQueueData = {

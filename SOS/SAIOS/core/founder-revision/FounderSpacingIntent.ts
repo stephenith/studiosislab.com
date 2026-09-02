@@ -5,6 +5,7 @@
  * visual content bottoms (wrap estimate), not oversized stored textbox bottoms.
  * Used by DeterministicSpacingOwnership and FeedbackCoverage.
  */
+import { createRequire } from "node:module";
 import type { FabricCanvasDoc } from "./CanvasInventory.js";
 import {
   isFabricTextObject,
@@ -13,6 +14,8 @@ import {
   visualTextContentHeightScaled,
 } from "./TextEffectiveHeight.js";
 import type { CanvasOperation } from "./revision-task-types.js";
+
+const requireSpacingRelation = createRequire(import.meta.url);
 
 /** Minimum improvement to count as "tighter/reduced" (matches coverage noise). */
 export const SPACING_INTENT_IMPROVEMENT_PX = 2;
@@ -370,6 +373,7 @@ export function spacingIntentSatisfied(input: {
 
 /**
  * Evaluate all measurable spacing intents for a before→after pair.
+ * Phase 6E: lazy-load the named-pair resolver so this module stays acyclic.
  */
 export function evaluateFounderSpacingIntents(input: {
   requested_changes: string[];
@@ -380,90 +384,20 @@ export function evaluateFounderSpacingIntents(input: {
   all_satisfied: boolean;
   measurable_count: number;
 } {
-  const intents: SpacingIntentRelation[] = [];
-  for (const raw of input.requested_changes) {
-    const direction = detectSpacingIntentDirection(raw);
-    if (
-      direction !== "REDUCE_GAP" &&
-      direction !== "TIGHTEN_RHYTHM" &&
-      direction !== "INCREASE_GAP" &&
-      direction !== "SEPARATE"
-    ) {
-      continue;
-    }
-    const sections = sectionTokensForSpacingIntent(raw);
-    if (sections.length === 0) {
-      intents.push({
-        founder_feedback_item: raw,
-        direction,
-        section: "",
-        upper_id: "",
-        lower_id: "",
-        before_gap: 0,
-        after_gap: 0,
-        satisfied: false,
-        notes: "spacing intent unevaluable: no section token",
-      });
-      continue;
-    }
-    // Prefer first named non-header section.
-    const section = sections[0]!;
-    const beforeGaps = measureSectionVisualContentGaps(
-      input.beforeCanvas,
-      section,
-    );
-    const afterGaps = measureSectionVisualContentGaps(
-      input.afterCanvas,
-      section,
-    );
-    const beforeDom = measureDominantVisualGap(input.beforeCanvas, section);
-    if (!beforeDom || beforeGaps.length === 0) {
-      intents.push({
-        founder_feedback_item: raw,
-        direction,
-        section,
-        upper_id: "",
-        lower_id: "",
-        before_gap: 0,
-        after_gap: 0,
-        satisfied: false,
-        notes: `spacing intent unevaluable: insufficient ${section} text pairs`,
-      });
-      continue;
-    }
-    // Track same pair after when possible; else dominant after.
-    const afterSame =
-      afterGaps.find(
-        (g) =>
-          g.upper_id === beforeDom.upper_id && g.lower_id === beforeDom.lower_id,
-      ) ?? measureDominantVisualGap(input.afterCanvas, section);
-    const after_gap = afterSame?.gap ?? beforeDom.gap;
-    const sat = spacingIntentSatisfied({
-      direction,
-      before_gap: beforeDom.gap,
-      after_gap,
-      before_gaps: beforeGaps.map((g) => g.gap),
-      after_gaps: afterGaps.map((g) => g.gap),
-    });
-    intents.push({
-      founder_feedback_item: raw,
-      direction,
-      section,
-      upper_id: beforeDom.upper_id,
-      lower_id: beforeDom.lower_id,
-      before_gap: beforeDom.gap,
-      after_gap,
-      satisfied: sat.satisfied,
-      notes: sat.notes,
-    });
-  }
-  const measurable = intents.filter((i) => i.direction !== "NONE");
-  return {
-    intents,
-    measurable_count: measurable.length,
-    all_satisfied:
-      measurable.length === 0 || measurable.every((i) => i.satisfied),
+  const {
+    evaluateFounderSpacingIntentsResolved,
+  } = requireSpacingRelation("./FounderSpacingRelation.js") as {
+    evaluateFounderSpacingIntentsResolved: (i: {
+      requested_changes: string[];
+      beforeCanvas: FabricCanvasDoc;
+      afterCanvas: FabricCanvasDoc;
+    }) => {
+      intents: SpacingIntentRelation[];
+      all_satisfied: boolean;
+      measurable_count: number;
+    };
   };
+  return evaluateFounderSpacingIntentsResolved(input);
 }
 
 /**

@@ -12,6 +12,7 @@ import {
   isFounderMeasurableSpacingIntent,
   type SpacingIntentRelation,
 } from "./FounderSpacingIntent.js";
+import { buildSafeNamedSpacingRelationOps } from "./FounderSpacingRelation.js";
 import {
   isHeaderIdentityLayoutFeedback,
   isHeaderIdentityLayoutOwnedChange,
@@ -459,16 +460,34 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
     isFounderMeasurableSpacingIntent(c),
   );
 
+  const namedRelationOps = buildSafeNamedSpacingRelationOps({
+    canvas: input.priorCanvas,
+    requested_changes: input.requested_changes,
+  });
+  const namedTargetIds = new Set(
+    namedRelationOps
+      .map((o) => ("target_id" in o ? String(o.target_id ?? "") : ""))
+      .filter(Boolean),
+  );
+  const spacingOpsWithNamed = [
+    ...spacingOps.filter((o) => {
+      const id = "target_id" in o ? String(o.target_id ?? "") : "";
+      return !id || !namedTargetIds.has(id);
+    }),
+    ...namedRelationOps,
+  ];
+
   const detPlanBase: RevisionPlan = {
     schema_version: "founder-canvas-revision-plan-1.0.0",
     summary:
       input.aiPlan.summary ||
       "Deterministic spacing ownership via RevisionLayoutNormalizer",
-    operations: [...preservedNonPosition, ...spacingOps],
+    operations: [...preservedNonPosition, ...spacingOpsWithNamed],
     notes: [
       ...(input.aiPlan.notes ?? []),
       "deterministic_spacing_ownership",
-      `shifted_objects=${spacingOps.length}`,
+      `shifted_objects=${spacingOpsWithNamed.length}`,
+      `named_relation_ops=${namedRelationOps.length}`,
     ],
   };
 
@@ -501,7 +520,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       plan: detPlanBase,
       error: null,
       report_ok: true,
-      shifted_object_count: spacingOps.length,
+      shifted_object_count: spacingOpsWithNamed.length,
       preserved_ai_ops: preservedNonPosition.length,
       replaced_ai_position_ops: input.aiPlan.operations.filter(
         (o) => !preservedNonPosition.includes(o),
@@ -547,7 +566,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       plan: detPlanBase,
       error: null,
       report_ok: true,
-      shifted_object_count: spacingOps.length,
+      shifted_object_count: spacingOpsWithNamed.length,
       preserved_ai_ops: preservedNonPosition.length,
       replaced_ai_position_ops: 0,
       ownership_mode: "DETERMINISTIC",
@@ -624,7 +643,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       plan: detPlanBase,
       error: null,
       report_ok: true,
-      shifted_object_count: spacingOps.length,
+      shifted_object_count: spacingOpsWithNamed.length,
       preserved_ai_ops: preservedNonPosition.length,
       replaced_ai_position_ops: aiPositionOps.length,
       ownership_mode: "DETERMINISTIC",
@@ -646,7 +665,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
         .map((o) => ("target_id" in o ? String(o.target_id ?? "") : ""))
         .filter(Boolean),
     );
-    const detKept = spacingOps.filter((o) => {
+    const detKept = spacingOpsWithNamed.filter((o) => {
       const id = "target_id" in o ? String(o.target_id ?? "") : "";
       return !id || (!aiPosTargets.has(id) && !shrinkIds.has(id));
     });
@@ -716,7 +735,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       plan: detPlanBase,
       error: null,
       report_ok: true,
-      shifted_object_count: spacingOps.length,
+      shifted_object_count: spacingOpsWithNamed.length,
       preserved_ai_ops: preservedNonPosition.length,
       replaced_ai_position_ops: aiPositionOps.length,
       ownership_mode: "DETERMINISTIC",

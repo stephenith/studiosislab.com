@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "P0 CLOSURE — execute exactly one controlled Phase 6C live generation memory proof via npm run aios:controller:run -- --target finance:accountant (do not use random --size 1); then one live revision memory proof; then final department closure audit",
+    "P0 CLOSURE — execute exactly ONE fresh live revision-memory production proof on a recoverable source (do not retry revtask-c134fd34-f0b); then final department closure audit",
     "DO NOT APPROVE/PUBLISH known mismatched historical candidates (Operations Analyst→Marketing Manager; Graphic Designer professional_sidebar→HR Manager) — publication eligibility excludes ROLE_INTEGRITY_FAILED",
     "founder-review-004 awaiting founder approval",
     "founder-review-005 changes requested after preview pipeline smoke",
@@ -27,6 +27,12 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-02T20:35:00.000Z",
+      "type": "phase",
+      "summary": "Phase 6E — Final revision closure blockers. Local wall=2026-09-03 ~02:00 IST. Phase 6C live generation memory proof PASS: Marketing Manager (cand-marketing-marketing-manager-20260902T193455Z-1ce04d) naturally selected creative/section_index memory. Accountant live memory selection worked but ROLE_INTEGRITY blocked admission. Final live revision attempt revtask-c134fd34-f0b FAILED_GATE (openai gpt-4.1-mini; resp_06d7ea7482aee1ef…; first stage DETERMINISTIC_SPACING_OWNERSHIP) and was NOT retried. Proven blockers: (A) planFounderCanvasRevision omitted repoRoot so enrichFromCandidateArtifacts skipped (design_family=null/architecture=null; fpm-4feec9cb-f33 IRRELEVANT; FOUNDER_MEMORY_CONSUMED=NO); (B) Founder named Nexera final bullet but parser left TIGHTEN_RHYTHM with empty pair/before_gap=0 — section dominant would have chosen inter-job t7→t10 not t12→t13; AI top 595 overlapped; safe visual compaction existed; (C) FAILED_GATE left source WAITING_FOUNDER / projection changes_requested with Approve/Request Changes/Reject all disabled and no supported recovery. 6E: planner always supplies repoRoot; generic named-pair resolver + same-entry grouping + visual-content spacing truth + safe named compaction; existing Founder Review lifecycle adds revision_failed projection so Founder can Request Changes Again (new decision + new task) or Reject; no automatic retry; historical task immutable. Remaining: exactly ONE fresh live revision-memory production proof; then final department closure audit.",
+      "ref": "SOS/SAIOS/core/founder-revision/FounderSpacingRelation.ts"
+    },
     {
       "at": "2026-09-02T19:30:00.000Z",
       "type": "phase",

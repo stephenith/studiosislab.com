@@ -11,6 +11,7 @@
  * ConflictPlanRepair XOR CoveragePlanRepair — never both in one invocation.
  */
 import { randomUUID } from "node:crypto";
+import { resolve } from "node:path";
 import { OpenAIProvider } from "../providers/openai/OpenAIProvider.js";
 import type { ReasoningRequest } from "../ai-brain/ReasoningRequest.js";
 import { canUseFounderOpenAIOneTest } from "../resume-integration/FounderOpenAIOneTest.js";
@@ -62,6 +63,9 @@ import {
   validateRevisionPlanShapeAndOperations,
   type UncoveredRequestedChange,
 } from "./RevisionPromptBuilder.js";
+
+/** Same repo root the revision pipeline already uses for candidate artifacts. */
+const REPO = resolve(import.meta.dirname, "../../../..");
 
 /** Bounded output budget for ~15–30 inventory-backed operations (Founder revision). */
 export const REVISION_PLANNING_MAX_OUTPUT_TOKENS = 12_000;
@@ -1018,7 +1022,14 @@ export async function planFounderCanvasRevision(input: {
   page_height: number;
   /** Injected planner for tests — receives primary then optional one repair call. */
   execute?: PlannerExecuteFn;
+  /**
+   * Repository root for candidate-artifact memory enrichment.
+   * Live callers may omit this; the planner resolves the same REPO the
+   * pipeline already uses so enrichment cannot be skipped by accident.
+   */
+  repoRoot?: string;
 }): Promise<PlannerResult> {
+  const repoRoot = input.repoRoot ?? REPO;
   const prompt = buildRevisionPlannerPrompt({
     task: input.task,
     inventory: input.inventory,
@@ -1026,6 +1037,7 @@ export async function planFounderCanvasRevision(input: {
     page_height: input.page_height,
     preview_width: input.page_width,
     preview_height: input.page_height,
+    repoRoot,
   });
 
   if (!input.execute && !canUseFounderOpenAIOneTest("INTERNAL")) {

@@ -172,6 +172,7 @@ export async function runFounderFeedbackRevision(
     page_width,
     page_height,
     execute: opts.executePlanner,
+    repoRoot: REPO,
   });
 
   const evidenceDir = join(OUT_ROOT, "evidence", task.task_id);

@@ -7,7 +7,8 @@ export type FounderReviewProjectionStatus =
   | "waiting_founder"
   | "approved"
   | "rejected"
-  | "changes_requested";
+  | "changes_requested"
+  | "revision_failed";
 
 export type FounderReviewCriticScores = {
   overall: number;
@@ -84,6 +85,7 @@ export type FounderReviewProjectionSummary = {
   approved: number;
   rejected: number;
   changes_requested: number;
+  revision_failed: number;
   /** All projected resume-template records visible in the review model. */
   total_visible: number;
   /** Waiting count keyed by production_target.category. */

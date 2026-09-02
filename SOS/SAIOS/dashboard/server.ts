@@ -42,6 +42,7 @@ import {
 } from "../core/supervised-production-runner/FounderSupervisedProductionRunner.js";
 import { FounderDecisionManager } from "../core/founder-decisions/FounderDecisionManager.js";
 import { createRevisionTaskFromDecision } from "../core/founder-revision/createRevisionTaskFromDecision.js";
+import { canRecoverFailedRevision } from "../core/founder-revision/FailedRevisionRecovery.js";
 import {
   startRevisionTaskDispatcher,
   stopRevisionTaskDispatcher,
@@ -1133,6 +1134,22 @@ async function main() {
         const resolvedCycleId = waiting?.cycle_id ?? body.cycle_id;
         const resolvedReviewId = waiting?.review_id ?? body.review_id;
         const resolvedTaskId = waiting?.task_id ?? body.task_id;
+        const recoverableFailed = canRecoverFailedRevision(
+          REPO,
+          resolvedReviewId,
+        );
+
+        if (body.decision === "APPROVED" && recoverableFailed) {
+          res.writeHead(403, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({
+              error:
+                "Cannot approve after a failed revision — no revised Resume Template exists. Submit new changes or reject.",
+              publication_allowed: false,
+            }),
+          );
+          return;
+        }
 
         const mgr = new FounderDecisionManager();
         const prior = new FounderReviewRepository(REPO).latestForReview(
@@ -1150,9 +1167,12 @@ async function main() {
           structured_feedback: body.candidate_id
             ? { candidate_id: body.candidate_id }
             : undefined,
-          // Preserve Agent #132 history; supersede when re-deciding a waiting cycle
+          // Preserve Agent #132 history; supersede when re-deciding a waiting
+          // cycle or recovering a failed revision on the same source.
           supersedes:
-            waiting && prior ? prior.decision_id : undefined,
+            (waiting || recoverableFailed) && prior
+              ? prior.decision_id
+              : undefined,
         });
 
         // Founder feedback revision task (durable) — PENDING claimed by

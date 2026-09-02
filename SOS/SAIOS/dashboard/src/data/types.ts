@@ -202,7 +202,8 @@ export type FounderReviewQueueItem = {
     | "waiting_founder"
     | "approved"
     | "rejected"
-    | "changes_requested";
+    | "changes_requested"
+    | "revision_failed";
   ready: boolean;
   badge: "ready" | "blocked" | "waiting";
   created_at: string;

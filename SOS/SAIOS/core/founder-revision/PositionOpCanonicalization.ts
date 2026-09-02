@@ -165,23 +165,89 @@ const LOWER_VERB_RE =
   /(?:^|[.!?;:]\s*|\b(?:please|then|and)\s+)\s*lower\s+(?:the\s+)?(?!edge|half|area|part|portion|band|margin|padding|boundar\w*|region|corner|left|right|quarter|third|side)\S+/;
 
 /**
+ * Band/rectangle EDGE EXTENSION language (e.g. "extend the gray header rectangle
+ * downward") describes growing height / moving the bottom edge — NOT translating
+ * content objects with set_position. Must not bind UP/DOWN to position ops.
+ */
+const BAND_EDGE_EXTENSION_RE =
+  /\b(?:extend|expand|grow|lengthen|increase(?:\s+the)?\s+height\s+of)\b[\s\S]{0,72}\b(?:downwards?|upwards?)\b|\b(?:extend|expand|grow|lengthen)\b[\s\S]{0,72}\b(?:rectangle|band|background|strip|header)\b[\s\S]{0,40}\b(?:downwards?|upwards?|down|up)\b|\b(?:downwards?|upwards?)\s+as\s+needed\b/;
+
+/**
+ * True when *ward / down / up in this text is only edge-extension semantics
+ * (bottom-edge growth), not object translation intent.
+ */
+export function isBandEdgeExtensionDirection(text: string): boolean {
+  const n = normalizeFeedbackText(text);
+  if (!n) return false;
+  if (!BAND_EDGE_EXTENSION_RE.test(n)) return false;
+  // Explicit object translation still present → not extension-only.
+  if (
+    /\b(?:mov(?:e|ing|ed)|shift(?:ing|ed)?|nudg(?:e|ing|ed)|reposition(?:ing|ed)?)\b[\s\S]{0,48}\b(?:upwards?|downwards?|up|down|higher|lower)\b/.test(
+      n,
+    )
+  ) {
+    return false;
+  }
+  if (
+    /\b(?:raise|lower)\s+(?:the\s+)?(?:contact|name|role|title|row|heading|textbox|object|block)\b/.test(
+      n,
+    )
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Mask extension clauses so bare "downward" inside them cannot bind movement.
+ * Leaves explicit "move … down" clauses intact.
+ */
+function maskBandEdgeExtensionClauses(n: string): string {
+  return n
+    .replace(
+      /\b(?:extend|expand|grow|lengthen|increase(?:\s+the)?\s+height\s+of)\b[\s\S]{0,72}?\b(?:downwards?|upwards?)\b(?:\s+as\s+needed)?/g,
+      " ",
+    )
+    .replace(
+      /\b(?:extend|expand|grow|lengthen)\b[\s\S]{0,72}?\b(?:rectangle|band|background|strip|header)\b[\s\S]{0,40}?\b(?:downwards?|upwards?|down|up)\b/g,
+      " ",
+    );
+}
+
+/**
  * Parse explicit vertical/horizontal direction from Founder or intended_change text.
  *
  * Binds only EXPLICIT MOVEMENT INTENT (imperative verbs / *ward forms).
  * Descriptive location language (lower edge, bottom padding, section below)
  * must not create a direction requirement.
+ * Band edge-extension ("extend rectangle downward") must not bind set_position.
  */
 export function parseExplicitMoveDirections(text: string): Set<VerticalDirection> {
-  const n = text
+  const raw = text
     .replace(/^\*+\s*/, "")
     .replace(/^\d+\.\s*/, "")
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
   const out = new Set<VerticalDirection>();
+  if (!raw) return out;
+
+  // Extension-only phrases contribute no position direction (OR-rebalance safe).
+  if (isBandEdgeExtensionDirection(raw)) {
+    // Still allow additional explicit move clauses outside extension wording.
+    const n = maskBandEdgeExtensionClauses(raw);
+    if (!n.trim()) return out;
+    return parseExplicitMoveDirectionsUnmasked(n);
+  }
+
+  return parseExplicitMoveDirectionsUnmasked(raw);
+}
+
+function parseExplicitMoveDirectionsUnmasked(n: string): Set<VerticalDirection> {
+  const out = new Set<VerticalDirection>();
   if (!n) return out;
 
-  // Explicit *-ward movement forms.
+  // Explicit *-ward movement forms (after extension masking when applicable).
   if (/\b(upward|upwards)\b/.test(n)) out.add("up");
   if (/\b(downward|downwards)\b/.test(n)) out.add("down");
   if (/\bleftward\b/.test(n)) out.add("left");

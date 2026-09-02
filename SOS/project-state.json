@@ -19,7 +19,13 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "P0 CLOSURE — execute exactly ONE fresh Request Changes Again proof on Marketing Manager source cand-marketing-marketing-manager-20260902T193455Z-1ce04d (do NOT retry revtask-c134fd34-f0b or revtask-349d7980-578); then STOP revision engineering and run department closure audit; hand off to Website Analysis / QA / Development",
+    "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
+    "P1 — publication live proof / controlled apply for staged packages (AUTO_APPLY off; NOT a revision-engineering / department-closure blocker)",
+    "P1 — provider badge honesty (dashboard MOCK vs real OpenAI generation/revision truth)",
+    "P1 — optional historical revision_failed card cleanup (Founder-decided; not required for department closure)",
+    "P1 — role-integrity long-tail efficiency / reduce unnecessary OpenAI spend on missing packs",
+    "P2 — Telegram READY_FOR_FOUNDER_REVIEW success notification (failure alerts already live)",
+    "P2 — $0.00 dashboard telemetry truth; candidate.json approval-status sync after APPROVE; legacy candidate terminology; README/verifier consolidation; structured Founder feedback UI only if later required",
     "DO NOT APPROVE/PUBLISH known mismatched historical candidates (Operations Analyst→Marketing Manager; Graphic Designer professional_sidebar→HR Manager) — publication eligibility excludes ROLE_INTEGRITY_FAILED",
     "founder-review-004 awaiting founder approval",
     "founder-review-005 changes requested after preview pipeline smoke",
@@ -27,6 +33,12 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-02T22:17:15.000Z",
+      "type": "closure",
+      "summary": "Resume Template department FINAL CLOSURE. Local wall=2026-09-03 ~03:47 IST. Deployed HEAD 1983a176b9be2f468ab2e9694b2ee7fcba25d802. Final live revision revtask-94df0103-5c3 READY_FOR_FOUNDER_REVIEW on source cand-marketing-marketing-manager-20260902T193455Z-1ce04d → revised cand-marketing-marketing-manager-20260902T193455Z-1ce04d-revfb-15e873. Real OpenAI revision PASS; Founder Memory consumed PASS (fpm-4feec9cb-f33; creative/section_index); canonical NAMED_PAIR block-experience-2-t12→block-experience-2-t13; before_gap 18.933 → final 6.60; safe AI ownership survived; selector/direction/plan/final geometry PASS; text_overlaps=0 page_oob=0; content preservation PASS; role integrity PASS; relation-specific coverage PASS; visual defect fixed YES. Failed-revision recovery lineage immutable: revtask-c134fd34-f0b FAILED_GATE → revtask-349d7980-578 FAILED_GATE → revtask-94df0103-5c3 READY_FOR_FOUNDER_REVIEW (RETRIED=NO MUTATED=NO; recovery via new Founder decisions/new task IDs production-proven). Founder APPROVED fd-750d7162-3d2; STAGED stg-20260902-dd8d207d; publication_allowed=false; memory maturation executed YES (closure snapshot TOTAL_ROWS=214 ACTIVE=186 CONFIRMED=16 PROVISIONAL=170 SUPERSEDED=14 REJECTED=0). CORE_RESUME_TEMPLATE_FACTORY_GOAL_MET=YES; CURRENT_P0_BLOCKERS=NONE; SAFE_TO_STOP_REVISION_ENGINEERING=YES; RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE; future revision changes=MAINTENANCE/REGRESSION ONLY unless new production failure. Stale pending 'one fresh Request Changes Again / final live proof / closure pending' closed. P1 post-closure (not P0): publication live proof/controlled apply; provider badge honesty; optional revision_failed cleanup; role-integrity long-tail spend. P2: Telegram revision-ready success notify; $0.00 telemetry; candidate.json approve sync; legacy naming; README/verifier consolidation. NEXT DEPARTMENT handoff: Website Analysis / QA / Development. No generation/revision/OpenAI/publish in this state update.",
+      "ref": "SOS/project-state.json"
+    },
     {
       "at": "2026-09-02T21:40:00.000Z",
       "type": "implementation",

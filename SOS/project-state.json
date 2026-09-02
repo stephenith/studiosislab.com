@@ -2443,7 +2443,8 @@
     }
   },
   "phase_6b": {
-    "status": "implemented_pending_deploy",
+    "status": "deployed",
+    "deployed_commit": "165d9e1efed9171cd175676ecb9dfdf94d28b399",
     "problem": "Founder Memory write-side existed; generation/revision consumption incomplete",
     "pre_6b_generation_hook": "applyFounderDesignMemoryInstructions on design_planning only",
     "pre_6b_why_unused": "CONFIRMED corpus were POSITIVE_EXEMPLAR-only (excluded); revision had no injection",

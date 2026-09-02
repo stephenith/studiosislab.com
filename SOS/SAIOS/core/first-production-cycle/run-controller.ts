@@ -6,6 +6,7 @@
  * Usage:
  *   npm run aios:controller:run
  *   npm run aios:controller:run -- --size 3 --mock
+ *   npm run aios:controller:run -- --target executive:chief-marketing-officer
  *   npm run aios:batch:run -- --size 5 --mock   (delegates here)
  */
 import { resolve } from "node:path";
@@ -13,61 +14,61 @@ import dotenv from "dotenv";
 dotenv.config({
   path: resolve(process.cwd(), ".env.local"),
 });
-import {
-  DEFAULT_BATCH_SIZE,
-  DEFAULT_MAX_OPENAI_PER_BATCH,
-  DEFAULT_QUEUE_MAX,
-} from "./BatchRunner.js";
 import { runProduction } from "./ProductionController.js";
-
-function parseArgs(argv: string[]): {
-  size: number;
-  queueMax: number;
-  maxOpenai: number;
-  mock: boolean;
-} {
-  let size = DEFAULT_BATCH_SIZE;
-  let queueMax = DEFAULT_QUEUE_MAX;
-  let maxOpenai = DEFAULT_MAX_OPENAI_PER_BATCH;
-  let mock = false;
-  for (let i = 0; i < argv.length; i++) {
-    const a = argv[i];
-    if (a === "--size" || a === "--batch-size") {
-      size = Number(argv[++i]);
-    } else if (a === "--queue-max") {
-      queueMax = Number(argv[++i]);
-    } else if (a === "--max-openai") {
-      maxOpenai = Number(argv[++i]);
-    } else if (a === "--mock") {
-      mock = true;
-    } else if (a === "--help" || a === "-h") {
-      console.log(
-        `Usage: aios:controller:run [--size N] [--queue-max N] [--max-openai N] [--mock]`,
-      );
-      process.exit(0);
-    }
-  }
-  if (!Number.isFinite(size) || size < 1) size = DEFAULT_BATCH_SIZE;
-  if (!Number.isFinite(queueMax) || queueMax < 1) queueMax = DEFAULT_QUEUE_MAX;
-  if (!Number.isFinite(maxOpenai) || maxOpenai < 0) {
-    maxOpenai = DEFAULT_MAX_OPENAI_PER_BATCH;
-  }
-  return { size, queueMax, maxOpenai, mock };
-}
+import {
+  controllerHelpText,
+  planControllerExecution,
+} from "./ControllerCliPlan.js";
 
 async function main(): Promise<void> {
   if (process.env.SOS_AIOS_LIVE === "1") {
     console.error("LIVE must be OFF");
     process.exit(1);
   }
-  const args = parseArgs(process.argv.slice(2));
-  const result = await runProduction({
-    batch_size: args.size,
-    queue_max: args.queueMax,
-    max_openai_per_batch: args.maxOpenai,
-    force_mock: args.mock,
-    select_target: true,
-  });
+  const argv = process.argv.slice(2);
+  if (argv.includes("--help") || argv.includes("-h")) {
+    console.log(controllerHelpText());
+    process.exit(0);
+  }
+  const plan = planControllerExecution(argv);
+  if (!plan.ok) {
+    console.error(
+      JSON.stringify(
+        {
+          error: "controlled_target_rejected",
+          code: plan.code,
+          detail: plan.detail,
+          generation_started: false,
+        },
+        null,
+        2,
+      ),
+    );
+    process.exit(plan.exit_code);
+  }
+
+  if (plan.mode === "controlled" && plan.resolved) {
+    console.log(
+      JSON.stringify(
+        {
+          event: "controlled_canonical_target",
+          target_selection: plan.target_selection,
+          canonical_target_id: plan.resolved.id,
+          title: plan.resolved.title,
+          role_family: plan.resolved.role_family,
+          category: plan.resolved.category,
+          design_family_pinned: false,
+          architecture_pinned: false,
+          batch_size: 1,
+          select_target: false,
+        },
+        null,
+        2,
+      ),
+    );
+  }
+
+  const result = await runProduction(plan.production);
   console.log(
     JSON.stringify(
       {
@@ -81,6 +82,16 @@ async function main(): Promise<void> {
         publication_allowed: result.publication_allowed,
         report_path: result.report_path,
         entrypoint: result.entrypoint,
+        target_selection: plan.target_selection,
+        controlled_target:
+          plan.resolved == null
+            ? null
+            : {
+                id: plan.resolved.id,
+                title: plan.resolved.title,
+                role_family: plan.resolved.role_family,
+                category: plan.resolved.category,
+              },
       },
       null,
       2,

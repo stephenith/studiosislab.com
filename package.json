@@ -215,6 +215,7 @@
     "aios:role-integrity-scan-6a": "npx --yes tsx SOS/SAIOS/core/role-integrity/scan-production-role-integrity-6a.ts",
     "aios:founder-memory-6b:verify": "npx --yes tsx SOS/SAIOS/core/founder-memory/verify-founder-memory-consumption-6b.ts",
     "aios:founder-memory-6c:verify": "npx --yes tsx SOS/SAIOS/core/founder-memory/verify-founder-memory-activation-6c.ts",
+    "aios:controlled-target-6d:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-controlled-canonical-target-6d.ts",
     "aios:founder-preference-memory:verify": "npx --yes tsx SOS/SAIOS/core/founder-memory/verify-founder-preference-memory.ts",
     "aios:terminology:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-resume-template-terminology.ts",
     "aios:revision:feedback:repair-gd": "npx --yes tsx SOS/SAIOS/core/founder-revision/repair-revfb-critic-artifacts.ts --graphic-designer",

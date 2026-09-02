@@ -112,6 +112,19 @@ function looksLikeContact(text: string): boolean {
   );
 }
 
+function looksLikeSectionHeading(text: string): boolean {
+  const t = text.trim();
+  if (!t) return true;
+  if (/^(summary|experience|education|skills|projects|certifications|languages|awards|interests|profile|objective|work history|employment)$/i.test(t)) {
+    return true;
+  }
+  // ALL-CAPS short labels (SUMMARY, EXPERIENCE, …) are not professional titles.
+  if (t.length <= 24 && t === t.toUpperCase() && /^[A-Z][A-Z\s/&-]+$/.test(t)) {
+    return true;
+  }
+  return false;
+}
+
 /**
  * Extract rendered professional title from canvas header.
  * Prefers data.role professional_title / role / title; never person name.
@@ -128,6 +141,7 @@ export function extractRenderedProfessionalRole(
     return (
       text &&
       !looksLikeContact(text) &&
+      !looksLikeSectionHeading(text) &&
       (role === "professional_title" ||
         role === "role" ||
         role === "job_title" ||
@@ -141,7 +155,7 @@ export function extractRenderedProfessionalRole(
       const t = String(o.type ?? "").toLowerCase();
       if (!t.includes("text")) return false;
       const text = String(o.text ?? "").trim();
-      if (!text || looksLikeContact(text)) return false;
+      if (!text || looksLikeContact(text) || looksLikeSectionHeading(text)) return false;
       const section = objectSection(o).toLowerCase();
       const top = typeof o.top === "number" ? o.top : 9999;
       return section === "header" || section === "identity" || top < 160;
@@ -165,8 +179,14 @@ export function extractRenderedProfessionalRole(
     }
     return null;
   }
-  // Skip presumed name (first), take next.
-  return String(headerTexts[1]!.text ?? "").trim() || null;
+  // Skip presumed name (first), take next non-heading title line.
+  for (let i = 1; i < headerTexts.length; i++) {
+    const text = String(headerTexts[i]!.text ?? "").trim();
+    if (text && !looksLikeSectionHeading(text) && !looksLikeContact(text)) {
+      return text;
+    }
+  }
+  return null;
 }
 
 export function extractStructuredRoleTitle(input: {

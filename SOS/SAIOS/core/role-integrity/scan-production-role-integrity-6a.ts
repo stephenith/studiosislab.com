@@ -35,12 +35,22 @@ function readTarget(dir: string): { title: string; role_family: string } {
         role_family?: string;
         role?: string;
       };
-      const title = String(
+      const role_family = String(
+        m.production_target?.role_family ?? m.role_family ?? "",
+      ).trim();
+      let title = String(
         m.production_target?.title ?? m.title ?? m.role ?? "",
       ).trim();
-      const role_family = String(
-        m.production_target?.role_family ?? m.role_family ?? title,
-      ).trim();
+      // Prefer clean role_family when title embeds design-variant noise.
+      if (
+        role_family &&
+        (/_v\d|_oai|contemporary_|professional_sidebar|editorial|technical|modern|executive/i.test(
+          title,
+        ) ||
+          title.split(/\s+/).length > 6)
+      ) {
+        title = role_family.replace(/_/g, " ");
+      }
       if (title || role_family) return { title: title || role_family, role_family: role_family || title };
     } catch {
       /* ignore */

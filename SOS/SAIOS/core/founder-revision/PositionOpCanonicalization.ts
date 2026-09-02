@@ -180,17 +180,18 @@ export function isBandEdgeExtensionDirection(text: string): boolean {
   const n = normalizeFeedbackText(text);
   if (!n) return false;
   if (!BAND_EDGE_EXTENSION_RE.test(n)) return false;
-  // Explicit object translation still present → not extension-only.
+  // Explicit POSITIVE object translation still present → not extension-only.
+  const withoutNegated = maskNegatedMovementClauses(n);
   if (
     /\b(?:mov(?:e|ing|ed)|shift(?:ing|ed)?|nudg(?:e|ing|ed)|reposition(?:ing|ed)?)\b[\s\S]{0,48}\b(?:upwards?|downwards?|up|down|higher|lower)\b/.test(
-      n,
+      withoutNegated,
     )
   ) {
     return false;
   }
   if (
     /\b(?:raise|lower)\s+(?:the\s+)?(?:contact|name|role|title|row|heading|textbox|object|block)\b/.test(
-      n,
+      withoutNegated,
     )
   ) {
     return false;
@@ -215,9 +216,26 @@ function maskBandEdgeExtensionClauses(n: string): string {
 }
 
 /**
+ * Strip negated movement predicates so "do not move X upward" cannot bind UP.
+ * Associates negation with the following move/raise/lower clause only.
+ */
+export function maskNegatedMovementClauses(n: string): string {
+  return n
+    .replace(
+      /\b(?:do\s+not|don't|dont|never|avoid)\s+(?:mov(?:e|ing)|shift(?:ing)?|nudg(?:e|ing)|reposition(?:ing)?|rais(?:e|ing)|lower(?:ing)?)\b[\s\S]{0,80}?(?=[.;,]|$)/gi,
+      " ",
+    )
+    .replace(
+      /\b(?:do\s+not|don't|dont|never|avoid)\s+(?:mov(?:e|ing)|shift(?:ing)?|nudg(?:e|ing)|reposition(?:ing)?)\b[\s\S]{0,60}?\b(?:upwards?|downwards?|up|down|higher|lower|left|right)\b/gi,
+      " ",
+    );
+}
+
+/**
  * Parse explicit vertical/horizontal direction from Founder or intended_change text.
  *
- * Binds only EXPLICIT MOVEMENT INTENT (imperative verbs / *ward forms).
+ * Binds only EXPLICIT POSITIVE MOVEMENT INTENT (imperative verbs / *ward forms).
+ * Negated movement ("do not move … upward") contributes no direction.
  * Descriptive location language (lower edge, bottom padding, section below)
  * must not create a direction requirement.
  * Band edge-extension ("extend rectangle downward") must not bind set_position.
@@ -235,19 +253,20 @@ export function parseExplicitMoveDirections(text: string): Set<VerticalDirection
   // Extension-only phrases contribute no position direction (OR-rebalance safe).
   if (isBandEdgeExtensionDirection(raw)) {
     // Still allow additional explicit move clauses outside extension wording.
-    const n = maskBandEdgeExtensionClauses(raw);
+    let n = maskBandEdgeExtensionClauses(raw);
+    n = maskNegatedMovementClauses(n);
     if (!n.trim()) return out;
     return parseExplicitMoveDirectionsUnmasked(n);
   }
 
-  return parseExplicitMoveDirectionsUnmasked(raw);
+  return parseExplicitMoveDirectionsUnmasked(maskNegatedMovementClauses(raw));
 }
 
 function parseExplicitMoveDirectionsUnmasked(n: string): Set<VerticalDirection> {
   const out = new Set<VerticalDirection>();
   if (!n) return out;
 
-  // Explicit *-ward movement forms (after extension masking when applicable).
+  // Explicit *-ward movement forms (after extension/negation masking).
   if (/\b(upward|upwards)\b/.test(n)) out.add("up");
   if (/\b(downward|downwards)\b/.test(n)) out.add("down");
   if (/\bleftward\b/.test(n)) out.add("left");
@@ -318,21 +337,75 @@ function normalizeFeedbackText(text: string): string {
     .toLowerCase();
 }
 
-function sectionTokensFromText(text: string): string[] {
+const ALL_SECTION_TOKENS = [
+  "summary",
+  "education",
+  "skills",
+  "certifications",
+  "languages",
+  "experience",
+  "projects",
+  "contact",
+  "header",
+  "sidebar",
+] as const;
+
+/**
+ * Strip conditional / causal clauses that mention layout nouns as context
+ * ("if expanding the header…", "because the header is taller") so they do
+ * not become movement targets.
+ */
+function maskContextualSectionClauses(n: string): string {
+  return n
+    .replace(
+      /\b(?:if|when|while|because|after|before|as)\b[\s\S]{0,80}?\b(?:expand(?:ing|s|ed)?|grow(?:ing|s|n)?|extend(?:ing|s|ed)?|taller|larger|bigger|increas(?:e|ing|ed))\b[\s\S]{0,40}?\b(?:header|background|band|rectangle|strip)\b/gi,
+      " ",
+    )
+    .replace(
+      /\b(?:before|after|below|above)\s+(?:the\s+)?(?:summary|education|skills|experience|projects|header)\s+section\b/gi,
+      " ",
+    )
+    .replace(
+      /\bbecause\s+(?:the\s+)?(?:header|background|band)\b[\s\S]{0,40}?\b(?:taller|larger|expanded|extended|grew)\b/gi,
+      " ",
+    );
+}
+
+/**
+ * Section tokens from the movement-action clause only (not incidental nouns).
+ * "body content" maps to Summary as the primary post-header body section.
+ */
+function sectionTokensFromMoveActionClauses(n: string): string[] {
+  const found = new Set<string>();
+  const clauseRe =
+    /\b(?:mov(?:e|ing|ed)|shift(?:ing|ed)?|nudg(?:e|ing|ed)|reposition(?:ing|ed)?|rais(?:e|ing|ed)|lower(?:ing|ed)?)\b[\s\S]{0,100}/gi;
+  let m: RegExpExecArray | null;
+  while ((m = clauseRe.exec(n)) !== null) {
+    const clause = m[0]!;
+    for (const s of ALL_SECTION_TOKENS) {
+      if (new RegExp(`\\b${s}\\b`).test(clause)) found.add(s);
+    }
+    // Explicit body-content movement → downstream body sections, not header.
+    if (/\bbody(?:\s+text|\s+content)?\b/.test(clause)) {
+      found.add("summary");
+      found.delete("header");
+    }
+  }
+  return [...found];
+}
+
+/**
+ * Sections that directional feedback may bind to.
+ * Prefers move-action targets over incidental nouns in the same sentence.
+ */
+export function sectionTokensFromText(text: string): string[] {
   const n = normalizeFeedbackText(text);
-  const sections = [
-    "summary",
-    "education",
-    "skills",
-    "certifications",
-    "languages",
-    "experience",
-    "projects",
-    "contact",
-    "header",
-    "sidebar",
-  ];
-  return sections.filter((s) => new RegExp(`\\b${s}\\b`).test(n));
+  const actionFocused = maskContextualSectionClauses(n);
+  const fromMove = sectionTokensFromMoveActionClauses(actionFocused);
+  if (fromMove.length > 0) return fromMove;
+
+  // Fallback: all section nouns (legacy "move the Languages section upward").
+  return ALL_SECTION_TOKENS.filter((s) => new RegExp(`\\b${s}\\b`).test(n));
 }
 
 /** Object classes that can receive OBJECT_SPECIFIC directional intent. */
@@ -391,15 +464,40 @@ export function objectClassesFromText(text: string): DirectionObjectClass[] {
 }
 
 /**
- * OBJECT_SPECIFIC when feedback names concrete object classes and does not
- * use section/group-wide wording. Otherwise SECTION_SPECIFIC (fail-closed
- * for section-token matching).
+ * OBJECT_SPECIFIC when feedback names concrete move targets (body/contact/…).
+ * SECTION_SPECIFIC for whole-section wording ("move the Languages section").
+ * Incidental "Summary section" references in conditionals do not force section
+ * scope when an explicit object-class move target is present.
  */
 export function detectDirectionScope(text: string): DirectionScope {
   const n = normalizeFeedbackText(text);
   if (!n) return "section";
+  const classes = objectClassesFromText(n);
+  const hasMoveVerb =
+    /\b(?:mov(?:e|ing|ed)|shift(?:ing|ed)?|nudg(?:e|ing|ed)|reposition(?:ing|ed)?)\b/.test(
+      n,
+    );
+  const wholeSection =
+    /\b(?:entire|whole|all)\b/.test(n) && SECTION_SCOPE_RE.test(n);
+  if (
+    hasMoveVerb &&
+    classes.length > 0 &&
+    !wholeSection &&
+    classes.some(
+      (c) =>
+        c === "body" ||
+        c === "contact" ||
+        c === "name" ||
+        c === "role" ||
+        c === "background" ||
+        c === "heading" ||
+        c === "marker",
+    )
+  ) {
+    return "object";
+  }
   if (SECTION_SCOPE_RE.test(n)) return "section";
-  if (objectClassesFromText(n).length > 0) return "object";
+  if (classes.length > 0) return "object";
   return "section";
 }
 
@@ -464,7 +562,12 @@ function isHeadingLikeObject(obj: CanvasInventoryObject): boolean {
 
 function isBodyLikeObject(obj: CanvasInventoryObject): boolean {
   const role = String(obj.role ?? "").toLowerCase();
-  return role === "body" || /\bbody\b/.test(role);
+  if (role === "body" || /\bbody\b/.test(role)) return true;
+  // Founder "body content" = non-header layout content (Summary and below).
+  const section = String(obj.section ?? "").toLowerCase();
+  if (!section || section === "header") return false;
+  const type = String(obj.type ?? "").toLowerCase();
+  return /text|rect|group/.test(type);
 }
 
 function isMarkerLikeObject(obj: CanvasInventoryObject): boolean {

@@ -12,6 +12,7 @@ import {
   effectiveTextHeightScaled,
   isFabricTextObject,
 } from "./TextEffectiveHeight.js";
+import { parseExplicitMoveDirections } from "./PositionOpCanonicalization.js";
 
 /** Matches RevisionLayoutNormalizer MIN_HEADING_BODY_GAP_PX (avoid circular import). */
 export const HEADER_IDENTITY_PAD_PX = 8;
@@ -270,13 +271,58 @@ export function feedbackRequiresContactUpward(
   return requestedChanges.some((c) => {
     const n = normalizeFeedback(c);
     if (!/\b(contact|role)\b/.test(n)) return false;
-    return (
-      /\b(upward|upwards|higher)\b/.test(n) ||
-      /\braise\b/.test(n) ||
-      (/\bmov(?:e|ing)|shift|nudge|reposition\b/.test(n) &&
-        /\b(up|upward|upwards)\b/.test(n))
-    );
+    // Phase 5Y: only POSITIVE upward movement intent (negation-aware).
+    const dirs = parseExplicitMoveDirections(c);
+    if (dirs.has("up")) return true;
+    // Imperative raise of contact/role without going through *ward forms.
+    if (/\braise\b/.test(n) && !/\b(?:do\s+not|don't|dont|never|avoid)\b/.test(n)) {
+      return true;
+    }
+    return false;
   });
+}
+
+/**
+ * Founder asks to keep header identity text tops fixed / preserve name-title-
+ * contact positions when already non-overlapping — prefer BAND_ONLY.
+ * Does NOT match generic "preserve the rest … spacing" body-preservation lines.
+ */
+export function feedbackRequestsPreserveHeaderTextPositions(
+  requestedChanges: string[],
+): boolean {
+  return requestedChanges.some((c) => {
+    const n = normalizeFeedback(c);
+    if (
+      /\b(?:keeping|keep)\s+(?:its\s+)?top\s+edge\s+fixed\b/.test(n) ||
+      /\btop\s+edge\s+fixed\b/.test(n)
+    ) {
+      return true;
+    }
+    if (
+      /\bpreserv(?:e|ing)\b/.test(n) &&
+      /\b(?:name|title|contact)\b/.test(n) &&
+      /\b(?:position|vertical|hierarchy|spacing|non-?overlapping)\b/.test(n)
+    ) {
+      return true;
+    }
+    return false;
+  });
+}
+
+/** No rendered box overlap between consecutive identity texts (gap >= -0.5). */
+export function isHeaderIdentityStackNonOverlapping(
+  members: HeaderIdentityTextMember[],
+): boolean {
+  if (members.length < 2) return false;
+  for (let i = 0; i < members.length - 1; i++) {
+    const prev = members[i]!;
+    const next = members[i + 1]!;
+    const prevBottom =
+      (asNum(prev.object.top) ?? 0) + textEffectiveHeight(prev.object);
+    const nextTop = asNum(next.object.top) ?? 0;
+    if (nextTop - prevBottom < -0.5) return false;
+  }
+  return true;
 }
 
 /** Stable object id for inventory / coverage bridging. */
@@ -546,6 +592,10 @@ export function applyHeaderIdentityBlockLayout(input: {
   };
 
   const stackSafe = isHeaderIdentityStackSequentiallySafe(stack);
+  const stackNonOverlapping = isHeaderIdentityStackNonOverlapping(stack);
+  const preservePositions = feedbackRequestsPreserveHeaderTextPositions(
+    input.requested_changes ?? [],
+  );
   const containmentOk = contactEb0 <= bandBottom0 - pad + 0.5;
   const nameTopPadOk = nameTop0 + 1e-9 >= bandTop0 + pad - 0.5;
 
@@ -558,6 +608,10 @@ export function applyHeaderIdentityBlockLayout(input: {
     `identity_members=${stack.length}`,
     `required_height=${stackedHeight}`,
     stackSafe ? "stack_sequentially_safe" : "stack_sequentially_unsafe",
+    stackNonOverlapping
+      ? "stack_non_overlapping"
+      : "stack_has_overlap",
+    preservePositions ? "preserve_header_text_positions" : "no_preserve_text_request",
   );
 
   if (stackSafe && containmentOk && nameTopPadOk && !requireUp) {
@@ -573,8 +627,13 @@ export function applyHeaderIdentityBlockLayout(input: {
     });
   }
 
-  // ---- BAND_ONLY: preserve safe internal text stack; expand band ----
-  if (stackSafe && !requireUp) {
+  // ---- BAND_ONLY: preserve internal text tops; expand band ----
+  // Positive-gap stacks, or Founder-requested preserve when non-overlapping
+  // (including exact touching gap=0 — no rendered overlap under Phase 5W).
+  const bandOnlyEligible =
+    !requireUp &&
+    (stackSafe || (preservePositions && stackNonOverlapping));
+  if (bandOnlyEligible) {
     const lowestEb = Math.max(
       ...stack.map(
         (m) => (asNum(m.object.top) ?? 0) + textEffectiveHeight(m.object),

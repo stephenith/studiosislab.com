@@ -672,6 +672,128 @@ function main(): void {
     );
   }
 
+  // F: Phase 5Y BA-shaped semantic packet through gate circuit
+  {
+    const canvas = pageCanvas([
+      {
+        type: "rect",
+        id: "block-header-0-r0",
+        left: 48,
+        top: 48,
+        width: 698,
+        height: 54,
+        fill: "#dbeafe",
+        data: { section: "header", role: "pale-strip", id: "block-header-0-r0" },
+      },
+      textbox("block-header-0-t1", {
+        left: 60,
+        top: 58,
+        width: 680,
+        height: 39,
+        text: "Morgan Ellis",
+        section: "header",
+        role: "name",
+        fontSize: 28,
+      }),
+      textbox("block-header-0-t2", {
+        left: 60,
+        top: 97,
+        width: 680,
+        height: 14,
+        text: "Business Analyst  ·  morgan@example.com · (555) 814-3200",
+        section: "header",
+        role: "contact",
+        fontSize: 11,
+      }),
+      textbox("block-summary-1-t1", {
+        left: 48,
+        top: 140,
+        width: 200,
+        height: 15,
+        text: "SUMMARY",
+        section: "summary",
+        role: "heading",
+        fontSize: 11,
+      }),
+      textbox("block-summary-1-t2", {
+        left: 48,
+        top: 165,
+        width: 680,
+        height: 40,
+        text: "Analyst with cross-functional delivery ownership.",
+        section: "summary",
+        role: "body",
+        fontSize: 11,
+      }),
+      textbox("block-experience-2-t1", {
+        left: 48,
+        top: 230,
+        width: 200,
+        height: 15,
+        text: "EXPERIENCE",
+        section: "experience",
+        role: "heading",
+        fontSize: 11,
+      }),
+      textbox("block-experience-2-t2", {
+        left: 48,
+        top: 255,
+        width: 680,
+        height: 40,
+        text: "Led requirements workshops across product and engineering.",
+        section: "experience",
+        role: "body",
+        fontSize: 11,
+      }),
+    ]);
+    const baRcs = [
+      "Extend the light-blue header background downward while keeping its top edge fixed so the complete title and contact-details line are fully enclosed within the header area.",
+      "Preserve the current vertical positions of the name, title, and contact information if their existing internal spacing is already non-overlapping; solve the containment issue primarily by increasing the header background height.",
+      "Do not move the contact-details line upward into the name or title.",
+      "If expanding the header requires additional clearance before the Summary section, move the body content downward only as much as necessary to preserve a clear positive gap.",
+      "Preserve the rest of the resume design, section layout, spacing, and typography, since the remaining template looks good.",
+    ];
+    const extracted: RevisionPlan = {
+      schema_version: "founder-canvas-revision-plan-1.0.0",
+      summary: "BA containment band expand",
+      operations: [
+        {
+          op: "set_dimensions",
+          target_id: "block-header-0-r0",
+          before_summary: "header band",
+          intended_change: "Increase header band height with top fixed",
+          values: { height: 71 },
+          // Only attribute the actionable extend line — preserve/negation
+          // lines are VERIFICATION_ACCEPTANCE / constraints, not mutation claims.
+          founder_feedback_item: baRcs[0]!,
+          confidence: 0.95,
+        },
+      ],
+    };
+    const prepared = prepareExtractedPlanForValidation({
+      extracted,
+      requested_changes: baRcs,
+      inventory: buildCanvasInventory(canvas),
+    });
+    const circuit = runRevisionPlanGateCircuit({
+      priorCanvas: canvas,
+      requested_changes: baRcs,
+      plan: prepared.plan ?? extracted,
+    });
+    cases.F_ba_semantics = {
+      status: circuit.status,
+      failed_stage: circuit.failed_stage,
+      error: circuit.error,
+    };
+    checks.push(
+      assert(
+        circuit.ok === true,
+        "F_ba_semantic_packet_e2e_pass",
+        `${circuit.status}/${circuit.failed_stage}: ${circuit.error}`,
+      ),
+    );
+  }
+
   const failed = checks.filter((c) => !c.pass);
   const report = {
     schema_version: "verify-revision-contract-e2e-5v-1.0.0",

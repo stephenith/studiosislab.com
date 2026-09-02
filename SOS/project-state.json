@@ -22,9 +22,15 @@
     "founder-review-004 awaiting founder approval",
     "founder-review-005 changes requested after preview pipeline smoke",
     "14 publication package(s) ready_to_publish and not live",
-    "3 release(s) rolled back \u2014 snapshots available"
+    "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-02T16:05:00.000Z",
+      "type": "phase",
+      "summary": "Phase 5Y — Founder direction negation + target-scope reliability. Local wall=2026-09-02 ~21:30 IST. Production evidence: revtask-ecd4d24a-139 Business Analyst FAILED_GATE (direction UP vs required DOWN) on Phase 5X HEAD 27ba03b. Phase 5U edge-extension mask confirmed healthy. Root causes: (1) negation ignored ('Do not move … upward' → UP + feedbackRequiresContactUpward); (2) contextual nouns ('header'/'Summary' in conditional) bled into move-target section tokens so DOWN bound to header set_position; (3) false requireUp forced FULL_STACK despite gap=0 non-overlapping stack + preserve-top request. Fix: negation-aware movement parsing; move-clause target section tokens (body→summary, exclude contextual header); HeaderIdentity BAND_ONLY when preserve-identity-positions + non-overlapping; offline 5Y verifier + 5V E2E BA packet. Historical frozen adds revtask-ecd4d24a-139. Remaining: ONE fresh production Request Changes proof (manual).",
+      "ref": "SOS/SAIOS/core/founder-revision/verify-founder-direction-semantics-5y.ts"
+    },
     {
       "at": "2026-09-02T15:30:00.000Z",
       "type": "phase",
@@ -46,619 +52,619 @@
     {
       "at": "2026-09-02T07:58:50.000Z",
       "type": "phase",
-      "summary": "Phase 5U \u2014 Fix directional header reflow attribution (band edge-extension vs content rebalance). Local wall=2026-09-02 13:28:50 IST. Root cause: parseExplicitMoveDirections bound 'extend \u2026 downward' as set_position DOWN onto contact rebalance. Historical revtask-a8653c03-20f frozen FAILED_GATE. Morning batch-20260902-001 HEALTHY_BACKPRESSURE (3/5 queue_capacity).",
+      "summary": "Phase 5U — Fix directional header reflow attribution (band edge-extension vs content rebalance). Local wall=2026-09-02 13:28:50 IST. Root cause: parseExplicitMoveDirections bound 'extend … downward' as set_position DOWN onto contact rebalance. Historical revtask-a8653c03-20f frozen FAILED_GATE. Morning batch-20260902-001 HEALTHY_BACKPRESSURE (3/5 queue_capacity).",
       "ref": "SOS/SAIOS/core/founder-revision/PositionOpCanonicalization.ts"
     },
     {
       "at": "2026-07-27T05:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #250 \u2014 Founder Review Queue Reset & Fresh Batch V1 (29 archived; 5 new OpenAI templates; queue clean; awaiting Founder; LIVE OFF)",
+      "summary": "Agent #250 — Founder Review Queue Reset & Fresh Batch V1 (29 archived; 5 new OpenAI templates; queue clean; awaiting Founder; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_FOUNDER_REVIEW_QUEUE_RESET_FRESH_BATCH_V1_REPORT.md"
     },
     {
       "at": "2026-07-25T09:20:00.000Z",
       "type": "agent",
-      "summary": "Agent #249 \u2014 Founder Revision Batch and Release Readiness V1 (5 OpenAI templates revised to READY_FOR_FOUNDER_REVIEW; no auto-approve; LIVE OFF; no publish)",
+      "summary": "Agent #249 — Founder Revision Batch and Release Readiness V1 (5 OpenAI templates revised to READY_FOR_FOUNDER_REVIEW; no auto-approve; LIVE OFF; no publish)",
       "ref": "SOS/09_REPORTS/AIOS_FOUNDER_REVISION_BATCH_V1_REPORT.md"
     },
     {
       "at": "2026-07-25T08:55:00.000Z",
       "type": "agent",
-      "summary": "Agent #248 \u2014 Real Founder Batch Release Rehearsal V1 (5 OpenAI templates inspected; 0 eligible; Hold all; LIVE OFF; no publish)",
+      "summary": "Agent #248 — Real Founder Batch Release Rehearsal V1 (5 OpenAI templates inspected; 0 eligible; Hold all; LIVE OFF; no publish)",
       "ref": "SOS/09_REPORTS/AIOS_REAL_BATCH_RELEASE_REHEARSAL.md"
     },
     {
       "at": "2026-07-25T05:56:00.000Z",
       "type": "agent",
-      "summary": "Agent #247 \u2014 End-to-End Release Verification & Founder Dashboard Guide V1 (fixture t099; LIVE OFF; docs only)",
+      "summary": "Agent #247 — End-to-End Release Verification & Founder Dashboard Guide V1 (fixture t099; LIVE OFF; docs only)",
       "ref": "SOS/09_REPORTS/AIOS_END_TO_END_VERIFICATION_REPORT.md"
     },
     {
       "at": "2026-07-24T17:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #246 \u2014 Founder Release Controller V1 (READY_FOR_RELEASE\u2192RELEASE_COMPLETED; explicit Founder gate; LIVE OFF)",
+      "summary": "Agent #246 — Founder Release Controller V1 (READY_FOR_RELEASE→RELEASE_COMPLETED; explicit Founder gate; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_FOUNDER_RELEASE_CONTROLLER_V1_REPORT.md"
     },
     {
       "at": "2026-07-24T16:40:00.000Z",
       "type": "agent",
-      "summary": "Agent #245 \u2014 StudiosisLab Publication Readiness Validator V1 (ASSETS_READY\u2192READY_FOR_RELEASE; dry-run only; LIVE OFF)",
+      "summary": "Agent #245 — StudiosisLab Publication Readiness Validator V1 (ASSETS_READY→READY_FOR_RELEASE; dry-run only; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_PUBLICATION_READINESS_VALIDATOR_V1_REPORT.md"
     },
     {
       "at": "2026-07-24T16:25:00.000Z",
       "type": "agent",
-      "summary": "Agent #244 \u2014 StudiosisLab Asset Processing Pipeline V1 (PNG/WebP assets; ASSETS_READY; LIVE OFF)",
+      "summary": "Agent #244 — StudiosisLab Asset Processing Pipeline V1 (PNG/WebP assets; ASSETS_READY; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_ASSET_PROCESSING_PIPELINE_V1_REPORT.md"
     },
     {
       "at": "2026-07-24T15:52:00.000Z",
       "type": "agent",
-      "summary": "Agent #243 \u2014 StudiosisLab Export Adapter V1 (VALIDATED\u2192export packages; monotonic tNNN reservation; LIVE OFF)",
+      "summary": "Agent #243 — StudiosisLab Export Adapter V1 (VALIDATED→export packages; monotonic tNNN reservation; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_STUDIOSISLAB_EXPORT_ADAPTER_V1_REPORT.md"
     },
     {
       "at": "2026-07-24T11:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #242 \u2014 Founder Approval to StudiosisLab Staging Workflow V1 (APPROVED\u2192STAGED packages; LIVE OFF)",
+      "summary": "Agent #242 — Founder Approval to StudiosisLab Staging Workflow V1 (APPROVED→STAGED packages; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_APPROVED_TO_STAGED_WORKFLOW_V1_REPORT.md"
     },
     {
       "at": "2026-07-24T07:09:46.000Z",
       "type": "agent",
-      "summary": "Agent #240 \u2014 Controlled Real OpenAI Resume Template Batch V1 (5 templates; LIVE OFF)",
+      "summary": "Agent #240 — Controlled Real OpenAI Resume Template Batch V1 (5 templates; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CONTROLLED_REAL_OPENAI_TEMPLATE_BATCH_V1_REPORT.md"
     },
     {
       "at": "2026-07-24T05:19:43.000Z",
       "type": "agent",
-      "summary": "Agent #239 \u2014 Resume Design Quality Hardening V1 (safe-area, contrast, Founder bar, 20 templates; LIVE OFF)",
+      "summary": "Agent #239 — Resume Design Quality Hardening V1 (safe-area, contrast, Founder bar, 20 templates; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_RESUME_DESIGN_QUALITY_HARDENING_V1_REPORT.md"
     },
     {
       "at": "2026-07-24T04:50:00.000Z",
       "type": "agent",
-      "summary": "Agent #237 \u2014 Resume Design Family Engine V1 (10 families \u00d7 2 variants; visual fingerprints; LIVE OFF)",
+      "summary": "Agent #237 — Resume Design Family Engine V1 (10 families × 2 variants; visual fingerprints; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_RESUME_DESIGN_FAMILY_ENGINE_V1_REPORT.md"
     },
     {
       "at": "2026-07-24T04:05:00.000Z",
       "type": "agent",
-      "summary": "Agent #236 \u2014 Resume Design Intelligence V1 (DNA principles; 5 roles \u00d7 3 layouts; LIVE OFF)",
+      "summary": "Agent #236 — Resume Design Intelligence V1 (DNA principles; 5 roles × 3 layouts; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_RESUME_DESIGN_INTELLIGENCE_V1_REPORT.md"
     },
     {
       "at": "2026-07-24T03:45:30.000Z",
       "type": "agent",
-      "summary": "Agent #235 \u2014 Resume Design Quality Enhancement V1 (DNA-influenced DesignBrief; 5 MM templates; LIVE OFF)",
+      "summary": "Agent #235 — Resume Design Quality Enhancement V1 (DNA-influenced DesignBrief; 5 MM templates; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_RESUME_DESIGN_QUALITY_ENHANCEMENT_V1_REPORT.md"
     },
     {
       "at": "2026-07-24T03:28:49.000Z",
       "type": "agent",
-      "summary": "Agent #234 \u2014 First Real Resume Template Generation V1 (OpenAI Marketing Manager; LIVE OFF)",
+      "summary": "Agent #234 — First Real Resume Template Generation V1 (OpenAI Marketing Manager; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_FIRST_REAL_RESUME_TEMPLATE_V1_REPORT.md"
     },
     {
       "at": "2026-07-22T06:42:40.000Z",
       "type": "agent",
-      "summary": "Agent #233 \u2014 Resume Template Runtime Conversion V1 (preview mandatory; LIVE OFF)",
+      "summary": "Agent #233 — Resume Template Runtime Conversion V1 (preview mandatory; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_RESUME_TEMPLATE_RUNTIME_CONVERSION_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T19:13:34.000Z",
       "type": "agent",
-      "summary": "Agent #231 \u2014 Verification Artifact Isolation and Founder Queue Recovery V1 (candidates-verify; LIVE OFF)",
+      "summary": "Agent #231 — Verification Artifact Isolation and Founder Queue Recovery V1 (candidates-verify; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_VERIFICATION_ARTIFACT_ISOLATION_AND_QUEUE_RECOVERY_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T15:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #230 \u2014 Founder Supervised Production Runner V1 (first controlled 5-template cycle; Founder approval required; LIVE OFF)",
+      "summary": "Agent #230 — Founder Supervised Production Runner V1 (first controlled 5-template cycle; Founder approval required; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_FOUNDER_SUPERVISED_PRODUCTION_RUNNER_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T14:31:55.659Z",
       "type": "agent",
-      "summary": "Agent #229 \u2014 Canonical Production Bootstrap V1 (first production initialization; prepare only; LIVE OFF)",
+      "summary": "Agent #229 — Canonical Production Bootstrap V1 (first production initialization; prepare only; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_PRODUCTION_BOOTSTRAP_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T14:19:59.559Z",
       "type": "agent",
-      "summary": "Agent #228 \u2014 Canonical Production Readiness Audit V1 (independent release certification; LIVE OFF)",
+      "summary": "Agent #228 — Canonical Production Readiness Audit V1 (independent release certification; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_PRODUCTION_READINESS_AUDIT_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T14:12:30.516Z",
       "type": "agent",
-      "summary": "Agent #227 \u2014 Canonical End-to-End Production Validation V1 (readiness validation only; LIVE OFF)",
+      "summary": "Agent #227 — Canonical End-to-End Production Validation V1 (readiness validation only; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_END_TO_END_PRODUCTION_VALIDATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T14:04:13.356Z",
       "type": "agent",
-      "summary": "Agent #226 \u2014 Canonical System Orchestrator V1 (coordination-only lifecycle; LIVE OFF)",
+      "summary": "Agent #226 — Canonical System Orchestrator V1 (coordination-only lifecycle; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_SYSTEM_ORCHESTRATOR_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T13:10:08.444Z",
       "type": "agent",
-      "summary": "Agent #225 \u2014 Canonical Founder Action Adapters V1 (validate/authorize/delegate/audit; LIVE OFF)",
+      "summary": "Agent #225 — Canonical Founder Action Adapters V1 (validate/authorize/delegate/audit; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_FOUNDER_ACTION_ADAPTERS_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T22:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #224 \u2014 Founder Engineering Review Integrated (Mission Control status overlays; LIVE OFF)",
+      "summary": "Agent #224 — Founder Engineering Review Integrated (Mission Control status overlays; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_FOUNDER_ENGINEERING_REVIEW_INTEGRATED_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T21:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #223 \u2014 Canonical Engineering Intelligence V1 (advisory engineering governance; LIVE OFF)",
+      "summary": "Agent #223 — Canonical Engineering Intelligence V1 (advisory engineering governance; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_ENGINEERING_INTELLIGENCE_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T21:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #222B \u2014 AIOS Mission Control UI V1 (Command Center visual elevation; LIVE OFF)",
+      "summary": "Agent #222B — AIOS Mission Control UI V1 (Command Center visual elevation; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_MISSION_CONTROL_UI_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T20:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #222A \u2014 Canonical Founder Command Center Foundation V1 (read-only observation shell; LIVE OFF)",
+      "summary": "Agent #222A — Canonical Founder Command Center Foundation V1 (read-only observation shell; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_FOUNDER_COMMAND_CENTER_FOUNDATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T20:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #221 \u2014 Canonical Operational Policy Advisor V1 (read-only historical analysis \u2192 advisory recommendations; LIVE OFF)",
+      "summary": "Agent #221 — Canonical Operational Policy Advisor V1 (read-only historical analysis → advisory recommendations; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_OPERATIONAL_POLICY_ADVISOR_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T19:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #220 \u2014 Canonical Adaptive Scheduling Policy V1 (deterministic sleep intervals for AutonomousService; LIVE OFF)",
+      "summary": "Agent #220 — Canonical Adaptive Scheduling Policy V1 (deterministic sleep intervals for AutonomousService; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_ADAPTIVE_SCHEDULING_POLICY_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T19:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #219 \u2014 Canonical Operations Dashboard V1 (read-only aggregation of factory reports; LIVE OFF)",
+      "summary": "Agent #219 — Canonical Operations Dashboard V1 (read-only aggregation of factory reports; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_OPERATIONS_DASHBOARD_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T18:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #218 \u2014 Canonical Resource & Budget Governor V1 (ALLOW|DENY resource policy; Health\u2192Budget\u2192Batch; LIVE OFF)",
+      "summary": "Agent #218 — Canonical Resource & Budget Governor V1 (ALLOW|DENY resource policy; Health→Budget→Batch; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_RESOURCE_BUDGET_GOVERNOR_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T18:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #217 \u2014 Canonical Strategy-Driven Production Intake V1 (consume production-strategy.json \u2192 ProductionTargets; coverage fallback; LIVE OFF)",
+      "summary": "Agent #217 — Canonical Strategy-Driven Production Intake V1 (consume production-strategy.json → ProductionTargets; coverage fallback; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_STRATEGY_DRIVEN_INTAKE_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T17:20:00.000Z",
       "type": "agent",
-      "summary": "Agent #216 \u2014 Canonical Production Strategy Engine V1 (deterministic priorities from portfolio; LIVE OFF)",
+      "summary": "Agent #216 — Canonical Production Strategy Engine V1 (deterministic priorities from portfolio; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_PRODUCTION_STRATEGY_ENGINE_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T17:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #215 \u2014 Canonical Portfolio Intelligence & Coverage Planner V1 (deterministic gap analysis; LIVE OFF)",
+      "summary": "Agent #215 — Canonical Portfolio Intelligence & Coverage Planner V1 (deterministic gap analysis; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_PORTFOLIO_INTELLIGENCE_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T16:40:00.000Z",
       "type": "agent",
-      "summary": "Agent #214 \u2014 Canonical Autonomous Production Service V1 (long-running via ProductionController; LIVE OFF)",
+      "summary": "Agent #214 — Canonical Autonomous Production Service V1 (long-running via ProductionController; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_AUTONOMOUS_PRODUCTION_SERVICE_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T16:20:00.000Z",
       "type": "agent",
-      "summary": "Agent #213 \u2014 Canonical Production Controller V1 (single entry: Health Gate \u2192 BatchRunner; LIVE OFF)",
+      "summary": "Agent #213 — Canonical Production Controller V1 (single entry: Health Gate → BatchRunner; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_PRODUCTION_CONTROLLER_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T16:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #212 \u2014 Canonical Production Health Gate V1 (preflight HEALTHY|UNHEALTHY; BatchRunner abort; LIVE OFF)",
+      "summary": "Agent #212 — Canonical Production Health Gate V1 (preflight HEALTHY|UNHEALTHY; BatchRunner abort; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_PRODUCTION_HEALTH_GATE_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T15:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #211 \u2014 Canonical Critic Revision Loop V1 (bounded auto-revision before Founder Review; max 2; LIVE OFF)",
+      "summary": "Agent #211 — Canonical Critic Revision Loop V1 (bounded auto-revision before Founder Review; max 2; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_CRITIC_REVISION_LOOP_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T14:45:00.000Z",
       "type": "agent",
-      "summary": "Agent #210 \u2014 Canonical Duplicate Prevention V1 (deterministic preflight ALLOW|SKIP_DUPLICATE; batch retry; LIVE OFF)",
+      "summary": "Agent #210 — Canonical Duplicate Prevention V1 (deterministic preflight ALLOW|SKIP_DUPLICATE; batch retry; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_DUPLICATE_PREVENTION_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T09:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #209 \u2014 Canonical Sequential Batch Production V1 (BatchRunner orchestrates runFirstProductionCycle; queue/OpenAI caps; LIVE OFF)",
+      "summary": "Agent #209 — Canonical Sequential Batch Production V1 (BatchRunner orchestrates runFirstProductionCycle; queue/OpenAI caps; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_SEQUENTIAL_BATCH_PRODUCTION_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T09:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #208 \u2014 Canonical Founder Review Registry Integration V1 (review_queue projects Candidate Registry; preview-assets wired; LIVE OFF)",
+      "summary": "Agent #208 — Canonical Founder Review Registry Integration V1 (review_queue projects Candidate Registry; preview-assets wired; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_FOUNDER_REVIEW_REGISTRY_INTEGRATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-21T08:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #207 \u2014 Canonical Candidate Artifact Isolation V1 (per-run candidate dirs; WAITING_FOUNDER reservation; LIVE OFF)",
+      "summary": "Agent #207 — Canonical Candidate Artifact Isolation V1 (per-run candidate dirs; WAITING_FOUNDER reservation; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_CANDIDATE_ARTIFACT_ISOLATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-13T08:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #206 \u2014 Canonical Resume Research Integration V1 (ResearchContext before gateway; LIVE OFF)",
+      "summary": "Agent #206 — Canonical Resume Research Integration V1 (ResearchContext before gateway; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_RESUME_RESEARCH_INTEGRATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-13T07:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #205 \u2014 Canonical Resume Production Intake V1 (deterministic ProductionTarget before gateway; LIVE OFF)",
+      "summary": "Agent #205 — Canonical Resume Production Intake V1 (deterministic ProductionTarget before gateway; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_RESUME_PRODUCTION_INTAKE_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T14:10:00.000Z",
       "type": "agent",
-      "summary": "Agent #204 \u2014 Canonical OpenAI Runtime Enablement (dotenv in aios:canonical:run; truthful provider logs; Founder one-test gates preserved; LIVE OFF)",
+      "summary": "Agent #204 — Canonical OpenAI Runtime Enablement (dotenv in aios:canonical:run; truthful provider logs; Founder one-test gates preserved; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_OPENAI_RUNTIME_ENABLEMENT_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T13:37:57.000Z",
       "type": "agent",
-      "summary": "Agent #203 \u2014 First Real AI Resume Flow V1 (Founder one-test OpenAI via ResumeBrainGateway; Mock fallback; LIVE OFF)",
+      "summary": "Agent #203 — First Real AI Resume Flow V1 (Founder one-test OpenAI via ResumeBrainGateway; Mock fallback; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_FIRST_REAL_AI_RESUME_FLOW_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T13:31:02.000Z",
       "type": "agent",
-      "summary": "Agent #202 \u2014 OpenAI Live Response Persistence V1 (stub+live separated in verify artifacts; LIVE OFF)",
+      "summary": "Agent #202 — OpenAI Live Response Persistence V1 (stub+live separated in verify artifacts; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_OPENAI_LIVE_RESPONSE_PERSISTENCE_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T11:50:21.000Z",
       "type": "agent",
-      "summary": "Agent #201 \u2014 OpenAI Provider Integration V1 (Responses API adapter; BrainRouter generalized; LIVE OFF; openai disabled by default)",
+      "summary": "Agent #201 — OpenAI Provider Integration V1 (Responses API adapter; BrainRouter generalized; LIVE OFF; openai disabled by default)",
       "ref": "SOS/09_REPORTS/AIOS_OPENAI_PROVIDER_IMPLEMENTATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T12:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #200 \u2014 Architecture Final Consistency Resolution & Freeze V1 (F1\u2013F6 resolved; ARCHITECTURE_FROZEN; READY_FOR_IMPLEMENTATION; overall 94; LIVE OFF)",
+      "summary": "Agent #200 — Architecture Final Consistency Resolution & Freeze V1 (F1–F6 resolved; ARCHITECTURE_FROZEN; READY_FOR_IMPLEMENTATION; overall 94; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_ARCHITECTURE_FINAL_FREEZE_REPORT.md"
     },
     {
       "at": "2026-07-12T11:45:00.000Z",
       "type": "agent",
-      "summary": "Agent #199 \u2014 System Integrity Certification V1 (verify-only; CERTIFIED_WITH_FINDINGS; overall 88; 0 blockers; LIVE OFF)",
+      "summary": "Agent #199 — System Integrity Certification V1 (verify-only; CERTIFIED_WITH_FINDINGS; overall 88; 0 blockers; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_SYSTEM_INTEGRITY_CERTIFICATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T11:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #198 \u2014 Architecture Governance Framework V1 (docs+verify; GOVERNANCE_CONSOLIDATED; no runtime; LIVE OFF)",
+      "summary": "Agent #198 — Architecture Governance Framework V1 (docs+verify; GOVERNANCE_CONSOLIDATED; no runtime; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_ARCHITECTURE_GOVERNANCE_FRAMEWORK_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T11:15:00.000Z",
       "type": "agent",
-      "summary": "Agent #197 \u2014 Persistence Ownership & Taxonomy Declaration V1 (docs only; 42 surfaces DECLARED; no runtime; LIVE OFF)",
+      "summary": "Agent #197 — Persistence Ownership & Taxonomy Declaration V1 (docs only; 42 surfaces DECLARED; no runtime; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_PERSISTENCE_OWNERSHIP_TAXONOMY_DECLARATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T11:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #196 \u2014 Persistence & Memory Topology Reconciliation V1 (read-only; 42 surfaces; verdict REQUIRES DECLARATION; LIVE OFF)",
+      "summary": "Agent #196 — Persistence & Memory Topology Reconciliation V1 (read-only; 42 surfaces; verdict REQUIRES DECLARATION; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_PERSISTENCE_MEMORY_TOPOLOGY_RECONCILIATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T10:35:00.000Z",
       "type": "agent",
-      "summary": "Agent #195 \u2014 Learning & Knowledge Reconciliation Audit V1 (read-only; distributed model + satellites; verdict REQUIRES CONSOLIDATION; LIVE OFF)",
+      "summary": "Agent #195 — Learning & Knowledge Reconciliation Audit V1 (read-only; distributed model + satellites; verdict REQUIRES CONSOLIDATION; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_LEARNING_KNOWLEDGE_RECONCILIATION_AUDIT_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T10:05:00.000Z",
       "type": "agent",
-      "summary": "Agent #194 \u2014 Execution Authority Model Certification & Dispatch Boundary Enforcement V1 (distributed model; no central authority; LIVE OFF)",
+      "summary": "Agent #194 — Execution Authority Model Certification & Dispatch Boundary Enforcement V1 (distributed model; no central authority; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_EXECUTION_AUTHORITY_MODEL_CERTIFICATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T09:20:00.000Z",
       "type": "agent",
-      "summary": "Agent #193 \u2014 Cost Authority Certification & Boundary Enforcement V1 (docs+verify; estimation\u2260accounting; LIVE OFF)",
+      "summary": "Agent #193 — Cost Authority Certification & Boundary Enforcement V1 (docs+verify; estimation≠accounting; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_COST_AUTHORITY_CERTIFICATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T09:05:00.000Z",
       "type": "agent",
-      "summary": "Agent #192 \u2014 Provider Authority Certification & Boundary Enforcement V1 (docs+verify; no mergers; LIVE OFF)",
+      "summary": "Agent #192 — Provider Authority Certification & Boundary Enforcement V1 (docs+verify; no mergers; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_PROVIDER_AUTHORITY_CERTIFICATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T08:35:00.000Z",
       "type": "agent",
-      "summary": "Agent #191 \u2014 Provider Architecture Reconciliation Audit V1 (read-only; runtime untouched; verdict REQUIRES CONSOLIDATION; LIVE OFF)",
+      "summary": "Agent #191 — Provider Architecture Reconciliation Audit V1 (read-only; runtime untouched; verdict REQUIRES CONSOLIDATION; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_PROVIDER_RECONCILIATION_AUDIT_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T08:10:00.000Z",
       "type": "agent",
-      "summary": "Agent #190 \u2014 Provider Registry Architecture Charter V1 (docs only; no providers; LIVE OFF)",
+      "summary": "Agent #190 — Provider Registry Architecture Charter V1 (docs only; no providers; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_PROVIDER_REGISTRY_ARCHITECTURE_REPORT.md"
     },
     {
       "at": "2026-07-12T07:55:00.000Z",
       "type": "agent",
-      "summary": "Agent #189 \u2014 Phase 4 Execution Architecture Charter V1 (docs only; no execution; LIVE OFF)",
+      "summary": "Agent #189 — Phase 4 Execution Architecture Charter V1 (docs only; no execution; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_PHASE4_EXECUTION_ARCHITECTURE_CHARTER_REPORT.md"
     },
     {
       "at": "2026-07-12T07:40:00.000Z",
       "type": "agent",
-      "summary": "Agent #188 \u2014 Phase 3 Planning Stack Certification V1 (planning/simulation only; execution impossible; LIVE OFF)",
+      "summary": "Agent #188 — Phase 3 Planning Stack Certification V1 (planning/simulation only; execution impossible; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_PHASE3_PLANNING_CERTIFICATION_REPORT.md"
     },
     {
       "at": "2026-07-12T07:25:00.000Z",
       "type": "agent",
-      "summary": "Agent #187 \u2014 Pre-Dispatch Simulation Contract V1 (simulation only; no execution/dispatch; LIVE OFF)",
+      "summary": "Agent #187 — Pre-Dispatch Simulation Contract V1 (simulation only; no execution/dispatch; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_PRE_DISPATCH_SIMULATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T07:05:00.000Z",
       "type": "agent",
-      "summary": "Agent #186 \u2014 Founder Execution Authorization Contract V1 (intent only; never enables execution; LIVE OFF)",
+      "summary": "Agent #186 — Founder Execution Authorization Contract V1 (intent only; never enables execution; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_EXECUTION_AUTHORIZATION_CONTRACT_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T06:50:00.000Z",
       "type": "agent",
-      "summary": "Agent #185 \u2014 Phase 3 Activation Gate & Execution Eligibility Contract V1 (eligibility only; never enables execution; LIVE OFF)",
+      "summary": "Agent #185 — Phase 3 Activation Gate & Execution Eligibility Contract V1 (eligibility only; never enables execution; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_ACTIVATION_GATE_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T06:40:00.000Z",
       "type": "agent",
-      "summary": "Agent #184 \u2014 Phase 3 Integration Spine Certification V1 (read-only; execution impossible; LIVE OFF)",
+      "summary": "Agent #184 — Phase 3 Integration Spine Certification V1 (read-only; execution impossible; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_PHASE3_FOUNDATION_CERTIFICATION_REPORT.md"
     },
     {
       "at": "2026-07-12T06:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #183 \u2014 Execution Telemetry & Event Contract V1 (contracts only; no collection; LIVE OFF)",
+      "summary": "Agent #183 — Execution Telemetry & Event Contract V1 (contracts only; no collection; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_TELEMETRY_CONTRACT_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T06:15:00.000Z",
       "type": "agent",
-      "summary": "Agent #182 \u2014 Worker Runtime Contract & Execution Ownership V1 (scaffold only; spawn disabled; LIVE OFF)",
+      "summary": "Agent #182 — Worker Runtime Contract & Execution Ownership V1 (scaffold only; spawn disabled; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_WORKER_RUNTIME_CONTRACT_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T06:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #181 \u2014 Cost Ledger & Budget Governance Scaffold V1 (bookkeeping only; no billing; LIVE OFF)",
+      "summary": "Agent #181 — Cost Ledger & Budget Governance Scaffold V1 (bookkeeping only; no billing; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_COST_LEDGER_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T05:45:00.000Z",
       "type": "agent",
-      "summary": "Agent #180 \u2014 Department SDK & Department Contract V1 (contracts only; Resume reference metadata; LIVE OFF)",
+      "summary": "Agent #180 — Department SDK & Department Contract V1 (contracts only; Resume reference metadata; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_DEPARTMENT_SDK_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T05:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #179 \u2014 Execution Controller Scaffold & Lifecycle Bridge V1 (scaffold only; execution impossible; LIVE OFF)",
+      "summary": "Agent #179 — Execution Controller Scaffold & Lifecycle Bridge V1 (scaffold only; execution impossible; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_EXECUTION_CONTROLLER_SCAFFOLD_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T05:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #178 \u2014 Phase 3 Execution Architecture Definition (design only; no execution; LIVE OFF)",
+      "summary": "Agent #178 — Phase 3 Execution Architecture Definition (design only; no execution; LIVE OFF)",
       "ref": "SOS/09_REPORTS/AIOS_PHASE3_EXECUTION_ARCHITECTURE.md"
     },
     {
       "at": "2026-07-12T04:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #177 \u2014 Phase 2 Final Certification & Architecture Freeze (governance complete; execution impossible; READY FOR PHASE 3)",
+      "summary": "Agent #177 — Phase 2 Final Certification & Architecture Freeze (governance complete; execution impossible; READY FOR PHASE 3)",
       "ref": "SOS/09_REPORTS/AIOS_PHASE2_FINAL_CERTIFICATION_REPORT.md"
     },
     {
       "at": "2026-07-12T04:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #176 \u2014 Platform Consumer Migration Wave 2 (Company Brain repos/validators/reporters; no behavior change)",
+      "summary": "Agent #176 — Platform Consumer Migration Wave 2 (Company Brain repos/validators/reporters; no behavior change)",
       "ref": "SOS/09_REPORTS/AIOS_PLATFORM_CONSUMER_MIGRATION_WAVE_2_REPORT.md"
     },
     {
       "at": "2026-07-12T03:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #175 \u2014 Dashboard Plugin Migration Wave 2 (6 stages; no snapshot/API behavior change)",
+      "summary": "Agent #175 — Dashboard Plugin Migration Wave 2 (6 stages; no snapshot/API behavior change)",
       "ref": "SOS/09_REPORTS/AIOS_DASHBOARD_PLUGIN_MIGRATION_WAVE_2_REPORT.md"
     },
     {
       "at": "2026-07-12T02:45:00.000Z",
       "type": "agent",
-      "summary": "Agent #174 \u2014 Dashboard Snapshot Plugin Architecture V1 (Wave-1 plugins; no snapshot/API behavior change)",
+      "summary": "Agent #174 — Dashboard Snapshot Plugin Architecture V1 (Wave-1 plugins; no snapshot/API behavior change)",
       "ref": "SOS/09_REPORTS/AIOS_DASHBOARD_SNAPSHOT_PLUGIN_ARCHITECTURE_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T01:10:00.000Z",
       "type": "agent",
-      "summary": "Agent #173 \u2014 Platform Consolidation Foundation V1 (shared primitives; no behavior change)",
+      "summary": "Agent #173 — Platform Consolidation Foundation V1 (shared primitives; no behavior change)",
       "ref": "SOS/09_REPORTS/AIOS_PLATFORM_CONSOLIDATION_FOUNDATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T00:45:00.000Z",
       "type": "agent",
-      "summary": "Agent #172 \u2014 Architecture Consolidation & Technical Debt Audit V1 (read-only; APPROVE WITH MAJOR CHANGES)",
+      "summary": "Agent #172 — Architecture Consolidation & Technical Debt Audit V1 (read-only; APPROVE WITH MAJOR CHANGES)",
       "ref": "chat-audit-agent-172"
     },
     {
       "at": "2026-07-12T00:22:00.000Z",
       "type": "agent",
-      "summary": "Agent #171 \u2014 System Readiness Freeze V1 (governance spine certified; never executes)",
+      "summary": "Agent #171 — System Readiness Freeze V1 (governance spine certified; never executes)",
       "ref": "SOS/09_REPORTS/AIOS_SYSTEM_READINESS_FREEZE_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T00:16:13.000Z",
       "type": "agent",
-      "summary": "Agent #170 \u2014 Runtime Release Gate V1 (approval contract; never executes)",
+      "summary": "Agent #170 — Runtime Release Gate V1 (approval contract; never executes)",
       "ref": "SOS/09_REPORTS/AIOS_RUNTIME_RELEASE_GATE_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T00:09:22.000Z",
       "type": "agent",
-      "summary": "Agent #169 \u2014 Shadow Runtime Planner V1 (deterministic plan; never dispatches)",
+      "summary": "Agent #169 — Shadow Runtime Planner V1 (deterministic plan; never dispatches)",
       "ref": "SOS/09_REPORTS/AIOS_RUNTIME_PLAN_V1_REPORT.md"
     },
     {
       "at": "2026-07-12T00:02:50.000Z",
       "type": "agent",
-      "summary": "Agent #168 \u2014 Runtime Queue Shadow Receiver V1 (shadow only; never dispatches)",
+      "summary": "Agent #168 — Runtime Queue Shadow Receiver V1 (shadow only; never dispatches)",
       "ref": "SOS/09_REPORTS/AIOS_SHADOW_QUEUE_RECEIVER_V1_REPORT.md"
     },
     {
       "at": "2026-07-11T23:55:47.000Z",
       "type": "agent",
-      "summary": "Agent #167 \u2014 Queue Submission Contract V1 (shadow mode; runtime Queue untouched)",
+      "summary": "Agent #167 — Queue Submission Contract V1 (shadow mode; runtime Queue untouched)",
       "ref": "SOS/09_REPORTS/AIOS_QUEUE_SUBMISSION_CONTRACT_V1_REPORT.md"
     },
     {
       "at": "2026-07-11T23:31:33.456Z",
       "type": "agent",
-      "summary": "Agent #166 \u2014 Founder Execution Package Acknowledgement V1 (checksum ack; no enqueue/execute)",
+      "summary": "Agent #166 — Founder Execution Package Acknowledgement V1 (checksum ack; no enqueue/execute)",
       "ref": "SOS/09_REPORTS/AIOS_EXECUTION_PACKAGE_ACKNOWLEDGEMENT_V1_REPORT.md"
     },
     {
       "at": "2026-07-11T23:10:20.999Z",
       "type": "agent",
-      "summary": "Agent #165 \u2014 Execution Package & Dry-Run Preview V1 (immutable package; no enqueue/execute)",
+      "summary": "Agent #165 — Execution Package & Dry-Run Preview V1 (immutable package; no enqueue/execute)",
       "ref": "SOS/09_REPORTS/AIOS_EXECUTION_PACKAGE_DRY_RUN_V1_REPORT.md"
     },
     {
       "at": "2026-07-11T23:00:55.859Z",
       "type": "agent",
-      "summary": "Agent #164 \u2014 Queue Admission Readiness Review V1 (READY_FOR_QUEUE stop; no enqueue/execute)",
+      "summary": "Agent #164 — Queue Admission Readiness Review V1 (READY_FOR_QUEUE stop; no enqueue/execute)",
       "ref": "SOS/09_REPORTS/AIOS_QUEUE_ADMISSION_READINESS_V1_REPORT.md"
     },
     {
       "at": "2026-07-11T22:45:23.935Z",
       "type": "agent",
-      "summary": "Agent #163 \u2014 Founder Mission Approval V1 (APPROVED/REJECTED/CHANGES_REQUESTED; no execution/queue/publish)",
+      "summary": "Agent #163 — Founder Mission Approval V1 (APPROVED/REJECTED/CHANGES_REQUESTED; no execution/queue/publish)",
       "ref": "SOS/09_REPORTS/AIOS_FOUNDER_MISSION_APPROVAL_V1_REPORT.md"
     },
     {
       "at": "2026-07-11T22:17:24.069Z",
       "type": "agent",
-      "summary": "Agent #162 \u2014 Mission Contract V1 (canonical business object; planning only; no execution)",
+      "summary": "Agent #162 — Mission Contract V1 (canonical business object; planning only; no execution)",
       "ref": "SOS/09_REPORTS/AIOS_MISSION_CONTRACT_V1_REPORT.md"
     },
     {
       "at": "2026-07-11T22:12:34.659Z",
       "type": "agent",
-      "summary": "Agent #161 \u2014 Company Brain Planning Engine V1 (plan-only; no execution; no enqueue)",
+      "summary": "Agent #161 — Company Brain Planning Engine V1 (plan-only; no execution; no enqueue)",
       "ref": "SOS/09_REPORTS/AIOS_COMPANY_BRAIN_V1_REPORT.md"
     },
     {
       "at": "2026-07-11T22:06:48.736Z",
       "type": "agent",
-      "summary": "Agent #160 \u2014 Canonical runtime freeze (legacy engines guarded; one official entrypoint; no feature development)",
+      "summary": "Agent #160 — Canonical runtime freeze (legacy engines guarded; one official entrypoint; no feature development)",
       "ref": "SOS/09_REPORTS/AIOS_RUNTIME_FREEZE_REPORT.md"
     },
     {
       "at": "2026-07-11T21:59:27.638Z",
       "type": "agent",
-      "summary": "Agent #159 \u2014 Canonical runtime migration (architecture metadata freeze; one execution engine classified; no behaviour change)",
+      "summary": "Agent #159 — Canonical runtime migration (architecture metadata freeze; one execution engine classified; no behaviour change)",
       "ref": "SOS/09_REPORTS/AIOS_CANONICAL_RUNTIME_REPORT.md"
     },
     {
       "at": "2026-07-11T22:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #157 \u2014 Founder Review Design System alignment (final dashboard polish)",
+      "summary": "Agent #157 — Founder Review Design System alignment (final dashboard polish)",
       "ref": "SOS/09_REPORTS/AIOS_FOUNDER_REVIEW_ALIGNMENT_V1_REPORT.md"
     },
     {
       "at": "2026-07-11T21:45:00.000Z",
       "type": "agent",
-      "summary": "Agent #156 \u2014 Dashboard stabilization & production polish (tokens, a11y, loading, debt)",
+      "summary": "Agent #156 — Dashboard stabilization & production polish (tokens, a11y, loading, debt)",
       "ref": "SOS/09_REPORTS/AIOS_DASHBOARD_STABILIZATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-11T21:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #155 \u2014 AIOS Dashboard production readiness audit (inspection only)",
+      "summary": "Agent #155 — AIOS Dashboard production readiness audit (inspection only)",
       "ref": "SOS/09_REPORTS/AIOS_DASHBOARD_PRODUCTION_READINESS_AUDIT.md"
     },
     {
       "at": "2026-07-11T21:20:00.000Z",
       "type": "agent",
-      "summary": "Agent #154 \u2014 Settings & System Configuration V2 (read-only library UI)",
+      "summary": "Agent #154 — Settings & System Configuration V2 (read-only library UI)",
       "ref": "SOS/09_REPORTS/AIOS_SETTINGS_SYSTEM_V2_REPORT.md"
     },
     {
       "at": "2026-07-11T21:10:00.000Z",
       "type": "agent",
-      "summary": "Agent #153 \u2014 Skills + Activity V2 operations dashboards (library-only UI)",
+      "summary": "Agent #153 — Skills + Activity V2 operations dashboards (library-only UI)",
       "ref": "SOS/09_REPORTS/AIOS_SKILLS_ACTIVITY_V2_REPORT.md"
     },
     {
       "at": "2026-07-11T21:00:00.000Z",
       "type": "agent",
-      "summary": "Agent #152 \u2014 Knowledge + Brain V2 operations dashboards (library-only UI)",
+      "summary": "Agent #152 — Knowledge + Brain V2 operations dashboards (library-only UI)",
       "ref": "SOS/09_REPORTS/AIOS_KNOWLEDGE_BRAIN_V2_REPORT.md"
     },
     {
       "at": "2026-07-11T20:50:00.000Z",
       "type": "agent",
-      "summary": "Agent #151 \u2014 Provider Validation V2 operations dashboard (library-only UI)",
+      "summary": "Agent #151 — Provider Validation V2 operations dashboard (library-only UI)",
       "ref": "SOS/09_REPORTS/AIOS_PROVIDER_VALIDATION_V2_REPORT.md"
     },
     {
       "at": "2026-07-11T20:40:00.000Z",
       "type": "agent",
-      "summary": "Agent #150 \u2014 Resume Department V2 founder operations dashboard (library-only UI)",
+      "summary": "Agent #150 — Resume Department V2 founder operations dashboard (library-only UI)",
       "ref": "SOS/09_REPORTS/AIOS_RESUME_DEPARTMENT_V2_REPORT.md"
     },
     {
       "at": "2026-07-11T20:30:00.000Z",
       "type": "agent",
-      "summary": "Agent #149 \u2014 Home Dashboard V2 Founder Command Center (library-only UI reorganize)",
+      "summary": "Agent #149 — Home Dashboard V2 Founder Command Center (library-only UI reorganize)",
       "ref": "SOS/09_REPORTS/AIOS_HOME_DASHBOARD_V2_REPORT.md"
     },
     {
       "at": "2026-07-11T20:25:00.000Z",
       "type": "agent",
-      "summary": "Agent #148 \u2014 AIOS dashboard component library V1 (high-level reusable cards, banners, modal, toast)",
+      "summary": "Agent #148 — AIOS dashboard component library V1 (high-level reusable cards, banners, modal, toast)",
       "ref": "SOS/09_REPORTS/AIOS_DASHBOARD_COMPONENT_LIBRARY_V1.md"
     },
     {
       "at": "2026-07-11T20:15:00.000Z",
       "type": "agent",
-      "summary": "Agent #147 \u2014 AIOS design system foundation (tokens + reusable components); Review page visual migrate only",
+      "summary": "Agent #147 — AIOS design system foundation (tokens + reusable components); Review page visual migrate only",
       "ref": "SOS/09_REPORTS/AIOS_DESIGN_SYSTEM_FOUNDATION_V1_REPORT.md"
     },
     {
       "at": "2026-07-11T19:58:09.403Z",
       "type": "agent",
-      "summary": "Agent #146 \u2014 real per-review Fabric preview/thumbnail pipeline; replaced t074 placeholders; fresh FR#005",
+      "summary": "Agent #146 — real per-review Fabric preview/thumbnail pipeline; replaced t074 placeholders; fresh FR#005",
       "ref": "SOS/09_REPORTS/AIOS_FOUNDER_REVIEW_PREVIEW_PIPELINE_V1_REPORT.md"
     },
     {
@@ -670,7 +676,7 @@
     {
       "at": "2026-07-07T07:36:47.454Z",
       "type": "founder_review",
-      "summary": "founder-review-004 \u2014 AWAITING_FOUNDER_APPROVAL",
+      "summary": "founder-review-004 — AWAITING_FOUNDER_APPROVAL",
       "ref": "SOS/07_LOGS/saios/founder-review-004"
     },
     {
@@ -730,7 +736,7 @@
     {
       "at": "2026-07-07T11:21:39.915Z",
       "type": "factory_finalization",
-      "summary": "Agent #099: V1 STABLE \u2014 readiness 93/100",
+      "summary": "Agent #099: V1 STABLE — readiness 93/100",
       "ref": "SOS/09_REPORTS/factory-v1/factory-final-report.md"
     },
     {
@@ -748,235 +754,235 @@
     {
       "at": "2026-07-08T15:22:39.843Z",
       "type": "timeline_department",
-      "summary": "Agent #102: Timeline Department READY \u2014 AI OS Sprint 6 day 3",
+      "summary": "Agent #102: Timeline Department READY — AI OS Sprint 6 day 3",
       "ref": "SOS/07_LOGS/saios/timeline-department/timeline-state.json"
     },
     {
       "at": "2026-07-08T15:23:09.451Z",
       "type": "timeline_department",
-      "summary": "Agent #102: Timeline Department READY \u2014 AI OS Sprint 6 day 3",
+      "summary": "Agent #102: Timeline Department READY — AI OS Sprint 6 day 3",
       "ref": "SOS/07_LOGS/saios/timeline-department/timeline-state.json"
     },
     {
       "at": "2026-07-08T15:39:10.724Z",
       "type": "runtime_manager",
-      "summary": "Agent #103: Runtime Manager RUNNING \u2014 11 departments supervised",
+      "summary": "Agent #103: Runtime Manager RUNNING — 11 departments supervised",
       "ref": "SOS/07_LOGS/saios/runtime-manager/runtime-state.json"
     },
     {
       "at": "2026-07-08T15:44:58.449Z",
       "type": "security_department",
-      "summary": "Agent #104: Security Department READY \u2014 level ORANGE (disk 84%), 5 alerts not sent",
+      "summary": "Agent #104: Security Department READY — level ORANGE (disk 84%), 5 alerts not sent",
       "ref": "SOS/07_LOGS/saios/security-department/security-health.json"
     },
     {
       "at": "2026-07-10T08:38:44.174Z",
       "type": "event_bus",
-      "summary": "Agent #105: Event Bus READY \u2014 11 departments, 17 events, 7 automation rules",
+      "summary": "Agent #105: Event Bus READY — 11 departments, 17 events, 7 automation rules",
       "ref": "SOS/07_LOGS/saios/event-bus/event-report.md"
     },
     {
       "at": "2026-07-10T08:42:01.969Z",
       "type": "deployment_manager",
-      "summary": "Agent #106: Deployment Manager READY \u2014 13/13 departments, bundle ai-os-deploy-2026-07-10T08-42-01-969Z",
+      "summary": "Agent #106: Deployment Manager READY — 13/13 departments, bundle ai-os-deploy-2026-07-10T08-42-01-969Z",
       "ref": "SOS/07_LOGS/saios/deployment-manager/deployment-report.md"
     },
     {
       "at": "2026-07-10T09:26:41.038Z",
       "type": "live_monitoring",
-      "summary": "Agent #107: Live Monitoring READY \u2014 Commander bridge dry-run, 5 deliveries, no duplicate Telegram",
+      "summary": "Agent #107: Live Monitoring READY — Commander bridge dry-run, 5 deliveries, no duplicate Telegram",
       "ref": "SOS/07_LOGS/saios/live-monitoring/live-monitoring-report.md"
     },
     {
       "at": "2026-07-10T17:07:08.609Z",
       "type": "founder_control_center",
-      "summary": "Agent #108: Founder Control Center READY \u2014 overall DEGRADED; next: Approve FR#004",
+      "summary": "Agent #108: Founder Control Center READY — overall DEGRADED; next: Approve FR#004",
       "ref": "SOS/07_LOGS/saios/founder-control-center/founder-control-report.md"
     },
     {
       "at": "2026-07-10T17:18:10.362Z",
       "type": "runtime_loop",
-      "summary": "Agent #109: Runtime Loop READY \u2014 dry-run 1 cycle, 14 departments, 1 recovery",
+      "summary": "Agent #109: Runtime Loop READY — dry-run 1 cycle, 14 departments, 1 recovery",
       "ref": "SOS/07_LOGS/saios/runtime-loop/runtime-report.md"
     },
     {
       "at": "2026-07-10T17:22:29.855Z",
       "type": "runtime_supervisor",
-      "summary": "Agent #110: Runtime Supervisor READY \u2014 dry-run, loop supervised, watchdog SYSTEM_HEALTHY",
+      "summary": "Agent #110: Runtime Supervisor READY — dry-run, loop supervised, watchdog SYSTEM_HEALTHY",
       "ref": "SOS/07_LOGS/saios/runtime-supervisor/supervisor-report.md"
     },
     {
       "at": "2026-07-10T17:30:45.625Z",
       "type": "live_runtime",
-      "summary": "Agent #111: Live Runtime READY \u2014 VERIFY mode, gate 8/8, LIVE denied without SOS_AIOS_LIVE",
+      "summary": "Agent #111: Live Runtime READY — VERIFY mode, gate 8/8, LIVE denied without SOS_AIOS_LIVE",
       "ref": "SOS/07_LOGS/saios/live-runtime/live-runtime-report.md"
     },
     {
       "at": "2026-07-10T17:39:52.586Z",
       "type": "deployment_package",
-      "summary": "Agent #112: Deployment Package READY \u2014 15 assets, no deploy performed",
+      "summary": "Agent #112: Deployment Package READY — 15 assets, no deploy performed",
       "ref": "SOS/07_LOGS/saios/deployment-package/deployment-package-report.md"
     },
     {
       "at": "2026-07-10T17:43:13.682Z",
       "type": "deployment_readiness",
-      "summary": "Agent #113: Deployment Readiness READY \u2014 100% (56/56), 4 risks, VPS 4vCPU/8GB ~$40\u201370/mo",
+      "summary": "Agent #113: Deployment Readiness READY — 100% (56/56), 4 risks, VPS 4vCPU/8GB ~$40–70/mo",
       "ref": "SOS/07_LOGS/saios/deployment-readiness/deployment-summary.md"
     },
     {
       "at": "2026-07-10T17:49:03.852Z",
       "type": "vps_provisioning",
-      "summary": "Agent #114: VPS Provisioning READY \u2014 15 docs, 14-step runbook, package reused, no deploy",
+      "summary": "Agent #114: VPS Provisioning READY — 15 docs, 14-step runbook, package reused, no deploy",
       "ref": "SOS/07_LOGS/saios/vps-provisioning/deployment-runbook.md"
     },
     {
       "at": "2026-07-11T07:56:49.000Z",
       "type": "model_strategy",
-      "summary": "Agent #115: Model & execution strategy LOCKED \u2014 Resume enabled, Website disabled, gap audit 24 subsystems, no API/LIVE",
+      "summary": "Agent #115: Model & execution strategy LOCKED — Resume enabled, Website disabled, gap audit 24 subsystems, no API/LIVE",
       "ref": "SOS/SAIOS/AIOS_MODEL_AND_EXECUTION_STRATEGY.md"
     },
     {
       "at": "2026-07-11T08:04:53.000Z",
       "type": "aios_pm2_runtime",
-      "summary": "Agent #116: AIOS PM2 topology promoted under SOS/SAIOS/infra/ \u2014 8 apps autostart=false, Resume dry_run, Website disabled, no VPS action",
+      "summary": "Agent #116: AIOS PM2 topology promoted under SOS/SAIOS/infra/ — 8 apps autostart=false, Resume dry_run, Website disabled, no VPS action",
       "ref": "SOS/SAIOS/infra/pm2.config.cjs"
     },
     {
       "at": "2026-07-11T08:25:35.000Z",
       "type": "ai_brain_architecture",
-      "summary": "Agent #117: Provider-neutral AI Brain contracts LOCKED \u2014 Mock only, OpenAI/local disabled, no SDK/API/LIVE",
+      "summary": "Agent #117: Provider-neutral AI Brain contracts LOCKED — Mock only, OpenAI/local disabled, no SDK/API/LIVE",
       "ref": "SOS/SAIOS/AI_BRAIN_ARCHITECTURE.md"
     },
     {
       "at": "2026-07-11T08:32:21.000Z",
       "type": "skill_library",
-      "summary": "Agent #117.5: Skill Library READY \u2014 22 skills (resume/website/common), provider-neutral, next still #118",
+      "summary": "Agent #117.5: Skill Library READY — 22 skills (resume/website/common), provider-neutral, next still #118",
       "ref": "SOS/SAIOS/SKILL_LIBRARY_ARCHITECTURE.md"
     },
     {
       "at": "2026-07-11T08:41:08.000Z",
       "type": "mock_provider",
-      "summary": "Agent #118: Mock Provider READY \u2014 dry-run deterministic adapter, Brain Router e2e, no SDK/API/LIVE",
+      "summary": "Agent #118: Mock Provider READY — dry-run deterministic adapter, Brain Router e2e, no SDK/API/LIVE",
       "ref": "SOS/SAIOS/core/providers/mock/MockProvider.ts"
     },
     {
       "at": "2026-07-11T08:45:43.000Z",
       "type": "resume_brain_integration",
-      "summary": "Agent #119: Resume\u2194Brain dry-run integration READY \u2014 Skills\u2192Router\u2192Mock, no templates/publish",
+      "summary": "Agent #119: Resume↔Brain dry-run integration READY — Skills→Router→Mock, no templates/publish",
       "ref": "SOS/SAIOS/core/resume-integration/ResumeBrainGateway.ts"
     },
     {
       "at": "2026-07-11T08:51:00.000Z",
       "type": "knowledge_system",
-      "summary": "Agent #120: Knowledge System READY \u2014 6 domains, scoped retrieval, Resume pre-Skill load documented",
+      "summary": "Agent #120: Knowledge System READY — 6 domains, scoped retrieval, Resume pre-Skill load documented",
       "ref": "SOS/SAIOS/core/knowledge/KnowledgeManager.ts"
     },
     {
       "at": "2026-07-11T08:58:00.000Z",
       "type": "knowledge_gateway",
-      "summary": "Agent #121: Knowledge Gateway READY \u2014 Resume loads Founder\u2192Company\u2192Department\u2192Learning before Skills",
+      "summary": "Agent #121: Knowledge Gateway READY — Resume loads Founder→Company→Department→Learning before Skills",
       "ref": "SOS/SAIOS/core/resume-integration/ResumeKnowledgeGateway.ts"
     },
     {
       "at": "2026-07-11T09:05:00.000Z",
       "type": "resume_factory_migration",
-      "summary": "Agent #122: Resume Factory entry points migrated \u2014 Cursor executors \u2192 ResumeKnowledgeGateway",
+      "summary": "Agent #122: Resume Factory entry points migrated — Cursor executors → ResumeKnowledgeGateway",
       "ref": "SOS/SAIOS/core/resume-integration/ResumeFactoryEntryBridge.ts"
     },
     {
       "at": "2026-07-11T09:20:00.000Z",
       "type": "aios_founder_dashboard",
-      "summary": "Agent #123: Founder Dashboard V1 READY \u2014 Mission Control read-only, LIVE OFF, separate from Vercel",
+      "summary": "Agent #123: Founder Dashboard V1 READY — Mission Control read-only, LIVE OFF, separate from Vercel",
       "ref": "SOS/SAIOS/dashboard/README.md"
     },
     {
       "at": "2026-07-11T09:30:00.000Z",
       "type": "first_dry_run",
-      "summary": "Agent #124: First complete Resume Factory dry run COMPLETED \u2014 Mock path, QA pass, founder review pending",
+      "summary": "Agent #124: First complete Resume Factory dry run COMPLETED — Mock path, QA pass, founder review pending",
       "ref": "SOS/07_LOGS/saios/first-dry-run/readiness.json"
     },
     {
       "at": "2026-07-11T09:45:00.000Z",
       "type": "founder_decisions_learning",
-      "summary": "Agent #125: Founder decisions + learning write-back READY \u2014 real dry-run review remains waiting_founder",
+      "summary": "Agent #125: Founder decisions + learning write-back READY — real dry-run review remains waiting_founder",
       "ref": "SOS/SAIOS/core/founder-decisions/FounderDecisionManager.ts"
     },
     {
       "at": "2026-07-11T10:15:00.000Z",
       "type": "dashboard_v2_master_spec",
-      "summary": "Agent #126: Founder Dashboard V2 Master Specification AUTHORITATIVE \u2014 specification only, no UI implementation",
+      "summary": "Agent #126: Founder Dashboard V2 Master Specification AUTHORITATIVE — specification only, no UI implementation",
       "ref": "SOS/SAIOS/AIOS_FOUNDER_DASHBOARD_V2_MASTER_SPEC.md"
     },
     {
       "at": "2026-07-11T10:45:00.000Z",
       "type": "designbrief_engine",
-      "summary": "Agent #127: DesignBrief Engine V1 READY \u2014 Mock\u2192DesignBrief\u2192Resume JSON instructions, dry-run only",
+      "summary": "Agent #127: DesignBrief Engine V1 READY — Mock→DesignBrief→Resume JSON instructions, dry-run only",
       "ref": "SOS/SAIOS/core/designbrief/DesignBriefEngine.ts"
     },
     {
       "at": "2026-07-11T11:00:00.000Z",
       "type": "resume_renderer_engine",
-      "summary": "Agent #128: Resume Renderer Engine V1 READY \u2014 Resume JSON\u2192Canvas preview, DesignBrief unmodified, dry-run only",
+      "summary": "Agent #128: Resume Renderer Engine V1 READY — Resume JSON→Canvas preview, DesignBrief unmodified, dry-run only",
       "ref": "SOS/SAIOS/core/resume-renderer/ResumeRenderer.ts"
     },
     {
       "at": "2026-07-11T11:20:00.000Z",
       "type": "editor_compatibility",
-      "summary": "Agent #129: StudiosisLab Editor Compatibility Certification V1 READY \u2014 Fabric 6.9.1 canvas load without conversion",
+      "summary": "Agent #129: StudiosisLab Editor Compatibility Certification V1 READY — Fabric 6.9.1 canvas load without conversion",
       "ref": "SOS/SAIOS/core/editor-compatibility/runCertification.ts"
     },
     {
       "at": "2026-07-11T11:40:00.000Z",
       "type": "resume_critic",
-      "summary": "Agent #130: Resume Critic Engine V1 READY \u2014 deterministic quality gate before Founder Review",
+      "summary": "Agent #130: Resume Critic Engine V1 READY — deterministic quality gate before Founder Review",
       "ref": "SOS/SAIOS/core/resume-critic/ResumeCritic.ts"
     },
     {
       "at": "2026-07-11T12:00:00.000Z",
       "type": "critic_gate",
-      "summary": "Agent #131: Critic Gate + Dashboard scores READY \u2014 Ready=NO blocks Founder Review",
+      "summary": "Agent #131: Critic Gate + Dashboard scores READY — Ready=NO blocks Founder Review",
       "ref": "SOS/SAIOS/core/critic-gate/CriticGate.ts"
     },
     {
       "at": "2026-07-11T12:50:00.000Z",
       "type": "first_complete_department_cycle",
-      "summary": "Agent #132: First complete Resume Department cycle READY \u2014 Mock\u2192DesignBrief\u2192Renderer\u2192Critic\u2192Gate\u2192Founder\u2192Learning",
+      "summary": "Agent #132: First complete Resume Department cycle READY — Mock→DesignBrief→Renderer→Critic→Gate→Founder→Learning",
       "ref": "SOS/SAIOS/core/first-production-cycle/runFirstProductionCycle.ts"
     },
     {
       "at": "2026-07-11T15:00:00.000Z",
       "type": "interactive_founder_gate",
-      "summary": "Agent #133: Interactive Founder Gate V1 READY \u2014 WAITING_FOUNDER pause/resume via dashboard; no auto-decision; no publication",
+      "summary": "Agent #133: Interactive Founder Gate V1 READY — WAITING_FOUNDER pause/resume via dashboard; no auto-decision; no publication",
       "ref": "SOS/SAIOS/core/founder-gate-runtime/FounderGateRuntime.ts"
     },
     {
       "at": "2026-07-11T16:30:00.000Z",
       "type": "provider_validation_preparation",
-      "summary": "Agent #134: Real-provider validation preparation READY \u2014 comparison harness + Mock baseline; real provider blocked until configuration",
+      "summary": "Agent #134: Real-provider validation preparation READY — comparison harness + Mock baseline; real provider blocked until configuration",
       "ref": "SOS/SAIOS/core/provider-validation/ProviderValidationManager.ts"
     },
     {
       "at": "2026-07-11T17:15:00.000Z",
       "type": "founder_review_ui",
-      "summary": "Agent #136: Founder Review UX V2 READY \u2014 thumbnail review queue, detail with sticky Approve/Reject/Changes, JSON collapsed",
+      "summary": "Agent #136: Founder Review UX V2 READY — thumbnail review queue, detail with sticky Approve/Reject/Changes, JSON collapsed",
       "ref": "SOS/SAIOS/dashboard/src/views/FounderReviewView.tsx"
     },
     {
       "at": "2026-07-11T18:00:00.000Z",
       "type": "review_queue_snapshot_fix",
-      "summary": "Agent #137: Fix Review Queue snapshot serialization \u2014 /api/snapshot always includes review_queue",
+      "summary": "Agent #137: Fix Review Queue snapshot serialization — /api/snapshot always includes review_queue",
       "ref": "SOS/SAIOS/dashboard/server.ts"
     },
     {
       "at": "2026-07-11T17:40:00.000Z",
       "type": "review_queue_frontend_binding_fix",
-      "summary": "Agent #138: Fix Review Queue frontend binding \u2014 render snapshot.review_queue with filters disabled; waiting_founder status match",
+      "summary": "Agent #138: Fix Review Queue frontend binding — render snapshot.review_queue with filters disabled; waiting_founder status match",
       "ref": "SOS/SAIOS/dashboard/src/views/FounderReviewView.tsx"
     },
     {
       "at": "2026-07-11T18:30:00.000Z",
       "type": "founder_review_ui_v3",
-      "summary": "Agent #139: Founder Review Queue V3 \u2014 compact left queue, dominant A4 preview, no right panel",
+      "summary": "Agent #139: Founder Review Queue V3 — compact left queue, dominant A4 preview, no right panel",
       "ref": "SOS/SAIOS/dashboard/src/views/FounderReviewView.tsx"
     },
     {
@@ -988,19 +994,19 @@
     {
       "at": "2026-07-11T19:00:00.000Z",
       "type": "founder_review_sticky_actions",
-      "summary": "Agent #141: Sticky bottom action bar \u2014 Reject / Request Changes / Approve; existing /api/founder-decision",
+      "summary": "Agent #141: Sticky bottom action bar — Reject / Request Changes / Approve; existing /api/founder-decision",
       "ref": "SOS/SAIOS/dashboard/src/views/FounderReviewView.tsx"
     },
     {
       "at": "2026-07-11T19:15:00.000Z",
       "type": "founder_review_workflow_advance",
-      "summary": "Agent #142: After decision \u2014 remove from queue, load next waiting, update counters; existing APIs only",
+      "summary": "Agent #142: After decision — remove from queue, load next waiting, update counters; existing APIs only",
       "ref": "SOS/SAIOS/dashboard/src/views/FounderReviewView.tsx"
     },
     {
       "at": "2026-07-11T19:30:00.000Z",
       "type": "founder_review_production_polish",
-      "summary": "Agent #143: Founder Review production polish \u2014 score tiles, preview skeleton, empty states, responsive spacing",
+      "summary": "Agent #143: Founder Review production polish — score tiles, preview skeleton, empty states, responsive spacing",
       "ref": "SOS/SAIOS/dashboard/src/views/FounderReviewView.tsx"
     },
     {
@@ -1012,7 +1018,7 @@
     {
       "at": "2026-07-11T20:00:00.000Z",
       "type": "founder_review_preview_ownership",
-      "summary": "Agent #145: Per-review preview ownership \u2014 no cross-review image leakage; missing \u2192 placeholder",
+      "summary": "Agent #145: Per-review preview ownership — no cross-review image leakage; missing → placeholder",
       "ref": "SOS/SAIOS/dashboard/src/views/FounderReviewView.tsx"
     }
   ],
@@ -1844,7 +1850,7 @@
       "status": "READY",
       "assets_generated": 15,
       "deploy_performed": false,
-      "assumptions": "Ubuntu 24.04 \u00b7 Node 22 \u00b7 PM2 \u00b7 Nginx \u00b7 Git",
+      "assumptions": "Ubuntu 24.04 · Node 22 · PM2 · Nginx · Git",
       "output_dir": "SOS/07_LOGS/saios/deployment-package"
     },
     "deployment_readiness": {
@@ -1943,7 +1949,7 @@
       "last_run": "2026-07-11T08:45:43.000Z",
       "status": "ready",
       "mode": "dry_run",
-      "path": "Resume\u2192Skill\u2192BrainRouter\u2192Mock",
+      "path": "Resume→Skill→BrainRouter→Mock",
       "templates_generated": 0,
       "publications": 0,
       "api_calls": 0,
@@ -1972,7 +1978,7 @@
       "last_run": "2026-07-11T08:58:00.000Z",
       "status": "ready",
       "mode": "dry_run",
-      "path": "Resume\u2192Knowledge\u2192Snapshot\u2192BrainGateway\u2192Skill\u2192Mock",
+      "path": "Resume→Knowledge→Snapshot→BrainGateway→Skill→Mock",
       "domains_pre_skill": [
         "founder",
         "company",
@@ -1990,7 +1996,7 @@
       "last_run": "2026-07-11T09:05:00.000Z",
       "status": "ready",
       "mode": "dry_run",
-      "path": "ResumeFactory\u2192ResumeKnowledgeGateway\u2192Brain\u2192Mock",
+      "path": "ResumeFactory→ResumeKnowledgeGateway→Brain→Mock",
       "ai_entry_points_migrated": true,
       "deterministic_unchanged": true,
       "templates_generated": 0,
@@ -2016,7 +2022,7 @@
       "status": "completed",
       "mode": "dry_run",
       "task_id": "dry-run-marketing-manager-ats-001",
-      "path": "Scheduler\u2192Queue\u2192Resume\u2192Knowledge\u2192Brain\u2192Mock\u2192QA\u2192Founder\u2192Dashboard",
+      "path": "Scheduler→Queue→Resume→Knowledge→Brain→Mock→QA→Founder→Dashboard",
       "templates_generated": 0,
       "publications": 0,
       "api_calls": 0,
@@ -2054,7 +2060,7 @@
       "publications": 0,
       "path": "SOS/SAIOS/core/designbrief",
       "output_dir": "SOS/07_LOGS/saios/designbrief",
-      "flow": "Knowledge\u2192Skills\u2192Brain\u2192Mock\u2192DesignBrief\u2192ResumeJSON\u2192Renderer"
+      "flow": "Knowledge→Skills→Brain→Mock→DesignBrief→ResumeJSON→Renderer"
     },
     "resume_renderer_engine": {
       "last_run": "2026-07-11T11:00:00.000Z",
@@ -2066,7 +2072,7 @@
       "publications": 0,
       "path": "SOS/SAIOS/core/resume-renderer",
       "output_dir": "SOS/07_LOGS/saios/resume-renderer",
-      "flow": "DesignBrief\u2192ResumeJSON\u2192Renderer\u2192RenderTree\u2192CanvasJSON\u2192Preview\u2192FounderReview"
+      "flow": "DesignBrief→ResumeJSON→Renderer→RenderTree→CanvasJSON→Preview→FounderReview"
     },
     "editor_compatibility": {
       "last_run": "2026-07-11T11:20:00.000Z",
@@ -2308,18 +2314,41 @@
     "readiness_score": 93,
     "frozen_at": "2026-07-07T11:21:39.915Z",
     "version": "1.0.0",
-    "label": "STABLE \u00b7 FEATURE COMPLETE \u00b7 READY FOR PRODUCTION"
+    "label": "STABLE · FEATURE COMPLETE · READY FOR PRODUCTION"
   },
   "aios_architecture_version": "1.0.0-canonical-runtime-freeze",
   "aios_canonical_entrypoint": "SOS/SAIOS/core/first-production-cycle",
   "company_brain_version": "1.0.0",
   "company_brain_mode": "planning_only",
-  "latest_phase": "5U",
+  "latest_phase": "5Y",
   "phase_5u": {
     "status": "implemented_pending_deploy",
     "problem": "recurring FAILED_GATE direction contradiction on header containment OR-rebalance",
     "root_cause": "BAND_EDGE_EXTENSION_DIRECTION_BOUND_AS_POSITION_DOWN",
     "historical_task": "revtask-a8653c03-20f",
     "safe_to_retry_historical": false
+  },
+  "phase_5y": {
+    "status": "implemented_pending_deploy",
+    "problem": "FAILED_GATE direction contradiction from negated UP + target-scope bleed (Business Analyst)",
+    "root_causes": [
+      "NEGATED_MOVE_PARSED_AS_POSITIVE_DIRECTION",
+      "CONTEXT_NOUNS_BOUND_AS_MOVE_TARGETS",
+      "FALSE_FEEDBACK_REQUIRES_CONTACT_UPWARD_FORCED_FULL_STACK"
+    ],
+    "edge_extension_mask_5u": "healthy",
+    "historical_tasks_frozen": [
+      "revtask-ec6bf0f8-e3d",
+      "revtask-a8653c03-20f",
+      "revtask-afd3f4b0-fae",
+      "revtask-bcf30166-95c",
+      "revtask-fc2278c5-d39",
+      "revtask-ecd4d24a-139"
+    ],
+    "safe_to_retry_historical": false,
+    "business_analyst_offline_replay": "PASS",
+    "unnecessary_header_position_ops": 0,
+    "remaining": "ONE fresh production Request Changes proof (manual)",
+    "baseline_commit_before": "27ba03bbefad5b6bfeed45e518c4c270919aed03"
   }
 }

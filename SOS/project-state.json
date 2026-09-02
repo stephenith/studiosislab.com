@@ -2360,7 +2360,8 @@
     "deployed_commit": "b784ca427a332d9a01c256c5173dcc4ffbf8674d"
   },
   "phase_5z": {
-    "status": "implemented_pending_deploy",
+    "status": "deployed",
+    "deployed_commit": "9a93dacd54547845f88364c3b1f5fbfbd8f351fe",
     "problem": "Founder spacing intent lost after AI planning; coverage false-pass",
     "diagnostic_task": "revtask-a350f482-abf",
     "openai_network_call_proven": true,

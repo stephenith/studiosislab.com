@@ -415,9 +415,20 @@ function isRemainderDesignPreservationPattern(n: string): boolean {
   const remainder =
     /\bthe rest\b/.test(n) ||
     /\bremaining\b/.test(n) ||
-    /\brest of (?:the )?(?:resume|template|design)\b/.test(n);
+    /\brest of (?:the )?(?:resume|template|design)\b/.test(n) ||
+    // "Preserve the corrected/existing X, Y, Z … because those areas look correct"
+    (/\bpreserv(?:e|ing)\b/.test(n) &&
+      /\b(header|right[- ]side|summary|experience|education|typography|column)\b/.test(
+        n,
+      ) &&
+      (/\balready look(?:s)? correct\b/.test(n) ||
+        /\bnow look(?:s)? correct\b/.test(n) ||
+        /\balready (?:good|fine|satisfactory|correct)\b/.test(n) ||
+        /\blooks? correct\b/.test(n)));
   const designSignals =
-    /\b(design|section layout|layout|spacing|typography)\b/.test(n);
+    /\b(design|section layout|layout|spacing|typography|header|summary|experience|education|column)\b/.test(
+      n,
+    );
   const satisfaction =
     /\blooks good\b/.test(n) ||
     /\balready (?:good|fine|satisfactory)\b/.test(n) ||

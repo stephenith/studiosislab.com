@@ -206,6 +206,7 @@
     "aios:revision:companion-attribution-5v:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-ai-companion-attribution-5v.ts",
     "aios:revision:contract-e2e-5v:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-revision-contract-e2e-5v.ts",
     "aios:revision:runtime-code-current:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-revision-runtime-code-current.ts",
+    "aios:revision:rendered-layout-5w:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-rendered-layout-truth-5w.ts",
     "aios:terminology:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-resume-template-terminology.ts",
     "aios:revision:feedback:repair-gd": "npx --yes tsx SOS/SAIOS/core/founder-revision/repair-revfb-critic-artifacts.ts --graphic-designer",
     "aios:revision:feedback:three": "npx --yes tsx SOS/SAIOS/core/founder-revision/run-founder-feedback-revision.ts --three",

@@ -511,9 +511,14 @@ export function findOutOfBoundsObjects(canvas: FabricCanvasDoc): AcceptanceFindi
 }
 
 /**
- * SpacingCritic same-column overlap semantics:
- * compare vertically sorted text; require horizontal overlap ≥ 20px;
- * negative gap (< -1) is a collision.
+ * SpacingCritic same-column overlap semantics (Phase 5W):
+ * compare EVERY text pair with horizontal overlap ≥ 20px (not only
+ * consecutive Y-neighbors). Interleaved other-column objects must not hide
+ * same-column wrap collisions. Negative gap (< -1) is a collision.
+ *
+ * Prior bug: global Y-sort consecutive-only comparison skipped same-column
+ * pairs when a right-column text sat between them in Y order (production
+ * Certifications false-negative on revfb-d242f1).
  */
 export function findTextOverlapFindings(canvas: FabricCanvasDoc): AcceptanceFinding[] {
   const doc = asCanvasDoc(canvas);
@@ -521,25 +526,84 @@ export function findTextOverlapFindings(canvas: FabricCanvasDoc): AcceptanceFind
     (a, b) => Number(a.top ?? 0) - Number(b.top ?? 0),
   );
   const findings: AcceptanceFinding[] = [];
-  for (let i = 1; i < texts.length; i++) {
-    const prev = texts[i - 1]!;
-    const cur = texts[i]!;
+  const seen = new Set<string>();
+  for (let i = 0; i < texts.length; i++) {
+    const prev = texts[i]!;
     const prevBox = bbox(prev);
-    const curBox = bbox(cur);
-    const overlapX =
-      Math.min(prevBox.right, curBox.right) -
-      Math.max(prevBox.left, curBox.left);
-    if (overlapX < 20) continue;
-    const gap = curBox.top - prevBox.bottom;
-    if (gap < -1) {
-      const prevId = objectId(prev, doc.objects.indexOf(prev));
-      const curId = objectId(cur, doc.objects.indexOf(cur));
-      findings.push({
-        code: "ACC_TEXT_OVERLAP",
-        message: `Overlapping text gap=${gap}`,
-        object_ids: [prevId, curId],
-        metrics: { gap, overlapX },
-      });
+    const prevId = objectId(prev, doc.objects.indexOf(prev));
+    for (let j = i + 1; j < texts.length; j++) {
+      const cur = texts[j]!;
+      const curBox = bbox(cur);
+      const overlapX =
+        Math.min(prevBox.right, curBox.right) -
+        Math.max(prevBox.left, curBox.left);
+      if (overlapX < 20) continue;
+      // Only treat as vertical stack collision when cur is below-or-equal prev top.
+      const gap = curBox.top - prevBox.bottom;
+      if (gap < -1) {
+        const curId = objectId(cur, doc.objects.indexOf(cur));
+        const key = [prevId, curId].sort().join("|");
+        if (seen.has(key)) continue;
+        seen.add(key);
+        findings.push({
+          code: "ACC_TEXT_OVERLAP",
+          message: `Overlapping text gap=${gap}`,
+          object_ids: [prevId, curId],
+          metrics: { gap, overlapX },
+        });
+      }
+    }
+  }
+  return findings;
+}
+
+/**
+ * Minimum positive gap (px) between sequential same-column text entries when
+ * Founder asks for clear/positive spacing below effective rendered bottoms.
+ */
+export const MIN_SEQUENTIAL_RENDERED_TEXT_GAP_PX = 2;
+
+/**
+ * Pairwise same-column sequential gap findings using wrap-aware effective
+ * bottoms. Detects "next entry begins before prior rendered bottom finishes"
+ * even when global Y-neighbors are in another column.
+ */
+export function findSequentialRenderedTextGapFindings(
+  canvas: FabricCanvasDoc,
+  minGapPx: number = MIN_SEQUENTIAL_RENDERED_TEXT_GAP_PX,
+): AcceptanceFinding[] {
+  const doc = asCanvasDoc(canvas);
+  const texts = acceptanceTextObjects(doc).sort(
+    (a, b) => Number(a.top ?? 0) - Number(b.top ?? 0),
+  );
+  const findings: AcceptanceFinding[] = [];
+  const seen = new Set<string>();
+  for (let i = 0; i < texts.length; i++) {
+    const prev = texts[i]!;
+    const prevBox = bbox(prev);
+    const prevId = objectId(prev, doc.objects.indexOf(prev));
+    for (let j = i + 1; j < texts.length; j++) {
+      const cur = texts[j]!;
+      const curBox = bbox(cur);
+      const overlapX =
+        Math.min(prevBox.right, curBox.right) -
+        Math.max(prevBox.left, curBox.left);
+      if (overlapX < 20) continue;
+      const gap = curBox.top - prevBox.bottom;
+      if (gap + 1e-9 < minGapPx) {
+        const curId = objectId(cur, doc.objects.indexOf(cur));
+        const key = [prevId, curId].sort().join("|");
+        if (seen.has(key)) continue;
+        seen.add(key);
+        findings.push({
+          code: "ACC_SEQUENTIAL_RENDERED_TEXT_GAP",
+          message: `Sequential rendered-text gap=${gap} < min=${minGapPx}`,
+          object_ids: [prevId, curId],
+          metrics: { gap, min_gap_px: minGapPx, overlapX },
+        });
+      }
+      // Only the immediate next same-column successor matters for sequential proof.
+      break;
     }
   }
   return findings;

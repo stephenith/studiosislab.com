@@ -15,7 +15,10 @@ import { buildFeedbackCoverage } from "./FeedbackCoverage.js";
 import { isHeaderIdentityLayoutFeedback } from "./HeaderIdentityLayout.js";
 import { validatePlanGeometrySafety } from "./PlanGeometrySafety.js";
 import { validatePlanVerticalDirections } from "./PositionOpCanonicalization.js";
-import { runRevisionAcceptanceChecks } from "./RevisionAcceptanceChecks.js";
+import {
+  findTextOverlapFindings,
+  runRevisionAcceptanceChecks,
+} from "./RevisionAcceptanceChecks.js";
 import { normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
 import {
   allRequestedChangesAllowEmptyPlan,
@@ -385,6 +388,22 @@ export function runRevisionPlanGateCircuit(input: {
     };
   }
   stages.LAYOUT_NORMALIZATION = "PASS";
+
+  // Phase 5W: final post-normalization pairwise rendered overlap gate.
+  const finalOverlaps = findTextOverlapFindings(normalized.canvas);
+  if (finalOverlaps.length > 0) {
+    stages.ACCEPTANCE = "FAIL";
+    return {
+      ok: false,
+      failed_stage: "ACCEPTANCE",
+      status: "FAILED_GATE",
+      error: `final rendered geometry failed: text_overlaps=${finalOverlaps.length}`,
+      stages,
+      active_plan: activePlan,
+      after_canvas: normalized.canvas,
+      coverage_gate_pass: false,
+    };
+  }
 
   const acceptanceReport = runRevisionAcceptanceChecks({
     beforeCanvas: input.priorCanvas,

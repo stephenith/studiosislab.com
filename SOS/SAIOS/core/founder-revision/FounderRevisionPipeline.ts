@@ -22,7 +22,11 @@ import {
 } from "./CanvasInventory.js";
 import { executeCanvasOperations } from "./CanvasOperationExecutor.js";
 import { buildFeedbackCoverage } from "./FeedbackCoverage.js";
-import { runRevisionAcceptanceChecks } from "./RevisionAcceptanceChecks.js";
+import {
+  findSequentialRenderedTextGapFindings,
+  findTextOverlapFindings,
+  runRevisionAcceptanceChecks,
+} from "./RevisionAcceptanceChecks.js";
 import { normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
 import { planFounderCanvasRevision } from "./RevisionPlanner.js";
 import {
@@ -551,6 +555,35 @@ export async function runFounderFeedbackRevision(
       task,
       revised_candidate_id: null,
       error: task.error,
+      coverage_gate_pass: false,
+    };
+  }
+
+  // Phase 5W: final post-normalization rendered-geometry gate (pairwise
+  // wrap-aware same-column overlaps). Fail closed before Founder return.
+  const finalRenderedGeometry = {
+    schema_version: "founder-final-rendered-geometry-1.0.0",
+    at: new Date().toISOString(),
+    text_overlap_findings: findTextOverlapFindings(normalized.canvas),
+    sequential_gap_findings: findSequentialRenderedTextGapFindings(
+      normalized.canvas,
+    ),
+  };
+  writeJson(
+    join(evidenceDir, "final-rendered-geometry.json"),
+    finalRenderedGeometry,
+  );
+  if (finalRenderedGeometry.text_overlap_findings.length > 0) {
+    const err = `final rendered geometry failed: text_overlaps=${finalRenderedGeometry.text_overlap_findings.length}`;
+    task = updateRevisionTask(task.task_id, {
+      status: "FAILED_GATE",
+      error: err,
+    });
+    return {
+      ok: false,
+      task,
+      revised_candidate_id: null,
+      error: err,
       coverage_gate_pass: false,
     };
   }

@@ -81,7 +81,11 @@ export type FeedbackOperationEvidence = {
 };
 
 export type FeedbackRelationEvidence = {
-  type: "CONTACT_TO_SUMMARY_GAP" | "CONTACT_IN_HEADER_BAND" | string;
+  type:
+    | "CONTACT_TO_SUMMARY_GAP"
+    | "CONTACT_IN_HEADER_BAND"
+    | "NEXT_TEXT_AFTER_RENDERED_BOTTOM"
+    | string;
   contact_id?: string | null;
   summary_id?: string | null;
   gap_px?: number | null;

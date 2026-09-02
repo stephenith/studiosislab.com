@@ -15,6 +15,7 @@ import type { FabricCanvasDoc } from "./CanvasInventory.js";
 import { buildCanvasInventory } from "./CanvasInventory.js";
 import {
   findAcceptanceChecksForChange,
+  findSequentialRenderedTextGapFindings,
   findTextOverlapFindings,
   type RevisionAcceptanceReport,
 } from "./RevisionAcceptanceChecks.js";
@@ -430,6 +431,13 @@ export function requiresOverlapReadabilityGeometricProof(
   ) {
     return true;
   }
+  // Positive gap + zero overlap within stacked entries.
+  if (
+    /\bpositive\b[\s\S]{0,40}\bgap\b/.test(n) &&
+    /\b(overlap|collision)\b/.test(n)
+  ) {
+    return true;
+  }
   // "Remove … overlap … readable" class (mutation opener).
   if (
     /\b(remove|eliminate)\b[\s\S]{0,64}\b(overlap|collision)\b/.test(n) &&
@@ -444,6 +452,37 @@ export function requiresOverlapReadabilityGeometricProof(
     !/\bconsistent (?:line )?spacing\b/.test(n) &&
     !/\bsection(?:-|\s+to\s+|-to-)section\b/.test(n) &&
     !/\bheading(?:-|\s+to\s+|-to-)content\b/.test(n)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Founder language requiring each next text entry to begin below the prior
+ * entry's wrap-aware effective rendered bottom (Phase 5W).
+ */
+export function requiresSequentialRenderedBottomProof(
+  normalizedItem: string,
+): boolean {
+  const n = normalizedItem;
+  if (
+    /\bbegins below\b/.test(n) &&
+    /\b(effective|rendered)\b/.test(n) &&
+    /\bbottom\b/.test(n)
+  ) {
+    return true;
+  }
+  if (
+    /\b(sequential|sequentially)\b/.test(n) &&
+    /\b(effective|rendered)\b/.test(n) &&
+    /\b(height|bottom)\b/.test(n)
+  ) {
+    return true;
+  }
+  if (
+    /\bpositive\b[\s\S]{0,48}\bvertical gap\b/.test(n) &&
+    /\b(entries|entry|certification|project)\b/.test(n)
   ) {
     return true;
   }
@@ -2408,7 +2447,7 @@ function promoteSuccessfulOps(opts: {
 /**
  * Final-canvas geometric proof for overlap / readability Founder items.
  * Prefers COLLISION_BOUNDS acceptance when present; otherwise runs the same
- * wrap-aware text-overlap detector used by acceptance.
+ * wrap-aware pairwise text-overlap detector used by acceptance (Phase 5W).
  */
 function evaluateOverlapReadabilityGeometricProof(
   afterCanvas: FabricCanvasDoc,
@@ -2436,6 +2475,34 @@ function evaluateOverlapReadabilityGeometricProof(
   return {
     pass: false,
     notes: `final canvas still has ${findings.length} text overlap finding(s)`,
+  };
+}
+
+/** Final-canvas proof: next same-column text clears prior effective bottom. */
+function evaluateSequentialRenderedBottomProof(
+  afterCanvas: FabricCanvasDoc,
+): { pass: boolean; notes: string; relation: FeedbackRelationEvidence | null } {
+  const findings = findSequentialRenderedTextGapFindings(afterCanvas);
+  if (findings.length === 0) {
+    return {
+      pass: true,
+      notes: "sequential rendered-text gap proof pass",
+      relation: {
+        type: "NEXT_TEXT_AFTER_RENDERED_BOTTOM",
+        pass: true,
+        notes: "all same-column sequential text gaps meet minimum",
+      },
+    };
+  }
+  const first = findings[0]!;
+  return {
+    pass: false,
+    notes: `sequential rendered-text gap proof failed: ${first.message}`,
+    relation: {
+      type: "NEXT_TEXT_AFTER_RENDERED_BOTTOM",
+      pass: false,
+      notes: first.message,
+    },
   };
 }
 
@@ -2531,6 +2598,8 @@ export function buildFeedbackCoverage(input: {
     let status: FeedbackCoverageStatus = "not_addressed";
     let notes = "";
     const affected = new Set<string>();
+    let relationEvidence: FeedbackRelationEvidence | undefined =
+      structural.relation;
 
     if (okOps.length > 0) {
       status = "partially_addressed";
@@ -2586,18 +2655,15 @@ export function buildFeedbackCoverage(input: {
     }
 
     // Overlap / readability / no-intrusion: never fully address from ops alone.
-    // Elevate to addressed only when wrap-aware final geometry proves clean.
+    // Elevate to addressed when wrap-aware final geometry proves clean.
+    // Phase 5W: outcome constraints may pass from geometry alone (ops optional)
+    // once pairwise same-column overlap detection is truthful.
     if (requiresOverlapReadabilityGeometricProof(normalize(change))) {
       const geo = evaluateOverlapReadabilityGeometricProof(
         input.afterCanvas,
         input.acceptanceReport,
       );
-      if (
-        geo.pass &&
-        okOps.length > 0 &&
-        !hasFailedMatchingOp &&
-        planCoversItem(change, input.plan)
-      ) {
+      if (geo.pass && !hasFailedMatchingOp) {
         status = "addressed";
         notes = [notes, geo.notes].filter(Boolean).join("; ");
       } else {
@@ -2606,6 +2672,33 @@ export function buildFeedbackCoverage(input: {
           status = "partially_addressed";
         }
         notes = [notes, geo.notes].filter(Boolean).join("; ");
+      }
+    }
+
+    // Sequential rendered-bottom gap: next same-column text must clear prior
+    // effective bottom (+ min gap). Ops alone cannot satisfy this.
+    if (requiresSequentialRenderedBottomProof(normalize(change))) {
+      const seq = evaluateSequentialRenderedBottomProof(input.afterCanvas);
+      if (seq.relation) {
+        relationEvidence = seq.relation;
+      }
+      if (seq.pass && !hasFailedMatchingOp) {
+        if (
+          okOps.length > 0 ||
+          planCoversItem(change, input.plan) ||
+          status === "addressed"
+        ) {
+          status = "addressed";
+        } else if (status === "not_addressed") {
+          status = "partially_addressed";
+        }
+        notes = [notes, seq.notes].filter(Boolean).join("; ");
+      } else {
+        if (status === "addressed") status = "partially_addressed";
+        else if (status === "not_addressed" && okOps.length > 0) {
+          status = "partially_addressed";
+        }
+        notes = [notes, seq.notes].filter(Boolean).join("; ");
       }
     }
 
@@ -2646,7 +2739,7 @@ export function buildFeedbackCoverage(input: {
         after: afterSnap,
         operation_evidence:
           operation_evidence.length > 0 ? operation_evidence : undefined,
-        relation: structural.relation,
+        relation: relationEvidence,
         notes: notes || undefined,
       },
     });

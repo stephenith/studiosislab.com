@@ -8,6 +8,11 @@ import type {
   GenerationTargetContext,
 } from "./FounderPreferenceMemoryTypes.js";
 import {
+  buildMemorySelectionContext,
+  extractArchitectureToken,
+  extractDesignFamilyToken,
+} from "./FounderMemoryContext.js";
+import {
   MAX_MEMORY_PROMPT_CHARS,
   renderFounderMemoryPromptBlock,
   selectFounderMemory,
@@ -86,12 +91,7 @@ export function deriveGenerationTargetContext(
     undefined;
   const objective =
     typeof input.objective === "string" ? input.objective : "";
-  const fam = objective.match(/design_family\s*[:=]\s*([a-z_]+)/i);
-  const arch = objective.match(
-    /\b(header_band|classic_single|compact_corporate|editorial_offset|narrow_ats_sidebar|technical_grid|section_index|wide_header_single)\b/i,
-  );
-
-  return {
+  return buildMemorySelectionContext({
     category:
       (typeof input.category === "string" && input.category) ||
       (typeof target?.category === "string" && target.category) ||
@@ -106,13 +106,13 @@ export function deriveGenerationTargetContext(
       null,
     design_family:
       (typeof input.design_family === "string" && input.design_family) ||
-      fam?.[1]?.toLowerCase() ||
+      extractDesignFamilyToken(objective) ||
       null,
     architecture:
       (typeof input.architecture === "string" && input.architecture) ||
-      arch?.[1]?.toLowerCase() ||
+      extractArchitectureToken(objective) ||
       null,
-  };
+  });
 }
 
 /** Fail-open injection for ResumeBrainGateway design_planning only. */

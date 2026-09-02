@@ -45,9 +45,20 @@ export type SelectedMemoryRule = {
   content_hash: string;
 };
 
+export type MemorySelectionCounts = {
+  considered: number;
+  selected: number;
+  irrelevant: number;
+  ambiguous: number;
+  ineligible: number;
+  conflicting: number;
+  superseded: number;
+};
+
 export type FounderMemorySelectionResult = {
   schema_version: typeof FOUNDER_MEMORY_SELECTION_SCHEMA;
   channel: "generation" | "revision";
+  context: GenerationTargetContext;
   selected: SelectedMemoryRule[];
   excluded: MemoryExclusion[];
   memory_ids: string[];
@@ -55,6 +66,7 @@ export type FounderMemorySelectionResult = {
   truncated: boolean;
   prompt_hash: string;
   FOUNDER_MEMORY_CONSUMED: boolean;
+  counts: MemorySelectionCounts;
   evaluated_at: string;
 };
 
@@ -455,9 +467,28 @@ export function selectFounderMemory(opts: {
     .digest("hex")
     .slice(0, 16);
 
+  const counts: MemorySelectionCounts = {
+    considered: active.length,
+    selected: finalSelected.length,
+    irrelevant: excluded.filter((e) => e.kind === "IRRELEVANT").length,
+    ambiguous: excluded.filter((e) => e.kind === "AMBIGUOUS").length,
+    ineligible: excluded.filter((e) => e.kind === "INELIGIBLE").length,
+    conflicting: excluded.filter((e) => e.kind === "CONFLICTING").length,
+    superseded: excluded.filter((e) => e.kind === "SUPERSEDED").length,
+  };
+
   return {
     schema_version: FOUNDER_MEMORY_SELECTION_SCHEMA,
     channel: opts.channel,
+    context: {
+      role: opts.ctx.role ?? null,
+      role_family: opts.ctx.role_family ?? null,
+      category: opts.ctx.category ?? null,
+      design_family: opts.ctx.design_family ?? null,
+      architecture: opts.ctx.architecture ?? null,
+      section: opts.ctx.section ?? null,
+      component: opts.ctx.component ?? null,
+    },
     selected: finalSelected,
     excluded,
     memory_ids: finalSelected.map((s) => s.memory_id),
@@ -465,6 +496,7 @@ export function selectFounderMemory(opts: {
     truncated: rendered.truncated,
     prompt_hash,
     FOUNDER_MEMORY_CONSUMED: finalSelected.length > 0,
+    counts,
     evaluated_at: new Date().toISOString(),
   };
 }

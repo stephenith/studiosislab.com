@@ -62,6 +62,7 @@ import {
   type CriticFindingsBundle,
   type RevisionLoopOutcome,
 } from "./RevisionLoop.js";
+import { resolveGenerationDesignContext } from "../founder-memory/FounderMemoryContext.js";
 
 const REPO = resolve(import.meta.dirname, "../../../..");
 export const CYCLE_LOG = join(REPO, "SOS/07_LOGS/saios/first-production-cycle");
@@ -360,6 +361,13 @@ async function runFirstProductionCycleInner(opts?: {
   const review_id = identity.review_id;
   const run_id = identity.run_id;
   const objective = production_target.objective;
+  const generationDesign = resolveGenerationDesignContext({
+    objective: production_target.objective,
+    role_family: production_target.role_family,
+    category: production_target.category,
+    title: production_target.title,
+    role: production_target.title,
+  });
   const pause_for_founder = opts?.pause_for_founder !== false;
 
   const stages: StageRecord[] = [];
@@ -533,6 +541,10 @@ async function runFirstProductionCycleInner(opts?: {
         async () => {
           const out = ws.writeArtifact("production-target.json", {
             ...production_target,
+            design_family: generationDesign.design_family,
+            architecture: generationDesign.architecture,
+            design_variant: generationDesign.design_variant,
+            design_context: generationDesign,
             selected_at: new Date().toISOString(),
             owner: "canonical_resume_production_intake",
             ai_planner: false,
@@ -623,6 +635,8 @@ async function runFirstProductionCycleInner(opts?: {
             title: production_target.title,
             industry: production_target.industry,
             seniority: production_target.seniority,
+            design_family: generationDesign.design_family,
+            architecture: generationDesign.architecture,
             production_target,
             research_context,
             research_briefing: researchBriefing,
@@ -792,31 +806,27 @@ async function runFirstProductionCycleInner(opts?: {
         if (!brain_raw || Object.keys(brain_raw).length === 0) {
           throw new Error("No structured_output for DesignBrief");
         }
-        // Agent #235–237 — objective + role + design_family/variant for Family Engine
-        const familyMatch = String(objective).match(
-          /design_family\s*[:=]?\s*([a-z_]+)/i,
-        );
-        const variantMatch = String(objective).match(
-          /design_variant\s*[:=]?\s*(\d+)/i,
-        );
-        const designVariant = variantMatch
-          ? Number(variantMatch[1])
-          : undefined;
+        // Phase 6C — lock the Family Engine selection already used for memory.
         const brain_output = {
           ...brain_raw,
           objective,
           role_family: production_target.role_family,
-          design_family: familyMatch?.[1] ?? undefined,
-          design_variant: designVariant,
+          design_family: generationDesign.design_family ?? undefined,
+          design_variant: generationDesign.design_variant ?? undefined,
           notes: [
             ...(Array.isArray((brain_raw as { notes?: unknown }).notes)
               ? ((brain_raw as { notes: unknown[] }).notes.map(String))
               : []),
             String(objective),
             `role_family:${production_target.role_family}`,
-            familyMatch ? `design_family:${familyMatch[1]}` : "",
-            designVariant !== undefined
-              ? `design_variant:${designVariant}`
+            generationDesign.design_family
+              ? `design_family:${generationDesign.design_family}`
+              : "",
+            generationDesign.design_variant !== null
+              ? `design_variant:${generationDesign.design_variant}`
+              : "",
+            generationDesign.architecture
+              ? `layout_architecture:${generationDesign.architecture}`
               : "",
           ].filter(Boolean),
         };
@@ -1051,6 +1061,8 @@ async function runFirstProductionCycleInner(opts?: {
           title: production_target.title,
           industry: production_target.industry,
           seniority: production_target.seniority,
+          design_family: generationDesign.design_family,
+          architecture: generationDesign.architecture,
           production_target,
           research_context,
           research_briefing: researchBriefing,
@@ -1175,30 +1187,26 @@ async function runFirstProductionCycleInner(opts?: {
         result.primary_response.structured_output ??
         result.consumed?.structured_output ??
         {};
-      const familyMatch = String(production_target.objective).match(
-        /design_family\s*[:=]?\s*([a-z_]+)/i,
-      );
-      const variantMatch = String(production_target.objective).match(
-        /design_variant\s*[:=]?\s*(\d+)/i,
-      );
-      const designVariant = variantMatch
-        ? Number(variantMatch[1])
-        : undefined;
       const brain_output = {
         ...brain_raw,
         objective: production_target.objective,
         role_family: production_target.role_family,
-        design_family: familyMatch?.[1] ?? undefined,
-        design_variant: designVariant,
+        design_family: generationDesign.design_family ?? undefined,
+        design_variant: generationDesign.design_variant ?? undefined,
         notes: [
           ...(Array.isArray((brain_raw as { notes?: unknown }).notes)
             ? ((brain_raw as { notes: unknown[] }).notes.map(String))
             : []),
           String(production_target.objective),
           `role_family:${production_target.role_family}`,
-          familyMatch ? `design_family:${familyMatch[1]}` : "",
-          designVariant !== undefined
-            ? `design_variant:${designVariant}`
+          generationDesign.design_family
+            ? `design_family:${generationDesign.design_family}`
+            : "",
+          generationDesign.design_variant !== null
+            ? `design_variant:${generationDesign.design_variant}`
+            : "",
+          generationDesign.architecture
+            ? `layout_architecture:${generationDesign.architecture}`
             : "",
         ].filter(Boolean),
       };

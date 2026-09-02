@@ -54,3 +54,16 @@ export {
   MAX_PROMPT_CHARS,
 } from "./FounderPreferencePrompt.js";
 export { FounderMemoryDatasetExporter } from "./FounderMemoryDatasetExporter.js";
+export {
+  buildMemorySelectionContext,
+  resolveGenerationDesignContext,
+  deriveRevisionMemoryContext,
+  toSelectionContext,
+  architectureForFamily,
+} from "./FounderMemoryContext.js";
+export {
+  evaluateMemoryMaturation,
+  classifyHistoricalMemory,
+  isFactualOrOneOffContent,
+  type MaturationVerdict,
+} from "./FounderMemoryMaturation.js";

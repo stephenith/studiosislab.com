@@ -34,6 +34,11 @@ import {
   selectFounderMemory,
   type FounderMemorySelectionResult,
 } from "../founder-memory/FounderMemoryConsumption.js";
+import {
+  deriveRevisionMemoryContext,
+  toSelectionContext,
+} from "../founder-memory/FounderMemoryContext.js";
+import { enrichFromCandidateArtifacts } from "../founder-memory/FounderPreferenceWriter.js";
 
 /** Re-export canonical planner allowlist (single source: allowedCanvasOps.ts). */
 export {
@@ -629,15 +634,17 @@ export function buildRevisionPlannerPrompt(input: {
     channel: "revision",
     repoRoot: input.repoRoot,
     currentFounderRequests: task.requested_changes,
-    ctx: {
-      role: task.role,
-      role_family: null,
-      category: null,
-      design_family: task.design_family ?? null,
-      architecture: null,
-      section: null,
-      component: null,
-    },
+    ctx: toSelectionContext(
+      deriveRevisionMemoryContext({
+        task,
+        enrichment: input.repoRoot
+          ? enrichFromCandidateArtifacts(
+              input.repoRoot,
+              task.prior_candidate_id,
+            )
+          : null,
+      }),
+    ),
   });
   const memoryBlock = memorySelection.prompt_block;
 

@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "P0 CLOSURE — one controlled live Founder-Memory consumption proof (generation and/or revision) under Phase 6B; then final department closure audit",
+    "P0 CLOSURE — one controlled live Founder-Memory consumption proof (generation) and one live revision memory proof under Phase 6C; then final department closure audit",
     "DO NOT APPROVE/PUBLISH known mismatched historical candidates (Operations Analyst→Marketing Manager; Graphic Designer professional_sidebar→HR Manager) — publication eligibility excludes ROLE_INTEGRITY_FAILED",
     "founder-review-004 awaiting founder approval",
     "founder-review-005 changes requested after preview pipeline smoke",
@@ -27,6 +27,12 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-02T18:45:26.000Z",
+      "type": "phase",
+      "summary": "Phase 6C — Founder Memory activation: context propagation + outcome-aware maturation. Local wall=2026-09-03 ~00:15 IST. Phase 6B integration PASS; live precheck discovered CURRENTLY_CONSUMPTION_ELIGIBLE_COUNT=0 because natural generation ran memory selection before Family Engine (design_family=null, architecture=null → 172 IRRELEVANT). Root causes: missing design context propagation; 165 PROVISIONAL stuck because only APPROVE-of-revised-lineage promoted and writer bulk-promoted without outcome evidence. 6C: resolveGenerationDesignContext runs Family Engine before brain and locks design_family+architecture into skill request + DesignBrief; revision derives architecture from candidate artifacts/family contract; founder-memory-selection.json records resolved context + counts. Outcome-aware maturation: FAIL revision / repeated REQUEST CHANGES / factual-one-off cannot confirm; APPROVE after successful attributed correction can mature; REJECT supersedes. Historical reconciliation classifier only — HISTORICAL_MEMORY_SAFE_TO_RECONCILE=NO, no persisted memory mutated. No production OpenAI/gen/rev. Remaining: one live generation memory consumption + one live revision memory consumption.",
+      "ref": "SOS/SAIOS/core/founder-memory/FounderMemoryContext.ts"
+    },
     {
       "at": "2026-09-02T18:20:00.000Z",
       "type": "phase",

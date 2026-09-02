@@ -20,6 +20,7 @@ import type {
   MemoryScope,
   FounderPreferenceMemoryRecord,
 } from "./FounderPreferenceMemoryTypes.js";
+import { evaluateMemoryMaturation } from "./FounderMemoryMaturation.js";
 
 function readJson(path: string): Record<string, unknown> | null {
   if (!existsSync(path)) return null;
@@ -113,8 +114,26 @@ export function enrichFromCandidateArtifacts(
         : null;
   const fromObj = extractFamilyFromObjective(objective);
 
+  const targetDesign =
+    (typeof target?.design_family === "string" && target.design_family) ||
+    (typeof (target?.design_context as { design_family?: string } | undefined)
+      ?.design_family === "string"
+      ? (target?.design_context as { design_family: string }).design_family
+      : null);
+  const targetArch =
+    (typeof target?.architecture === "string" && target.architecture) ||
+    (typeof (target?.design_context as { architecture?: string } | undefined)
+      ?.architecture === "string"
+      ? (target?.design_context as { architecture: string }).architecture
+      : null);
+
   let design_family =
     fromObj.design_family ||
+    targetDesign ||
+    (typeof vg?.design_family === "string" ? vg.design_family : null) ||
+    (typeof brief?.design_family === "string"
+      ? (brief.design_family as string)
+      : null) ||
     (typeof colors?.id === "string"
       ? colors.id.replace(/^family-/, "")
       : null) ||
@@ -124,10 +143,14 @@ export function enrichFromCandidateArtifacts(
 
   let architecture =
     fromObj.architecture ||
+    targetArch ||
     (typeof vg?.layout_architecture === "string"
       ? (vg.layout_architecture as string)
       : null) ||
-    (typeof vg?.architecture === "string" ? (vg.architecture as string) : null);
+    (typeof vg?.architecture === "string" ? (vg.architecture as string) : null) ||
+    (typeof brief?.layout_architecture === "string"
+      ? (brief.layout_architecture as string)
+      : null);
 
   return {
     ...empty,
@@ -235,12 +258,29 @@ export class FounderPreferenceWriter {
     }
 
     if (decision.decision === "APPROVED") {
-      // Promote provisional rules when revised lineage is proven (revfb parent).
+      // Rule-specific promotion: only parent provisionals with certain
+      // attribution + successful revision + later APPROVE mature.
       if (enrichment.is_revised && enrichment.parent_candidate_id) {
         const provisional = this.store.findProvisionalForParent(
           enrichment.parent_candidate_id,
         );
         for (const prev of provisional) {
+          const evaluation = evaluateMemoryMaturation(prev, {
+            revision_outcome: "SUCCESS",
+            later_founder_outcome: "APPROVE",
+            same_issue_persists: false,
+            attribution_certain: prev.candidate_id === enrichment.parent_candidate_id,
+          });
+          if (evaluation.verdict !== "PROMOTABLE") {
+            this.store.appendEvent({
+              type: "MEMORY_SKIPPED",
+              decision_id: decision.decision_id,
+              review_id: decision.review_id,
+              memory_id: prev.memory_id,
+              detail: `maturation ${evaluation.verdict}: ${evaluation.reason}`,
+            });
+            continue;
+          }
           written.push(
             this.store.upsertActive({
               scope: prev.scope,
@@ -253,7 +293,7 @@ export class FounderPreferenceWriter {
               candidate_id: enrichment.candidate_id,
               review_id: decision.review_id,
               decision_id: decision.decision_id,
-              revision_task_id: null,
+              revision_task_id: prev.revision_task_id,
               role: prev.role ?? enrichment.role,
               category: prev.category ?? enrichment.category,
               role_family: prev.role_family ?? enrichment.role_family,
@@ -404,6 +444,49 @@ export class FounderPreferenceWriter {
               acceptance_result: "rejected",
               active: true,
               confidence_merge: true,
+            }),
+          );
+        }
+      }
+
+      if (enrichment.is_revised && enrichment.parent_candidate_id) {
+        const provisional = this.store.findProvisionalForParent(
+          enrichment.parent_candidate_id,
+        );
+        for (const prev of provisional) {
+          const evaluation = evaluateMemoryMaturation(prev, {
+            revision_outcome: "SUCCESS",
+            later_founder_outcome: "REJECT",
+            same_issue_persists: false,
+            attribution_certain: prev.candidate_id === enrichment.parent_candidate_id,
+          });
+          if (evaluation.verdict !== "SUPERSEDE") continue;
+          written.push(
+            this.store.upsertActive({
+              scope: prev.scope,
+              issue_type: prev.issue_type,
+              normalized_rule: prev.normalized_rule,
+              raw_founder_feedback: prev.raw_founder_feedback,
+              signal_type: prev.signal_type,
+              confidence: prev.confidence,
+              status: "SUPERSEDED",
+              candidate_id: enrichment.candidate_id,
+              review_id: decision.review_id,
+              decision_id: decision.decision_id,
+              revision_task_id: prev.revision_task_id,
+              role: prev.role ?? enrichment.role,
+              category: prev.category ?? enrichment.category,
+              role_family: prev.role_family ?? enrichment.role_family,
+              design_family: prev.design_family ?? enrichment.design_family,
+              architecture: prev.architecture ?? enrichment.architecture,
+              section: prev.section,
+              component: prev.component,
+              positive_or_negative: prev.positive_or_negative,
+              source_decision: "REJECTED",
+              acceptance_result: "rejected",
+              active: false,
+              created_at: prev.created_at,
+              confidence_merge: false,
             }),
           );
         }

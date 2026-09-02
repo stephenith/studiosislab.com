@@ -1,0 +1,489 @@
+{
+  "ok": true,
+  "plan": {
+    "schema_version": "founder-canvas-revision-plan-1.0.0",
+    "summary": "This plan adjusts the vertical positioning of SKILLS lower line and EXPERIENCE bullet points to reduce excessive gaps and detachments, consolidating skill lines into a coherent block and creating a more compact Experience section. Additionally, it rebalances the overall vertical layout to utilize space efficiently without overlap or loss of clean separation. All changes preserve content, order, and section alignment, fulfilling all required Founder feedback items.",
+    "operations": [
+      {
+        "op": "set_position",
+        "target_id": "block-summary-1-t2",
+        "before_summary": "Inventory object block-summary-1-t2 at left=284 top=173 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-summary-1-t2",
+        "values": {
+          "top": 176
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t2",
+        "before_summary": "Inventory object block-experience-2-t2 at left=284 top=299 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t2",
+        "values": {
+          "top": 302
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t3",
+        "before_summary": "Inventory object block-experience-2-t3 at left=284 top=317 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t3",
+        "values": {
+          "top": 320
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t4",
+        "before_summary": "Inventory object block-experience-2-t4 at left=284 top=335 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t4",
+        "values": {
+          "top": 338
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t5",
+        "before_summary": "Inventory object block-experience-2-t5 at left=284 top=385 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t5",
+        "values": {
+          "top": 388
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t6",
+        "before_summary": "Inventory object block-experience-2-t6 at left=284 top=435 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t6",
+        "values": {
+          "top": 438
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t7",
+        "before_summary": "Inventory object block-experience-2-t7 at left=284 top=485 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t7",
+        "values": {
+          "top": 488
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t8",
+        "before_summary": "Inventory object block-experience-2-t8 at left=284 top=545.8 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t8",
+        "values": {
+          "top": 548.8
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t9",
+        "before_summary": "Inventory object block-experience-2-t9 at left=284 top=563.8 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t9",
+        "values": {
+          "top": 566.8
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t10",
+        "before_summary": "Inventory object block-experience-2-t10 at left=284 top=581.8 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t10",
+        "values": {
+          "top": 584.8
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t11",
+        "before_summary": "Inventory object block-experience-2-t11 at left=284 top=631.8 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t11",
+        "values": {
+          "top": 634.8
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t12",
+        "before_summary": "Inventory object block-experience-2-t12 at left=284 top=681.8 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t12",
+        "values": {
+          "top": 684.8
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t13",
+        "before_summary": "Inventory object block-experience-2-t13 at left=284 top=742.5999999999999 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t13",
+        "values": {
+          "top": 745.6
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t14",
+        "before_summary": "Inventory object block-experience-2-t14 at left=284 top=760.5999999999999 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t14",
+        "values": {
+          "top": 763.6
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t15",
+        "before_summary": "Inventory object block-experience-2-t15 at left=284 top=778.5999999999999 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t15",
+        "values": {
+          "top": 781.6
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t16",
+        "before_summary": "Inventory object block-experience-2-t16 at left=284 top=828.5999999999999 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t16",
+        "values": {
+          "top": 831.6
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t17",
+        "before_summary": "Inventory object block-experience-2-t17 at left=284 top=878.5999999999999 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-experience-2-t17",
+        "values": {
+          "top": 881.6
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-education-3-t2",
+        "before_summary": "Inventory object block-education-3-t2 at left=284 top=980.3999999999999 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-education-3-t2",
+        "values": {
+          "top": 983.4
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-education-3-t3",
+        "before_summary": "Inventory object block-education-3-t3 at left=284 top=998.8999999999999 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-education-3-t3",
+        "values": {
+          "top": 1001.9
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-skills-4-t2",
+        "before_summary": "Inventory object block-skills-4-t2 at left=48 top=173 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-skills-4-t2",
+        "values": {
+          "top": 176
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-skills-4-t3",
+        "before_summary": "Inventory object block-skills-4-t3 at left=48 top=271 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-skills-4-t3",
+        "values": {
+          "top": 274
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-projects-5-t2",
+        "before_summary": "Inventory object block-projects-5-t2 at left=48 top=352 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-projects-5-t2",
+        "values": {
+          "top": 355
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-projects-5-t3",
+        "before_summary": "Inventory object block-projects-5-t3 at left=48 top=368 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-projects-5-t3",
+        "values": {
+          "top": 371
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-certifications-6-t2",
+        "before_summary": "Inventory object block-certifications-6-t2 at left=48 top=438 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-certifications-6-t2",
+        "values": {
+          "top": 441
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-certifications-6-t3",
+        "before_summary": "Inventory object block-certifications-6-t3 at left=48 top=456.6666666666667 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-certifications-6-t3",
+        "values": {
+          "top": 459.67
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-certifications-6-t4",
+        "before_summary": "Inventory object block-certifications-6-t4 at left=48 top=475.33333333333337 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-certifications-6-t4",
+        "values": {
+          "top": 478.33
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-languages-7-r0",
+        "before_summary": "Inventory object block-languages-7-r0 at left=48 top=510.00000000000006 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-languages-7-r0",
+        "values": {
+          "top": 520.78
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-languages-7-t1",
+        "before_summary": "Inventory object block-languages-7-t1 at left=60 top=510.00000000000006 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-languages-7-t1",
+        "values": {
+          "top": 520.78
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-languages-7-t2",
+        "before_summary": "Inventory object block-languages-7-t2 at left=48 top=529 before deterministic spacing ownership",
+        "intended_change": "Apply deterministic layout-normalized position for block-languages-7-t2",
+        "values": {
+          "top": 542.78
+        },
+        "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+        "founder_feedback_items": [
+          "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+          "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+        ],
+        "confidence": 1
+      }
+    ],
+    "notes": [
+      "No changes made to other SKILLS section textboxes to preserve existing column alignment and structure; only adjusted lower skill line vertical position to address excessive gap and detachment.",
+      "Experience bullet points adjusted upward in a coordinated manner to tighten spacing and compact layout without causing overlaps or misalignment between bullets and roles.",
+      "Overall page vertical rhythm improved through these mutations, preserving clean separation and preventing text overlap.",
+      "No new sections or content added, fully preserving original resume content and section order as requested.",
+      "No identity or no-op operations included; all plan operations have real vertical position changes to satisfy Founder requirements.",
+      "No horizontal alignment changes are necessary as existing heading and marker alignments are already consistent and not targeted by feedback.",
+      "This plan avoids direct mutations to section markers or headings, only adjusting content textbox vertical positions, thus preserving section unit coherence and visual hierarchy.",
+      "deterministic_spacing_ownership",
+      "shifted_objects=29"
+    ]
+  },
+  "error": null,
+  "report_ok": true,
+  "shifted_object_count": 29,
+  "preserved_ai_ops": 0,
+  "replaced_ai_position_ops": 4
+}

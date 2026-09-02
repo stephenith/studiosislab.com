@@ -1,0 +1,121 @@
+{
+  "schema_version": "sanitized-mm-production-replay-1.0.0",
+  "source_task_id": "revtask-349d7980-578",
+  "source_candidate_id": "cand-marketing-marketing-manager-20260902T193455Z-1ce04d",
+  "note": "Sanitized immutable fixture copied from production evidence. Do not mutate originals.",
+  "requested_changes": [
+    "Reduce the excessive vertical gap specifically between the \u201cCoordinated brand refresh initiatives\u2026\u201d bullet and the following \u201cConducted quarterly market analysis supporting strategic adjustments\u2026\u201d bullet within Senior Marketing Specialist \u2014 Nexera Solutions.",
+    "Make that gap visually consistent with the spacing between the other bullets in the same Nexera Solutions experience entry.",
+    "Preserve the wording, bullet order, wrapping, role heading, dates, and factual content exactly as they are.",
+    "Do not reposition unrelated sections or other experience entries unless a minimal downstream adjustment is strictly required for safe geometry.",
+    "Validate the final post-normalization rendered relationship between these two specific bullets, with positive spacing, no text overlap, and no page overflow."
+  ],
+  "ai_plan": {
+    "schema_version": "founder-canvas-revision-plan-1.0.0",
+    "summary": "Adjusted vertical position of the bullet text block '\u2022 Conducted quarterly market analysis supporting strategic adjustments that led to a 10% increase in customer retention.' within the Senior Marketing Specialist \u2014 Nexera Solutions experience entry to reduce excessive vertical gap and achieve consistent spacing between bullets. No other unrelated sections or experience entries were repositioned to preserve the existing layout and safe geometry.",
+    "operations": [
+      {
+        "op": "set_position",
+        "target_id": "block-experience-2-t13",
+        "before_summary": "Textbox id=block-experience-2-t13 section=experience left=80 top=615.3333333333334 w=650 h=31 effective_bottom=646.33 text=\"\u2022 Conducted quarterly market analysis supporting strategic adjustments that led to a 10% increase in customer retention.\"",
+        "intended_change": "Move this bullet text block up to reduce the excessive vertical gap below the prior bullet and make the gap visually consistent with other bullets in the same experience entry, preserving the rest of the layout without repositioning unrelated sections.",
+        "values": {
+          "top": 599
+        },
+        "founder_feedback_item": "Reduce the excessive vertical gap specifically between the \u201cCoordinated brand refresh initiatives\u2026\u201d bullet and the following \u201cConducted quarterly market analysis supporting strategic adjustments\u2026\u201d bullet within Senior Marketing Specialist \u2014 Nexera Solutions.",
+        "confidence": 0.98,
+        "founder_feedback_items": [
+          "Make that gap visually consistent with the spacing between the other bullets in the same Nexera Solutions experience entry.",
+          "Do not reposition unrelated sections or other experience entries unless a minimal downstream adjustment is strictly required for safe geometry."
+        ]
+      }
+    ],
+    "notes": []
+  },
+  "memory_ids": [
+    "fpm-4feec9cb-f33"
+  ],
+  "design_family": "creative",
+  "architecture": "section_index",
+  "oa_successful_replay": {
+    "source_task_id": "revtask-a350f482-abf",
+    "requested_changes": [
+      "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+      "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+      "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+      "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap.",
+      "Do not add new sections or invent extra content; solve this by correcting spacing, alignment, and section rhythm only."
+    ],
+    "ai_plan": {
+      "schema_version": "founder-canvas-revision-plan-1.0.0",
+      "summary": "This plan adjusts the vertical positioning of SKILLS lower line and EXPERIENCE bullet points to reduce excessive gaps and detachments, consolidating skill lines into a coherent block and creating a more compact Experience section. Additionally, it rebalances the overall vertical layout to utilize space efficiently without overlap or loss of clean separation. All changes preserve content, order, and section alignment, fulfilling all required Founder feedback items.",
+      "operations": [
+        {
+          "op": "set_position",
+          "target_id": "block-skills-4-t3",
+          "before_summary": "Textbox id=block-skills-4-t3 section=skills left=48 top=271 h=46 effective_bottom=317 text='Tools  \u00b7  Documentation  \u00b7  Stakeholder Comms  \u00b7  Process Design'",
+          "intended_change": "Move the lower skills line upward to tighten vertical spacing within SKILLS section so skills read as one coherent block with consistent line spacing and rebalance so lower skills lines are visually connected to upper cluster.",
+          "values": {
+            "top": 260
+          },
+          "founder_feedback_item": "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+          "confidence": 0.95,
+          "founder_feedback_items": [
+            "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group."
+          ]
+        },
+        {
+          "op": "set_position",
+          "target_id": "block-experience-2-t5",
+          "before_summary": "Textbox id=block-experience-2-t5 section=experience left=284 top=385 h=46 effective_bottom=431 text='\u2022 Built messaging frameworks adopted by a 40-person sales org; shortened ramp time by 3 weeks.'",
+          "intended_change": "Move this Experience bullet up to tighten vertical spacing between bullet points and role blocks for more consistent reading rhythm.",
+          "values": {
+            "top": 375
+          },
+          "founder_feedback_item": "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+          "confidence": 0.95
+        },
+        {
+          "op": "set_position",
+          "target_id": "block-experience-2-t6",
+          "before_summary": "Textbox id=block-experience-2-t6 section=experience left=284 top=435 h=46 effective_bottom=481 text='\u2022 Launched two category narratives with Product and CS used across webinars and ABM plays.'",
+          "intended_change": "Move this Experience bullet up to tighten vertical spacing between bullet points and job-content blocks for consistent rhythm and compactness.",
+          "values": {
+            "top": 425
+          },
+          "founder_feedback_item": "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap.",
+          "confidence": 0.95,
+          "founder_feedback_items": [
+            "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+            "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+          ]
+        },
+        {
+          "op": "set_position",
+          "target_id": "block-experience-2-t7",
+          "before_summary": "Textbox id=block-experience-2-t7 section=experience left=284 top=485 h=46 effective_bottom=531 text='\u2022 Implemented attribution reporting aligning Marketing and RevOps on forecast inputs.'",
+          "intended_change": "Move this Experience bullet upward to create more even and compact spacing between bullets for consistent rhythm and better vertical space usage.",
+          "values": {
+            "top": 475
+          },
+          "founder_feedback_item": "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap.",
+          "confidence": 0.95,
+          "founder_feedback_items": [
+            "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+            "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap."
+          ]
+        }
+      ],
+      "notes": [
+        "No changes made to other SKILLS section textboxes to preserve existing column alignment and structure; only adjusted lower skill line vertical position to address excessive gap and detachment.",
+        "Experience bullet points adjusted upward in a coordinated manner to tighten spacing and compact layout without causing overlaps or misalignment between bullets and roles.",
+        "Overall page vertical rhythm improved through these mutations, preserving clean separation and preventing text overlap.",
+        "No new sections or content added, fully preserving original resume content and section order as requested.",
+        "No identity or no-op operations included; all plan operations have real vertical position changes to satisfy Founder requirements.",
+        "No horizontal alignment changes are necessary as existing heading and marker alignments are already consistent and not targeted by feedback.",
+        "This plan avoids direct mutations to section markers or headings, only adjusting content textbox vertical positions, thus preserving section unit coherence and visual hierarchy."
+      ]
+    },
+    "prior_canvas_file": "oa-prior-canvas.json"
+  }
+}

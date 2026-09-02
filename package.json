@@ -220,6 +220,7 @@
     "aios:precise-spacing-relation-6e:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-precise-spacing-relation-6e.ts",
     "aios:failed-revision-recovery-6e:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-failed-revision-recovery-6e.ts",
     "aios:revision-closure-e2e-6e:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-revision-closure-e2e-6e.ts",
+    "aios:revision-production-replay:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-revision-production-replay.ts",
     "aios:founder-preference-memory:verify": "npx --yes tsx SOS/SAIOS/core/founder-memory/verify-founder-preference-memory.ts",
     "aios:terminology:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-resume-template-terminology.ts",
     "aios:revision:feedback:repair-gd": "npx --yes tsx SOS/SAIOS/core/founder-revision/repair-revfb-critic-artifacts.ts --graphic-designer",

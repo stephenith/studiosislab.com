@@ -379,6 +379,7 @@ export function evaluateFounderSpacingIntents(input: {
   requested_changes: string[];
   beforeCanvas: FabricCanvasDoc;
   afterCanvas: FabricCanvasDoc;
+  resolved_relations?: unknown;
 }): {
   intents: SpacingIntentRelation[];
   all_satisfied: boolean;
@@ -391,6 +392,7 @@ export function evaluateFounderSpacingIntents(input: {
       requested_changes: string[];
       beforeCanvas: FabricCanvasDoc;
       afterCanvas: FabricCanvasDoc;
+      resolved_relations?: unknown;
     }) => {
       intents: SpacingIntentRelation[];
       all_satisfied: boolean;

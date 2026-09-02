@@ -10,9 +10,15 @@ import {
   evaluateFounderSpacingIntents,
   findVisualContentTextOverlaps,
   isFounderMeasurableSpacingIntent,
+  spacingIntentSatisfied,
   type SpacingIntentRelation,
 } from "./FounderSpacingIntent.js";
-import { buildSafeNamedSpacingRelationOps } from "./FounderSpacingRelation.js";
+import {
+  buildSafeNamedSpacingRelationOps,
+  measureResolvedPairGap,
+  resolveAllFounderSpacingRelations,
+  type ResolvedSpacingRelation,
+} from "./FounderSpacingRelation.js";
 import {
   isHeaderIdentityLayoutFeedback,
   isHeaderIdentityLayoutOwnedChange,
@@ -31,6 +37,10 @@ import {
 } from "./RequestedChangeClassification.js";
 import type { CanvasOperation, RevisionPlan } from "./revision-task-types.js";
 import { snapCoord } from "./EquivalentHorizontalOwnership.js";
+import {
+  isFabricTextObject,
+  visualTextContentBottom,
+} from "./TextEffectiveHeight.js";
 
 function normalizeText(s: string): string {
   return s
@@ -307,6 +317,9 @@ export type DeterministicSpacingPlanResult = {
     | "UNCHANGED";
   spacing_intents_det?: SpacingIntentRelation[];
   spacing_intents_ai?: SpacingIntentRelation[];
+  /** Canonical Founder spacing relations resolved once for this ownership pass. */
+  resolved_relations?: ResolvedSpacingRelation[];
+  named_pair_only?: boolean;
 };
 
 /**
@@ -460,32 +473,52 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
     isFounderMeasurableSpacingIntent(c),
   );
 
+  // Resolve Founder spacing relations ONCE for this canvas — shared by named
+  // repair ops and intent evaluation (no independent re-parse of raw text).
+  const resolvedRelations = hasMeasurableSpacing
+    ? resolveAllFounderSpacingRelations({
+        requested_changes: input.requested_changes,
+        canvas: input.priorCanvas,
+      })
+    : [];
+  const namedPairOnly =
+    resolvedRelations.length > 0 &&
+    resolvedRelations.every((r) => r.kind === "NAMED_PAIR");
+
   const namedRelationOps = buildSafeNamedSpacingRelationOps({
     canvas: input.priorCanvas,
     requested_changes: input.requested_changes,
+    resolved_relations: resolvedRelations,
   });
   const namedTargetIds = new Set(
     namedRelationOps
       .map((o) => ("target_id" in o ? String(o.target_id ?? "") : ""))
       .filter(Boolean),
   );
-  const spacingOpsWithNamed = [
-    ...spacingOps.filter((o) => {
-      const id = "target_id" in o ? String(o.target_id ?? "") : "";
-      return !id || !namedTargetIds.has(id);
-    }),
-    ...namedRelationOps,
-  ];
+  // Named-pair-only packets: prefer the smallest safe mutation (named ops),
+  // not a whole-section normalizer rewrite.
+  const spacingOpsWithNamed = namedPairOnly
+    ? [...namedRelationOps]
+    : [
+        ...spacingOps.filter((o) => {
+          const id = "target_id" in o ? String(o.target_id ?? "") : "";
+          return !id || !namedTargetIds.has(id);
+        }),
+        ...namedRelationOps,
+      ];
 
   const detPlanBase: RevisionPlan = {
     schema_version: "founder-canvas-revision-plan-1.0.0",
     summary:
       input.aiPlan.summary ||
-      "Deterministic spacing ownership via RevisionLayoutNormalizer",
+      (namedPairOnly
+        ? "Deterministic named-pair spacing ownership"
+        : "Deterministic spacing ownership via RevisionLayoutNormalizer"),
     operations: [...preservedNonPosition, ...spacingOpsWithNamed],
     notes: [
       ...(input.aiPlan.notes ?? []),
       "deterministic_spacing_ownership",
+      namedPairOnly ? "named_pair_only" : "normalizer_or_named",
       `shifted_objects=${spacingOpsWithNamed.length}`,
       `named_relation_ops=${namedRelationOps.length}`,
     ],
@@ -559,6 +592,25 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
         preserved_ai_ops: preservedNonPosition.length,
         replaced_ai_position_ops: 0,
         ownership_mode: "UNCHANGED",
+        resolved_relations: resolvedRelations,
+        named_pair_only: namedPairOnly,
+      };
+    }
+    // Named-pair measurable with no AI ops: only accept if named det satisfies.
+    if (namedPairOnly && namedRelationOps.length === 0) {
+      return {
+        ok: false,
+        plan: null,
+        error:
+          "spacing intent unsatisfied: deterministic ownership and AI plan both fail measured Founder spacing relations (or produce unsafe overlaps)",
+        report_ok: normalized.report.ok,
+        shifted_object_count: 0,
+        preserved_ai_ops: 0,
+        replaced_ai_position_ops: 0,
+        fail_closed: true,
+        ownership_mode: "FAIL_CLOSED",
+        resolved_relations: resolvedRelations,
+        named_pair_only: namedPairOnly,
       };
     }
     return {
@@ -570,6 +622,8 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       preserved_ai_ops: preservedNonPosition.length,
       replaced_ai_position_ops: 0,
       ownership_mode: "DETERMINISTIC",
+      resolved_relations: resolvedRelations,
+      named_pair_only: namedPairOnly,
     };
   }
 
@@ -578,9 +632,21 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
     founder_feedback_item: primaryFb,
     founder_feedback_items: extraFb.length > 0 ? extraFb : undefined,
   });
+  const namedShrinkOps = namedPairOnly
+    ? shrinkOps.filter((o) => {
+        const id = "target_id" in o ? String(o.target_id ?? "") : "";
+        return (
+          !id ||
+          namedTargetIds.has(id) ||
+          resolvedRelations.some(
+            (r) => r.upper_id === id || r.lower_id === id,
+          )
+        );
+      })
+    : shrinkOps;
   const aiAugmentedOps = [
     ...preservedNonPosition,
-    ...shrinkOps,
+    ...namedShrinkOps,
     ...aiPositionOps,
   ];
   const detExec = executeCanvasOperations({
@@ -594,7 +660,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
     notes: [
       ...(input.aiPlan.notes ?? []),
       "ai_spacing_ops_preserved_5z",
-      `oversized_shrink_ops=${shrinkOps.length}`,
+      `oversized_shrink_ops=${namedShrinkOps.length}`,
     ],
   };
   const aiExec = executeCanvasOperations({
@@ -606,11 +672,13 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
     requested_changes: input.requested_changes,
     beforeCanvas: input.priorCanvas,
     afterCanvas: detExec.ok ? detExec.canvas : input.priorCanvas,
+    resolved_relations: resolvedRelations,
   });
   const aiIntents = evaluateFounderSpacingIntents({
     requested_changes: input.requested_changes,
     beforeCanvas: input.priorCanvas,
     afterCanvas: aiExec.ok ? aiExec.canvas : input.priorCanvas,
+    resolved_relations: resolvedRelations,
   });
 
   const detOverlapPolicy = detExec.ok
@@ -625,17 +693,46 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
   const aiOverlapVisual = aiExec.ok
     ? findVisualContentTextOverlaps(aiExec.canvas).length
     : 99;
+  const pageH = Number(input.priorCanvas.height ?? 1123);
+  const pageW = Number(input.priorCanvas.width ?? 794);
+  const aiPageOob = aiExec.ok
+    ? countPageOob(aiExec.canvas, pageW, pageH)
+    : 99;
+  const detPageOob = detExec.ok
+    ? countPageOob(detExec.canvas, pageW, pageH)
+    : 99;
 
   const detSafe =
     detExec.ok &&
     detOverlapPolicy === 0 &&
     detOverlapVisual === 0 &&
+    detPageOob === 0 &&
     detIntents.all_satisfied;
   const aiSafe =
     aiExec.ok &&
     aiOverlapPolicy === 0 &&
     aiOverlapVisual === 0 &&
+    aiPageOob === 0 &&
     aiIntents.all_satisfied;
+
+  // Named-pair-only: prefer the smallest safe AI mutation when it satisfies
+  // the canonical relation (do not let whole-section det rewrite win first).
+  if (namedPairOnly && aiSafe) {
+    return {
+      ok: true,
+      plan: aiOnlyPlan,
+      error: null,
+      report_ok: true,
+      shifted_object_count: aiOnlyPlan.operations.length,
+      preserved_ai_ops: preservedNonPosition.length + aiPositionOps.length,
+      replaced_ai_position_ops: 0,
+      ownership_mode: "AI_SPACING_PRESERVED",
+      spacing_intents_det: detIntents.intents,
+      spacing_intents_ai: aiIntents.intents,
+      resolved_relations: resolvedRelations,
+      named_pair_only: true,
+    };
+  }
 
   if (detSafe) {
     return {
@@ -649,6 +746,8 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       ownership_mode: "DETERMINISTIC",
       spacing_intents_det: detIntents.intents,
       spacing_intents_ai: aiIntents.intents,
+      resolved_relations: resolvedRelations,
+      named_pair_only: namedPairOnly,
     };
   }
 
@@ -661,17 +760,19 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
         .filter(Boolean),
     );
     const shrinkIds = new Set(
-      shrinkOps
+      namedShrinkOps
         .map((o) => ("target_id" in o ? String(o.target_id ?? "") : ""))
         .filter(Boolean),
     );
-    const detKept = spacingOpsWithNamed.filter((o) => {
-      const id = "target_id" in o ? String(o.target_id ?? "") : "";
-      return !id || (!aiPosTargets.has(id) && !shrinkIds.has(id));
-    });
+    const detKept = namedPairOnly
+      ? []
+      : spacingOpsWithNamed.filter((o) => {
+          const id = "target_id" in o ? String(o.target_id ?? "") : "";
+          return !id || (!aiPosTargets.has(id) && !shrinkIds.has(id));
+        });
     const hybridOps = [
       ...preservedNonPosition,
-      ...shrinkOps,
+      ...namedShrinkOps,
       ...aiPositionOps,
       ...detKept,
     ];
@@ -687,7 +788,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
         "ai_spacing_intent_preserved_5z",
         `ai_position_ops=${aiPositionOps.length}`,
         `det_ops_kept=${detKept.length}`,
-        `oversized_shrink_ops=${shrinkOps.length}`,
+        `oversized_shrink_ops=${namedShrinkOps.length}`,
       ],
     };
     const hybridExec = executeCanvasOperations({
@@ -698,11 +799,13 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       requested_changes: input.requested_changes,
       beforeCanvas: input.priorCanvas,
       afterCanvas: hybridExec.ok ? hybridExec.canvas : input.priorCanvas,
+      resolved_relations: resolvedRelations,
     });
     const hybridSafe =
       hybridExec.ok &&
       findTextOverlapFindings(hybridExec.canvas).length === 0 &&
       findVisualContentTextOverlaps(hybridExec.canvas).length === 0 &&
+      countPageOob(hybridExec.canvas, pageW, pageH) === 0 &&
       hybridIntents.all_satisfied;
     if (hybridSafe || aiSafe) {
       const usePlan = hybridSafe ? hybridPlan : aiOnlyPlan;
@@ -718,18 +821,24 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
         ownership_mode: useMode,
         spacing_intents_det: detIntents.intents,
         spacing_intents_ai: aiIntents.intents,
+        resolved_relations: resolvedRelations,
+        named_pair_only: namedPairOnly,
       };
     }
   }
 
   // Reflow-heavy packets with no satisfying AI compaction: keep overlap-safe
   // deterministic ownership and let FeedbackCoverage prove spacing relations.
+  // Never use this escape hatch for named-pair-only (would ship false relation).
   const ownedCount = input.requested_changes.filter((c) =>
     isDeterministicLayoutNormalizerOwnedChange(c),
   ).length;
   const detGeomSafe =
-    detExec.ok && detOverlapPolicy === 0 && detOverlapVisual === 0;
-  if (detGeomSafe && ownedCount >= 3) {
+    detExec.ok &&
+    detOverlapPolicy === 0 &&
+    detOverlapVisual === 0 &&
+    detPageOob === 0;
+  if (!namedPairOnly && detGeomSafe && ownedCount >= 3) {
     return {
       ok: true,
       plan: detPlanBase,
@@ -741,6 +850,38 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       ownership_mode: "DETERMINISTIC",
       spacing_intents_det: detIntents.intents,
       spacing_intents_ai: aiIntents.intents,
+      resolved_relations: resolvedRelations,
+      named_pair_only: namedPairOnly,
+    };
+  }
+
+  // Semantic uncertainty alone must not fail a geometrically safe AI move that
+  // improves the Founder-named pair when measured from final sandbox geometry.
+  if (
+    aiExec.ok &&
+    aiOverlapPolicy === 0 &&
+    aiOverlapVisual === 0 &&
+    aiPageOob === 0 &&
+    aiSandboxImprovesCanonicalOrInferredPair({
+      priorCanvas: input.priorCanvas,
+      afterCanvas: aiExec.canvas,
+      resolvedRelations,
+      aiPositionOps,
+    })
+  ) {
+    return {
+      ok: true,
+      plan: aiOnlyPlan,
+      error: null,
+      report_ok: true,
+      shifted_object_count: aiOnlyPlan.operations.length,
+      preserved_ai_ops: preservedNonPosition.length + aiPositionOps.length,
+      replaced_ai_position_ops: 0,
+      ownership_mode: "AI_SPACING_PRESERVED",
+      spacing_intents_det: detIntents.intents,
+      spacing_intents_ai: aiIntents.intents,
+      resolved_relations: resolvedRelations,
+      named_pair_only: namedPairOnly,
     };
   }
 
@@ -758,5 +899,144 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
     ownership_mode: "FAIL_CLOSED",
     spacing_intents_det: detIntents.intents,
     spacing_intents_ai: aiIntents.intents,
+    resolved_relations: resolvedRelations,
+    named_pair_only: namedPairOnly,
   };
+}
+
+function countPageOob(
+  canvas: FabricCanvasDoc,
+  pageW: number,
+  pageH: number,
+): number {
+  let n = 0;
+  const objs = (canvas.objects ?? []) as Array<Record<string, unknown>>;
+  for (let i = 0; i < objs.length; i++) {
+    const o = objs[i]!;
+    const left = asNum(o.left) ?? 0;
+    const top = asNum(o.top) ?? 0;
+    const w = (asNum(o.width) ?? 0) * (asNum(o.scaleX) ?? 1);
+    const h = (asNum(o.height) ?? 0) * (asNum(o.scaleY) ?? 1);
+    if (left < -1 || top < -1 || left + w > pageW + 1 || top + h > pageH + 1) {
+      n += 1;
+    }
+  }
+  return n;
+}
+
+/**
+ * Final-geometry acceptance for spacing: if AI moved a valid endpoint and the
+ * measured named (or inferred prior-sibling) gap improved safely, accept even
+ * when an earlier semantic parser marked the relation AMBIGUOUS/UNEVALUABLE.
+ */
+function aiSandboxImprovesCanonicalOrInferredPair(input: {
+  priorCanvas: FabricCanvasDoc;
+  afterCanvas: FabricCanvasDoc;
+  resolvedRelations: ResolvedSpacingRelation[];
+  aiPositionOps: CanvasOperation[];
+}): boolean {
+  const pairs: Array<{ upper_id: string; lower_id: string; direction: string }> =
+    [];
+  for (const rel of input.resolvedRelations) {
+    if (
+      rel.kind === "NAMED_PAIR" &&
+      rel.upper_id &&
+      rel.lower_id &&
+      (rel.direction === "REDUCE_GAP" || rel.direction === "TIGHTEN_RHYTHM")
+    ) {
+      pairs.push({
+        upper_id: rel.upper_id,
+        lower_id: rel.lower_id,
+        direction: rel.direction,
+      });
+    }
+  }
+  if (pairs.length === 0) {
+    // Infer from single AI set_position target + prior same-entry visual sibling.
+    const tops = input.aiPositionOps.filter(
+      (o) =>
+        o.op === "set_position" &&
+        typeof o.target_id === "string" &&
+        o.target_id &&
+        typeof o.values?.top === "number",
+    );
+    if (tops.length === 1) {
+      const lowerId = String(tops[0]!.target_id);
+      const inferred = inferPriorSiblingPair(input.priorCanvas, lowerId);
+      if (inferred) {
+        pairs.push({
+          upper_id: inferred.upper_id,
+          lower_id: inferred.lower_id,
+          direction: "REDUCE_GAP",
+        });
+      }
+    }
+  }
+  if (pairs.length === 0) return false;
+  for (const pair of pairs) {
+    const before =
+      measureResolvedPairGap(
+        input.priorCanvas,
+        pair.upper_id,
+        pair.lower_id,
+      ) ?? null;
+    const after =
+      measureResolvedPairGap(
+        input.afterCanvas,
+        pair.upper_id,
+        pair.lower_id,
+      ) ?? null;
+    if (before == null || after == null) return false;
+    const sat = spacingIntentSatisfied({
+      direction: pair.direction as "REDUCE_GAP" | "TIGHTEN_RHYTHM",
+      before_gap: before,
+      after_gap: after,
+    });
+    if (!sat.satisfied) return false;
+  }
+  return true;
+}
+
+function inferPriorSiblingPair(
+  canvas: FabricCanvasDoc,
+  lowerId: string,
+): { upper_id: string; lower_id: string } | null {
+  const objs = (canvas.objects ?? []) as Array<Record<string, unknown>>;
+  const texts: Array<{
+    id: string;
+    top: number;
+    contentBottom: number;
+    bullet: boolean;
+    section: string;
+  }> = [];
+  for (let i = 0; i < objs.length; i++) {
+    const o = objs[i]!;
+    if (!isFabricTextObject(o)) continue;
+    const id = objectId(o, i);
+    const text = String(o.text ?? "");
+    const data =
+      o.data && typeof o.data === "object" && !Array.isArray(o.data)
+        ? (o.data as { section?: unknown })
+        : {};
+    texts.push({
+      id,
+      top: asNum(o.top) ?? 0,
+      contentBottom: visualTextContentBottom(o),
+      bullet: /^\s*[•\-–]/.test(text),
+      section: String(data.section ?? ""),
+    });
+  }
+  texts.sort((a, b) => a.top - b.top || a.id.localeCompare(b.id));
+  const lower = texts.find((t) => t.id === lowerId);
+  if (!lower) return null;
+  const priors = texts.filter(
+    (t) =>
+      t.id !== lower.id &&
+      t.section === lower.section &&
+      t.bullet &&
+      t.top < lower.top - 1e-9,
+  );
+  const upper = priors[priors.length - 1];
+  if (!upper) return null;
+  return { upper_id: upper.id, lower_id: lower.id };
 }

@@ -209,6 +209,66 @@ function main(): void {
     assert(e.kind === "AMBIGUOUS", "E_ambiguous_named_bullet_fail_closed", JSON.stringify(e)),
   );
 
+  // B2 — two distinct named endpoints in same entry → NAMED_PAIR (production MM wording)
+  const b2 = resolveFounderSpacingRelation({
+    requestedChange:
+      "Reduce the excessive vertical gap specifically between the “Coordinated brand refresh initiatives…” bullet and the following “Conducted quarterly market analysis supporting strategic adjustments…” bullet within Senior Marketing Specialist — Northwind Labs.",
+    canvas,
+  });
+  checks.push(
+    assert(
+      b2.kind === "NAMED_PAIR" &&
+        b2.upper_id === "block-experience-2-t12" &&
+        b2.lower_id === "block-experience-2-t13",
+      "B2_two_named_endpoints_same_entry",
+      JSON.stringify(b2),
+    ),
+  );
+
+  // C2 — reverse textual order still sorts geometrically
+  const c2 = resolveFounderSpacingRelation({
+    requestedChange:
+      "Reduce the gap between the “Conducted quarterly market analysis supporting strategic adjustments…” bullet and the “Coordinated brand refresh initiatives…” bullet.",
+    canvas,
+  });
+  checks.push(
+    assert(
+      c2.kind === "NAMED_PAIR" &&
+        c2.upper_id === "block-experience-2-t12" &&
+        c2.lower_id === "block-experience-2-t13",
+      "C2_reverse_textual_order_sorted_geometrically",
+      JSON.stringify(c2),
+    ),
+  );
+
+  // E2 — two named objects from different role entries without inter-role request
+  const e2 = resolveFounderSpacingRelation({
+    requestedChange:
+      "Reduce the gap between the “Implemented advanced analytics dashboards…” bullet and the “Supported launch and growth of cross-channel campaigns…” bullet.",
+    canvas,
+  });
+  checks.push(
+    assert(
+      e2.kind === "AMBIGUOUS" || e2.kind === "UNEVALUABLE",
+      "E2_cross_entry_without_inter_role_fail_closed",
+      JSON.stringify(e2),
+    ),
+  );
+
+  // F2 — >2 plausible named hits → AMBIGUOUS
+  const f2 = resolveFounderSpacingRelation({
+    requestedChange:
+      'Reduce the excessive vertical gap between the “Supported launch and growth of cross-channel campaigns…” bullet, the “Optimized digital ad spend through A/B testing…” bullet, and the “Conducted quarterly market analysis supporting strategic adjustments…” bullet.',
+    canvas,
+  });
+  checks.push(
+    assert(
+      f2.kind === "AMBIGUOUS",
+      "F2_three_named_hits_ambiguous",
+      JSON.stringify(f2),
+    ),
+  );
+
   const f = resolveFounderSpacingRelation({
     requestedChange:
       "Reduce the excessive vertical gap before the “Supported launch and growth of cross-channel campaigns…” bullet.",

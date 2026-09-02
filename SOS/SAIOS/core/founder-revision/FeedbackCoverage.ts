@@ -40,6 +40,7 @@ import {
   evaluateFounderSpacingIntents,
   isFounderMeasurableSpacingIntent,
 } from "./FounderSpacingIntent.js";
+import { resolveFounderSpacingRelation } from "./FounderSpacingRelation.js";
 import {
   HEADER_IDENTITY_PAD_PX,
   HEADER_TO_SUMMARY_CLEARANCE_PX,
@@ -2133,11 +2134,17 @@ function structuralHints(
   const ids: string[] = [];
 
   // Phase 5Z — measurable spacing intents first (before section-rhythm false passes).
+  // Resolve the canonical relation once, then evaluate final geometry against it.
   if (isFounderMeasurableSpacingIntent(item) || isFounderMeasurableSpacingIntent(n)) {
+    const resolved = resolveFounderSpacingRelation({
+      requestedChange: item,
+      canvas: before,
+    });
     const evaled = evaluateFounderSpacingIntents({
       requested_changes: [item],
       beforeCanvas: before,
       afterCanvas: after,
+      resolved_relations: [resolved],
     });
     const rel = evaled.intents[0];
     if (!rel) {

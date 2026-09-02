@@ -320,7 +320,52 @@ export function resolveFounderSpacingRelation(input: {
   const afterNamed = /\bafter\b/.test(n) && !beforeNamed;
   const interRole = requestsInterRole(raw);
 
-  if (needles.length > 0 && uniqueHits.length > 1) {
+  // True ambiguity: one named needle matches multiple distinct objects.
+  if (needles.length > 0) {
+    for (const needle of needles) {
+      const perNeedle = [
+        ...new Map(
+          namedObjectHits(rows, [needle]).map((h) => [h.id, h]),
+        ).values(),
+      ];
+      if (perNeedle.length > 1) {
+        return {
+          ...base,
+          kind: "AMBIGUOUS",
+          notes: `named spacing target ambiguous: ${perNeedle.map((h) => h.id).join(",")}`,
+        };
+      }
+    }
+  }
+
+  // Two distinct named endpoints (different needles) → ordered NAMED_PAIR when
+  // they share a logical entry (or Founder requested inter-role spacing).
+  if (needles.length > 0 && uniqueHits.length === 2) {
+    const [a, b] = [...uniqueHits].sort(
+      (x, y) => x.top - y.top || x.id.localeCompare(y.id),
+    );
+    const sameGroup = a!.group_key === b!.group_key && a!.group_key.length > 0;
+    if (!sameGroup && !interRole) {
+      return {
+        ...base,
+        kind: "AMBIGUOUS",
+        notes: `named spacing target ambiguous: ${uniqueHits.map((h) => h.id).join(",")}`,
+      };
+    }
+    return {
+      kind: "NAMED_PAIR",
+      direction,
+      founder_feedback_item: raw,
+      section: a!.section || b!.section,
+      group_key: sameGroup ? a!.group_key : `${a!.group_key}|${b!.group_key}`,
+      upper_id: a!.id,
+      lower_id: b!.id,
+      before_gap: pairGap(a!, b!),
+      notes: `named pair ${a!.id}→${b!.id} (two-endpoint)`,
+    };
+  }
+
+  if (needles.length > 0 && uniqueHits.length > 2) {
     return {
       ...base,
       kind: "AMBIGUOUS",
@@ -451,21 +496,58 @@ export function peerVisualGapsInGroup(
 }
 
 /**
+ * Resolve measurable spacing Founder lines once against a canvas.
+ * Consumers must reuse these relations instead of re-parsing Founder text.
+ */
+export function resolveAllFounderSpacingRelations(input: {
+  requested_changes: string[];
+  canvas: FabricCanvasDoc;
+}): ResolvedSpacingRelation[] {
+  const out: ResolvedSpacingRelation[] = [];
+  for (const change of input.requested_changes) {
+    if (!isFounderMeasurableSpacingIntent(change)) continue;
+    out.push(
+      resolveFounderSpacingRelation({
+        requestedChange: change,
+        canvas: input.canvas,
+      }),
+    );
+  }
+  return out;
+}
+
+function relationForChange(
+  change: string,
+  canvas: FabricCanvasDoc,
+  preResolved?: ResolvedSpacingRelation[] | null,
+): ResolvedSpacingRelation {
+  const hit = preResolved?.find((r) => r.founder_feedback_item === change);
+  if (hit) return hit;
+  return resolveFounderSpacingRelation({
+    requestedChange: change,
+    canvas,
+  });
+}
+
+/**
  * Deterministic safe compaction for a resolved NAMED_PAIR reduce/tighten.
  * Returns ops or [] when no safe move exists. Never hard-codes coordinates.
  */
 export function buildSafeNamedSpacingRelationOps(input: {
   canvas: FabricCanvasDoc;
   requested_changes: string[];
+  /** Canonical relations resolved once for this canvas — preferred over re-parse. */
+  resolved_relations?: ResolvedSpacingRelation[] | null;
 }): CanvasOperation[] {
   const ops: CanvasOperation[] = [];
   const rows = collectTextRows(input.canvas);
   for (const change of input.requested_changes) {
     if (!isFounderMeasurableSpacingIntent(change)) continue;
-    const resolved = resolveFounderSpacingRelation({
-      requestedChange: change,
-      canvas: input.canvas,
-    });
+    const resolved = relationForChange(
+      change,
+      input.canvas,
+      input.resolved_relations,
+    );
     if (resolved.kind !== "NAMED_PAIR") continue;
     if (
       resolved.direction !== "REDUCE_GAP" &&
@@ -528,11 +610,13 @@ export function sectionGapsForResolved(
 /**
  * Phase 6E evaluate: named-pair relations use exact pair gaps (not section
  * dominant). Generic section tighten still uses section rhythm.
+ * Prefer `resolved_relations` when ownership already resolved them once.
  */
 export function evaluateFounderSpacingIntentsResolved(input: {
   requested_changes: string[];
   beforeCanvas: FabricCanvasDoc;
   afterCanvas: FabricCanvasDoc;
+  resolved_relations?: ResolvedSpacingRelation[] | null;
 }): {
   intents: SpacingIntentRelation[];
   all_satisfied: boolean;
@@ -549,10 +633,11 @@ export function evaluateFounderSpacingIntentsResolved(input: {
     ) {
       continue;
     }
-    const resolved = resolveFounderSpacingRelation({
-      requestedChange: raw,
-      canvas: input.beforeCanvas,
-    });
+    const resolved = relationForChange(
+      raw,
+      input.beforeCanvas,
+      input.resolved_relations,
+    );
     if (
       resolved.kind === "AMBIGUOUS" ||
       resolved.kind === "UNEVALUABLE" ||

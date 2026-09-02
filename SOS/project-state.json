@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "P0 CLOSURE — execute exactly ONE fresh live revision-memory production proof on a recoverable source (do not retry revtask-c134fd34-f0b); then final department closure audit",
+    "P0 CLOSURE — execute exactly ONE fresh Request Changes Again proof on Marketing Manager source cand-marketing-marketing-manager-20260902T193455Z-1ce04d (do NOT retry revtask-c134fd34-f0b or revtask-349d7980-578); then STOP revision engineering and run department closure audit; hand off to Website Analysis / QA / Development",
     "DO NOT APPROVE/PUBLISH known mismatched historical candidates (Operations Analyst→Marketing Manager; Graphic Designer professional_sidebar→HR Manager) — publication eligibility excludes ROLE_INTEGRITY_FAILED",
     "founder-review-004 awaiting founder approval",
     "founder-review-005 changes requested after preview pipeline smoke",
@@ -27,6 +27,12 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-02T21:40:00.000Z",
+      "type": "implementation",
+      "summary": "Resume Template revision completion (Option B). Local wall=2026-09-03 ~03:10 IST. Holistic review concluded spacing semantics were partially over-engineered (multiple interpreters re-parsing Founder text). Latest live failure revtask-349d7980-578: real OpenAI + memory fpm-4feec9cb-f33 creative/section_index; AI set_position t13 top≈599 (safe range); FAILED_GATE because two correct named endpoints t12+t13 were treated as AMBIGUOUS by uniqueHits>1. Implemented: (1) two same-entry named endpoints → NAMED_PAIR sorted by geometry; true duplicate/cross-entry/>2 still AMBIGUOUS; (2) ResolvedSpacingRelation resolved once via resolveAllFounderSpacingRelations and shared by named repair + ownership eval + FeedbackCoverage; (3) ownership safety boundary — named-pair-only prefers smallest safe AI mutation; semantic uncertainty alone cannot fail-closed a sandbox-safe improving move; whole-section normalizer does not override named-pair-only; (4) sanitized production replay fixture from revtask-349d7980-578 + OA successful path. Tests green including aios:revision-production-replay:verify. Historical tasks not retried/mutated. No live OpenAI/revision this change. Remaining: exactly ONE fresh Request Changes Again proof; then STOP revision engineering.",
+      "ref": "SOS/SAIOS/core/founder-revision/FounderSpacingRelation.ts"
+    },
     {
       "at": "2026-09-02T20:35:00.000Z",
       "type": "phase",

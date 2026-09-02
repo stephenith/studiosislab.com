@@ -147,6 +147,27 @@ export function effectiveTextHeightScaled(o: TextGeomProps): number {
 }
 
 /**
+ * Phase 5Z — Visual *content* height for Founder spacing intent.
+ *
+ * Persisted Fabric JSON has no `textLines` / `calcTextHeight`. Use the same
+ * width-aware wrap estimate as collision geometry, but do NOT inflate with an
+ * oversized stored textbox height — empty allocated box space is visual gap.
+ *
+ * Collision/overlap continues to use {@link effectiveTextHeightScaled}.
+ */
+export function visualTextContentHeightScaled(o: TextGeomProps): number {
+  if (!isFabricTextObject(o)) return storedTextHeightScaled(o);
+  return estimateUnscaledTextContentHeight(o) * num(o.scaleY, 1);
+}
+
+/** Top + visual content height (ink bottom), not allocated textbox bottom. */
+export function visualTextContentBottom(
+  o: TextGeomProps & { top?: unknown },
+): number {
+  return num(o.top, 0) + visualTextContentHeightScaled(o);
+}
+
+/**
  * Axis-aligned bbox using effective text height for text objects and stored
  * geometry for everything else. Shared by acceptance + normalizer.
  */

@@ -37,6 +37,10 @@ import {
   isFabricTextObject,
 } from "./TextEffectiveHeight.js";
 import {
+  evaluateFounderSpacingIntents,
+  isFounderMeasurableSpacingIntent,
+} from "./FounderSpacingIntent.js";
+import {
   HEADER_IDENTITY_PAD_PX,
   HEADER_TO_SUMMARY_CLEARANCE_PX,
   headerIdentityMemberId,
@@ -366,6 +370,9 @@ export function isContactToSummaryGapRequest(normalizedItem: string): boolean {
  */
 export function requiresStructuralProof(normalizedItem: string): boolean {
   const n = normalizedItem;
+  if (isFounderMeasurableSpacingIntent(n)) {
+    return true;
+  }
   if (
     /unify|unified|consistently across|across sections|apply .*style|restructur/.test(
       n,
@@ -2125,6 +2132,50 @@ function structuralHints(
   const afterInv = buildCanvasInventory(after);
   const ids: string[] = [];
 
+  // Phase 5Z — measurable spacing intents first (before section-rhythm false passes).
+  if (isFounderMeasurableSpacingIntent(item) || isFounderMeasurableSpacingIntent(n)) {
+    const evaled = evaluateFounderSpacingIntents({
+      requested_changes: [item],
+      beforeCanvas: before,
+      afterCanvas: after,
+    });
+    const rel = evaled.intents[0];
+    if (!rel) {
+      return {
+        status: "partially_addressed",
+        notes: "spacing intent proof unevaluable",
+        ids,
+      };
+    }
+    const rid = [rel.upper_id, rel.lower_id].filter(Boolean);
+    if (rel.satisfied) {
+      return {
+        status: "addressed",
+        notes: `spacing intent proof pass: ${rel.section} ${rel.direction} ${rel.notes}`,
+        ids: rid,
+        relation: {
+          type: "FOUNDER_SPACING_INTENT",
+          section: rel.section,
+          before_gap: rel.before_gap,
+          after_gap: rel.after_gap,
+          pass: true,
+        },
+      };
+    }
+    return {
+      status: "partially_addressed",
+      notes: `spacing intent unmet: ${rel.section} ${rel.direction} ${rel.notes}`,
+      ids: rid,
+      relation: {
+        type: "FOUNDER_SPACING_INTENT",
+        section: rel.section,
+        before_gap: rel.before_gap,
+        after_gap: rel.after_gap,
+        pass: false,
+      },
+    };
+  }
+
   // Sidebar page-edge + preserve right boundary — final canvas geometry.
   if (isSidebarEdgeExtensionRequest(n)) {
     return evaluateSidebarEdgeExtension(beforeInv, afterInv, okOps);
@@ -2446,6 +2497,10 @@ function promoteSuccessfulOps(opts: {
   plan: RevisionPlan;
 }): { status: FeedbackCoverageStatus; notes: string } | null {
   const { change, ops, okOps, hasFailedMatchingOp, plan } = opts;
+  // Phase 5Z: measurable spacing intents never certify from op-count alone.
+  if (isFounderMeasurableSpacingIntent(change)) {
+    return null;
+  }
   if (
     ops.length === 0 ||
     okOps.length !== ops.length ||

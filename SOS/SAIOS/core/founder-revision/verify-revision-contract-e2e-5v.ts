@@ -10,9 +10,14 @@ import {
   buildCanvasInventory,
   type FabricCanvasDoc,
 } from "./CanvasInventory.js";
+import { measureDominantVisualGap } from "./FounderSpacingIntent.js";
 import { prepareExtractedPlanForValidation } from "./RevisionPlanner.js";
 import { runRevisionPlanGateCircuit } from "./RevisionPlanGateCircuit.js";
 import type { RevisionPlan } from "./revision-task-types.js";
+import {
+  effectiveTextHeightScaled,
+  visualTextContentHeightScaled,
+} from "./TextEffectiveHeight.js";
 
 const REPO = resolve(import.meta.dirname, "../../../..");
 const OUT = join(
@@ -790,6 +795,140 @@ function main(): void {
         circuit.ok === true,
         "F_ba_semantic_packet_e2e_pass",
         `${circuit.status}/${circuit.failed_stage}: ${circuit.error}`,
+      ),
+    );
+  }
+
+  // G: Phase 5Z — production-shaped Skills spacing intent through full circuit
+  {
+    const skillsCanvas = pageCanvas([
+      textbox("block-skills-4-t1", {
+        left: 48,
+        top: 154,
+        width: 208,
+        height: 14,
+        text: "SKILLS",
+        section: "skills",
+        role: "heading",
+        fontSize: 11,
+        lineHeight: 1.2,
+      }),
+      textbox("block-skills-4-t2", {
+        left: 48,
+        top: 173,
+        width: 220,
+        height: 92,
+        text: "Demand Generation  ·  Brand Strategy  ·  ABM  ·  SEO / Content  ·  Marketing Analytics  ·  Sales Enablement",
+        section: "skills",
+        role: "body",
+        fontSize: 10.5,
+        lineHeight: 1.45,
+      }),
+      textbox("block-skills-4-t3", {
+        left: 48,
+        top: 271,
+        width: 220,
+        height: 46,
+        text: "Tools  ·  Documentation  ·  Stakeholder Comms  ·  Process Design",
+        section: "skills",
+        role: "body",
+        fontSize: 10.5,
+        lineHeight: 1.45,
+      }),
+      textbox("block-summary-1-t1", {
+        left: 284,
+        top: 154,
+        width: 200,
+        height: 14,
+        text: "SUMMARY",
+        section: "summary",
+        role: "heading",
+        fontSize: 11,
+      }),
+    ]);
+    const skillsObj = (skillsCanvas.objects ?? []).find(
+      (o) => (o as { id?: string }).id === "block-skills-4-t2",
+    ) as Record<string, unknown>;
+    const beforeDom = measureDominantVisualGap(skillsCanvas, "skills");
+    const spacingRcs = [
+      "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+      "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+      "Do not add new sections or invent extra content; solve this by correcting spacing, alignment, and section rhythm only.",
+      "Preserve the current top header, right-side Summary layout, typography, colors, and overall visual style because those areas are already correctly structured.",
+    ];
+    const extracted: RevisionPlan = {
+      schema_version: "founder-canvas-revision-plan-1.0.0",
+      summary: "AI compact skills visual gap",
+      operations: [
+        {
+          op: "set_position",
+          target_id: "block-skills-4-t3",
+          before_summary: "lower skills block detached",
+          intended_change: "Close internal Skills visual gap",
+          values: { top: 230 },
+          founder_feedback_item: spacingRcs[0]!,
+          founder_feedback_items: [spacingRcs[1]!],
+          confidence: 0.92,
+        },
+      ],
+    };
+    const prepared = prepareExtractedPlanForValidation({
+      extracted,
+      requested_changes: spacingRcs,
+      inventory: buildCanvasInventory(skillsCanvas),
+    });
+    const circuit = runRevisionPlanGateCircuit({
+      priorCanvas: skillsCanvas,
+      requested_changes: spacingRcs,
+      plan: prepared.plan ?? extracted,
+      task_id: "revtask-fixture-5z-skills-spacing",
+      decision_id: "fd-fixture-5z-skills-spacing",
+    });
+    const afterDom = circuit.after_canvas
+      ? measureDominantVisualGap(circuit.after_canvas, "skills")
+      : null;
+    const gapReduced =
+      beforeDom != null &&
+      afterDom != null &&
+      afterDom.gap < beforeDom.gap - 2;
+    const spacingCovered =
+      circuit.coverage_items?.some(
+        (it) =>
+          it.status === "addressed" &&
+          String(it.notes ?? "").toLowerCase().includes("spacing intent"),
+      ) === true;
+    cases.G_spacing_intent_5z = {
+      status: circuit.status,
+      stages: circuit.stages,
+      error: circuit.error,
+      before_gap: beforeDom?.gap ?? null,
+      after_gap: afterDom?.gap ?? null,
+      visual_h: visualTextContentHeightScaled(skillsObj),
+      policy_h: effectiveTextHeightScaled(skillsObj),
+      gap_reduced: gapReduced,
+      spacing_covered: spacingCovered,
+    };
+    checks.push(
+      assert(
+        (beforeDom?.gap ?? 0) > 45 &&
+          visualTextContentHeightScaled(skillsObj) < 50 &&
+          effectiveTextHeightScaled(skillsObj) >= 90,
+        "G_spacing_fixture_visual_gap_truth",
+        JSON.stringify({
+          gap: beforeDom?.gap,
+          visual: visualTextContentHeightScaled(skillsObj),
+          policy: effectiveTextHeightScaled(skillsObj),
+        }),
+      ),
+    );
+    checks.push(
+      assert(
+        circuit.ok === true &&
+          circuit.status === "PASS" &&
+          gapReduced &&
+          spacingCovered,
+        "G_spacing_intent_e2e_pass",
+        `${circuit.status}/${circuit.failed_stage}: ${circuit.error} gap ${beforeDom?.gap}->${afterDom?.gap} covered=${spacingCovered}`,
       ),
     );
   }

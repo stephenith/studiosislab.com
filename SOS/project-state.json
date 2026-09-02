@@ -19,12 +19,19 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
+    "P0 ROLE_MISMATCHED_RESUME_TEMPLATES_MUST_NOT_BE_APPROVED_OR_PUBLISHED — Operations Analyst→Marketing Manager; Graphic Designer professional_sidebar→HR Manager; do not review more templates until role integrity gate exists",
     "founder-review-004 awaiting founder approval",
     "founder-review-005 changes requested after preview pipeline smoke",
     "14 publication package(s) ready_to_publish and not live",
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-02T17:05:00.000Z",
+      "type": "phase",
+      "summary": "Phase 5Z — Founder spacing intent preservation + coverage truth. Local wall=2026-09-02 ~22:30 IST. Production evidence revtask-a350f482-abf READY_FOR_FOUNDER_REVIEW via REAL OpenAI (gpt-4.1-mini; resp_0117e211…; 13820/987 tokens). Feedback reached model; AI proposed 4 compacting set_position ops; deterministic ownership replaced all (preserved_ai_ops=0, replaced=4, final=29 near-uniform +3px). Skills visual/wrap gap 52.32→52.32 unchanged; coverage false-passed via op-count/heading→content/zero-overlap. Fix: visualTextContentBottom (wrap estimate, not oversized stored height); FounderSpacingIntent contract; ownership replaces AI only when det satisfies measured relation (else preserve safe AI / hybrid / fail_closed); FeedbackCoverage requires spacing relation proof (op-count cannot PASS). Offline 5Z verifier + 5V E2E case G. P0 remains: ROLE_MISMATCHED_RESUME_TEMPLATES_MUST_NOT_BE_APPROVED_OR_PUBLISHED (Operations Analyst→Marketing Manager; Graphic Designer professional_sidebar→HR Manager). No more production reviews until role integrity. Provider UI Mock badge + memory injection remain P1 out of scope.",
+      "ref": "SOS/SAIOS/core/founder-revision/verify-founder-spacing-intent-5z.ts"
+    },
     {
       "at": "2026-09-02T16:05:00.000Z",
       "type": "phase",
@@ -2320,7 +2327,7 @@
   "aios_canonical_entrypoint": "SOS/SAIOS/core/first-production-cycle",
   "company_brain_version": "1.0.0",
   "company_brain_mode": "planning_only",
-  "latest_phase": "5Y",
+  "latest_phase": "5Z",
   "phase_5u": {
     "status": "implemented_pending_deploy",
     "problem": "recurring FAILED_GATE direction contradiction on header containment OR-rebalance",
@@ -2329,7 +2336,7 @@
     "safe_to_retry_historical": false
   },
   "phase_5y": {
-    "status": "implemented_pending_deploy",
+    "status": "deployed",
     "problem": "FAILED_GATE direction contradiction from negated UP + target-scope bleed (Business Analyst)",
     "root_causes": [
       "NEGATED_MOVE_PARSED_AS_POSITIVE_DIRECTION",
@@ -2348,7 +2355,38 @@
     "safe_to_retry_historical": false,
     "business_analyst_offline_replay": "PASS",
     "unnecessary_header_position_ops": 0,
-    "remaining": "ONE fresh production Request Changes proof (manual)",
-    "baseline_commit_before": "27ba03bbefad5b6bfeed45e518c4c270919aed03"
+    "remaining": "superseded by Phase 5Z spacing intent work; role integrity still blocks reviews",
+    "baseline_commit_before": "27ba03bbefad5b6bfeed45e518c4c270919aed03",
+    "deployed_commit": "b784ca427a332d9a01c256c5173dcc4ffbf8674d"
+  },
+  "phase_5z": {
+    "status": "implemented_pending_deploy",
+    "problem": "Founder spacing intent lost after AI planning; coverage false-pass",
+    "diagnostic_task": "revtask-a350f482-abf",
+    "openai_network_call_proven": true,
+    "openai_is_primary_final_layout_controller": false,
+    "founder_spacing_intent_actually_satisfied": false,
+    "coverage_can_false_pass_spacing_intent": true,
+    "ai_position_ops": 4,
+    "preserved_ai_ops": 0,
+    "replaced_ai_position_ops": 4,
+    "final_deterministic_ops": 29,
+    "skills_visual_gap_before_after_px": [52.32, 52.32],
+    "canonical_visual_spacing_measurement": "visualTextContentBottom = top + wrapEstimate(height) without max(storedHeight)",
+    "ownership_policy": "det wins only if safe+satisfies measured intent; else preserve safe AI/hybrid; else fail_closed; reflow-heavy empty-AI keeps det geom-safe path",
+    "operation_count_can_satisfy_spacing_coverage": false,
+    "role_integrity_blocker": "ROLE_MISMATCHED_RESUME_TEMPLATES_MUST_NOT_BE_APPROVED_OR_PUBLISHED",
+    "safe_to_review_more_templates": false,
+    "safe_to_retry_historical": false,
+    "historical_tasks_frozen": [
+      "revtask-ec6bf0f8-e3d",
+      "revtask-a8653c03-20f",
+      "revtask-afd3f4b0-fae",
+      "revtask-bcf30166-95c",
+      "revtask-fc2278c5-d39",
+      "revtask-ecd4d24a-139"
+    ],
+    "baseline_commit_before": "b784ca427a332d9a01c256c5173dcc4ffbf8674d",
+    "verifier": "SOS/SAIOS/core/founder-revision/verify-founder-spacing-intent-5z.ts"
   }
 }

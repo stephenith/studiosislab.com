@@ -227,6 +227,23 @@ export function runRevisionPlanGateCircuit(input: {
       requested_changes: input.requested_changes,
       aiPlan: activePlan,
     });
+    // Phase 5Z: neither AI nor deterministic plan satisfies measured spacing
+    // intent → fail closed (do not retain a weak plan for Founder Review).
+    if (det.fail_closed) {
+      stages.SIDEBAR_OWNERSHIP = "FAIL";
+      return {
+        ok: false,
+        failed_stage: "SIDEBAR_OWNERSHIP",
+        status: "FAILED_GATE",
+        error:
+          det.error ??
+          "deterministic spacing ownership fail-closed: Founder spacing intent unsatisfied",
+        stages,
+        active_plan: null,
+        after_canvas: null,
+        coverage_gate_pass: false,
+      };
+    }
     if (det.ok && det.plan) {
       const revalidated = validateRevisionPlan(det.plan, {
         requested_changes: input.requested_changes,
@@ -479,6 +496,11 @@ export function runRevisionPlanGateCircuit(input: {
     active_plan: activePlan,
     after_canvas: normalized.canvas,
     coverage_gate_pass: true,
+    coverage_items: coverage.items.map((it) => ({
+      item: it.founder_feedback_item.slice(0, 80),
+      status: it.status,
+      notes: it.evidence?.notes ?? null,
+    })),
     sidebar_overlap_proof: proof,
   };
 }

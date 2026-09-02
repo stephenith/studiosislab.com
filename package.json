@@ -209,6 +209,7 @@
     "aios:revision:rendered-layout-5w:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-rendered-layout-truth-5w.ts",
     "aios:revision:multiline-header-5x:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-multiline-header-identity-5x.ts",
     "aios:revision:direction-semantics-5y:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-founder-direction-semantics-5y.ts",
+    "aios:revision:spacing-intent-5z:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-founder-spacing-intent-5z.ts",
     "aios:terminology:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-resume-template-terminology.ts",
     "aios:revision:feedback:repair-gd": "npx --yes tsx SOS/SAIOS/core/founder-revision/repair-revfb-critic-artifacts.ts --graphic-designer",
     "aios:revision:feedback:three": "npx --yes tsx SOS/SAIOS/core/founder-revision/run-founder-feedback-revision.ts --three",

@@ -4,10 +4,19 @@
  * geometry over long AI absolute set_position chains.
  */
 import type { FabricCanvasDoc } from "./CanvasInventory.js";
+import { executeCanvasOperations } from "./CanvasOperationExecutor.js";
+import {
+  buildOversizedTextboxShrinkOps,
+  evaluateFounderSpacingIntents,
+  findVisualContentTextOverlaps,
+  isFounderMeasurableSpacingIntent,
+  type SpacingIntentRelation,
+} from "./FounderSpacingIntent.js";
 import {
   isHeaderIdentityLayoutFeedback,
   isHeaderIdentityLayoutOwnedChange,
 } from "./HeaderIdentityLayout.js";
+import { findTextOverlapFindings } from "./RevisionAcceptanceChecks.js";
 import {
   isFounderHeadingToContentEqualityRequest,
   isFounderInternalContentRhythmRequest,
@@ -240,6 +249,11 @@ export function isVerticalSpacingRhythmHeavyFeedback(
   requestedChanges: string[],
 ): boolean {
   if (isHeaderIdentityLayoutFeedback(requestedChanges)) return true;
+  // Phase 5Z: any measurable Founder spacing intent must enter ownership so
+  // weak deterministic cascades cannot silently replace satisfying AI ops.
+  if (requestedChanges.some((c) => isFounderMeasurableSpacingIntent(c))) {
+    return true;
+  }
   const owned = requestedChanges.filter((c) =>
     isDeterministicLayoutNormalizerOwnedChange(c),
   );
@@ -282,6 +296,16 @@ export type DeterministicSpacingPlanResult = {
   shifted_object_count: number;
   preserved_ai_ops: number;
   replaced_ai_position_ops: number;
+  /** Phase 5Z: neither AI nor deterministic plan satisfies measured spacing intents. */
+  fail_closed?: boolean;
+  ownership_mode?:
+    | "DETERMINISTIC"
+    | "AI_SPACING_PRESERVED"
+    | "HYBRID"
+    | "FAIL_CLOSED"
+    | "UNCHANGED";
+  spacing_intents_det?: SpacingIntentRelation[];
+  spacing_intents_ai?: SpacingIntentRelation[];
 };
 
 /**
@@ -417,9 +441,8 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       .map((o) => ("target_id" in o ? String(o.target_id ?? "") : ""))
       .filter(Boolean),
   );
-  const preserved = input.aiPlan.operations.filter((op) => {
+  const preservedNonPosition = input.aiPlan.operations.filter((op) => {
     if (!isPreservedAiOp(op)) return false;
-    // Deterministic geometry owns position+size for objects it moved/resized.
     if (
       (op.op === "set_dimensions" ||
         op.op === "resize_object" ||
@@ -431,51 +454,290 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
     }
     return true;
   });
-  const replaced_ai_position_ops = input.aiPlan.operations.filter(
-    (o) => !preserved.includes(o),
-  ).length;
 
-  const operations = [...preserved, ...spacingOps];
-  if (operations.length === 0) {
-    // All spacing owned by normalizer with no geometry change and no AI content ops.
+  const hasMeasurableSpacing = input.requested_changes.some((c) =>
+    isFounderMeasurableSpacingIntent(c),
+  );
+
+  const detPlanBase: RevisionPlan = {
+    schema_version: "founder-canvas-revision-plan-1.0.0",
+    summary:
+      input.aiPlan.summary ||
+      "Deterministic spacing ownership via RevisionLayoutNormalizer",
+    operations: [...preservedNonPosition, ...spacingOps],
+    notes: [
+      ...(input.aiPlan.notes ?? []),
+      "deterministic_spacing_ownership",
+      `shifted_objects=${spacingOps.length}`,
+    ],
+  };
+
+  if (!hasMeasurableSpacing) {
+    if (detPlanBase.operations.length === 0) {
+      return {
+        ok: true,
+        plan: {
+          schema_version: "founder-canvas-revision-plan-1.0.0",
+          summary:
+            "Deterministic spacing ownership: prior geometry already satisfied layout normalizer (no position mutations).",
+          operations: [],
+          notes: [
+            "normalizer_owned_spacing",
+            "zero_position_ops_preferred_over_identity",
+          ],
+        },
+        error: null,
+        report_ok: true,
+        shifted_object_count: 0,
+        preserved_ai_ops: preservedNonPosition.length,
+        replaced_ai_position_ops: input.aiPlan.operations.filter(
+          (o) => !preservedNonPosition.includes(o),
+        ).length,
+        ownership_mode: "UNCHANGED",
+      };
+    }
     return {
       ok: true,
-      plan: {
-        schema_version: "founder-canvas-revision-plan-1.0.0",
-        summary:
-          "Deterministic spacing ownership: prior geometry already satisfied layout normalizer (no position mutations).",
-        operations: [],
-        notes: [
-          "normalizer_owned_spacing",
-          "zero_position_ops_preferred_over_identity",
-        ],
-      },
+      plan: detPlanBase,
       error: null,
       report_ok: true,
-      shifted_object_count: 0,
-      preserved_ai_ops: preserved.length,
-      replaced_ai_position_ops,
+      shifted_object_count: spacingOps.length,
+      preserved_ai_ops: preservedNonPosition.length,
+      replaced_ai_position_ops: input.aiPlan.operations.filter(
+        (o) => !preservedNonPosition.includes(o),
+      ).length,
+      ownership_mode: "DETERMINISTIC",
     };
   }
 
-  return {
-    ok: true,
-    plan: {
+  // Phase 5Z — choose plan that satisfies measured Founder spacing intents.
+  const aiPositionOps = input.aiPlan.operations.filter(
+    (o) =>
+      o.op === "set_position" ||
+      o.op === "move_object" ||
+      o.op === "align_objects",
+  );
+
+  // No competing AI position ops → deterministic ownership as before; coverage
+  // still requires measured spacing proof when applicable.
+  if (aiPositionOps.length === 0) {
+    if (detPlanBase.operations.length === 0) {
+      return {
+        ok: true,
+        plan: {
+          schema_version: "founder-canvas-revision-plan-1.0.0",
+          summary:
+            "Deterministic spacing ownership: prior geometry already satisfied layout normalizer (no position mutations).",
+          operations: [],
+          notes: [
+            "normalizer_owned_spacing",
+            "zero_position_ops_preferred_over_identity",
+          ],
+        },
+        error: null,
+        report_ok: true,
+        shifted_object_count: 0,
+        preserved_ai_ops: preservedNonPosition.length,
+        replaced_ai_position_ops: 0,
+        ownership_mode: "UNCHANGED",
+      };
+    }
+    return {
+      ok: true,
+      plan: detPlanBase,
+      error: null,
+      report_ok: true,
+      shifted_object_count: spacingOps.length,
+      preserved_ai_ops: preservedNonPosition.length,
+      replaced_ai_position_ops: 0,
+      ownership_mode: "DETERMINISTIC",
+    };
+  }
+
+  const shrinkOps = buildOversizedTextboxShrinkOps({
+    canvas: input.priorCanvas,
+    founder_feedback_item: primaryFb,
+    founder_feedback_items: extraFb.length > 0 ? extraFb : undefined,
+  });
+  const aiAugmentedOps = [
+    ...preservedNonPosition,
+    ...shrinkOps,
+    ...aiPositionOps,
+  ];
+  const detExec = executeCanvasOperations({
+    canvas: input.priorCanvas,
+    operations: detPlanBase.operations,
+  });
+  const aiOnlyPlan: RevisionPlan = {
+    schema_version: "founder-canvas-revision-plan-1.0.0",
+    summary: input.aiPlan.summary,
+    operations: aiAugmentedOps,
+    notes: [
+      ...(input.aiPlan.notes ?? []),
+      "ai_spacing_ops_preserved_5z",
+      `oversized_shrink_ops=${shrinkOps.length}`,
+    ],
+  };
+  const aiExec = executeCanvasOperations({
+    canvas: input.priorCanvas,
+    operations: aiOnlyPlan.operations,
+  });
+
+  const detIntents = evaluateFounderSpacingIntents({
+    requested_changes: input.requested_changes,
+    beforeCanvas: input.priorCanvas,
+    afterCanvas: detExec.ok ? detExec.canvas : input.priorCanvas,
+  });
+  const aiIntents = evaluateFounderSpacingIntents({
+    requested_changes: input.requested_changes,
+    beforeCanvas: input.priorCanvas,
+    afterCanvas: aiExec.ok ? aiExec.canvas : input.priorCanvas,
+  });
+
+  const detOverlapPolicy = detExec.ok
+    ? findTextOverlapFindings(detExec.canvas).length
+    : 99;
+  const detOverlapVisual = detExec.ok
+    ? findVisualContentTextOverlaps(detExec.canvas).length
+    : 99;
+  const aiOverlapPolicy = aiExec.ok
+    ? findTextOverlapFindings(aiExec.canvas).length
+    : 99;
+  const aiOverlapVisual = aiExec.ok
+    ? findVisualContentTextOverlaps(aiExec.canvas).length
+    : 99;
+
+  const detSafe =
+    detExec.ok &&
+    detOverlapPolicy === 0 &&
+    detOverlapVisual === 0 &&
+    detIntents.all_satisfied;
+  const aiSafe =
+    aiExec.ok &&
+    aiOverlapPolicy === 0 &&
+    aiOverlapVisual === 0 &&
+    aiIntents.all_satisfied;
+
+  if (detSafe) {
+    return {
+      ok: true,
+      plan: detPlanBase,
+      error: null,
+      report_ok: true,
+      shifted_object_count: spacingOps.length,
+      preserved_ai_ops: preservedNonPosition.length,
+      replaced_ai_position_ops: aiPositionOps.length,
+      ownership_mode: "DETERMINISTIC",
+      spacing_intents_det: detIntents.intents,
+      spacing_intents_ai: aiIntents.intents,
+    };
+  }
+
+  if (aiSafe) {
+    // Prefer AI spacing ops when deterministic replacement does not satisfy intent.
+    // Hybrid: AI position targets win; keep det ops for other objects; keep shrinks.
+    const aiPosTargets = new Set(
+      aiPositionOps
+        .map((o) => ("target_id" in o ? String(o.target_id ?? "") : ""))
+        .filter(Boolean),
+    );
+    const shrinkIds = new Set(
+      shrinkOps
+        .map((o) => ("target_id" in o ? String(o.target_id ?? "") : ""))
+        .filter(Boolean),
+    );
+    const detKept = spacingOps.filter((o) => {
+      const id = "target_id" in o ? String(o.target_id ?? "") : "";
+      return !id || (!aiPosTargets.has(id) && !shrinkIds.has(id));
+    });
+    const hybridOps = [
+      ...preservedNonPosition,
+      ...shrinkOps,
+      ...aiPositionOps,
+      ...detKept,
+    ];
+    const hybridPlan: RevisionPlan = {
       schema_version: "founder-canvas-revision-plan-1.0.0",
       summary:
         input.aiPlan.summary ||
-        "Deterministic spacing ownership via RevisionLayoutNormalizer",
-      operations,
+        "Hybrid spacing ownership: AI compaction preserved where deterministic failed intent",
+      operations: hybridOps,
       notes: [
         ...(input.aiPlan.notes ?? []),
         "deterministic_spacing_ownership",
-        `shifted_objects=${spacingOps.length}`,
+        "ai_spacing_intent_preserved_5z",
+        `ai_position_ops=${aiPositionOps.length}`,
+        `det_ops_kept=${detKept.length}`,
+        `oversized_shrink_ops=${shrinkOps.length}`,
       ],
-    },
-    error: null,
-    report_ok: true,
-    shifted_object_count: spacingOps.length,
-    preserved_ai_ops: preserved.length,
-    replaced_ai_position_ops,
+    };
+    const hybridExec = executeCanvasOperations({
+      canvas: input.priorCanvas,
+      operations: hybridOps,
+    });
+    const hybridIntents = evaluateFounderSpacingIntents({
+      requested_changes: input.requested_changes,
+      beforeCanvas: input.priorCanvas,
+      afterCanvas: hybridExec.ok ? hybridExec.canvas : input.priorCanvas,
+    });
+    const hybridSafe =
+      hybridExec.ok &&
+      findTextOverlapFindings(hybridExec.canvas).length === 0 &&
+      findVisualContentTextOverlaps(hybridExec.canvas).length === 0 &&
+      hybridIntents.all_satisfied;
+    if (hybridSafe || aiSafe) {
+      const usePlan = hybridSafe ? hybridPlan : aiOnlyPlan;
+      const useMode = hybridSafe ? "HYBRID" : "AI_SPACING_PRESERVED";
+      return {
+        ok: true,
+        plan: usePlan,
+        error: null,
+        report_ok: true,
+        shifted_object_count: usePlan.operations.length,
+        preserved_ai_ops: preservedNonPosition.length + aiPositionOps.length,
+        replaced_ai_position_ops: 0,
+        ownership_mode: useMode,
+        spacing_intents_det: detIntents.intents,
+        spacing_intents_ai: aiIntents.intents,
+      };
+    }
+  }
+
+  // Reflow-heavy packets with no satisfying AI compaction: keep overlap-safe
+  // deterministic ownership and let FeedbackCoverage prove spacing relations.
+  const ownedCount = input.requested_changes.filter((c) =>
+    isDeterministicLayoutNormalizerOwnedChange(c),
+  ).length;
+  const detGeomSafe =
+    detExec.ok && detOverlapPolicy === 0 && detOverlapVisual === 0;
+  if (detGeomSafe && ownedCount >= 3) {
+    return {
+      ok: true,
+      plan: detPlanBase,
+      error: null,
+      report_ok: true,
+      shifted_object_count: spacingOps.length,
+      preserved_ai_ops: preservedNonPosition.length,
+      replaced_ai_position_ops: aiPositionOps.length,
+      ownership_mode: "DETERMINISTIC",
+      spacing_intents_det: detIntents.intents,
+      spacing_intents_ai: aiIntents.intents,
+    };
+  }
+
+  // Neither safe+satisfactory → fail closed (do not ship false Founder Review).
+  return {
+    ok: false,
+    plan: null,
+    error:
+      "spacing intent unsatisfied: deterministic ownership and AI plan both fail measured Founder spacing relations (or produce unsafe overlaps)",
+    report_ok: normalized.report.ok,
+    shifted_object_count: 0,
+    preserved_ai_ops: 0,
+    replaced_ai_position_ops: aiPositionOps.length,
+    fail_closed: true,
+    ownership_mode: "FAIL_CLOSED",
+    spacing_intents_det: detIntents.intents,
+    spacing_intents_ai: aiIntents.intents,
   };
 }

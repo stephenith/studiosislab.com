@@ -315,6 +315,27 @@ export async function runFounderFeedbackRevision(
       aiPlan: activePlan,
     });
     writeJson(join(evidenceDir, "deterministic-spacing-ownership.json"), det);
+    if (det.fail_closed) {
+      const err =
+        det.error ??
+        "deterministic spacing ownership fail-closed: Founder spacing intent unsatisfied";
+      task = updateRevisionTask(task.task_id, {
+        status: "FAILED_GATE",
+        error: err,
+        openai_execution_path: join(
+          "SOS/07_LOGS/saios/founder-revision/evidence",
+          task.task_id,
+          "openai-execution.json",
+        ),
+      });
+      return {
+        ok: false,
+        task,
+        revised_candidate_id: null,
+        error: err,
+        coverage_gate_pass: false,
+      };
+    }
     if (det.ok && det.plan) {
       const revalidated = validateRevisionPlan(det.plan, {
         requested_changes: task.requested_changes,

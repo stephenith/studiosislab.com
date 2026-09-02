@@ -46,6 +46,10 @@ import {
   stripNonExecutablePositionOpsFromRaw,
 } from "./PositionOpCanonicalization.js";
 import {
+  repairAiPlanFounderAttribution,
+  type ProvenanceRepairRecord,
+} from "./RevisionPlanProvenanceRepair.js";
+import {
   buildRevisionConflictRepairPrompt,
   buildRevisionCoverageRepairPrompt,
   buildRevisionPlannerPrompt,
@@ -326,28 +330,54 @@ export function prepareExtractedPlanForValidation(input: {
   ok: boolean;
   plan: RevisionPlan | null;
   errors: string[];
+  provenance_repairs?: ProvenanceRepairRecord[];
 } {
   const allowEmpty = allRequestedChangesAllowEmptyPlan(input.requested_changes);
-  const strippedEmpty = stripNonExecutablePositionOpsFromRaw(input.extracted);
+  // Phase 5V: repair missing companion-op founder_feedback_item before shape.
+  const provenance = repairAiPlanFounderAttribution({
+    extracted: input.extracted,
+    requested_changes: input.requested_changes,
+  });
+  const strippedEmpty = stripNonExecutablePositionOpsFromRaw(provenance.repaired);
   let shape = validateRevisionPlanShapeAndOperations(strippedEmpty.raw, {
     requested_changes: input.requested_changes,
     allowEmptyOperations: allowEmpty,
   });
   if (!shape.ok || !shape.plan) {
-    return { ok: false, plan: null, errors: shape.errors };
+    return {
+      ok: false,
+      plan: null,
+      errors: shape.errors,
+      provenance_repairs: provenance.repairs,
+    };
   }
   const identity = stripIdentityPositionOps(shape.plan, input.inventory);
   if (identity.stripped_count === 0) {
-    return { ok: true, plan: shape.plan, errors: [] };
+    return {
+      ok: true,
+      plan: shape.plan,
+      errors: [],
+      provenance_repairs: provenance.repairs,
+    };
   }
   shape = validateRevisionPlanShapeAndOperations(identity.plan, {
     requested_changes: input.requested_changes,
     allowEmptyOperations: allowEmpty,
   });
   if (!shape.ok || !shape.plan) {
-    return { ok: false, plan: null, errors: shape.errors };
+    return {
+      ok: false,
+      plan: null,
+      errors: shape.errors,
+      provenance_repairs: provenance.repairs,
+    };
   }
-  return { ok: true, plan: shape.plan, errors: [] };
+  return {
+    ok: true,
+    plan: shape.plan,
+    errors: [],
+    provenance_repairs: provenance.repairs,
+  };
 }
 
 async function runConflictPlanRepair(input: {
@@ -713,8 +743,14 @@ async function runCoverageRepair(input: {
     const extracted = extractPlanFromProviderOutput(so);
     // Coverage repair is invoked only when MUTATION_REQUIRED items are missing.
     // A successful repair response must include ≥1 operation (empty is invalid).
-    // Still strip empty/identity position placeholders before shape validation.
-    const strippedEmpty = stripNonExecutablePositionOpsFromRaw(extracted);
+    // Phase 5V provenance repair then strip empty/identity before shape validation.
+    const provenance = repairAiPlanFounderAttribution({
+      extracted,
+      requested_changes: input.task.requested_changes,
+    });
+    const strippedEmpty = stripNonExecutablePositionOpsFromRaw(
+      provenance.repaired,
+    );
     let repairShape = validateRevisionPlanShapeAndOperations(strippedEmpty.raw, {
       allowEmptyOperations: false,
       requested_changes: input.task.requested_changes,

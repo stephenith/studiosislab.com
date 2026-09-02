@@ -26,6 +26,12 @@
   ],
   "history": [
     {
+      "at": "2026-09-02T12:27:59.000Z",
+      "type": "phase",
+      "summary": "Phase 5V — Request Changes contract reliability consolidation. Local wall=2026-09-02 17:57:59 IST. Diagnostic basis: LAYER_CONTRACT_AND_DUPLICATED_SEMANTICS. P0: AI companion-op founder_feedback_item provenance repair (fail-closed) before shape validation; CoS-shaped offline replay + true end-to-end revision contract verifier (A–F negatives); revision runtime code-current deploy check. Historical tasks frozen: revtask-ec6bf0f8-e3d, revtask-a8653c03-20f, revtask-afd3f4b0-fae. Remaining: ONE fresh successful production Request Changes cycle (manual).",
+      "ref": "SOS/SAIOS/core/founder-revision/RevisionPlanProvenanceRepair.ts"
+    },
+    {
       "at": "2026-09-02T07:58:50.000Z",
       "type": "phase",
       "summary": "Phase 5U \u2014 Fix directional header reflow attribution (band edge-extension vs content rebalance). Local wall=2026-09-02 13:28:50 IST. Root cause: parseExplicitMoveDirections bound 'extend \u2026 downward' as set_position DOWN onto contact rebalance. Historical revtask-a8653c03-20f frozen FAILED_GATE. Morning batch-20260902-001 HEALTHY_BACKPRESSURE (3/5 queue_capacity).",

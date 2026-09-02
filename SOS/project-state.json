@@ -2398,7 +2398,8 @@
     "verifier": "SOS/SAIOS/core/founder-revision/verify-founder-spacing-intent-5z.ts"
   },
   "phase_6a": {
-    "status": "implemented_pending_deploy",
+    "status": "deployed",
+    "deployed_commit": "11bc876fffb137867dc16e5b6531c168054a200f",
     "problem": "Silent unrelated-role fallback + no pre-Founder role-target integrity gate",
     "root_cause": "SampleContent.pickRoleSample → marketing_manager; DesignFamilyEngine role_suitability remap; resolveProfile content role rewrite",
     "canonical_contract": "target title/role_family == structured content title == rendered header professional title",

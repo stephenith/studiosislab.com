@@ -262,6 +262,7 @@ export function fabricTextbox(input: {
   textAlign?: "left" | "center" | "right";
   section?: string;
   component?: string;
+  role?: string;
 }): FabricObjectBase & {
   text: string;
   fontSize: number;
@@ -302,6 +303,7 @@ export function fabricTextbox(input: {
         id: input.id,
         section: input.section,
         component: input.component,
+        ...(input.role ? { role: input.role } : {}),
         fictional_sample_only: true,
       },
     }),

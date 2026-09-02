@@ -22,6 +22,7 @@ import {
   defaultPublicationRoots,
   QUARANTINED_TEMPLATE_IDS,
 } from "./paths.js";
+import { evaluateCanvasRoleTargetIntegrity } from "../role-integrity/RoleTargetIntegrity.js";
 import type {
   EligibleCandidate,
   ExcludedCandidate,
@@ -410,6 +411,85 @@ export function discoverEligibleCandidates(
         ),
       );
       continue;
+    }
+
+    // Phase 6A — role-target integrity hard exclude (even if historically APPROVED).
+    {
+      const candDir = join(roots.candidatesRoot, candidateId);
+      const integrityPath = join(candDir, "role-target-integrity.json");
+      let integrityFail: string | null = null;
+      if (existsSync(integrityPath)) {
+        try {
+          const integ = readJson<{
+            pass?: boolean;
+            match?: string;
+            reason?: string;
+          }>(integrityPath);
+          if (integ && integ.pass === false) {
+            integrityFail =
+              integ.reason ?? integ.match ?? "ROLE_INTEGRITY_FAILED";
+          }
+        } catch {
+          integrityFail = null;
+        }
+      } else if (existsSync(join(candDir, "canvas.json"))) {
+        const targetTitle =
+          cand?.target?.title ??
+          title.replace(/\s+Resume\s*$/i, "").trim();
+        const targetFamily = cand?.target?.role_family ?? targetTitle;
+        if (targetTitle) {
+          try {
+            const canvas = readJson<{ objects?: unknown[] }>(
+              join(candDir, "canvas.json"),
+            );
+            let resumeContent: unknown = null;
+            const rj = join(candDir, "resume-json-instructions.json");
+            if (existsSync(rj)) {
+              const parsed = readJson<{
+                visual_guidance?: {
+                  resume_content?: unknown;
+                  openai_resume_content?: unknown;
+                };
+              }>(rj);
+              resumeContent =
+                parsed.visual_guidance?.resume_content ??
+                parsed.visual_guidance?.openai_resume_content ??
+                null;
+            }
+            const integ = evaluateCanvasRoleTargetIntegrity({
+              target_title: targetTitle,
+              target_role_family: targetFamily,
+              canvas,
+              resume_content: resumeContent,
+              openai_resume_content: resumeContent,
+            });
+            if (!integ.pass) integrityFail = integ.reason;
+          } catch {
+            /* leave unevaluable — do not exclude solely on parse error */
+          }
+        }
+      }
+      const manifestStatus = String(
+        (cand as { status?: unknown } | null)?.status ?? "",
+      );
+      if (manifestStatus === "ROLE_INTEGRITY_FAILED" || integrityFail) {
+        excluded.push(
+          exclude(
+            candidateId,
+            title,
+            "EXCLUDED_OTHER",
+            "ROLE_INTEGRITY_FAILED",
+            integrityFail ??
+              "Candidate status ROLE_INTEGRITY_FAILED — not publication eligible",
+            {
+              lifecycle_status: life.lifecycle_status,
+              staging_package_id: life.staging_package_id,
+              decision: decision?.decision ?? null,
+            },
+          ),
+        );
+        continue;
+      }
     }
 
     if (supersededIds.has(candidateId) || cand?.superseded_by_revision) {

@@ -713,6 +713,7 @@ export async function runFounderFeedbackRevision(
     candidateDir: outDir,
     candidate_id: ids.candidate_id,
     title: task.role,
+    role: task.role,
     critiqueOverride: opts.critiqueOverride,
   });
   writeJson(join(evidenceDir, "critic-materialization.json"), {

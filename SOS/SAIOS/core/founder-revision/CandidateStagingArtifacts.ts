@@ -13,6 +13,8 @@ import { join } from "node:path";
 import { ResumeCritic } from "../resume-critic/ResumeCritic.js";
 import { validateScoresForGate } from "../critic-gate/CriticGateValidator.js";
 import type { CriticResult } from "../resume-critic/types.js";
+import { evaluateCanvasRoleTargetIntegrity } from "../role-integrity/RoleTargetIntegrity.js";
+import { resolveRoleSample } from "../resume-renderer/SampleContent.js";
 
 /** Exact StagingService required set — do not weaken. */
 export const STAGING_PACKAGE_REQUIRED_FILES = [
@@ -161,6 +163,8 @@ export function materializeCriticAndGateArtifacts(input: {
   candidateDir: string;
   candidate_id: string;
   title?: string;
+  /** Target professional role for Phase 6A integrity (defaults to title). */
+  role?: string;
   /** Test injection — production omits this. */
   critiqueOverride?: () => CriticResult;
 }): MaterializeCriticResult {
@@ -272,6 +276,66 @@ export function materializeCriticAndGateArtifacts(input: {
       (f) => f.code === "LAY_OVERFLOW" || f.code === "LAY_PAGE_BREAK",
     ),
   );
+
+  // Phase 6A — revision must not change professional role vs target.
+  const targetRole = String(input.role ?? input.title ?? "").trim();
+  if (targetRole) {
+    let resumeContent: unknown = null;
+    if (existsSync(resumePath)) {
+      try {
+        const rj = readJson(resumePath) as {
+          visual_guidance?: {
+            resume_content?: unknown;
+            openai_resume_content?: unknown;
+          };
+        };
+        resumeContent =
+          rj.visual_guidance?.resume_content ??
+          rj.visual_guidance?.openai_resume_content ??
+          null;
+      } catch {
+        resumeContent = null;
+      }
+    }
+    const integrity = evaluateCanvasRoleTargetIntegrity({
+      target_title: targetRole,
+      target_role_family: targetRole,
+      canvas: readJson(canvasPath),
+      resume_content: resumeContent,
+      openai_resume_content: resumeContent,
+      sample_title: (() => {
+        if (resumeContent && typeof resumeContent === "object") {
+          const t = String((resumeContent as { title?: unknown }).title ?? "").trim();
+          if (t) return t;
+        }
+        const pack = resolveRoleSample({ roleFamily: targetRole });
+        return pack.ok ? pack.sample.title : null;
+      })(),
+    });
+    writeJson(join(input.candidateDir, "role-target-integrity.json"), integrity);
+    if (!integrity.pass) {
+      return {
+        ok: false,
+        failure: "GATE",
+        error: `ROLE_INTEGRITY_FAILED: ${integrity.reason}`,
+        critic,
+        gate_ready: false,
+        critic_path: criticPath,
+        gate_path: null,
+        scores: {
+          overall: critic.scores.overall,
+          ats: critic.scores.ats,
+          layout: critic.scores.layout,
+          technical: critic.scores.technical,
+          visual: critic.scores.visual,
+          typography: critic.scores.typography,
+        },
+        overflow,
+        layout_pass: (critic.scores.layout ?? 0) >= 90 && !overflow,
+        ats_pass: (critic.scores.ats ?? 0) >= 95,
+      };
+    }
+  }
 
   const verdict = validateScoresForGate({
     overall: critic.scores.overall,

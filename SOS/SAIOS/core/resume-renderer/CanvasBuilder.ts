@@ -104,6 +104,7 @@ function walk(node: RenderNode, out: Record<string, unknown>[]): void {
         textAlign: node.textAlign ?? "left",
         section: node.section,
         component: node.component,
+        role: node.role,
       }),
     );
   }

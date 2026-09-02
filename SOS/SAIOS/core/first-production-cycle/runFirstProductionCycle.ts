@@ -45,6 +45,11 @@ import {
 } from "./CandidateIdentity.js";
 import { createCandidateWorkspace } from "./CandidateStore.js";
 import {
+  evaluateCanvasRoleTargetIntegrity,
+  type RoleTargetIntegrityResult,
+} from "../role-integrity/RoleTargetIntegrity.js";
+import { resolveRoleSample } from "../resume-renderer/SampleContent.js";
+import {
   buildDuplicateControlMeta,
   evaluateDuplicate,
   type BatchLocalDuplicateState,
@@ -88,6 +93,7 @@ export type CycleResult = {
   state:
     | "WAITING_FOUNDER"
     | "CRITIC_BLOCKED"
+    | "ROLE_INTEGRITY_FAILED"
     | "COMPLETED"
     | "FAILED"
     | "DUPLICATE_SKIPPED"
@@ -469,6 +475,19 @@ async function runFirstProductionCycleInner(opts?: {
       failure_detail: null,
     });
     ws.writeLatestPointer("CRITIC_BLOCKED");
+  };
+
+  const markRoleIntegrityFailed = (detail: string) => {
+    if (cx.terminalWritten) return;
+    cx.terminalWritten = true;
+    cx.cycleState = "ROLE_INTEGRITY_FAILED";
+    ws.updateManifest({
+      status: "ROLE_INTEGRITY_FAILED",
+      provider: cx.provider,
+      failure_stage: "role_target_integrity",
+      failure_detail: detail,
+    });
+    ws.writeLatestPointer("ROLE_INTEGRITY_FAILED");
   };
 
   try {
@@ -1425,6 +1444,89 @@ async function runFirstProductionCycleInner(opts?: {
       }),
     );
 
+    // Phase 6A — pre-Founder professional role-target integrity (hard gate)
+    let roleIntegrity: RoleTargetIntegrityResult | null = null;
+    stages.push(
+      await runStage(
+        "role_target_integrity",
+        join(ws.dir, "canvas.json"),
+        async () => {
+          const canvas = JSON.parse(
+            readFileSync(join(ws.dir, "canvas.json"), "utf8"),
+          ) as { objects?: unknown[] };
+          let resumeContent: unknown = null;
+          const rjPath = join(ws.dir, "resume-json-instructions.json");
+          if (existsSync(rjPath)) {
+            try {
+              const rj = JSON.parse(readFileSync(rjPath, "utf8")) as {
+                visual_guidance?: {
+                  resume_content?: unknown;
+                  openai_resume_content?: unknown;
+                  role_family?: string;
+                };
+              };
+              resumeContent =
+                rj.visual_guidance?.resume_content ??
+                rj.visual_guidance?.openai_resume_content ??
+                null;
+            } catch {
+              resumeContent = null;
+            }
+          }
+          // Mock/deterministic path may not persist resume_content on VG —
+          // recover structured title from the pack that BlockRenderer used.
+          let sampleTitle: string | null = null;
+          let packFamily: string | null = null;
+          let contentSource: "openai" | "deterministic_pack" | "unknown" =
+            cx.provider === "openai"
+              ? "openai"
+              : cx.provider === "mock"
+                ? "deterministic_pack"
+                : "unknown";
+          if (resumeContent && typeof resumeContent === "object") {
+            sampleTitle = String(
+              (resumeContent as { title?: unknown }).title ?? "",
+            ).trim() || null;
+            contentSource = "openai";
+          } else {
+            const pack = resolveRoleSample({
+              roleFamily: production_target.role_family,
+            });
+            if (pack.ok) {
+              sampleTitle = pack.sample.title;
+              packFamily = pack.pack_family;
+              contentSource = pack.source;
+            }
+          }
+          roleIntegrity = evaluateCanvasRoleTargetIntegrity({
+            target_title: production_target.title,
+            target_role_family: production_target.role_family,
+            canvas,
+            resume_content: resumeContent,
+            openai_resume_content: resumeContent,
+            sample_title: sampleTitle,
+            content_source: contentSource,
+            pack_family: packFamily,
+          });
+          const out = ws.writeArtifact(
+            "role-target-integrity.json",
+            roleIntegrity,
+          );
+          if (!roleIntegrity.pass) {
+            critic_ready = false;
+            markRoleIntegrityFailed(roleIntegrity.reason);
+          }
+          return {
+            output_reference: out,
+            validation: {
+              pass: roleIntegrity.pass,
+              detail: `${roleIntegrity.match}: ${roleIntegrity.reason}`,
+            },
+          };
+        },
+      ),
+    );
+
     // 13. Critic Gate
     stages.push(
       await runStage("critic_gate", join(ws.dir, "critic.json"), async () => {
@@ -1532,17 +1634,26 @@ async function runFirstProductionCycleInner(opts?: {
             );
           }
           if (!critic_ready || !gateResult?.gate.ready) {
-            markCriticBlocked();
+            if (cx.cycleState !== "ROLE_INTEGRITY_FAILED") {
+              markCriticBlocked();
+            }
             const out = ws.writeArtifact("waiting-founder.json", {
-              state: "CRITIC_BLOCKED",
-              message: "Critic blocked — never reaches founder gate",
+              state: cx.cycleState,
+              message:
+                cx.cycleState === "ROLE_INTEGRITY_FAILED"
+                  ? "Role-target integrity failed — never reaches founder gate"
+                  : "Critic blocked — never reaches founder gate",
               candidate_dir: ws.dir,
+              role_integrity: roleIntegrity,
             });
             return {
               output_reference: out,
               validation: {
                 pass: true,
-                detail: "critic blocked — no founder pause",
+                detail:
+                  cx.cycleState === "ROLE_INTEGRITY_FAILED"
+                    ? "role integrity blocked — no founder pause"
+                    : "critic blocked — no founder pause",
               },
             };
           }
@@ -1763,7 +1874,10 @@ async function runFirstProductionCycleInner(opts?: {
           return {
             output_reference: out,
             validation: {
-              pass: paused || cx.cycleState === "CRITIC_BLOCKED",
+              pass:
+                paused ||
+                cx.cycleState === "CRITIC_BLOCKED" ||
+                cx.cycleState === "ROLE_INTEGRITY_FAILED",
               detail: cx.cycleState,
             },
           };
@@ -1786,6 +1900,7 @@ async function runFirstProductionCycleInner(opts?: {
       "canvas_json",
       "editor_compatibility",
       "resume_critic",
+      "role_target_integrity",
       "critic_gate",
       "founder_review_queue",
       "waiting_founder",
@@ -1799,7 +1914,10 @@ async function runFirstProductionCycleInner(opts?: {
 
     if (
       cx.cycleState !== "WAITING_FOUNDER" &&
-      cx.cycleState !== "CRITIC_BLOCKED"
+      cx.cycleState !== "CRITIC_BLOCKED" &&
+      cx.cycleState !== "ROLE_INTEGRITY_FAILED" &&
+      cx.cycleState !== "PREVIEW_FAILED" &&
+      cx.cycleState !== "THUMBNAIL_FAILED"
     ) {
       const failed = stages.find(
         (s) => s.status === "failed" || !s.validation.pass,

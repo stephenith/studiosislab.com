@@ -19,13 +19,20 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "P0 ROLE_MISMATCHED_RESUME_TEMPLATES_MUST_NOT_BE_APPROVED_OR_PUBLISHED — Operations Analyst→Marketing Manager; Graphic Designer professional_sidebar→HR Manager; do not review more templates until role integrity gate exists",
+    "P0 CLOSURE — run ONE natural/watched production generation proof under Phase 6A role-target integrity (no approve/publish); then Founder-memory consumption integration",
+    "DO NOT APPROVE/PUBLISH known mismatched historical candidates (Operations Analyst→Marketing Manager; Graphic Designer professional_sidebar→HR Manager) — no safe quarantine mutation invented; publication eligibility excludes ROLE_INTEGRITY_FAILED",
     "founder-review-004 awaiting founder approval",
     "founder-review-005 changes requested after preview pipeline smoke",
     "14 publication package(s) ready_to_publish and not live",
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-02T17:45:00.000Z",
+      "type": "phase",
+      "summary": "Phase 6A — Generation role-target integrity + fail-closed content contract. Local wall=2026-09-02 ~23:15 IST. Root cause reconfirmed: SampleContent.pickRoleSample missing pack → marketing_manager fallback (Operations Analyst→Alex Morgan/Marketing Manager); DesignFamilyEngine.selectRoleForFamily remapped preferred role via role_suitability (Graphic Designer professional_sidebar→HR Manager); resolveProfile rewrote content role_family to preference pool. Fix: canonical RoleTargetIntegrity (ROLE_MATCH/COMPATIBLE_ALIAS/MISMATCH/UNEVALUABLE); explicit aliases only (HR/VP Ops); pickRoleSample/resolveRoleSample fail-closed ROLE_CONTENT_UNAVAILABLE; preserve preferred role in DesignFamilyEngine; content role_family authoritative in resolveProfile; pre-Founder gate persists role-target-integrity.json → ROLE_INTEGRITY_FAILED (not WAITING_FOUNDER; not queue capacity); revision staging gate before READY_FOR_FOUNDER_REVIEW; EligibilityCollector hard-excludes ROLE_INTEGRITY_FAILED. Packs=5 exact; taxonomy≈95 → ~90 missing → fail closed (OpenAI path must still match target). Provider truth batch-20260902-001/002: openai_eligible (3+1 openai). No production generation/publish/candidate mutation this phase. Remaining: one watched generation proof + Founder-memory injection.",
+      "ref": "SOS/SAIOS/core/role-integrity/RoleTargetIntegrity.ts"
+    },
     {
       "at": "2026-09-02T17:05:00.000Z",
       "type": "phase",
@@ -2389,5 +2396,34 @@
     ],
     "baseline_commit_before": "b784ca427a332d9a01c256c5173dcc4ffbf8674d",
     "verifier": "SOS/SAIOS/core/founder-revision/verify-founder-spacing-intent-5z.ts"
+  },
+  "phase_6a": {
+    "status": "implemented_pending_deploy",
+    "problem": "Silent unrelated-role fallback + no pre-Founder role-target integrity gate",
+    "root_cause": "SampleContent.pickRoleSample → marketing_manager; DesignFamilyEngine role_suitability remap; resolveProfile content role rewrite",
+    "canonical_contract": "target title/role_family == structured content title == rendered header professional title",
+    "match_kinds": [
+      "ROLE_MATCH",
+      "ROLE_COMPATIBLE_ALIAS",
+      "ROLE_MISMATCH",
+      "ROLE_UNEVALUABLE"
+    ],
+    "silent_unrelated_role_fallback_removed": true,
+    "pre_founder_gate": "role_target_integrity → role-target-integrity.json → ROLE_INTEGRITY_FAILED",
+    "revision_gate": "CandidateStagingArtifacts before READY_FOR_FOUNDER_REVIEW",
+    "publication_exclude": true,
+    "role_mismatch_counts_toward_founder_queue": false,
+    "deterministic_packs": 5,
+    "missing_role_content_approx": 90,
+    "generation_provider_policy": "openai_eligible (preserve; mock/openai/local all fail on mismatch)",
+    "batch_20260902_001_openai_used": 3,
+    "batch_20260902_002_openai_used": 1,
+    "known_bad_candidates_mutated": false,
+    "production_generation_executed": false,
+    "safe_for_one_generation_proof": true,
+    "remaining": "watched production generation role-integrity proof; Founder-memory consumption integration",
+    "baseline_commit_before": "9dad805bb36689c6ae1b1f7125a024a75c1da976",
+    "verifier": "SOS/SAIOS/core/role-integrity/verify-role-target-integrity-6a.ts",
+    "e2e_verifier": "SOS/SAIOS/core/role-integrity/verify-generation-role-contract-e2e-6a.ts"
   }
 }

@@ -50,14 +50,18 @@ export function renderBlock(ctx: BlockRenderContext): {
     layout,
     page_width,
   } = ctx;
-  const roleFamily = String(visual_guidance?.role_family ?? "marketing_manager");
+  const roleFamily = String(visual_guidance?.role_family ?? "").trim();
   const variant = Number(visual_guidance?.design_variant ?? 0);
-  const { sample } = resolveRoleSample({
-    roleFamily,
+  const resolved = resolveRoleSample({
+    roleFamily: roleFamily || undefined,
     variant,
     openaiContent:
       visual_guidance?.resume_content ?? visual_guidance?.openai_resume_content,
   });
+  if (!resolved.ok) {
+    throw new Error(resolved.error);
+  }
+  const { sample } = resolved;
   const headerSystem = String(
     visual_guidance?.header_system ?? visual_guidance?.header_style ?? "",
   );
@@ -85,6 +89,7 @@ export function renderBlock(ctx: BlockRenderContext): {
       x?: number;
       width?: number;
       textAlign?: "left" | "center" | "right";
+      role?: string;
     },
   ) => {
     const h = textHeight(opts.fontSize, opts.lineHeight, opts.lines ?? 1);
@@ -93,6 +98,7 @@ export function renderBlock(ctx: BlockRenderContext): {
       kind: "text",
       section: section_id,
       component,
+      role: opts.role,
       text,
       x: opts.x ?? x,
       y: cursor,
@@ -354,6 +360,7 @@ export function renderBlock(ctx: BlockRenderContext): {
         });
         cursor += 4;
         pushText(sample.title, {
+          role: "professional_title",
           fontSize: typography.scale_pt.heading + 1,
           fontFamily: typography.body_family,
           fontWeight: typography.weights.heading,
@@ -394,6 +401,7 @@ export function renderBlock(ctx: BlockRenderContext): {
         const afterName = cursor;
         cursor = y + 8;
         pushText(sample.title, {
+          role: "professional_title",
           fontSize: typography.scale_pt.heading,
           fontFamily: typography.body_family,
           fontWeight: typography.weights.heading,
@@ -443,6 +451,7 @@ export function renderBlock(ctx: BlockRenderContext): {
         });
         cursor += 4;
         pushText(sample.title, {
+          role: "professional_title",
           fontSize: typography.scale_pt.heading + 1,
           fontFamily: typography.body_family,
           fontWeight: typography.weights.heading,
@@ -476,6 +485,7 @@ export function renderBlock(ctx: BlockRenderContext): {
         });
         cursor += 4;
         pushText(sample.title, {
+          role: "professional_title",
           fontSize: typography.scale_pt.heading + 1,
           fontFamily: typography.body_family,
           fontWeight: typography.weights.heading,
@@ -505,6 +515,7 @@ export function renderBlock(ctx: BlockRenderContext): {
           width: leftW,
         });
         pushText(sample.title, {
+          role: "professional_title",
           fontSize: typography.scale_pt.heading + 1,
           fontFamily: typography.body_family,
           fontWeight: typography.weights.heading,
@@ -557,7 +568,17 @@ export function renderBlock(ctx: BlockRenderContext): {
           x: x + 12,
           width: width - 24,
         });
-        pushText(`${sample.title}  ·  ${sample.contact}`, {
+        pushText(sample.title, {
+          role: "professional_title",
+          fontSize: typography.scale_pt.meta,
+          fontFamily: typography.body_family,
+          fontWeight: typography.weights.body,
+          fill: theme.muted,
+          lineHeight: typography.line_height.body,
+          x: x + 12,
+          width: width - 24,
+        });
+        pushText(sample.contact, {
           fontSize: typography.scale_pt.meta,
           fontFamily: typography.body_family,
           fontWeight: typography.weights.body,
@@ -579,6 +600,7 @@ export function renderBlock(ctx: BlockRenderContext): {
       });
       cursor += 4;
       pushText(sample.title, {
+          role: "professional_title",
         fontSize: typography.scale_pt.heading + 1,
         fontFamily: typography.body_family,
         fontWeight: typography.weights.heading,

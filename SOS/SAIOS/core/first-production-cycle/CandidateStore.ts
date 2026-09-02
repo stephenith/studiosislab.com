@@ -24,6 +24,8 @@ export type CandidateStatus =
   /** Agent #249 — revised candidate awaiting Founder re-review (not auto-approved) */
   | "READY_FOR_FOUNDER_REVIEW"
   | "CRITIC_BLOCKED"
+  /** Phase 6A — professional role does not match production target */
+  | "ROLE_INTEGRITY_FAILED"
   /** Agent #233 — preview mandatory; not Ready for Review */
   | "PREVIEW_FAILED"
   /** Agent #233 — thumbnail mandatory after preview */

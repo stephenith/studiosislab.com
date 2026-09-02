@@ -61,10 +61,12 @@ export function resolveIntelligenceProfile(input: {
 }): IntelligenceVisualProfile {
   const principles = input.principles ?? DESIGN_INTELLIGENCE_PRINCIPLES;
   const role =
-    String(input.role_family ?? "marketing_manager")
+    String(input.role_family ?? "")
       .toLowerCase()
-      .replace(/[\s-]+/g, "_") || "marketing_manager";
-  const roleKey = principles.role_preferences[role]
+      .replace(/[\s-]+/g, "_") || "";
+  // Visual preference key may fall back for fonts/palette only — never rewrite
+  // the authoritative content role_family (Phase 6A).
+  const preferenceKey = principles.role_preferences[role]
     ? role
     : role.includes("engineer")
       ? "software_engineer"
@@ -77,12 +79,13 @@ export function resolveIntelligenceProfile(input: {
             : role.includes("market")
               ? "marketing_manager"
               : "marketing_manager";
+  const contentRoleFamily = role || preferenceKey;
 
   const variant = Number.isInteger(input.design_variant)
     ? Math.abs(Number(input.design_variant)) % 3
-    : pickVariantFromSeed(input.seed ?? roleKey);
+    : pickVariantFromSeed(input.seed ?? contentRoleFamily);
 
-  const layout_family = resolveLayoutFamily(roleKey, variant, principles);
+  const layout_family = resolveLayoutFamily(preferenceKey, variant, principles);
   const family = principles.layout_families.find((l) => l.id === layout_family)!;
   const dens = family.density;
   const gaps = principles.spacing_scale;
@@ -99,10 +102,10 @@ export function resolveIntelligenceProfile(input: {
   const metaPt = typo.meta_pt.target;
 
   const font =
-    FONT_ROLE_OVERRIDE[roleKey]?.[layout_family] ??
+    FONT_ROLE_OVERRIDE[preferenceKey]?.[layout_family] ??
     FONT_BY_LAYOUT[layout_family];
 
-  const pref = principles.role_preferences[roleKey]!;
+  const pref = principles.role_preferences[preferenceKey]!;
   const palette =
     pref.palette_bias[variant % pref.palette_bias.length] ?? "ats-navy-accent";
 
@@ -112,9 +115,9 @@ export function resolveIntelligenceProfile(input: {
 
   return {
     variant,
-    label: `${roleKey}__${layout_family}`,
+    label: `${contentRoleFamily}__${layout_family}`,
     layout_family,
-    role_family: roleKey,
+    role_family: contentRoleFamily,
     heading_family: font,
     body_family: font,
     scale: [namePt, headingPt, bodyPt, metaPt],
@@ -126,7 +129,7 @@ export function resolveIntelligenceProfile(input: {
     palette_id: palette,
     rule_style: family.rule_style,
     name_weight: header.name_weight,
-    content_profile: `${roleKey}_${layout_family}`,
+    content_profile: `${contentRoleFamily}_${layout_family}`,
     header_style: family.header_style,
     page_fill_target: principles.page_fill.target,
     design_personality: pref.personality,

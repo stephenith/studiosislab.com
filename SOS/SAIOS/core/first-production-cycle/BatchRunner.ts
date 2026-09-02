@@ -75,7 +75,7 @@ export type BatchCandidateRecord = {
   industry: string | null;
   seniority: string | null;
   provider: string | null;
-  result: "WAITING_FOUNDER" | "FAILED" | "CRITIC_BLOCKED" | "SKIPPED" | "PREVIEW_FAILED" | "THUMBNAIL_FAILED";
+  result: "WAITING_FOUNDER" | "FAILED" | "CRITIC_BLOCKED" | "ROLE_INTEGRITY_FAILED" | "SKIPPED" | "PREVIEW_FAILED" | "THUMBNAIL_FAILED";
   overall: "PASS" | "FAIL" | "SKIPPED";
   duration_ms: number;
   error: string | null;
@@ -101,6 +101,7 @@ export type BatchSummary = {
   failure_count: number;
   waiting_founder_count: number;
   critic_blocked_count: number;
+  role_integrity_failed_count: number;
   skipped_count: number;
   queue_max: number;
   max_openai_per_batch: number;
@@ -338,6 +339,7 @@ export async function runCanonicalBatch(
         failure_count: 0,
         waiting_founder_count: 0,
         critic_blocked_count: 0,
+        role_integrity_failed_count: 0,
         skipped_count: 0,
         queue_max,
         max_openai_per_batch,
@@ -588,6 +590,8 @@ export async function runCanonicalBatch(
         ? "WAITING_FOUNDER"
         : result.state === "CRITIC_BLOCKED"
           ? "CRITIC_BLOCKED"
+          : result.state === "ROLE_INTEGRITY_FAILED"
+            ? "ROLE_INTEGRITY_FAILED"
           : result.state === "PREVIEW_FAILED"
             ? "PREVIEW_FAILED"
             : result.state === "THUMBNAIL_FAILED"
@@ -656,6 +660,9 @@ export async function runCanonicalBatch(
   const critic_blocked_count = candidates.filter(
     (c) => c.result === "CRITIC_BLOCKED",
   ).length;
+  const role_integrity_failed_count = candidates.filter(
+    (c) => c.result === "ROLE_INTEGRITY_FAILED",
+  ).length;
   const skipped_count = duplicate_skips.length;
 
   const providers = new Set(
@@ -688,6 +695,7 @@ export async function runCanonicalBatch(
     failure_count,
     waiting_founder_count,
     critic_blocked_count,
+    role_integrity_failed_count,
     skipped_count,
     queue_max,
     max_openai_per_batch,

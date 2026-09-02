@@ -53,12 +53,12 @@ async function main(): Promise<void> {
     budget_simulate: { disk_free_percent: 40 },
     forced_targets: [
       {
-        category: "creative",
-        title: "Controller Verify Role",
-        industry: "creative",
+        category: "marketing",
+        title: "Marketing Manager",
+        industry: "marketing",
         seniority: "mid",
-        objective: `controller-verify-healthy-${stamp}`,
-        role_family: "controller_verify_healthy",
+        objective: `controller-verify-healthy-${stamp}-${Math.random().toString(36).slice(2, 10)}`,
+        role_family: "marketing_manager",
       },
     ],
   });

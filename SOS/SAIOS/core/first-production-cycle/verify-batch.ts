@@ -29,22 +29,23 @@ function assert(cond: boolean, msg: string): void {
 }
 
 function uniqueBatchTargets(stamp: number): ProductionTarget[] {
+  const u = `${stamp}-${Math.random().toString(36).slice(2, 8)}`;
   return [
     {
       category: "marketing",
-      title: "Brand Strategist",
+      title: "Marketing Manager",
       industry: "marketing",
       seniority: "mid",
-      objective: `Batch verify brand strategist ${stamp}-a`,
-      role_family: "brand_strategist",
+      objective: `batch-verify-mm-${u}-alpha-objective-token-set`,
+      role_family: "marketing_manager",
     },
     {
       category: "engineering",
-      title: "Platform Engineer",
+      title: "Software Engineer",
       industry: "engineering",
       seniority: "mid",
-      objective: `Batch verify platform engineer ${stamp}-b`,
-      role_family: "platform_engineer",
+      objective: `batch-verify-se-${u}-beta-objective-token-set`,
+      role_family: "software_engineer",
     },
   ];
 }

@@ -49,15 +49,12 @@ export function selectRoleForFamily(
   variant: 0 | 1,
   preferred?: string | null,
 ): string {
-  const family = getDesignFamily(familyId);
-  if (
-    preferred &&
-    family.role_suitability.includes(
-      preferred.toLowerCase().replace(/[\s-]+/g, "_"),
-    )
-  ) {
+  // Phase 6A: never silently substitute an unrelated profession for design-family
+  // suitability. Preferred production target role is authoritative when present.
+  if (preferred && String(preferred).trim()) {
     return preferred.toLowerCase().replace(/[\s-]+/g, "_");
   }
+  const family = getDesignFamily(familyId);
   const suited = family.role_suitability;
   if (suited.length) {
     return suited[variant % suited.length]!;

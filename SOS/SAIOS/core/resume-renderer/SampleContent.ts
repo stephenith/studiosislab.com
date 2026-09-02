@@ -319,24 +319,68 @@ const PACKS: Record<string, RoleSample[]> = {
   ],
 };
 
+export class RoleContentUnavailableError extends Error {
+  readonly code = "ROLE_CONTENT_UNAVAILABLE" as const;
+  readonly roleFamily: string;
+  constructor(roleFamily: string) {
+    super(
+      `ROLE_CONTENT_UNAVAILABLE: no deterministic sample pack for role_family="${roleFamily}" (refusing unrelated profession fallback)`,
+    );
+    this.name = "RoleContentUnavailableError";
+    this.roleFamily = roleFamily;
+  }
+}
+
+/** Explicit pack aliases only (SEO / HR naming). No engineer↔designer collapses. */
+const PACK_ALIASES: Record<string, keyof typeof PACKS> = {
+  human_resources_manager: "hr_manager",
+  human_resource_manager: "hr_manager",
+};
+
+export function listDeterministicPackFamilies(): string[] {
+  return Object.keys(PACKS);
+}
+
+/**
+ * Resolve a deterministic pack key without unrelated-profession fallback.
+ * Missing packs → NONE (caller must fail closed).
+ */
+export function resolveDeterministicPackFamily(
+  roleFamily: string | undefined,
+): {
+  pack: keyof typeof PACKS | null;
+  match: "EXACT" | "ALIAS" | "NONE";
+  requested: string;
+} {
+  const requested = String(roleFamily ?? "")
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_")
+    .replace(/[^a-z0-9_]/g, "")
+    .replace(/^_|_$/g, "");
+  if (!requested) {
+    return { pack: null, match: "NONE", requested: "" };
+  }
+  if (PACKS[requested]) {
+    return { pack: requested as keyof typeof PACKS, match: "EXACT", requested };
+  }
+  const alias = PACK_ALIASES[requested];
+  if (alias && PACKS[alias]) {
+    return { pack: alias, match: "ALIAS", requested };
+  }
+  return { pack: null, match: "NONE", requested };
+}
+
 export function pickRoleSample(
   roleFamily: string | undefined,
   variant = 0,
 ): RoleSample {
-  const key = String(roleFamily ?? "marketing_manager")
-    .toLowerCase()
-    .replace(/[\s-]+/g, "_");
-  const packs =
-    PACKS[key] ??
-    (key.includes("engineer")
-      ? PACKS.software_engineer
-      : key.includes("design")
-        ? PACKS.graphic_designer
-        : key.includes("account")
-          ? PACKS.accountant
-          : key.includes("hr")
-            ? PACKS.hr_manager
-            : PACKS.marketing_manager)!;
+  const resolved = resolveDeterministicPackFamily(roleFamily);
+  if (!resolved.pack) {
+    throw new RoleContentUnavailableError(
+      resolved.requested || String(roleFamily ?? ""),
+    );
+  }
+  const packs = PACKS[resolved.pack]!;
   return packs[Math.abs(variant) % packs.length]!;
 }
 
@@ -439,15 +483,50 @@ export function normalizeRoleSample(raw: unknown): RoleSample | null {
   };
 }
 
+export type ResolveRoleSampleResult =
+  | {
+      ok: true;
+      sample: RoleSample;
+      source: "openai" | "deterministic_pack";
+      pack_family: string | null;
+    }
+  | {
+      ok: false;
+      code: "ROLE_CONTENT_UNAVAILABLE";
+      error: string;
+      role_family: string;
+    };
+
 export function resolveRoleSample(opts: {
   roleFamily?: string;
   variant?: number;
   openaiContent?: unknown;
-}): { sample: RoleSample; source: "openai" | "deterministic_pack" } {
+}): ResolveRoleSampleResult {
   const normalized = normalizeRoleSample(opts.openaiContent);
-  if (normalized) return { sample: normalized, source: "openai" };
-  return {
-    sample: pickRoleSample(opts.roleFamily, opts.variant ?? 0),
-    source: "deterministic_pack",
-  };
+  if (normalized) {
+    return {
+      ok: true,
+      sample: normalized,
+      source: "openai",
+      pack_family: null,
+    };
+  }
+  try {
+    const resolved = resolveDeterministicPackFamily(opts.roleFamily);
+    const sample = pickRoleSample(opts.roleFamily, opts.variant ?? 0);
+    return {
+      ok: true,
+      sample,
+      source: "deterministic_pack",
+      pack_family: resolved.pack,
+    };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return {
+      ok: false,
+      code: "ROLE_CONTENT_UNAVAILABLE",
+      error: msg,
+      role_family: String(opts.roleFamily ?? ""),
+    };
+  }
 }

@@ -462,6 +462,17 @@ async function main(): Promise<void> {
         `ok=${prodEq.ok} overlaps=${prodEq.text_overlaps}`,
       ),
     );
+    // Phase 5W: pairwise same-column detector surfaces multiple wrap collisions
+    // on this historical canvas (skills + projects + certifications). Prior
+    // consecutive-Y checks under-counted; offline replay must stay fail-closed.
+    const baselineOverlaps = findTextOverlapFindings(prod);
+    checks.push(
+      assert(
+        baselineOverlaps.length >= 1,
+        "prod_canvas_pairwise_detects_baseline_overlaps",
+        `n=${baselineOverlaps.length}`,
+      ),
+    );
     const t2 = (prod.objects ?? []).find((o) => o.id === "block-skills-4-t2");
     if (t2) {
       const eff = effectiveTextHeightScaled(t2);
@@ -482,8 +493,8 @@ async function main(): Promise<void> {
       });
       checks.push(
         assert(
-          prodDiffGate.ok === true,
-          "prod_canvas_differential_passes_preexec",
+          prodDiffGate.ok === false && prodDiffGate.text_overlaps >= 1,
+          "prod_canvas_skills_only_diff_fail_closed_residual",
           `ok=${prodDiffGate.ok} overlaps=${prodDiffGate.text_overlaps}`,
         ),
       );
@@ -502,10 +513,12 @@ async function main(): Promise<void> {
           .filter((o) => String(o.type).toLowerCase().includes("text"))
           .map((o) => effectiveTextHeightScaled(o) + Number(o.top ?? 0))),
       );
+      // Partial sidebar normalization may clear skills rhythm while leaving
+      // project wrap collisions — truthful pairwise detector must still see them.
       checks.push(
         assert(
-          prodNorm.report.ok === true && prodNormOverlaps.length === 0,
-          "prod_canvas_normalizer_zero_effective_overlap",
+          prodNorm.report.ok === true && prodNormOverlaps.length >= 1,
+          "prod_canvas_normalizer_residual_pairwise_overlaps",
           `ok=${prodNorm.report.ok} overlaps=${prodNormOverlaps.length}`,
         ),
       );

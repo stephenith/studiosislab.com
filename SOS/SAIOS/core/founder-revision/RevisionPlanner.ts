@@ -14,6 +14,7 @@ import { randomUUID } from "node:crypto";
 import { OpenAIProvider } from "../providers/openai/OpenAIProvider.js";
 import type { ReasoningRequest } from "../ai-brain/ReasoningRequest.js";
 import { canUseFounderOpenAIOneTest } from "../resume-integration/FounderOpenAIOneTest.js";
+import type { FounderMemorySelectionResult } from "../founder-memory/FounderMemoryConsumption.js";
 import type {
   CanvasInventoryObject,
   CanvasOperation,
@@ -105,15 +106,24 @@ export type PlannerResult =
       input_tokens: number | null;
       output_tokens: number | null;
       raw_structured: Record<string, unknown>;
-      prompt: { objective: string; instructions: string };
+      prompt: {
+        objective: string;
+        instructions: string;
+        founder_memory_selection?: FounderMemorySelectionResult;
+      };
       coverage_repair: CoverageRepairEvidence | null;
       conflict_repair: ConflictRepairEvidence | null;
+      founder_memory_selection?: FounderMemorySelectionResult | null;
     }
   | {
       ok: false;
       error: string;
       status: "FAILED_PROVIDER" | "FAILED_PLAN";
-      prompt: { objective: string; instructions: string } | null;
+      prompt: {
+        objective: string;
+        instructions: string;
+        founder_memory_selection?: FounderMemorySelectionResult;
+      } | null;
       raw_structured?: Record<string, unknown> | null;
       /** Provider-boundary diagnostics (truncation / incomplete JSON). */
       provider_diagnostics?: Record<string, unknown> | null;
@@ -121,14 +131,20 @@ export type PlannerResult =
       conflict_repair?: ConflictRepairEvidence | null;
       /** Structurally valid primary plan when completeness-only failure / repair attempted. */
       primary_plan?: RevisionPlan | null;
+      founder_memory_selection?: FounderMemorySelectionResult | null;
     };
 
 export type { ConflictRepairEvidence, PrimaryConflictReport };
 
 function buildPrimaryRequest(
   task: RevisionTask,
-  prompt: { objective: string; instructions: string },
+  prompt: {
+    objective: string;
+    instructions: string;
+    founder_memory_selection?: FounderMemorySelectionResult;
+  },
 ): ReasoningRequest {
+  const memoryIds = prompt.founder_memory_selection?.memory_ids ?? [];
   return {
     request_id: `req-revplan-${randomUUID().slice(0, 10)}`,
     task_id: task.task_id,
@@ -141,7 +157,9 @@ function buildPrimaryRequest(
       task.decision_id,
       task.prior_canvas_path,
     ],
-    memory_references: [],
+    memory_references: memoryIds.map(
+      (id) => `founder-preference-memory:${id}`,
+    ),
     expected_response_schema: {
       schema_version: "founder-canvas-revision-plan-1.0.0",
       summary: "string",
@@ -1017,6 +1035,7 @@ export async function planFounderCanvasRevision(input: {
         "OpenAI Founder one-test gates closed (LIVE OFF, SOS_AI_FOUNDER_OPENAI_ONE_TEST=1, OPENAI_API_KEY, budget)",
       status: "FAILED_PROVIDER",
       prompt,
+      founder_memory_selection: prompt.founder_memory_selection ?? null,
     };
   }
 

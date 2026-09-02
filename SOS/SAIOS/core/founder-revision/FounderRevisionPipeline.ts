@@ -178,6 +178,15 @@ export async function runFounderFeedbackRevision(
   mkdirSync(evidenceDir, { recursive: true });
   writeJson(join(evidenceDir, "planner-prompt.json"), planned.prompt);
   writeJson(join(evidenceDir, "inventory.json"), inventory);
+  if (planned.prompt && "founder_memory_selection" in planned.prompt) {
+    writeJson(
+      join(evidenceDir, "founder-memory-selection.json"),
+      planned.prompt.founder_memory_selection ?? {
+        FOUNDER_MEMORY_CONSUMED: false,
+        memory_ids: [],
+      },
+    );
+  }
 
   const writeCoverageRepairEvidence = (): void => {
     const cr = planned.coverage_repair;
@@ -677,6 +686,12 @@ export async function runFounderFeedbackRevision(
   writeJson(join(outDir, "revision-layout-normalization.json"), normalized.report);
   writeJson(join(outDir, "revision-acceptance-checks.json"), acceptanceReport);
   writeJson(join(outDir, "feedback-coverage.json"), coverage);
+  if (planned.prompt?.founder_memory_selection) {
+    writeJson(
+      join(outDir, "founder-memory-selection.json"),
+      planned.prompt.founder_memory_selection,
+    );
+  }
   writeJson(join(outDir, "openai-execution.json"), {
     provider: planned.provider,
     provider_request_id: planned.provider_request_id,

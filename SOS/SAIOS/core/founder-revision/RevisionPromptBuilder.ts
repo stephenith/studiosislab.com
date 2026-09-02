@@ -30,6 +30,10 @@ import {
   operationInConflictScope,
   operationPreservationFingerprint,
 } from "./ConflictPlanRepair.js";
+import {
+  selectFounderMemory,
+  type FounderMemorySelectionResult,
+} from "../founder-memory/FounderMemoryConsumption.js";
 
 /** Re-export canonical planner allowlist (single source: allowedCanvasOps.ts). */
 export {
@@ -605,7 +609,12 @@ export function buildRevisionPlannerPrompt(input: {
   page_height: number;
   preview_width: number;
   preview_height: number;
-}): { objective: string; instructions: string } {
+  repoRoot?: string;
+}): {
+  objective: string;
+  instructions: string;
+  founder_memory_selection: FounderMemorySelectionResult;
+} {
   const { task, inventory } = input;
   const changesBlock = task.requested_changes
     .map((c, i) => `${i + 1}. ${c}`)
@@ -615,6 +624,22 @@ export function buildRevisionPlannerPrompt(input: {
     task.requested_changes,
     inventory,
   );
+
+  const memorySelection = selectFounderMemory({
+    channel: "revision",
+    repoRoot: input.repoRoot,
+    currentFounderRequests: task.requested_changes,
+    ctx: {
+      role: task.role,
+      role_family: null,
+      category: null,
+      design_family: task.design_family ?? null,
+      architecture: null,
+      section: null,
+      component: null,
+    },
+  });
+  const memoryBlock = memorySelection.prompt_block;
 
   const objective = [
     "FOUNDER CANVAS REVISION PLANNER",
@@ -943,8 +968,13 @@ export function buildRevisionPlannerPrompt(input: {
     "FOUNDER REASON (verbatim):",
     task.founder_reason,
     "",
-    "REQUESTED CHANGES (verbatim — implement each):",
+    "CURRENT FOUNDER REQUEST (verbatim — highest authority — implement each):",
     changesBlock,
+    "",
+    "RELEVANT FOUNDER MEMORY (persistent layout/design preferences — subordinate to CURRENT FOUNDER REQUEST):",
+    "Use only when compatible with the current request. Never treat memory lines as current founder_feedback_item attribution.",
+    "Memory must not invent resume facts. Current request always wins on conflict.",
+    memoryBlock || "(none selected for this template context)",
     "",
     candidateHints,
     "",
@@ -986,7 +1016,11 @@ export function buildRevisionPlannerPrompt(input: {
     "Never use values keys: spacing, gap, gap_px, vertical_spacing, horizontal_spacing, or similar.",
   ].join("\n");
 
-  return { objective, instructions };
+  return {
+    objective,
+    instructions,
+    founder_memory_selection: memorySelection,
+  };
 }
 
 /** Architecture-general filter for repair-relevant primary ops (prompt context only). */

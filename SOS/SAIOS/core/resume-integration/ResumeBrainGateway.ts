@@ -23,6 +23,7 @@ import {
   resumeProviderExecuteOptions,
 } from "./FounderOpenAIOneTest.js";
 import { applyFounderDesignMemoryInstructions } from "../founder-memory/FounderPreferencePrompt.js";
+import type { FounderMemorySelectionResult } from "../founder-memory/FounderMemoryConsumption.js";
 
 export type ResumeGatewayStepResult = {
   skill_id: string;
@@ -42,6 +43,8 @@ export type ResumeGatewayResult = {
   flow: string[];
   /** Provider actually used for the primary response (mock | openai | …). */
   selected_provider: string | null;
+  /** Phase 6B — Founder Memory selection evidence (design_planning only). */
+  founder_memory_selection: FounderMemorySelectionResult | null;
 };
 
 /**
@@ -54,7 +57,10 @@ export function toFullReasoningRequest(
   skillRequest: SkillRequest,
   snapshot: KnowledgeSnapshot,
   opts?: { timeout_ms?: number; repoRoot?: string },
-): ReasoningRequest {
+): {
+  request: ReasoningRequest;
+  founder_memory_selection: FounderMemorySelectionResult | null;
+} {
   const knowledgeRefs = snapshot.references.map((r) => r.entry_id);
   const researchBriefing =
     typeof skillRequest.input.research_briefing === "string"
@@ -74,38 +80,41 @@ export function toFullReasoningRequest(
     repoRoot: opts?.repoRoot,
   });
   return {
-    ...skeleton,
-    context_references: [
-      ...new Set([
-        ...(skillRequest.context_references ?? []),
-        ...knowledgeRefs,
-      ]),
-    ],
-    memory_references: memoryApplied.memory_references,
-    expected_response_schema: {},
-    priority: "normal",
-    maximum_input_tokens: hasResearch ? 1600 : 800,
-    maximum_output_tokens: 800,
-    estimated_cost_ceiling_usd: null,
-    timeout_ms: opts?.timeout_ms ?? 10_000,
-    retry_policy: { max_retries: 0, backoff_ms: 0, retry_on: [] },
-    fallback_policy: {
-      enabled: false,
-      allow_provider_fallback: false,
-      allow_local_to_api: false,
-      respect_privacy: true,
-      respect_budget: true,
-      respect_founder_gates: true,
-      respect_live_gates: true,
+    founder_memory_selection: memoryApplied.selection,
+    request: {
+      ...skeleton,
+      context_references: [
+        ...new Set([
+          ...(skillRequest.context_references ?? []),
+          ...knowledgeRefs,
+        ]),
+      ],
+      memory_references: memoryApplied.memory_references,
+      expected_response_schema: {},
+      priority: "normal",
+      maximum_input_tokens: hasResearch ? 1600 : 800,
+      maximum_output_tokens: 800,
+      estimated_cost_ceiling_usd: null,
+      timeout_ms: opts?.timeout_ms ?? 10_000,
+      retry_policy: { max_retries: 0, backoff_ms: 0, retry_on: [] },
+      fallback_policy: {
+        enabled: false,
+        allow_provider_fallback: false,
+        allow_local_to_api: false,
+        respect_privacy: true,
+        respect_budget: true,
+        respect_founder_gates: true,
+        respect_live_gates: true,
+      },
+      created_at: skillRequest.created_at,
+      deadline: null,
+      founder_approval_requirement: true,
+      instructions: memoryApplied.instructions,
+      objective:
+        typeof skillRequest.input.objective === "string"
+          ? skillRequest.input.objective
+          : skeleton.objective,
     },
-    created_at: skillRequest.created_at,
-    deadline: null,
-    founder_approval_requirement: true,
-    instructions: memoryApplied.instructions,
-    objective:
-      typeof skillRequest.input.objective === "string"
-        ? skillRequest.input.objective
-        : skeleton.objective,
   };
 }
 
@@ -170,6 +179,7 @@ export class ResumeBrainGateway {
     const steps: ResumeGatewayStepResult[] = [];
     let primary: ReasoningResponse | null = null;
     let selectedProvider: string | null = null;
+    let founderMemorySelection: FounderMemorySelectionResult | null = null;
 
     for (const step of plan.steps) {
       if (step.deterministic || !step.capability) {
@@ -209,14 +219,19 @@ export class ResumeBrainGateway {
       const useOpenAI = canUseFounderOpenAIOneTest(
         skeleton.privacy_classification,
       );
-      const baseReasoning = toFullReasoningRequest(
+      const built = toFullReasoningRequest(
         skeleton,
         skillRequest,
         knowledgeSnapshot,
         { timeout_ms: useOpenAI ? 90_000 : 10_000 },
       );
+      if (built.founder_memory_selection?.FOUNDER_MEMORY_CONSUMED) {
+        founderMemorySelection = built.founder_memory_selection;
+      } else if (!founderMemorySelection && built.founder_memory_selection) {
+        founderMemorySelection = built.founder_memory_selection;
+      }
       const reasoning = {
-        ...baseReasoning,
+        ...built.request,
         // SkillRequest stays dry_run (no publication). OpenAI only when all gates pass.
         dry_run: useOpenAI ? false : true,
         ...(useOpenAI
@@ -270,6 +285,7 @@ export class ResumeBrainGateway {
       consumed,
       flow,
       selected_provider: selectedProvider,
+      founder_memory_selection: founderMemorySelection,
     };
   }
 }

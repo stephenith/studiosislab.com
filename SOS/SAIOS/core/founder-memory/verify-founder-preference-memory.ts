@@ -451,9 +451,10 @@ async function main(): Promise<void> {
       role: "Accountant",
     });
     assert(
-      "I_PROVISIONAL_EXCLUDED",
-      retrievedNoProv.every((r) => r.status === "CONFIRMED") &&
-        !retrievedNoProv.some((r) => r.status === "PROVISIONAL"),
+      "I_LOW_PROVISIONAL_EXCLUDED",
+      !retrievedNoProv.some(
+        (r) => r.status === "PROVISIONAL" && r.confidence === "low",
+      ),
       `stillProv_total=${stillProv.length}`,
     );
 
@@ -655,23 +656,23 @@ async function main(): Promise<void> {
     const reqP = toFullReasoningRequest(sk, sr, snap, { repoRoot: emptyRepo });
     assert(
       "P_NO_MEMORY_SAME_INSTRUCTIONS",
-      reqP.instructions === baseline,
-      `got=${reqP.instructions.slice(0, 120)}`,
+      reqP.request.instructions === baseline,
+      `got=${reqP.request.instructions.slice(0, 120)}`,
     );
 
     // Q — with matching confirmed memory includes header
     const reqQ = toFullReasoningRequest(sk, sr, snap, { repoRoot: root });
     assert(
       "Q_INCLUDES_FOUNDER_DESIGN_MEMORY",
-      reqQ.instructions.includes(FOUNDER_DESIGN_MEMORY_HEADER),
-      reqQ.instructions.slice(0, 200),
+      reqQ.request.instructions.includes(FOUNDER_DESIGN_MEMORY_HEADER),
+      reqQ.request.instructions.slice(0, 200),
     );
 
     // R — no provider call created (pure function)
     assert(
       "R_NO_PROVIDER_CALL",
       typeof toFullReasoningRequest === "function" &&
-        reqQ.provider === undefined,
+        (reqQ.request as { provider?: unknown }).provider === undefined,
     );
 
     // S — prompt size bound

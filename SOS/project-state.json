@@ -19,14 +19,20 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "P0 CLOSURE — run ONE natural/watched production generation proof under Phase 6A role-target integrity (no approve/publish); then Founder-memory consumption integration",
-    "DO NOT APPROVE/PUBLISH known mismatched historical candidates (Operations Analyst→Marketing Manager; Graphic Designer professional_sidebar→HR Manager) — no safe quarantine mutation invented; publication eligibility excludes ROLE_INTEGRITY_FAILED",
+    "P0 CLOSURE — one controlled live Founder-Memory consumption proof (generation and/or revision) under Phase 6B; then final department closure audit",
+    "DO NOT APPROVE/PUBLISH known mismatched historical candidates (Operations Analyst→Marketing Manager; Graphic Designer professional_sidebar→HR Manager) — publication eligibility excludes ROLE_INTEGRITY_FAILED",
     "founder-review-004 awaiting founder approval",
     "founder-review-005 changes requested after preview pipeline smoke",
     "14 publication package(s) ready_to_publish and not live",
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-02T18:20:00.000Z",
+      "type": "phase",
+      "summary": "Phase 6B — Founder Memory consumption + closed-loop learning. Local wall=2026-09-02 ~23:50 IST. Phase 6A LIVE PROOF CLOSED (exec-20260902-003 / batch-20260902-003 / cand-executive-chief-marketing-officer-20260902T175446Z-70fccb ROLE_MATCH OpenAI). Pre-6B: write-side FounderPreferenceMemory existed; generation had design_planning hook but corpus yielded no injectable rules (CONFIRMED were POSITIVE_EXEMPLAR only; revision had zero memory). 6B: canonical FounderMemoryConsumption selector (ELIGIBLE/INELIGIBLE/SUPERSEDED/CONFLICTING/IRRELEVANT/AMBIGUOUS); layout-only factual filter; CONFIRMED layout rules + medium/high provisional layout-safe; POSITIVE_EXEMPLAR uses raw design praise when layout-safe; current Founder request precedence; bounded selection; evidence founder-memory-selection.json on generation+revision; revision prompt CURRENT REQUEST > MEMORY; coverage/provenance untouched. No production gen/rev this phase. Remaining: one controlled live memory-consumption proof.",
+      "ref": "SOS/SAIOS/core/founder-memory/FounderMemoryConsumption.ts"
+    },
     {
       "at": "2026-09-02T17:45:00.000Z",
       "type": "phase",
@@ -2425,6 +2431,40 @@
     "remaining": "watched production generation role-integrity proof; Founder-memory consumption integration",
     "baseline_commit_before": "9dad805bb36689c6ae1b1f7125a024a75c1da976",
     "verifier": "SOS/SAIOS/core/role-integrity/verify-role-target-integrity-6a.ts",
-    "e2e_verifier": "SOS/SAIOS/core/role-integrity/verify-generation-role-contract-e2e-6a.ts"
+    "e2e_verifier": "SOS/SAIOS/core/role-integrity/verify-generation-role-contract-e2e-6a.ts",
+    "live_proof": {
+      "execution_id": "exec-20260902-003",
+      "batch_id": "batch-20260902-003",
+      "candidate_id": "cand-executive-chief-marketing-officer-20260902T175446Z-70fccb",
+      "role_match": "ROLE_MATCH",
+      "provider": "openai",
+      "queue_before_after": [17, 18],
+      "status": "CLOSED"
+    }
+  },
+  "phase_6b": {
+    "status": "implemented_pending_deploy",
+    "problem": "Founder Memory write-side existed; generation/revision consumption incomplete",
+    "pre_6b_generation_hook": "applyFounderDesignMemoryInstructions on design_planning only",
+    "pre_6b_why_unused": "CONFIRMED corpus were POSITIVE_EXEMPLAR-only (excluded); revision had no injection",
+    "selector": "FounderMemoryConsumption.selectFounderMemory",
+    "eligibility": [
+      "ELIGIBLE",
+      "INELIGIBLE",
+      "SUPERSEDED",
+      "CONFLICTING",
+      "IRRELEVANT",
+      "AMBIGUOUS"
+    ],
+    "current_founder_request_precedence": true,
+    "factual_memory_excluded": true,
+    "bounded": true,
+    "evidence_artifact": "founder-memory-selection.json",
+    "production_generation_executed": false,
+    "production_revision_executed": false,
+    "safe_for_one_memory_production_proof": true,
+    "remaining": "one controlled live memory-consumption proof; then department closure audit",
+    "baseline_commit_before": "d78ba977360aeaf1731dbaf2c1a8200c3aa77250",
+    "verifier": "SOS/SAIOS/core/founder-memory/verify-founder-memory-consumption-6b.ts"
   }
 }

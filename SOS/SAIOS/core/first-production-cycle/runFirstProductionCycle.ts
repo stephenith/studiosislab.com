@@ -668,7 +668,18 @@ async function runFirstProductionCycleInner(opts?: {
             result.skill_request.input.research_briefing,
           ),
           steps: result.steps.map((s) => s.skill_id),
+          founder_memory_consumed: Boolean(
+            result.founder_memory_selection?.FOUNDER_MEMORY_CONSUMED,
+          ),
+          founder_memory_ids:
+            result.founder_memory_selection?.memory_ids ?? [],
         });
+        if (result.founder_memory_selection) {
+          ws.writeArtifact(
+            "founder-memory-selection.json",
+            result.founder_memory_selection,
+          );
+        }
 
         providerPath = ws.writeArtifact("mock-provider.json", {
           provider: selectedProvider,
@@ -1090,7 +1101,18 @@ async function runFirstProductionCycleInner(opts?: {
           result.skill_request.input.research_context,
         ),
         steps: result.steps.map((s) => s.skill_id),
+        founder_memory_consumed: Boolean(
+          result.founder_memory_selection?.FOUNDER_MEMORY_CONSUMED,
+        ),
+        founder_memory_ids:
+          result.founder_memory_selection?.memory_ids ?? [],
       });
+      if (result.founder_memory_selection) {
+        ws.writeArtifact(
+          "founder-memory-selection.json",
+          result.founder_memory_selection,
+        );
+      }
       providerPath = ws.writeArtifact("mock-provider.json", {
         provider: selectedProvider,
         status: result.primary_response?.status ?? "FAILED",

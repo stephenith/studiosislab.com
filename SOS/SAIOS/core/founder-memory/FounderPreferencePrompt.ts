@@ -1,15 +1,22 @@
 /**
  * Compact FOUNDER DESIGN MEMORY prompt renderer + design_planning injection helper.
+ * Phase 6B: uses canonical FounderMemoryConsumption selector + evidence.
  */
 import type { SkillRequest } from "../skills/Skill.js";
 import type {
   FounderPreferenceMemoryRecord,
   GenerationTargetContext,
 } from "./FounderPreferenceMemoryTypes.js";
-import { retrieveFounderPreferencesSafe } from "./FounderPreferenceRetriever.js";
+import {
+  MAX_MEMORY_PROMPT_CHARS,
+  renderFounderMemoryPromptBlock,
+  selectFounderMemory,
+  type FounderMemorySelectionResult,
+  type SelectedMemoryRule,
+} from "./FounderMemoryConsumption.js";
 
 export const FOUNDER_DESIGN_MEMORY_HEADER = "FOUNDER DESIGN MEMORY";
-export const MAX_PROMPT_CHARS = 600;
+export const MAX_PROMPT_CHARS = MAX_MEMORY_PROMPT_CHARS;
 
 export type RenderedFounderMemory = {
   block: string;
@@ -20,40 +27,17 @@ export type RenderedFounderMemory = {
 export function renderFounderDesignMemoryBlock(
   records: FounderPreferenceMemoryRecord[],
 ): RenderedFounderMemory {
-  if (!records.length) {
-    return { block: "", memory_ids: [], truncated: false };
-  }
-
-  const header = [
-    FOUNDER_DESIGN_MEMORY_HEADER,
-    "Use these as learned StudiosisLab Founder preferences and constraints.",
-    "They must not override the current production objective or factual-content safety.",
-  ].join("\n");
-
-  const footer =
-    "Do not fabricate skills, credentials, employers, metrics or content to satisfy memory.";
-
-  const lines: string[] = [];
-  const ids: string[] = [];
-  let truncated = false;
-
-  for (const rec of records) {
-    const line = `- [${rec.scope}|${rec.confidence}] ${rec.normalized_rule}`;
-    const trial = [header, ...lines, line, "", footer].join("\n");
-    if (trial.length > MAX_PROMPT_CHARS) {
-      truncated = true;
-      break;
-    }
-    lines.push(line);
-    ids.push(rec.memory_id);
-  }
-
-  if (!lines.length) {
-    return { block: "", memory_ids: [], truncated: true };
-  }
-
-  const block = [header, ...lines, "", footer].join("\n");
-  return { block, memory_ids: ids, truncated };
+  const selected: SelectedMemoryRule[] = records.map((rec) => ({
+    memory_id: rec.memory_id,
+    scope: rec.scope,
+    issue_type: rec.issue_type,
+    status: rec.status,
+    confidence: rec.confidence,
+    signal_type: rec.signal_type,
+    injectable_text: rec.normalized_rule || rec.raw_founder_feedback,
+    content_hash: rec.content_hash,
+  }));
+  return renderFounderMemoryPromptBlock(selected);
 }
 
 export function appendFounderMemoryToInstructions(
@@ -67,6 +51,19 @@ export function appendFounderMemoryToInstructions(
   return {
     instructions: `${baseInstructions}\n\n${rendered.block}`,
     memory_ids: rendered.memory_ids,
+  };
+}
+
+export function appendFounderMemorySelectionToInstructions(
+  baseInstructions: string,
+  selection: FounderMemorySelectionResult,
+): { instructions: string; memory_ids: string[] } {
+  if (!selection.prompt_block) {
+    return { instructions: baseInstructions, memory_ids: [] };
+  }
+  return {
+    instructions: `${baseInstructions}\n\n${selection.prompt_block}`,
+    memory_ids: selection.memory_ids,
   };
 }
 
@@ -124,29 +121,44 @@ export function applyFounderDesignMemoryInstructions(opts: {
   skillRequest: SkillRequest;
   capability: string | null | undefined;
   repoRoot?: string;
-}): { instructions: string; memory_references: string[] } {
+}): {
+  instructions: string;
+  memory_references: string[];
+  selection: FounderMemorySelectionResult | null;
+} {
   try {
     if (!isDesignPlanningSkill(opts.skillRequest.skill_id, opts.capability)) {
       return {
         instructions: opts.baseInstructions,
         memory_references: opts.skillRequest.memory_references ?? [],
+        selection: null,
       };
     }
     const ctx = deriveGenerationTargetContext(opts.skillRequest);
-    const records = retrieveFounderPreferencesSafe(ctx, opts.repoRoot);
-    const { instructions, memory_ids } = appendFounderMemoryToInstructions(
-      opts.baseInstructions,
-      records,
-    );
+    const selection = selectFounderMemory({
+      ctx,
+      channel: "generation",
+      repoRoot: opts.repoRoot,
+    });
+    const { instructions, memory_ids } =
+      appendFounderMemorySelectionToInstructions(
+        opts.baseInstructions,
+        selection,
+      );
     const refs = [
       ...(opts.skillRequest.memory_references ?? []),
       ...memory_ids.map((id) => `founder-preference-memory:${id}`),
     ];
-    return { instructions, memory_references: [...new Set(refs)] };
+    return {
+      instructions,
+      memory_references: [...new Set(refs)],
+      selection,
+    };
   } catch {
     return {
       instructions: opts.baseInstructions,
       memory_references: opts.skillRequest.memory_references ?? [],
+      selection: null,
     };
   }
 }

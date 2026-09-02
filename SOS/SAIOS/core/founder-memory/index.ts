@@ -33,8 +33,20 @@ export {
   retrieveFounderPreferencesSafe,
 } from "./FounderPreferenceRetriever.js";
 export {
+  selectFounderMemory,
+  classifyMemoryEligibility,
+  conflictsWithCurrentFounderRequest,
+  isLayoutDesignConstraintText,
+  FOUNDER_MEMORY_SELECTION_SCHEMA,
+  MAX_SELECTED_RULES,
+  MAX_MEMORY_PROMPT_CHARS,
+  type FounderMemorySelectionResult,
+  type MemoryEligibilityKind,
+} from "./FounderMemoryConsumption.js";
+export {
   renderFounderDesignMemoryBlock,
   appendFounderMemoryToInstructions,
+  appendFounderMemorySelectionToInstructions,
   applyFounderDesignMemoryInstructions,
   deriveGenerationTargetContext,
   isDesignPlanningSkill,

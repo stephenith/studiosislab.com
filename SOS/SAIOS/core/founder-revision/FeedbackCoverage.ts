@@ -2010,11 +2010,40 @@ function evaluateContactInHeaderBandProof(
   const bottomPad = Number((bandBottom - contactBottom).toFixed(2));
   let nameContactGap: number | null = null;
   let nameGapOk = true;
+  // Phase 5X: consecutive ordered identity texts must not overlap. Band-only
+  // containment may preserve positive sub-pad gaps; do not fail coverage solely
+  // because name↔contact gap is below HEADER_IDENTITY_PAD when intermediates
+  // exist or when bottom padding already satisfies containment.
+  const ordered = members.identityTextsOrdered ?? [];
+  if (ordered.length >= 2) {
+    for (let i = 0; i < ordered.length - 1; i++) {
+      const prev = ordered[i]!;
+      const next = ordered[i + 1]!;
+      const prevEh =
+        effectiveTextHeightScaled(prev.object) ||
+        Number(prev.object.height ?? 0) ||
+        0;
+      const prevBottom =
+        (typeof prev.object.top === "number" ? prev.object.top : 0) + prevEh;
+      const nextTop =
+        typeof next.object.top === "number" ? next.object.top : 0;
+      if (nextTop - prevBottom < -0.5) nameGapOk = false;
+    }
+  }
   if (name) {
     const nameBottom = inventoryObjectEffectiveBottom(afterCanvas, name);
     if (nameBottom != null) {
       nameContactGap = Number((contactTop - nameBottom).toFixed(2));
-      nameGapOk = nameContactGap + 1e-9 >= HEADER_IDENTITY_PAD_PX - 0.5;
+      // Classic 2-member stacks still prefer pad when gap is the only proof,
+      // but allow preserved positive gaps if band containment already holds.
+      if (ordered.length <= 2) {
+        const padOk =
+          nameContactGap + 1e-9 >= HEADER_IDENTITY_PAD_PX - 0.5;
+        const preservedPositive =
+          nameContactGap + 1e-9 >= -0.5 &&
+          contactBottom <= bandBottom - HEADER_IDENTITY_PAD_PX + 0.5;
+        nameGapOk = nameGapOk && (padOk || preservedPositive);
+      }
     }
   }
 

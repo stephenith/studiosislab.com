@@ -1,9 +1,10 @@
 /**
  * Deterministic HEADER_IDENTITY_BLOCK layout.
  *
- * Owns header-band ↔ name ↔ role/contact geometry using wrap-aware effective
- * heights. Does not hard-code production template IDs. Prefer expanding the
- * header background and shifting the identity stack over forcing text overlap.
+ * Owns header-band ↔ ordered identity text stack geometry using wrap-aware
+ * effective heights. Models N identity texts (name → optional title/role →
+ * contact), not a hard-coded name↔contact pair. Prefer expanding the header
+ * background when the internal text stack is already sequentially safe.
  */
 import type { FabricCanvasDoc } from "./CanvasInventory.js";
 import {
@@ -17,6 +18,9 @@ export const HEADER_IDENTITY_PAD_PX = 8;
 /** Matches RevisionLayoutNormalizer MIN_SECTION_GAP_PX. */
 export const HEADER_TO_SUMMARY_CLEARANCE_PX = 12;
 
+/** Phase 5X ownership mode recorded on each layout application. */
+export type HeaderIdentityOwnershipMode = "FULL_STACK" | "BAND_ONLY" | "NONE";
+
 type FabricObj = Record<string, unknown> & {
   id?: string;
   type?: string;
@@ -29,6 +33,16 @@ type FabricObj = Record<string, unknown> & {
   role?: string;
 };
 
+export type HeaderIdentityTextMember = {
+  object: FabricObj;
+  index: number;
+  kind: "name" | "title" | "contact" | "other";
+};
+
+/**
+ * Header identity membership. `name` / `contact` remain for legacy callers;
+ * `identityTextsOrdered` is the Phase 5X source of truth (2+ texts).
+ */
 export type HeaderIdentityMembers = {
   background: FabricObj;
   background_index: number;
@@ -36,6 +50,8 @@ export type HeaderIdentityMembers = {
   name_index: number;
   contact: FabricObj;
   contact_index: number;
+  /** All header identity texts ordered by top (name → … → contact). */
+  identityTextsOrdered: HeaderIdentityTextMember[];
 };
 
 export type HeaderIdentityLayoutReport = {
@@ -44,6 +60,7 @@ export type HeaderIdentityLayoutReport = {
   applied: boolean;
   error: string | null;
   reason_codes: string[];
+  ownership_mode: HeaderIdentityOwnershipMode;
   before: {
     band_top: number;
     band_bottom: number;
@@ -51,6 +68,7 @@ export type HeaderIdentityLayoutReport = {
     name_effective_bottom: number;
     contact_top: number;
     contact_effective_bottom: number;
+    identity_tops: number[];
   } | null;
   after: {
     band_top: number;
@@ -59,11 +77,13 @@ export type HeaderIdentityLayoutReport = {
     name_effective_bottom: number;
     contact_top: number;
     contact_effective_bottom: number;
+    identity_tops: number[];
   } | null;
   band_expanded: boolean;
   summary_shift_px: number;
   required_contact_up: boolean;
   contact_delta_top: number | null;
+  text_positions_preserved: boolean;
 };
 
 function normalizeFeedback(s: string): string {
@@ -122,12 +142,26 @@ function isContactLike(o: FabricObj): boolean {
   return false;
 }
 
+function isTitleLike(o: FabricObj): boolean {
+  const role = roleOf(o);
+  if (/\b(title|role|subtitle|job.?title|headline)\b/.test(role)) return true;
+  return false;
+}
+
 function isNameLike(o: FabricObj): boolean {
   const role = roleOf(o);
   if (/\bname\b/.test(role) || role === "header-name") return true;
   if (!isFabricTextObject(o)) return false;
   if (isContactLike(o)) return false;
   return true;
+}
+
+function classifyIdentityKind(o: FabricObj): HeaderIdentityTextMember["kind"] {
+  if (isContactLike(o)) return "contact";
+  if (isTitleLike(o)) return "title";
+  const role = roleOf(o);
+  if (/\bname\b/.test(role) || role === "header-name") return "name";
+  return "other";
 }
 
 /**
@@ -263,6 +297,10 @@ export function resolveHeaderIdentityMembersFromCanvas(
   return detectHeaderIdentityMembers(canvas.objects ?? []);
 }
 
+/**
+ * Detect header band + ordered identity texts (name → … → contact).
+ * Intermediate title/role/subtitle texts between name and contact are included.
+ */
 export function detectHeaderIdentityMembers(
   objects: FabricObj[],
 ): HeaderIdentityMembers | null {
@@ -331,6 +369,58 @@ export function detectHeaderIdentityMembers(
   }
 
   if (!name || !contact || name_index < 0 || contact_index < 0) return null;
+
+  const nameTop = asNum(name.top) ?? 0;
+  const contactTop = asNum(contact.top) ?? 0;
+
+  // Collect all header texts from name through contact (inclusive), by top.
+  const between: HeaderIdentityTextMember[] = [];
+  for (const i of headerIdx) {
+    const o = objects[i]!;
+    if (!isFabricTextObject(o)) continue;
+    const top = asNum(o.top) ?? 0;
+    if (i === name_index || i === contact_index) {
+      between.push({
+        object: o,
+        index: i,
+        kind: i === contact_index ? "contact" : "name",
+      });
+      continue;
+    }
+    // Intermediate texts: geometrically between name and contact tops,
+    // or explicitly titled roles in the header section.
+    const kind = classifyIdentityKind(o);
+    const geometricallyBetween =
+      top + 1e-9 >= nameTop - 0.5 && top - 1e-9 <= contactTop + 0.5;
+    if (geometricallyBetween || kind === "title") {
+      between.push({
+        object: o,
+        index: i,
+        kind: kind === "contact" ? "other" : kind === "name" ? "title" : kind,
+      });
+    }
+  }
+
+  between.sort((a, b) => {
+    const ta = asNum(a.object.top) ?? 0;
+    const tb = asNum(b.object.top) ?? 0;
+    if (ta !== tb) return ta - tb;
+    return a.index - b.index;
+  });
+
+  // Ensure name is first and contact is last in the ordered stack.
+  const withoutEnds = between.filter(
+    (m) => m.index !== name_index && m.index !== contact_index,
+  );
+  const identityTextsOrdered: HeaderIdentityTextMember[] = [
+    { object: name, index: name_index, kind: "name" },
+    ...withoutEnds.map((m) => ({
+      ...m,
+      kind: m.kind === "name" ? ("title" as const) : m.kind,
+    })),
+    { object: contact, index: contact_index, kind: "contact" },
+  ];
+
   return {
     background,
     background_index,
@@ -338,6 +428,7 @@ export function detectHeaderIdentityMembers(
     name_index,
     contact,
     contact_index,
+    identityTextsOrdered,
   };
 }
 
@@ -352,9 +443,60 @@ function snap(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
+function memberTops(members: HeaderIdentityTextMember[]): number[] {
+  return members.map((m) => asNum(m.object.top) ?? 0);
+}
+
+/**
+ * Internal stack is sequentially safe when consecutive identity texts have a
+ * positive non-overlapping gap. Exact touching (gap≈0) is treated as unsafe so
+ * FULL_STACK can restore canonical HEADER_IDENTITY_PAD spacing.
+ */
+export function isHeaderIdentityStackSequentiallySafe(
+  members: HeaderIdentityTextMember[],
+): boolean {
+  if (members.length < 2) return false;
+  for (let i = 0; i < members.length - 1; i++) {
+    const prev = members[i]!;
+    const next = members[i + 1]!;
+    const prevBottom =
+      (asNum(prev.object.top) ?? 0) + textEffectiveHeight(prev.object);
+    const nextTop = asNum(next.object.top) ?? 0;
+    const gap = nextTop - prevBottom;
+    if (gap < 0.5) return false;
+  }
+  return true;
+}
+
+function emptyReport(
+  partial: Partial<HeaderIdentityLayoutReport> & {
+    ok: boolean;
+    reason_codes: string[];
+  },
+): HeaderIdentityLayoutReport {
+  return {
+    schema_version: "header-identity-layout-1.0.0",
+    applied: false,
+    error: null,
+    ownership_mode: "NONE",
+    before: null,
+    after: null,
+    band_expanded: false,
+    summary_shift_px: 0,
+    required_contact_up: false,
+    contact_delta_top: null,
+    text_positions_preserved: true,
+    ...partial,
+  };
+}
+
 /**
  * Apply deterministic header identity geometry onto a canvas clone.
  * Mutates the provided canvas objects in place.
+ *
+ * Phase 5X:
+ * - BAND_ONLY when internal stack is sequentially safe → expand band only
+ * - FULL_STACK when texts overlap → reflow all ordered members then expand band
  */
 export function applyHeaderIdentityBlockLayout(input: {
   canvas: FabricCanvasDoc;
@@ -367,19 +509,11 @@ export function applyHeaderIdentityBlockLayout(input: {
   const pageH = asNum(input.canvas.height) ?? 0;
   const members = detectHeaderIdentityMembers(objects);
   if (!members) {
-    return {
-      schema_version: "header-identity-layout-1.0.0",
+    return emptyReport({
       ok: true,
-      applied: false,
-      error: null,
       reason_codes: ["header_identity_members_not_detected"],
-      before: null,
-      after: null,
-      band_expanded: false,
-      summary_shift_px: 0,
-      required_contact_up: false,
-      contact_delta_top: null,
-    };
+      ownership_mode: "NONE",
+    });
   }
 
   const requireUp =
@@ -388,6 +522,7 @@ export function applyHeaderIdentityBlockLayout(input: {
 
   const pad = HEADER_IDENTITY_PAD_PX;
   const clear = HEADER_TO_SUMMARY_CLEARANCE_PX;
+  const stack = members.identityTextsOrdered;
 
   const bandTop0 = asNum(members.background.top) ?? 0;
   const bandH0 = Math.max(1, asNum(members.background.height) ?? 1);
@@ -398,6 +533,7 @@ export function applyHeaderIdentityBlockLayout(input: {
   const contactTop0 = asNum(members.contact.top) ?? 0;
   const contactEh = textEffectiveHeight(members.contact);
   const contactEb0 = contactTop0 + contactEh;
+  const identityTops0 = memberTops(stack);
 
   const before = {
     band_top: bandTop0,
@@ -406,216 +542,273 @@ export function applyHeaderIdentityBlockLayout(input: {
     name_effective_bottom: nameEb0,
     contact_top: contactTop0,
     contact_effective_bottom: contactEb0,
+    identity_tops: identityTops0,
   };
 
-  const requiredHeight = pad + nameEh + pad + contactEh + pad;
-  reason_codes.push(`required_height=${requiredHeight}`);
+  const stackSafe = isHeaderIdentityStackSequentiallySafe(stack);
+  const containmentOk = contactEb0 <= bandBottom0 - pad + 0.5;
+  const nameTopPadOk = nameTop0 + 1e-9 >= bandTop0 + pad - 0.5;
 
-  const alreadySafe =
-    nameTop0 + 1e-9 >= bandTop0 + pad - 0.5 &&
-    contactTop0 + 1e-9 >= nameEb0 + pad - 0.5 &&
-    contactEb0 <= bandBottom0 - pad + 0.5 &&
-    bandH0 + 1e-9 >= requiredHeight - 0.5;
+  // Stacked height if reflowed with canonical pad between every member.
+  let stackedHeight = pad;
+  for (const m of stack) {
+    stackedHeight += textEffectiveHeight(m.object) + pad;
+  }
+  reason_codes.push(
+    `identity_members=${stack.length}`,
+    `required_height=${stackedHeight}`,
+    stackSafe ? "stack_sequentially_safe" : "stack_sequentially_unsafe",
+  );
 
-  if (alreadySafe && !requireUp) {
+  if (stackSafe && containmentOk && nameTopPadOk && !requireUp) {
     reason_codes.push("header_identity_already_safe");
+    return emptyReport({
+      ok: true,
+      reason_codes,
+      ownership_mode: "NONE",
+      before,
+      after: before,
+      contact_delta_top: 0,
+      text_positions_preserved: true,
+    });
+  }
+
+  // ---- BAND_ONLY: preserve safe internal text stack; expand band ----
+  if (stackSafe && !requireUp) {
+    const lowestEb = Math.max(
+      ...stack.map(
+        (m) => (asNum(m.object.top) ?? 0) + textEffectiveHeight(m.object),
+      ),
+    );
+    const requiredBottom = snap(lowestEb + pad);
+    let bandTop = bandTop0;
+    let bandBottom = snap(Math.max(bandBottom0, requiredBottom));
+    let bandHeight = snap(bandBottom - bandTop);
+    reason_codes.push(
+      "ownership_mode=BAND_ONLY",
+      `required_band_bottom=${requiredBottom}`,
+    );
+
+    if (pageH > 0 && bandBottom > pageH - clear) {
+      return emptyReport({
+        ok: false,
+        error:
+          "header identity layout would push the header band past safe page bounds",
+        reason_codes: [...reason_codes, "page_bottom_exhausted"],
+        ownership_mode: "BAND_ONLY",
+        before,
+        required_contact_up: requireUp,
+        contact_delta_top: 0,
+      });
+    }
+
+    members.background.top = snap(bandTop);
+    members.background.height = snap(bandHeight);
+
+    let summary_shift_px = 0;
+    const shiftResult = shiftBodyForBandClearance({
+      objects,
+      background: members.background,
+      bandTop0,
+      bandBottom,
+      clear,
+      reason_codes,
+    });
+    summary_shift_px = shiftResult.summary_shift_px;
+
+    if (pageH > 0) {
+      const oob = bodyPastPageBottom(objects, pageH);
+      if (oob) {
+        return emptyReport({
+          ok: false,
+          error:
+            "header identity layout would push body content past the page bottom",
+          reason_codes: [...reason_codes, "body_page_oob"],
+          ownership_mode: "BAND_ONLY",
+          before,
+          band_expanded: true,
+          summary_shift_px,
+          required_contact_up: requireUp,
+          contact_delta_top: 0,
+        });
+      }
+    }
+
+    const after = {
+      band_top: snap(bandTop),
+      band_bottom: snap(bandBottom),
+      name_top: nameTop0,
+      name_effective_bottom: nameEb0,
+      contact_top: contactTop0,
+      contact_effective_bottom: contactEb0,
+      identity_tops: identityTops0,
+    };
+
     return {
       schema_version: "header-identity-layout-1.0.0",
       ok: true,
-      applied: false,
+      applied: true,
       error: null,
       reason_codes,
+      ownership_mode: "BAND_ONLY",
       before,
-      after: before,
-      band_expanded: false,
-      summary_shift_px: 0,
-      required_contact_up: false,
+      after,
+      band_expanded: after.band_bottom > before.band_bottom + 0.5,
+      summary_shift_px,
+      required_contact_up: requireUp,
       contact_delta_top: 0,
+      text_positions_preserved: true,
     };
   }
 
-  // Place stack: prefer keeping name near current top pad when feasible.
+  // ---- FULL_STACK: reflow all ordered identity texts ----
+  reason_codes.push("ownership_mode=FULL_STACK");
   let bandTop = bandTop0;
-  let nameTop = Math.max(bandTop + pad, nameTop0);
-  let contactTop = nameTop + nameEh + pad;
+  const tops: number[] = new Array(stack.length);
+  tops[0] = Math.max(bandTop + pad, nameTop0);
+
+  const placeForward = () => {
+    for (let i = 1; i < stack.length; i++) {
+      const prev = stack[i - 1]!;
+      const prevEh = textEffectiveHeight(prev.object);
+      tops[i] = snap(tops[i - 1]! + prevEh + pad);
+    }
+  };
+  placeForward();
 
   if (requireUp) {
-    // Never move contact downward relative to prior top.
     const maxContactTop = contactTop0;
-    if (contactTop > maxContactTop + 0.5) {
-      const shiftUp = contactTop - maxContactTop;
-      nameTop = snap(nameTop - shiftUp);
-      contactTop = snap(maxContactTop);
-      bandTop = snap(Math.min(bandTop, nameTop - pad));
+    const contactIdx = stack.length - 1;
+    if (tops[contactIdx]! > maxContactTop + 0.5) {
+      const shiftUp = tops[contactIdx]! - maxContactTop;
+      for (let i = 0; i < stack.length; i++) {
+        tops[i] = snap(tops[i]! - shiftUp);
+      }
+      bandTop = snap(Math.min(bandTop, tops[0]! - pad));
       reason_codes.push("stack_raised_to_honor_contact_up");
-    } else if (contactTop < contactTop0 - 0.5) {
+    } else if (tops[contactIdx]! < contactTop0 - 0.5) {
       reason_codes.push("contact_moved_up");
     } else {
       reason_codes.push("contact_top_preserved_for_up_gate");
     }
-  }
-
-  // Ensure name sits below band top with padding.
-  if (nameTop < bandTop + pad) {
-    nameTop = snap(bandTop + pad);
-    contactTop = snap(nameTop + nameEh + pad);
-    if (requireUp && contactTop > contactTop0 + 0.5) {
-      // Pull band+name further up so contact can stay <= prior.
-      const overflow = contactTop - contactTop0;
-      bandTop = snap(bandTop - overflow);
-      nameTop = snap(nameTop - overflow);
-      contactTop = snap(contactTop0);
-      reason_codes.push("band_raised_for_up_and_padding");
-    }
-  }
-
-  // Recompute contact if name moved without up constraint violation path.
-  if (!requireUp) {
-    contactTop = snap(nameTop + nameEh + pad);
-  } else {
-    // Keep gap after final nameTop.
-    const minContact = snap(nameTop + nameEh + pad);
-    if (minContact <= contactTop0 + 0.5) {
-      contactTop = Math.min(contactTop0, Math.max(minContact, contactTop));
-      // Prefer a slight raise when still overflowing prior band.
-      if (contactEb0 > bandBottom0 - pad + 0.5 && contactTop > minContact) {
-        contactTop = snap(Math.max(minContact, Math.min(contactTop, contactTop0 - 1)));
+    // Clamp contact not below prior; keep sequential gaps.
+    tops[contactIdx] = snap(Math.min(tops[contactIdx]!, maxContactTop));
+    for (let i = contactIdx - 1; i >= 0; i--) {
+      const nextTop = tops[i + 1]!;
+      const curEh = textEffectiveHeight(stack[i]!.object);
+      const maxTop = snap(nextTop - pad - curEh);
+      if (tops[i]! > maxTop + 0.5) {
+        tops[i] = maxTop;
       }
-      contactTop = snap(Math.max(minContact, Math.min(contactTop, contactTop0)));
-    } else {
-      // Need more room above contact — raise name/band.
-      const need = minContact - contactTop0;
-      bandTop = snap(bandTop - need);
-      nameTop = snap(nameTop - need);
-      contactTop = snap(contactTop0);
-      reason_codes.push("raised_name_band_to_keep_contact_up");
+    }
+    if (tops[0]! < bandTop + pad) {
+      bandTop = snap(Math.min(bandTop, tops[0]! - pad));
+    }
+  } else {
+    // Ensure name sits below band top with padding.
+    if (tops[0]! < bandTop + pad) {
+      tops[0] = snap(bandTop + pad);
+      placeForward();
     }
   }
 
   if (bandTop < 0) {
-    return {
-      schema_version: "header-identity-layout-1.0.0",
+    return emptyReport({
       ok: false,
-      applied: false,
       error:
         "header identity layout cannot honor containment, padding, and upward contact intent within page top bounds",
       reason_codes: [...reason_codes, "page_top_exhausted"],
+      ownership_mode: "FULL_STACK",
       before,
-      after: null,
-      band_expanded: false,
-      summary_shift_px: 0,
       required_contact_up: requireUp,
-      contact_delta_top: null,
-    };
+    });
   }
 
+  const contactTop = tops[tops.length - 1]!;
   const contactEb = contactTop + contactEh;
   let bandBottom = snap(Math.max(bandBottom0, contactEb + pad));
   let bandHeight = snap(bandBottom - bandTop);
-  if (bandHeight + 1e-9 < requiredHeight) {
-    bandBottom = snap(bandTop + requiredHeight);
+  if (bandHeight + 1e-9 < stackedHeight) {
+    bandBottom = snap(bandTop + stackedHeight);
     bandHeight = snap(bandBottom - bandTop);
   }
 
   if (pageH > 0 && bandBottom > pageH - clear) {
-    return {
-      schema_version: "header-identity-layout-1.0.0",
+    return emptyReport({
       ok: false,
-      applied: false,
       error:
         "header identity layout would push the header band past safe page bounds",
       reason_codes: [...reason_codes, "page_bottom_exhausted"],
+      ownership_mode: "FULL_STACK",
       before,
-      after: null,
       band_expanded: bandBottom > bandBottom0 + 0.5 || bandTop < bandTop0 - 0.5,
-      summary_shift_px: 0,
       required_contact_up: requireUp,
       contact_delta_top: snap(contactTop - contactTop0),
-    };
+      text_positions_preserved: false,
+    });
   }
 
-  // Apply band + identity positions.
   members.background.top = snap(bandTop);
   members.background.height = snap(bandHeight);
-  members.name.top = snap(nameTop);
-  members.contact.top = snap(contactTop);
-
-  // Shift non-header objects that start above the new clearance floor.
-  let summary_shift_px = 0;
-  for (let i = 0; i < objects.length; i++) {
-    const o = objects[i]!;
-    if (isSystemBg(o)) continue;
-    if (sectionOf(o) === "header") continue;
-    const top = asNum(o.top);
-    if (top == null) continue;
-    // Only shift objects that horizontally overlap the header band and sit
-    // below the prior header region (body / summary), not unrelated overlays.
-    const oLeft = asNum(o.left) ?? 0;
-    const oWidth = Math.max(0, asNum(o.width) ?? 0);
-    const bLeft = asNum(members.background.left) ?? 0;
-    const bWidth = Math.max(0, asNum(members.background.width) ?? 0);
-    const overlap =
-      Math.min(oLeft + oWidth, bLeft + bWidth) - Math.max(oLeft, bLeft);
-    if (overlap < 8) continue;
-    if (top + 1e-9 < bandTop0 - 1) continue;
-    const needTop = bandBottom + clear;
-    if (top + 1e-9 >= needTop) continue;
-    const delta = snap(needTop - top);
-    if (delta <= 0.01) continue;
-    o.top = snap(top + delta);
-    summary_shift_px = Math.max(summary_shift_px, delta);
-    reason_codes.push(`shifted_${objectId(o, i)}_by_${delta}`);
+  for (let i = 0; i < stack.length; i++) {
+    stack[i]!.object.top = snap(tops[i]!);
   }
 
-  // Fail closed if any shifted object falls past page bottom.
+  let summary_shift_px = 0;
+  const shiftResult = shiftBodyForBandClearance({
+    objects,
+    background: members.background,
+    bandTop0,
+    bandBottom,
+    clear,
+    reason_codes,
+  });
+  summary_shift_px = shiftResult.summary_shift_px;
+
   if (pageH > 0) {
-    for (let i = 0; i < objects.length; i++) {
-      const o = objects[i]!;
-      if (isSystemBg(o)) continue;
-      const bb = effectiveObjectBBox(o);
-      if (bb.bottom > pageH + 0.5) {
-        return {
-          schema_version: "header-identity-layout-1.0.0",
-          ok: false,
-          applied: false,
-          error:
-            "header identity layout would push body content past the page bottom",
-          reason_codes: [...reason_codes, "body_page_oob"],
-          before,
-          after: null,
-          band_expanded: true,
-          summary_shift_px,
-          required_contact_up: requireUp,
-          contact_delta_top: snap(contactTop - contactTop0),
-        };
-      }
+    const oob = bodyPastPageBottom(objects, pageH);
+    if (oob) {
+      return emptyReport({
+        ok: false,
+        error:
+          "header identity layout would push body content past the page bottom",
+        reason_codes: [...reason_codes, "body_page_oob"],
+        ownership_mode: "FULL_STACK",
+        before,
+        band_expanded: true,
+        summary_shift_px,
+        required_contact_up: requireUp,
+        contact_delta_top: snap(contactTop - contactTop0),
+        text_positions_preserved: false,
+      });
     }
   }
 
   if (requireUp && contactTop - contactTop0 > 0.5) {
-    return {
-      schema_version: "header-identity-layout-1.0.0",
+    return emptyReport({
       ok: false,
-      applied: false,
       error:
         "header identity layout cannot satisfy explicit upward contact intent without unsafe geometry",
       reason_codes: [...reason_codes, "contact_up_unsatisfied"],
+      ownership_mode: "FULL_STACK",
       before,
-      after: null,
       band_expanded: true,
       summary_shift_px,
       required_contact_up: requireUp,
       contact_delta_top: snap(contactTop - contactTop0),
-    };
+      text_positions_preserved: false,
+    });
   }
 
+  const afterTops = memberTops(stack);
   const after = {
     band_top: snap(bandTop),
     band_bottom: snap(bandBottom),
-    name_top: snap(nameTop),
-    name_effective_bottom: snap(nameTop + nameEh),
+    name_top: snap(tops[0]!),
+    name_effective_bottom: snap(tops[0]! + nameEh),
     contact_top: snap(contactTop),
     contact_effective_bottom: snap(contactTop + contactEh),
+    identity_tops: afterTops,
   };
 
   const band_expanded =
@@ -628,11 +821,56 @@ export function applyHeaderIdentityBlockLayout(input: {
     applied: true,
     error: null,
     reason_codes,
+    ownership_mode: "FULL_STACK",
     before,
     after,
     band_expanded,
     summary_shift_px,
     required_contact_up: requireUp,
     contact_delta_top: snap(contactTop - contactTop0),
+    text_positions_preserved: false,
   };
+}
+
+function shiftBodyForBandClearance(input: {
+  objects: FabricObj[];
+  background: FabricObj;
+  bandTop0: number;
+  bandBottom: number;
+  clear: number;
+  reason_codes: string[];
+}): { summary_shift_px: number } {
+  let summary_shift_px = 0;
+  for (let i = 0; i < input.objects.length; i++) {
+    const o = input.objects[i]!;
+    if (isSystemBg(o)) continue;
+    if (sectionOf(o) === "header") continue;
+    const top = asNum(o.top);
+    if (top == null) continue;
+    const oLeft = asNum(o.left) ?? 0;
+    const oWidth = Math.max(0, asNum(o.width) ?? 0);
+    const bLeft = asNum(input.background.left) ?? 0;
+    const bWidth = Math.max(0, asNum(input.background.width) ?? 0);
+    const overlap =
+      Math.min(oLeft + oWidth, bLeft + bWidth) - Math.max(oLeft, bLeft);
+    if (overlap < 8) continue;
+    if (top + 1e-9 < input.bandTop0 - 1) continue;
+    const needTop = input.bandBottom + input.clear;
+    if (top + 1e-9 >= needTop) continue;
+    const delta = snap(needTop - top);
+    if (delta <= 0.01) continue;
+    o.top = snap(top + delta);
+    summary_shift_px = Math.max(summary_shift_px, delta);
+    input.reason_codes.push(`shifted_${objectId(o, i)}_by_${delta}`);
+  }
+  return { summary_shift_px };
+}
+
+function bodyPastPageBottom(objects: FabricObj[], pageH: number): boolean {
+  for (const o of objects) {
+    if (isSystemBg(o)) continue;
+    const bb = effectiveObjectBBox(o);
+    if (bb.bottom > pageH + 0.5) return true;
+  }
+  return false;
 }

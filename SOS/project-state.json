@@ -26,6 +26,12 @@
   ],
   "history": [
     {
+      "at": "2026-09-02T15:30:00.000Z",
+      "type": "phase",
+      "summary": "Phase 5X — Multi-line header identity ownership hardening. Local wall=2026-09-02 21:00 IST. Root cause: HeaderIdentity modeled name↔contact only and moved contact to nameBottom+8, overlapping intermediate job title (revtask-fc2278c5-d39 FAILED_GATE; Phase 5W true-positive). Fix: ordered identityTextsOrdered stack; BAND_ONLY expands band when internal gaps already positive; FULL_STACK reflows all members sequentially when unsafe. Historical frozen: revtask-ec6bf0f8-e3d, revtask-a8653c03-20f, revtask-afd3f4b0-fae, revtask-bcf30166-95c, revtask-fc2278c5-d39. Remaining: ONE fresh header revision production proof (manual).",
+      "ref": "SOS/SAIOS/core/founder-revision/HeaderIdentityLayout.ts"
+    },
+    {
       "at": "2026-09-02T13:28:58.000Z",
       "type": "phase",
       "summary": "Phase 5W — Rendered-layout truth + coverage reliability. Local wall=2026-09-02 18:58:58 IST. Event A: revtask-7af3e53a-798 READY_FOR_FOUNDER_REVIEW with text_overlaps=0 while Certifications still overlapped (consecutive-Y-only overlap missed same-column pairs when right-column text interleaved). Event B: revtask-bcf30166-95c FAILED_COVERAGE indexes [2,6] (overlap geo elevation required ops; preserve remainder misclassified MUTATION_REQUIRED). Systemic fix: pairwise same-column wrap-aware overlap; NEXT_TEXT_AFTER_RENDERED_BOTTOM sequential gap proof; post-normalization final rendered-geometry gate; preserve-corrected-layout VA; offline 5W verifier. Historical frozen: revtask-ec6bf0f8-e3d, revtask-a8653c03-20f, revtask-afd3f4b0-fae, revtask-bcf30166-95c. Remaining: ONE final fresh Founder revision visual proof (manual).",

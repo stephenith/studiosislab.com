@@ -151,9 +151,11 @@ function main() {
       !viewSrc.includes("fr-v3-right") &&
       cssSrc.includes("grid-template-columns: 270px minmax(0, 1fr)"),
     v3_header_meta:
-      viewSrc.includes("LIVE OFF") &&
+      viewSrc.includes("fr-v3-header-meta") &&
       viewSrc.includes("Provider:") &&
-      viewSrc.includes("Mode:"),
+      viewSrc.includes("Mode:") &&
+      viewSrc.includes("snapshot.top_bar") &&
+      !viewSrc.includes("LIVE OFF"),
     sticky_action_bar:
       viewSrc.includes("fr-sticky-actions") &&
       cssSrc.includes("fr-sticky-actions") &&
@@ -237,14 +239,18 @@ function main() {
       viewSrc.includes("<summary>Logs</summary>"),
     no_publish:
       !viewSrc.includes("enable_live") && snap.security.live_controls_disabled,
-    live_off: process.env.SOS_AIOS_LIVE !== "1",
-    mock_provider:
-      viewSrc.includes('const mode = "dry_run"') &&
-      viewSrc.includes("LIVE OFF") &&
-      (queue.length === 0 ||
-        queue.every((q) => /^mock$/i.test(String(q.provider ?? "Mock"))) ||
-        // Queue may include provider-tagged candidates; UI remains dry_run / LIVE OFF
-        (viewSrc.includes("dry_run") && snap.security.live_controls_disabled)),
+    live_env_guarded: process.env.SOS_AIOS_LIVE !== "1",
+    operational_badges_from_snapshot:
+      viewSrc.includes("snapshot.top_bar.provider") &&
+      viewSrc.includes("snapshot.top_bar.mode") &&
+      viewSrc.includes("snapshot.top_bar.live_label") &&
+      !viewSrc.includes('const mode = "dry_run"') &&
+      !viewSrc.includes("LIVE OFF") &&
+      !viewSrc.includes('?? "Mock"'),
+    review_workflow_actions_present:
+      /Approve/i.test(viewSrc) &&
+      /Request Changes/i.test(viewSrc) &&
+      /Reject/i.test(viewSrc),
     no_openai_sdk: (() => {
       const dashPkgPath = join(DASH, "package.json");
       const dashPkg = JSON.parse(readFileSync(dashPkgPath, "utf8")) as {
@@ -305,7 +311,7 @@ function main() {
       ``,
       `## Constraints`,
       ``,
-      `- LIVE OFF · dry_run · Mock Provider · no automatic publication`,
+      `- SOS_AIOS_LIVE remains 0 · GUARDED_ACTIVE ops badges from snapshot · no automatic publication`,
       `- Existing \`/api/founder-review\` and \`/api/founder-decision\` unchanged`,
       `- No workflow / queue / UI redesign`,
       `- Preview asset pipeline only`,

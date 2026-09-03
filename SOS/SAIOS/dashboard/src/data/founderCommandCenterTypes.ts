@@ -32,10 +32,10 @@ export type FounderCommandCenterSnapshot = {
   production_triggered: false;
   openai_called: false;
   safety: {
-    live: false;
-    live_label: "LIVE OFF";
+    live: boolean;
+    live_label: string;
     publication_allowed: false;
-    publication_label: "Publication Disabled";
+    publication_label: string;
     founder_approval_required: true;
     production_entry: "ProductionController";
     runtime_guard_present: boolean;

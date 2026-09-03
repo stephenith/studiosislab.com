@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "verify": "tsx verify.ts",
     "verify:founder-review-ui": "tsx verify-founder-review-ui.ts",
-    "verify:review-workflow": "tsx verify-review-workflow.ts"
+    "verify:review-workflow": "tsx verify-review-workflow.ts",
+    "verify:guarded-active-slice1": "tsx verify-guarded-active-slice1.ts",
+    "verify:guarded-active-slice2": "tsx verify-guarded-active-slice2.ts"
   },
   "dependencies": {
     "cmdk": "^1.1.1",

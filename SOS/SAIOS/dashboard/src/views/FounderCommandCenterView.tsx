@@ -79,7 +79,8 @@ export function FounderSafetyBanner({
   return (
     <InfoBanner title="Safety posture">
       {safety.live_label} · {safety.publication_label} · Founder Approval
-      Required · Production Entry: {safety.production_entry}
+      Required · Production Entry: {safety.production_entry} · SOS_AIOS_LIVE is
+      an env guard (not department off)
     </InfoBanner>
   );
 }
@@ -149,7 +150,7 @@ export function FccReportsPage({
     <div className="ds-command" data-readonly="true">
       <PageHeader
         title="Reports"
-        subtitle="Allowlisted report navigation only — no filesystem explorer."
+        subtitle="Legacy allowlisted reports — historical / read-only, not live Resume Template ops."
       />
       <FounderSafetyBanner safety={snap.safety} />
       <SectionCard title="Allowlist">

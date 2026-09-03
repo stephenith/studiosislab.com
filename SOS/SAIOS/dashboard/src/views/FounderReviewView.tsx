@@ -381,8 +381,17 @@ export function FounderReviewView({ snapshot, onDecided }: Props) {
     });
   }, [serverQueue]);
 
-  const provider = reviewQueue.find((r) => r.provider)?.provider ?? "Mock";
-  const mode = "dry_run";
+  /** Operational badges — same top_bar truth as App toolbar (not per-item provider). */
+  const opsLabel = (value: string | undefined | null): string => {
+    const v = typeof value === "string" ? value.trim() : "";
+    return v || "Unavailable";
+  };
+  const departmentLabel = opsLabel(snapshot.top_bar.live_label);
+  const providerLabel = opsLabel(snapshot.top_bar.provider);
+  const modeLabel = opsLabel(snapshot.top_bar.mode);
+  const publicationLabel = opsLabel(
+    snapshot.top_bar.publication_label ?? "MANUAL / GUARDED",
+  );
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterKey>("all");
@@ -921,17 +930,16 @@ export function FounderReviewView({ snapshot, onDecided }: Props) {
     <div className="fr-v3-page ds-command">
       <PageHeader
         title="Templates Ready for Review"
-        subtitle="Founder moderation · dry run only"
+        subtitle={`Founder moderation · ${modeLabel}`}
         actions={
           <ToolbarActions>
             <div className="fr-v3-header-meta">
               <Badge tone="neutral">{list.length} reviews</Badge>
               <Badge tone="waiting">{waitingCount} waiting</Badge>
-              <Badge tone="neutral" className="badge live-off">
-                LIVE OFF
-              </Badge>
-              <Badge tone="neutral">Provider: {provider}</Badge>
-              <Badge tone="neutral">Mode: {mode}</Badge>
+              <Badge tone="neutral">{departmentLabel}</Badge>
+              <Badge tone="neutral">Provider: {providerLabel}</Badge>
+              <Badge tone="neutral">Mode: {modeLabel}</Badge>
+              <Badge tone="neutral">{publicationLabel}</Badge>
             </div>
           </ToolbarActions>
         }

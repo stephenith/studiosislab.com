@@ -130,21 +130,28 @@ export type DataSourceState = {
 };
 
 export type TopBarState = {
-  live: false;
-  live_label: "LIVE OFF";
-  mode: "dry_run";
-  provider: "Mock";
+  /** Internal SOS_AIOS_LIVE === "1" — not department activity. */
+  live: boolean;
+  /** Human-facing department/ops label (e.g. ACTIVE), not env LIVE. */
+  live_label: string;
+  mode: string;
+  provider: string;
+  /** Operational freshness (last gen / timer), never legacy runtime-loop hb. */
   heartbeat_age: string;
-  cost_today_usd: "0.00";
+  cost_today_usd: string;
   latest_agent: string;
   next_agent: string;
+  /** Optional richer ops fields for top-bar consumers. */
+  health_label?: string;
+  queue_label?: string;
+  publication_label?: string;
 };
 
 export type ResumeDepartmentView = {
   enabled: boolean;
-  mode: "dry_run";
+  mode: string;
   batch_size: number;
-  provider: "Mock";
+  provider: string;
   queue_depth: number;
   latest_run: CycleItem | null;
   approval_state: string;
@@ -728,4 +735,99 @@ export type DashboardSnapshot = {
     live_controls_disabled: true;
     auth_required_before_vps: true;
   };
+  /** GUARDED_ACTIVE Resume Template operational truth (optional for older clients). */
+  resume_ops?: ResumeOpsSnapshot;
+};
+
+/** Typed subset of ResumeOperationalStatus for Production / ops UI. */
+export type ResumeOpsSnapshot = {
+  schema_version?: string;
+  generated_at?: string;
+  operating_mode?: string;
+  department_active?: boolean;
+  department_status?: string;
+  sos_aios_live?: string;
+  live_env_guarded?: boolean;
+  human_status_label?: string;
+  mode_label?: string;
+  publication_mode?: string;
+  publication_auto_apply?: boolean;
+  provider_label?: string;
+  provider_generation?: string;
+  provider_revision?: string;
+  openai_bounded_enabled?: boolean;
+  generation_status?: string;
+  revision_dispatcher_enabled?: boolean;
+  revision_dispatcher_active?: boolean;
+  revision_dispatcher_basis?: string;
+  revision_pending?: number;
+  revision_running?: number;
+  queue?: {
+    waiting_founder?: number;
+    queue_max?: number;
+    queue_free?: number;
+    revision_failed?: number;
+    approved?: number;
+    rejected?: number;
+    changes_requested?: number;
+  };
+  cost?: {
+    today_usd?: number;
+    month_usd?: number;
+    daily_limit_usd?: number | null;
+    monthly_limit_usd?: number | null;
+    auto_pause_threshold_pct?: number | null;
+    budget_ok?: boolean;
+    budget_reason?: string | null;
+    ledger_entries?: number;
+    available?: boolean;
+  };
+  health?: {
+    status?: string;
+    detail?: string;
+    production_health?: string | null;
+  };
+  freshness?: {
+    label?: string;
+    source?: string;
+    at?: string | null;
+    age?: string;
+  };
+  timers?: {
+    morning?: ResumeOpsTimerSnapshot;
+    evening?: ResumeOpsTimerSnapshot;
+  };
+  last_execution?: {
+    execution_id?: string | null;
+    stop_reason?: string | null;
+    finished_at?: string | null;
+    health_status?: string | null;
+    budget_decision?: string | null;
+    candidate_count?: number | null;
+    batch_id?: string | null;
+    requested?: number | null;
+    accepted?: number | null;
+    failed?: number | null;
+    role_integrity_failed?: number | null;
+    duplicate_skips?: number | null;
+    available?: boolean;
+  };
+  memory?: {
+    active_rules?: number | null;
+    confirmed?: number | null;
+    provisional?: number | null;
+    superseded?: number | null;
+    available?: boolean;
+  };
+  top_bar?: Record<string, string>;
+};
+
+export type ResumeOpsTimerSnapshot = {
+  unit?: string;
+  enabled?: boolean | null;
+  active?: boolean | null;
+  next_run?: string | null;
+  last_run?: string | null;
+  available?: boolean;
+  detail?: string;
 };

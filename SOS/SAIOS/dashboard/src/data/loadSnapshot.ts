@@ -28,6 +28,7 @@ import {
   createWave1SnapshotLoader,
   ensureDashboardPluginsRegistered,
 } from "../../../platform/dashboard/plugins/register.js";
+import { buildResumeOperationalStatus } from "../../../core/first-production-cycle/ResumeOperationalStatus.js";
 
 ensureDashboardPluginsRegistered();
 const wave1SnapshotLoader = createWave1SnapshotLoader(defaultSnapshotRegistry);
@@ -61,17 +62,6 @@ function safeReadJson(
     });
     return null;
   }
-}
-
-function ageFromIso(iso: string | null | undefined): string {
-  if (!iso) return "unknown";
-  const t = Date.parse(iso);
-  if (Number.isNaN(t)) return "unknown";
-  const sec = Math.max(0, Math.floor((Date.now() - t) / 1000));
-  if (sec < 60) return `${sec}s`;
-  if (sec < 3600) return `${Math.floor(sec / 60)}m`;
-  if (sec < 86400) return `${Math.floor(sec / 3600)}h`;
-  return `${Math.floor(sec / 86400)}d`;
 }
 
 function fileMtimeIso(repo: string, rel: string): string | null {
@@ -234,27 +224,17 @@ export function loadDashboardSnapshot(repoRoot?: string): DashboardSnapshot {
     "SOS/07_LOGS/saios/knowledge-gateway/flow.json",
     sources,
   ) as Record<string, unknown> | null;
-  const heartbeat = safeReadJson(
-    repo,
-    "SOS/07_LOGS/saios/runtime-loop/runtime-heartbeat.json",
-    sources,
-  ) as { last_heartbeat?: string; generated_at?: string } | null;
+  // Intentionally do NOT load legacy runtime-loop heartbeat for Resume ops top-bar.
+  const resumeOps = buildResumeOperationalStatus({ repoRoot: repo });
 
   const liveEnv = process.env.SOS_AIOS_LIVE;
   if (liveEnv === "1") {
-    // Still report LIVE OFF for V1 UI contract — verify will FAIL if env is 1
+    // Env LIVE=1 is incompatible with current production spine; ops status reflects ATTENTION.
   }
 
   const resumeDept = enablement?.departments?.resume;
   const websiteDept = enablement?.departments?.website;
   const ops = (projectState?.operations ?? {}) as Record<string, Record<string, unknown>>;
-
-  const heartbeatIso =
-    heartbeat?.last_heartbeat ??
-    heartbeat?.generated_at ??
-    (knowledgeGateway?.generated_at as string | undefined) ??
-    (projectState?.generated_at as string | undefined) ??
-    null;
 
   const skillCount =
     skillRegistry?.count ??
@@ -266,15 +246,21 @@ export function loadDashboardSnapshot(repoRoot?: string): DashboardSnapshot {
     {
       id: "resume",
       label: "Resume Department",
-      status: resumeDept?.enabled ? "healthy" : "disabled",
-      mode: resumeDept?.dry_run ? "dry_run" : "unknown",
-      queue_depth: 0,
+      status: resumeOps.department_active ? "healthy" : "disabled",
+      mode: resumeOps.mode_label,
+      queue_depth: resumeOps.queue.waiting_founder,
       last_activity:
+        resumeOps.last_execution.finished_at ??
         (resumeIntegration?.generated_at as string) ??
         fileMtimeIso(repo, "SOS/07_LOGS/saios/resume-integration/readiness.json"),
-      health: ops.resume_brain_integration?.status === "ready" ? "healthy" : "degraded",
+      health:
+        resumeOps.health.status === "HEALTHY"
+          ? "healthy"
+          : resumeOps.health.status === "BACKPRESSURED"
+            ? "waiting_founder"
+            : "degraded",
       open_route: "resume",
-      notes: "AI path via ResumeKnowledgeGateway",
+      notes: resumeOps.health.detail,
     },
     {
       id: "knowledge",
@@ -386,8 +372,7 @@ export function loadDashboardSnapshot(repoRoot?: string): DashboardSnapshot {
       id: "production-cycle-waiting-founder",
       severity: "founder",
       title: "WAITING FOR FOUNDER — production cycle paused",
-      detail:
-        "Execution paused · no automatic decision · no automatic publication · LIVE OFF · dry_run · Mock Provider",
+      detail: `Founder review required · publication ${resumeOps.publication_mode} · provider ${resumeOps.provider_label} · queue ${resumeOps.queue.waiting_founder}/${resumeOps.queue.queue_max}`,
       source: "SOS/07_LOGS/saios/founder-gate-runtime",
     });
   }
@@ -711,20 +696,23 @@ export function loadDashboardSnapshot(repoRoot?: string): DashboardSnapshot {
     },
   ];
 
-  const system_pulse_active = false; // idle unless a live run exists — V1 artifacts are completed
+  const system_pulse_active = resumeOps.department_active;
 
   return {
     generated_at: now,
     last_refreshed: now,
     top_bar: {
-      live: false,
-      live_label: "LIVE OFF",
-      mode: "dry_run",
-      provider: "Mock",
-      heartbeat_age: ageFromIso(heartbeatIso),
-      cost_today_usd: "0.00",
+      live: resumeOps.sos_aios_live === "1",
+      live_label: resumeOps.top_bar.department_label,
+      mode: resumeOps.top_bar.mode_label,
+      provider: resumeOps.top_bar.provider_label,
+      heartbeat_age: resumeOps.top_bar.freshness_label,
+      cost_today_usd: resumeOps.top_bar.cost_today_usd,
       latest_agent: String(projectState?.latest_agent ?? "?"),
       next_agent: String(projectState?.next_agent ?? "?"),
+      health_label: resumeOps.top_bar.health_label,
+      queue_label: resumeOps.top_bar.queue_label,
+      publication_label: "MANUAL / GUARDED",
     },
     departments,
     cycles,
@@ -742,11 +730,11 @@ export function loadDashboardSnapshot(repoRoot?: string): DashboardSnapshot {
     activity,
     brain_path,
     resume: {
-      enabled: Boolean(resumeDept?.enabled),
-      mode: "dry_run",
-      batch_size: Number(resumeDept?.initial_batch_size ?? 1),
-      provider: "Mock",
-      queue_depth: 0,
+      enabled: Boolean(resumeDept?.enabled) || resumeOps.department_active,
+      mode: resumeOps.mode_label,
+      batch_size: Number(resumeDept?.initial_batch_size ?? 5),
+      provider: resumeOps.provider_label,
+      queue_depth: resumeOps.queue.waiting_founder,
       latest_run: cycles[0] ?? null,
       approval_state: String(
         resumeDept?.founder_approval_required
@@ -757,7 +745,7 @@ export function loadDashboardSnapshot(repoRoot?: string): DashboardSnapshot {
         "Knowledge",
         "Skills",
         "Brain Router",
-        "Provider response",
+        resumeOps.openai_bounded_enabled ? "OpenAI Bounded" : "Provider",
       ],
       deterministic_safeguards: [
         "QA",
@@ -775,7 +763,7 @@ export function loadDashboardSnapshot(repoRoot?: string): DashboardSnapshot {
             "Knowledge",
             "Skill",
             "Brain",
-            "Mock",
+            resumeOps.openai_bounded_enabled ? "OpenAI" : "Provider",
             "Response",
           ],
     },
@@ -1226,6 +1214,7 @@ export function loadDashboardSnapshot(repoRoot?: string): DashboardSnapshot {
       live_controls_disabled: true,
       auth_required_before_vps: true,
     },
+    resume_ops: resumeOps,
   };
 }
 

@@ -342,9 +342,10 @@ export function MissionControl({
           · never executes · founder approval required
         </InfoBanner>
       ) : (
-        <InfoBanner title={snapshot.top_bar.live_label}>
+        <InfoBanner title="Operations Hub · scaffold / legacy">
+          Not the primary Resume Template control plane — use Production + Review.
           Mode {snapshot.top_bar.mode} · Provider {snapshot.top_bar.provider} ·
-          read-only control plane
+          Department {snapshot.top_bar.live_label}
         </InfoBanner>
       )}
 

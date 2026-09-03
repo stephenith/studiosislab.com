@@ -216,7 +216,7 @@ export function FirstSupervisedRunPanel() {
     <section className="mc-row-block" aria-label="First supervised production run">
       <McSectionHeader
         title="First Supervised Production Run"
-        subtitle="Founder-approved 5-template resume batch — LIVE OFF · no publication"
+        subtitle="Historical / one-time supervised batch record — not current Resume Template schedule"
       />
 
       <div className="mc-row mc-row-5" style={{ marginBottom: 16 }}>
@@ -328,7 +328,7 @@ export function FirstSupervisedRunPanel() {
           <span className="mc-card-label">Batch Controls</span>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <Badge tone="waiting">Founder Approval Required</Badge>
-            <Badge tone="approved">LIVE OFF</Badge>
+            <Badge tone="neutral">Historical · env LIVE=0</Badge>
             <label className="mc-card-detail" style={{ display: "flex", gap: 6, alignItems: "center" }}>
               <input
                 type="checkbox"

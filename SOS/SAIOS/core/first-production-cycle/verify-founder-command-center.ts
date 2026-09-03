@@ -112,9 +112,17 @@ async function main(): Promise<void> {
   assert(snap.mutations === false, "mutations false");
   assert(snap.production_triggered === false, "no production");
   assert(snap.openai_called === false, "no openai");
-  assert(snap.safety.live === false, "LIVE OFF");
-  assert(snap.safety.live_label === "LIVE OFF", "live label");
+  assert(snap.safety.live === false, "LIVE env off");
+  assert(
+    /ACTIVE|INACTIVE|RESUME/i.test(snap.safety.live_label) &&
+      !/^LIVE OFF$/i.test(snap.safety.live_label),
+    "live label is department ops not LIVE OFF",
+  );
   assert(snap.safety.publication_allowed === false, "publication false");
+  assert(
+    /MANUAL|GUARDED|Disabled/i.test(snap.safety.publication_label),
+    "publication label guarded",
+  );
   assert(
     snap.safety.founder_approval_required === true,
     "founder approval mandatory",

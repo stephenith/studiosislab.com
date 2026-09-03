@@ -21,11 +21,10 @@
   "pending_actions": [
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "P1 — publication live proof / controlled apply for staged packages (AUTO_APPLY off; NOT a revision-engineering / department-closure blocker)",
-    "P1 — provider badge honesty (dashboard MOCK vs real OpenAI generation/revision truth)",
     "P1 — optional historical revision_failed card cleanup (Founder-decided; not required for department closure)",
     "P1 — role-integrity long-tail efficiency / reduce unnecessary OpenAI spend on missing packs",
     "P2 — Telegram READY_FOR_FOUNDER_REVIEW success notification (failure alerts already live)",
-    "P2 — $0.00 dashboard telemetry truth; candidate.json approval-status sync after APPROVE; legacy candidate terminology; README/verifier consolidation; structured Founder feedback UI only if later required",
+    "P2 — candidate.json approval-status sync after APPROVE; legacy candidate terminology; README/verifier consolidation; structured Founder feedback UI only if later required",
     "DO NOT APPROVE/PUBLISH known mismatched historical candidates (Operations Analyst→Marketing Manager; Graphic Designer professional_sidebar→HR Manager) — publication eligibility excludes ROLE_INTEGRITY_FAILED",
     "founder-review-004 awaiting founder approval",
     "founder-review-005 changes requested after preview pipeline smoke",
@@ -33,6 +32,12 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-03T00:19:16.000Z",
+      "type": "activation",
+      "summary": "GUARDED_ACTIVE Founder Dashboard operationalization COMPLETE. Local wall=2026-09-03 05:49 IST. Resume Template department remains OPERATIONALLY_COMPLETE; revision engineering remains STOPPED — MAINTENANCE/REGRESSION ONLY. Steady-state mode GUARDED_ACTIVE. SOS_AIOS_LIVE=0 intentionally retained (current generation/revision/OpenAI production spine requires guarded LIVE=0; LIVE=1 incompatible). Bounded OpenAI active; revision dispatcher active; scheduled generation active; queue backpressure active; Founder Review human-gated; auto-stage active; publication MANUAL/GUARDED; SOS_AIOS_PUBLICATION_AUTO_APPLY=0 by Founder policy. Dashboard operational truth wired: department ACTIVE, provider OPENAI BOUNDED, real CostLedger spend, generation freshness (not legacy runtime-loop heartbeat), queue, timers, last execution, revision dispatcher, memory, health, publication posture. Legacy LIVE OFF / DRY_RUN / MOCK / fake $0.00 / hb 54d removed from current Resume operations UI. Observability-only; no generation/revision/OpenAI/publish/env/timer mutation in this activation. NEXT MAJOR DEPARTMENT unchanged: Website Analysis / QA / Development.",
+      "ref": "SOS/SAIOS/core/first-production-cycle/ResumeOperationalStatus.ts"
+    },
     {
       "at": "2026-09-02T22:17:15.000Z",
       "type": "closure",

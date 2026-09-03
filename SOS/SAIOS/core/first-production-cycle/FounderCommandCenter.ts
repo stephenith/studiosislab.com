@@ -6,6 +6,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { listCandidateManifests } from "./CandidateStore.js";
 import { summarizeFounderReviewProjection } from "../founder-review/FounderReviewProjection.js";
+import { buildResumeOperationalStatus } from "./ResumeOperationalStatus.js";
 
 const REPO = resolve(import.meta.dirname, "../../../..");
 
@@ -41,10 +42,10 @@ export type FounderCommandCenterSnapshot = {
   production_triggered: false;
   openai_called: false;
   safety: {
-    live: false;
-    live_label: "LIVE OFF";
+    live: boolean;
+    live_label: string;
     publication_allowed: false;
-    publication_label: "Publication Disabled";
+    publication_label: string;
     founder_approval_required: true;
     production_entry: "ProductionController";
     runtime_guard_present: boolean;
@@ -487,6 +488,11 @@ export function buildFounderCommandCenterSnapshot(opts?: {
     available: existsSync(join(repoRoot, r.path)),
   }));
 
+  const resumeOps = buildResumeOperationalStatus({
+    repoRoot,
+    now,
+  });
+
   const snap: FounderCommandCenterSnapshot = {
     schema_version: 1,
     agent: "222A",
@@ -497,10 +503,13 @@ export function buildFounderCommandCenterSnapshot(opts?: {
     production_triggered: false,
     openai_called: false,
     safety: {
-      live: false,
-      live_label: "LIVE OFF",
+      live: resumeOps.sos_aios_live === "1",
+      live_label: resumeOps.human_status_label,
       publication_allowed: false,
-      publication_label: "Publication Disabled",
+      publication_label:
+        resumeOps.publication_mode === "MANUAL_GUARDED"
+          ? "PUBLICATION MANUAL / GUARDED"
+          : resumeOps.publication_mode,
       founder_approval_required: true,
       production_entry: "ProductionController",
       runtime_guard_present,

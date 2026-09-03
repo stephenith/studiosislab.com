@@ -63,8 +63,10 @@ async function main() {
   const websiteDisabled = snap.departments.some(
     (d) => d.id === "website" && d.status === "disabled",
   );
-  const resumeDry = snap.departments.some(
-    (d) => d.id === "resume" && d.mode === "dry_run",
+  const resumeGuarded = snap.departments.some(
+    (d) =>
+      d.id === "resume" &&
+      /GUARDED|ACTIVE/i.test(String(d.mode ?? "")),
   );
   const mockActive = snap.departments.some(
     (d) => d.id === "mock" && (d.mode === "active" || d.health === "healthy"),
@@ -123,14 +125,25 @@ async function main() {
     brain: existsSync(join(DASH, "src/views/BrainStudio.tsx")),
     skills: existsSync(join(DASH, "src/views/SkillsView.tsx")),
     activity: existsSync(join(DASH, "src/views/ActivityView.tsx")),
-    live_off_visible: appSrc.includes("live_label") || appSrc.includes("LIVE OFF"),
+    ops_status_wired:
+      appSrc.includes("top_bar.live_label") &&
+      appSrc.includes("top_bar.provider") &&
+      !appSrc.includes('"LIVE OFF"') &&
+      !appSrc.includes("hb {") &&
+      !/\bhb\s/.test(appSrc),
   };
 
   const checks = {
     dashboard_separate_from_vercel: separateFromPublic && filesOk && designOk,
     aios_shell_exists: views.shell,
     mission_control_exists: views.mission_control,
-    live_off_dry_run_visible: liveOff && views.live_off_visible && resumeDry,
+    guarded_active_top_bar_visible:
+      liveOff &&
+      resumeGuarded &&
+      views.ops_status_wired &&
+      snap.top_bar.live === false &&
+      !/^LIVE OFF$/i.test(snap.top_bar.live_label) &&
+      !/^dry_run$/i.test(snap.top_bar.mode),
     resume_view_exists: views.resume,
     knowledge_view_exists: views.knowledge,
     brain_studio_exists: views.brain,
@@ -278,7 +291,7 @@ async function main() {
 ## Summary
 
 Mission Control dashboard shipped as an internal OS shell under \`SOS/SAIOS/dashboard/\`.
-Read-only. LIVE OFF permanent. Mock provider active. Website disabled. No Telegram/Caddy/DNS changes.
+Read-only observation UI. SOS_AIOS_LIVE must remain 0 (guarded spine). Resume Template ops use GUARDED_ACTIVE truth (not dry_run/MOCK badges). Website disabled. No Telegram/Caddy/DNS changes.
 
 ## Run
 

@@ -259,9 +259,7 @@ export function MissionControlHome({
             </span>
           </div>
           <div className="mc-header-badges">
-            <Badge tone="neutral" className="badge live-off">
-              {snap.safety.live_label}
-            </Badge>
+            <Badge tone="neutral">{snap.safety.live_label}</Badge>
             <Badge tone="neutral">{snap.safety.publication_label}</Badge>
             <Badge tone="waiting">Founder Approval Required</Badge>
           </div>
@@ -273,9 +271,12 @@ export function MissionControlHome({
         </div>
       </header>
 
-      {/* ROW 1 */}
+      {/* ROW 1 — legacy autonomous/factory reports (not Resume Template schedule truth) */}
       <section className="mc-row-block" aria-label="Factory status row">
-        <McSectionHeader title="Factory Pulse" subtitle="What is the system doing now" />
+        <McSectionHeader
+          title="Factory Pulse"
+          subtitle="Legacy autonomous reports — not Resume Template scheduled generation (see Production)"
+        />
         <div className="mc-row mc-row-5">
           <StatusCard
             label="Factory Status"
@@ -669,11 +670,14 @@ export function MissionControlHome({
 
       {/* Safety */}
       <section className="mc-row-block" aria-label="Safety">
-        <McSectionHeader title="Safety" />
+        <McSectionHeader
+          title="Safety"
+          subtitle="Guarded-active Resume Template posture (SOS_AIOS_LIVE env ≠ department off)"
+        />
         <article className="mc-card mc-safety-card">
           <div className="mc-safety-grid">
             <div>
-              <p className="mc-card-label">LIVE</p>
+              <p className="mc-card-label">Department</p>
               <p className="mc-safety-value">{snap.safety.live_label}</p>
             </div>
             <div>

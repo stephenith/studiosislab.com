@@ -18,6 +18,7 @@ import {
   FccReportsPage,
   FccSectionPage,
 } from "./views/FounderCommandCenterView";
+import { ResumeProductionView } from "./views/ResumeProductionView";
 import { MissionControlSkeleton } from "./views/mission-control/components";
 import { MissionApprovalView } from "./views/MissionApprovalView";
 import { QueueAdmissionView } from "./views/QueueAdmissionView";
@@ -54,12 +55,12 @@ const NAV: { id: DashboardRoute; label: string }[] = [
   { id: "command-center", label: "Mission Control" },
   { id: "review", label: "Templates Ready for Review" },
   { id: "fcc-production", label: "Production" },
-  { id: "fcc-portfolio", label: "Portfolio" },
-  { id: "fcc-strategy", label: "Strategy" },
-  { id: "fcc-governance", label: "Governance" },
-  { id: "fcc-advisor", label: "Advisor" },
-  { id: "fcc-reports", label: "Reports" },
-  { id: "home", label: "Operations Hub" },
+  { id: "fcc-portfolio", label: "Portfolio · inactive" },
+  { id: "fcc-strategy", label: "Strategy · inactive" },
+  { id: "fcc-governance", label: "Governance · inactive" },
+  { id: "fcc-advisor", label: "Advisor · inactive" },
+  { id: "fcc-reports", label: "Reports · legacy" },
+  { id: "home", label: "Operations Hub · scaffold" },
   { id: "settings", label: "Settings" },
 ];
 
@@ -367,10 +368,23 @@ export function App() {
     );
   }
 
-  const liveLabel =
-    snapshot?.top_bar.live_label ?? fcc?.safety.live_label ?? "LIVE OFF";
-  const modeLabel = snapshot?.top_bar.mode ?? "observation";
-  const providerLabel = snapshot?.top_bar.provider ?? "n/a";
+  /** Human-facing ops labels from snapshot top_bar — never invent LIVE OFF / Mock / $0.00. */
+  const opsLabel = (value: string | undefined | null): string => {
+    const v = typeof value === "string" ? value.trim() : "";
+    return v || "Unavailable";
+  };
+  const costTodayLabel = (raw: string | undefined | null): string => {
+    const v = typeof raw === "string" ? raw.trim() : "";
+    if (!v) return "Unavailable";
+    return v.startsWith("$") ? v : `$${v}`;
+  };
+  const departmentLabel = opsLabel(snapshot?.top_bar.live_label);
+  const modeLabel = opsLabel(snapshot?.top_bar.mode);
+  const providerLabel = opsLabel(snapshot?.top_bar.provider);
+  const freshnessLabel = opsLabel(snapshot?.top_bar.heartbeat_age);
+  const queueLabel = snapshot?.top_bar.queue_label?.trim() || "";
+  const healthLabel = snapshot?.top_bar.health_label?.trim() || "";
+  const publicationLabel = snapshot?.top_bar.publication_label?.trim() || "";
 
   return (
     <>
@@ -404,22 +418,27 @@ export function App() {
             meta={
               <>
                 <strong className="ds-brand-mark">AIOS</strong>
-                <Badge tone="neutral" className="badge live-off">
-                  {liveLabel}
-                </Badge>
+                <Badge tone="neutral">{departmentLabel}</Badge>
                 <Badge tone="neutral">{modeLabel}</Badge>
                 <Badge tone="neutral">provider: {providerLabel}</Badge>
                 {snapshot ? (
                   <>
+                    <span className="mono muted">{freshnessLabel}</span>
+                    {queueLabel ? (
+                      <span className="mono muted">q {queueLabel}</span>
+                    ) : null}
+                    {healthLabel ? (
+                      <span className="mono muted">{healthLabel}</span>
+                    ) : null}
                     <span className="mono muted">
-                      hb {snapshot.top_bar.heartbeat_age}
+                      {costTodayLabel(snapshot.top_bar.cost_today_usd)}
                     </span>
-                    <span className="mono muted">
-                      ${snapshot.top_bar.cost_today_usd}
-                    </span>
+                    {publicationLabel ? (
+                      <Badge tone="neutral">{publicationLabel}</Badge>
+                    ) : null}
                   </>
                 ) : (
-                  <span className="mono muted">FCC observation</span>
+                  <span className="mono muted">Unavailable</span>
                 )}
               </>
             }
@@ -487,40 +506,18 @@ export function App() {
             </SecondaryButton>
           </main>
         )}
-        {route === "fcc-production" && fcc && (
-          <FccSectionPage
-            title="Production"
-            subtitle="Read-only projection from autonomous status and last execution."
-            safety={fcc.safety}
-            section={fcc.autonomous}
-            rows={[
-              {
-                label: "State",
-                value: fcc.autonomous.data?.state ?? "—",
-              },
-              {
-                label: "Running",
-                value: String(fcc.autonomous.data?.running ?? "—"),
-              },
-              {
-                label: "Last execution",
-                value: fcc.last_execution.data?.execution_id ?? "—",
-              },
-              {
-                label: "Stop reason",
-                value: fcc.last_execution.data?.stop_reason ?? "—",
-              },
-              {
-                label: "Production entry",
-                value: fcc.safety.production_entry,
-              },
-            ]}
-          />
+        {route === "fcc-production" && snapshot && (
+          <ResumeProductionView snapshot={snapshot} />
+        )}
+        {route === "fcc-production" && !snapshot && (
+          <main className="ds-command">
+            <p className="muted mono">Loading production snapshot…</p>
+          </main>
         )}
         {route === "fcc-portfolio" && fcc && (
           <FccSectionPage
             title="Portfolio"
-            subtitle="Read-only portfolio report projection."
+            subtitle="Inactive / historical projection — not current Resume Template operations."
             safety={fcc.safety}
             section={fcc.portfolio}
             rows={[
@@ -542,7 +539,7 @@ export function App() {
         {route === "fcc-strategy" && fcc && (
           <FccSectionPage
             title="Strategy"
-            subtitle="Read-only production strategy projection."
+            subtitle="Inactive / planned — not current Resume Template operations."
             safety={fcc.safety}
             section={fcc.strategy}
             rows={[
@@ -564,7 +561,7 @@ export function App() {
         {route === "fcc-governance" && fcc && (
           <FccSectionPage
             title="Governance"
-            subtitle="Health, budget, scheduling — observation only."
+            subtitle="Inactive / legacy observation — use Production for Resume Template ops."
             safety={fcc.safety}
             section={fcc.health}
             rows={[
@@ -581,7 +578,7 @@ export function App() {
                 value: fcc.scheduling.data?.decision ?? "—",
               },
               {
-                label: "LIVE",
+                label: "Department (env-aware)",
                 value: fcc.safety.live_label,
               },
               {
@@ -594,7 +591,7 @@ export function App() {
         {route === "fcc-advisor" && fcc && (
           <FccSectionPage
             title="Advisor"
-            subtitle="Operational policy advice — advisory only, no apply."
+            subtitle="Inactive / advisory scaffold — not current Resume Template operations."
             safety={fcc.safety}
             section={fcc.advisor}
             rows={[

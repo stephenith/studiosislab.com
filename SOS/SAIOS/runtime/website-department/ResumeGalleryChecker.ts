@@ -4,6 +4,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { getResumeCatalogSnapshotFromRoot } from "../../../../src/lib/resumeCatalogRuntime.js";
+import {
+  modulePassFromScenarios,
+  outcomeFromStaticEvidence,
+  scenarioResult,
+} from "./WebsiteCheckHelpers.js";
 import type { ScenarioResult } from "./types.js";
 
 const DEFAULT_REPO_ROOT = resolve(import.meta.dirname, "../../../..");
@@ -30,54 +35,56 @@ export function checkResumeGallery(input?: {
   const thumbExists = Boolean(thumbPath && existsSync(thumbPath));
 
   const scenarios: ScenarioResult[] = [
-    {
+    scenarioResult({
       id: "homepage_surface",
       label: "Homepage source present",
-      pass: existsSync(join(repoRoot, "src/app/page.tsx")),
+      outcome: outcomeFromStaticEvidence(existsSync(join(repoRoot, "src/app/page.tsx"))),
       severity: "critical",
       execution: "static_evidence_only",
       details: "src/app/page.tsx present (not live render proof)",
-    },
-    {
+    }),
+    scenarioResult({
       id: "gallery_loads",
       label: "Resume gallery source present",
-      pass: existsSync(join(repoRoot, "src/app/resume/page.tsx")) && hubSrc.includes("resume"),
+      outcome: outcomeFromStaticEvidence(
+        existsSync(join(repoRoot, "src/app/resume/page.tsx")) && hubSrc.includes("resume"),
+      ),
       severity: "critical",
       execution: "static_evidence_only",
       details: `gallery client present; ${published.length} published templates (not browser proof)`,
-    },
-    {
+    }),
+    scenarioResult({
       id: "thumbnails_load",
       label: "Template thumbnail file present",
-      pass: thumbExists,
+      outcome: outcomeFromStaticEvidence(thumbExists),
       severity: "critical",
       execution: "static_evidence_only",
       details: thumbExists
         ? `Thumbnail file present for ${target?.id}: ${target?.thumb}`
         : `Thumbnail missing for ${target?.id ?? "unknown"}: ${target?.thumb ?? "none"}`,
-    },
-    {
+    }),
+    scenarioResult({
       id: "template_search",
       label: "Template search surface present",
-      pass:
+      outcome: outcomeFromStaticEvidence(
         hubSrc.toLowerCase().includes("search") ||
-        existsSync(join(repoRoot, "src/lib/runtimeResumeCatalogClient.ts")),
+          existsSync(join(repoRoot, "src/lib/runtimeResumeCatalogClient.ts")),
+      ),
       severity: "warning",
       execution: "static_evidence_only",
       details: "Search capability detected in gallery client / runtime catalog client",
-    },
-    {
+    }),
+    scenarioResult({
       id: "category_page",
       label: "Category page source present",
-      pass: existsSync(join(repoRoot, "src/app/resume/category/[categoryId]/page.tsx")),
+      outcome: outcomeFromStaticEvidence(
+        existsSync(join(repoRoot, "src/app/resume/category/[categoryId]/page.tsx")),
+      ),
       severity: "critical",
       execution: "static_evidence_only",
       details: "Category route page present (not live render proof)",
-    },
+    }),
   ];
 
-  return {
-    pass: scenarios.every((s) => s.pass || s.severity !== "critical"),
-    scenarios,
-  };
+  return { pass: modulePassFromScenarios(scenarios), scenarios };
 }

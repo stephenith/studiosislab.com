@@ -29,7 +29,12 @@ import {
   STATE_PATH,
   WEBSITE_DEPARTMENT,
 } from "./WebsiteDepartmentDirector.js";
-import { readWebsiteEnablement, resolveExecutionGate } from "./WebsiteDepartmentPolicy.js";
+import {
+  TEST_BYPASS_ENV,
+  assertPersistSafety,
+  readWebsiteEnablement,
+  resolveExecutionGate,
+} from "./WebsiteDepartmentPolicy.js";
 import { persistWebsiteReports } from "./WebsiteReportBuilder.js";
 
 const REPO_ROOT = resolve(import.meta.dirname, "../../../..");
@@ -192,30 +197,44 @@ async function main(): Promise<void> {
     assert(result.run.evidence_kind === "static", "evidence kind");
     assert(network.calls.length === 0, `no network calls (got ${network.calls.join(",")})`);
     assert(
-      result.scenarios.some((s) => s.id === "browser_journey" && s.execution === "not_run"),
+      result.scenarios.some(
+        (s) =>
+          s.id === "browser_journey" &&
+          s.execution === "not_run" &&
+          s.outcome === "not_run" &&
+          s.pass === false,
+      ),
       "browser NOT_RUN",
     );
     assert(
       result.scenarios.some(
-        (s) => s.id === "authentication_behaviour" && s.execution === "not_run",
+        (s) =>
+          s.id === "authentication_behaviour" &&
+          s.execution === "not_run" &&
+          s.outcome === "not_run" &&
+          s.pass === false,
       ),
       "auth NOT_RUN",
     );
     assert(
       result.scenarios.some(
-        (s) => s.id === "mobile_viewport_behaviour" && s.execution === "not_run",
+        (s) =>
+          s.id === "mobile_viewport_behaviour" &&
+          s.execution === "not_run" &&
+          s.outcome === "not_run",
       ),
       "mobile viewport NOT_RUN",
     );
     assert(
-      result.scenarios.some((s) => s.id === "download_execution" && s.execution === "not_run"),
+      result.scenarios.some(
+        (s) =>
+          s.id === "download_execution" && s.execution === "not_run" && s.outcome === "not_run",
+      ),
       "download NOT_RUN",
     );
     assert(
-      !result.scenarios.some(
-        (s) => s.id === "no_obvious_browser_runtime_error" && s.pass && !s.execution,
-      ),
-      "legacy always-pass browser stub absent",
+      !result.scenarios.some((s) => s.outcome === "not_run" && s.pass === true),
+      "no not_run with pass true",
     );
     proofs.verification_only = true;
     proofs.no_network = true;
@@ -267,7 +286,9 @@ async function main(): Promise<void> {
     );
     proofs.project_state_preservation = true;
 
-    // --- Immutable evidence in temp dirs ---
+    // --- Immutable evidence in temp dirs (test bypass required for force_enabled) ---
+    const prevBypass = process.env[TEST_BYPASS_ENV];
+    process.env[TEST_BYPASS_ENV] = "1";
     const outA = join(tmp, "evidence-a");
     const outB = join(tmp, "evidence-b");
     mkdirSync(outA, { recursive: true });
@@ -327,21 +348,37 @@ async function main(): Promise<void> {
     assert(latestHealth.status, "latest has status");
     proofs.immutable_evidence = true;
 
-    // Direct persistWebsiteReports compatibility shape
+    // Authorized persist via assertPersistSafety capability
+    const bundleAuth = assertPersistSafety({
+      options: {
+        force_enabled: true,
+        persist: true,
+        allow_network: false,
+        output_root: join(tmp, "bundle"),
+      },
+      repo_root: REPO_ROOT,
+      enablement: {
+        enabled: true,
+        reason: "test_bypass_force_enabled",
+        source: "test_bypass",
+      },
+    });
     const bundle = persistWebsiteReports(persistedA2, {
-      output_root: join(tmp, "bundle"),
+      authorization: bundleAuth,
       update_latest: true,
-      update_root_projections: false,
     });
     assert(existsSync(join(bundle.latest_dir, "website-alerts.json")), "alerts projection");
     assert(existsSync(join(bundle.run_dir, "website-report.md")), "report md");
     proofs.latest_projections = true;
 
-    // Temp state write path used force_enabled — confirm merge wrote to copy only
+    // Test bypass does not write project-state; copy remains agent-stable
     const copyAfter = JSON.parse(readFileSync(stateCopyPath, "utf8"));
     assert(copyAfter.latest_agent === agentBefore.latest_agent, "copy agents preserved after persist");
     assertNoAgentMutation(before, copyAfter);
     proofs.no_agent_mutation = true;
+
+    if (prevBypass === undefined) delete process.env[TEST_BYPASS_ENV];
+    else process.env[TEST_BYPASS_ENV] = prevBypass;
 
     assertJuly8Unchanged(july8Before);
     proofs.july8_untouched = true;

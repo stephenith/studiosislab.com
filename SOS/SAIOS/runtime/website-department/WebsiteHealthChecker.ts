@@ -1,9 +1,12 @@
 /**
  * Static + optional live route health checks.
  * Static evidence is never presented as browser/auth/production proof.
+ *
+ * Operational execution must go through runWebsiteDepartment (policy gate).
  */
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { outcomeFromExecuted, outcomeFromStaticEvidence } from "./WebsiteCheckHelpers.js";
 import { buildRouteRegistry } from "./WebsiteRouteRegistry.js";
 import type {
   RouteDefinition,
@@ -16,6 +19,7 @@ const DEFAULT_REPO_ROOT = resolve(import.meta.dirname, "../../../..");
 export async function probeLiveRoute(
   baseUrl: string,
   route: RouteDefinition,
+  repoRoot = DEFAULT_REPO_ROOT,
 ): Promise<RouteHealthResult> {
   const url = `${baseUrl.replace(/\/$/, "")}${route.path}`;
   const started = Date.now();
@@ -36,9 +40,10 @@ export async function probeLiveRoute(
         ? `reachable (HTTP ${res.status}); auth behaviour not validated`
         : `HTTP ${res.status}`,
       execution: "executed",
+      outcome: outcomeFromExecuted(ok),
       auth: route.auth,
       source_files_ok: route.source_files.every((f) =>
-        existsSync(join(DEFAULT_REPO_ROOT, f.replace(/^\/+/, ""))),
+        existsSync(join(repoRoot, f.replace(/^\/+/, ""))),
       ),
     };
   } catch (err) {
@@ -51,6 +56,7 @@ export async function probeLiveRoute(
       mode: "live",
       detail: err instanceof Error ? err.message : String(err),
       execution: "executed",
+      outcome: "fail",
       auth: route.auth,
       source_files_ok: false,
     };
@@ -74,13 +80,14 @@ function staticRouteEvidence(
     route_id: route.id,
     path: route.path,
     ok: sourceOk,
-    status_code: sourceOk ? null : null,
+    status_code: null,
     latency_ms: null,
     mode: "static",
     detail: sourceOk
       ? `static source evidence ok for URL path ${route.path}${authNote}`
       : `missing source files: ${missing.join(", ")}`,
     execution: "static_evidence_only",
+    outcome: outcomeFromStaticEvidence(sourceOk),
     auth: route.auth,
     source_files_ok: sourceOk,
   };
@@ -103,7 +110,7 @@ export async function checkWebsiteRoutes(
   const allowNetwork =
     options.verification_only === true
       ? false
-      : options.allow_network !== false && modePref !== "static";
+      : options.allow_network === true && modePref !== "static";
 
   let liveAvailable = false;
   if (allowNetwork && modePref !== "static") {
@@ -120,7 +127,9 @@ export async function checkWebsiteRoutes(
   }
 
   if (liveAvailable && allowNetwork && modePref !== "static") {
-    const results = await Promise.all(routes.map((route) => probeLiveRoute(preferred, route)));
+    const results = await Promise.all(
+      routes.map((route) => probeLiveRoute(preferred, route, repoRoot)),
+    );
     return { results, mode: "live", base_url: preferred };
   }
 

@@ -1,7 +1,8 @@
 /**
  * Builds alert payloads (no live sending).
- * Scenarios marked not_run / unsupported do not generate failure alerts.
+ * Only outcome === "fail" generates failure alerts. not_run/unsupported never alert.
  */
+import { isActionableFailure } from "./WebsiteCheckHelpers.js";
 import type { RouteHealthResult, ScenarioResult, WebsiteAlert } from "./types.js";
 
 function alertId(type: string, key: string): string {
@@ -17,7 +18,7 @@ export function buildWebsiteAlerts(input: {
   const alerts: WebsiteAlert[] = [];
 
   for (const route of input.routes) {
-    if (route.ok) continue;
+    if (route.outcome !== "fail") continue;
     const isApi = route.path.startsWith("/api/");
     alerts.push({
       id: alertId(isApi ? "api" : "route", route.route_id),
@@ -33,10 +34,7 @@ export function buildWebsiteAlerts(input: {
   }
 
   for (const scenario of input.scenarios) {
-    if (scenario.execution === "not_run" || scenario.execution === "unsupported") {
-      continue;
-    }
-    if (scenario.pass) continue;
+    if (!isActionableFailure(scenario.outcome)) continue;
 
     let type: WebsiteAlert["type"] = "runtime_js_error";
     if (scenario.id.includes("editor")) type = "editor_failure";

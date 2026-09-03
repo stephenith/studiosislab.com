@@ -4,6 +4,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { loadRuntimeTemplateJsonFromRoot } from "../../../../src/lib/resumeCatalogRuntime.js";
+import {
+  modulePassFromScenarios,
+  outcomeFromStaticEvidence,
+  scenarioResult,
+} from "./WebsiteCheckHelpers.js";
 import type { ScenarioResult } from "./types.js";
 
 const DEFAULT_REPO_ROOT = resolve(import.meta.dirname, "../../../..");
@@ -27,40 +32,41 @@ export function checkResumeEditor(input?: {
   const pageSrc = existsSync(editorPage) ? readFileSync(editorPage, "utf8") : "";
 
   const scenarios: ScenarioResult[] = [
-    {
+    scenarioResult({
       id: "editor_route_open",
       label: "Editor template route source present",
-      pass:
+      outcome: outcomeFromStaticEvidence(
         existsSync(editorPage) &&
-        existsSync(editorShell) &&
-        (pageSrc.includes("templateId") || pageSrc.includes("template")),
+          existsSync(editorShell) &&
+          (pageSrc.includes("templateId") || pageSrc.includes("template")),
+      ),
       severity: "critical",
       execution: "static_evidence_only",
       details: existsSync(editorPage)
         ? `/editor/template/${templateId ?? "{templateId}"} page present (auth not validated)`
         : "Editor template page missing",
-    },
-    {
+    }),
+    scenarioResult({
       id: "editor_fabric_ready",
       label: "Fabric editor wiring present",
-      pass: existsSync(fabricHook) && existsSync(templateClient),
+      outcome: outcomeFromStaticEvidence(existsSync(fabricHook) && existsSync(templateClient)),
       severity: "critical",
       execution: "static_evidence_only",
       details: "useFabricEditor + runtimeTemplateClient available",
-    },
-    {
+    }),
+    scenarioResult({
       id: "editor_json_ready",
       label: "Editor template JSON loadable",
-      pass: Boolean(
-        templateId && Array.isArray(json?.objects) && (json?.objects.length ?? 0) > 0,
+      outcome: outcomeFromStaticEvidence(
+        Boolean(templateId && Array.isArray(json?.objects) && (json?.objects.length ?? 0) > 0),
       ),
       severity: "critical",
       execution: "static_evidence_only",
       details: templateId
         ? `objects=${json?.objects?.length ?? 0} for ${templateId}`
         : "No derived template_id available",
-    },
+    }),
   ];
 
-  return { pass: scenarios.every((s) => s.pass), scenarios };
+  return { pass: modulePassFromScenarios(scenarios), scenarios };
 }

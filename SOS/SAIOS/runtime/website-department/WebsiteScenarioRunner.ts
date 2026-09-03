@@ -1,6 +1,6 @@
 /**
  * Aggregates scenario runners for Website Department.
- * Browser/auth journeys are explicitly NOT_RUN in Phase 1.
+ * Browser/auth journeys are explicitly NOT_RUN until Phase 2B.
  */
 import { checkDownloadFlow } from "./DownloadFlowChecker.js";
 import { checkMobileExperience } from "./MobileExperienceChecker.js";
@@ -9,6 +9,7 @@ import { checkResumeGallery } from "./ResumeGalleryChecker.js";
 import { checkRuntimeCatalog } from "./RuntimeCatalogChecker.js";
 import { checkSeoHealth } from "./SEOHealthChecker.js";
 import { checkSitemap } from "./SitemapChecker.js";
+import { scenarioResult } from "./WebsiteCheckHelpers.js";
 import type { ScenarioResult } from "./types.js";
 
 export function runWebsiteScenarios(input?: {
@@ -50,27 +51,27 @@ export function runWebsiteScenarios(input?: {
   const mobile = checkMobileExperience({ repo_root: repoRoot });
   const download = checkDownloadFlow({ repo_root: repoRoot });
 
-  const browserScenario: ScenarioResult = {
+  const browserScenario = scenarioResult({
     id: "browser_journey",
     label: "Browser journey (Playwright)",
-    pass: true,
+    outcome: "not_run",
     severity: "info",
     execution: "not_run",
     details:
-      "NOT_RUN: browser automation unsupported in Phase 1; static source evidence is not proof of browser journeys, console cleanliness, or production health",
+      "NOT_RUN: browser automation deferred to Phase 2B; static source evidence is not proof of browser journeys, console cleanliness, or production health",
     evidence: { coverage: "NOT_RUN", playwright: false },
-  };
+  });
 
-  const authScenario: ScenarioResult = {
+  const authScenario = scenarioResult({
     id: "authentication_behaviour",
     label: "Authentication behaviour",
-    pass: true,
+    outcome: "not_run",
     severity: "info",
     execution: "not_run",
     details:
       "NOT_RUN: auth-required routes are identified in the registry only; static checks do not validate login, redirects, or session behaviour",
     evidence: { coverage: "NOT_RUN" },
-  };
+  });
 
   const scenarios = [
     ...gallery.scenarios,

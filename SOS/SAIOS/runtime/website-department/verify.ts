@@ -40,7 +40,13 @@ async function main(): Promise<void> {
   assert(result.run.browser_coverage === "not_run", "browser not_run");
   assert(result.run.auth_coverage === "not_run", "auth not_run");
   assert(
-    result.scenarios.some((s) => s.id === "browser_journey" && s.execution === "not_run"),
+    result.scenarios.some(
+      (s) =>
+        s.id === "browser_journey" &&
+        s.outcome === "not_run" &&
+        s.pass === false &&
+        s.execution === "not_run",
+    ),
     "browser scenario NOT_RUN",
   );
   assert(result.checks.route_registry, "route registry check");
@@ -62,9 +68,10 @@ async function main(): Promise<void> {
         persisted: result.persisted,
         project_state_written: result.project_state_written,
         registry_example: result.registry_example,
-        routes_ok: result.routes.filter((r) => r.ok).length,
+        routes_ok: result.routes.filter((r) => r.outcome !== "fail").length,
         routes_total: result.routes.length,
-        scenarios_pass: result.scenarios.filter((s) => s.pass).length,
+        scenarios_outcome_pass: result.scenarios.filter((s) => s.outcome === "pass").length,
+        scenarios_not_run: result.scenarios.filter((s) => s.outcome === "not_run").length,
         scenarios_total: result.scenarios.length,
         alerts: result.alerts.length,
         overall: "PASS",

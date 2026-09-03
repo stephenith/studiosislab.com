@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "verify": "tsx verify.ts",
-    "verify:phase1": "tsx verify-phase1-core.ts"
+    "verify:phase1": "tsx verify-phase1-core.ts",
+    "verify:phase2a": "tsx verify-phase2a-core.ts"
   },
   "devDependencies": {
     "tsx": "^4.19.4",

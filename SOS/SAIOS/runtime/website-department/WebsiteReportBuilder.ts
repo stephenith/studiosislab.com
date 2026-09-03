@@ -1,19 +1,26 @@
 /**
  * Persists Website Department reports with immutable run directories + latest projections.
+ *
+ * V1 accepted limitation: run / latest / root are not one cross-directory transaction.
+ * Ordering is run-first then latest then root; each file is written atomically.
+ * A crash mid-bundle can leave temporary disagreement between layers.
  */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
+import { formatOutcomeLabel } from "./WebsiteCheckHelpers.js";
+import {
+  isWebsitePersistAuthorization,
+  type WebsitePersistAuthorization,
+} from "./WebsiteDepartmentPolicy.js";
+import {
+  defaultWebsiteDepartmentRoot,
+  WEBSITE_DEPARTMENT_ROOT,
+} from "./WebsitePaths.js";
 import type { WebsiteDepartmentResult, WebsiteStatus } from "./types.js";
 
-const DEFAULT_REPO_ROOT = resolve(import.meta.dirname, "../../../..");
+export { defaultWebsiteDepartmentRoot, WEBSITE_DEPARTMENT_ROOT };
 
-export function defaultWebsiteDepartmentRoot(repoRoot = DEFAULT_REPO_ROOT): string {
-  return join(repoRoot, "SOS/07_LOGS/saios/website-department");
-}
-
-export const WEBSITE_DEPARTMENT_ROOT = defaultWebsiteDepartmentRoot();
-
-const PROJECTION_FILES = [
+export const WEBSITE_PROJECTION_FILES = [
   "website-health.json",
   "route-health.json",
   "scenario-results.json",
@@ -25,6 +32,8 @@ const PROJECTION_FILES = [
   "website-alerts.json",
   "website-report.md",
 ] as const;
+
+const PROJECTION_FILES = WEBSITE_PROJECTION_FILES;
 
 export function classifyWebsiteStatus(input: {
   routes_ok: boolean;
@@ -66,14 +75,14 @@ export function renderWebsiteReport(result: WebsiteDepartmentResult): string {
     "",
     ...result.routes.map(
       (r) =>
-        `- \`${r.path}\` — ${r.ok ? "OK" : "FAIL"} (${r.mode}, execution=${r.execution}, auth=${r.auth}${r.status_code ? `, ${r.status_code}` : ""}) — ${r.detail}`,
+        `- \`${r.path}\` — ${formatOutcomeLabel(r.outcome)} (${r.mode}, execution=${r.execution}, auth=${r.auth}${r.status_code ? `, ${r.status_code}` : ""}) — ${r.detail}`,
     ),
     "",
     "## Scenarios",
     "",
     ...result.scenarios.map(
       (s) =>
-        `- ${s.pass ? "PASS" : "FAIL"} [${s.execution}] — ${s.label}: ${s.details}`,
+        `- ${formatOutcomeLabel(s.outcome)} [${s.execution}] — ${s.label}: ${s.details}`,
     ),
     "",
     "## Alerts",
@@ -170,19 +179,30 @@ export function archiveRootProjectionsIfNeeded(outputRoot: string): string | nul
   return dest;
 }
 
+/**
+ * Persist reports. Requires a WebsitePersistAuthorization minted by assertPersistSafety.
+ * Ungated / missing authorization fails closed before any write.
+ */
 export function persistWebsiteReports(
   result: WebsiteDepartmentResult,
-  options?: {
-    output_root?: string;
+  options: {
+    authorization: WebsitePersistAuthorization;
     update_latest?: boolean;
-    update_root_projections?: boolean;
     protect_existing_root?: boolean;
   },
 ): { run_dir: string; latest_dir: string; files: string[] } {
-  const outputRoot = options?.output_root ?? result.output_dir ?? WEBSITE_DEPARTMENT_ROOT;
+  if (!isWebsitePersistAuthorization(options?.authorization)) {
+    throw new Error(
+      "persistWebsiteReports requires authorization from assertPersistSafety (ungated persistence rejected)",
+    );
+  }
+
+  const outputRoot = options.authorization.output_root;
+  const updateRoot = options.authorization.update_root_projections === true;
+
   mkdirSync(outputRoot, { recursive: true });
 
-  if (options?.protect_existing_root !== false && options?.update_root_projections) {
+  if (options.protect_existing_root !== false && updateRoot) {
     archiveRootProjectionsIfNeeded(outputRoot);
   }
 
@@ -190,11 +210,11 @@ export function persistWebsiteReports(
   writeReportBundle(runDir, result);
 
   const latestDir = join(outputRoot, "latest");
-  if (options?.update_latest !== false) {
+  if (options.update_latest !== false) {
     writeReportBundle(latestDir, result);
   }
 
-  if (options?.update_root_projections) {
+  if (updateRoot) {
     // Compatibility projections for existing consumers of root filenames.
     writeReportBundle(outputRoot, result);
   }

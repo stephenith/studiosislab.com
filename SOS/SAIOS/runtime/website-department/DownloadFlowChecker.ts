@@ -1,9 +1,13 @@
 /**
  * Download / export flow structural checks (static evidence only).
- * Does NOT prove downloads work.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import {
+  modulePassFromScenarios,
+  outcomeFromStaticEvidence,
+  scenarioResult,
+} from "./WebsiteCheckHelpers.js";
 import type { ScenarioResult } from "./types.js";
 
 const DEFAULT_REPO_ROOT = resolve(import.meta.dirname, "../../../..");
@@ -29,41 +33,39 @@ export function checkDownloadFlow(input?: { repo_root?: string }): {
   const hasMobilePdf = mobileSrc.includes("downloadPdf") || mobileSrc.includes("pdf");
 
   const scenarios: ScenarioResult[] = [
-    {
+    scenarioResult({
       id: "download_flow_source",
       label: "Download/export source paths present",
-      pass: hasDesktopExport && hasShellDownload,
+      outcome: outcomeFromStaticEvidence(hasDesktopExport && hasShellDownload),
       severity: "critical",
       execution: "static_evidence_only",
       details: hasDesktopExport
         ? "Editor export/download path present in source (not download execution proof)"
         : "No download/export path found in fabric editor",
-    },
-    {
+    }),
+    scenarioResult({
       id: "mobile_download_path_source",
       label: "Mobile download path present in source",
-      pass: hasMobilePdf,
+      outcome: outcomeFromStaticEvidence(hasMobilePdf),
       severity: "warning",
       execution: "static_evidence_only",
       details: hasMobilePdf
         ? "Mobile PDF download path present in source"
         : "Mobile PDF path missing",
-    },
-    {
+    }),
+    scenarioResult({
       id: "download_execution",
       label: "Download / export execution",
-      pass: true,
+      outcome: "not_run",
       severity: "info",
       execution: "not_run",
       details:
         "NOT_RUN: download/export behaviour not executed; static source evidence is not download proof",
-    },
+    }),
   ];
 
   return {
-    pass: scenarios
-      .filter((s) => s.severity === "critical" && s.execution !== "not_run")
-      .every((s) => s.pass),
+    pass: modulePassFromScenarios(scenarios),
     scenarios,
     report: {
       coverage: "static_evidence_only",

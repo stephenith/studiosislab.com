@@ -1,9 +1,14 @@
 /**
- * SEO page health for Website Department (static evidence only).
+ * SEO page health (static evidence only).
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { getResumeCatalogSnapshotFromRoot } from "../../../../src/lib/resumeCatalogRuntime.js";
+import {
+  modulePassFromScenarios,
+  outcomeFromStaticEvidence,
+  scenarioResult,
+} from "./WebsiteCheckHelpers.js";
 import type { ScenarioResult } from "./types.js";
 
 const DEFAULT_REPO_ROOT = resolve(import.meta.dirname, "../../../..");
@@ -35,45 +40,49 @@ export function checkSeoHealth(input?: {
   const slug = seoEntry?.slug ?? input?.seo_slug ?? null;
 
   const scenarios: ScenarioResult[] = [
-    {
+    scenarioResult({
       id: "seo_page_loads",
       label: "Template SEO route source + catalog entry",
-      pass: Boolean(
-        existsSync(seoPage) &&
-          slug &&
-          seoEntry &&
-          (seoSrc.includes(`slug: "${slug}"`) ||
-            seoSrc.includes(`'${slug}'`) ||
-            Boolean(seoEntry.slug)),
+      outcome: outcomeFromStaticEvidence(
+        Boolean(
+          existsSync(seoPage) &&
+            slug &&
+            seoEntry &&
+            (seoSrc.includes(`slug: "${slug}"`) ||
+              seoSrc.includes(`'${slug}'`) ||
+              Boolean(seoEntry.slug)),
+        ),
       ),
       severity: "critical",
       execution: "static_evidence_only",
       details: seoEntry
         ? `SEO entry present for ${seoEntry.templateId} → /resume/${slug} (not live render proof)`
         : `SEO entry missing for ${templateId ?? "unknown"}`,
-    },
-    {
+    }),
+    scenarioResult({
       id: "seo_metadata_complete",
       label: "SEO metadata complete",
-      pass: Boolean(
-        seoEntry?.seoTitle && seoEntry.seoDescription && seoEntry.h1 && seoEntry.slug,
+      outcome: outcomeFromStaticEvidence(
+        Boolean(
+          seoEntry?.seoTitle && seoEntry.seoDescription && seoEntry.h1 && seoEntry.slug,
+        ),
       ),
       severity: "warning",
       execution: "static_evidence_only",
       details: seoEntry ? "title/description/h1/slug present" : "metadata incomplete",
-    },
-    {
+    }),
+    scenarioResult({
       id: "seo_helpers_present",
       label: "SEO helpers present",
-      pass: existsSync(seoLib),
+      outcome: outcomeFromStaticEvidence(existsSync(seoLib)),
       severity: "info",
       execution: "static_evidence_only",
       details: "src/lib/templateSeo.ts present",
-    },
+    }),
   ];
 
   return {
-    pass: scenarios.filter((s) => s.severity === "critical").every((s) => s.pass),
+    pass: modulePassFromScenarios(scenarios),
     scenarios,
     report: {
       template_id: templateId,

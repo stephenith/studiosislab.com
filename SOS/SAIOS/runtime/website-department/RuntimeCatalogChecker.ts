@@ -1,5 +1,5 @@
 /**
- * Runtime catalog health for Website Department (static evidence only).
+ * Runtime catalog health (static evidence only).
  */
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -8,6 +8,11 @@ import {
   loadRuntimeTemplateJsonFromRoot,
   runtimeTemplateJsonExists,
 } from "../../../../src/lib/resumeCatalogRuntime.js";
+import {
+  modulePassFromScenarios,
+  outcomeFromStaticEvidence,
+  scenarioResult,
+} from "./WebsiteCheckHelpers.js";
 import type { ScenarioResult } from "./types.js";
 
 const DEFAULT_REPO_ROOT = resolve(import.meta.dirname, "../../../..");
@@ -36,33 +41,40 @@ export function checkRuntimeCatalog(input?: {
   );
 
   const scenarios: ScenarioResult[] = [
-    {
+    scenarioResult({
       id: "runtime_catalog_api_surface",
       label: "Runtime catalog API surface + derived template",
-      pass: Boolean(template && template.status === "published" && apiRoute && templateApi),
+      outcome: outcomeFromStaticEvidence(
+        Boolean(template && template.status === "published" && apiRoute && templateApi),
+      ),
       severity: "critical",
       execution: "static_evidence_only",
       details: template
         ? `Found ${templateId} (${template.title}) in runtime catalog (not live HTTP proof)`
         : `${templateId ?? "no template"} missing from runtime catalog`,
       evidence: { catalog_count: snapshot.templates.length, template },
-    },
-    {
+    }),
+    scenarioResult({
       id: "fabric_json_loadable",
       label: "Fabric JSON is loadable",
-      pass: Boolean(
-        templateId && jsonExists && Array.isArray(json?.objects) && (json?.objects.length ?? 0) > 0,
+      outcome: outcomeFromStaticEvidence(
+        Boolean(
+          templateId &&
+            jsonExists &&
+            Array.isArray(json?.objects) &&
+            (json?.objects.length ?? 0) > 0,
+        ),
       ),
       severity: "critical",
       execution: "static_evidence_only",
       details: jsonExists
         ? `template-json/${templateId}.json loadable (${json?.objects?.length ?? 0} objects)`
         : `template-json/${templateId ?? "?"}.json missing`,
-    },
+    }),
   ];
 
   return {
-    pass: scenarios.every((s) => s.pass),
+    pass: modulePassFromScenarios(scenarios),
     scenarios,
     evidence: {
       template_id: templateId,

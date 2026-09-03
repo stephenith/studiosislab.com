@@ -4,6 +4,11 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { getResumeCatalogSnapshotFromRoot } from "../../../../src/lib/resumeCatalogRuntime.js";
+import {
+  modulePassFromScenarios,
+  outcomeFromStaticEvidence,
+  scenarioResult,
+} from "./WebsiteCheckHelpers.js";
 import type { ScenarioResult } from "./types.js";
 
 const DEFAULT_REPO_ROOT = resolve(import.meta.dirname, "../../../..");
@@ -41,36 +46,36 @@ export function checkSitemap(input?: {
     (slug ? src.includes(slug) : false);
 
   const scenarios: ScenarioResult[] = [
-    {
+    scenarioResult({
       id: "sitemap_file_exists",
       label: "Sitemap module exists",
-      pass: existsSync(sitemapPath),
+      outcome: outcomeFromStaticEvidence(existsSync(sitemapPath)),
       severity: "critical",
       execution: "static_evidence_only",
       details: existsSync(sitemapPath) ? "src/app/sitemap.ts present" : "sitemap.ts missing",
-    },
-    {
+    }),
+    scenarioResult({
       id: "robots_file_exists",
       label: "Robots module exists",
-      pass: existsSync(robotsPath),
+      outcome: outcomeFromStaticEvidence(existsSync(robotsPath)),
       severity: "critical",
       execution: "static_evidence_only",
       details: existsSync(robotsPath) ? "src/app/robots.ts present" : "robots.ts missing",
-    },
-    {
+    }),
+    scenarioResult({
       id: "sitemap_includes_published_template",
       label: "Sitemap generation wired for SEO pages",
-      pass: referencesSlug && Boolean(seo),
+      outcome: outcomeFromStaticEvidence(referencesSlug && Boolean(seo)),
       severity: "critical",
       execution: "static_evidence_only",
       details: seo
         ? `Sitemap generation wired for SEO pages; expects /resume/${slug} (not live sitemap fetch)`
         : `No SEO page for ${templateId ?? "unknown"} to include in sitemap`,
-    },
+    }),
   ];
 
   return {
-    pass: scenarios.every((s) => s.pass),
+    pass: modulePassFromScenarios(scenarios),
     scenarios,
     report: {
       template_id: templateId,

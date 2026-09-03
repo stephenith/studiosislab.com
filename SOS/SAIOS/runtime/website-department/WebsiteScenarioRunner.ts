@@ -1,5 +1,6 @@
 /**
  * Aggregates scenario runners for Website Department.
+ * Browser/auth journeys are explicitly NOT_RUN in Phase 1.
  */
 import { checkDownloadFlow } from "./DownloadFlowChecker.js";
 import { checkMobileExperience } from "./MobileExperienceChecker.js";
@@ -10,7 +11,11 @@ import { checkSeoHealth } from "./SEOHealthChecker.js";
 import { checkSitemap } from "./SitemapChecker.js";
 import type { ScenarioResult } from "./types.js";
 
-export function runWebsiteScenarios(catalogId = "t094"): {
+export function runWebsiteScenarios(input?: {
+  repo_root?: string;
+  template_id?: string | null;
+  seo_slug?: string | null;
+}): {
   scenarios: ScenarioResult[];
   modules: {
     gallery: ReturnType<typeof checkResumeGallery>;
@@ -22,13 +27,50 @@ export function runWebsiteScenarios(catalogId = "t094"): {
     download: ReturnType<typeof checkDownloadFlow>;
   };
 } {
-  const gallery = checkResumeGallery(catalogId);
-  const runtime_catalog = checkRuntimeCatalog(catalogId);
-  const editor = checkResumeEditor(catalogId);
-  const seo = checkSeoHealth(catalogId);
-  const sitemap = checkSitemap(catalogId);
-  const mobile = checkMobileExperience();
-  const download = checkDownloadFlow();
+  const templateId = input?.template_id ?? null;
+  const seoSlug = input?.seo_slug ?? null;
+  const repoRoot = input?.repo_root;
+
+  const gallery = checkResumeGallery({ repo_root: repoRoot, template_id: templateId });
+  const runtime_catalog = checkRuntimeCatalog({
+    repo_root: repoRoot,
+    template_id: templateId,
+  });
+  const editor = checkResumeEditor({ repo_root: repoRoot, template_id: templateId });
+  const seo = checkSeoHealth({
+    repo_root: repoRoot,
+    template_id: templateId,
+    seo_slug: seoSlug,
+  });
+  const sitemap = checkSitemap({
+    repo_root: repoRoot,
+    template_id: templateId,
+    seo_slug: seoSlug,
+  });
+  const mobile = checkMobileExperience({ repo_root: repoRoot });
+  const download = checkDownloadFlow({ repo_root: repoRoot });
+
+  const browserScenario: ScenarioResult = {
+    id: "browser_journey",
+    label: "Browser journey (Playwright)",
+    pass: true,
+    severity: "info",
+    execution: "not_run",
+    details:
+      "NOT_RUN: browser automation unsupported in Phase 1; static source evidence is not proof of browser journeys, console cleanliness, or production health",
+    evidence: { coverage: "NOT_RUN", playwright: false },
+  };
+
+  const authScenario: ScenarioResult = {
+    id: "authentication_behaviour",
+    label: "Authentication behaviour",
+    pass: true,
+    severity: "info",
+    execution: "not_run",
+    details:
+      "NOT_RUN: auth-required routes are identified in the registry only; static checks do not validate login, redirects, or session behaviour",
+    evidence: { coverage: "NOT_RUN" },
+  };
 
   const scenarios = [
     ...gallery.scenarios,
@@ -38,14 +80,8 @@ export function runWebsiteScenarios(catalogId = "t094"): {
     ...sitemap.scenarios,
     ...mobile.scenarios,
     ...download.scenarios,
-    {
-      id: "no_obvious_browser_runtime_error",
-      label: "No obvious browser runtime error",
-      pass: true,
-      severity: "info" as const,
-      details:
-        "Static/hybrid mode: no Playwright browser session; structural surfaces verified instead",
-    },
+    browserScenario,
+    authScenario,
   ];
 
   return {

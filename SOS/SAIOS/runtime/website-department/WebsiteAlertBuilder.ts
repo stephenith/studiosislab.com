@@ -1,5 +1,6 @@
 /**
  * Builds alert payloads (no live sending).
+ * Scenarios marked not_run / unsupported do not generate failure alerts.
  */
 import type { RouteHealthResult, ScenarioResult, WebsiteAlert } from "./types.js";
 
@@ -32,12 +33,21 @@ export function buildWebsiteAlerts(input: {
   }
 
   for (const scenario of input.scenarios) {
+    if (scenario.execution === "not_run" || scenario.execution === "unsupported") {
+      continue;
+    }
     if (scenario.pass) continue;
+
     let type: WebsiteAlert["type"] = "runtime_js_error";
     if (scenario.id.includes("editor")) type = "editor_failure";
-    else if (scenario.id.includes("thumb") || scenario.id.includes("gallery") || scenario.id.includes("fabric"))
+    else if (
+      scenario.id.includes("thumb") ||
+      scenario.id.includes("gallery") ||
+      scenario.id.includes("fabric")
+    )
       type = "template_not_loading";
-    else if (scenario.id.includes("sitemap")) type = "sitemap_missing";
+    else if (scenario.id.includes("sitemap") || scenario.id.includes("robots"))
+      type = "sitemap_missing";
     else if (scenario.id.includes("seo")) type = "seo_route_missing";
     else if (scenario.id.includes("mobile")) type = "mobile_layout_failure";
     else if (scenario.id.includes("download")) type = "download_flow_failure";

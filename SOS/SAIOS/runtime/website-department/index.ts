@@ -12,9 +12,13 @@ export * from "./DownloadFlowChecker.js";
 export * from "./ErrorCollector.js";
 export * from "./WebsiteReportBuilder.js";
 export * from "./WebsiteAlertBuilder.js";
+export * from "./WebsiteRunIdentity.js";
+export * from "./WebsiteDepartmentPolicy.js";
+export * from "./WebsiteProjectStateProjection.js";
 export {
   WEBSITE_DEPARTMENT,
   runWebsiteDepartment,
   STATE_PATH,
   WEBSITE_DEPARTMENT_ROOT,
+  DEFAULT_REPO_ROOT,
 } from "./WebsiteDepartmentDirector.js";

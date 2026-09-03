@@ -1,86 +1,91 @@
 /**
- * Mobile experience basic checks (static structure + optional live viewport probe).
+ * Mobile experience structural checks — static evidence only.
+ * Does NOT prove responsive/mobile viewport behaviour.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import type { ScenarioResult } from "./types.js";
 
-const REPO_ROOT = resolve(import.meta.dirname, "../../../..");
+const DEFAULT_REPO_ROOT = resolve(import.meta.dirname, "../../../..");
 
-export function checkMobileExperience(): {
+export function checkMobileExperience(input?: { repo_root?: string }): {
   pass: boolean;
   scenarios: ScenarioResult[];
   report: Record<string, unknown>;
 } {
-  const mobileEditor = join(REPO_ROOT, "src/app/editor/mobile/template/[templateId]/page.tsx");
-  const mobileHook = join(REPO_ROOT, "src/components/editor/mobile/useMobileFabricEditor.ts");
-  const gallery = join(REPO_ROOT, "src/app/resume/ResumeHubClient.tsx");
-  const layout = join(REPO_ROOT, "src/app/layout.tsx");
+  const repoRoot = input?.repo_root ?? DEFAULT_REPO_ROOT;
+  const mobileEditor = join(repoRoot, "src/app/editor/mobile/template/[templateId]/page.tsx");
+  const mobileHook = join(repoRoot, "src/components/editor/mobile/useMobileFabricEditor.ts");
+  const gallery = join(repoRoot, "src/app/resume/ResumeHubClient.tsx");
+  const layout = join(repoRoot, "src/app/layout.tsx");
   const gallerySrc = existsSync(gallery) ? readFileSync(gallery, "utf8") : "";
-  const layoutSrc = existsSync(layout) ? readFileSync(layout, "utf8") : "";
-
-  const viewportMeta =
-    layoutSrc.includes("viewport") ||
-    existsSync(join(REPO_ROOT, "src/app/layout.tsx"));
 
   const scenarios: ScenarioResult[] = [
     {
-      id: "mobile_page_loads",
-      label: "Page loads at mobile viewport",
-      pass: viewportMeta,
+      id: "mobile_layout_source",
+      label: "Root layout source present (not mobile viewport proof)",
+      pass: existsSync(layout),
       severity: "critical",
-      details: "Root layout present for mobile viewport rendering",
+      execution: "static_evidence_only",
+      details:
+        "STATIC_EVIDENCE_ONLY: layout file present; does not prove page loads at a mobile viewport",
     },
     {
       id: "mobile_no_obvious_fixed_overflow",
-      label: "No horizontal overflow (structural)",
+      label: "No extreme fixed-width gallery literals (heuristic)",
       pass: !gallerySrc.includes("min-width: 1400") && !gallerySrc.includes("width: 2000"),
       severity: "warning",
-      details: "No extreme fixed-width gallery literals detected",
+      execution: "static_evidence_only",
+      details: "Heuristic only — not a responsive layout proof",
     },
     {
-      id: "mobile_gallery_usable",
-      label: "Resume gallery usable",
+      id: "mobile_gallery_source",
+      label: "Resume gallery client source present",
       pass: existsSync(gallery) && gallerySrc.length > 0,
       severity: "critical",
-      details: "ResumeHubClient present",
+      execution: "static_evidence_only",
+      details: "ResumeHubClient present (not mobile usability proof)",
     },
     {
-      id: "mobile_template_cards_visible",
-      label: "Template cards visible",
+      id: "mobile_template_cards_source",
+      label: "Gallery template/thumbnail surfaces in source",
       pass:
         gallerySrc.toLowerCase().includes("template") ||
         gallerySrc.toLowerCase().includes("thumb"),
       severity: "critical",
-      details: "Gallery renders template/thumbnail surfaces",
+      execution: "static_evidence_only",
+      details: "Source mentions template/thumbnail surfaces (not visibility proof)",
     },
     {
-      id: "mobile_main_cta_visible",
-      label: "Main CTA visible",
-      pass:
-        gallerySrc.toLowerCase().includes("editor") ||
-        gallerySrc.toLowerCase().includes("href") ||
-        gallerySrc.toLowerCase().includes("cta"),
-      severity: "warning",
-      details: "CTA/link surfaces detected in gallery client",
+      id: "mobile_viewport_behaviour",
+      label: "Mobile viewport / responsive behaviour",
+      pass: true,
+      severity: "info",
+      execution: "not_run",
+      details:
+        "NOT_RUN: no browser/viewport automation; static source evidence is not mobile UX proof",
     },
     {
       id: "mobile_editor_route",
-      label: "Mobile editor route present",
+      label: "Mobile editor route sources present",
       pass: existsSync(mobileEditor) && existsSync(mobileHook),
       severity: "info",
-      details: "Mobile editor page + hook available",
+      execution: "static_evidence_only",
+      details: "Mobile editor page + hook available on disk",
     },
   ];
 
   return {
-    pass: scenarios.filter((s) => s.severity === "critical").every((s) => s.pass),
+    pass: scenarios
+      .filter((s) => s.severity === "critical" && s.execution !== "not_run")
+      .every((s) => s.pass),
     scenarios,
     report: {
-      viewport: "assumed via Next.js layout",
+      coverage: "static_evidence_only",
+      mobile_viewport_proof: "NOT_RUN",
       mobile_editor: existsSync(mobileEditor),
       gallery_client: existsSync(gallery),
-      checks: Object.fromEntries(scenarios.map((s) => [s.id, s.pass])),
+      checks: Object.fromEntries(scenarios.map((s) => [s.id, { pass: s.pass, execution: s.execution }])),
     },
   };
 }

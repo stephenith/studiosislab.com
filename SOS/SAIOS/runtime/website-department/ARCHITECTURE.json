@@ -13,7 +13,9 @@
     "execute_while_disabled"
   ],
   "registry": "SOS/SAIOS/architecture/module-roles.json",
-  "note": "Metadata only. Does not change runtime behaviour.",
+  "note": "Phase 1 core revival: run_id identity; fail-closed while disabled; verification-only static path. Metadata does not enable the department.",
   "canonical_engine": "SOS/SAIOS/core/first-production-cycle (spine)",
-  "frozen": true
+  "identity": "run_id",
+  "enabled": false,
+  "frozen": false
 }

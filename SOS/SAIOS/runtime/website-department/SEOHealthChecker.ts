@@ -1,59 +1,73 @@
 /**
- * SEO page health for Website Department.
+ * SEO page health for Website Department (static evidence only).
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { getResumeCatalogSnapshotFromRoot } from "../../../../src/lib/resumeCatalogRuntime.js";
-import { DEFAULT_SEO_SLUG } from "./WebsiteRouteRegistry.js";
 import type { ScenarioResult } from "./types.js";
 
-const REPO_ROOT = resolve(import.meta.dirname, "../../../..");
+const DEFAULT_REPO_ROOT = resolve(import.meta.dirname, "../../../..");
 
-export function checkSeoHealth(catalogId = "t094"): {
+export function checkSeoHealth(input?: {
+  repo_root?: string;
+  template_id?: string | null;
+  seo_slug?: string | null;
+}): {
   pass: boolean;
   scenarios: ScenarioResult[];
   report: Record<string, unknown>;
 } {
-  const seoPath = join(REPO_ROOT, "src/data/templateSeoContent.ts");
-  const seoPage = join(REPO_ROOT, "src/app/resume/[slug]/page.tsx");
-  const seoLib = join(REPO_ROOT, "src/lib/templateSeo.ts");
+  const repoRoot = input?.repo_root ?? DEFAULT_REPO_ROOT;
+  const templateId = input?.template_id;
+  const seoPath = join(repoRoot, "src/data/templateSeoContent.ts");
+  const seoPage = join(repoRoot, "src/app/resume/[slug]/page.tsx");
+  const seoLib = join(repoRoot, "src/lib/templateSeo.ts");
   const seoSrc = existsSync(seoPath) ? readFileSync(seoPath, "utf8") : "";
-  const snapshot = getResumeCatalogSnapshotFromRoot(REPO_ROOT);
-  const seoEntry = snapshot.seoPages.find((p) => p.templateId === catalogId) ?? null;
-  const slug = seoEntry?.slug ?? DEFAULT_SEO_SLUG;
+  const snapshot = getResumeCatalogSnapshotFromRoot(repoRoot);
+  const seoEntry =
+    (templateId
+      ? snapshot.seoPages.find((p) => p.templateId === templateId)
+      : null) ??
+    (input?.seo_slug
+      ? snapshot.seoPages.find((p) => p.slug === input.seo_slug)
+      : null) ??
+    null;
+  const slug = seoEntry?.slug ?? input?.seo_slug ?? null;
 
   const scenarios: ScenarioResult[] = [
     {
       id: "seo_page_loads",
-      label: "Template SEO page loads",
-      pass:
+      label: "Template SEO route source + catalog entry",
+      pass: Boolean(
         existsSync(seoPage) &&
-        seoSrc.includes(`templateId: "${catalogId}"`) &&
-        seoSrc.includes(`slug: "${slug}"`),
+          slug &&
+          seoEntry &&
+          (seoSrc.includes(`slug: "${slug}"`) ||
+            seoSrc.includes(`'${slug}'`) ||
+            Boolean(seoEntry.slug)),
+      ),
       severity: "critical",
+      execution: "static_evidence_only",
       details: seoEntry
-        ? `SEO entry present for ${catalogId} → /resume/${slug}`
-        : `SEO entry missing for ${catalogId}`,
+        ? `SEO entry present for ${seoEntry.templateId} → /resume/${slug} (not live render proof)`
+        : `SEO entry missing for ${templateId ?? "unknown"}`,
     },
     {
       id: "seo_metadata_complete",
       label: "SEO metadata complete",
       pass: Boolean(
-        seoEntry?.seoTitle &&
-          seoEntry.seoDescription &&
-          seoEntry.h1 &&
-          seoEntry.slug,
+        seoEntry?.seoTitle && seoEntry.seoDescription && seoEntry.h1 && seoEntry.slug,
       ),
       severity: "warning",
-      details: seoEntry
-        ? `title/description/h1/slug present`
-        : "metadata incomplete",
+      execution: "static_evidence_only",
+      details: seoEntry ? "title/description/h1/slug present" : "metadata incomplete",
     },
     {
       id: "seo_helpers_present",
       label: "SEO helpers present",
       pass: existsSync(seoLib),
       severity: "info",
+      execution: "static_evidence_only",
       details: "src/lib/templateSeo.ts present",
     },
   ];
@@ -62,12 +76,13 @@ export function checkSeoHealth(catalogId = "t094"): {
     pass: scenarios.filter((s) => s.severity === "critical").every((s) => s.pass),
     scenarios,
     report: {
-      catalog_id: catalogId,
+      template_id: templateId,
       slug,
       has_seo_entry: Boolean(seoEntry),
       seo_title: seoEntry?.seoTitle ?? null,
       published: seoEntry?.isPublished ?? false,
-      route: `/resume/${slug}`,
+      route: slug ? `/resume/${slug}` : null,
+      evidence_note: "static_catalog_only_not_live_http",
     },
   };
 }

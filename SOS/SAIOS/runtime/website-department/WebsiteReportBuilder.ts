@@ -1,15 +1,30 @@
 /**
- * Persists Website Department reports.
+ * Persists Website Department reports with immutable run directories + latest projections.
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import type { WebsiteDepartmentResult, WebsiteStatus } from "./types.js";
 
-const REPO_ROOT = resolve(import.meta.dirname, "../../../..");
-export const WEBSITE_DEPARTMENT_ROOT = join(
-  REPO_ROOT,
-  "SOS/07_LOGS/saios/website-department",
-);
+const DEFAULT_REPO_ROOT = resolve(import.meta.dirname, "../../../..");
+
+export function defaultWebsiteDepartmentRoot(repoRoot = DEFAULT_REPO_ROOT): string {
+  return join(repoRoot, "SOS/07_LOGS/saios/website-department");
+}
+
+export const WEBSITE_DEPARTMENT_ROOT = defaultWebsiteDepartmentRoot();
+
+const PROJECTION_FILES = [
+  "website-health.json",
+  "route-health.json",
+  "scenario-results.json",
+  "seo-health.json",
+  "sitemap-health.json",
+  "mobile-health.json",
+  "download-flow.json",
+  "runtime-errors.json",
+  "website-alerts.json",
+  "website-report.md",
+] as const;
 
 export function classifyWebsiteStatus(input: {
   routes_ok: boolean;
@@ -29,9 +44,19 @@ export function renderWebsiteReport(result: WebsiteDepartmentResult): string {
     "# Website Department Health Report",
     "",
     `**Generated:** ${result.generated_at}`,
+    `**Run ID:** ${result.run.run_id}`,
     `**Status:** ${result.status}`,
     `**Mode:** ${result.mode}`,
+    `**Evidence kind:** ${result.run.evidence_kind}`,
     `**Base URL:** ${result.base_url ?? "static-only"}`,
+    `**Repository commit:** ${result.run.repository_commit ?? "unknown"}`,
+    "",
+    "## Coverage honesty",
+    "",
+    `- browser_coverage: ${result.run.browser_coverage}`,
+    `- auth_coverage: ${result.run.auth_coverage}`,
+    `- mobile_coverage: ${result.run.mobile_coverage}`,
+    `- download_coverage: ${result.run.download_coverage}`,
     "",
     "## Checks",
     "",
@@ -41,12 +66,15 @@ export function renderWebsiteReport(result: WebsiteDepartmentResult): string {
     "",
     ...result.routes.map(
       (r) =>
-        `- \`${r.path}\` — ${r.ok ? "OK" : "FAIL"} (${r.mode}${r.status_code ? `, ${r.status_code}` : ""}) — ${r.detail}`,
+        `- \`${r.path}\` — ${r.ok ? "OK" : "FAIL"} (${r.mode}, execution=${r.execution}, auth=${r.auth}${r.status_code ? `, ${r.status_code}` : ""}) — ${r.detail}`,
     ),
     "",
     "## Scenarios",
     "",
-    ...result.scenarios.map((s) => `- ${s.pass ? "PASS" : "FAIL"} — ${s.label}: ${s.details}`),
+    ...result.scenarios.map(
+      (s) =>
+        `- ${s.pass ? "PASS" : "FAIL"} [${s.execution}] — ${s.label}: ${s.details}`,
+    ),
     "",
     "## Alerts",
     "",
@@ -55,59 +83,126 @@ export function renderWebsiteReport(result: WebsiteDepartmentResult): string {
       : ["- None"]),
     "",
     "> Alerts are payloads only. Notification Department will send later.",
+    "> Static evidence is not proof of browser, auth, mobile UX, or production health.",
     "",
   ];
   return lines.join("\n");
 }
 
-export function persistWebsiteReports(result: WebsiteDepartmentResult): string[] {
-  mkdirSync(WEBSITE_DEPARTMENT_ROOT, { recursive: true });
-  const files = {
-    health: join(WEBSITE_DEPARTMENT_ROOT, "website-health.json"),
-    routes: join(WEBSITE_DEPARTMENT_ROOT, "route-health.json"),
-    scenarios: join(WEBSITE_DEPARTMENT_ROOT, "scenario-results.json"),
-    seo: join(WEBSITE_DEPARTMENT_ROOT, "seo-health.json"),
-    sitemap: join(WEBSITE_DEPARTMENT_ROOT, "sitemap-health.json"),
-    mobile: join(WEBSITE_DEPARTMENT_ROOT, "mobile-health.json"),
-    download: join(WEBSITE_DEPARTMENT_ROOT, "download-flow.json"),
-    errors: join(WEBSITE_DEPARTMENT_ROOT, "runtime-errors.json"),
-    alerts: join(WEBSITE_DEPARTMENT_ROOT, "website-alerts.json"),
-    report: join(WEBSITE_DEPARTMENT_ROOT, "website-report.md"),
-  };
+function atomicWriteFile(target: string, contents: string): void {
+  const tmp = `${target}.${process.pid}.${Date.now()}.tmp`;
+  writeFileSync(tmp, contents, "utf8");
+  renameSync(tmp, target);
+}
 
-  writeFileSync(
-    files.health,
+function writeReportBundle(dir: string, result: WebsiteDepartmentResult): void {
+  mkdirSync(dir, { recursive: true });
+
+  atomicWriteFile(
+    join(dir, "website-health.json"),
     JSON.stringify(
       {
         generated_at: result.generated_at,
+        run_id: result.run.run_id,
         status: result.status,
         mode: result.mode,
         base_url: result.base_url,
         checks: result.checks,
         alert_count: result.alerts.length,
+        run: result.run,
+        registry_example: result.registry_example,
       },
       null,
       2,
     ),
   );
-  writeFileSync(files.routes, JSON.stringify({ generated_at: result.generated_at, routes: result.routes }, null, 2));
-  writeFileSync(
-    files.scenarios,
-    JSON.stringify({ generated_at: result.generated_at, scenarios: result.scenarios }, null, 2),
+  atomicWriteFile(
+    join(dir, "route-health.json"),
+    JSON.stringify({ generated_at: result.generated_at, run_id: result.run.run_id, routes: result.routes }, null, 2),
   );
-  writeFileSync(files.seo, JSON.stringify(result.seo, null, 2));
-  writeFileSync(files.sitemap, JSON.stringify(result.sitemap, null, 2));
-  writeFileSync(files.mobile, JSON.stringify(result.mobile, null, 2));
-  writeFileSync(files.download, JSON.stringify(result.download_flow, null, 2));
-  writeFileSync(
-    files.errors,
-    JSON.stringify({ generated_at: result.generated_at, errors: result.runtime_errors }, null, 2),
+  atomicWriteFile(
+    join(dir, "scenario-results.json"),
+    JSON.stringify(
+      { generated_at: result.generated_at, run_id: result.run.run_id, scenarios: result.scenarios },
+      null,
+      2,
+    ),
   );
-  writeFileSync(
-    files.alerts,
-    JSON.stringify({ generated_at: result.generated_at, alerts: result.alerts }, null, 2),
+  atomicWriteFile(join(dir, "seo-health.json"), JSON.stringify(result.seo, null, 2));
+  atomicWriteFile(join(dir, "sitemap-health.json"), JSON.stringify(result.sitemap, null, 2));
+  atomicWriteFile(join(dir, "mobile-health.json"), JSON.stringify(result.mobile, null, 2));
+  atomicWriteFile(join(dir, "download-flow.json"), JSON.stringify(result.download_flow, null, 2));
+  atomicWriteFile(
+    join(dir, "runtime-errors.json"),
+    JSON.stringify({ generated_at: result.generated_at, run_id: result.run.run_id, errors: result.runtime_errors }, null, 2),
   );
-  writeFileSync(files.report, renderWebsiteReport(result));
+  atomicWriteFile(
+    join(dir, "website-alerts.json"),
+    JSON.stringify({ generated_at: result.generated_at, run_id: result.run.run_id, alerts: result.alerts }, null, 2),
+  );
+  atomicWriteFile(join(dir, "website-report.md"), renderWebsiteReport(result));
+  atomicWriteFile(join(dir, "run-identity.json"), JSON.stringify(result.run, null, 2));
+}
 
-  return Object.values(files);
+/**
+ * Archive legacy root projection files once so historical July-8 style evidence is preserved
+ * before future latest overwrites. Idempotent.
+ */
+export function archiveRootProjectionsIfNeeded(outputRoot: string): string | null {
+  const archiveMarker = join(outputRoot, "archive", "pre-revival-root-projections", ".archived");
+  if (existsSync(archiveMarker)) return null;
+
+  const hasRoot = PROJECTION_FILES.some((f) => existsSync(join(outputRoot, f)));
+  if (!hasRoot) return null;
+
+  const dest = join(outputRoot, "archive", "pre-revival-root-projections");
+  mkdirSync(dest, { recursive: true });
+  for (const f of PROJECTION_FILES) {
+    const src = join(outputRoot, f);
+    if (existsSync(src)) {
+      copyFileSync(src, join(dest, f));
+    }
+  }
+  writeFileSync(
+    archiveMarker,
+    JSON.stringify({ archived_at: new Date().toISOString(), files: PROJECTION_FILES }, null, 2),
+  );
+  return dest;
+}
+
+export function persistWebsiteReports(
+  result: WebsiteDepartmentResult,
+  options?: {
+    output_root?: string;
+    update_latest?: boolean;
+    update_root_projections?: boolean;
+    protect_existing_root?: boolean;
+  },
+): { run_dir: string; latest_dir: string; files: string[] } {
+  const outputRoot = options?.output_root ?? result.output_dir ?? WEBSITE_DEPARTMENT_ROOT;
+  mkdirSync(outputRoot, { recursive: true });
+
+  if (options?.protect_existing_root !== false && options?.update_root_projections) {
+    archiveRootProjectionsIfNeeded(outputRoot);
+  }
+
+  const runDir = join(outputRoot, "runs", result.run.run_id);
+  writeReportBundle(runDir, result);
+
+  const latestDir = join(outputRoot, "latest");
+  if (options?.update_latest !== false) {
+    writeReportBundle(latestDir, result);
+  }
+
+  if (options?.update_root_projections) {
+    // Compatibility projections for existing consumers of root filenames.
+    writeReportBundle(outputRoot, result);
+  }
+
+  const files = PROJECTION_FILES.map((f) => join(runDir, f));
+  return { run_dir: runDir, latest_dir: latestDir, files };
+}
+
+export function readFileBytes(path: string): Buffer {
+  return readFileSync(path);
 }

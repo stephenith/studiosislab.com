@@ -1,12 +1,17 @@
 /**
- * Static + live route health checks.
+ * Static + optional live route health checks.
+ * Static evidence is never presented as browser/auth/production proof.
  */
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { buildRouteRegistry } from "./WebsiteRouteRegistry.js";
-import type { RouteDefinition, RouteHealthResult, WebsiteDepartmentOptions } from "./types.js";
+import type {
+  RouteDefinition,
+  RouteHealthResult,
+  WebsiteDepartmentOptions,
+} from "./types.js";
 
-const REPO_ROOT = resolve(import.meta.dirname, "../../../..");
+const DEFAULT_REPO_ROOT = resolve(import.meta.dirname, "../../../..");
 
 export async function probeLiveRoute(
   baseUrl: string,
@@ -19,14 +24,22 @@ export async function probeLiveRoute(
       redirect: "follow",
       signal: AbortSignal.timeout(15_000),
     });
+    const ok = res.status >= 200 && res.status < 400;
     return {
       route_id: route.id,
       path: route.path,
-      ok: res.status >= 200 && res.status < 400,
+      ok,
       status_code: res.status,
       latency_ms: Date.now() - started,
       mode: "live",
-      detail: res.ok ? "reachable" : `HTTP ${res.status}`,
+      detail: ok
+        ? `reachable (HTTP ${res.status}); auth behaviour not validated`
+        : `HTTP ${res.status}`,
+      execution: "executed",
+      auth: route.auth,
+      source_files_ok: route.source_files.every((f) =>
+        existsSync(join(DEFAULT_REPO_ROOT, f.replace(/^\/+/, ""))),
+      ),
     };
   } catch (err) {
     return {
@@ -37,64 +50,39 @@ export async function probeLiveRoute(
       latency_ms: Date.now() - started,
       mode: "live",
       detail: err instanceof Error ? err.message : String(err),
+      execution: "executed",
+      auth: route.auth,
+      source_files_ok: false,
     };
   }
 }
 
-function staticRouteEvidence(route: RouteDefinition, catalogId: string): RouteHealthResult {
-  const checks: Record<string, boolean> = {};
+function staticRouteEvidence(
+  route: RouteDefinition,
+  repoRoot: string,
+): RouteHealthResult {
+  const missing = route.source_files.filter(
+    (f) => !existsSync(join(repoRoot, f.replace(/^\/+/, ""))),
+  );
+  const sourceOk = missing.length === 0;
+  const authNote =
+    route.auth === "auth_required"
+      ? "; auth_required — static evidence does not validate authentication"
+      : "";
 
-  switch (route.id) {
-    case "home":
-      checks.page = existsSync(join(REPO_ROOT, "src/app/page.tsx"));
-      break;
-    case "resume_gallery":
-      checks.page = existsSync(join(REPO_ROOT, "src/app/resume/page.tsx"));
-      checks.client = existsSync(join(REPO_ROOT, "src/app/resume/ResumeHubClient.tsx"));
-      break;
-    case "resume_category_it":
-      checks.page = existsSync(join(REPO_ROOT, "src/app/resume/category/[categoryId]/page.tsx"));
-      break;
-    case "resume_seo":
-      checks.page = existsSync(join(REPO_ROOT, "src/app/resume/[slug]/page.tsx"));
-      checks.seo =
-        existsSync(join(REPO_ROOT, "src/data/templateSeoContent.ts")) &&
-        readFileSync(join(REPO_ROOT, "src/data/templateSeoContent.ts"), "utf8").includes(
-          `templateId: "${catalogId}"`,
-        );
-      break;
-    case "editor_template":
-      checks.page = existsSync(join(REPO_ROOT, "src/app/editor/template/[templateId]/page.tsx"));
-      checks.json = existsSync(join(REPO_ROOT, "src/data/template-json", `${catalogId}.json`));
-      break;
-    case "api_resume_catalog":
-      checks.route = existsSync(join(REPO_ROOT, "src/app/api/resume-catalog/route.ts"));
-      checks.runtime = existsSync(join(REPO_ROOT, "src/lib/resumeCatalogRuntime.ts"));
-      break;
-    case "api_resume_template":
-      checks.route = existsSync(
-        join(REPO_ROOT, "src/app/api/resume-catalog/template/[templateId]/route.ts"),
-      );
-      checks.json = existsSync(join(REPO_ROOT, "src/data/template-json", `${catalogId}.json`));
-      break;
-    case "sitemap":
-      checks.sitemap = existsSync(join(REPO_ROOT, "src/app/sitemap.ts"));
-      break;
-    default:
-      checks.unknown = false;
-  }
-
-  const ok = Object.values(checks).every(Boolean);
   return {
     route_id: route.id,
     path: route.path,
-    ok,
-    status_code: ok ? 200 : null,
+    ok: sourceOk,
+    status_code: sourceOk ? null : null,
     latency_ms: null,
     mode: "static",
-    detail: ok
-      ? `static evidence ok: ${Object.keys(checks).join(",")}`
-      : `static evidence failed: ${JSON.stringify(checks)}`,
+    detail: sourceOk
+      ? `static source evidence ok for URL path ${route.path}${authNote}`
+      : `missing source files: ${missing.join(", ")}`,
+    execution: "static_evidence_only",
+    auth: route.auth,
+    source_files_ok: sourceOk,
   };
 }
 
@@ -105,13 +93,20 @@ export async function checkWebsiteRoutes(
   mode: "static" | "live" | "hybrid";
   base_url: string | null;
 }> {
-  const catalogId = options.catalog_id ?? "t094";
-  const registry = buildRouteRegistry({ catalog_id: catalogId });
-  const preferred = options.base_url ?? process.env.WEBSITE_DEPARTMENT_BASE_URL ?? "http://localhost:3000";
+  const repoRoot = options.repo_root ?? DEFAULT_REPO_ROOT;
+  const registry = buildRouteRegistry({ repo_root: repoRoot });
+  const routes = registry.routes;
+
+  const preferred =
+    options.base_url ?? process.env.WEBSITE_DEPARTMENT_BASE_URL ?? "http://localhost:3000";
   const modePref = options.mode ?? "auto";
+  const allowNetwork =
+    options.verification_only === true
+      ? false
+      : options.allow_network !== false && modePref !== "static";
 
   let liveAvailable = false;
-  if (modePref !== "static") {
+  if (allowNetwork && modePref !== "static") {
     try {
       const probe = await fetch(preferred, { signal: AbortSignal.timeout(3_000) });
       liveAvailable = probe.status > 0;
@@ -124,11 +119,11 @@ export async function checkWebsiteRoutes(
     throw new Error(`Live mode requested but ${preferred} is unreachable`);
   }
 
-  if (liveAvailable && modePref !== "static") {
-    const results = await Promise.all(registry.map((route) => probeLiveRoute(preferred, route)));
+  if (liveAvailable && allowNetwork && modePref !== "static") {
+    const results = await Promise.all(routes.map((route) => probeLiveRoute(preferred, route)));
     return { results, mode: "live", base_url: preferred };
   }
 
-  const results = registry.map((route) => staticRouteEvidence(route, catalogId));
-  return { results, mode: "static", base_url: liveAvailable ? preferred : null };
+  const results = routes.map((route) => staticRouteEvidence(route, repoRoot));
+  return { results, mode: "static", base_url: null };
 }

@@ -1,50 +1,58 @@
-# Website Department V1
+# Website Department — Phase 1 Core Revival
 
-**Agent:** #100  
-**Role:** AI OS website health monitoring (first non-resume department)
+**Identity:** `run_id` (not an AIOS Agent number)
+**Role:** Detect-only website health monitoring
+**Status:** Core repaired; department remains **disabled** until Founder enablement
 
 ## Mission
 
-Continuously verify StudiosisLab’s user-facing frontend experience:
+Verify StudiosisLab’s user-facing frontend surfaces with truthful evidence:
 
-- Routes and APIs
-- Resume gallery / SEO / editor / catalog
-- Sitemap coverage
-- Mobile layout basics
-- Download/export reachability
+- Critical route registry (source + URL path distinction)
+- Static source evidence for gallery / SEO / editor / catalog / sitemap / robots
+- Alert payloads for downstream Notification Department
 
-Does **not** generate resumes, publish templates, or send live notifications.
+Does **not** generate resumes, publish templates, send notifications, run browser automation, or mutate the public site.
+
+## Safety (Phase 1)
+
+- Operational execution **fail-closed** while `operations.website_department.enabled !== true`
+- Verification-only path allowed while disabled only when: `static`, no network, `persist: false`, no project-state write, no production evidence write
+- No Agent `#100` coupling; no `latest_agent` / `next_agent` mutation
+- July 8 production evidence under `SOS/07_LOGS/saios/website-department/` must remain untouched
 
 ## Usage
 
 ```bash
-npm run website-department:verify
+# Safe verification-only (default while disabled)
+npx tsx SOS/SAIOS/runtime/website-department/verify.ts
+
+# Full Phase 1 offline proof suite (temp dirs only)
+npx tsx SOS/SAIOS/runtime/website-department/verify-phase1-core.ts
 ```
 
-Optional live checks against a running Next.js server:
+Do **not** run live HTTP / Playwright / production persist in this phase.
 
-```bash
-WEBSITE_DEPARTMENT_BASE_URL=http://localhost:3000 npm run website-department:verify
-```
+## Outputs (future approved persisted runs)
 
-## Outputs
+Injectable `output_root` with:
 
-`SOS/07_LOGS/saios/website-department/`
-
-- `website-health.json`
-- `route-health.json`
-- `scenario-results.json`
-- `seo-health.json`
-- `sitemap-health.json`
-- `mobile-health.json`
-- `download-flow.json`
-- `runtime-errors.json`
-- `website-alerts.json`
-- `website-report.md`
+- `runs/<run_id>/` — immutable per-run evidence
+- `latest/` — current projection for consumers
 
 ## Status values
 
 `HEALTHY` · `DEGRADED` · `DOWN` · `BLOCKED`
+
+## Coverage honesty
+
+| Area | Phase 1 |
+|------|---------|
+| Browser | `NOT_RUN` |
+| Auth behaviour | `NOT_RUN` (routes marked `auth_required` only) |
+| Mobile viewport | `static_evidence_only` / `NOT_RUN` |
+| Download execution | `static_evidence_only` / `NOT_RUN` |
+| Live HTTP | not executed in verification-only |
 
 ## Alerts
 

@@ -1,20 +1,22 @@
 /**
- * Download / export flow reachability (read-only structural checks).
+ * Download / export flow structural checks (static evidence only).
+ * Does NOT prove downloads work.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import type { ScenarioResult } from "./types.js";
 
-const REPO_ROOT = resolve(import.meta.dirname, "../../../..");
+const DEFAULT_REPO_ROOT = resolve(import.meta.dirname, "../../../..");
 
-export function checkDownloadFlow(): {
+export function checkDownloadFlow(input?: { repo_root?: string }): {
   pass: boolean;
   scenarios: ScenarioResult[];
   report: Record<string, unknown>;
 } {
-  const fabric = join(REPO_ROOT, "src/components/editor/useFabricEditor.ts");
-  const shell = join(REPO_ROOT, "src/components/editor/EditorShell.tsx");
-  const mobile = join(REPO_ROOT, "src/components/editor/mobile/useMobileFabricEditor.ts");
+  const repoRoot = input?.repo_root ?? DEFAULT_REPO_ROOT;
+  const fabric = join(repoRoot, "src/components/editor/useFabricEditor.ts");
+  const shell = join(repoRoot, "src/components/editor/EditorShell.tsx");
+  const mobile = join(repoRoot, "src/components/editor/mobile/useMobileFabricEditor.ts");
   const fabricSrc = existsSync(fabric) ? readFileSync(fabric, "utf8") : "";
   const shellSrc = existsSync(shell) ? readFileSync(shell, "utf8") : "";
   const mobileSrc = existsSync(mobile) ? readFileSync(mobile, "utf8") : "";
@@ -28,30 +30,47 @@ export function checkDownloadFlow(): {
 
   const scenarios: ScenarioResult[] = [
     {
-      id: "download_flow_reachable",
-      label: "Download flow is reachable",
+      id: "download_flow_source",
+      label: "Download/export source paths present",
       pass: hasDesktopExport && hasShellDownload,
       severity: "critical",
+      execution: "static_evidence_only",
       details: hasDesktopExport
-        ? "Editor export/download path present"
+        ? "Editor export/download path present in source (not download execution proof)"
         : "No download/export path found in fabric editor",
     },
     {
-      id: "mobile_download_path",
-      label: "Mobile download path present",
+      id: "mobile_download_path_source",
+      label: "Mobile download path present in source",
       pass: hasMobilePdf,
       severity: "warning",
-      details: hasMobilePdf ? "Mobile PDF download path present" : "Mobile PDF path missing",
+      execution: "static_evidence_only",
+      details: hasMobilePdf
+        ? "Mobile PDF download path present in source"
+        : "Mobile PDF path missing",
+    },
+    {
+      id: "download_execution",
+      label: "Download / export execution",
+      pass: true,
+      severity: "info",
+      execution: "not_run",
+      details:
+        "NOT_RUN: download/export behaviour not executed; static source evidence is not download proof",
     },
   ];
 
   return {
-    pass: scenarios.filter((s) => s.severity === "critical").every((s) => s.pass),
+    pass: scenarios
+      .filter((s) => s.severity === "critical" && s.execution !== "not_run")
+      .every((s) => s.pass),
     scenarios,
     report: {
-      desktop_export: hasDesktopExport,
-      shell_download_cta: hasShellDownload,
-      mobile_pdf: hasMobilePdf,
+      coverage: "static_evidence_only",
+      download_execution: "NOT_RUN",
+      desktop_export_source: hasDesktopExport,
+      shell_download_cta_source: hasShellDownload,
+      mobile_pdf_source: hasMobilePdf,
     },
   };
 }

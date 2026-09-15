@@ -24,10 +24,13 @@ import {
   isHeaderIdentityLayoutOwnedChange,
 } from "./HeaderIdentityLayout.js";
 import {
-  findIncompleteRequestedSectionReplacements,
   findIntraBoxTextOverflowFindings,
   findTextOverlapFindings,
 } from "./RevisionAcceptanceChecks.js";
+import {
+  evaluateSectionReplacementCompleteness,
+  formatSectionReplacementIncompleteError,
+} from "./SectionReplacementCompleteness.js";
 import {
   isFounderHeadingToContentEqualityRequest,
   isFounderInternalContentRhythmRequest,
@@ -376,7 +379,7 @@ function formatOwnershipFailure(input: {
     case "CONTENT_REFLOW_FAILED":
       return `content reflow failed: ${input.detail ?? "post-content sandbox could not execute"}`;
     case "CONTENT_REPLACEMENT_INCOMPLETE":
-      return `content replacement incomplete: ${input.detail ?? "requested section still contains unreplaced source content"}`;
+      return `content replacement incomplete: ${input.detail ?? "unaccounted required body object(s) in an authorized whole-section replacement"}`;
     case "SPACING_INTENT_UNSATISFIED":
     default:
       return "spacing intent unsatisfied: deterministic ownership and AI plan both fail measured Founder spacing relations (or produce unsafe overlaps)";
@@ -716,13 +719,13 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
           Number(input.priorCanvas.height ?? 1123),
         )
       : 99;
-    const incomplete = detOnlyExec.ok
-      ? findIncompleteRequestedSectionReplacements({
+    const replacementReport = detOnlyExec.ok
+      ? evaluateSectionReplacementCompleteness({
           canvas: input.priorCanvas,
           plan: input.aiPlan,
           requested_changes: input.requested_changes,
         })
-      : [];
+      : null;
     if (!detOnlyExec.ok || detOnlyOverlaps > 0 || detOnlyOob > 0) {
       const kind: OwnershipFailureKind =
         !detOnlyExec.ok
@@ -753,13 +756,16 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
         post_content_reflow: postContent.report,
       };
     }
-    if (incomplete.length > 0) {
+    if (replacementReport && !replacementReport.ok) {
       return {
         ok: false,
         plan: null,
         error: formatOwnershipFailure({
           kind: "CONTENT_REPLACEMENT_INCOMPLETE",
-          detail: incomplete.map((f) => f.object_ids.join(",")).join("; "),
+          detail: formatSectionReplacementIncompleteError(replacementReport).replace(
+            /^content replacement incomplete:\s*/,
+            "",
+          ),
         }),
         report_ok: normalized.report.ok,
         shifted_object_count: 0,

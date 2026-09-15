@@ -1,0 +1,10 @@
+{
+  "reproduced_before_code_change": true,
+  "skills_authorized": true,
+  "skills_required_body_ids": ["block-skills-4-t2", "block-skills-4-t3"],
+  "t2_targeted": true,
+  "t3_targeted": false,
+  "incomplete_ids": ["block-skills-4-t3"],
+  "fail": true,
+  "error_like": "content replacement incomplete: block-skills-4-t3"
+}

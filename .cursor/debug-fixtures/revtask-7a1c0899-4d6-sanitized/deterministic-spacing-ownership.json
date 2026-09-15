@@ -1,0 +1,48 @@
+{
+  "ok": false,
+  "plan": null,
+  "error": "content replacement incomplete: block-skills-4-t3",
+  "report_ok": true,
+  "shifted_object_count": 0,
+  "preserved_ai_ops": 0,
+  "replaced_ai_position_ops": 0,
+  "fail_closed": true,
+  "ownership_mode": "FAIL_CLOSED",
+  "failure_kind": "CONTENT_REPLACEMENT_INCOMPLETE",
+  "resolved_relations": [
+    {
+      "kind": "SECTION_RHYTHM",
+      "direction": "REDUCE_GAP",
+      "founder_feedback_item": "Reorganize the Skills section into a clean, readable structure with consistent line spacing and wrapping; the skills must not appear scattered, cramped, duplicated, or visually disconnected.",
+      "section": "skills",
+      "group_key": "skills:section",
+      "upper_id": "block-skills-4-t2",
+      "lower_id": "block-skills-4-t3",
+      "before_gap": 52.32499999999999,
+      "notes": "section rhythm skills dominant block-skills-4-t2→block-skills-4-t3"
+    }
+  ],
+  "named_pair_only": false,
+  "post_content_reflow": {
+    "schema_version": "founder-revision-post-content-reflow-1.0.0",
+    "grown_object_ids": [
+      "block-projects-5-t3",
+      "block-certifications-6-t3",
+      "block-certifications-6-t4",
+      "block-languages-7-t2"
+    ],
+    "shifted_object_ids": [
+      "block-projects-5-t3",
+      "block-certifications-6-r0",
+      "block-certifications-6-t1",
+      "block-certifications-6-t2",
+      "block-certifications-6-t3",
+      "block-certifications-6-t4",
+      "block-languages-7-r0",
+      "block-languages-7-t1",
+      "block-languages-7-t2"
+    ],
+    "intra_section_pushes": 2,
+    "cross_section_pushes": 1
+  }
+}

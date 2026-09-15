@@ -28,6 +28,10 @@ import {
   findTextOverlapFindings,
   runRevisionAcceptanceChecks,
 } from "./RevisionAcceptanceChecks.js";
+import {
+  evaluateSectionReplacementCompleteness,
+  formatSectionReplacementIncompleteError,
+} from "./SectionReplacementCompleteness.js";
 import { evaluateRevisionRoleTargetIntegrity } from "../role-integrity/RevisionRoleTargetIntegrity.js";
 import { normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
 import { planFounderCanvasRevision } from "./RevisionPlanner.js";
@@ -546,18 +550,21 @@ export async function runFounderFeedbackRevision(
     };
   }
 
-  const incompleteReplacement = findIncompleteRequestedSectionReplacements({
+  const replacementReport = evaluateSectionReplacementCompleteness({
     canvas: priorCanvas,
     plan: activePlan,
     requested_changes: task.requested_changes,
   });
-  if (incompleteReplacement.length > 0) {
-    const err = `content replacement incomplete: ${incompleteReplacement
-      .map((f) => f.object_ids.join(","))
-      .join("; ")}`;
+  if (!replacementReport.ok) {
+    const err = formatSectionReplacementIncompleteError(replacementReport);
     writeJson(join(evidenceDir, "content-replacement-incomplete.json"), {
       error: err,
-      findings: incompleteReplacement,
+      report: replacementReport,
+      findings: findIncompleteRequestedSectionReplacements({
+        canvas: priorCanvas,
+        plan: activePlan,
+        requested_changes: task.requested_changes,
+      }),
     });
     task = updateRevisionTask(task.task_id, {
       status: "FAILED_GATE",

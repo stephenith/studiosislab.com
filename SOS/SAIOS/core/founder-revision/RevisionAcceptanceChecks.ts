@@ -23,6 +23,10 @@ import {
 import type { CanvasInventoryObject } from "./revision-task-types.js";
 import type { RevisionPlan } from "./revision-task-types.js";
 import { evaluateRevisionRoleTargetIntegrity } from "../role-integrity/RevisionRoleTargetIntegrity.js";
+import {
+  evaluateSectionReplacementCompleteness,
+  sectionReplacementFindings,
+} from "./SectionReplacementCompleteness.js";
 import { contentObjects } from "../resume-critic/canvasHelpers.js";
 import type { CanvasDocument, CanvasObject } from "../resume-critic/types.js";
 import {
@@ -1162,55 +1166,20 @@ export function founderIdentityObjectIds(canvas: FabricCanvasDoc): Set<string> {
   return protectedIds;
 }
 
-const DATE_ONLY_TEXT_RE =
-  /^(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+)?\d{4}(?:\s*[—–\-]\s*(?:present|\d{4}))?$/i;
-
 /**
  * When the Founder explicitly requests replacing a content section, every
- * non-heading, non-date body text object in that section must receive an
- * update_text. This does not invent replacement copy — it only detects
- * incomplete coverage (revtask-b9a65ad0-eb0 left experience t16/t17 as
- * marketing bullets).
+ * required body object must have an intentional disposition (REPLACED,
+ * REMOVED, or EXPLICITLY_PRESERVED). Unaccounted objects fail closed.
+ * Does not invent replacement copy (revtask-b9a65ad0-eb0 t16/t17;
+ * revtask-7a1c0899-4d6 t3 keep-list).
  */
 export function findIncompleteRequestedSectionReplacements(input: {
   canvas: FabricCanvasDoc;
   plan: RevisionPlan;
   requested_changes: string[];
 }): AcceptanceFinding[] {
-  const authorized = new Set<ContentSectionKey>();
-  for (const change of input.requested_changes) {
-    if (classifyRequestedChange(change).classification !== "MUTATION_REQUIRED") {
-      continue;
-    }
-    for (const section of resolveRequestedContentSections(change)) {
-      authorized.add(section);
-    }
-  }
-  if (authorized.size === 0) return [];
-
-  const updated = new Set<string>();
-  for (const op of input.plan.operations) {
-    if (op.op !== "update_text") continue;
-    if (op.target_id) updated.add(op.target_id);
-    for (const id of op.target_ids ?? []) updated.add(id);
-  }
-
-  const required = resolveSectionContentObjectIds(input.canvas, authorized);
-  const findings: AcceptanceFinding[] = [];
-  const objects = (input.canvas.objects ?? []) as Record<string, unknown>[];
-  for (const id of required) {
-    if (updated.has(id)) continue;
-    const obj = objects.find((o, i) => objectTextId(o, i) === id);
-    const text = typeof obj?.text === "string" ? obj.text.trim() : "";
-    if (!text) continue;
-    if (DATE_ONLY_TEXT_RE.test(text)) continue;
-    findings.push({
-      code: "ACC_SECTION_REPLACEMENT_INCOMPLETE",
-      message: `Requested section replacement left ${id} unchanged: ${text.slice(0, 80)}`,
-      object_ids: [id],
-    });
-  }
-  return findings;
+  const report = evaluateSectionReplacementCompleteness(input);
+  return sectionReplacementFindings(report);
 }
 
 /** True when the canvas carries no section metadata on any text object. */

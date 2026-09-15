@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PHASE 6I — Founder will manually issue ONE new Operations Analyst Request Changes after reviewing this revision role-integrity coverage repair. Do not auto-create the live-proof decision. Generation overlap/clipping gate remains the NEXT controlled step after live proof.",
+    "PHASE 6J — Founder will manually issue ONE new Operations Analyst Request Changes after reviewing this whole-section replacement completeness contract. Do not auto-create the live-proof decision. Generation overlap/clipping gate remains the NEXT controlled step after live proof.",
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B — Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B — Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-15T13:02:07.000Z",
+      "type": "revision_maintenance_repair",
+      "summary": "Phase 6J WHOLE-SECTION REPLACEMENT COMPLETENESS CONTRACT implemented and LOCAL_VERIFIED (offline). Local wall=2026-09-15T18:32:07+05:30. UTC=2026-09-15T13:02:07.000Z. Authorized whole-section replacements now require object-level dispositions (REPLACED / REMOVED / EXPLICITLY_PRESERVED) instead of update_text on every body object. Unaccounted IDs fail closed before execution. Planner receives required body-object inventory. Preservation requires Founder keep evidence and cannot hide banned remove-list content. Dummy identical update_text is not REPLACED. Coverage repair remains Founder-item attribution only (not a third provider call). Offline fixture revtask-7a1c0899-4d6: t2 REPLACED, t3 EXPLICITLY_PRESERVED, completeness PASS, TEXT_OVERLAPS=0 PAGE_OOB=0. 6J matrix PASS 43/43. 6G/6H/6I/generation/Marketing Manager regressions PASS. Historical failed tasks unchanged. No OpenAI call, no generation, no revision run, no Founder decision, no publication. Generation overlap/clipping gate deliberately deferred. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
+    },
     {
       "at": "2026-09-15T12:27:36.000Z",
       "type": "revision_maintenance_repair",
@@ -2826,5 +2831,63 @@
     "deployed_at_ist": "2026-09-15T17:58:56+05:30",
     "deployed_at_utc": "2026-09-15T12:28:56.000Z",
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
+  },
+  "phase_6j": {
+    "status": "local_verified",
+    "classification": "WHOLE_SECTION_REPLACEMENT_COMPLETENESS_CONTRACT",
+    "scope": "Founder Request Changes whole-section content replacement completeness only. Resume Template Department NOT reopened.",
+    "problem": "revtask-7a1c0899-4d6 passed Phase 6I classification/planning/item coverage then FAILED_GATE because Skills t3 (keep-list Operations Analyst content) received no update_text",
+    "diagnostic_task": "revtask-7a1c0899-4d6",
+    "prior_failure_tasks": [
+      "revtask-b5339d03-b67",
+      "revtask-9441fe34-4ba",
+      "revtask-b9a65ad0-eb0",
+      "revtask-33ef5466-f24",
+      "revtask-7a1c0899-4d6"
+    ],
+    "root_causes": [
+      "FOUNDER_ITEM_COVERAGE_TOO_COARSE so one Skills update_text satisfied item attribution",
+      "WHOLE_SECTION_COMPLETENESS_TOO_RIGID so every eligible body object required update_text and could not represent EXPLICITLY_PRESERVED keep-list content"
+    ],
+    "fixes": [
+      "evaluateSectionReplacementCompleteness: REQUIRED_BODY_OBJECT_IDS with dispositions REPLACED / REMOVED / EXPLICITLY_PRESERVED / UNACCOUNTED",
+      "EXPLICITLY_PRESERVED requires Founder keep intent applicable to the object; remove/replace listed content takes precedence",
+      "Planner prompt receives required body-object inventory; dummy identical update_text is not REPLACED",
+      "Pre-execution gate reports section, object IDs, disposition, and reason; no copy invention; coverage repair remains item-attribution within max 2 provider calls"
+    ],
+    "not_in_scope": [
+      "GENERATION_OVERLAP_CLIPPING_GATE deferred until after one live Request Changes proof",
+      "No retry or mutation of revtask-b5339d03-b67, revtask-9441fe34-4ba, revtask-b9a65ad0-eb0, revtask-33ef5466-f24, or revtask-7a1c0899-4d6",
+      "No live production OpenAI during implementation"
+    ],
+    "offline_fixture": ".cursor/debug-fixtures/revtask-7a1c0899-4d6-sanitized",
+    "production_failure_reproduced_offline": true,
+    "verifier": "aios:revision:section-replacement-6j:verify",
+    "matrix_result": "PASS 43/43",
+    "six_g_regression": "PASS",
+    "six_h_regression": "PASS",
+    "six_i_regression": "PASS",
+    "generation_role_regression": "PASS",
+    "marketing_manager_replay": "PASS",
+    "fixture_skills_required_ids": ["block-skills-4-t2", "block-skills-4-t3"],
+    "fixture_t2_disposition": "REPLACED",
+    "fixture_t3_disposition": "EXPLICITLY_PRESERVED",
+    "fixture_skills_completeness": "PASS",
+    "fixture_text_overlaps_after": 0,
+    "fixture_page_oob_after": 0,
+    "coverage_repair_object_miss_support": "NOT_APPROPRIATE",
+    "extra_provider_call_added": false,
+    "max_provider_calls": 2,
+    "openai_called": false,
+    "generation_executed": false,
+    "revision_executed": false,
+    "founder_decision_created": false,
+    "publication_executed": false,
+    "resume_template_department_status": "OPERATIONALLY_COMPLETE",
+    "revision_engineering_status": "MAINTENANCE / REGRESSION ONLY",
+    "next_major_department": "Website Analysis / QA / Development",
+    "milestone_ist": "2026-09-15T18:32:07+05:30",
+    "milestone_utc": "2026-09-15T13:02:07.000Z",
+    "baseline_commit_before": "3fa1e015b08c0cf237b0646b2cd2739defec7fb7"
   }
 }

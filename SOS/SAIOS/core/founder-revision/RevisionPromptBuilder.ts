@@ -16,6 +16,7 @@ import {
   isDeprecatedPlannerOp,
 } from "./allowedCanvasOps.js";
 import { classifyRequestedChange } from "./RequestedChangeClassification.js";
+import { buildWholeSectionRequiredBodyInventoryPrompt } from "./SectionReplacementCompleteness.js";
 import {
   isDeterministicLayoutNormalizerOwnedChange,
   isValidationOnlyRequestedChange,
@@ -749,6 +750,11 @@ export function buildRevisionPlannerPrompt(input: {
     .map((c, i) => `${i + 1}. ${c}`)
     .join("\n");
   const coverageLedger = buildFounderItemCoverageLedger(task.requested_changes);
+  const sectionReplacementInventory =
+    buildWholeSectionRequiredBodyInventoryPrompt(
+      task.requested_changes,
+      inventory,
+    );
   const candidateHints = buildTargetCandidateHints(
     task.requested_changes,
     inventory,
@@ -1001,6 +1007,8 @@ export function buildRevisionPlannerPrompt(input: {
     "",
     coverageLedger,
     "",
+    sectionReplacementInventory,
+    "",
     "MANDATORY OPERATION FIELDS (every operation — never omit):",
     "- op (allowlisted operation type)",
     "- target_id for every single-target operation (copy exactly from inventory); never target_ids/selector on single-target ops",
@@ -1138,6 +1146,7 @@ export function buildRevisionPlannerPrompt(input: {
     "9. Reject any plan where a marker-only vertical move would separate marker from heading/content (orphan marker).",
     "10. Reject any plan where associated section content would end up above its own heading unless explicitly required.",
     "11. VERTICAL SECTION STACK: previous section content bottom must be strictly less than next section marker/heading band top (configured/minimum spacing). FORBIDDEN: content-bottom >= next-section heading/marker top. Do not solve horizontal ownership while leaving vertical section units overlapping.",
+    "12. WHOLE-SECTION OBJECT COMPLETENESS: for every required body object in the REQUIRED BODY OBJECT INVENTORY, confirm it is REPLACED (genuine update_text), REMOVED (Founder-authorized remove_object), or EXPLICITLY_PRESERVED (Founder keep intent applies — ZERO ops, never identical-text update_text). Unaccounted IDs fail closed.",
     "",
     "Return JSON with schema:",
     '{ "schema_version":"founder-canvas-revision-plan-1.0.0", "summary":string, "operations":[...], "notes":string[] }',
@@ -1319,6 +1328,12 @@ export function buildRevisionCoverageRepairPrompt(input: {
     "",
     "For every missing item above: copy that Exact text VERBATIM into founder_feedback_item on each repair operation that addresses it (or use founder_feedback_items only when one repair mutation genuinely covers multiple missing items).",
     "",
+    buildWholeSectionRequiredBodyInventoryPrompt(
+      input.task.requested_changes,
+      input.inventory,
+    ),
+    "CoveragePlanRepair remains Founder-item attribution repair only. It is not a third provider call for unaccounted body objects. Do not emit identical-text update_text to mark an EXPLICITLY_PRESERVED object as handled.",
+    "",
     "RELEVANT EXISTING PRIMARY OPERATIONS (do not duplicate or contradict):",
     relevantBlock,
     "",
@@ -1412,6 +1427,11 @@ export function buildRevisionConflictRepairPrompt(input: {
   const coverageLedger = buildFounderItemCoverageLedger(
     input.task.requested_changes,
   );
+  const sectionReplacementInventory =
+    buildWholeSectionRequiredBodyInventoryPrompt(
+      input.task.requested_changes,
+      input.inventory,
+    );
   const scopeSet = new Set(input.conflictReport.conflict_scope_keys);
   const frozenOps = input.primaryPlan.operations.filter(
     (op) => !operationInConflictScope(op, scopeSet),
@@ -1512,6 +1532,8 @@ export function buildRevisionConflictRepairPrompt(input: {
     "",
     "FOUNDER REQUESTED CHANGES + CLASSIFICATION:",
     coverageLedger,
+    "",
+    sectionReplacementInventory,
     "",
     "MULTI-ATTRIBUTION / COHERENT GEOMETRY CONTRACT:",
     "- ONE PHYSICAL MUTATION → ONE OR MORE EXACT FOUNDER ATTRIBUTIONS.",
@@ -1661,6 +1683,11 @@ export function buildRevisionShapeRepairPrompt(input: {
   const coverageLedger = buildFounderItemCoverageLedger(
     input.task.requested_changes,
   );
+  const sectionReplacementInventory =
+    buildWholeSectionRequiredBodyInventoryPrompt(
+      input.task.requested_changes,
+      input.inventory,
+    );
 
   const objective =
     "ShapePlanRepair: the previous revision plan was structurally invalid. Return ONE COMPLETE, schema-valid replacement plan.";
@@ -1707,6 +1734,8 @@ export function buildRevisionShapeRepairPrompt(input: {
     "",
     "FOUNDER REQUESTED CHANGES + CLASSIFICATION:",
     coverageLedger,
+    "",
+    sectionReplacementInventory,
     "",
     operationCapabilityGrammarBlock(),
     "",

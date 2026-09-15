@@ -2639,7 +2639,7 @@
     }
   },
   "phase_6g": {
-    "status": "local_verified",
+    "status": "deployed",
     "classification": "DURABLE_REVISION_REQUEST_CONTRACT_REPAIR",
     "scope": "Founder Request Changes revision path only. Resume Template Department NOT reopened.",
     "problem": "Founder Request Changes still failed after Slice 1 because verification/preservation/layout-owned lines were classified MUTATION_REQUIRED, forcing placeholder update_text ops on Rect section markers",
@@ -2700,6 +2700,10 @@
     "next_major_department": "Website Analysis / QA / Development",
     "milestone_ist": "2026-09-15T15:33:16+05:30",
     "milestone_utc": "2026-09-15T10:03:16.000Z",
-    "baseline_commit_before": "23b42c7c5e3fc434bc0559d04cd5466a81a85789"
+    "baseline_commit_before": "23b42c7c5e3fc434bc0559d04cd5466a81a85789",
+    "deployed_commit": "e5697f6bd1523ac6f0a08cf320ce4ad69d5ded14",
+    "deployed_at_ist": "2026-09-15T15:34:39+05:30",
+    "deployed_at_utc": "2026-09-15T10:04:39.000Z",
+    "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
   }
 }

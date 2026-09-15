@@ -2773,7 +2773,7 @@
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
   },
   "phase_6i": {
-    "status": "local_verified",
+    "status": "deployed",
     "classification": "REVISION_ROLE_INTEGRITY_COVERAGE_REPAIR",
     "scope": "Founder Request Changes revision-path ROLE_TARGET_INTEGRITY only. Resume Template Department NOT reopened. Generation role proof unchanged.",
     "problem": "revtask-33ef5466-f24 passed Phase 6H geometry/completeness then FAILED_COVERAGE because items 20 and 26 (VERIFICATION_ACCEPTANCE → ROLE_TARGET_INTEGRITY) required generation-time structured role JSON that revision does not produce",
@@ -2821,6 +2821,10 @@
     "next_major_department": "Website Analysis / QA / Development",
     "milestone_ist": "2026-09-15T17:57:36+05:30",
     "milestone_utc": "2026-09-15T12:27:36.000Z",
-    "baseline_commit_before": "cd4e522a0ec9fbbf39640f0443c3db6813647060"
+    "baseline_commit_before": "cd4e522a0ec9fbbf39640f0443c3db6813647060",
+    "deployed_commit": "dafe6f4161ad2f0f7a3c9f294677fe6d0d08bb09",
+    "deployed_at_ist": "2026-09-15T17:58:56+05:30",
+    "deployed_at_utc": "2026-09-15T12:28:56.000Z",
+    "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
   }
 }

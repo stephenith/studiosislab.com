@@ -2567,7 +2567,7 @@
     "verifier": "SOS/SAIOS/core/founder-memory/verify-founder-memory-consumption-6b.ts"
   },
   "phase_6f": {
-    "status": "implemented_local_verified_pending_deploy",
+    "status": "deployed",
     "classification": "MAINTENANCE / PRODUCTION REGRESSION REPAIR",
     "scope": "Founder Request Changes revision path only. Resume Template Department NOT reopened.",
     "problem": "Founder Request Changes revision failed with 'invalid revision plan' after a broad Operations Analyst content+layout correction",
@@ -2618,6 +2618,19 @@
     "founder_decision_created": false,
     "publication_executed": false,
     "milestone_ist": "2026-09-15T11:04:43+05:30",
-    "milestone_utc": "2026-09-15T05:34:43.000Z"
+    "milestone_utc": "2026-09-15T05:34:43.000Z",
+    "deployed_commit": "9b4ccaca81ae2be12cc52ec62a9572e38844dba8",
+    "deployed_at_ist": "2026-09-15T11:09:27+05:30",
+    "deployed_at_utc": "2026-09-15T05:39:27.000Z",
+    "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only",
+    "vps_posture_after_deploy": "LIVE OFF, dry_run, founder decisions allowed, no publish",
+    "queue_after_deploy": {
+      "waiting_founder": 19,
+      "queue_max": 20,
+      "queue_free": 1,
+      "revision_pending": 0,
+      "revision_running": 0,
+      "revision_failed": 4
+    }
   }
 }

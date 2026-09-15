@@ -22,7 +22,7 @@ import {
 } from "./RevisionLayoutNormalizer.js";
 import type { CanvasInventoryObject } from "./revision-task-types.js";
 import type { RevisionPlan } from "./revision-task-types.js";
-import { evaluateCanvasRoleTargetIntegrity } from "../role-integrity/RoleTargetIntegrity.js";
+import { evaluateRevisionRoleTargetIntegrity } from "../role-integrity/RevisionRoleTargetIntegrity.js";
 import { contentObjects } from "../resume-critic/canvasHelpers.js";
 import type { CanvasDocument, CanvasObject } from "../resume-critic/types.js";
 import {
@@ -1885,18 +1885,21 @@ export function runArchitecturePreservationCheck(input: {
 }
 
 /**
- * Phase 6G — rendered professional role vs the Founder's target role.
+ * Phase 6I — revision-native professional role proof vs the Founder's target.
  *
  * Owns Founder lines such as "verify that the rendered professional title,
- * Summary, Experience … all match the target role Operations Analyst". The same
- * evaluator gates candidate staging, so the acceptance result and the staging
- * gate cannot disagree. Fails closed when the target role is unavailable.
+ * Summary, Experience … all match the target role Operations Analyst".
+ * Generation continues to use evaluateCanvasRoleTargetIntegrity (structured +
+ * rendered). Revision must not require openai-resume-content.json.
  */
 export function runRoleTargetIntegrityCheck(input: {
   afterCanvas: FabricCanvasDoc;
   requestedChange: string;
   target_role?: string | null;
   classification?: RequestedChangeClass;
+  beforeCanvas?: FabricCanvasDoc | null;
+  plan?: RevisionPlan | null;
+  requested_changes?: string[];
 }): AcceptanceCheckResult {
   const base = {
     check_id: "role_target_integrity",
@@ -1922,32 +1925,59 @@ export function runRoleTargetIntegrityCheck(input: {
       reason: "Role-target integrity unevaluable without a target role",
     };
   }
-  const integrity = evaluateCanvasRoleTargetIntegrity({
-    target_title: targetRole,
-    target_role_family: targetRole,
-    canvas: input.afterCanvas as unknown as Parameters<
-      typeof evaluateCanvasRoleTargetIntegrity
-    >[0]["canvas"],
+  const requested_changes =
+    input.requested_changes && input.requested_changes.length > 0
+      ? input.requested_changes
+      : [input.requestedChange];
+  const incomplete =
+    input.plan && input.beforeCanvas
+      ? findIncompleteRequestedSectionReplacements({
+          canvas: input.beforeCanvas,
+          plan: input.plan,
+          requested_changes,
+        })
+      : undefined;
+  const integrity = evaluateRevisionRoleTargetIntegrity({
+    target_role: targetRole,
+    afterCanvas: input.afterCanvas,
+    beforeCanvas: input.beforeCanvas,
+    requested_changes,
+    plan: input.plan,
+    incomplete_replacement_findings: incomplete,
   });
+  const failCode =
+    integrity.match === "ROLE_UNEVALUABLE"
+      ? "ACC_ROLE_TARGET_UNEVALUABLE"
+      : integrity.match === "ROLE_CONTENT_INCOMPLETE"
+        ? "ACC_ROLE_TARGET_INCOMPLETE"
+        : "ACC_ROLE_TARGET_MISMATCH";
   return {
     ...base,
     pass: integrity.pass,
-    evaluable: true,
+    evaluable: integrity.evaluable,
     findings: integrity.pass
       ? []
       : [
           {
-            code: "ACC_ROLE_TARGET_MISMATCH",
+            code: failCode,
             message: integrity.reason,
-            object_ids: [],
+            object_ids: integrity.residue_object_ids,
           },
         ],
+    object_ids: integrity.residue_object_ids,
     metrics: {
+      proof_kind: "REVISION",
       target_role: targetRole,
-      rendered_role: integrity.rendered_role ?? null,
+      rendered_role: integrity.rendered_title_role,
+      rendered_title_role: integrity.rendered_title_role,
+      match: integrity.match,
+      requested_role_sections: integrity.requested_role_sections,
+      requested_role_sections_complete:
+        integrity.requested_role_sections_complete,
+      source_role_residue: integrity.source_role_residue,
     },
     reason: integrity.pass
-      ? `Rendered role matches target role ${targetRole}`
+      ? `Revision role proof matches target role ${targetRole}`
       : integrity.reason,
   };
 }
@@ -2092,6 +2122,9 @@ function runAcceptanceCheckForType(input: {
         requestedChange: input.requestedChange,
         target_role: input.target_role,
         classification: input.classification,
+        beforeCanvas: input.beforeCanvas,
+        plan: input.plan,
+        requested_changes: input.requested_changes,
       });
     case "GENERAL_ACCEPTANCE":
       return runGeneralAcceptanceCheck({

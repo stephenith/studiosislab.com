@@ -28,6 +28,7 @@ import {
   findTextOverlapFindings,
   runRevisionAcceptanceChecks,
 } from "./RevisionAcceptanceChecks.js";
+import { evaluateRevisionRoleTargetIntegrity } from "../role-integrity/RevisionRoleTargetIntegrity.js";
 import { normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
 import { planFounderCanvasRevision } from "./RevisionPlanner.js";
 import {
@@ -724,6 +725,18 @@ export async function runFounderFeedbackRevision(
   writeJson(
     join(evidenceDir, "revision-acceptance-checks.json"),
     acceptanceReport,
+  );
+
+  const revisionRoleProof = evaluateRevisionRoleTargetIntegrity({
+    target_role: task.role,
+    afterCanvas: normalized.canvas,
+    beforeCanvas: priorCanvas,
+    requested_changes: task.requested_changes,
+    plan: activePlan,
+  });
+  writeJson(
+    join(evidenceDir, "revision-role-target-integrity.json"),
+    revisionRoleProof,
   );
 
   // Coverage geometry proofs use final post-normalization canvas (not op-log after).

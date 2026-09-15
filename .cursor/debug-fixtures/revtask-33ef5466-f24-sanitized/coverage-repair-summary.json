@@ -1,0 +1,17 @@
+{
+  "attempted": true,
+  "missing_before": [
+    {
+      "index": 18,
+      "text": "Update the Education content where necessary so the qualifications are coherent with the Operations Analyst professional profile rather than a Marketing Manager profile."
+    }
+  ],
+  "repair_operation_count": 2,
+  "missing_after": [],
+  "merged_validation_pass": true,
+  "provider_request_id": "REDACTED_PROVIDER_REQUEST_ID",
+  "input_tokens": 14662,
+  "output_tokens": 378,
+  "error": null,
+  "failure_kind": null
+}

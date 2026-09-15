@@ -141,6 +141,24 @@ function main(): void {
     );
   }
 
+  {
+    const missingStructured = evaluateRoleTargetIntegrity({
+      target_title: "Operations Analyst",
+      target_role_family: "operations_analyst",
+      structured_role: null,
+      rendered_role: "Operations Analyst",
+    });
+    checks.push(
+      assert(
+        missingStructured.pass === false &&
+          missingStructured.match === "ROLE_UNEVALUABLE" &&
+          /structured generated role missing/i.test(missingStructured.reason),
+        "F0_generation_missing_structured_role_still_fails",
+        `${missingStructured.match} ${missingStructured.reason}`,
+      ),
+    );
+  }
+
   checks.push(
     assert(
       evaluateRoleTargetIntegrity({

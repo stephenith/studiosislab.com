@@ -1,0 +1,306 @@
+{
+  "schema_version": "revision-section-metadata-1.0.0",
+  "sections": {
+    "(none)": [
+      {
+        "id": "page-root",
+        "role": "pageBackground",
+        "type": "Rect",
+        "has_text": false
+      },
+      {
+        "id": "page-sidebar-bg",
+        "role": "sidebar-bg",
+        "type": "Rect",
+        "has_text": false
+      }
+    ],
+    "header": [
+      {
+        "id": "block-header-0-r0",
+        "role": "header-band",
+        "type": "Rect",
+        "has_text": false
+      },
+      {
+        "id": "block-header-0-t1",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-header-0-t2",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-header-0-t3",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      }
+    ],
+    "summary": [
+      {
+        "id": "block-summary-1-r0",
+        "role": "section-marker",
+        "type": "Rect",
+        "has_text": false
+      },
+      {
+        "id": "block-summary-1-t1",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-summary-1-t2",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      }
+    ],
+    "experience": [
+      {
+        "id": "block-experience-2-r0",
+        "role": "section-marker",
+        "type": "Rect",
+        "has_text": false
+      },
+      {
+        "id": "block-experience-2-t1",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t2",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t3",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t4",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t5",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t6",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t7",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t8",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t9",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t10",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t11",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t12",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t13",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t14",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t15",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t16",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-experience-2-t17",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      }
+    ],
+    "education": [
+      {
+        "id": "block-education-3-r0",
+        "role": "section-marker",
+        "type": "Rect",
+        "has_text": false
+      },
+      {
+        "id": "block-education-3-t1",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-education-3-t2",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-education-3-t3",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      }
+    ],
+    "skills": [
+      {
+        "id": "block-skills-4-r0",
+        "role": "section-marker",
+        "type": "Rect",
+        "has_text": false
+      },
+      {
+        "id": "block-skills-4-t1",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-skills-4-t2",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-skills-4-t3",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      }
+    ],
+    "projects": [
+      {
+        "id": "block-projects-5-r0",
+        "role": "section-marker",
+        "type": "Rect",
+        "has_text": false
+      },
+      {
+        "id": "block-projects-5-t1",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-projects-5-t2",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-projects-5-t3",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      }
+    ],
+    "certifications": [
+      {
+        "id": "block-certifications-6-r0",
+        "role": "section-marker",
+        "type": "Rect",
+        "has_text": false
+      },
+      {
+        "id": "block-certifications-6-t1",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-certifications-6-t2",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-certifications-6-t3",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-certifications-6-t4",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      }
+    ],
+    "languages": [
+      {
+        "id": "block-languages-7-r0",
+        "role": "section-marker",
+        "type": "Rect",
+        "has_text": false
+      },
+      {
+        "id": "block-languages-7-t1",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      },
+      {
+        "id": "block-languages-7-t2",
+        "role": null,
+        "type": "Textbox",
+        "has_text": true
+      }
+    ]
+  },
+  "object_count": 47
+}

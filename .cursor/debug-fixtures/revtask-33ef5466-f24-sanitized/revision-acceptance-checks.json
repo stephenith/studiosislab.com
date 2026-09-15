@@ -1,0 +1,301 @@
+{
+  "schema_version": "founder-revision-acceptance-1.0.0",
+  "task_id": "revtask-33ef5466-f24",
+  "revision_id": null,
+  "decision_id": "fd-ebe7a19a-f28",
+  "at": "2026-09-15T11:48:47.507Z",
+  "canvas_source": "post_mutation",
+  "checks": [
+    {
+      "check_id": "content_preservation",
+      "check_type": "CONTENT_PRESERVATION",
+      "requested_change": "Keep useful Operations Analyst skills such as Documentation, Process Design, stakeholder communication, operational analysis, process improvement, KPI reporting, data analysis, Excel, reporting, and workflow optimization where appropriate.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "before_text_objects": 37,
+        "after_text_objects": 37,
+        "authorized_content_edit_targets": [
+          "block-header-0-t2",
+          "block-summary-1-t2",
+          "block-experience-2-t2",
+          "block-experience-2-t4",
+          "block-experience-2-t5",
+          "block-experience-2-t6",
+          "block-experience-2-t7",
+          "block-experience-2-t8",
+          "block-experience-2-t10",
+          "block-experience-2-t11",
+          "block-experience-2-t12",
+          "block-experience-2-t13",
+          "block-experience-2-t15",
+          "block-experience-2-t16",
+          "block-experience-2-t17",
+          "block-skills-4-t2",
+          "block-skills-4-t3",
+          "block-projects-5-t2",
+          "block-projects-5-t3",
+          "block-certifications-6-t2",
+          "block-certifications-6-t3",
+          "block-certifications-6-t4",
+          "block-education-3-t2",
+          "block-education-3-t3"
+        ],
+        "findings_count": 0
+      },
+      "reason": "Factual resume text preserved (geometry/style/reorder only; no unauthorized fabrication or rewrite)"
+    },
+    {
+      "check_id": "collision_bounds",
+      "check_type": "COLLISION_BOUNDS",
+      "requested_change": "Ensure every sidebar text object stays fully inside the sidebar column and does not clip, overflow, overlap, or extend into another section.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "role_target_integrity",
+      "check_type": "ROLE_TARGET_INTEGRITY",
+      "requested_change": "Do not solve the role mismatch by changing only the header title; Summary, Experience, Skills, Projects, Certifications, and Education context must all consistently represent Operations Analyst.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "object_ids": [],
+      "pass": false,
+      "evaluable": true,
+      "findings": [
+        {
+          "code": "ACC_ROLE_TARGET_MISMATCH",
+          "message": "structured generated role missing",
+          "object_ids": []
+        }
+      ],
+      "metrics": {
+        "target_role": "Operations Analyst",
+        "rendered_role": "Operations Analyst"
+      },
+      "reason": "structured generated role missing"
+    },
+    {
+      "check_id": "architecture_preservation",
+      "check_type": "ARCHITECTURE_PRESERVATION",
+      "requested_change": "Preserve the existing dark navy header, two-column architecture, light sidebar background, blue section markers, typography hierarchy, and overall visual identity because those parts of the design are working well.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [
+        "page-root",
+        "block-header-0-r0",
+        "block-header-0-t1",
+        "block-header-0-t2",
+        "block-header-0-t3",
+        "block-summary-1-r0",
+        "block-summary-1-t1",
+        "block-summary-1-t2",
+        "block-skills-4-r0",
+        "block-skills-4-t1",
+        "block-skills-4-t2"
+      ],
+      "metrics": {
+        "before_lane_count": 2,
+        "after_lane_count": 2,
+        "before_lanes": [
+          "lane-0",
+          "lane-1"
+        ],
+        "after_lanes": [
+          "lane-0",
+          "lane-1"
+        ],
+        "header_band_supported": true,
+        "typography_colors_sidebar": "not independently proven — lane/topology/header band only"
+      },
+      "reason": "Architecture preserved (lanes=2, header band present)"
+    },
+    {
+      "check_id": "layout_preservation",
+      "check_type": "LAYOUT_PRESERVATION",
+      "requested_change": "Preserve the existing dark navy header, two-column architecture, light sidebar background, blue section markers, typography hierarchy, and overall visual identity because those parts of the design are working well.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [
+        "block-summary-1-t2",
+        "block-summary-1-t2",
+        "block-experience-2-t1",
+        "block-experience-2-t1"
+      ],
+      "metrics": {
+        "prior_gap": 27,
+        "final_gap": 27
+      },
+      "reason": "Summary→Experience spacing preserved within tolerance (prior=27 final=27)"
+    },
+    {
+      "check_id": "content_preservation",
+      "check_type": "CONTENT_PRESERVATION",
+      "requested_change": "Do not change the candidate name or contact-information structure unless a small positioning adjustment is required for safe rendering.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "before_text_objects": 37,
+        "after_text_objects": 37,
+        "authorized_content_edit_targets": [
+          "block-header-0-t2",
+          "block-summary-1-t2",
+          "block-experience-2-t2",
+          "block-experience-2-t4",
+          "block-experience-2-t5",
+          "block-experience-2-t6",
+          "block-experience-2-t7",
+          "block-experience-2-t8",
+          "block-experience-2-t10",
+          "block-experience-2-t11",
+          "block-experience-2-t12",
+          "block-experience-2-t13",
+          "block-experience-2-t15",
+          "block-experience-2-t16",
+          "block-experience-2-t17",
+          "block-skills-4-t2",
+          "block-skills-4-t3",
+          "block-projects-5-t2",
+          "block-projects-5-t3",
+          "block-certifications-6-t2",
+          "block-certifications-6-t3",
+          "block-certifications-6-t4",
+          "block-education-3-t2",
+          "block-education-3-t3"
+        ],
+        "findings_count": 0
+      },
+      "reason": "Factual resume text preserved (geometry/style/reorder only; no unauthorized fabrication or rewrite)"
+    },
+    {
+      "check_id": "layout_preservation",
+      "check_type": "LAYOUT_PRESERVATION",
+      "requested_change": "Do not change the candidate name or contact-information structure unless a small positioning adjustment is required for safe rendering.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [
+        "block-summary-1-t2",
+        "block-summary-1-t2",
+        "block-experience-2-t1",
+        "block-experience-2-t1"
+      ],
+      "metrics": {
+        "prior_gap": 27,
+        "final_gap": 27
+      },
+      "reason": "Summary→Experience spacing preserved within tolerance (prior=27 final=27)"
+    },
+    {
+      "check_id": "collision_bounds",
+      "check_type": "COLLISION_BOUNDS",
+      "requested_change": "Check the full page after all content changes and ensure there are no text overlaps, clipped text, duplicate text, out-of-bounds objects, or accidental collisions.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "collision_bounds",
+      "check_type": "COLLISION_BOUNDS",
+      "requested_change": "Ensure all section headings and body text maintain clear positive spacing and that no text touches or visually merges with another section.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "role_target_integrity",
+      "check_type": "ROLE_TARGET_INTEGRITY",
+      "requested_change": "Before returning this revision to Founder Review, verify that the rendered professional title, Summary, Experience, Skills, Projects, Certifications, and Education all match the target role Operations Analyst.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "object_ids": [],
+      "pass": false,
+      "evaluable": true,
+      "findings": [
+        {
+          "code": "ACC_ROLE_TARGET_MISMATCH",
+          "message": "structured generated role missing",
+          "object_ids": []
+        }
+      ],
+      "metrics": {
+        "target_role": "Operations Analyst",
+        "rendered_role": "Operations Analyst"
+      },
+      "reason": "structured generated role missing"
+    },
+    {
+      "check_id": "collision_bounds",
+      "check_type": "COLLISION_BOUNDS",
+      "requested_change": "Before returning this revision to Founder Review, verify that text overlap count is zero, page out-of-bounds count is zero, and every text block is fully readable.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "page_fit",
+      "check_type": "PAGE_FIT",
+      "requested_change": "Return a clean one-page Operations Analyst Resume Template with the existing strong visual architecture preserved but with the role content and sidebar geometry fully corrected.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "page_fit": {
+          "page_height": 1123,
+          "content_bottom_before_compaction": 1043.4,
+          "overflow_before": 0,
+          "total_reclaimable_slack": 45.8,
+          "pixels_reclaimed": 0,
+          "content_bottom_after_compaction": 1043.4,
+          "overflow_after": 0,
+          "fit_pass": true
+        }
+      },
+      "reason": "One-page fit pass from authoritative normalization page_fit report"
+    }
+  ],
+  "all_verification_pass": false
+}

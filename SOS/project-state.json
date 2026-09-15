@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PHASE 6H — Founder will manually issue ONE new Operations Analyst Request Changes Again after reviewing this post-content reflow repair. Do not auto-create the live-proof decision. Generation overlap/clipping gate remains the NEXT controlled step after live proof.",
+    "PHASE 6I — Founder will manually issue ONE new Operations Analyst Request Changes after reviewing this revision role-integrity coverage repair. Do not auto-create the live-proof decision. Generation overlap/clipping gate remains the NEXT controlled step after live proof.",
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B — Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B — Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-15T12:27:36.000Z",
+      "type": "revision_maintenance_repair",
+      "summary": "Phase 6I REVISION ROLE-INTEGRITY COVERAGE REPAIR implemented and LOCAL_VERIFIED (offline). Local wall=2026-09-15T17:57:36+05:30. UTC=2026-09-15T12:27:36.000Z. Revision ROLE_TARGET_INTEGRITY no longer requires generation-time structured role JSON. Revision-native proof uses canonical target role, rendered professional title, requested section content, replacement completeness, and source-role residue. Generation dual structured+rendered contract unchanged. Offline fixture revtask-33ef5466-f24: reproduce items 20/26 uncovered (26/28, structured generated role missing) then revision proof PASS and coverage 28/28 with zero dummy operations. Header-only Marketing residue FAIL; Marketing Summary FAIL; incomplete Experience FAIL; wrong title FAIL; missing revision evidence UNEVALUABLE. 6I matrix PASS 34/34. 6G matrix PASS 45/45. 6H matrix PASS 43/43. RoleTargetIntegrity 6A PASS. Generation e2e 6A PASS. Marketing Manager production replay PASS 17/17. Geometry TEXT_OVERLAPS=0 PAGE_OOB=0. Historical failed tasks unchanged. No OpenAI call, no generation, no revision run, no Founder decision, no publication. Generation overlap/clipping gate deliberately deferred. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
+    },
     {
       "at": "2026-09-15T10:45:34.000Z",
       "type": "revision_maintenance_repair",
@@ -2766,5 +2771,56 @@
     "deployed_at_ist": "2026-09-15T16:17:01+05:30",
     "deployed_at_utc": "2026-09-15T10:47:01.000Z",
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
+  },
+  "phase_6i": {
+    "status": "local_verified",
+    "classification": "REVISION_ROLE_INTEGRITY_COVERAGE_REPAIR",
+    "scope": "Founder Request Changes revision-path ROLE_TARGET_INTEGRITY only. Resume Template Department NOT reopened. Generation role proof unchanged.",
+    "problem": "revtask-33ef5466-f24 passed Phase 6H geometry/completeness then FAILED_COVERAGE because items 20 and 26 (VERIFICATION_ACCEPTANCE → ROLE_TARGET_INTEGRITY) required generation-time structured role JSON that revision does not produce",
+    "diagnostic_task": "revtask-33ef5466-f24",
+    "prior_failure_tasks": [
+      "revtask-b5339d03-b67",
+      "revtask-9441fe34-4ba",
+      "revtask-b9a65ad0-eb0",
+      "revtask-33ef5466-f24"
+    ],
+    "root_causes": [
+      "REVISION_USED_GENERATION_ROLE_CONTRACT so missing openai-resume-content.json made ROLE_UNEVALUABLE even when the rendered canvas was Operations Analyst",
+      "FEEDBACK_COVERAGE treated ROLE_TARGET_INTEGRITY fail as not_addressed for Founder items 20 and 26 despite complete requested-section rewrite and no Marketing residue"
+    ],
+    "fixes": [
+      "evaluateRevisionRoleTargetIntegrity: canonical target + rendered title + requested section content + completeness + source-role residue",
+      "runRoleTargetIntegrityCheck uses revision-native proof; does not synthesize generation structured JSON",
+      "Generation evaluateRoleTargetIntegrity / evaluateCanvasRoleTargetIntegrity remain fail-closed on missing structured role",
+      "Coverage maps VERIFICATION_ACCEPTANCE → ROLE_TARGET_INTEGRITY to the revision proof artifact with zero dummy operations"
+    ],
+    "not_in_scope": [
+      "GENERATION_OVERLAP_CLIPPING_GATE deferred until after one live Request Changes proof",
+      "No retry or mutation of revtask-b5339d03-b67, revtask-9441fe34-4ba, revtask-b9a65ad0-eb0, or revtask-33ef5466-f24",
+      "No live production OpenAI during implementation"
+    ],
+    "offline_fixture": ".cursor/debug-fixtures/revtask-33ef5466-f24-sanitized",
+    "production_failure_reproduced_offline": true,
+    "verifier": "aios:revision:role-integrity-6i:verify",
+    "matrix_result": "PASS 34/34",
+    "six_g_regression": "PASS 45/45",
+    "six_h_regression": "PASS 43/43",
+    "generation_role_regression": "PASS",
+    "marketing_manager_replay": "PASS 17/17",
+    "fixture_feedback_coverage_after": "28/28",
+    "dummy_operations_for_role_verification": 0,
+    "fixture_text_overlaps_after": 0,
+    "fixture_page_oob_after": 0,
+    "openai_called": false,
+    "generation_executed": false,
+    "revision_executed": false,
+    "founder_decision_created": false,
+    "publication_executed": false,
+    "resume_template_department_status": "OPERATIONALLY_COMPLETE",
+    "revision_engineering_status": "MAINTENANCE / REGRESSION ONLY",
+    "next_major_department": "Website Analysis / QA / Development",
+    "milestone_ist": "2026-09-15T17:57:36+05:30",
+    "milestone_utc": "2026-09-15T12:27:36.000Z",
+    "baseline_commit_before": "cd4e522a0ec9fbbf39640f0443c3db6813647060"
   }
 }

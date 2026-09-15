@@ -2712,7 +2712,7 @@
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
   },
   "phase_6h": {
-    "status": "local_verified",
+    "status": "deployed",
     "classification": "POST_CONTENT_REFLOW_MIXED_REVISION_REPAIR",
     "scope": "Founder Request Changes mixed content+layout revision path only. Resume Template Department NOT reopened.",
     "problem": "revtask-b9a65ad0-eb0 passed Phase 6G classification/planning/coverage then FAILED_GATE at DETERMINISTIC_SPACING_OWNERSHIP because content wrap changed visual heights while downstream Y stayed pre-rewrite",
@@ -2761,6 +2761,10 @@
     "next_major_department": "Website Analysis / QA / Development",
     "milestone_ist": "2026-09-15T16:15:34+05:30",
     "milestone_utc": "2026-09-15T10:45:34.000Z",
-    "baseline_commit_before": "5a95f70879389753827195ee85bf2729624df36b"
+    "baseline_commit_before": "5a95f70879389753827195ee85bf2729624df36b",
+    "deployed_commit": "acf8cf3026fe7b60d5fe388cfa6a642a2e315aea",
+    "deployed_at_ist": "2026-09-15T16:17:01+05:30",
+    "deployed_at_utc": "2026-09-15T10:47:01.000Z",
+    "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
   }
 }

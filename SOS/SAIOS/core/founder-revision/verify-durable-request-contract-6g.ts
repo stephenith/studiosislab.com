@@ -229,9 +229,7 @@ const tailModes = newMeta.requested_changes
   .map((c) => ({ text: c, mode: resolveItemCoverageMode(c), exempt: isPlanCoverageExemptRequestedChange(c) }));
 const tailForcingOps = tailModes.filter((t) => !t.exempt);
 assert(
-  // Only the explicit "role content and sidebar geometry fully corrected" line
-  // may still demand operations — and it is covered by real content ops.
-  tailForcingOps.every((t) => /fully corrected/.test(t.text)),
+  tailForcingOps.length === 0,
   "12_new_fixture_tail_not_blindly_mutation",
   tailForcingOps.map((t) => t.text.slice(0, 48)).join(" | ") || "none",
 );

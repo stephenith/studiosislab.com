@@ -23,13 +23,23 @@ import {
   isHeaderIdentityLayoutFeedback,
   isHeaderIdentityLayoutOwnedChange,
 } from "./HeaderIdentityLayout.js";
-import { findTextOverlapFindings } from "./RevisionAcceptanceChecks.js";
+import {
+  findIncompleteRequestedSectionReplacements,
+  findIntraBoxTextOverflowFindings,
+  findTextOverlapFindings,
+} from "./RevisionAcceptanceChecks.js";
 import {
   isFounderHeadingToContentEqualityRequest,
   isFounderInternalContentRhythmRequest,
   isFounderSectionToSectionGapEqualityRequest,
   normalizeRevisionLayout,
 } from "./RevisionLayoutNormalizer.js";
+import {
+  applyPostContentReflow,
+  isAiGeometryOp,
+  isContentMutationOp,
+  type PostContentReflowReport,
+} from "./PostContentReflow.js";
 import { parseExplicitMoveDirections } from "./PositionOpCanonicalization.js";
 import {
   classifyRequestedChange,
@@ -334,12 +344,44 @@ export type DeterministicSpacingPlanResult = {
     | "HYBRID"
     | "FAIL_CLOSED"
     | "UNCHANGED";
+  failure_kind?: OwnershipFailureKind;
   spacing_intents_det?: SpacingIntentRelation[];
   spacing_intents_ai?: SpacingIntentRelation[];
   /** Canonical Founder spacing relations resolved once for this ownership pass. */
   resolved_relations?: ResolvedSpacingRelation[];
   named_pair_only?: boolean;
+  post_content_reflow?: PostContentReflowReport;
+  overlap_count?: number;
+  page_oob_count?: number;
 };
+
+export type OwnershipFailureKind =
+  | "SPACING_INTENT_UNSATISFIED"
+  | "POST_CONTENT_OVERLAP"
+  | "PAGE_OOB"
+  | "CONTENT_REFLOW_FAILED"
+  | "CONTENT_REPLACEMENT_INCOMPLETE";
+
+function formatOwnershipFailure(input: {
+  kind: OwnershipFailureKind;
+  overlaps?: number;
+  oob?: number;
+  detail?: string;
+}): string {
+  switch (input.kind) {
+    case "POST_CONTENT_OVERLAP":
+      return `post-content overlap: ${input.overlaps ?? 0} text overlap(s) after content mutation and reflow`;
+    case "PAGE_OOB":
+      return `page OOB: ${input.oob ?? 0} object(s) outside page bounds after content mutation and reflow`;
+    case "CONTENT_REFLOW_FAILED":
+      return `content reflow failed: ${input.detail ?? "post-content sandbox could not execute"}`;
+    case "CONTENT_REPLACEMENT_INCOMPLETE":
+      return `content replacement incomplete: ${input.detail ?? "requested section still contains unreplaced source content"}`;
+    case "SPACING_INTENT_UNSATISFIED":
+    default:
+      return "spacing intent unsatisfied: deterministic ownership and AI plan both fail measured Founder spacing relations (or produce unsafe overlaps)";
+  }
+}
 
 /**
  * Replace AI set_position/move_object/align_objects with geometry diffed from
@@ -350,8 +392,41 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
   requested_changes: string[];
   aiPlan: RevisionPlan;
 }): DeterministicSpacingPlanResult {
-  const normalized = normalizeRevisionLayout({
+  // Phase 6H execution order (mixed content + layout):
+  // CONTENT_OP_APPLICATION_POINT: execute content ops on a sandbox clone
+  // VISUAL_BOUNDS_RECALC_POINT: syncStoredTextHeightsToVisual (TextEffectiveHeight)
+  // NORMALIZER_INPUT_CANVAS: post-content reflowed canvas (never the pre-rewrite source)
+  // AI_GEOMETRY_APPLICATION_POINT: only overlap-safe set_position/move/align survive
+  // SPACING_RELATION_RESOLUTION_POINT: resolveAllFounderSpacingRelations on reflowed state
+  // OVERLAP_CHECK_POINT: findTextOverlapFindings + page OOB after reflow + optional AI geom
+  const contentOps = input.aiPlan.operations.filter((op) =>
+    isContentMutationOp(op),
+  );
+  const contentExec = executeCanvasOperations({
     canvas: input.priorCanvas,
+    operations: contentOps,
+  });
+  if (!contentExec.ok) {
+    return {
+      ok: false,
+      plan: null,
+      error: formatOwnershipFailure({
+        kind: "CONTENT_REFLOW_FAILED",
+        detail: contentExec.error ?? "content operations failed",
+      }),
+      report_ok: false,
+      shifted_object_count: 0,
+      preserved_ai_ops: 0,
+      replaced_ai_position_ops: 0,
+      fail_closed: true,
+      ownership_mode: "FAIL_CLOSED",
+      failure_kind: "CONTENT_REFLOW_FAILED",
+    };
+  }
+  const postContent = applyPostContentReflow({ canvas: contentExec.canvas });
+
+  const normalized = normalizeRevisionLayout({
+    canvas: postContent.canvas,
     requested_changes: input.requested_changes,
     prior_canvas: input.priorCanvas,
   });
@@ -582,16 +657,27 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
   }
 
   // Phase 5Z — choose plan that satisfies measured Founder spacing intents.
-  const aiPositionOps = input.aiPlan.operations.filter(
-    (o) =>
-      o.op === "set_position" ||
-      o.op === "move_object" ||
-      o.op === "align_objects",
-  );
+  const aiPositionOps = input.aiPlan.operations.filter((o) => isAiGeometryOp(o));
 
-  // No competing AI position ops → deterministic ownership as before; coverage
-  // still requires measured spacing proof when applicable.
-  if (aiPositionOps.length === 0) {
+  // Phase 6H — coverage-repair / AI coordinates survive only if they do not
+  // create overlaps on the POST-CONTENT reflowed canvas.
+  const reflowOverlapCount = findTextOverlapFindings(postContent.canvas).length;
+  let safeAiPositionOps = aiPositionOps;
+  if (aiPositionOps.length > 0) {
+    const trial = executeCanvasOperations({
+      canvas: postContent.canvas,
+      operations: aiPositionOps,
+    });
+    const trialOverlaps = trial.ok
+      ? findTextOverlapFindings(trial.canvas).length
+      : 99;
+    if (!trial.ok || trialOverlaps > reflowOverlapCount || trialOverlaps > 0) {
+      safeAiPositionOps = [];
+    }
+  }
+
+  // No competing (safe) AI position ops → deterministic ownership as before.
+  if (safeAiPositionOps.length === 0) {
     if (detPlanBase.operations.length === 0) {
       return {
         ok: true,
@@ -609,27 +695,99 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
         report_ok: true,
         shifted_object_count: 0,
         preserved_ai_ops: preservedNonPosition.length,
-        replaced_ai_position_ops: 0,
+        replaced_ai_position_ops: aiPositionOps.length,
         ownership_mode: "UNCHANGED",
         resolved_relations: resolvedRelations,
         named_pair_only: namedPairOnly,
+        post_content_reflow: postContent.report,
       };
     }
-    // Named-pair measurable with no AI ops: only accept if named det satisfies.
+    const detOnlyExec = executeCanvasOperations({
+      canvas: input.priorCanvas,
+      operations: detPlanBase.operations,
+    });
+    const detOnlyOverlaps = detOnlyExec.ok
+      ? findTextOverlapFindings(detOnlyExec.canvas).length
+      : 99;
+    const detOnlyOob = detOnlyExec.ok
+      ? countPageOob(
+          detOnlyExec.canvas,
+          Number(input.priorCanvas.width ?? 794),
+          Number(input.priorCanvas.height ?? 1123),
+        )
+      : 99;
+    const incomplete = detOnlyExec.ok
+      ? findIncompleteRequestedSectionReplacements({
+          canvas: input.priorCanvas,
+          plan: input.aiPlan,
+          requested_changes: input.requested_changes,
+        })
+      : [];
+    if (!detOnlyExec.ok || detOnlyOverlaps > 0 || detOnlyOob > 0) {
+      const kind: OwnershipFailureKind =
+        !detOnlyExec.ok
+          ? "CONTENT_REFLOW_FAILED"
+          : detOnlyOverlaps > 0
+            ? "POST_CONTENT_OVERLAP"
+            : "PAGE_OOB";
+      return {
+        ok: false,
+        plan: null,
+        error: formatOwnershipFailure({
+          kind,
+          overlaps: detOnlyOverlaps,
+          oob: detOnlyOob,
+          detail: detOnlyExec.error ?? undefined,
+        }),
+        report_ok: normalized.report.ok,
+        shifted_object_count: 0,
+        preserved_ai_ops: 0,
+        replaced_ai_position_ops: aiPositionOps.length,
+        fail_closed: true,
+        ownership_mode: "FAIL_CLOSED",
+        failure_kind: kind,
+        overlap_count: detOnlyOverlaps,
+        page_oob_count: detOnlyOob,
+        resolved_relations: resolvedRelations,
+        named_pair_only: namedPairOnly,
+        post_content_reflow: postContent.report,
+      };
+    }
+    if (incomplete.length > 0) {
+      return {
+        ok: false,
+        plan: null,
+        error: formatOwnershipFailure({
+          kind: "CONTENT_REPLACEMENT_INCOMPLETE",
+          detail: incomplete.map((f) => f.object_ids.join(",")).join("; "),
+        }),
+        report_ok: normalized.report.ok,
+        shifted_object_count: 0,
+        preserved_ai_ops: 0,
+        replaced_ai_position_ops: aiPositionOps.length,
+        fail_closed: true,
+        ownership_mode: "FAIL_CLOSED",
+        failure_kind: "CONTENT_REPLACEMENT_INCOMPLETE",
+        resolved_relations: resolvedRelations,
+        named_pair_only: namedPairOnly,
+        post_content_reflow: postContent.report,
+      };
+    }
     if (namedPairOnly && namedRelationOps.length === 0) {
       return {
         ok: false,
         plan: null,
-        error:
-          "spacing intent unsatisfied: deterministic ownership and AI plan both fail measured Founder spacing relations (or produce unsafe overlaps)",
+        error: formatOwnershipFailure({ kind: "SPACING_INTENT_UNSATISFIED" }),
         report_ok: normalized.report.ok,
         shifted_object_count: 0,
         preserved_ai_ops: 0,
         replaced_ai_position_ops: 0,
         fail_closed: true,
         ownership_mode: "FAIL_CLOSED",
+        failure_kind: "SPACING_INTENT_UNSATISFIED",
         resolved_relations: resolvedRelations,
         named_pair_only: namedPairOnly,
+        post_content_reflow: postContent.report,
       };
     }
     return {
@@ -639,10 +797,13 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       report_ok: true,
       shifted_object_count: spacingOpsWithNamed.length,
       preserved_ai_ops: preservedNonPosition.length,
-      replaced_ai_position_ops: 0,
+      replaced_ai_position_ops: aiPositionOps.length,
       ownership_mode: "DETERMINISTIC",
       resolved_relations: resolvedRelations,
       named_pair_only: namedPairOnly,
+      post_content_reflow: postContent.report,
+      overlap_count: detOnlyOverlaps,
+      page_oob_count: detOnlyOob,
     };
   }
 
@@ -666,7 +827,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
   const aiAugmentedOps = [
     ...preservedNonPosition,
     ...namedShrinkOps,
-    ...aiPositionOps,
+    ...safeAiPositionOps,
   ];
   const detExec = executeCanvasOperations({
     canvas: input.priorCanvas,
@@ -905,21 +1066,42 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
   }
 
   // Neither safe+satisfactory → fail closed (do not ship false Founder Review).
+  const failOverlaps = Math.min(
+    detExec.ok ? detOverlapPolicy : 99,
+    aiExec.ok ? aiOverlapPolicy : 99,
+  );
+  const failOob = Math.min(
+    detExec.ok ? detPageOob : 99,
+    aiExec.ok ? aiPageOob : 99,
+  );
+  const failKind: OwnershipFailureKind =
+    failOverlaps > 0
+      ? "POST_CONTENT_OVERLAP"
+      : failOob > 0
+        ? "PAGE_OOB"
+        : "SPACING_INTENT_UNSATISFIED";
   return {
     ok: false,
     plan: null,
-    error:
-      "spacing intent unsatisfied: deterministic ownership and AI plan both fail measured Founder spacing relations (or produce unsafe overlaps)",
+    error: formatOwnershipFailure({
+      kind: failKind,
+      overlaps: failOverlaps,
+      oob: failOob,
+    }),
     report_ok: normalized.report.ok,
     shifted_object_count: 0,
     preserved_ai_ops: 0,
     replaced_ai_position_ops: aiPositionOps.length,
     fail_closed: true,
     ownership_mode: "FAIL_CLOSED",
+    failure_kind: failKind,
+    overlap_count: failOverlaps,
+    page_oob_count: failOob,
     spacing_intents_det: detIntents.intents,
     spacing_intents_ai: aiIntents.intents,
     resolved_relations: resolvedRelations,
     named_pair_only: namedPairOnly,
+    post_content_reflow: postContent.report,
   };
 }
 

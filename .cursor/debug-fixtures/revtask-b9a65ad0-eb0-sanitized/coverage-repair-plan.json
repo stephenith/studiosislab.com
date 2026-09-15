@@ -1,0 +1,44 @@
+{
+  "schema_version": "founder-canvas-revision-plan-1.0.0",
+  "summary": "Add repair operation to adjust the positioning of selected sidebar elements to ensure all sidebar text objects stay fully inside the sidebar column without clipping, overflow, overlap, or extension into another section, thus covering the missing Founder item regarding full correction of role content and sidebar geometry preservation.",
+  "operations": [
+    {
+      "op": "set_position",
+      "target_id": "block-certifications-6-t2",
+      "before_summary": "Textbox id=block-certifications-6-t2 left=48 top=441 w=220 h=16 (marketing-specific certification text)",
+      "intended_change": "Raise the certifications text to prevent any overlap and ensure all sidebar text remains fully inside the sidebar column, addressing sidebar geometry correction.",
+      "values": {
+        "top": 430
+      },
+      "founder_feedback_item": "Return a clean one-page Operations Analyst Resume Template with the existing strong visual architecture preserved but with the role content and sidebar geometry fully corrected.",
+      "confidence": 0.9
+    },
+    {
+      "op": "set_position",
+      "target_id": "block-certifications-6-t3",
+      "before_summary": "Textbox id=block-certifications-6-t3 left=48 top=459.67 w=220 h=16 (marketing-specific certification text)",
+      "intended_change": "Adjust the top position to fix overlapping and keep the text fully readable within the sidebar column, supporting sidebar geometry correction.",
+      "values": {
+        "top": 450
+      },
+      "founder_feedback_item": "Return a clean one-page Operations Analyst Resume Template with the existing strong visual architecture preserved but with the role content and sidebar geometry fully corrected.",
+      "confidence": 0.9
+    },
+    {
+      "op": "set_position",
+      "target_id": "block-certifications-6-t4",
+      "before_summary": "Textbox id=block-certifications-6-t4 left=48 top=478.33 w=220 h=16 (marketing-specific certification text)",
+      "intended_change": "Lower the certification text to ensure clear vertical separation and prevent collisions, maintaining sidebar geometry correctness.",
+      "values": {
+        "top": 480
+      },
+      "founder_feedback_item": "Return a clean one-page Operations Analyst Resume Template with the existing strong visual architecture preserved but with the role content and sidebar geometry fully corrected.",
+      "confidence": 0.9
+    }
+  ],
+  "notes": [
+    "Positions are adjusted only on unoccupied top axes, no conflict with primary ops.",
+    "No horizontal or size changes are made to preserve existing sidebar column ownership.",
+    "These operations address visible overlap and clipping in the Certifications sidebar section."
+  ]
+}

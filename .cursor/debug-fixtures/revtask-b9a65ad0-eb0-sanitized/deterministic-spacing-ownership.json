@@ -1,0 +1,51 @@
+{
+  "ok": false,
+  "plan": null,
+  "error": "spacing intent unsatisfied: deterministic ownership and AI plan both fail measured Founder spacing relations (or produce unsafe overlaps)",
+  "report_ok": true,
+  "shifted_object_count": 0,
+  "preserved_ai_ops": 0,
+  "replaced_ai_position_ops": 3,
+  "fail_closed": true,
+  "ownership_mode": "FAIL_CLOSED",
+  "spacing_intents_det": [
+    {
+      "founder_feedback_item": "Reorganize the Skills section into a clean, readable structure with consistent line spacing and wrapping; the skills must not appear scattered, cramped, duplicated, or visually disconnected.",
+      "direction": "REDUCE_GAP",
+      "section": "skills",
+      "upper_id": "block-skills-4-t2",
+      "lower_id": "block-skills-4-t3",
+      "before_gap": 52.32499999999999,
+      "after_gap": 21.875,
+      "satisfied": true,
+      "notes": "gap reduced 52.32\u219221.88"
+    }
+  ],
+  "spacing_intents_ai": [
+    {
+      "founder_feedback_item": "Reorganize the Skills section into a clean, readable structure with consistent line spacing and wrapping; the skills must not appear scattered, cramped, duplicated, or visually disconnected.",
+      "direction": "REDUCE_GAP",
+      "section": "skills",
+      "upper_id": "block-skills-4-t2",
+      "lower_id": "block-skills-4-t3",
+      "before_gap": 52.32499999999999,
+      "after_gap": 21.875,
+      "satisfied": true,
+      "notes": "gap reduced 52.32\u219221.88"
+    }
+  ],
+  "resolved_relations": [
+    {
+      "kind": "SECTION_RHYTHM",
+      "direction": "REDUCE_GAP",
+      "founder_feedback_item": "Reorganize the Skills section into a clean, readable structure with consistent line spacing and wrapping; the skills must not appear scattered, cramped, duplicated, or visually disconnected.",
+      "section": "skills",
+      "group_key": "skills:section",
+      "upper_id": "block-skills-4-t2",
+      "lower_id": "block-skills-4-t3",
+      "before_gap": 52.32499999999999,
+      "notes": "section rhythm skills dominant block-skills-4-t2\u2192block-skills-4-t3"
+    }
+  ],
+  "named_pair_only": false
+}

@@ -1,0 +1,17 @@
+{
+  "attempted": true,
+  "missing_before": [
+    {
+      "index": 27,
+      "text": "Return a clean one-page Operations Analyst Resume Template with the existing strong visual architecture preserved but with the role content and sidebar geometry fully corrected."
+    }
+  ],
+  "repair_operation_count": 3,
+  "missing_after": [],
+  "merged_validation_pass": true,
+  "provider_request_id": "REDACTED",
+  "input_tokens": 15200,
+  "output_tokens": 483,
+  "error": null,
+  "failure_kind": null
+}

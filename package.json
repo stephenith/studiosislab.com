@@ -188,6 +188,7 @@
     "aios:revision:content-preservation:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-content-preservation.ts",
     "aios:revision:shape-repair:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-plan-shape-repair-6f.ts",
     "aios:revision:request-contract-6g:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-durable-request-contract-6g.ts",
+    "aios:revision:post-content-reflow-6h:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-post-content-reflow-6h.ts",
     "aios:revision:section-content-auth:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-section-content-authorization-6f.ts",
     "aios:memory:task-wiring:verify": "npx --yes tsx SOS/SAIOS/core/founder-memory/verify-memory-task-wiring-6f.ts",
     "aios:revision:heading-rect:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-heading-rect-pairing.ts",

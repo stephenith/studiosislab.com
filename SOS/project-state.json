@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PHASE 6G — Founder will manually issue ONE new Operations Analyst Request Changes Again after reviewing this durable request-contract repair. Do not auto-create the live-proof decision. Generation overlap/clipping gate remains the NEXT controlled step after live proof.",
+    "PHASE 6H — Founder will manually issue ONE new Operations Analyst Request Changes Again after reviewing this post-content reflow repair. Do not auto-create the live-proof decision. Generation overlap/clipping gate remains the NEXT controlled step after live proof.",
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B — Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B — Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-15T10:45:34.000Z",
+      "type": "revision_maintenance_repair",
+      "summary": "Phase 6H POST-CONTENT REFLOW MIXED REVISION REPAIR implemented and LOCAL_VERIFIED (offline). Local wall=2026-09-15T16:15:34+05:30. UTC=2026-09-15T10:45:34.000Z. Mixed content+layout revisions now apply authorized update_text in a sandbox, recompute visual text bounds, reflow downstream same-lane objects on the POST-CONTENT canvas, then run the existing layout normalizer. Unsafe coverage-repair/AI set_position ops that overlap post-content bounds are dropped. Incomplete Experience replacement fail-closes without inventing copy. Item 17/28 reclassified as VERIFICATION_ACCEPTANCE. Failure reporting distinguishes POST_CONTENT_OVERLAP / PAGE_OOB / CONTENT_REFLOW_FAILED / CONTENT_REPLACEMENT_INCOMPLETE / SPACING_INTENT_UNSATISFIED. Offline fixture revtask-b9a65ad0-eb0: reproduce 3 overlaps then reflow to projects +2.00 / certs heading +8.00 / education +2.00, TEXT_OVERLAPS=0, PAGE_OOB=0. 6H matrix PASS 43/43. 6G matrix PASS 45/45. Marketing Manager production replay PASS 17/17. Historical failed tasks unchanged. No OpenAI call, no generation, no revision run, no Founder decision, no publication. Generation overlap/clipping gate deliberately deferred. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
+    },
     {
       "at": "2026-09-15T10:03:16.000Z",
       "type": "revision_maintenance_repair",
@@ -2705,5 +2710,57 @@
     "deployed_at_ist": "2026-09-15T15:34:39+05:30",
     "deployed_at_utc": "2026-09-15T10:04:39.000Z",
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
+  },
+  "phase_6h": {
+    "status": "local_verified",
+    "classification": "POST_CONTENT_REFLOW_MIXED_REVISION_REPAIR",
+    "scope": "Founder Request Changes mixed content+layout revision path only. Resume Template Department NOT reopened.",
+    "problem": "revtask-b9a65ad0-eb0 passed Phase 6G classification/planning/coverage then FAILED_GATE at DETERMINISTIC_SPACING_OWNERSHIP because content wrap changed visual heights while downstream Y stayed pre-rewrite",
+    "diagnostic_task": "revtask-b9a65ad0-eb0",
+    "prior_failure_tasks": [
+      "revtask-b5339d03-b67",
+      "revtask-9441fe34-4ba"
+    ],
+    "root_causes": [
+      "NORMALIZER_RAN_ON_PRE_CONTENT_CANVAS so wrap-taller titles/degree lines overlapped following objects that kept old tops",
+      "COVERAGE_REPAIR_SET_POSITION accepted without post-content visual-bounds safety, moving certifications t2 into the heading",
+      "OWNERSHIP_ERROR_STRING reported spacing intent unsatisfied while FAILED_SPACING_RELATIONS=0 and the real fail was 3 text overlaps",
+      "ITEM_17_AND_28 still MUTATION_REQUIRED (inside-sidebar verification; fully-corrected outcome) producing a no-op languages update_text and dummy geometry",
+      "EXPERIENCE_T16_T17 never rewritten; no section-replacement completeness gate"
+    ],
+    "fixes": [
+      "Content ops first, then visual-bounds sync, then lane-local sequential post-content reflow, then existing layout normalizer",
+      "dropUnsafeGeometryOps: coverage-repair/AI geometry survives only if post-content overlaps=0 and page OOB=0",
+      "OwnershipFailureKind split: POST_CONTENT_OVERLAP / PAGE_OOB / CONTENT_REFLOW_FAILED / CONTENT_REPLACEMENT_INCOMPLETE / SPACING_INTENT_UNSATISFIED",
+      "Intra-box overflow detection using visual vs stored text height; completeness check for requested section replacement without inventing copy",
+      "Item 17/28 classified VERIFICATION_ACCEPTANCE via existing Phase 6G intent model"
+    ],
+    "not_in_scope": [
+      "GENERATION_OVERLAP_CLIPPING_GATE deferred until after one live Request Changes proof",
+      "No retry or mutation of revtask-b9a65ad0-eb0, revtask-9441fe34-4ba, or revtask-b5339d03-b67",
+      "No live production OpenAI during implementation"
+    ],
+    "offline_fixture": ".cursor/debug-fixtures/revtask-b9a65ad0-eb0-sanitized",
+    "production_failure_reproduced_offline": true,
+    "verifier": "aios:revision:post-content-reflow-6h:verify",
+    "matrix_result": "PASS 43/43",
+    "six_g_regression": "PASS 45/45",
+    "marketing_manager_replay": "PASS 17/17",
+    "fixture_projects_overlap_after_px": 2,
+    "fixture_cert_heading_overlap_after_px": 8,
+    "fixture_education_overlap_after_px": 2,
+    "fixture_text_overlaps_after": 0,
+    "fixture_page_oob_after": 0,
+    "openai_called": false,
+    "generation_executed": false,
+    "revision_executed": false,
+    "founder_decision_created": false,
+    "publication_executed": false,
+    "resume_template_department_status": "OPERATIONALLY_COMPLETE",
+    "revision_engineering_status": "MAINTENANCE / REGRESSION ONLY",
+    "next_major_department": "Website Analysis / QA / Development",
+    "milestone_ist": "2026-09-15T16:15:34+05:30",
+    "milestone_utc": "2026-09-15T10:45:34.000Z",
+    "baseline_commit_before": "5a95f70879389753827195ee85bf2729624df36b"
   }
 }

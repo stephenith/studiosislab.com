@@ -1,0 +1,1214 @@
+{
+  "schema_version": "founder-memory-selection-1.0.0",
+  "channel": "revision",
+  "context": {
+    "role": "Operations Analyst",
+    "role_family": "operations_analyst",
+    "category": "ats",
+    "design_family": "professional_sidebar",
+    "architecture": "narrow_ats_sidebar",
+    "section": null,
+    "component": null
+  },
+  "selected": [
+    {
+      "memory_id": "fpm-91a94e9f-e34",
+      "scope": "ARCHITECTURE",
+      "issue_type": "HIERARCHY",
+      "status": "PROVISIONAL",
+      "confidence": "medium",
+      "signal_type": "PREFERENCE",
+      "injectable_text": "Change the professional title from Marketing Manager to Operations Analyst while preserving the current header design, candidate name, contact layout, colors,\u2026",
+      "content_hash": "4d5e541683341cacdec313f70b393e37552d516f501c9aaf6fcc0fcb9674e8bc"
+    }
+  ],
+  "excluded": [
+    {
+      "memory_id": "fpm-193544d1-0a5",
+      "kind": "IRRELEVANT",
+      "reason": "scope DESIGN_FAMILY does not match context"
+    },
+    {
+      "memory_id": "fpm-fdbc6470-ff4",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-3b879f4e-a05",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-51548031-0fe",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-3840ee41-866",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-5f52dc1c-9b3",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-c7742996-832",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-56251bb2-38d",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-3fcdd085-a35",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-f2fc15ad-5f2",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-8998b978-16e",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-5d399a26-74c",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-b3796a1a-970",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-59a67ac2-60c",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-dd744f23-218",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-42b85ba6-755",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-dc7fab3e-3e3",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-c2726335-c9b",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-38a5c51b-a08",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-dee79a65-68c",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-360ee42a-d17",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-e0486516-b58",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-129c79f8-21a",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-21d6692f-78b",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-08ea05e5-9ed",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-bf5d89ab-2ba",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-bdc308e7-a25",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-137e59f9-9f4",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-01f08435-516",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-14fdfd0d-047",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-aa607bbb-b56",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-e410ca66-0e9",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-5064d365-c6a",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-62d36a86-0cc",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-2240348d-014",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-b338bd8b-cd6",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-417d1750-cd4",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-bf301692-937",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-2258bca7-b91",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-a268654f-c88",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-7a92d54c-502",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-a0cc7464-946",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-6e0fdea8-4f3",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-362c91f4-7fb",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-99950b20-235",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-d3d156b4-903",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-f879f7e8-7c7",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-27a2aa3e-5eb",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-c7eef862-b36",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-178208ac-5f1",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-8e9fc988-f49",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-1c6838af-f21",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-093b6bd1-d64",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-01997671-12c",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-b52749ce-fe5",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-96ac057a-5d0",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-ffd15fd2-436",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-64912472-7b9",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-4de1ffc8-104",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-6c6fba54-8dc",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-6367f21d-3b9",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-39a3993d-c3e",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-bb608e90-224",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-68f28dad-c1b",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-f15bd618-a84",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-df83e388-87c",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-ffe4ab0a-e26",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-632c9cdb-297",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-895a30f9-77c",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-163fa298-79e",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-f0091fe3-8ee",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-ad21db61-7a6",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-bc7c4167-6ff",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-ab95b668-31e",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-ac7e42df-c46",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-c10836cd-e5e",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-8fff6b3b-1e1",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-575ad609-1d6",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-386e56a9-77c",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-58d973b3-6b0",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-27656805-f62",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-93bae266-20f",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-19702a7f-e76",
+      "kind": "IRRELEVANT",
+      "reason": "scope DESIGN_FAMILY does not match context"
+    },
+    {
+      "memory_id": "fpm-a219cac0-397",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-05e4c00d-b66",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-6176cea0-d28",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-2b125fcf-592",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-5af59e9d-fa9",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-d4b44a56-b60",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-e1fffded-751",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-9a158a17-bc8",
+      "kind": "IRRELEVANT",
+      "reason": "scope DESIGN_FAMILY does not match context"
+    },
+    {
+      "memory_id": "fpm-cb4c716e-55a",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-114cd6fd-745",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-34142587-a12",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-c98079d7-185",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-2c39b5b5-130",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-d38db562-700",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-08cb9b4f-0c5",
+      "kind": "IRRELEVANT",
+      "reason": "scope DESIGN_FAMILY does not match context"
+    },
+    {
+      "memory_id": "fpm-043ecda2-84c",
+      "kind": "IRRELEVANT",
+      "reason": "scope DESIGN_FAMILY does not match context"
+    },
+    {
+      "memory_id": "fpm-4d3ca249-c5b",
+      "kind": "IRRELEVANT",
+      "reason": "scope DESIGN_FAMILY does not match context"
+    },
+    {
+      "memory_id": "fpm-7910dc08-3ef",
+      "kind": "IRRELEVANT",
+      "reason": "scope DESIGN_FAMILY does not match context"
+    },
+    {
+      "memory_id": "fpm-f5463f23-311",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-3990bf57-f7e",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-9ebe7c0c-7ff",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-25ec2a1d-d56",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-ce889bd9-af8",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-5fac9954-480",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-28ef0498-57c",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-116611ee-9e9",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-ef4d0a2b-cb6",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-0bb90fda-a43",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-073e4293-34a",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-6b62b349-dbd",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-ad80b269-4f9",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-026f869d-4c2",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-3de8f456-32e",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-fbcec2c2-075",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-ad3d0e18-b47",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-60d93302-207",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-eae2e8b0-eea",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-0df1ab17-3f7",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-6c0fd928-c5b",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-3ffdb166-da5",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-e79bd165-70c",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-2e51df52-169",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-86b85a41-006",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-b00f6934-0e0",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-36dac564-f20",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-6b063f1a-040",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-1b68dc3b-e3f",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-1d83e9c1-04b",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-3d4d9637-12b",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-bc4f59ba-1a2",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-d660601d-56f",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-ad9b2266-633",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-29ea097a-d6f",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-b976c391-95e",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-0f170c14-6c7",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-b9a5e9e9-673",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-497f63f4-b6e",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-d3331322-909",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-b3b13933-581",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-2d9ff989-f9e",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-24187596-bc5",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-c219093a-8f1",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-75ca98ba-8bb",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-8e765bee-ebe",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-ccb46eb0-863",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-cd28d698-1fb",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-23bb107e-fe1",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-e295a6c2-869",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-f7571828-de5",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-faf843be-85c",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-91dce9db-326",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-43abfbe8-58e",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-1298af7e-c38",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-fa3d6c48-7a1",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-8c2d9885-8aa",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-ce4e515f-e35",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-dd88d195-4d0",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-18ed2531-cd0",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-5e6412e2-2aa",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-4d202792-d77",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-4cfcceaa-20a",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-924c2bc7-7d2",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-615e6a13-b07",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-c85cf618-c23",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-ca1956a9-c5b",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-e4500c44-9ff",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-93a2630e-51c",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-9e339847-444",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-d2b3cb6e-4dc",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-f75331f3-e47",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-277b2b66-ed8",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-71988e5c-dcd",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-4937707e-c05",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-0eff26ae-467",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-92613857-71d",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-ca26e8a4-15f",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-585401c2-0e4",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-8c2d12b2-54d",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-e3e8abdd-497",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-5ae5b777-910",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-0de9927d-579",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-ab68342e-874",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-c8f92542-9ae",
+      "kind": "IRRELEVANT",
+      "reason": "scope ARCHITECTURE does not match context"
+    },
+    {
+      "memory_id": "fpm-9a3cd74f-b52",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-6237cf71-fd9",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-159f663e-256",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-ceecc980-c59",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-06689c2b-3d2",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-ad0f5f3a-0f4",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-b32a1b2b-aeb",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-f06b2fd4-b01",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-858bb418-b54",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-e3e857dc-979",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-adeba9d0-72d",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-3f0496b6-8ea",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-5f5311d9-a8a",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-77db6516-711",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-9c935f5f-550",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-2d988414-456",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-4377dafd-eb2",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-c8738534-413",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-6f138f96-e1a",
+      "kind": "AMBIGUOUS",
+      "reason": "PROVISIONAL + low confidence \u2014 outcome not validated"
+    },
+    {
+      "memory_id": "fpm-d4ec3e1a-ad7",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-804787f3-6f5",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-5061c35a-8ae",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-ee5224cb-92f",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-30e378ff-8a1",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-8f4c0fdc-6d8",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-f91caeb1-7ca",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-c5d36684-2ef",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-48927dba-f8f",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-ec21c794-272",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-a2f1f521-18b",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-cca2f756-51a",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-518c2426-fa1",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-34b2f37b-56b",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-082dd14c-f32",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-b206688b-e09",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-7e1cdea4-416",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-befa4f3b-8aa",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-b1c90c36-f0f",
+      "kind": "INELIGIBLE",
+      "reason": "factual or non-layout content excluded from design memory"
+    },
+    {
+      "memory_id": "fpm-ed690785-c7a",
+      "kind": "INELIGIBLE",
+      "reason": "exceeded max selected rules budget"
+    },
+    {
+      "memory_id": "fpm-61cd3c98-be2",
+      "kind": "INELIGIBLE",
+      "reason": "exceeded max selected rules budget"
+    },
+    {
+      "memory_id": "fpm-4348ed33-853",
+      "kind": "INELIGIBLE",
+      "reason": "exceeded max selected rules budget"
+    },
+    {
+      "memory_id": "fpm-6c9f7c79-dd2",
+      "kind": "INELIGIBLE",
+      "reason": "exceeded memory prompt character budget"
+    },
+    {
+      "memory_id": "fpm-83f2a06e-032",
+      "kind": "INELIGIBLE",
+      "reason": "exceeded memory prompt character budget"
+    },
+    {
+      "memory_id": "fpm-d09e9bd8-fae",
+      "kind": "INELIGIBLE",
+      "reason": "exceeded memory prompt character budget"
+    },
+    {
+      "memory_id": "fpm-28ee3e83-ee8",
+      "kind": "INELIGIBLE",
+      "reason": "exceeded memory prompt character budget"
+    },
+    {
+      "memory_id": "fpm-96d8c45b-f02",
+      "kind": "INELIGIBLE",
+      "reason": "exceeded memory prompt character budget"
+    },
+    {
+      "memory_id": "fpm-9038d912-d0c",
+      "kind": "INELIGIBLE",
+      "reason": "exceeded memory prompt character budget"
+    },
+    {
+      "memory_id": "fpm-8dd1b69b-051",
+      "kind": "INELIGIBLE",
+      "reason": "exceeded memory prompt character budget"
+    }
+  ],
+  "memory_ids": [
+    "fpm-91a94e9f-e34"
+  ],
+  "prompt_block": "FOUNDER DESIGN MEMORY\nThese are StudiosisLab Founder layout/design/quality preferences.\nThey are NOT resume facts. Do not invent employers, credentials, metrics, or skills from memory.\nCURRENT FOUNDER REQUEST (if any) always has higher authority than memory.\n- [ARCHITECTURE|medium|PROVISIONAL] Change the professional title from Marketing Manager to Operations Analyst while preserving the current header design, candidate name, contact layout, colors,\u2026\n\nMemory guides compatible layout quality only; never override current Founder instructions or factual-content safety.",
+  "truncated": true,
+  "prompt_hash": "b91d1f2ff890025a",
+  "FOUNDER_MEMORY_CONSUMED": true,
+  "counts": {
+    "considered": 235,
+    "selected": 1,
+    "irrelevant": 69,
+    "ambiguous": 93,
+    "ineligible": 72,
+    "conflicting": 0,
+    "superseded": 0
+  },
+  "evaluated_at": "2026-09-15T10:08:35.414Z"
+}

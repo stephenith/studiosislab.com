@@ -23,6 +23,7 @@ import {
 import { executeCanvasOperations } from "./CanvasOperationExecutor.js";
 import { buildFeedbackCoverage } from "./FeedbackCoverage.js";
 import {
+  findIncompleteRequestedSectionReplacements,
   findSequentialRenderedTextGapFindings,
   findTextOverlapFindings,
   runRevisionAcceptanceChecks,
@@ -33,6 +34,7 @@ import {
   buildPlanWithDeterministicSpacingOwnership,
   isVerticalSpacingRhythmHeavyFeedback,
 } from "./DeterministicSpacingPlan.js";
+import { dropUnsafeGeometryOps } from "./PostContentReflow.js";
 import { isHeaderIdentityLayoutFeedback } from "./HeaderIdentityLayout.js";
 import { validatePlanVerticalDirections } from "./PositionOpCanonicalization.js";
 import {
@@ -354,6 +356,18 @@ export async function runFounderFeedbackRevision(
   });
 
   let activePlan: RevisionPlan = planned.plan;
+  const geometrySafety = dropUnsafeGeometryOps({
+    canvas: priorCanvas,
+    plan: activePlan,
+  });
+  if (geometrySafety.dropped.length > 0) {
+    activePlan = geometrySafety.plan as RevisionPlan;
+    writeJson(join(evidenceDir, "unsafe-geometry-ops-dropped.json"), {
+      dropped: geometrySafety.dropped,
+      remaining_operations: activePlan.operations.length,
+    });
+    writeJson(join(evidenceDir, "revision-plan.json"), activePlan);
+  }
 
   // Spacing/rhythm-heavy or header-identity Founder packets: prefer deterministic
   // normalizer geometry over unsafe AI absolute set_position chains.
@@ -367,6 +381,9 @@ export async function runFounderFeedbackRevision(
       aiPlan: activePlan,
     });
     writeJson(join(evidenceDir, "deterministic-spacing-ownership.json"), det);
+    if (det.post_content_reflow) {
+      writeJson(join(evidenceDir, "post-content-reflow.json"), det.post_content_reflow);
+    }
     if (det.fail_closed) {
       const err =
         det.error ??
@@ -509,6 +526,37 @@ export async function runFounderFeedbackRevision(
     writeJson(join(evidenceDir, "plan-geometry-safety-failure.json"), {
       error: err,
       report: planGeometryGate,
+    });
+    task = updateRevisionTask(task.task_id, {
+      status: "FAILED_GATE",
+      error: err,
+      openai_execution_path: join(
+        "SOS/07_LOGS/saios/founder-revision/evidence",
+        task.task_id,
+        "openai-execution.json",
+      ),
+    });
+    return {
+      ok: false,
+      task,
+      revised_candidate_id: null,
+      error: err,
+      coverage_gate_pass: false,
+    };
+  }
+
+  const incompleteReplacement = findIncompleteRequestedSectionReplacements({
+    canvas: priorCanvas,
+    plan: activePlan,
+    requested_changes: task.requested_changes,
+  });
+  if (incompleteReplacement.length > 0) {
+    const err = `content replacement incomplete: ${incompleteReplacement
+      .map((f) => f.object_ids.join(","))
+      .join("; ")}`;
+    writeJson(join(evidenceDir, "content-replacement-incomplete.json"), {
+      error: err,
+      findings: incompleteReplacement,
     });
     task = updateRevisionTask(task.task_id, {
       status: "FAILED_GATE",

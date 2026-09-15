@@ -649,13 +649,13 @@ export function resolveIntentClauses(normalized: string): IntentClause[] {
 /**
  * Explicit mutation verbs. Preservation and inspection verbs are absent.
  *
- * Past participles are admitted only for content-mutation verbs, where they
- * unambiguously demand an end-state ("with the role content and sidebar
- * geometry fully corrected"). Geometry participles are excluded because they
- * appear constantly in QA prose ("appears intentionally aligned").
+ * Past participles are admitted only for content-mutation verbs that still
+ * name a from→to rewrite ("replaced", "rewritten"). Geometry/outcome
+ * participles ("fully corrected", "fixed") are excluded because they restate
+ * acceptance of other mutation lines rather than demanding a new operation.
  */
 const MUTATION_VERB_RE =
-  /\b(?:chang(?:e|ing)|replac(?:e|ing|ed)|rewrit(?:e|ing|ten)|rewor(?:d|ding|ded)|revis(?:e|ing|ed)|updat(?:e|ing|ed)|correct(?:ing|ed)?|fix(?:ing|ed)?|remov(?:e|ing|ed)|delet(?:e|ing|ed)|swap(?:ping)?|shorten(?:ing)?|expand(?:ing)?|clarif(?:y|ying)|add(?:ing)?|insert(?:ing)?|set(?:ting)?|mov(?:e|ing)|shift(?:ing)?|reposition(?:ing)?|resiz(?:e|ing)|align(?:ing)?|extend(?:ing)?|increas(?:e|ing)|reduc(?:e|ing)|tighten(?:ing)?|compress(?:ing)?|rais(?:e|ing)|lower(?:ing)?|nudg(?:e|ing)|adjust(?:ing)?|standardiz(?:e|ing)|normaliz(?:e|ing)|rebalanc(?:e|ing)|redistribut(?:e|ing)|reflow(?:ing)?|reorganiz(?:e|ing)|reorder(?:ing)?|reformat(?:ting)?|restructur(?:e|ing)|restor(?:e|ing)|rework(?:ing)?|refin(?:e|ing)|improv(?:e|ing)|balanc(?:e|ing)|cent(?:er|re|ering|ring)|plac(?:e|ing)|stack(?:ing)?|recomput(?:e|ing)|recalculat(?:e|ing)|calculat(?:e|ing)|cascad(?:e|ing)|position(?:ing)?|mak(?:e|ing)(?!\s+sure)|restyl(?:e|ing)|recolou?r(?:ing)?|italici[sz](?:e|ing)|capitali[sz](?:e|ing)|indent(?:ing)?|outdent(?:ing)?|widen(?:ing)?|enlarg(?:e|ing)|truncat(?:e|ing)|condens(?:e|ing)|merg(?:e|ing)|ungroup(?:ing)?|renam(?:e|ing)|appl(?:y|ying)|enforc(?:e|ing)|convert(?:ing)?|unif(?:y|ying)|harmoni[sz](?:e|ing)|distribut(?:e|ing))\b/;
+  /\b(?:chang(?:e|ing)|replac(?:e|ing|ed)|rewrit(?:e|ing|ten)|rewor(?:d|ding|ded)|revis(?:e|ing|ed)|updat(?:e|ing|ed)|correct(?:ing)?|fix(?:ing)?|remov(?:e|ing|ed)|delet(?:e|ing|ed)|swap(?:ping)?|shorten(?:ing)?|expand(?:ing)?|clarif(?:y|ying)|add(?:ing)?|insert(?:ing)?|set(?:ting)?|mov(?:e|ing)|shift(?:ing)?|reposition(?:ing)?|resiz(?:e|ing)|align(?:ing)?|extend(?:ing)?|increas(?:e|ing)|reduc(?:e|ing)|tighten(?:ing)?|compress(?:ing)?|rais(?:e|ing)|lower(?:ing)?|nudg(?:e|ing)|adjust(?:ing)?|standardiz(?:e|ing)|normaliz(?:e|ing)|rebalanc(?:e|ing)|redistribut(?:e|ing)|reflow(?:ing)?|reorganiz(?:e|ing)|reorder(?:ing)?|reformat(?:ting)?|restructur(?:e|ing)|restor(?:e|ing)|rework(?:ing)?|refin(?:e|ing)|improv(?:e|ing)|balanc(?:e|ing)|cent(?:er|re|ering|ring)|plac(?:e|ing)|stack(?:ing)?|recomput(?:e|ing)|recalculat(?:e|ing)|calculat(?:e|ing)|cascad(?:e|ing)|position(?:ing)?|mak(?:e|ing)(?!\s+sure)|restyl(?:e|ing)|recolou?r(?:ing)?|italici[sz](?:e|ing)|capitali[sz](?:e|ing)|indent(?:ing)?|outdent(?:ing)?|widen(?:ing)?|enlarg(?:e|ing)|truncat(?:e|ing)|condens(?:e|ing)|merg(?:e|ing)|ungroup(?:ing)?|renam(?:e|ing)|appl(?:y|ying)|enforc(?:e|ing)|convert(?:ing)?|unif(?:y|ying)|harmoni[sz](?:e|ing)|distribut(?:e|ing))\b/;
 
 /** Concrete, changeable targets: sections, objects, and mutable properties. */
 const MUTATION_TARGET_RE =
@@ -830,6 +830,14 @@ function clauseIsLayoutOutcomeRequirement(clause: IntentClause): boolean {
   if (
     PRESERVATION_VERB_RE.test(clause.text) &&
     PRESERVE_EXISTING_STATE_RE.test(clause.text)
+  ) {
+    return false;
+  }
+  // "Ensure objects stay inside the sidebar" is a collision/bounds check, not
+  // a request to invent geometry operations.
+  if (
+    VERIFICATION_VERB_RE.test(clause.text) &&
+    /\b(?:inside|within|contained)\b/.test(clause.text)
   ) {
     return false;
   }

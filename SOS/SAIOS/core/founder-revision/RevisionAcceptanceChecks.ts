@@ -28,6 +28,8 @@ import type { CanvasDocument, CanvasObject } from "../resume-critic/types.js";
 import {
   effectiveObjectBBox,
   isFabricTextObject,
+  storedTextHeightScaled,
+  visualTextContentHeightScaled,
 } from "./TextEffectiveHeight.js";
 
 /**
@@ -560,6 +562,34 @@ export function findTextOverlapFindings(canvas: FabricCanvasDoc): AcceptanceFind
 }
 
 /**
+ * Intra-box wrap overflow: rendered visual height exceeds the allocated
+ * textbox. This is the Founder-visible Certifications collision class when
+ * two-object overlap is still zero.
+ */
+export function findIntraBoxTextOverflowFindings(
+  canvas: FabricCanvasDoc,
+): AcceptanceFinding[] {
+  const doc = asCanvasDoc(canvas);
+  const findings: AcceptanceFinding[] = [];
+  const texts = acceptanceTextObjects(doc);
+  for (let i = 0; i < texts.length; i++) {
+    const o = texts[i]!;
+    if (!isFabricTextObject(o)) continue;
+    const stored = storedTextHeightScaled(o);
+    const visual = visualTextContentHeightScaled(o);
+    if (visual <= stored + 1) continue;
+    const id = objectId(o, doc.objects.indexOf(o));
+    findings.push({
+      code: "ACC_INTRA_BOX_OVERFLOW",
+      message: `Rendered text ${id} exceeds allocated box by ${(visual - stored).toFixed(2)}px`,
+      object_ids: [id],
+      metrics: { stored_height: stored, visual_height: visual },
+    });
+  }
+  return findings;
+}
+
+/**
  * Minimum positive gap (px) between sequential same-column text entries when
  * Founder asks for clear/positive spacing below effective rendered bottoms.
  */
@@ -686,6 +716,7 @@ export function runCollisionBoundsCheck(
   }
   findings.push(...findTextOverlapFindings(canvas));
   findings.push(...findHeadingObscuringBodyFindings(canvas));
+  findings.push(...findIntraBoxTextOverflowFindings(canvas));
   const ids = [...new Set(findings.flatMap((f) => f.object_ids))];
   const pass = findings.length === 0;
   return {
@@ -1129,6 +1160,57 @@ export function founderIdentityObjectIds(canvas: FabricCanvasDoc): Set<string> {
     }
   }
   return protectedIds;
+}
+
+const DATE_ONLY_TEXT_RE =
+  /^(?:(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+)?\d{4}(?:\s*[—–\-]\s*(?:present|\d{4}))?$/i;
+
+/**
+ * When the Founder explicitly requests replacing a content section, every
+ * non-heading, non-date body text object in that section must receive an
+ * update_text. This does not invent replacement copy — it only detects
+ * incomplete coverage (revtask-b9a65ad0-eb0 left experience t16/t17 as
+ * marketing bullets).
+ */
+export function findIncompleteRequestedSectionReplacements(input: {
+  canvas: FabricCanvasDoc;
+  plan: RevisionPlan;
+  requested_changes: string[];
+}): AcceptanceFinding[] {
+  const authorized = new Set<ContentSectionKey>();
+  for (const change of input.requested_changes) {
+    if (classifyRequestedChange(change).classification !== "MUTATION_REQUIRED") {
+      continue;
+    }
+    for (const section of resolveRequestedContentSections(change)) {
+      authorized.add(section);
+    }
+  }
+  if (authorized.size === 0) return [];
+
+  const updated = new Set<string>();
+  for (const op of input.plan.operations) {
+    if (op.op !== "update_text") continue;
+    if (op.target_id) updated.add(op.target_id);
+    for (const id of op.target_ids ?? []) updated.add(id);
+  }
+
+  const required = resolveSectionContentObjectIds(input.canvas, authorized);
+  const findings: AcceptanceFinding[] = [];
+  const objects = (input.canvas.objects ?? []) as Record<string, unknown>[];
+  for (const id of required) {
+    if (updated.has(id)) continue;
+    const obj = objects.find((o, i) => objectTextId(o, i) === id);
+    const text = typeof obj?.text === "string" ? obj.text.trim() : "";
+    if (!text) continue;
+    if (DATE_ONLY_TEXT_RE.test(text)) continue;
+    findings.push({
+      code: "ACC_SECTION_REPLACEMENT_INCOMPLETE",
+      message: `Requested section replacement left ${id} unchanged: ${text.slice(0, 80)}`,
+      object_ids: [id],
+    });
+  }
+  return findings;
 }
 
 /** True when the canvas carries no section metadata on any text object. */

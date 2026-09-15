@@ -2833,7 +2833,7 @@
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
   },
   "phase_6j": {
-    "status": "local_verified",
+    "status": "deployed",
     "classification": "WHOLE_SECTION_REPLACEMENT_COMPLETENESS_CONTRACT",
     "scope": "Founder Request Changes whole-section content replacement completeness only. Resume Template Department NOT reopened.",
     "problem": "revtask-7a1c0899-4d6 passed Phase 6I classification/planning/item coverage then FAILED_GATE because Skills t3 (keep-list Operations Analyst content) received no update_text",
@@ -2888,6 +2888,10 @@
     "next_major_department": "Website Analysis / QA / Development",
     "milestone_ist": "2026-09-15T18:32:07+05:30",
     "milestone_utc": "2026-09-15T13:02:07.000Z",
-    "baseline_commit_before": "3fa1e015b08c0cf237b0646b2cd2739defec7fb7"
+    "baseline_commit_before": "3fa1e015b08c0cf237b0646b2cd2739defec7fb7",
+    "deployed_commit": "122b23f58f90e4dcbcf014491189c154e84b1849",
+    "deployed_at_ist": "2026-09-15T18:33:28+05:30",
+    "deployed_at_utc": "2026-09-15T13:03:28.000Z",
+    "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
   }
 }

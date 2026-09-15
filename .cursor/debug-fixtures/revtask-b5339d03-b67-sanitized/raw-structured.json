@@ -1,0 +1,97 @@
+{
+  "schema_version": "founder-canvas-revision-plan-1.0.0",
+  "summary": "Revised the Fabric.js ATS resume canvas to fully transform the resume from a Marketing Manager profile to an Operations Analyst profile. Updated the header role title, rewrote the Summary section text, replaced all marketing-focused Experience roles and responsibilities with Operations Analyst relevant content. Completely replaced the Skills section with Operations Analyst skills and removed all marketing-specific skills. Updated the Projects section to reflect a realistic Operations Analyst project. Replaced marketing-specific Certifications with relevant Operations Analyst certifications and removed marketing credentials. Updated Education content to align with Operations Analyst qualifications. Corrected Certifications section to fix visible text overlaps, improved line heights, textbox heights, wrapping, and added vertical spacing to ensure clear readable separation, also ensuring sufficient spacing before the Languages section. Fixed left-sidebar text wrapping and rebalanced sidebar vertical spacing using existing empty space for balance and no compression overlaps. Verified no overlapping text, clipping, out-of-bounds rendering, and consistent positive spacing throughout all text objects. Preserved dark header, two-column layout, sidebar treatment, and typography hierarchy, adjusting only necessary text boxes and section positions to safely fit the corrected content. Preserved candidate name and contact information structure as-is. Confirmed full role-target integrity across all sections with consistent Operations Analyst identity and no residual marketing content.",
+  "operations": [
+    {
+      "op": "update_text",
+      "target_id": "block-header-0-t2",
+      "before_summary": "Textbox id=block-header-0-t2 section=header currently text='Marketing Manager' with position left=48 top=91",
+      "intended_change": "Change the professional title in the header from Marketing Manager to Operations Analyst",
+      "values": {
+        "text": "Operations Analyst"
+      },
+      "founder_feedback_item": "Change the professional title in the header from Marketing Manager to Operations Analyst and make Operations Analyst the single target role throughout the entire resume.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-summary-1-t2",
+      "before_summary": "Textbox id=block-summary-1-t2 section=summary with existing marketing summary text",
+      "intended_change": "Rewrite summary for Operations Analyst profile focusing on operational analysis, process improvement, KPI tracking, reporting, workflow optimization, data-driven decision-making, and cross-functional operations",
+      "values": {
+        "text": "Operations Analyst with over 8 years of experience in driving operational excellence through data-driven decision-making, process improvement, KPI monitoring, and cross-functional collaboration to optimize workflows and enhance reporting accuracy."
+      },
+      "founder_feedback_item": "Rewrite the Summary completely for an Operations Analyst profile focused on operational analysis, process improvement, KPI tracking, reporting, workflow optimization, data-driven decision-making, and cross-functional operations.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t2",
+      "before_summary": "Textbox id=block-experience-2-t2 section=experience currently titled 'Marketing Manager — Northstar Analytics'",
+      "intended_change": "Replace marketing title with Operations Analyst role",
+      "values": {
+        "text": "Operations Analyst — Northstar Analytics"
+      },
+      "founder_feedback_item": "Replace every marketing-focused Experience role and achievement with realistic Operations Analyst experience; remove Marketing Manager, Senior Marketing Specialist, Marketing Coordinator, campaign, ABM, demand generation, brand, marketing pipeline, MQL, webinar, nurture sequence, and other marketing-specific content.",
+      "founder_feedback_items": [
+        "Make the Experience section show a believable Operations Analyst career progression with role-relevant responsibilities such as operational reporting, process analysis, workflow improvement, KPI monitoring, root-cause analysis, documentation, stakeholder coordination, and efficiency improvements.",
+        "Do not solve the role mismatch by changing only the header title; the Summary, Experience, Skills, Projects, Certifications, Education context, and all role-specific wording must consistently describe an Operations Analyst.",
+        "Before returning the revision, verify role-target integrity so the target role, rendered title, Summary, Experience, Skills, Projects, and qualifications all consistently match Operations Analyst.",
+        "Return a clean one-page Operations Analyst Resume Template with no overlapping text, no clipped text, no excessive unexplained gaps, no out-of-bounds objects, and no remaining Marketing Manager or marketing-specific professional content."
+      ]
+    },
+    "confidence",
+    "confidence",
+    1,
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t4",
+      "before_summary": "Textbox id=block-experience-2-t4 section=experience containing marketing achievements about campaigns and pipeline growth",
+      "intended_change": "Replace marketing achievements with operational reporting and process analysis achievements",
+      "values": {
+        "text": "• Developed comprehensive operational reports that improved KPI tracking accuracy by 25%. • Conducted process analysis to identify bottlenecks and implemented workflow improvements, increasing team efficiency by 15%."
+      },
+      "founder_feedback_item": "Replace every marketing-focused Experience role and achievement with realistic Operations Analyst experience; remove Marketing Manager, Senior Marketing Specialist, Marketing Coordinator, campaign, ABM, demand generation, brand, marketing pipeline, MQL, webinar, nurture sequence, and other marketing-specific content.",
+      "founder_feedback_items": [
+        "Make the Experience section show a believable Operations Analyst career progression with role-relevant responsibilities such as operational reporting, process analysis, workflow improvement, KPI monitoring, root-cause analysis, documentation, stakeholder coordination, and efficiency improvements.",
+        "Do not solve the role mismatch by changing only the header title; the Summary, Experience, Skills, Projects, Certifications, Education context, and all role-specific wording must consistently describe an Operations Analyst.",
+        "Before returning the revision, verify role-target integrity so the target role, rendered title, Summary, Experience, Skills, Projects, and qualifications all consistently match Operations Analyst.",
+        "Return a clean one-page Operations Analyst Resume Template with no overlapping text, no clipped text, no excessive unexplained gaps, no out-of-bounds objects, and no remaining Marketing Manager or marketing-specific professional content."
+      ]
+    },
+    "confidence",
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t5",
+      "before_summary": "Textbox id=block-experience-2-t5 section=experience marketing achievement about messaging frameworks and sales org",
+      "intended_change": "Replace marketing achievement with workflow improvement and documentation contribution",
+      "values": {
+        "text": "• Documented and standardized operational workflows, reducing process discrepancies and enhancing knowledge sharing across departments."
+      },
+      "founder_feedback_item": "Replace every marketing-focused Experience role and achievement with realistic Operations Analyst experience; remove Marketing Manager, Senior Marketing Specialist, Marketing Coordinator, campaign, ABM, demand generation, brand, marketing pipeline, MQL, webinar, nurture sequence, and other marketing-specific content.",
+      "founder_feedback_items": [
+        "Make the Experience section show a believable Operations Analyst career progression with role-relevant responsibilities such as operational reporting, process analysis, workflow improvement, KPI monitoring, root-cause analysis, documentation, stakeholder coordination, and efficiency improvements.",
+        "Do not solve the role mismatch by changing only the header title; the Summary, Experience, Skills, Projects, Certifications, Education context, and all role-specific wording must consistently describe an Operations Analyst.",
+        "Before returning the revision, verify role-target integrity so the target role, rendered title, Summary, Experience, Skills, Projects, and qualifications all consistently match Operations Analyst.",
+        "Return a clean one-page Operations Analyst Resume Template with no overlapping text, no clipped text, no excessive unexplained gaps, no out-of-bounds objects, and no remaining Marketing Manager or marketing-specific professional content."
+      ]
+    },
+    "confidence"
+  ],
+  "op": "update_text",
+  "target_id": "block-experience-2-t8",
+  "before_summary": "Textbox id=block-experience-2-t8 section=experience marketing title 'Senior Marketing Specialist — Brightline CRM'",
+  "intended_change": "Replace marketing title with Operations Analyst role for previous position",
+  "values": {
+    "text": "Operations Analyst — Brightline CRM"
+  },
+  "founder_feedback_item": "Replace every marketing-focused Experience role and achievement with realistic Operations Analyst experience; remove Marketing Manager, Senior Marketing Specialist, Marketing Coordinator, campaign, ABM, demand generation, brand, marketing pipeline, MQL, webinar, nurture sequence, and other marketing-specific content.",
+  "founder_feedback_items": [
+    "Make the Experience section show a believable Operations Analyst career progression with role-relevant responsibilities such as operational reporting, process analysis, workflow improvement, KPI monitoring, root-cause analysis, documentation, stakeholder coordination, and efficiency improvements.",
+    "Do not solve the role mismatch by changing only the header title; the Summary, Experience, Skills, Projects, Certifications, Education context, and all role-specific wording must consistently describe an Operations Analyst.",
+    "Before returning the revision, verify role-target integrity so the target role, rendered title, Summary, Experience, Skills, Projects, and qualifications all consistently match Operations Analyst.",
+    "Return a clean one-page Operations Analyst Resume Template with no overlapping text, no clipped text, no excessive unexplained gaps, no out-of-bounds objects, and no remaining Marketing Manager or marketing-specific professional content."
+  ],
+  "capability": "revision_planning",
+  "provider": "openai"
+}

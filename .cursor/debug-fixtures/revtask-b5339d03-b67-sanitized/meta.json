@@ -1,0 +1,74 @@
+{
+  "schema_version": "sanitized-operations-analyst-plan-shape-failure-1.0.0",
+  "note": "Sanitized immutable fixture copied from production evidence (revtask-b5339d03-b67). Do not mutate production originals. Offline use only — no OpenAI, no task mutation, no Founder decisions.",
+  "source_task_id": "revtask-b5339d03-b67",
+  "source_candidate_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718",
+  "decision_id": "fd-71dbc076-68f",
+  "review_id": "founder-review-cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718",
+  "task_status": "FAILED",
+  "planner_status": "FAILED_PLAN",
+  "created_at": "2026-09-15T04:22:35.711Z",
+  "updated_at": "2026-09-15T04:23:43.579Z",
+  "role_raw": "Operations Analyst revised",
+  "canonical_role_expected": "Operations Analyst",
+  "design_family_task_field": null,
+  "design_family_resolved": "professional_sidebar",
+  "architecture_resolved": "narrow_ats_sidebar",
+  "founder_reason": "The Resume Template does not match the requested target role. It is labeled as Operations Analyst in the review system but the rendered resume is still fundamentally a Marketing Manager resume.\n\nThe professional title, Summary, Experience, Skills, Projects, Certifications, and Education context are not aligned with an Operations Analyst profile.\n\nThe revision appears to have preserved recycled Marketing Manager content instead of performing a complete role-target correction.\n\nThere is a visible text overlap/collision in the Certifications section in the left sidebar, making part of the content difficult to read.\n\nThe Certifications area has incorrect wrapping, insufficient text-box height, and poor vertical spacing between lines.\n\nThe spacing between Certifications and Languages is unsafe and visually compressed.\n\nThe sidebar layout is poorly balanced: content is compressed and overlapping near the top/middle while a large amount of unused space remains below.\n\nSeveral sidebar text blocks require better line-height, wrapping, object height, and section spacing to prevent clipping or collisions.\n\nThe rendered output should not reach Founder Review when visible overlap and role-target mismatch are still present.\n\nThe next revision must correct both the content identity and the rendered geometry, not just change the job title.\n\nAll role-specific content must consistently represent an Operations Analyst before this Resume Template can be approved.\n\nFinal validation must confirm no overlapping text, clipping, out-of-bounds objects, excessive gaps, or remaining Marketing Manager-specific content.",
+  "requested_changes": [
+    "Change the professional title in the header from Marketing Manager to Operations Analyst and make Operations Analyst the single target role throughout the entire resume.",
+    "Rewrite the Summary completely for an Operations Analyst profile focused on operational analysis, process improvement, KPI tracking, reporting, workflow optimization, data-driven decision-making, and cross-functional operations.",
+    "Replace every marketing-focused Experience role and achievement with realistic Operations Analyst experience; remove Marketing Manager, Senior Marketing Specialist, Marketing Coordinator, campaign, ABM, demand generation, brand, marketing pipeline, MQL, webinar, nurture sequence, and other marketing-specific content.",
+    "Make the Experience section show a believable Operations Analyst career progression with role-relevant responsibilities such as operational reporting, process analysis, workflow improvement, KPI monitoring, root-cause analysis, documentation, stakeholder coordination, and efficiency improvements.",
+    "Replace the current marketing-focused Skills section completely with Operations Analyst skills such as operational analysis, process improvement, KPI reporting, data analysis, Excel, reporting, process mapping, documentation, workflow optimization, stakeholder coordination, and root-cause analysis.",
+    "Remove all remaining marketing-specific skills including Demand Generation, Brand Strategy, ABM, SEO / Content, Marketing Analytics, and Sales Enablement.",
+    "Replace the Always-On ABM Pilot project with a realistic Operations Analyst project focused on process optimization, operational reporting, dashboard/KPI improvement, workflow efficiency, or cost/time reduction.",
+    "Replace the marketing-specific certifications with certifications that are coherent for an Operations Analyst profile and remove Google Analytics IQ, HubSpot Inbound Marketing Certification, Meta Blueprint, and other marketing-specific credentials.",
+    "Update the Education and supporting qualifications where necessary so the overall professional profile is coherent with an Operations Analyst resume and does not read as a recycled Marketing Manager resume.",
+    "Fix the visible text overlap/collision inside the Certifications section in the left sidebar; certification lines must never overlap each other.",
+    "Increase or correct line height, text box height, wrapping, and vertical spacing in the Certifications section so every certification is fully readable and separated with clear positive spacing.",
+    "Ensure the Certifications section has sufficient positive spacing before the Languages heading and that no certification text touches or enters the Languages section.",
+    "Fix the left-sidebar text wrapping so no skill, project, certification, or language line exceeds its text box, clips, collides, or renders on top of another line.",
+    "Rebalance the left-sidebar content vertically using the available empty space rather than compressing Certifications into an overlapping area.",
+    "Maintain consistent vertical spacing between the Skills, Projects, Certifications, and Languages sections throughout the sidebar.",
+    "Check every text object on the page for overlap, clipping, out-of-bounds rendering, accidental duplication, and insufficient positive spacing before returning the revision to Founder Review.",
+    "Preserve the existing dark header, two-column architecture, sidebar treatment, blue section markers, typography hierarchy, and overall visual identity, but adjust text boxes, section positions, line heights, and spacing wherever required to make the corrected content fit safely.",
+    "Preserve the candidate name and contact-information structure unless a layout adjustment is required; do not redesign unrelated header elements.",
+    "Do not solve the role mismatch by changing only the header title; the Summary, Experience, Skills, Projects, Certifications, Education context, and all role-specific wording must consistently describe an Operations Analyst.",
+    "Before returning the revision, verify role-target integrity so the target role, rendered title, Summary, Experience, Skills, Projects, and qualifications all consistently match Operations Analyst.",
+    "Return a clean one-page Operations Analyst Resume Template with no overlapping text, no clipped text, no excessive unexplained gaps, no out-of-bounds objects, and no remaining Marketing Manager or marketing-specific professional content."
+  ],
+  "expected_error": "invalid revision plan: operations[2].confidence required; operations[3] invalid; operations[4] invalid; operations[5] invalid; operations[6].confidence required; operations[7] invalid; operations[8].confidence required; operations[9] invalid",
+  "provider": "openai",
+  "model": "gpt-4.1-mini",
+  "input_tokens": 17236,
+  "output_tokens": 1957,
+  "cost_usd": 0.010026,
+  "raw_operation_shape": {
+    "total_operations": 10,
+    "valid_objects": [
+      0,
+      1
+    ],
+    "objects_missing_confidence": [
+      2,
+      6,
+      8
+    ],
+    "non_object_entries": {
+      "3": "string \"confidence\"",
+      "4": "string \"confidence\"",
+      "5": "integer 1",
+      "7": "string \"confidence\"",
+      "9": "string \"confidence\""
+    },
+    "leaked_root_operation_target_id": "block-experience-2-t8"
+  },
+  "redactions": [
+    "founder_actor identity removed",
+    "internal AIOS provider request identifier removed",
+    "no API keys, secrets or environment values present in any fixture file"
+  ],
+  "publication_allowed": false,
+  "live": false
+}

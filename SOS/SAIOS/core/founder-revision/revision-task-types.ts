@@ -130,6 +130,8 @@ export type RevisionTask = {
   requested_changes: string[];
   role: string;
   design_family: string | null;
+  /** Layout architecture from the design brief; absent on pre-6F tasks. */
+  architecture?: string | null;
   status: RevisionTaskStatus;
   created_at: string;
   updated_at: string;

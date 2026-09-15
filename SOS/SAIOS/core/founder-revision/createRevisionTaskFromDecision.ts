@@ -3,6 +3,7 @@
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { attachRevisionTaskToDecisionMemory } from "../founder-memory/FounderPreferenceWriter.js";
 import {
   createRevisionTask,
   findTaskByDecisionId,
@@ -44,6 +45,90 @@ function inferCandidateId(decision: DecisionLike): string | null {
   return null;
 }
 
+function readJsonArtifact(
+  candidateId: string,
+  file: string,
+): Record<string, unknown> | null {
+  try {
+    return JSON.parse(
+      readFileSync(join(CAND_ROOT, candidateId, file), "utf8"),
+    ) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Revision-state suffixes that accumulate on candidate target titles across
+ * revision rounds (e.g. "Operations Analyst  revised v1").
+ */
+const REVISION_STATE_SUFFIXES: readonly RegExp[] = [
+  /\s*[·|\-–—]?\s*\bv\s*\d+\s*$/i,
+  /\s*[·|\-–—]?\s*\b(revised|revision|rev|revfb)\b\s*\d*\s*$/i,
+  /\s*[·|\-–—]+\s*$/,
+];
+
+/** Strips repeated revision-state suffixes to recover the target role. */
+export function canonicalizeTargetRole(title: string): string {
+  let out = String(title ?? "").replace(/\s+/g, " ").trim();
+  for (let i = 0; i < 6; i += 1) {
+    const before = out;
+    for (const re of REVISION_STATE_SUFFIXES) {
+      out = out.replace(re, "").trim();
+    }
+    if (out === before) break;
+  }
+  return out;
+}
+
+/**
+ * Canonical target role for the planner.
+ *
+ * `production-target.json` and `resume-template.json` carry the untouched
+ * target role; `candidate.json` target.title accumulates revision suffixes and
+ * is only used as a canonicalized last resort.
+ */
+function resolveCanonicalRole(
+  candidateId: string,
+  candidateJson: Record<string, unknown> | null,
+): string {
+  const productionTarget = readJsonArtifact(candidateId, "production-target.json");
+  const fromProduction = canonicalizeTargetRole(
+    String(productionTarget?.title ?? ""),
+  );
+  if (fromProduction) return fromProduction;
+
+  const template = readJsonArtifact(candidateId, "resume-template.json");
+  const fromTemplate = canonicalizeTargetRole(String(template?.role ?? ""));
+  if (fromTemplate) return fromTemplate;
+
+  return inferRole(candidateId, candidateJson);
+}
+
+/** Design family + layout architecture as recorded by the design brief. */
+function resolveDesignContext(candidateId: string): {
+  design_family: string | null;
+  architecture: string | null;
+} {
+  const brief = readJsonArtifact(candidateId, "designbrief.json");
+  const vg = brief?.visual_guidance;
+  if (!vg || typeof vg !== "object" || Array.isArray(vg)) {
+    return { design_family: null, architecture: null };
+  }
+  const guidance = vg as Record<string, unknown>;
+  const family = guidance.design_family;
+  const architecture =
+    guidance.layout_architecture ?? guidance.layout_family ?? null;
+  return {
+    design_family:
+      typeof family === "string" && family.trim() ? family.trim() : null,
+    architecture:
+      typeof architecture === "string" && architecture.trim()
+        ? architecture.trim()
+        : null,
+  };
+}
+
 function inferRole(candidateId: string, candidateJson: Record<string, unknown> | null): string {
   const target = (candidateJson?.target as Record<string, unknown>) ?? {};
   const title = String(target.title ?? "");
@@ -76,6 +161,32 @@ function inferFamily(candidateId: string, candidateJson: Record<string, unknown>
   if (/editorial/i.test(candidateId)) return "editorial";
   if (/contemporary/i.test(candidateId)) return "contemporary_accent";
   return null;
+}
+
+/**
+ * Links memory rows written from this Founder decision to the revision task the
+ * same decision produced.
+ *
+ * Historical maturation requires `revision_task_id`, but the writer never had a
+ * task id available at decision time, so every row stayed unlinkable and no
+ * PROVISIONAL rule could ever be confirmed.
+ */
+function linkDecisionMemoryToRevisionTask(
+  decisionId: string,
+  taskId: string,
+): { linked: number; error: string | null } {
+  try {
+    return {
+      linked: attachRevisionTaskToDecisionMemory({
+        decision_id: decisionId,
+        revision_task_id: taskId,
+      }),
+      error: null,
+    };
+  } catch (e) {
+    // Memory linkage must never block revision-task creation.
+    return { linked: 0, error: e instanceof Error ? e.message : String(e) };
+  }
 }
 
 export function createRevisionTaskFromDecision(decision: DecisionLike): {
@@ -130,6 +241,8 @@ export function createRevisionTaskFromDecision(decision: DecisionLike): {
       ? decision.requested_changes.map(String)
       : [decision.reason];
 
+  const designContext = resolveDesignContext(prior_candidate_id);
+
   const { task, created } = createRevisionTask({
     decision_id: decision.decision_id,
     review_id: decision.review_id,
@@ -137,10 +250,17 @@ export function createRevisionTaskFromDecision(decision: DecisionLike): {
     prior_canvas_path: `SOS/07_LOGS/saios/first-production-cycle/candidates/${prior_candidate_id}/canvas.json`,
     founder_reason: decision.reason,
     requested_changes: changes,
-    role: inferRole(prior_candidate_id, candidateJson),
-    design_family: inferFamily(prior_candidate_id, candidateJson),
+    role: resolveCanonicalRole(prior_candidate_id, candidateJson),
+    design_family:
+      designContext.design_family ??
+      inferFamily(prior_candidate_id, candidateJson),
+    architecture: designContext.architecture,
     revision_number: 1,
   });
+
+  if (created) {
+    linkDecisionMemoryToRevisionTask(decision.decision_id, task.task_id);
+  }
 
   return { ok: true, created, task, error: null };
 }

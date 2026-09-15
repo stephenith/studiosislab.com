@@ -8,7 +8,10 @@ import {
   isLayoutDesignConstraintText,
 } from "./FounderMemoryConsumption.js";
 import { classifyIssueType } from "./FounderPreferenceNormalizer.js";
-import type { FounderPreferenceMemoryRecord } from "./FounderPreferenceMemoryTypes.js";
+import type {
+  FounderPreferenceMemoryRecord,
+  MemoryScope,
+} from "./FounderPreferenceMemoryTypes.js";
 
 export type MaturationVerdict =
   | "PROMOTABLE"
@@ -51,6 +54,57 @@ export function isFactualOrOneOffContent(text: string): boolean {
   if (ONE_OFF_RE.test(t)) return true;
   if (classifyIssueType(t) === "CONTENT_INTEGRITY") return true;
   return false;
+}
+
+/**
+ * Rendering invariants that hold for every resume regardless of design family,
+ * layout architecture, role or section.
+ */
+const UNIVERSAL_LAYOUT_INVARIANT_RE =
+  /\b(must not|never|no|avoid|prevent|without|ensure no|do not)\b[\s\S]{0,40}\b(overlap|overlapp|collide|collision|clip|clipped|clipping|truncat|cut off|out[- ]of[- ]bounds|off[- ]page|outside the page|exceed(s)? (its|the) (text ?box|bounds|page))\b/i;
+
+const POSITIVE_SEPARATION_RE =
+  /\b(maintain|keep|ensure|preserve|require)\b[\s\S]{0,40}\b(positive (separation|spacing|gap)|non-?overlapping|minimum (separation|spacing|gap)|clear separation)\b/i;
+
+/**
+ * Tokens that tie a rule to one architecture, family, lane, section or role.
+ * Their presence means the rule is NOT architecture-independent.
+ */
+const SCOPE_SPECIFIC_TOKEN_RE =
+  /\b(sidebar|two[- ]column|single[- ]column|multi[- ]column|left column|right column|header band|lane|narrow_ats|professional_sidebar|summary|experience|skills|projects|certifications|education|languages|manager|analyst|engineer|designer|accountant)\b/i;
+
+/**
+ * True when a confirmed Founder rule is an unambiguously architecture-independent
+ * rendering invariant (no overlap, no clipping, no out-of-bounds text, positive
+ * separation) and therefore eligible for GLOBAL scope.
+ *
+ * Fail closed: factual/one-off content and anything naming a specific
+ * architecture, family, lane, section or role is never universal.
+ */
+export function isUniversalLayoutInvariantRule(text: string): boolean {
+  const t = String(text ?? "").trim();
+  if (!t) return false;
+  if (isFactualOrOneOffContent(t)) return false;
+  if (SCOPE_SPECIFIC_TOKEN_RE.test(t)) return false;
+  return UNIVERSAL_LAYOUT_INVARIANT_RE.test(t) || POSITIVE_SEPARATION_RE.test(t);
+}
+
+/**
+ * Scope for a rule being confirmed.
+ *
+ * Universal rendering invariants widen to GLOBAL at confirmation time so they
+ * reach every future generation instead of staying trapped at the architecture
+ * of the one template that produced them. Everything else keeps its original
+ * scope. Applies to newly confirmed rules only — historical rows are immutable.
+ */
+export function resolveConfirmedMemoryScope(input: {
+  currentScope: MemoryScope;
+  normalized_rule: string | null;
+  raw_founder_feedback: string | null;
+}): MemoryScope {
+  if (input.currentScope === "GLOBAL") return "GLOBAL";
+  const text = input.normalized_rule?.trim() || input.raw_founder_feedback?.trim() || "";
+  return isUniversalLayoutInvariantRule(text) ? "GLOBAL" : input.currentScope;
 }
 
 export function sameIssuePersists(

@@ -96,6 +96,7 @@ export type CreateRevisionTaskInput = {
   requested_changes: string[];
   role: string;
   design_family?: string | null;
+  architecture?: string | null;
   revision_number?: number;
 };
 
@@ -121,6 +122,7 @@ export function createRevisionTask(
     requested_changes: [...input.requested_changes],
     role: input.role,
     design_family: input.design_family ?? null,
+    architecture: input.architecture ?? null,
     status: "PENDING",
     created_at: now,
     updated_at: now,

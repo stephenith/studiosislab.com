@@ -894,37 +894,238 @@ function looksLikeContentEditFounderItem(normalizedItem: string): boolean {
     ) ||
     /\badd (a |an |the )?(missing |new )?(skill|certif|bullet|achievement|metric)/.test(
       n,
-    )
+    ) ||
+    resolveRequestedContentSections(normalizedItem).size > 0
   );
 }
 
+/**
+ * Resume sections the Founder may explicitly authorize for content replacement.
+ * `job_title` is the header professional-title object only — never the
+ * candidate name and never contact details.
+ */
+export type ContentSectionKey =
+  | "job_title"
+  | "summary"
+  | "experience"
+  | "skills"
+  | "projects"
+  | "certifications"
+  | "education";
+
+/**
+ * Layout-intent signals. A Founder line carrying any of these is a geometry
+ * request, not a content-replacement authorization — even when it names a
+ * section (e.g. "fix the overlap inside the Certifications section").
+ */
+const LAYOUT_INTENT_SIGNAL =
+  /\b(overlap|overlapp|collid|collision|clip|clipp|wrap|wrapping|spacing|space|position|reposition|align|alignment|bounds|out-of-bounds|margin|padding|geometry|overflow|move|shift|resize|font size|gap|rhythm|hierarchy|redesign|layout|adjust)\b/;
+
+/** Explicit content-replacement verbs. Layout verbs are deliberately absent. */
+const CONTENT_REPLACEMENT_VERB =
+  /\b(replace|rewrite|rewrit|reword|revise|update|change|remove|delete|swap|correct|rework|refresh)\b/;
+
+const SECTION_NOUN_PATTERNS: ReadonlyArray<
+  readonly [ContentSectionKey, RegExp]
+> = [
+  [
+    "job_title",
+    /\b(professional title|job title|professional identity|role title|title in the header)\b/,
+  ],
+  ["summary", /\b(summary|professional summary)\b/],
+  ["experience", /\b(experience|employment history|work history)\b/],
+  ["skills", /\bskills?\b/],
+  ["projects", /\bprojects?\b/],
+  ["certifications", /\b(certifications?|credentials?)\b/],
+  ["education", /\b(education|qualifications?)\b/],
+];
+
+/**
+ * Deterministic Founder-request → authorized section resolution.
+ *
+ * Fail closed: a line must carry BOTH an explicit content-replacement verb AND
+ * an unambiguous section noun, and must not be a layout request. Anything
+ * ambiguous grants nothing.
+ */
+export function resolveRequestedContentSections(
+  requestedChange: string,
+): Set<ContentSectionKey> {
+  const out = new Set<ContentSectionKey>();
+  const n = String(requestedChange ?? "").toLowerCase();
+  if (!n.trim()) return out;
+  if (LAYOUT_INTENT_SIGNAL.test(n)) return out;
+  if (!CONTENT_REPLACEMENT_VERB.test(n)) return out;
+  for (const [key, re] of SECTION_NOUN_PATTERNS) {
+    if (re.test(n)) out.add(key);
+  }
+  return out;
+}
+
+/** Contact-detail signals — contact objects are never content-edit authorized. */
+const CONTACT_TEXT_SIGNAL =
+  /(@|https?:\/\/|linkedin\.com|github\.com|\+\d[\d\s()-]{6,}|\b\d{3}[)\s-]\s?\d{3}[\s-]\d{4}\b)/i;
+
+function canvasSectionOf(o: Record<string, unknown>): string | null {
+  const data = o.data;
+  if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+  const v = (data as Record<string, unknown>).section;
+  return typeof v === "string" && v.trim() ? v.trim().toLowerCase() : null;
+}
+
+function canvasRoleOf(o: Record<string, unknown>): string | null {
+  const data = o.data;
+  if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+  const v = (data as Record<string, unknown>).role;
+  return typeof v === "string" && v.trim() ? v.trim().toLowerCase() : null;
+}
+
+/** True for short all-caps labels such as "SUMMARY" / "CERTIFICATIONS". */
+function looksLikeSectionHeadingLabel(text: string, section: string): boolean {
+  const letters = text.replace(/[^A-Za-z]/g, "");
+  if (!letters) return false;
+  if (letters.toUpperCase() === section.replace(/[^A-Za-z]/g, "").toUpperCase()) {
+    return true;
+  }
+  return text.trim().length <= 30 && letters === letters.toUpperCase();
+}
+
+/**
+ * Resolves the header professional-title object.
+ *
+ * Contact objects are excluded by content signal and the candidate name is
+ * excluded as the largest header font. Exactly one remaining candidate is
+ * required — anything else grants nothing.
+ */
+function resolveProfessionalTitleObjectId(
+  headerTexts: { id: string; text: string; fontSize: number }[],
+): string | null {
+  const nonContact = headerTexts.filter((t) => !CONTACT_TEXT_SIGNAL.test(t.text));
+  if (nonContact.length < 2) return null;
+  const maxFont = Math.max(...nonContact.map((t) => t.fontSize));
+  const candidates = nonContact.filter((t) => t.fontSize < maxFont);
+  return candidates.length === 1 ? candidates[0].id : null;
+}
+
+/**
+ * Text object IDs that may be content-edited for the given sections.
+ *
+ * Excludes section heading labels, section marker shapes, header band, page and
+ * sidebar backgrounds, candidate name, contact details, and every section the
+ * Founder did not explicitly request.
+ */
+export function resolveSectionContentObjectIds(
+  canvas: FabricCanvasDoc,
+  sections: Set<ContentSectionKey>,
+): Set<string> {
+  const allowed = new Set<string>();
+  if (sections.size === 0) return allowed;
+
+  const objects = (canvas.objects ?? []) as Record<string, unknown>[];
+  const headerTexts: { id: string; text: string; fontSize: number }[] = [];
+
+  objects.forEach((o, index) => {
+    if (!isTextLikeObject(o) || isSystemishObject(o)) return;
+    const text = typeof o.text === "string" ? o.text : "";
+    if (!text.trim()) return;
+    const section = canvasSectionOf(o);
+    if (!section) return;
+    const id = objectTextId(o, index);
+
+    if (section === "header") {
+      headerTexts.push({
+        id,
+        text,
+        fontSize: typeof o.fontSize === "number" ? o.fontSize : 0,
+      });
+      return;
+    }
+    if (!sections.has(section as ContentSectionKey)) return;
+    // Never authorize the section heading label or any marker/band role.
+    if (canvasRoleOf(o)) return;
+    if (looksLikeSectionHeadingLabel(text, section)) return;
+    allowed.add(id);
+  });
+
+  if (sections.has("job_title")) {
+    const titleId = resolveProfessionalTitleObjectId(headerTexts);
+    if (titleId) allowed.add(titleId);
+  }
+
+  return allowed;
+}
+
+/** True when the canvas carries no section metadata on any text object. */
+function canvasHasSectionMetadata(canvas: FabricCanvasDoc): boolean {
+  const objects = (canvas.objects ?? []) as Record<string, unknown>[];
+  return objects.some((o) => isTextLikeObject(o) && canvasSectionOf(o) != null);
+}
+
+/**
+ * Authorized content-edit target IDs.
+ *
+ * An operation's target is authorized only when the plan attributes it to a
+ * Founder line that explicitly requests content replacement AND the target
+ * object actually belongs to a section that line named. Plan-declared targets
+ * alone are never sufficient.
+ *
+ * When the before canvas carries no section metadata at all (synthetic/legacy
+ * canvases) section scoping cannot be resolved, so attribution-only
+ * authorization is retained rather than silently failing every content edit.
+ */
 function authorizedContentEditTargetIds(
   plan: RevisionPlan | null | undefined,
   requestedChanges: string[],
+  beforeCanvas?: FabricCanvasDoc,
 ): Set<string> {
   const allowed = new Set<string>();
   if (!plan) return allowed;
-  const mutationContentItems = new Set(
-    requestedChanges
-      .filter((c) => {
-        const cl = classifyRequestedChange(c);
-        return (
-          cl.classification === "MUTATION_REQUIRED" &&
-          looksLikeContentEditFounderItem(c.toLowerCase())
-        );
-      })
-      .map((c) => c),
-  );
+
+  const mutationContentItems = new Map<string, Set<ContentSectionKey>>();
+  for (const c of requestedChanges) {
+    if (classifyRequestedChange(c).classification !== "MUTATION_REQUIRED") {
+      continue;
+    }
+    if (!looksLikeContentEditFounderItem(c.toLowerCase())) continue;
+    mutationContentItems.set(c, resolveRequestedContentSections(c));
+  }
+
+  const sectionScoped =
+    !!beforeCanvas && canvasHasSectionMetadata(beforeCanvas);
+
   for (const op of plan.operations) {
     if (op.op !== "update_text") continue;
     const attrs = [
       op.founder_feedback_item,
       ...(op.founder_feedback_items ?? []),
     ].filter((x): x is string => typeof x === "string" && x.trim().length > 0);
-    const authorized = attrs.some((a) => mutationContentItems.has(a));
-    if (!authorized) continue;
-    if (op.target_id) allowed.add(op.target_id);
-    for (const id of op.target_ids ?? []) allowed.add(id);
+
+    const grantedSections = new Set<ContentSectionKey>();
+    let attributed = false;
+    for (const a of attrs) {
+      const sections = mutationContentItems.get(a);
+      if (!sections) continue;
+      attributed = true;
+      for (const s of sections) grantedSections.add(s);
+    }
+    if (!attributed) continue;
+
+    const opTargets = [
+      ...(op.target_id ? [op.target_id] : []),
+      ...(op.target_ids ?? []),
+    ];
+
+    if (!sectionScoped) {
+      for (const id of opTargets) allowed.add(id);
+      continue;
+    }
+
+    const sectionIds = resolveSectionContentObjectIds(
+      beforeCanvas,
+      grantedSections,
+    );
+    for (const id of opTargets) {
+      if (sectionIds.has(id)) allowed.add(id);
+    }
   }
   return allowed;
 }
@@ -945,6 +1146,7 @@ export function runContentPreservationCheck(input: {
   const authorizedIds = authorizedContentEditTargetIds(
     input.plan,
     input.requested_changes ?? [],
+    input.beforeCanvas,
   );
 
   const findings: AcceptanceFinding[] = [];

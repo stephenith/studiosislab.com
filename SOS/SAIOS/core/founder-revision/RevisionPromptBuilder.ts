@@ -657,6 +657,7 @@ export function buildRevisionPlannerPrompt(input: {
     "Return structured JSON only (no markdown).",
     `Role: ${task.role}`,
     `Design family: ${task.design_family ?? "unknown"}`,
+    `Layout architecture: ${task.architecture ?? "unknown"}`,
     `Prior resume template (legacy internal id): ${task.prior_candidate_id}`,
     `Decision: ${task.decision_id}`,
   ].join(" ");
@@ -883,10 +884,17 @@ export function buildRevisionPlannerPrompt(input: {
     "- values (object with executor-actionable numeric/text fields — no placeholder booleans)",
     "- founder_feedback_item (required primary exact Founder change text addressed)",
     "- founder_feedback_items (optional string[] of additional EXACT overlapping Founder lines for the SAME physical mutation; omit when unused)",
-    "- confidence (number 0..1)",
+    "- confidence is MANDATORY for every operation: a number between 0 and 1. CONFIDENCE IS MANDATORY. NEVER OMIT confidence FROM ANY OPERATION.",
+    '- confidence is a KEY INSIDE the operation object. It is NEVER a separate array entry. WRONG: [ { "op":"update_text", ... }, "confidence", 1 ]. RIGHT: [ { "op":"update_text", ..., "confidence": 0.9 } ].',
+    "- An operation without confidence is INVALID and fails the ENTIRE plan before execution.",
     "- intended_change is MANDATORY for every operation: non-empty string describing the exact mutation to apply",
     "- before_summary is MANDATORY for every operation: non-empty string describing the current target object state from the inventory",
     "- Never omit intended_change or before_summary.",
+    "",
+    "JSON STRUCTURE (mandatory — fail closed):",
+    "- EVERY element of the operations array MUST be a JSON object. No bare strings. No bare numbers. No nulls. No nested arrays.",
+    "- Operation fields belong INSIDE their operation object. Never let op / target_id / values / confidence escape to the top level of the plan.",
+    "- Close each operation object only AFTER writing every mandatory field, including confidence.",
     "- Do not use null, empty strings, placeholders, or inferred shorthand for intended_change or before_summary.",
     "- intended_change must describe the exact mutation (what changes on the canvas object).",
     "- before_summary must describe the current target object state from the provided inventory (id/type/text/geometry as relevant).",
@@ -1463,6 +1471,142 @@ export function buildRevisionConflictRepairPrompt(input: {
     "",
     "Return JSON with schema:",
     '{ "schema_version":"founder-canvas-revision-plan-1.0.0", "summary":string, "operations":[...COMPLETE plan ops...], "notes":string[] }',
+  ].join("\n");
+
+  return { objective, instructions };
+}
+
+/**
+ * Errors that indicate the model lost the JSON *shape* — a malformed array
+ * entry or an omitted mandatory field — and can fix it by re-emitting the same
+ * intent as a well-formed plan (Phase 6F).
+ *
+ * Deliberately excludes:
+ * - unsupported operation types, which keep failing closed on the first call
+ * - semantic failures (attribution, coverage, geometry conflicts), where the
+ *   model misunderstood the request rather than the format
+ */
+const SHAPE_REPAIRABLE_ERROR_PATTERNS: readonly RegExp[] = [
+  /^operations must be a non-empty array$/,
+  /^operations\[\d+\] invalid$/,
+  /^operations\[\d+\]\.confidence required$/,
+  /^operations\[\d+\]\.confidence must be 0\.\.1$/,
+  /^operations\[\d+\]\.values required \(object\)$/,
+  /^operations\[\d+\]\.intended_change required$/,
+  /^operations\[\d+\]\.before_summary required$/,
+  /^operations\[\d+\]\.founder_feedback_item required$/,
+];
+
+/**
+ * True when EVERY shape error is structural (fail closed on mixed/semantic sets).
+ * A single non-structural error disqualifies the whole plan from shape repair.
+ */
+export function isRepairableShapeFailure(errors: string[]): boolean {
+  if (!Array.isArray(errors) || errors.length === 0) return false;
+  return errors.every((e) =>
+    SHAPE_REPAIRABLE_ERROR_PATTERNS.some((re) => re.test(String(e).trim())),
+  );
+}
+
+/**
+ * ShapePlanRepair prompt — the ONE and ONLY structural repair attempt.
+ *
+ * Production origin: revtask-b5339d03-b67 emitted `"confidence"` as standalone
+ * array entries instead of an operation key, collapsing object nesting.
+ */
+export function buildRevisionShapeRepairPrompt(input: {
+  task: RevisionTask;
+  inventory: CanvasInventoryObject[];
+  page_width: number;
+  page_height: number;
+  shapeErrors: string[];
+  rawPlan: unknown;
+}): { objective: string; instructions: string } {
+  const coverageLedger = buildFounderItemCoverageLedger(
+    input.task.requested_changes,
+  );
+
+  const objective =
+    "ShapePlanRepair: the previous revision plan was structurally invalid. Return ONE COMPLETE, schema-valid replacement plan.";
+
+  const instructions = [
+    "You are performing the ONE and ONLY ShapePlanRepair attempt for this Founder revision.",
+    "Your previous response parsed as JSON but FAILED deterministic schema validation.",
+    "There is no second try. If this response is also invalid the entire revision fails.",
+    "",
+    "EXACT VALIDATOR ERRORS FROM YOUR PREVIOUS RESPONSE:",
+    ...input.shapeErrors.map((e) => `- ${e}`),
+    "",
+    "MOST COMMON CAUSE — JSON NESTING COLLAPSE:",
+    '- `operations[i] invalid` means that array entry was NOT a JSON object (it was a string, number, null, or array).',
+    '- This happens when a key such as "confidence" is emitted as a standalone ARRAY ENTRY instead of a KEY INSIDE the operation object.',
+    '- WRONG: [ { "op":"update_text", ... }, "confidence", 1 ]',
+    '- RIGHT: [ { "op":"update_text", ..., "confidence": 0.9 } ]',
+    "- Every element of operations MUST be a JSON object. No bare strings. No bare numbers. No nulls. No nested arrays.",
+    "- Do NOT let operation fields escape to the top level of the plan object. All operation fields belong INSIDE their operation object.",
+    "",
+    "OUTPUT CONTRACT:",
+    "- Return a COMPLETE replacement plan (full operations array), NOT a patch, delta, or list of corrections.",
+    "- schema_version must be founder-canvas-revision-plan-1.0.0.",
+    "- Re-emit every operation you intended, each as a well-formed JSON object with ALL mandatory fields.",
+    "- Preserve the original intent of your previous plan; fix its STRUCTURE, do not change the design decisions.",
+    "- Do NOT drop Founder coverage merely to produce a smaller valid plan.",
+    "- Do NOT invent object IDs — copy only from the inventory below.",
+    "- Do NOT invent qualifications, employers, metrics, tools, or other credentials.",
+    "- Do NOT emit VERIFICATION_ACCEPTANCE mutation ops.",
+    "",
+    "CONFIDENCE IS MANDATORY:",
+    "- EVERY operation MUST include a `confidence` key with a number between 0 and 1.",
+    "- confidence is a KEY INSIDE the operation object. It is NEVER a separate array entry.",
+    "- NEVER omit confidence. NEVER emit the bare string \"confidence\".",
+    "- An operation without confidence is INVALID and fails the entire plan.",
+    "",
+    "YOUR PREVIOUS (STRUCTURALLY INVALID) RESPONSE:",
+    JSON.stringify(input.rawPlan),
+    "",
+    "FOUNDER REQUESTED CHANGES + CLASSIFICATION:",
+    coverageLedger,
+    "",
+    operationCapabilityGrammarBlock(),
+    "",
+    "MANDATORY FIELDS FOR EVERY OPERATION (never omit):",
+    "- op (allowlisted operation type)",
+    "- target_id for every single-target operation (copy exactly from inventory); never target_ids/selector on single-target ops",
+    "- target_ids for align_objects / group_objects only (≥2 inventory IDs)",
+    "- values (object with executor-actionable numeric/text fields — no placeholder booleans)",
+    "- before_summary (required non-empty string describing current target state from inventory)",
+    "- intended_change (required non-empty string describing the exact mutation)",
+    "- founder_feedback_item (required primary exact Founder change text addressed)",
+    "- founder_feedback_items (optional string[] of additional EXACT overlapping MUTATION_REQUIRED lines)",
+    "- confidence (required number 0..1). CONFIDENCE IS MANDATORY. NEVER OMIT confidence FROM ANY OPERATION.",
+    "",
+    "COMPLETE EXAMPLE OPERATION (generic IDs — replace from CURRENT inventory):",
+    JSON.stringify({
+      op: "update_text",
+      target_id: "block-example-t1",
+      before_summary:
+        "Textbox id=block-example-t1 section=example currently text='Old text'",
+      intended_change: "Replace the text with the corrected content",
+      values: { text: "New text" },
+      founder_feedback_item: "Example Founder change text copied verbatim.",
+      confidence: 0.92,
+    }),
+    "",
+    "OPERATION RULES:",
+    `- Use ONLY these exact ops: ${ALLOWED_OPS.join(", ")}`,
+    "- INVALID / DEPRECATED: adjust_spacing.",
+    "- Single-target ops require target_id (never target_ids/selector).",
+    "- align_objects / group_objects require target_ids with ≥2 inventory IDs.",
+    "- values must be executor-actionable (left/top/delta_*/fontSize/text/etc.).",
+    "- update_text requires values.text string.",
+    "",
+    `PAGE BOUNDS: width=${input.page_width} height=${input.page_height}`,
+    "",
+    "CANVAS OBJECT INVENTORY (prior canvas — pre-execution):",
+    inventorySummary(input.inventory),
+    "",
+    "Return JSON with schema:",
+    '{ "schema_version":"founder-canvas-revision-plan-1.0.0", "summary":string, "operations":[...COMPLETE plan ops, every entry a JSON object...], "notes":string[] }',
   ].join("\n");
 
   return { objective, instructions };

@@ -69,6 +69,7 @@ export type FounderMemoryEvent = {
     | "MEMORY_PROMOTED"
     | "MEMORY_SUPERSEDED"
     | "MEMORY_SKIPPED"
+    | "MEMORY_LINKED_REVISION_TASK"
     | "MEMORY_WRITE_FAILED";
   decision_id?: string;
   review_id?: string;

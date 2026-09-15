@@ -25,6 +25,7 @@ export {
 export {
   FounderPreferenceWriter,
   writeFounderPreferenceMemorySafe,
+  attachRevisionTaskToDecisionMemory,
   enrichFromCandidateArtifacts,
   chooseScope,
 } from "./FounderPreferenceWriter.js";
@@ -65,5 +66,7 @@ export {
   evaluateMemoryMaturation,
   classifyHistoricalMemory,
   isFactualOrOneOffContent,
+  isUniversalLayoutInvariantRule,
+  resolveConfirmedMemoryScope,
   type MaturationVerdict,
 } from "./FounderMemoryMaturation.js";

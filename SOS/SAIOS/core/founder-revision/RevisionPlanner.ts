@@ -55,8 +55,10 @@ import {
   buildRevisionConflictRepairPrompt,
   buildRevisionCoverageRepairPrompt,
   buildRevisionPlannerPrompt,
+  buildRevisionShapeRepairPrompt,
   extractPlanFromProviderOutput,
   findUncoveredRequestedChanges,
+  isRepairableShapeFailure,
   normalizeFounderFeedbackItem,
   allRequestedChangesAllowEmptyPlan,
   validateRevisionPlan,
@@ -100,6 +102,41 @@ export type CoverageRepairEvidence = {
   output_tokens: number | null;
 };
 
+/** Why a ShapePlanRepair attempt did not yield an executable plan. */
+export type ShapeRepairFailureKind =
+  | "provider"
+  | "incomplete_json"
+  | "repair_plan_invalid"
+  | "still_conflicts"
+  | "incomplete_coverage";
+
+/** Phase 6F — evidence for the single bounded structural repair attempt. */
+export type ShapeRepairEvidence = {
+  attempted: boolean;
+  accepted: boolean;
+  /** Validator errors from the structurally invalid primary response. */
+  primary_shape_errors: string[];
+  repair_prompt: { objective: string; instructions: string } | null;
+  repair_raw_structured: Record<string, unknown> | null;
+  repaired_plan: RevisionPlan | null;
+  failure_kind: ShapeRepairFailureKind | null;
+  error: string | null;
+  provider: "openai" | null;
+  provider_request_id: string | null;
+  model: string | null;
+  input_tokens: number | null;
+  output_tokens: number | null;
+};
+
+/** Provider metadata captured on every planner outcome (Phase 6F observability). */
+export type PlannerProviderEvidence = {
+  provider: "openai";
+  provider_request_id: string | null;
+  model: string | null;
+  input_tokens: number | null;
+  output_tokens: number | null;
+};
+
 export type PlannerResult =
   | {
       ok: true;
@@ -117,6 +154,7 @@ export type PlannerResult =
       };
       coverage_repair: CoverageRepairEvidence | null;
       conflict_repair: ConflictRepairEvidence | null;
+      shape_repair?: ShapeRepairEvidence | null;
       founder_memory_selection?: FounderMemorySelectionResult | null;
     }
   | {
@@ -131,8 +169,18 @@ export type PlannerResult =
       raw_structured?: Record<string, unknown> | null;
       /** Provider-boundary diagnostics (truncation / incomplete JSON). */
       provider_diagnostics?: Record<string, unknown> | null;
+      /**
+       * Provider metadata for the PRIMARY call, persisted even on failure so
+       * malformed-plan failures stay diagnosable (Phase 6F observability).
+       */
+      provider?: "openai" | null;
+      provider_request_id?: string | null;
+      model?: string | null;
+      input_tokens?: number | null;
+      output_tokens?: number | null;
       coverage_repair?: CoverageRepairEvidence | null;
       conflict_repair?: ConflictRepairEvidence | null;
+      shape_repair?: ShapeRepairEvidence | null;
       /** Structurally valid primary plan when completeness-only failure / repair attempted. */
       primary_plan?: RevisionPlan | null;
       founder_memory_selection?: FounderMemorySelectionResult | null;
@@ -239,6 +287,20 @@ function buildConflictRepairRequest(
     maximum_output_tokens: REVISION_CONFLICT_REPAIR_MAX_OUTPUT_TOKENS,
     estimated_cost_ceiling_usd: 0.25,
     maximum_input_tokens: 8000,
+    timeout_ms: 120_000,
+  };
+}
+
+function buildShapeRepairRequest(
+  task: RevisionTask,
+  prompt: { objective: string; instructions: string },
+): ReasoningRequest {
+  const base = buildPrimaryRequest(task, prompt);
+  return {
+    ...base,
+    request_id: `req-revplan-shape-repair-${randomUUID().slice(0, 10)}`,
+    maximum_output_tokens: REVISION_CONFLICT_REPAIR_MAX_OUTPUT_TOKENS,
+    estimated_cost_ceiling_usd: 0.25,
     timeout_ms: 120_000,
   };
 }
@@ -399,6 +461,174 @@ export function prepareExtractedPlanForValidation(input: {
     plan: shape.plan,
     errors: [],
     provenance_repairs: provenance.repairs,
+  };
+}
+
+/**
+ * ShapePlanRepair — the ONE and ONLY structural repair attempt (Phase 6F).
+ *
+ * Consumes the same repair budget as ConflictPlanRepair / CoveragePlanRepair:
+ * at most two provider calls total per revision. A repaired plan is therefore
+ * validated end to end here and fails closed rather than escalating to another
+ * repair round.
+ *
+ * Never defaults confidence, never salvages the malformed entries, and never
+ * bypasses validateRevisionPlanShapeAndOperations.
+ */
+async function runShapePlanRepair(input: {
+  task: RevisionTask;
+  inventory: CanvasInventoryObject[];
+  page_width: number;
+  page_height: number;
+  shapeErrors: string[];
+  rawPlan: Record<string, unknown>;
+  execute: PlannerExecuteFn;
+}): Promise<{
+  ok: boolean;
+  plan: RevisionPlan | null;
+  error: string | null;
+  status: "FAILED_PROVIDER" | "FAILED_PLAN" | null;
+  evidence: ShapeRepairEvidence;
+}> {
+  const repairPrompt = buildRevisionShapeRepairPrompt({
+    task: input.task,
+    inventory: input.inventory,
+    page_width: input.page_width,
+    page_height: input.page_height,
+    shapeErrors: input.shapeErrors,
+    rawPlan: input.rawPlan,
+  });
+
+  const base: ShapeRepairEvidence = {
+    attempted: true,
+    accepted: false,
+    primary_shape_errors: [...input.shapeErrors],
+    repair_prompt: repairPrompt,
+    repair_raw_structured: null,
+    repaired_plan: null,
+    failure_kind: null,
+    error: null,
+    provider: "openai",
+    provider_request_id: null,
+    model: null,
+    input_tokens: null,
+    output_tokens: null,
+  };
+
+  const fail = (
+    error: string,
+    status: "FAILED_PROVIDER" | "FAILED_PLAN",
+    failure_kind: ShapeRepairFailureKind,
+    extra: Partial<ShapeRepairEvidence> = {},
+  ) => ({
+    ok: false as const,
+    plan: null,
+    error,
+    status,
+    evidence: { ...base, ...extra, failure_kind, error },
+  });
+
+  const response = await input.execute(
+    buildShapeRepairRequest(input.task, repairPrompt),
+  );
+  const providerMeta = {
+    provider_request_id: response.provider_request_id ?? null,
+    model: response.model_identifier_internal ?? null,
+    input_tokens: response.input_tokens ?? null,
+    output_tokens: response.output_tokens ?? null,
+  };
+
+  if (response.status !== "COMPLETED" || !response.structured_output) {
+    return fail(
+      `shape repair failed: ${
+        response.error_details?.message ?? `provider status ${response.status}`
+      }`,
+      "FAILED_PROVIDER",
+      "provider",
+      { ...providerMeta, repair_raw_structured: response.structured_output },
+    );
+  }
+
+  const so = response.structured_output;
+  if (isIncompleteProviderWrapper(so)) {
+    return fail(
+      "shape repair failed: revision_planning_incomplete_json",
+      "FAILED_PROVIDER",
+      "incomplete_json",
+      { ...providerMeta, repair_raw_structured: so },
+    );
+  }
+
+  // SAME validator as the primary path — no relaxation, no confidence default.
+  const prepared = prepareExtractedPlanForValidation({
+    extracted: extractPlanFromProviderOutput(so),
+    inventory: input.inventory,
+    requested_changes: input.task.requested_changes,
+  });
+  if (!prepared.ok || !prepared.plan) {
+    return fail(
+      `invalid revision plan after shape repair: ${prepared.errors.join("; ")}`,
+      "FAILED_PLAN",
+      "repair_plan_invalid",
+      { ...providerMeta, repair_raw_structured: so },
+    );
+  }
+
+  const repaired = canonicalizeRevisionPlanHorizontalOwnership(prepared.plan);
+
+  // Repair budget is spent: conflicts and coverage gaps now fail closed.
+  const conflicts = detectInternalPlanMutationConflicts(repaired.operations);
+  if (!conflicts.ok) {
+    return fail(
+      `invalid revision plan after shape repair: ${conflicts.errors.join("; ")}`,
+      "FAILED_PLAN",
+      "still_conflicts",
+      { ...providerMeta, repair_raw_structured: so, repaired_plan: repaired },
+    );
+  }
+
+  const missing = findUncoveredRequestedChanges(
+    repaired,
+    input.task.requested_changes,
+  );
+  if (missing.length > 0) {
+    return fail(
+      `incomplete revision plan after shape repair: uncovered Founder changes: ${missing
+        .map((m) => m.text)
+        .join(" | ")}`,
+      "FAILED_PLAN",
+      "incomplete_coverage",
+      { ...providerMeta, repair_raw_structured: so, repaired_plan: repaired },
+    );
+  }
+
+  const validated = validateRevisionPlan(repaired, {
+    requested_changes: input.task.requested_changes,
+    allowEmptyOperations: allRequestedChangesAllowEmptyPlan(
+      input.task.requested_changes,
+    ),
+  });
+  if (!validated.ok || !validated.plan) {
+    return fail(
+      `invalid revision plan after shape repair: ${validated.errors.join("; ")}`,
+      "FAILED_PLAN",
+      "repair_plan_invalid",
+      { ...providerMeta, repair_raw_structured: so, repaired_plan: repaired },
+    );
+  }
+
+  return {
+    ok: true,
+    plan: validated.plan,
+    error: null,
+    status: null,
+    evidence: {
+      ...base,
+      ...providerMeta,
+      accepted: true,
+      repair_raw_structured: so,
+      repaired_plan: validated.plan,
+    },
   };
 }
 
@@ -1098,6 +1328,14 @@ export async function planFounderCanvasRevision(input: {
       };
     }
 
+    const primaryProviderEvidence: PlannerProviderEvidence = {
+      provider: "openai",
+      provider_request_id: response.provider_request_id ?? null,
+      model: response.model_identifier_internal ?? null,
+      input_tokens: response.input_tokens ?? null,
+      output_tokens: response.output_tokens ?? null,
+    };
+
     const extracted = extractPlanFromProviderOutput(so);
     const prepared = prepareExtractedPlanForValidation({
       extracted,
@@ -1105,12 +1343,58 @@ export async function planFounderCanvasRevision(input: {
       requested_changes: input.task.requested_changes,
     });
     if (!prepared.ok || !prepared.plan) {
+      const primaryShapeError = `invalid revision plan: ${prepared.errors.join("; ")}`;
+
+      // Path D: structural-only failure → exactly one ShapePlanRepair.
+      // Semantic failures are never re-asked; they fail closed immediately.
+      if (!isRepairableShapeFailure(prepared.errors)) {
+        return {
+          ok: false,
+          error: primaryShapeError,
+          status: "FAILED_PLAN",
+          prompt,
+          raw_structured: so,
+          ...primaryProviderEvidence,
+        };
+      }
+
+      const shapeRepaired = await runShapePlanRepair({
+        task: input.task,
+        inventory: input.inventory,
+        page_width: input.page_width,
+        page_height: input.page_height,
+        shapeErrors: prepared.errors,
+        rawPlan: so,
+        execute,
+      });
+
+      if (!shapeRepaired.ok || !shapeRepaired.plan) {
+        return {
+          ok: false,
+          error: shapeRepaired.error ?? primaryShapeError,
+          status: shapeRepaired.status ?? "FAILED_PLAN",
+          prompt,
+          raw_structured: so,
+          ...primaryProviderEvidence,
+          coverage_repair: null,
+          conflict_repair: null,
+          shape_repair: shapeRepaired.evidence,
+        };
+      }
+
       return {
-        ok: false,
-        error: `invalid revision plan: ${prepared.errors.join("; ")}`,
-        status: "FAILED_PLAN",
-        prompt,
+        ok: true,
+        plan: shapeRepaired.plan,
+        provider: "openai",
+        provider_request_id: primaryProviderEvidence.provider_request_id,
+        model: primaryProviderEvidence.model,
+        input_tokens: primaryProviderEvidence.input_tokens,
+        output_tokens: primaryProviderEvidence.output_tokens,
         raw_structured: so,
+        prompt,
+        coverage_repair: null,
+        conflict_repair: null,
+        shape_repair: shapeRepaired.evidence,
       };
     }
 
@@ -1140,6 +1424,7 @@ export async function planFounderCanvasRevision(input: {
           status: conflictRepaired.status ?? "FAILED_PLAN",
           prompt,
           raw_structured: so,
+          ...primaryProviderEvidence,
           primary_plan: primaryPlan,
           coverage_repair: null,
           conflict_repair: conflictRepaired.evidence,
@@ -1181,6 +1466,7 @@ export async function planFounderCanvasRevision(input: {
           status: "FAILED_PLAN",
           prompt,
           raw_structured: so,
+          ...primaryProviderEvidence,
           primary_plan: primaryPlan,
           coverage_repair: null,
           conflict_repair: null,
@@ -1219,6 +1505,7 @@ export async function planFounderCanvasRevision(input: {
         status: repaired.status ?? "FAILED_PLAN",
         prompt,
         raw_structured: so,
+        ...primaryProviderEvidence,
         primary_plan: primaryPlan,
         coverage_repair: repaired.evidence,
         conflict_repair: null,

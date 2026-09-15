@@ -19,6 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
+    "PHASE 6F — Deploy revision reliability repair (Slice 1) to VPS FF-only and restart only the dashboard service, then authorize ONE new Operations Analyst Request Changes recovery decision to prove the repaired path in production. Generation overlap/clipping gate remains Slice 2.",
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B — Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B — Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -38,6 +39,11 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-15T05:34:43.000Z",
+      "type": "revision_maintenance_repair",
+      "summary": "Phase 6F REVISION RELIABILITY REPAIR SLICE 1 implemented and LOCAL_VERIFIED (offline). Local wall=2026-09-15T11:04:43+05:30. UTC=2026-09-15T05:34:43.000Z. Repaired the Founder Request Changes path from revtask-b5339d03-b67 production evidence: bounded one-shot ShapePlanRepair for structural primary-plan failures; explicit section-scoped content authorization for job title / summary / experience / skills / projects / certifications / education; Founder memory revision_task_id wiring; GLOBAL scope for universal layout invariants at confirmation only; canonical planner role and real design family / layout architecture; FAILED_PLAN provider evidence and cost-ledger task correlation. Validator NOT relaxed; confidence NEVER defaulted; malformed operations NEVER salvaged; unsupported operation types still fail closed on the first call. Offline fixture reproduces the production error byte-for-byte. No OpenAI call, no generation, no revision run, no Founder decision, no publication, no production task mutation; revtask-b5339d03-b67 remains FAILED and unchanged. Generation overlap/clipping gate deliberately deferred to Slice 2. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
+    },
     {
       "at": "2026-09-03T05:02:51.000Z",
       "type": "website_department",
@@ -2426,7 +2432,7 @@
   "aios_canonical_entrypoint": "SOS/SAIOS/core/first-production-cycle",
   "company_brain_version": "1.0.0",
   "company_brain_mode": "planning_only",
-  "latest_phase": "5Z",
+  "latest_phase": "6F",
   "phase_5u": {
     "status": "implemented_pending_deploy",
     "problem": "recurring FAILED_GATE direction contradiction on header containment OR-rebalance",
@@ -2559,5 +2565,59 @@
     "remaining": "one controlled live memory-consumption proof; then department closure audit",
     "baseline_commit_before": "d78ba977360aeaf1731dbaf2c1a8200c3aa77250",
     "verifier": "SOS/SAIOS/core/founder-memory/verify-founder-memory-consumption-6b.ts"
+  },
+  "phase_6f": {
+    "status": "implemented_local_verified_pending_deploy",
+    "classification": "MAINTENANCE / PRODUCTION REGRESSION REPAIR",
+    "scope": "Founder Request Changes revision path only. Resume Template Department NOT reopened.",
+    "problem": "Founder Request Changes revision failed with 'invalid revision plan' after a broad Operations Analyst content+layout correction",
+    "diagnostic_task": "revtask-b5339d03-b67",
+    "source_resume_template_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718",
+    "decision_id": "fd-71dbc076-68f",
+    "provider": "openai",
+    "model": "gpt-4.1-mini",
+    "input_tokens": 17236,
+    "output_tokens": 1957,
+    "root_causes": [
+      "PRIMARY_PLAN_JSON_NESTING_COLLAPSE: model emitted \"confidence\" as standalone operations[] entries (indices 3,4,5,7,9) and leaked one complete update_text operation onto the plan root; operations 2,6,8 lost their confidence key",
+      "NO_BOUNDED_SHAPE_REPAIR: a parseable but schema-invalid primary plan failed closed with zero repair attempt",
+      "CONTENT_REVISION_AUTHORIZATION_GAP: looksLikeContentEditFounderItem did not recognize explicit Experience/Projects/Certifications/Education replacement requests, so content-preservation would have blocked even a well-formed plan",
+      "MEMORY_REVISION_TASK_ID_NEVER_LINKED: every memory row was written with revision_task_id=null, so historical maturation could never confirm a PROVISIONAL rule",
+      "UNIVERSAL_LAYOUT_MEMORY_TRAPPED_AT_ARCHITECTURE_SCOPE: chooseScope always returned ARCHITECTURE, producing zero GLOBAL rules",
+      "PLANNER_CONTEXT_DEFECT: role came from candidate.json target.title ('Operations Analyst  revised v1') and design family from a family allowlist that excluded professional_sidebar, so the planner saw 'Operations Analyst revised' and 'Design family: unknown'",
+      "FAILED_PLAN_OBSERVABILITY_GAP: provider/model/request-id/token evidence was not persisted on planner shape failure and cost-ledger rows carried no task_id"
+    ],
+    "fixes": [
+      "Bounded ShapePlanRepair: exactly ONE additional provider call on a structural-only primary failure, revalidated through the SAME validateRevisionPlanShapeAndOperations, fail closed otherwise",
+      "Shape-repair failure classes restricted to malformed array entries and omitted mandatory fields; unsupported operation types still fail closed on the first call",
+      "Primary planning prompt now mandates confidence explicitly and forbids non-object operations[] entries",
+      "Section-scoped explicit content authorization: Founder request -> deterministic section resolution -> authorized text object IDs for that section only",
+      "Founder memory revision_task_id linkage at revision-task creation (append-only, idempotent, historical rows immutable)",
+      "Universal layout invariants (no overlap / no clipping / no out-of-bounds / positive separation) may widen to GLOBAL at CONFIRMATION only",
+      "Canonical target role from production-target.json/resume-template.json with revision-state suffix stripping; design family + layout architecture read from designbrief.visual_guidance",
+      "FAILED_PLAN now persists provider/model/provider_request_id/input_tokens/output_tokens; cost ledger rows carry task_id, capability and provider_request_id"
+    ],
+    "not_in_scope": [
+      "GENERATION_OVERLAP_CLIPPING_GATE deferred to Slice 2",
+      "No migration of historical ARCHITECTURE-scoped memory rows to GLOBAL",
+      "No retry or mutation of revtask-b5339d03-b67"
+    ],
+    "validator_relaxed": false,
+    "confidence_defaulted": false,
+    "max_provider_calls_per_revision": 2,
+    "offline_fixture": ".cursor/debug-fixtures/revtask-b5339d03-b67-sanitized",
+    "production_failure_reproduced_offline": true,
+    "verifiers": [
+      "aios:revision:shape-repair:verify",
+      "aios:revision:section-content-auth:verify",
+      "aios:memory:task-wiring:verify"
+    ],
+    "openai_called": false,
+    "generation_executed": false,
+    "revision_executed": false,
+    "founder_decision_created": false,
+    "publication_executed": false,
+    "milestone_ist": "2026-09-15T11:04:43+05:30",
+    "milestone_utc": "2026-09-15T05:34:43.000Z"
   }
 }

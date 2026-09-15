@@ -359,6 +359,50 @@ export class FounderPreferenceMemoryStore {
     return record;
   }
 
+  /**
+   * Links active memory rows from a Founder decision to the revision task that
+   * decision produced, so historical maturation can evaluate their outcome.
+   *
+   * Append-only: a new version of each row is appended under the same
+   * memory_id and identity. Rows that already carry a revision_task_id are left
+   * untouched, so historical linkage is never rewritten.
+   *
+   * Returns the number of rows linked.
+   */
+  linkRevisionTask(input: {
+    decision_id: string;
+    revision_task_id: string;
+  }): number {
+    const pending = this.listActive().filter(
+      (r) => r.decision_id === input.decision_id && !r.revision_task_id,
+    );
+    if (pending.length === 0) return 0;
+
+    ensureFounderMemoryDirs(this.repoRoot);
+    const now = new Date().toISOString();
+    for (const rec of pending) {
+      const base = {
+        ...rec,
+        revision_task_id: input.revision_task_id,
+        updated_at: now,
+      };
+      const linked: FounderPreferenceMemoryRecord = {
+        ...base,
+        content_hash: contentHash(base),
+      };
+      appendFileSync(this.memoryPath(), `${JSON.stringify(linked)}\n`, "utf8");
+      this.appendEvent({
+        type: "MEMORY_LINKED_REVISION_TASK",
+        decision_id: rec.decision_id,
+        review_id: rec.review_id,
+        memory_id: rec.memory_id,
+        detail: `revision_task_id=${input.revision_task_id}`,
+      });
+    }
+    this.rebuildActiveIndex();
+    return pending.length;
+  }
+
   findActiveByCandidate(candidateId: string): FounderPreferenceMemoryRecord[] {
     return this.listActive().filter((r) => r.candidate_id === candidateId);
   }

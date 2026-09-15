@@ -182,9 +182,17 @@ export class OpenAIProvider implements ProviderAdapter {
           usd: actual_cost_usd,
           provider: "openai",
           purpose: "openai_provider_execute",
+          // Deterministic task correlation — the ledger row is otherwise
+          // unattributable to the revision/generation task that paid for it.
+          task_id: request.task_id,
           tokens_in: input_tokens,
           tokens_out: output_tokens,
-          meta: { request_id: request.request_id, model },
+          meta: {
+            request_id: request.request_id,
+            provider_request_id: raw.id ?? null,
+            capability: request.capability,
+            model,
+          },
         });
       } catch {
         /* ledger fail-open */

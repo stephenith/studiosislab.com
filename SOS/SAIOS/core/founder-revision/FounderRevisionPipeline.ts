@@ -265,6 +265,38 @@ export async function runFounderFeedbackRevision(
     });
   };
 
+  /** Phase 6F — bounded structural repair evidence. */
+  const writeShapeRepairEvidence = (): void => {
+    const shr = planned.shape_repair;
+    if (!shr) return;
+    if (shr.repair_prompt) {
+      writeJson(join(evidenceDir, "shape-repair-prompt.json"), shr.repair_prompt);
+    }
+    if (shr.repair_raw_structured) {
+      writeJson(
+        join(evidenceDir, "shape-repair-raw.json"),
+        shr.repair_raw_structured,
+      );
+    }
+    if (shr.repaired_plan) {
+      writeJson(join(evidenceDir, "shape-repaired-plan.json"), shr.repaired_plan);
+    }
+    writeJson(join(evidenceDir, "shape-repair-validation.json"), {
+      attempted: shr.attempted,
+      accepted: shr.accepted,
+      primary_shape_errors: shr.primary_shape_errors,
+      failure_kind: shr.failure_kind,
+      error: shr.error,
+      provider: shr.provider,
+      provider_request_id: shr.provider_request_id,
+      model: shr.model,
+      input_tokens: shr.input_tokens,
+      output_tokens: shr.output_tokens,
+      publication_allowed: false,
+      live: false,
+    });
+  };
+
   if (!planned.ok) {
     if (planned.primary_plan) {
       writeJson(
@@ -274,7 +306,13 @@ export async function runFounderFeedbackRevision(
     }
     writeCoverageRepairEvidence();
     writeConflictRepairEvidence();
-    writeJson(join(evidenceDir, "planner-failure.json"), planned);
+    writeShapeRepairEvidence();
+    // Provider metadata is now part of the failure result, so malformed-plan
+    // failures stay diagnosable without reconstructing from the cost ledger.
+    writeJson(join(evidenceDir, "planner-failure.json"), {
+      ...planned,
+      task_id: task.task_id,
+    });
     const status =
       planned.status === "FAILED_PROVIDER" ? "FAILED_PROVIDER" : "FAILED";
     task = updateRevisionTask(task.task_id, {
@@ -297,8 +335,10 @@ export async function runFounderFeedbackRevision(
 
   writeCoverageRepairEvidence();
   writeConflictRepairEvidence();
+  writeShapeRepairEvidence();
   writeJson(join(evidenceDir, "revision-plan.json"), planned.plan);
   writeJson(join(evidenceDir, "openai-execution.json"), {
+    task_id: task.task_id,
     provider: planned.provider,
     provider_request_id: planned.provider_request_id,
     model: planned.model,
@@ -309,6 +349,8 @@ export async function runFounderFeedbackRevision(
     live: false,
     coverage_repair_attempted: planned.coverage_repair?.summary.attempted === true,
     conflict_repair_attempted: planned.conflict_repair?.summary.attempted === true,
+    shape_repair_attempted: planned.shape_repair?.attempted === true,
+    shape_repair_accepted: planned.shape_repair?.accepted === true,
   });
 
   let activePlan: RevisionPlan = planned.plan;

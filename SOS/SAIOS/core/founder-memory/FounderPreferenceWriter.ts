@@ -20,7 +20,10 @@ import type {
   MemoryScope,
   FounderPreferenceMemoryRecord,
 } from "./FounderPreferenceMemoryTypes.js";
-import { evaluateMemoryMaturation } from "./FounderMemoryMaturation.js";
+import {
+  evaluateMemoryMaturation,
+  resolveConfirmedMemoryScope,
+} from "./FounderMemoryMaturation.js";
 
 function readJson(path: string): Record<string, unknown> | null {
   if (!existsSync(path)) return null;
@@ -283,7 +286,11 @@ export class FounderPreferenceWriter {
           }
           written.push(
             this.store.upsertActive({
-              scope: prev.scope,
+              scope: resolveConfirmedMemoryScope({
+                currentScope: prev.scope,
+                normalized_rule: prev.normalized_rule,
+                raw_founder_feedback: prev.raw_founder_feedback,
+              }),
               issue_type: prev.issue_type,
               normalized_rule: prev.normalized_rule,
               raw_founder_feedback: prev.raw_founder_feedback,
@@ -496,6 +503,24 @@ export class FounderPreferenceWriter {
 
     return { ok: true, written: [], skipped_reason: "unknown_decision" };
   }
+}
+
+/**
+ * Links memory rows from a Founder decision to the revision task that decision
+ * produced. Called at revision-task creation, when the task id first exists.
+ */
+export function attachRevisionTaskToDecisionMemory(input: {
+  decision_id: string;
+  revision_task_id: string;
+  repoRoot?: string;
+}): number {
+  const store = new FounderPreferenceMemoryStore(
+    input.repoRoot ?? resolve(import.meta.dirname, "../../../.."),
+  );
+  return store.linkRevisionTask({
+    decision_id: input.decision_id,
+    revision_task_id: input.revision_task_id,
+  });
 }
 
 /** Fail-open helper for FounderDecisionManager. */

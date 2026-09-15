@@ -192,6 +192,8 @@ export function runRevisionPlanGateCircuit(input: {
   plan: RevisionPlan;
   task_id?: string;
   decision_id?: string;
+  /** Canonical target role; required for ROLE_TARGET_INTEGRITY acceptance. */
+  target_role?: string | null;
 }): GateCircuitResult {
   const stages = stageInit();
   const inventory = buildCanvasInventory(input.priorCanvas);
@@ -431,6 +433,7 @@ export function runRevisionPlanGateCircuit(input: {
     decision_id: input.decision_id ?? "fd-fixture-5v",
     revision_id: null,
     page_fit: normalized.report.page_fit,
+    target_role: input.target_role,
   });
   stages.ACCEPTANCE = "PASS";
 
@@ -441,6 +444,7 @@ export function runRevisionPlanGateCircuit(input: {
     beforeCanvas: input.priorCanvas,
     afterCanvas: normalized.canvas,
     acceptanceReport,
+    layoutNormalizationReport: normalized.report,
   });
   if (!coverage.gate_pass) {
     stages.FEEDBACK_COVERAGE = "FAIL";

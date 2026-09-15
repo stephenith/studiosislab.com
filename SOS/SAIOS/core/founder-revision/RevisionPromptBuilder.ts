@@ -164,6 +164,84 @@ function firstForbiddenPositionDimKey(
  * Note: adjust_spacing is deprecated for NEW plans (not in PLANNER_ALLOWED_OPS).
  * The position-field case below remains only for clarity; new plans never reach it.
  */
+/**
+ * Phase 6G — single source of truth for per-operation values requirements.
+ *
+ * `buildOperationValuesContract` renders the planner-facing contract directly
+ * from this table, and `validateExecutableMutationValues` enforces it, so the
+ * prompt and the validator cannot drift apart. The production failure in
+ * revtask-9441fe34-4ba emitted `update_text` with `values: {}` because the
+ * prompt stated the confidence requirement with high salience but left
+ * `values.text` to a single clause in a long grammar section.
+ */
+const OPERATION_VALUES_CONTRACT: ReadonlyArray<{
+  ops: CanvasOpType[];
+  /** Planner-facing requirement, rendered verbatim into the prompt. */
+  contract: string;
+}> = [
+  {
+    ops: ["update_text"],
+    contract:
+      "values.text is REQUIRED and MUST be a string. target_id MUST be a text-capable object (Textbox / IText / Text) taken from the inventory. NEVER target a Rect, shape, background, or section marker. NEVER emit update_text with empty values.",
+  },
+  {
+    ops: ["set_position", "move_object"],
+    contract:
+      "values MUST include at least one of left, top, delta_left, delta_top (numbers). Position-only: width/height/delta_width/delta_height and w/h aliases are NOT applied and must not be emitted.",
+  },
+  {
+    ops: ["set_dimensions", "resize_object", "extend_shape"],
+    contract:
+      "values MUST include at least one of width, height, delta_width, delta_height (and may include left/top/delta_left/delta_top when the same op must also move the object).",
+  },
+  {
+    ops: ["adjust_font_size"],
+    contract: "values MUST include fontSize or delta_fontSize (numbers).",
+  },
+  {
+    ops: ["adjust_line_height"],
+    contract: "values.lineHeight is REQUIRED and MUST be a number.",
+  },
+  {
+    ops: ["align_objects"],
+    contract:
+      "values.align_left is REQUIRED and MUST be a number. target_ids MUST list ≥2 inventory IDs from the SAME lane.",
+  },
+  {
+    ops: ["set_fill"],
+    contract: "values.fill is REQUIRED and MUST be a non-empty string.",
+  },
+  {
+    ops: ["set_stroke"],
+    contract: "values MUST include stroke (string) and/or strokeWidth (number).",
+  },
+  {
+    ops: ["group_objects", "ungroup_objects", "remove_object", "add_object"],
+    contract:
+      "values may be an empty object; these ops apply no positional fields.",
+  },
+];
+
+/**
+ * Per-operation values contract for the planner prompt, rendered from
+ * OPERATION_VALUES_CONTRACT so it always matches the validator.
+ */
+export function buildOperationValuesContract(): string {
+  const lines: string[] = [
+    "PER-OPERATION VALUES CONTRACT (mandatory — a violation fails the ENTIRE plan):",
+    "An operation you cannot fill with real executable values must NOT be emitted. Never create one to carry attribution.",
+  ];
+  for (const entry of OPERATION_VALUES_CONTRACT) {
+    const ops = entry.ops.filter((op) => PLANNER_ALLOWED_OPS.includes(op));
+    if (ops.length === 0) continue;
+    lines.push(`${ops.join(" / ")}: ${entry.contract}`);
+  }
+  lines.push(
+    "Never use values keys: spacing, gap, gap_px, vertical_spacing, horizontal_spacing, or similar pseudo-geometry fields.",
+  );
+  return lines.join("\n");
+}
+
 export function validateExecutableMutationValues(
   op: CanvasOpType,
   opIndex: number,
@@ -297,6 +375,14 @@ export function buildFounderItemCoverageLedger(
 ): string {
   const lines: string[] = [
     "FOUNDER ITEM COVERAGE REQUIREMENTS (mandatory — fail closed):",
+    "Each item below carries an explicit COVERAGE MODE. Obey the mode for that item and nothing else.",
+    "",
+    "NEVER CREATE AN OPERATION SOLELY TO REPRESENT, ATTRIBUTE, OR ACKNOWLEDGE A REQUIREMENT.",
+    "A Founder requirement does NOT need an operation merely because it appears in requested_changes.",
+    "Only genuine mutation items require executable operations. Verification, acceptance criteria, preservation instructions, QA requirements, and deterministic-layout-owned requirements require ZERO operations.",
+    "A placeholder operation with empty or invented values is a CONTRACT VIOLATION and fails the whole plan — an operation you cannot fill with real, executable values must not exist.",
+    "",
+    "For MUTATION_REQUIRED items only:",
     "Coverage is attribution-based, not operation-count-based. Several overlapping Founder items may be covered by one REAL operation.",
     "A MUTATION_REQUIRED item is covered when its Exact text appears on ≥1 REAL executable operation as founder_feedback_item (primary) OR in founder_feedback_items (secondary).",
     "This does NOT imply one unique operation per Founder item.",
@@ -306,32 +392,70 @@ export function buildFounderItemCoverageLedger(
   for (let i = 0; i < requestedChanges.length; i++) {
     const change = requestedChanges[i]!;
     const classified = classifyRequestedChange(change);
+    const mode = resolveItemCoverageMode(change);
     lines.push(`Item ${i + 1} — ${classified.classification}`);
+    lines.push(`Coverage mode: ${mode}`);
     if (classified.check_types.length > 0) {
       lines.push(`Check types: ${classified.check_types.join(" + ")}`);
     }
     lines.push(`Exact founder_feedback_item:`);
     lines.push(`"${change}"`);
-    if (classified.classification === "VERIFICATION_ACCEPTANCE") {
-      lines.push(
-        `Requirement: emit ZERO operations for this item. Deterministic post-execution acceptance owns it.`,
-      );
-    } else if (isValidationOnlyRequestedChange(change)) {
-      lines.push(
-        `Requirement: VALIDATION_ONLY — emit ZERO operations for this final validate/verify acceptance line.`,
-      );
-    } else if (isDeterministicLayoutNormalizerOwnedChange(change)) {
-      lines.push(
-        `Requirement: DETERMINISTIC_LAYOUT_OWNED — prefer ZERO hand-placed absolute set_position chains for this spacing/rhythm item. RevisionLayoutNormalizer owns safe geometry. Do not invent identity position ops for coverage.`,
-      );
-    } else {
-      lines.push(
-        `Requirement: BEFORE returning JSON, verify that at least one REAL executable operation contains this EXACT text in founder_feedback_item or founder_feedback_items (primary or secondary attribution — not a dedicated extra operation).`,
-      );
+    switch (mode) {
+      case "VERIFICATION_ACCEPTANCE":
+        lines.push(
+          `Requirement: emit ZERO operations for this item and do NOT attribute any operation to it. Deterministic post-execution acceptance owns it.`,
+        );
+        break;
+      case "PRESERVATION_CONSTRAINT":
+        lines.push(
+          `Requirement: emit ZERO operations for this item and do NOT make it the founder_feedback_item of any operation. It forbids change; it does not request one. Deterministic preservation checks prove it after execution.`,
+        );
+        break;
+      case "VALIDATION_ONLY":
+        lines.push(
+          `Requirement: VALIDATION_ONLY — emit ZERO operations for this final validate/verify acceptance line.`,
+        );
+        break;
+      case "DETERMINISTIC_LAYOUT_OWNED":
+        lines.push(
+          `Requirement: DETERMINISTIC_LAYOUT_OWNED — emit ZERO operations for this spacing/rhythm item. RevisionLayoutNormalizer owns this geometry and its own evidence provides the coverage. Do not invent identity position ops, and do not attach this text to an unrelated operation.`,
+        );
+        break;
+      case "MUTATION_REQUIRED":
+        lines.push(
+          `Requirement: BEFORE returning JSON, verify that at least one REAL executable operation contains this EXACT text in founder_feedback_item or founder_feedback_items (primary or secondary attribution — not a dedicated extra operation). The operation must carry complete, executable values for its op type.`,
+        );
+        break;
     }
     lines.push("");
   }
   return lines.join("\n").trimEnd();
+}
+
+/** Explicit per-item coverage mode (Phase 6G). Drives prompt and exemptions. */
+export type ItemCoverageMode =
+  | "MUTATION_REQUIRED"
+  | "VERIFICATION_ACCEPTANCE"
+  | "PRESERVATION_CONSTRAINT"
+  | "VALIDATION_ONLY"
+  | "DETERMINISTIC_LAYOUT_OWNED";
+
+export function resolveItemCoverageMode(
+  requestedChange: string,
+): ItemCoverageMode {
+  const classification =
+    classifyRequestedChange(requestedChange).classification;
+  if (classification === "VERIFICATION_ACCEPTANCE") {
+    return "VERIFICATION_ACCEPTANCE";
+  }
+  if (classification === "PRESERVATION_CONSTRAINT") {
+    return "PRESERVATION_CONSTRAINT";
+  }
+  if (isValidationOnlyRequestedChange(requestedChange)) return "VALIDATION_ONLY";
+  if (isDeterministicLayoutNormalizerOwnedChange(requestedChange)) {
+    return "DETERMINISTIC_LAYOUT_OWNED";
+  }
+  return "MUTATION_REQUIRED";
 }
 
 /** Prompt-only candidate ID hints from inventory section/text overlap. */
@@ -1004,7 +1128,9 @@ export function buildRevisionPlannerPrompt(input: {
     "1. Count all MUTATION_REQUIRED Founder items from FOUNDER ITEM COVERAGE REQUIREMENTS.",
     "2. For each MUTATION_REQUIRED item, find ≥1 operation whose founder_feedback_item OR founder_feedback_items contains the Exact founder_feedback_item text (attribution-based coverage — not one dedicated op per item).",
     "3. Confirm each such operation has executable values and a real inventory target_id or target_ids.",
-    "4. Confirm no VERIFICATION_ACCEPTANCE item has dummy ops or secondary attributions.",
+    "3a. Confirm EVERY operation satisfies the PER-OPERATION VALUES CONTRACT below. In particular, every update_text has a real values.text string and targets a text-capable inventory object — never a Rect / shape / section marker.",
+    "3b. Confirm NO operation exists solely to represent verification, acceptance criteria, preservation, QA, or deterministic-layout-owned requirements. Delete any such operation instead of giving it empty or invented values.",
+    "4. Confirm no VERIFICATION_ACCEPTANCE or PRESERVATION_CONSTRAINT item has dummy ops or secondary attributions.",
     "5. Confirm the plan has no internal same-target conflicting geometry mutations (e.g. two set_position tops, or set_position top plus move_object delta_top, on the same object). Such conflicts fail the ENTIRE primary plan BEFORE CoveragePlanRepair and BEFORE canvas execution.",
     "6. Where Founder items overlap on the same geometry, confirm you chose ONE coherent final geometry and used founder_feedback_items instead of a second same-axis mutation.",
     "7. If any MUTATION_REQUIRED item has zero attributions, the plan is incomplete — do not pretend it is complete.",
@@ -1027,8 +1153,8 @@ export function buildRevisionPlannerPrompt(input: {
     "founder_feedback_items (optional string[] of additional exact overlapping Founder lines),",
     "confidence (0-1).",
     "selector is forbidden on single-target ops and is NOT valid for align_objects / group_objects.",
-    "values keys are operation-specific (see OPERATION CAPABILITY GRAMMAR). Position ops: left/top/delta_left/delta_top. Size ops: width/height/delta_width/delta_height (and left/top when that same size op must also move). align_objects: align_left. update_text: text. adjust_font_size: fontSize or delta_fontSize. adjust_line_height: lineHeight. set_fill: fill. set_stroke: stroke and/or strokeWidth.",
-    "Never use values keys: spacing, gap, gap_px, vertical_spacing, horizontal_spacing, or similar.",
+    "",
+    buildOperationValuesContract(),
   ].join("\n");
 
   return {
@@ -1495,6 +1621,16 @@ const SHAPE_REPAIRABLE_ERROR_PATTERNS: readonly RegExp[] = [
   /^operations\[\d+\]\.intended_change required$/,
   /^operations\[\d+\]\.before_summary required$/,
   /^operations\[\d+\]\.founder_feedback_item required$/,
+  // Phase 6G — values completeness. Production failure revtask-9441fe34-4ba
+  // died on "operations[23] update_text: values.text string is required for
+  // update_text" with no repair attempted. An operation missing executable
+  // values is a shape defect the model can fix by re-emitting the operation
+  // completely, exactly like a missing confidence key.
+  /^operations\[\d+\] [a-z_]+: values[.\s].*$/,
+  // Same class: update_text pointed at a Rect / shape / section marker. The
+  // target is re-selectable from the inventory the repair prompt already
+  // carries. Distinct from `op not allowlisted`, which stays fail closed.
+  /^operations\[\d+\] update_text: target .+ is a .+ \(non-text object\); update_text may only target text-capable objects$/,
 ];
 
 /**
@@ -1553,7 +1689,12 @@ export function buildRevisionShapeRepairPrompt(input: {
     "- Do NOT drop Founder coverage merely to produce a smaller valid plan.",
     "- Do NOT invent object IDs — copy only from the inventory below.",
     "- Do NOT invent qualifications, employers, metrics, tools, or other credentials.",
-    "- Do NOT emit VERIFICATION_ACCEPTANCE mutation ops.",
+    "",
+    "ATTRIBUTION RULE (rejected plans usually break this):",
+    "- Only items whose COVERAGE MODE is MUTATION_REQUIRED may appear in founder_feedback_item or founder_feedback_items.",
+    "- NEVER attribute a VERIFICATION_ACCEPTANCE, PRESERVATION_CONSTRAINT, VALIDATION_ONLY, or DETERMINISTIC_LAYOUT_OWNED item on any operation, primary or secondary.",
+    "- Those items are satisfied without operations. Attributing one INVALIDATES the whole plan.",
+    "- If your previous plan created an operation only to acknowledge such an item, DROP that operation entirely.",
     "",
     "CONFIDENCE IS MANDATORY:",
     "- EVERY operation MUST include a `confidence` key with a number between 0 and 1.",
@@ -1638,9 +1779,13 @@ function feedbackItemCovered(
 export function isPlanCoverageExemptRequestedChange(
   requestedChange: string,
 ): boolean {
+  const classification =
+    classifyRequestedChange(requestedChange).classification;
+  // Verification and preservation requirements are proven by deterministic
+  // post-execution evidence and require ZERO operations (Phase 6G).
   if (
-    classifyRequestedChange(requestedChange).classification ===
-    "VERIFICATION_ACCEPTANCE"
+    classification === "VERIFICATION_ACCEPTANCE" ||
+    classification === "PRESERVATION_CONSTRAINT"
   ) {
     return true;
   }
@@ -1706,11 +1851,21 @@ export function findUncoveredRequestedChanges(
  * When opts.requested_changes is supplied, every attribution must exact-match a
  * MUTATION_REQUIRED requested change (fail closed; no silent drop).
  */
+/** True when this inventory object can hold text that update_text may replace. */
+function isTextCapableInventoryObject(o: CanvasInventoryObject): boolean {
+  return /text|textbox|itext/i.test(String(o.type ?? ""));
+}
+
 export function validateRevisionPlanShapeAndOperations(
   raw: unknown,
   opts?: {
     allowEmptyOperations?: boolean;
     requested_changes?: string[];
+    /**
+     * Prior-canvas inventory. When supplied, update_text targeting a known
+     * non-text object (Rect / shape / section marker) is rejected.
+     */
+    inventory?: CanvasInventoryObject[];
   },
 ): {
   ok: boolean;
@@ -1725,6 +1880,8 @@ export function validateRevisionPlanShapeAndOperations(
   const operationsRaw = o.operations;
   const allowEmpty = opts?.allowEmptyOperations === true;
   const requestedChanges = opts?.requested_changes;
+  const inventoryById = new Map<string, CanvasInventoryObject>();
+  for (const obj of opts?.inventory ?? []) inventoryById.set(obj.id, obj);
   const requestedByNorm = new Map<string, string>();
   if (requestedChanges) {
     for (const change of requestedChanges) {
@@ -1864,6 +2021,18 @@ export function validateRevisionPlanShapeAndOperations(
           );
           continue;
         }
+        // Phase 6G: update_text must never mutate a non-text object. The
+        // production failure emitted update_text against Rect section markers
+        // purely to carry Founder attribution for geometry requirements.
+        if (op === "update_text" && inventoryById.size > 0) {
+          const target = inventoryById.get(targetId);
+          if (target && !isTextCapableInventoryObject(target)) {
+            errors.push(
+              `operations[${i}] update_text: target ${targetId} is a ${target.type} (non-text object); update_text may only target text-capable objects`,
+            );
+            continue;
+          }
+        }
       } else if (MULTI_TARGET_OPS.has(op)) {
         // Fail closed: inventory target_ids (≥2) required. Selector-only /
         // target_id-only / values-only / empty targets are INVALID.
@@ -1915,6 +2084,23 @@ export function validateRevisionPlanShapeAndOperations(
       }
 
       if (requestedChanges && requestedChanges.length > 0) {
+        // Phase 6G: a preservation constraint forbids change, so it can never
+        // be the reason an operation exists. It is still permitted as a
+        // secondary attribution for traceability, which gives the planner a
+        // way to record the constraint without a fake mutation.
+        const primaryMatch = requestedByNorm.get(
+          normalizeFounderFeedbackItem(feedback),
+        );
+        if (
+          primaryMatch &&
+          classifyRequestedChange(primaryMatch).classification ===
+            "PRESERVATION_CONSTRAINT"
+        ) {
+          errors.push(
+            `operations[${i}] founder_feedback_item must not be a PRESERVATION_CONSTRAINT item (it forbids change; emit no operation for it): ${feedback}`,
+          );
+          continue;
+        }
         const attributions = operationFounderAttributions({
           founder_feedback_item: feedback,
           founder_feedback_items: secondaryItems,
@@ -1980,7 +2166,11 @@ export function validateRevisionPlanShapeAndOperations(
  */
 export function validateRevisionPlan(
   raw: unknown,
-  opts?: { requested_changes?: string[]; allowEmptyOperations?: boolean },
+  opts?: {
+    requested_changes?: string[];
+    allowEmptyOperations?: boolean;
+    inventory?: CanvasInventoryObject[];
+  },
 ): {
   ok: boolean;
   plan: RevisionPlan | null;
@@ -1989,6 +2179,7 @@ export function validateRevisionPlan(
   const shape = validateRevisionPlanShapeAndOperations(raw, {
     allowEmptyOperations: opts?.allowEmptyOperations,
     requested_changes: opts?.requested_changes,
+    inventory: opts?.inventory,
   });
   if (!shape.ok || !shape.plan) {
     return shape;

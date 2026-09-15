@@ -13,6 +13,7 @@ import {
   CANONICAL_VISUAL_CONSISTENCY_QA,
   CANONICAL_VISUAL_CONSISTENCY_QA_V2,
   classifyRequestedChange,
+  verificationCheckTypes,
 } from "./RequestedChangeClassification.js";
 import {
   buildRevisionCoverageRepairPrompt,
@@ -583,15 +584,27 @@ function main(): void {
     ),
   );
 
-  // M — generic QA alone does not admit verification
+  // M — generic QA alone still admits no SPECIFIC deterministic check.
+  //
+  // Phase 6G: these bare tokens are no longer MUTATION_REQUIRED. Production
+  // failure revtask-9441fe34-4ba proved that forcing a mutation for wording
+  // with no concrete target makes the planner invent placeholder operations.
+  // The property this check exists to protect is unchanged: a bare token must
+  // never claim a specific check (COLLISION_BOUNDS, PAGE_FIT, …) it cannot
+  // prove. It resolves to GENERAL_ACCEPTANCE and zero operations instead.
+  const genericQaForms = ["QA", "perform QA", "final check"];
   checks.push(
     assert(
-      classifyRequestedChange("QA").classification === "MUTATION_REQUIRED" &&
-        classifyRequestedChange("perform QA").classification ===
-          "MUTATION_REQUIRED" &&
-        classifyRequestedChange("final check").classification ===
-          "MUTATION_REQUIRED",
-      "M_generic_qa_not_verification",
+      genericQaForms.every((form) => {
+        const classified = classifyRequestedChange(form);
+        const types = verificationCheckTypes(classified);
+        return (
+          classified.classification === "VERIFICATION_ACCEPTANCE" &&
+          types.length === 1 &&
+          types[0] === "GENERAL_ACCEPTANCE"
+        );
+      }),
+      "M_generic_qa_admits_no_specific_check",
       "ok",
     ),
   );

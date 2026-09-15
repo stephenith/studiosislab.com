@@ -1,19 +1,28 @@
 /**
  * Deterministic Founder requested-change classification.
  *
- * Default is MUTATION_REQUIRED (fail closed).
- * VERIFICATION_ACCEPTANCE is admitted for:
- * - exact canonical production forms, OR
- * - narrowly constrained final deterministic verification wording.
- *
  * Classification is derived solely from requested-change text.
  * Planner/provider fields cannot change classification.
  * Words like QA / review / check / verify / final alone never admit verification.
+ *
+ * Fail-closed semantics (Phase 6G):
+ *   "fail closed" means DO NOT REQUIRE A MUTATION we cannot establish — it does
+ *   NOT mean unknown Founder wording becomes MUTATION_REQUIRED. A line is
+ *   MUTATION_REQUIRED only when an explicit mutation verb is paired with a
+ *   concrete, changeable target in a non-prohibited clause. Everything else is
+ *   verification, preservation, or general acceptance, all of which require
+ *   ZERO AI operations and are proven by deterministic post-execution evidence.
+ *
+ * Resolution order:
+ *   1. exact canonical production forms (compatibility fast path)
+ *   2. historical narrow verification/preservation patterns (compatibility)
+ *   3. durable clause-scoped intent resolution (resolveRequestedChangeIntent)
  */
 
 export type RequestedChangeClass =
   | "MUTATION_REQUIRED"
-  | "VERIFICATION_ACCEPTANCE";
+  | "VERIFICATION_ACCEPTANCE"
+  | "PRESERVATION_CONSTRAINT";
 
 export type VerificationCheckType =
   | "COLLISION_BOUNDS"
@@ -21,7 +30,14 @@ export type VerificationCheckType =
   | "CONTENT_PRESERVATION"
   | "PAGE_FIT"
   | "LAYOUT_PRESERVATION"
-  | "ARCHITECTURE_PRESERVATION";
+  | "ARCHITECTURE_PRESERVATION"
+  | "ROLE_TARGET_INTEGRITY"
+  /**
+   * No concrete mutation, named verification topic, or preservation target was
+   * resolvable. Requires zero operations and is certified by final-geometry
+   * cleanliness (no text overlap, no out-of-bounds content).
+   */
+  | "GENERAL_ACCEPTANCE";
 
 /** Exact production form from revtask-05667cbb-641 requested_changes[11]. */
 export const CANONICAL_COLLISION_BOUNDS_QA =
@@ -548,10 +564,469 @@ function compoundPageFitAndContentPreservation(n: string): boolean {
   );
 }
 
+/* ===================================================================== */
+/* Phase 6G — durable clause-scoped intent resolution                    */
+/* ===================================================================== */
+
+/**
+ * One requested-action scope inside a Founder line.
+ *
+ * Founder lines routinely combine a mutation demand with preservation and
+ * verification demands ("Change the professional title … while preserving the
+ * current header design, candidate name, contact layout, colors, and
+ * typography."). Intent must therefore be resolved per clause: a preservation
+ * clause must never suppress the mutation clause, and a mutation verb sitting
+ * inside a prohibition must never create a mutation requirement.
+ */
+export type IntentClause = {
+  text: string;
+  /** False when the clause forbids its action ("do not change the name"). */
+  positive: boolean;
+};
+
+/**
+ * Clause boundaries: sentences, semicolons/colons, and subordinators.
+ *
+ * A coordinating "and"/"," also ends a clause when a preservation verb follows
+ * it, so "Move the Projects section lower and keep all factual information
+ * unchanged" splits into its mutation clause and its preservation clause
+ * instead of letting the preservation half suppress the request.
+ */
+const COORDINATED_PRESERVATION_LOOKAHEAD =
+  "(?=\\s*(?:preserv(?:e|ing)|retain(?:ing)?|keep(?:ing)?|maintain(?:ing)?|leav(?:e|ing))\\b)";
+/** "… and ensure there are zero text collisions" starts an acceptance clause. */
+const COORDINATED_VERIFICATION_LOOKAHEAD =
+  "(?=\\s*(?:ensur(?:e|ing)|verif(?:y|ying)|check(?:ing)?|confirm(?:ing)?|validat(?:e|ing)|make sure|guarantee)\\b)";
+const CLAUSE_BOUNDARY_RE = new RegExp(
+  `(?:[.!?;:]+|\\bwhile\\b|\\bwhilst\\b|\\bwhereas\\b|\\bbut\\b|\\bhowever\\b|\\brather than\\b|\\binstead of\\b|\\bbecause\\b|\\bso that\\b|\\band\\b${COORDINATED_PRESERVATION_LOOKAHEAD}|,${COORDINATED_PRESERVATION_LOOKAHEAD}|\\band\\b${COORDINATED_VERIFICATION_LOOKAHEAD}|,${COORDINATED_VERIFICATION_LOOKAHEAD})`,
+);
+
+/** Markers that flip the remainder of a clause segment to forbidden. */
+const PROHIBITION_BOUNDARY_RE =
+  /\b(?:do not|does not|don't|doesn't|never|must not|may not|should not|cannot|can't|avoid|refrain from|without)\b/;
+
+/**
+ * Exception markers. Text after them states a permitted fallback, not a
+ * Founder demand ("… unless a small positioning adjustment is required"), so it
+ * must never create a mutation requirement.
+ */
+const EXCEPTION_BOUNDARY_RE = /\b(?:unless|except|as long as|only if)\b/;
+
+/**
+ * Split a normalized Founder line into polarity-tagged intent clauses.
+ *
+ * `positive` marks a clause that actually demands something. A prohibition
+ * marker forbids everything after it within its clause, which is how
+ * coordinated prohibitions ("does not clip, overflow, overlap, or extend into
+ * another section") are handled without enumerating each verb.
+ */
+export function resolveIntentClauses(normalized: string): IntentClause[] {
+  const out: IntentClause[] = [];
+  for (const raw of normalized.split(CLAUSE_BOUNDARY_RE)) {
+    const clause = raw.trim();
+    if (!clause) continue;
+    // Everything after an exception marker is a permitted fallback, not a demand.
+    const exceptionParts = clause.split(EXCEPTION_BOUNDARY_RE);
+    exceptionParts.forEach((part, exceptionIndex) => {
+      const scope = part.trim();
+      if (!scope) return;
+      const demanding = exceptionIndex === 0;
+      scope.split(PROHIBITION_BOUNDARY_RE).forEach((segment, index) => {
+        const text = segment.trim();
+        if (!text) return;
+        out.push({ text, positive: demanding && index === 0 });
+      });
+    });
+    // Keep the whole clause as a non-demanding scope when it prohibits, so
+    // preservation targets inside the prohibition remain matchable.
+    if (PROHIBITION_BOUNDARY_RE.test(clause)) {
+      out.push({ text: clause, positive: false });
+    }
+  }
+  return out;
+}
+
+/**
+ * Explicit mutation verbs. Preservation and inspection verbs are absent.
+ *
+ * Past participles are admitted only for content-mutation verbs, where they
+ * unambiguously demand an end-state ("with the role content and sidebar
+ * geometry fully corrected"). Geometry participles are excluded because they
+ * appear constantly in QA prose ("appears intentionally aligned").
+ */
+const MUTATION_VERB_RE =
+  /\b(?:chang(?:e|ing)|replac(?:e|ing|ed)|rewrit(?:e|ing|ten)|rewor(?:d|ding|ded)|revis(?:e|ing|ed)|updat(?:e|ing|ed)|correct(?:ing|ed)?|fix(?:ing|ed)?|remov(?:e|ing|ed)|delet(?:e|ing|ed)|swap(?:ping)?|shorten(?:ing)?|expand(?:ing)?|clarif(?:y|ying)|add(?:ing)?|insert(?:ing)?|set(?:ting)?|mov(?:e|ing)|shift(?:ing)?|reposition(?:ing)?|resiz(?:e|ing)|align(?:ing)?|extend(?:ing)?|increas(?:e|ing)|reduc(?:e|ing)|tighten(?:ing)?|compress(?:ing)?|rais(?:e|ing)|lower(?:ing)?|nudg(?:e|ing)|adjust(?:ing)?|standardiz(?:e|ing)|normaliz(?:e|ing)|rebalanc(?:e|ing)|redistribut(?:e|ing)|reflow(?:ing)?|reorganiz(?:e|ing)|reorder(?:ing)?|reformat(?:ting)?|restructur(?:e|ing)|restor(?:e|ing)|rework(?:ing)?|refin(?:e|ing)|improv(?:e|ing)|balanc(?:e|ing)|cent(?:er|re|ering|ring)|plac(?:e|ing)|stack(?:ing)?|recomput(?:e|ing)|recalculat(?:e|ing)|calculat(?:e|ing)|cascad(?:e|ing)|position(?:ing)?|mak(?:e|ing)(?!\s+sure)|restyl(?:e|ing)|recolou?r(?:ing)?|italici[sz](?:e|ing)|capitali[sz](?:e|ing)|indent(?:ing)?|outdent(?:ing)?|widen(?:ing)?|enlarg(?:e|ing)|truncat(?:e|ing)|condens(?:e|ing)|merg(?:e|ing)|ungroup(?:ing)?|renam(?:e|ing)|appl(?:y|ying)|enforc(?:e|ing)|convert(?:ing)?|unif(?:y|ying)|harmoni[sz](?:e|ing)|distribut(?:e|ing))\b/;
+
+/** Concrete, changeable targets: sections, objects, and mutable properties. */
+const MUTATION_TARGET_RE =
+  /\b(?:professional title|job title|role title|title|headline|summary|experience|employment history|work history|skills?|projects?|certifications?|credentials?|education|languages?|header|footer|sidebar|side bar|contact|candidate name|name|bullets?|bullet points?|content|copy|wording|text|textbox|text box|object|objects|element|elements|section|sections|heading|headings|marker|markers|column|columns|lane|page|page space|line height|line spacing|font size|font|typography|spacing|separation|gap|gaps|margin|margins|padding|position|positions|width|height|dimensions?|geometry|layout|whitespace|vertical space|available space|\d+\s*px)\b/;
+
+/**
+ * Requirement modality: the Founder states a required end-state rather than an
+ * imperative action ("Summary, Experience … must all represent Operations
+ * Analyst", "Ensure all Experience bullets focus on …").
+ */
+const REQUIREMENT_MODALITY_RE =
+  /\b(?:must|should|need(?:s)? to|has to|have to|ensure|ensuring|make sure|required to|shall)\b/;
+
+/** Nouns that make a clause a resume-content requirement rather than layout. */
+const CONTENT_DOMAIN_TARGET_RE =
+  /\b(?:professional title|job title|role title|summary|experience|employment history|work history|skills?|projects?|certifications?|credentials?|education|languages?|bullets?|responsibilities|achievements?|metrics?|tools?|content|copy|wording|context)\b/;
+
+/**
+ * Deterministic verification topics. Each maps to a post-execution check that
+ * already owns the requirement, so these never need an AI operation.
+ */
+const VERIFICATION_TOPICS: ReadonlyArray<
+  readonly [VerificationCheckType, RegExp]
+> = [
+  [
+    "COLLISION_BOUNDS",
+    /\b(?:overlap|overlaps|overlapping|non[- ]overlapping|collision|collisions|collide|collides|clip|clips|clipped|clipping|out[- ]of[- ]bounds|out of bounds|page boundaries|page bounds|overflow|overflows|touches|touching|visually merges|merges with|obscure|obscures|intrud(?:e|es|ing)|intrusion|encroach\w*|duplicate text|duplication|readable|readability|legible)\b/,
+  ],
+  [
+    "PAGE_FIT",
+    /\b(?:one[- ]page|single page|fits? on one page|page fit|within the page height|page length)\b/,
+  ],
+  [
+    "ROLE_TARGET_INTEGRITY",
+    /\b(?:target role|role target|role[- ]target|role consistency|role mismatch|match(?:es|ing)? the (?:target )?role|represent the (?:target )?role|consistently represent|consistently describe)\b/,
+  ],
+  // A design domain on its own is not a checkable end-state — the check proves
+  // sameness of repeated elements, so the line must frame it as sameness.
+  // "Review overall typography against the approved templates" names no
+  // provable predicate and stays a mutation requirement.
+  [
+    "VISUAL_CONSISTENCY",
+    /\b(?:design system|repeated components|repeated headings|coherent and repeatable|visual qa)\b|\b(?:identical|same|uniform|consistent|matching|share (?:one|the same))\b[^.;]{0,48}\b(?:typograph\w+|fonts?|font size|type size|heading style)\b|\b(?:typograph\w+|fonts?|heading style)\b[^.;]{0,48}\b(?:identical|uniform|consistent|matching|share (?:one|the same))\b/,
+  ],
+  [
+    "CONTENT_PRESERVATION",
+    /\b(?:fabricat\w*|invent\w*|truthful|factual)\b/,
+  ],
+  [
+    "ARCHITECTURE_PRESERVATION",
+    /\b(?:two[- ]column|column architecture|visual identity|overall architecture)\b/,
+  ],
+];
+
+/** Verbs that request inspection of an end-state rather than a mutation. */
+const VERIFICATION_VERB_RE =
+  /\b(?:verify|verifying|check|checking|confirm|confirming|validat(?:e|ing)|review(?:ing)?|audit(?:ing)?|inspect(?:ing)?|qa|ensure|ensuring|make sure|guarantee)\b/;
+
+/**
+ * Outcome assertions. The Founder states a required property of the result
+ * without an inspection verb ("Return a clean one-page Resume Template with no
+ * overlapping text…", "prevent any text or heading collisions"). These are
+ * acceptance requirements, not mutation instructions.
+ */
+const OUTCOME_ASSERTION_RE =
+  /\b(?:no|zero|never|without|free of|prevent|prevents|avoid|avoids|eliminate|eliminates|remain|remains|stay|stays|keep|keeps|clean)\b/;
+
+/** Preservation verbs and prohibition forms. */
+const PRESERVATION_VERB_RE =
+  /\b(?:preserv(?:e|ing)|retain(?:ing)?|keep(?:ing)?|maintain(?:ing)?|leave(?:\s+\w+)? (?:unchanged|as[- ]is|alone)|unchanged|untouched|intact|as[- ]is)\b/;
+
+/** A clause opening with a preservation verb: the whole clause forbids change. */
+const LEADING_PRESERVATION_VERB_RE =
+  /^(?:preserv(?:e|ing)|retain(?:ing)?|keep(?:ing)?|maintain(?:ing)?|leav(?:e|ing))\b/;
+
+/** Preservation of the state that already exists — nothing to change. */
+const PRESERVE_EXISTING_STATE_RE =
+  /\b(?:existing|current|present|already|unchanged|untouched|intact|as[- ]is)\b/;
+
+/**
+ * Protected things a preservation clause can name. Deliberately excludes
+ * spacing / gap / rhythm / alignment as primary signals: "maintain consistent
+ * vertical spacing" is a layout requirement the deterministic normalizer owns,
+ * not a preservation constraint.
+ */
+const PRESERVATION_TARGETS: ReadonlyArray<
+  readonly [VerificationCheckType, RegExp]
+> = [
+  [
+    "CONTENT_PRESERVATION",
+    /\b(?:candidate name|candidate's name|the name|job title|role title|contact information|contact[- ]information|contact details|contact data|personal details|factual|truthful|resume information|existing content|employment dates|dates|employer names|credentials|skills?)\b/,
+  ],
+  [
+    "ARCHITECTURE_PRESERVATION",
+    /\b(?:architecture|two[- ]column|column structure|visual identity|visual style|sidebar background|section markers?|(?:header|overall|visual|existing|current)\s+design|design (?:language|system)|colors?|colours?|palette|navy|typography|typographic hierarchy|visual hierarchy|fonts?|styling|brand)\b/,
+  ],
+  [
+    "LAYOUT_PRESERVATION",
+    /\b(?:current layout|existing layout|contact layout|header layout|layout|structure|section order|composition|unrelated|other|remaining|rest of|sections?|elements?|resume template|template|anchors?|relationship)\b/,
+  ],
+];
+
+function mutationResult(): ClassifiedRequestedChange {
+  return {
+    classification: "MUTATION_REQUIRED",
+    check_type: null,
+    check_types: [],
+    canonical_form: null,
+  };
+}
+
+function preservationResult(
+  check_types: VerificationCheckType[],
+): ClassifiedRequestedChange {
+  return {
+    classification: "PRESERVATION_CONSTRAINT",
+    check_type: check_types[0] ?? null,
+    check_types,
+    canonical_form: null,
+  };
+}
+
+/**
+ * Explicit mutation intent: mutation verb + concrete target, not forbidden.
+ *
+ * "Preserve the current positioning and hierarchy of the name" names a mutable
+ * property but demands no mutation, so preserve-existing-state clauses are
+ * excluded even when they contain a mutation-verb form.
+ */
+function clauseHasConcreteMutationIntent(clause: IntentClause): boolean {
+  if (!clause.positive) return false;
+  // A clause that opens with a preservation verb demands no change, whatever
+  // mutable nouns follow it ("Preserve the narrow sidebar architecture").
+  if (LEADING_PRESERVATION_VERB_RE.test(clause.text)) return false;
+  if (
+    PRESERVATION_VERB_RE.test(clause.text) &&
+    PRESERVE_EXISTING_STATE_RE.test(clause.text)
+  ) {
+    return false;
+  }
+  if (!MUTATION_VERB_RE.test(clause.text)) return false;
+  return MUTATION_TARGET_RE.test(clause.text);
+}
+
+/** Measurable geometric relationships between objects. */
+const LAYOUT_RELATION_RE =
+  /\b(?:spacing|separation|rhythm|gaps?|margins?|padding|line height|line spacing|baseline|align|aligned|alignment|balanced|cent(?:er|re)ed|inside|within|contained|page space|available space|whitespace|visually distinct|relationships?|visual reference)\b/;
+
+/** Objects a geometric relationship can be asserted between. */
+const LAYOUT_RELATION_TARGET_RE =
+  /\b(?:sections?|headings?|content|columns?|sidebar|side bar|page|header|footer|entries|entry|body|blocks?|titles?|descriptions?|markers?|summary|experience|education|skills?|projects?|certifications?|languages?|contact|name|text|objects?)\b/;
+
+/**
+ * A geometric outcome the Founder demands ("maintain a clear and consistent
+ * vertical gap between Skills → Projects …", "keep the name, role title, and
+ * contact row together inside the header rectangle").
+ *
+ * These are real geometry requirements even when their verb is a preservation
+ * verb. The deterministic layout normalizer owns the geometry, so the
+ * requirement stays MUTATION_REQUIRED and draws its coverage from that
+ * ownership rather than from a preservation exemption.
+ *
+ * Evaluated only after verification topics, so overlap / clipping / bounds
+ * outcomes go to the collision check that actually proves them.
+ */
+function clauseIsLayoutOutcomeRequirement(clause: IntentClause): boolean {
+  if (!clause.positive) return false;
+  // Only an explicit reference to the state that already exists rules this out.
+  // "Keep each section's heading, marker, and content visually grouped as one
+  // unit with consistent internal spacing" is a geometry requirement, not a
+  // freeze, even though it opens with a preservation verb.
+  if (
+    PRESERVATION_VERB_RE.test(clause.text) &&
+    PRESERVE_EXISTING_STATE_RE.test(clause.text)
+  ) {
+    return false;
+  }
+  if (!LAYOUT_RELATION_RE.test(clause.text)) return false;
+  return LAYOUT_RELATION_TARGET_RE.test(clause.text);
+}
+
+/** Verbs that edit text content rather than move or size an object. */
+const CONTENT_MUTATION_VERB_RE =
+  /\b(?:chang(?:e|ing)|replac(?:e|ing)|rewrit(?:e|ing)|rewor(?:d|ding)|revis(?:e|ing)|updat(?:e|ing)|remov(?:e|ing)|delet(?:e|ing)|swap(?:ping)?|shorten(?:ing)?|clarif(?:y|ying)|add(?:ing)?|insert(?:ing)?|set(?:ting)?)\b/;
+
+/** Geometry properties that mark a clause as layout rather than content work. */
+const GEOMETRY_PROPERTY_RE =
+  /\b(?:line height|line spacing|text box height|box height|height|width|dimensions?|position(?:s|ing)?|spacing|separation|gaps?|margins?|padding|whitespace|vertical space|available space|page space|wrapping|wrap|baseline|align\w*|balanc\w*|\d+\s*px)\b/;
+
+/**
+ * True when any clause explicitly asks for a resume-content edit ("Change the
+ * professional title from Marketing Manager to Operations Analyst …").
+ * Clause-scoped, so a trailing preservation clause that mentions header
+ * design or contact layout cannot mask the content request.
+ *
+ * Deterministic layout owners use this to stay out of content ownership: the
+ * AI planner owns text content, the normalizer owns geometry. A geometry verb
+ * ("Move the Education heading down 20px") or a geometry property ("correct
+ * line height inside Certifications") keeps the clause with the normalizer.
+ */
+export function hasConcreteContentMutationClause(
+  requestedChange: string,
+): boolean {
+  const normalized = normalizeForClassification(requestedChange);
+  if (!normalized) return false;
+  return resolveIntentClauses(normalized).some((clause) => {
+    if (!clause.positive) return false;
+    if (
+      PRESERVATION_VERB_RE.test(clause.text) &&
+      PRESERVE_EXISTING_STATE_RE.test(clause.text)
+    ) {
+      return false;
+    }
+    if (!CONTENT_MUTATION_VERB_RE.test(clause.text)) return false;
+    if (GEOMETRY_PROPERTY_RE.test(clause.text)) return false;
+    return CONTENT_DOMAIN_TARGET_RE.test(clause.text);
+  });
+}
+
+/** Mutable design domains an executable operation can actually change. */
+const DESIGN_DOMAIN_TARGET_RE =
+  /\b(?:typograph\w+|fonts?|font sizes?|type sizes?|font weights?|colou?rs?|palette|styling|visual hierarchy|typographic hierarchy|capitali[sz]ation|casing)\b/;
+
+/**
+ * A standard the Founder wants the design brought up to, rather than a
+ * property value. No deterministic check can prove "matches our best
+ * templates", so the requirement belongs to the AI planner.
+ */
+const QUALITY_STANDARD_RE =
+  /\b(?:against|compared (?:to|with)|in line with|to match|benchmark\w*|approved templates?|reference templates?|highest[- ]quality|best[- ]in[- ]class|previously approved)\b/;
+
+/**
+ * Design-standard mutation requirement: an inspection verb aimed at a mutable
+ * design domain measured against an external standard ("Review overall
+ * typography against the highest-quality previously approved templates").
+ *
+ * Evaluated after verification so sameness-framed lines ("all headings must
+ * share one font size") still go to the VISUAL_CONSISTENCY check.
+ */
+function clauseIsDesignStandardMutationRequirement(
+  clause: IntentClause,
+): boolean {
+  if (!clause.positive) return false;
+  if (
+    PRESERVATION_VERB_RE.test(clause.text) &&
+    PRESERVE_EXISTING_STATE_RE.test(clause.text)
+  ) {
+    return false;
+  }
+  if (!DESIGN_DOMAIN_TARGET_RE.test(clause.text)) return false;
+  return QUALITY_STANDARD_RE.test(clause.text);
+}
+
+/**
+ * Declarative mutation requirement: no imperative verb, but the Founder states
+ * a required end-state for concrete resume content ("Summary, Experience …
+ * context must all consistently represent Operations Analyst"). Evaluated only
+ * after verification and preservation, so acceptance-owned outcomes win.
+ */
+function clauseHasDeclarativeMutationRequirement(clause: IntentClause): boolean {
+  if (!clause.positive) return false;
+  if (!REQUIREMENT_MODALITY_RE.test(clause.text)) return false;
+  return CONTENT_DOMAIN_TARGET_RE.test(clause.text);
+}
+
+function clauseVerificationChecks(clause: IntentClause): VerificationCheckType[] {
+  const out: VerificationCheckType[] = [];
+  for (const [checkType, topic] of VERIFICATION_TOPICS) {
+    if (topic.test(clause.text)) out.push(checkType);
+  }
+  return out;
+}
+
+function clausePreservationChecks(clause: IntentClause): VerificationCheckType[] {
+  const out: VerificationCheckType[] = [];
+  for (const [checkType, target] of PRESERVATION_TARGETS) {
+    if (target.test(clause.text)) out.push(checkType);
+  }
+  return out;
+}
+
+function dedupeChecks(
+  checks: VerificationCheckType[],
+): VerificationCheckType[] {
+  return [...new Set(checks)];
+}
+
+/**
+ * Durable requested-change intent resolution.
+ *
+ * Replaces the former `return MUTATION_REQUIRED` default. Resolution order is
+ * the contract:
+ *   1. explicit mutation — verb + concrete target in a demanding clause
+ *   2. design standard — a mutable design domain measured against a standard
+ *   3. geometric outcome — the deterministic layout normalizer owns it
+ *   3b. deterministic verification outcome — a post-execution check owns it
+ *   4. preservation constraint — nothing may change
+ *   5. declarative content requirement — a required content end-state
+ *   6. general acceptance — no owner resolvable; still zero operations
+ */
+export function resolveRequestedChangeIntent(
+  normalized: string,
+): ClassifiedRequestedChange {
+  const clauses = resolveIntentClauses(normalized);
+  if (clauses.length === 0) return verificationResult(["GENERAL_ACCEPTANCE"]);
+
+  if (clauses.some((c) => clauseHasConcreteMutationIntent(c))) {
+    return mutationResult();
+  }
+
+  // A bare topic mention is not a verification demand on its own: the line must
+  // ask for inspection, assert a requirement, assert an outcome, or prohibit.
+  const demandsVerification =
+    VERIFICATION_VERB_RE.test(normalized) ||
+    REQUIREMENT_MODALITY_RE.test(normalized) ||
+    OUTCOME_ASSERTION_RE.test(normalized);
+  const verificationChecks: VerificationCheckType[] = [];
+  const verificationClauses = new Set<IntentClause>();
+  for (const clause of clauses) {
+    const checks = clauseVerificationChecks(clause);
+    if (checks.length === 0) continue;
+    if (demandsVerification || !clause.positive) {
+      verificationChecks.push(...checks);
+      verificationClauses.add(clause);
+    }
+  }
+
+  // A geometry demand outranks an acceptance clause sitting beside it:
+  // "Maintain a consistent positive vertical gap between each sidebar section
+  // and ensure there are zero text collisions" must still produce the gap.
+  // Only a clause that is NOT itself the acceptance clause can do this, so
+  // "Ensure the Certifications section has sufficient spacing so no text
+  // overlaps" stays with the collision check that actually proves it.
+  const mutationClauses = clauses.filter((c) => !verificationClauses.has(c));
+
+  if (mutationClauses.some((c) => clauseIsDesignStandardMutationRequirement(c))) {
+    return mutationResult();
+  }
+
+  if (mutationClauses.some((c) => clauseIsLayoutOutcomeRequirement(c))) {
+    return mutationResult();
+  }
+
+  if (verificationChecks.length > 0) {
+    return verificationResult(dedupeChecks(verificationChecks));
+  }
+
+  const preservationChecks: VerificationCheckType[] = [];
+  const preserves =
+    PRESERVATION_VERB_RE.test(normalized) || clauses.some((c) => !c.positive);
+  if (preserves) {
+    for (const clause of clauses) {
+      if (clause.positive && !PRESERVATION_VERB_RE.test(clause.text)) continue;
+      preservationChecks.push(...clausePreservationChecks(clause));
+    }
+  }
+  if (preservationChecks.length > 0) {
+    return preservationResult(dedupeChecks(preservationChecks));
+  }
+
+  if (clauses.some((c) => clauseHasDeclarativeMutationRequirement(c))) {
+    return mutationResult();
+  }
+
+  return verificationResult(["GENERAL_ACCEPTANCE"]);
+}
+
 /**
  * Classify a Founder requested change.
- * Exact canonical match first, then narrow final-verification patterns.
- * Fail closed: ambiguous text remains MUTATION_REQUIRED.
+ * Exact canonical match first, then the historical narrow verification
+ * patterns (compatibility fast paths), then durable intent resolution.
  */
 export function classifyRequestedChange(
   requestedChange: string,
@@ -609,12 +1084,7 @@ export function classifyRequestedChange(
     return verificationResult(["CONTENT_PRESERVATION"]);
   }
 
-  return {
-    classification: "MUTATION_REQUIRED",
-    check_type: null,
-    check_types: [],
-    canonical_form: null,
-  };
+  return resolveRequestedChangeIntent(n);
 }
 
 export function isVerificationAcceptance(requestedChange: string): boolean {
@@ -622,4 +1092,25 @@ export function isVerificationAcceptance(requestedChange: string): boolean {
     classifyRequestedChange(requestedChange).classification ===
     "VERIFICATION_ACCEPTANCE"
   );
+}
+
+/** True when the Founder line forbids change rather than requesting one. */
+export function isPreservationConstraint(requestedChange: string): boolean {
+  return (
+    classifyRequestedChange(requestedChange).classification ===
+    "PRESERVATION_CONSTRAINT"
+  );
+}
+
+/**
+ * True when the Founder line requires ZERO AI operations.
+ *
+ * Verification and preservation requirements are proven by deterministic
+ * post-execution evidence. Creating an operation to carry their attribution is
+ * forbidden — that is exactly what produced the empty-values placeholder
+ * operations in revtask-9441fe34-4ba.
+ */
+export function requiresZeroOperations(requestedChange: string): boolean {
+  const c = classifyRequestedChange(requestedChange).classification;
+  return c === "VERIFICATION_ACCEPTANCE" || c === "PRESERVATION_CONSTRAINT";
 }

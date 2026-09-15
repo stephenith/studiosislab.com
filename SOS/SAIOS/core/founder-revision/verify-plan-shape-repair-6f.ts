@@ -93,16 +93,41 @@ function repairedPlanFromFixture(
   summary: string;
   operations: Record<string, unknown>[];
 } {
+  const mutationItems = requestedChanges.filter(
+    (c) => !isPlanCoverageExemptRequestedChange(c),
+  );
+  const mutationSet = new Set(mutationItems);
+
   const ops = (raw.operations as unknown[])
     .filter(
       (o): o is Record<string, unknown> =>
         !!o && typeof o === "object" && !Array.isArray(o),
     )
-    .map((o) => ({ ...o, confidence: 0.9 }));
+    .map((o) => {
+      // A compliant repair response honours the prompt's attribution rule:
+      // verification / preservation / layout-owned lines need zero operations,
+      // so they never appear as attribution. The production response attributed
+      // them; the repair drops those claims rather than inventing ops for them.
+      const secondary = (
+        Array.isArray(o.founder_feedback_items)
+          ? (o.founder_feedback_items as unknown[])
+          : []
+      ).filter((s): s is string => typeof s === "string" && mutationSet.has(s));
+      const primary =
+        typeof o.founder_feedback_item === "string" &&
+        mutationSet.has(o.founder_feedback_item)
+          ? o.founder_feedback_item
+          : (secondary.shift() ?? mutationItems[0]!);
+      const next: Record<string, unknown> = {
+        ...o,
+        confidence: 0.9,
+        founder_feedback_item: primary,
+      };
+      if (secondary.length > 0) next.founder_feedback_items = secondary;
+      else delete next.founder_feedback_items;
+      return next;
+    });
 
-  const mutationItems = requestedChanges.filter(
-    (c) => !isPlanCoverageExemptRequestedChange(c),
-  );
   const claimed = new Set(
     ops.map((o) => String(o.founder_feedback_item ?? "")),
   );

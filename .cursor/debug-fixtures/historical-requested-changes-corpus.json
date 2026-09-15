@@ -1,0 +1,709 @@
+{
+ "schema_version": "historical-requested-changes-corpus-1.0.0",
+ "task_count": 35,
+ "tasks": [
+  {
+   "task_id": "revtask-01951ad8-47d",
+   "status": "FAILED_GATE",
+   "role": "Software Engineer",
+   "created_at": "2026-08-27T07:23:19.541Z",
+   "requested_changes": [
+    "Move the Summary section down so it no longer crowds or overlaps the contact/address row.",
+    "Standardize the spacing between each section heading and its first content line, especially in Summary, Education, Skills, Certifications, and Languages.",
+    "Make the spacing below the Summary heading match the tighter, cleaner spacing used in the Experience section.",
+    "Fix the Education section so its content sits at the same heading-to-content distance used in the best-aligned sections.",
+    "Fix the Skills section so the heading does not crowd the Education content and the heading-to-content spacing is consistent.",
+    "Reposition the Certifications heading so it is clearly associated with the certification bullets and not visually attached to the Skills content above.",
+    "Adjust the Languages section upward so the bottom margin is not too tight and the page ends with balanced whitespace.",
+    "Normalize vertical spacing between consecutive sections so the whole page follows one consistent section-to-section rhythm.",
+    "Preserve the existing overall design, typography, and color style while correcting spacing and overlap issues only."
+   ],
+   "executed_operation_mix": {
+    "set_position": 16
+   }
+  },
+  {
+   "task_id": "revtask-05667cbb-641",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "Software Engineer",
+   "created_at": "2026-08-08T00:28:45.171Z",
+   "requested_changes": [
+    "Vertically center \"Elena Voss\" inside the light-blue header rectangle so the visible top and bottom padding are equal, while keeping the name horizontally aligned with the resume content.",
+    "Rework the contact block below the name so \"Senior Software Engineer\", the contact details, and \"Austin, TX\" form a clean compact header group, then add a clear and consistent vertical gap before the Summary section begins.",
+    "Standardize the vertical spacing system throughout the resume: keep consistent spacing from each section heading to its body content and consistent spacing between the end of one section and the beginning of the next section.",
+    "Correct all element collisions and displaced objects in the Education, Skills, and Certifications area. No dark-blue section-header rectangle or heading text may overlap, cover, or sit inside body text.",
+    "Restore the Skills and Certifications section headings to their correct positions directly above their own content. Keep the Education entries fully visible and unobstructed.",
+    "Make every dark-blue section heading — SUMMARY, EXPERIENCE, EDUCATION, SKILLS, CERTIFICATIONS, and LANGUAGES — use the same rectangle height, width system, fill color, text color, font family, font weight, font size, internal padding, and vertical text centering.",
+    "Align all section heading rectangles to the same left edge and keep the body content beneath them aligned to a consistent content grid.",
+    "Normalize the spacing inside the Experience section so job titles, employment dates, bullet groups, and the transitions between different employers follow one consistent vertical rhythm without unusually large or compressed gaps.",
+    "Keep the expanded Education content, but align all education entries consistently and use even line spacing between the bachelor's, higher-secondary, and secondary-school entries.",
+    "Improve the Skills section for scanability while preserving the current skill content. Keep category labels and their skills consistently aligned and spaced, with no text touching or being covered by section-header shapes.",
+    "Check the Certifications section after repositioning its heading and ensure both certification bullets sit beneath the heading with consistent indentation and vertical spacing.",
+    "Perform a final collision and bounds QA pass across the entire page: no text or shape may overlap another section, no section heading may obscure body text, and all content must remain inside the page boundaries.",
+    "Perform a final visual-consistency QA pass so repeated components use identical typography, spacing, alignment, dimensions, and colors rather than being independently positioned or styled."
+   ],
+   "executed_operation_mix": {
+    "set_position": 18,
+    "move_object": 5,
+    "align_objects": 2,
+    "set_fill": 1,
+    "set_dimensions": 1,
+    "adjust_font_size": 1
+   }
+  },
+  {
+   "task_id": "revtask-14a25bd6-aaa",
+   "status": "FAILED_GATE",
+   "role": "Marketing Manager",
+   "created_at": "2026-09-01T09:02:47.740Z",
+   "requested_changes": [
+    "Redesign and reflow the entire left sidebar so every section has its own clearly separated vertical space with no text, heading, or content overlap.",
+    "Fix the Projects section so both project entries and their descriptions appear sequentially from top to bottom with consistent line spacing and without any text collision.",
+    "Move the Certifications section below the complete Projects section and maintain a clear, consistent vertical gap between the two sections.",
+    "Ensure the Certifications heading and every certification entry remain fully contained within the Certifications section and do not overlap any Project content.",
+    "Reformat the Skills section into a cleaner sequential structure using consistent separators, bullets, or evenly spaced inline items rather than irregular wrapping and large empty gaps.",
+    "Remove the excessive vertical gaps inside the Skills section and maintain consistent spacing between skill groups and individual skill items.",
+    "Correct the horizontal and vertical alignment of all Skills content so every line follows the same left margin and spacing system.",
+    "Maintain consistent spacing between Skills, Projects, Certifications, and Languages so the left sidebar follows one clear vertical rhythm from top to bottom.",
+    "Ensure every left-sidebar section heading has consistent spacing above and below it and that its corresponding content begins at a predictable distance beneath the heading.",
+    "Do not allow any text object, section heading, project description, certification entry, or skill entry to overlap another object.",
+    "Preserve the existing header design, colors, overall two-column structure, Summary, Experience, Education, and other right-side content that is already visually correct.",
+    "After reflowing the sidebar, rebalance the available vertical space so the column feels compact and intentional rather than leaving large unnecessary blank areas between sections.",
+    "Validate the final layout for text overlap, section collision, clipping, and inconsistent spacing before returning the revised Resume Template to Founder Review."
+   ],
+   "executed_operation_mix": {
+    "set_position": 11
+   }
+  },
+  {
+   "task_id": "revtask-1ae261a9-127",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "VP of Operations",
+   "created_at": "2026-08-13T06:47:13.585Z",
+   "requested_changes": [
+    "Remove every visible text overlap and collision in the left sidebar, especially within the Skills, Projects, and Certifications sections, so every line is fully readable.",
+    "Reflow the Skills content within the existing sidebar width so lines wrap naturally and no skill text overlaps, stacks on top of another line, clips, or intrudes into neighboring content.",
+    "Treat Skills, Projects, Certifications, and Languages as a consistent sidebar section system and apply the same vertical layout rules, spacing logic, heading-to-content relationship, and section-to-section rhythm to all four sections.",
+    "Ensure each sidebar section fully contains its own content before the next section begins; the next section heading must never overlap or intrude into the preceding section’s text.",
+    "Reflow the Projects section so each project title and its description are clearly separated, readable, and vertically stacked without any text collision between projects.",
+    "Reflow the Certifications section so every certification line is individually readable with consistent line spacing and no collision with the Certifications heading, other certification lines, or the Languages section.",
+    "Maintain a clear and consistent vertical gap between Skills → Projects, Projects → Certifications, and Certifications → Languages using the same spacing system rather than positioning each section independently.",
+    "Align the sidebar section headings Skills, Projects, Certifications, and Languages to one consistent left anchor within the sidebar, and align their blue accent markers consistently relative to those headings.",
+    "Preserve lane ownership: sidebar headings and markers must align only with other sidebar headings and markers; main-column headings and markers must remain aligned within the main column and must not be globally aligned across both columns.",
+    "Use the Summary heading and its blue accent marker as a visual reference for a clean and consistent heading-marker relationship, while preserving the separate horizontal anchors of the sidebar and main column.",
+    "Keep each section’s heading, blue accent marker, and associated content visually grouped as one unit with consistent internal spacing.",
+    "Reduce the excessive gap between the Education heading and the Education content so its heading-to-content spacing is visually consistent with the other main-column sections.",
+    "Preserve the improved Summary → Experience spacing and the current Experience layout; do not undo the spacing corrections that are already visually satisfactory.",
+    "Preserve the current dark header, two-column architecture, typography hierarchy, colors, sidebar background, and overall visual identity; fix the layout defects without redesigning the template.",
+    "After all reflow and repositioning, verify the complete final canvas for zero text-to-text overlap, zero heading-to-content collision, zero section intrusion, zero clipping, and zero out-of-bounds content.",
+    "Keep the entire resume on one page and do not remove, shorten, invent, or alter factual resume content merely to make the layout fit."
+   ],
+   "executed_operation_mix": {
+    "set_position": 22,
+    "align_objects": 2
+   }
+  },
+  {
+   "task_id": "revtask-32098d41-191",
+   "status": "FAILED_GATE",
+   "role": "Hotel Manager",
+   "created_at": "2026-08-27T09:15:08.667Z",
+   "requested_changes": [
+    "Keep the name, role title, and complete contact-information row together inside the light-blue header rectangle as one unified identity block.",
+    "Move the role and contact-information row slightly upward so it sits comfortably within the blue header instead of touching or crossing the bottom boundary.",
+    "Balance the internal vertical spacing of the header so there is clear and approximately even padding above the name and below the contact-information row.",
+    "Preserve the existing left alignment, typography, colors, header width, and overall visual style.",
+    "Maintain a clean separation between the completed header block and the Summary section below.",
+    "Do not modify the Summary, Experience, Education, Skills, Certifications, Languages, or other body layout unless absolutely required to preserve the corrected header spacing."
+   ],
+   "executed_operation_mix": {
+    "set_position": 3
+   }
+  },
+  {
+   "task_id": "revtask-349d7980-578",
+   "status": "FAILED_GATE",
+   "role": "Marketing Manager",
+   "created_at": "2026-09-02T20:42:17.034Z",
+   "requested_changes": [
+    "Reduce the excessive vertical gap specifically between the “Coordinated brand refresh initiatives…” bullet and the following “Conducted quarterly market analysis supporting strategic adjustments…” bullet within Senior Marketing Specialist — Nexera Solutions.",
+    "Make that gap visually consistent with the spacing between the other bullets in the same Nexera Solutions experience entry.",
+    "Preserve the wording, bullet order, wrapping, role heading, dates, and factual content exactly as they are.",
+    "Do not reposition unrelated sections or other experience entries unless a minimal downstream adjustment is strictly required for safe geometry.",
+    "Validate the final post-normalization rendered relationship between these two specific bullets, with positive spacing, no text overlap, and no page overflow."
+   ],
+   "executed_operation_mix": {
+    "set_position": 1
+   }
+  },
+  {
+   "task_id": "revtask-503c2d4d-1e5",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "Software Engineer",
+   "created_at": "2026-08-05T10:29:28.887Z",
+   "requested_changes": [
+    "Vertically center the candidate name within the blue header band so the top and bottom padding are visually equal.",
+    "Improve the visual hierarchy below the header by creating clearer separation between the job title and the contact information through spacing and alignment.",
+    "Expand the Education section with realistic academic history (for example, higher secondary and secondary education where appropriate) so the section does not appear incomplete.",
+    "Increase the overall visual balance of the layout by improving spacing consistency between sections and reducing large empty areas.",
+    "Review typography throughout the document to ensure font sizes, line heights, and section headings match the highest-quality approved templates.",
+    "Improve the Skills section formatting so the content is easier to scan and better balanced across the available width.",
+    "Perform a final visual QA pass to ensure every section appears intentionally aligned, evenly spaced, and production-ready."
+   ],
+   "executed_operation_mix": {
+    "set_position": 1,
+    "adjust_spacing": 4,
+    "update_text": 2,
+    "adjust_font_size": 2,
+    "adjust_line_height": 1,
+    "align_objects": 2
+   }
+  },
+  {
+   "task_id": "revtask-540a602a-6b4",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "HR Manager",
+   "created_at": "2026-07-30T06:14:07.150Z",
+   "requested_changes": [
+    "* Extend the left vertical green accent line further downward so it ends closer to the bottom margin while maintaining consistent spacing from the page edges.",
+    "* Add a little more meaningful content to the Education section (or an equivalent section if appropriate) so the lower portion of the resume feels more balanced and visually complete."
+   ],
+   "executed_operation_mix": {
+    "set_dimensions": 1,
+    "update_text": 1
+   }
+  },
+  {
+   "task_id": "revtask-549192b2-98b",
+   "status": "FAILED_COVERAGE",
+   "role": "Software Engineer",
+   "created_at": "2026-08-11T08:04:41.258Z",
+   "requested_changes": [
+    "Preserve the full-width header design while refining the alignment and spacing of the name, role, and contact information so the header remains clean, deliberate, and easy to scan.",
+    "Improve the vertical spacing and hierarchy between the Summary and Experience sections so the transition into the main work history feels intentional and readable.",
+    "Refine the Experience section spacing so individual job entries, dates, supporting text, and bullets maintain consistent breathing room and do not collide.",
+    "Improve the lower-page spacing between Education, Skills, Certifications, and Languages so the one-column layout remains balanced and avoids crowded or excessively empty transitions.",
+    "Preserve all existing truthful resume information unless a formatting or structural change requires repositioning it. Do not fabricate skills, certifications, education, employment history, achievements, metrics, tools, projects, languages, or other credentials to increase visual density.",
+    "Perform a final collision and page-bounds QA pass after all repositioning: no heading, text, bullet, background shape, header band, or section may overlap another element or extend outside the page boundaries.",
+    "Perform a final visual-consistency QA pass across the entire template so repeated headings, spacing intervals, alignment grids, typography, indentation, and margins use a coherent and repeatable design system while preserving the distinct full-width header treatment."
+   ],
+   "executed_operation_mix": {
+    "set_position": 31
+   }
+  },
+  {
+   "task_id": "revtask-5585617a-58a",
+   "status": "FAILED_COVERAGE",
+   "role": "Operations Analyst",
+   "created_at": "2026-08-08T06:50:58.396Z",
+   "requested_changes": [
+    "Extend the light-blue left sidebar background fully to the left edge of the page while preserving its existing right boundary and maintaining a clean two-column layout.",
+    "Rebalance the left sidebar so its content uses the available vertical space more intentionally and the lower half does not appear excessively empty, while preserving truthful resume content and avoiding filler.",
+    "Improve the Skills section structure and scanability by organizing the existing skills into clear, consistently aligned categories where supported by the current content, without inventing new skills or qualifications.",
+    "Remove the unusually large vertical gap inside the Skills section and use consistent spacing between skill groups and lines.",
+    "Standardize the vertical spacing between the SKILLS, PROJECTS, CERTIFICATIONS, and LANGUAGES sections so headings and body content follow one consistent sidebar spacing rhythm.",
+    "Keep the PROJECTS section visually distinct and properly spaced, with the project title and supporting description aligned consistently with the rest of the sidebar content.",
+    "Refine the CERTIFICATIONS and LANGUAGES sections so their headings, bullets, indentation, line spacing, and surrounding whitespace are consistent with the sidebar visual system.",
+    "Preserve the existing dark-navy header design and its overall hierarchy, while ensuring the name, role, and contact line remain precisely aligned and vertically balanced within the header.",
+    "Normalize the Experience section spacing so job titles, dates, bullet groups, and transitions between employers follow a consistent vertical rhythm without unnecessarily large gaps.",
+    "Refine the Education section hierarchy and spacing so the two education entries are clearly distinguishable, consistently aligned, and visually integrated with the rest of the right column.",
+    "Improve the overall visual balance between the left and right columns so the page feels intentionally composed rather than heavily populated on the right and visually empty on the lower left.",
+    "Preserve all existing truthful resume information unless a formatting or structural change requires repositioning it. Do not fabricate skills, certifications, education, employment history, achievements, metrics, tools, or other credentials to increase visual density.",
+    "Perform a final collision and page-bounds QA pass after all repositioning: no heading, text, bullet, background shape, or section may overlap another element or extend outside the page boundaries.",
+    "Perform a final visual-consistency QA pass across the entire template so repeated headings, spacing intervals, alignment grids, typography, indentation, and column margins use a coherent and repeatable design system."
+   ],
+   "executed_operation_mix": {
+    "extend_shape": 1,
+    "set_position": 23,
+    "move_object": 1
+   }
+  },
+  {
+   "task_id": "revtask-5973faeb-695",
+   "status": "FAILED_GATE",
+   "role": "Software Engineer",
+   "created_at": "2026-08-28T06:22:02.149Z",
+   "requested_changes": [
+    "Keep the name, role title, and complete contact-information row fully contained inside the light-blue header rectangle as one unified identity block.",
+    "Move the role and contact-information row slightly upward so it sits comfortably inside the blue header instead of touching or crossing the bottom boundary.",
+    "Balance the vertical spacing inside the header so there is clear and approximately even padding above the name and below the contact-information row.",
+    "Preserve the existing left alignment, typography, colors, header width, and overall visual style.",
+    "Maintain a clean and consistent gap between the completed header block and the Summary section below.",
+    "Do not modify the Summary, Experience, Education, Skills, Certifications, or any other body section unless required only to preserve the corrected header spacing."
+   ],
+   "executed_operation_mix": {
+    "set_position": 1
+   }
+  },
+  {
+   "task_id": "revtask-68caff6e-043",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "VP of Operations",
+   "created_at": "2026-08-12T14:10:56.968Z",
+   "requested_changes": [
+    "Fix all remaining text overlaps in the left sidebar, especially the Skills content around Tools, Documentation, Stakeholder, Predictive Analytics, Process Design, Vendor Management, and Change Management.",
+    "Reflow the Skills content so every skill remains fully readable within the sidebar width with no text collision, stacking, clipping, or intrusion into another line.",
+    "Preserve clear separation between the end of Skills and the Projects heading so the two sections remain visually distinct.",
+    "Use a consistent vertical spacing rule between major sections throughout the resume instead of independently positioning each section.",
+    "Increase the vertical gap above the Experience heading so its spacing from the preceding Summary section is visually consistent with the established section rhythm.",
+    "Reduce the excessive empty vertical gap above the Education heading while keeping Education clearly separated from the preceding Experience content.",
+    "Keep section headings, their accent markers, and their associated content aligned consistently across the layout.",
+    "After repositioning or reflowing content, verify that no text objects overlap or collide anywhere in either column.",
+    "Preserve the current dark header, two-column architecture, typography hierarchy, colors, and overall visual design; correct the spacing and collision defects without redesigning the template.",
+    "Keep the complete resume within one page and do not remove, shorten, invent, or alter factual resume content merely to make the layout fit."
+   ],
+   "executed_operation_mix": {
+    "set_position": 8,
+    "set_dimensions": 1,
+    "align_objects": 2
+   }
+  },
+  {
+   "task_id": "revtask-72e97bae-3ef",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "Software Engineer",
+   "created_at": "2026-08-01T03:57:16.467Z",
+   "requested_changes": [
+    "Reduce header height to improve page balance.",
+    "Increase contact information font size for readability.",
+    "Rewrite the professional summary with more specific and less generic language.",
+    "Diversify experience bullet wording and reduce repetitive sentence structure.",
+    "Improve the Skills section layout for better readability.",
+    "Balance spacing in the Certifications and Languages sections.",
+    "Review overall typography against the highest-quality previously approved templates."
+   ],
+   "executed_operation_mix": {
+    "resize_object": 2,
+    "adjust_font_size": 2,
+    "update_text": 5,
+    "move_object": 3,
+    "adjust_line_height": 2
+   }
+  },
+  {
+   "task_id": "revtask-7af3e53a-798",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "Data Entry Specialist",
+   "created_at": "2026-09-02T12:45:40.247Z",
+   "requested_changes": [
+    "Reflow the complete left sidebar vertically using the actual effective rendered height of every text object, including all additional lines created by text wrapping.",
+    "Keep the Skills section readable and use its final rendered bottom as the starting reference for positioning the Projects section with a clear positive gap.",
+    "Rebuild the Projects vertical sequence so each project title and its complete wrapped description finish entirely before the next project title begins; there must be zero text overlap between project entries.",
+    "After calculating the true rendered bottom of the complete Projects section, move the Certifications section downward far enough to maintain a clear and consistent section gap.",
+    "Stack every Certifications entry sequentially using its effective rendered height so certification lines never overlap one another.",
+    "Position the Languages section only after the final rendered bottom of Certifications, with the same consistent positive section spacing used throughout the sidebar.",
+    "Use the substantial unused vertical space in the lower portion of the page to accommodate the expanded sidebar content instead of compressing, reducing line spacing, or allowing sections to collide.",
+    "Extend the light sidebar background downward if required so all reflowed sidebar sections remain visually contained within the same sidebar background.",
+    "Apply this as a reusable layout rule for future Resume Templates: whenever any textbox wraps or expands vertically, recompute its effective rendered bottom and cascade every dependent object and following section from that updated boundary rather than retaining fixed original top coordinates.",
+    "Before completing the revision, validate the entire left sidebar for zero text-on-text overlaps, zero section collisions, positive spacing between sequential sections, and zero out-of-bounds content.",
+    "Preserve the existing header, right-side Summary, Experience, Education, typography, colors, column widths, and overall visual style because those areas already look correct."
+   ],
+   "executed_operation_mix": {
+    "set_position": 26
+   }
+  },
+  {
+   "task_id": "revtask-89991999-502",
+   "status": "FAILED",
+   "role": "Graphic Designer",
+   "created_at": "2026-08-27T07:13:18.523Z",
+   "requested_changes": [
+    "Correct the role/content mismatch: this is a Graphic Designer Resume Template, so restore the correct Graphic Designer content from the source data; do not retain the HR Manager content and do not invent unsupported information.",
+    "Align the SKILLS heading and SUMMARY heading to the exact same vertical starting baseline.",
+    "Normalize heading-to-content spacing across all sections so equivalent section structures use consistent vertical gaps.",
+    "Reduce the excessive vertical gap between the Skills content and Projects section while preserving clear section separation.",
+    "Normalize vertical spacing between Projects, Certifications, and Languages in the left sidebar so the sidebar follows one consistent spacing rhythm.",
+    "Move the contact-information row slightly upward beneath the name and role title to reduce unnecessary header whitespace while maintaining readable spacing.",
+    "Preserve the existing two-column structure and column widths while correcting the vertical alignment and spacing.",
+    "Verify all text using effective wrapped-text height so no text overlaps, clipping, collisions, or hidden wrapping are introduced after repositioning.",
+    "Keep all content inside the page bounds and preserve readable spacing at the bottom of the page."
+   ],
+   "executed_operation_mix": {}
+  },
+  {
+   "task_id": "revtask-9348b928-68b",
+   "status": "FAILED_COVERAGE",
+   "role": "Operations Analyst",
+   "created_at": "2026-08-01T03:56:22.999Z",
+   "requested_changes": [
+    "Regenerate the resume after the font rendering issue has been resolved.",
+    "Ensure all text renders correctly without missing glyphs.",
+    "Verify typography before submitting for founder review."
+   ],
+   "executed_operation_mix": {
+    "update_text": 21
+   }
+  },
+  {
+   "task_id": "revtask-9441fe34-4ba",
+   "status": "FAILED",
+   "role": "Operations Analyst",
+   "created_at": "2026-09-15T05:44:59.842Z",
+   "requested_changes": [
+    "Change the professional title from Marketing Manager to Operations Analyst while preserving the current header design, candidate name, contact layout, colors, and typography.",
+    "Rewrite the Summary so it describes an Operations Analyst profile focused on operational analysis, process improvement, KPI reporting, workflow optimization, data analysis, documentation, and cross-functional operations.",
+    "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+    "Remove marketing-specific Experience content such as campaigns, demand generation, ABM, MQLs, nurture sequences, brand messaging, webinars, and marketing attribution.",
+    "Ensure all Experience bullets focus on realistic Operations Analyst responsibilities such as process analysis, KPI monitoring, operational reporting, workflow improvement, root-cause analysis, documentation, stakeholder coordination, and efficiency improvements.",
+    "Replace the current marketing-focused Skills with Operations Analyst skills and tools appropriate for the target role.",
+    "Reorganize the Skills section into a clean, readable structure with consistent line spacing and wrapping; the skills must not appear scattered, cramped, duplicated, or visually disconnected.",
+    "Remove marketing-specific skills including Demand Generation, Brand Strategy, ABM, SEO / Content, Marketing Analytics, and Sales Enablement.",
+    "Keep useful Operations Analyst skills such as Documentation, Process Design, stakeholder communication, operational analysis, process improvement, KPI reporting, data analysis, Excel, reporting, and workflow optimization where appropriate.",
+    "Replace the Always-On ABM Pilot project with a realistic Operations Analyst project focused on process improvement, operational reporting, workflow optimization, KPI dashboards, efficiency improvement, or cost/time reduction.",
+    "Replace the marketing-specific Certifications with certifications or professional training appropriate for an Operations Analyst profile.",
+    "Remove Google Analytics IQ, HubSpot Inbound Marketing, Meta Blueprint, and other marketing-specific certifications unless they are genuinely relevant to the revised Operations Analyst profile.",
+    "Fix the visible overlapping/colliding text in the Certifications section so every certification line is fully readable and separated by clear positive vertical spacing.",
+    "Correct the Certifications text-box heights, line heights, wrapping, and vertical positions so no line renders on top of another line.",
+    "Ensure there is clear positive spacing between the end of the Certifications section and the Languages heading.",
+    "Rebalance the entire left sidebar vertically so Skills, Projects, Certifications, and Languages use the available sidebar space evenly instead of being compressed near the top with excessive empty space below.",
+    "Ensure every sidebar text object stays fully inside the sidebar column and does not clip, overflow, overlap, or extend into another section.",
+    "Maintain consistent vertical spacing between the Skills, Projects, Certifications, and Languages section headings and their content.",
+    "Update the Education content where necessary so the qualifications are coherent with the Operations Analyst professional profile rather than a Marketing Manager profile.",
+    "Do not solve the role mismatch by changing only the header title; Summary, Experience, Skills, Projects, Certifications, and Education context must all consistently represent Operations Analyst.",
+    "Preserve the existing dark navy header, two-column architecture, light sidebar background, blue section markers, typography hierarchy, and overall visual identity because those parts of the design are working well.",
+    "Do not change the candidate name or contact-information structure unless a small positioning adjustment is required for safe rendering.",
+    "Check the full page after all content changes and ensure there are no text overlaps, clipped text, duplicate text, out-of-bounds objects, or accidental collisions.",
+    "Ensure all section headings and body text maintain clear positive spacing and that no text touches or visually merges with another section.",
+    "Use the available page space efficiently and avoid both compressed content clusters and unnecessarily large unexplained gaps.",
+    "Before returning this revision to Founder Review, verify that the rendered professional title, Summary, Experience, Skills, Projects, Certifications, and Education all match the target role Operations Analyst.",
+    "Before returning this revision to Founder Review, verify that text overlap count is zero, page out-of-bounds count is zero, and every text block is fully readable.",
+    "Return a clean one-page Operations Analyst Resume Template with the existing strong visual architecture preserved but with the role content and sidebar geometry fully corrected."
+   ],
+   "executed_operation_mix": {}
+  },
+  {
+   "task_id": "revtask-94df0103-5c3",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "Marketing Manager",
+   "created_at": "2026-09-02T21:44:44.167Z",
+   "requested_changes": [
+    "Reduce the vertical gap between the “Coordinated brand refresh initiatives driving a 15% lift…” bullet and the “Conducted quarterly market analysis supporting strategic adjustments…” bullet.",
+    "Make this gap visually consistent with the other bullet gaps in the same Senior Marketing Specialist — Nexera Solutions entry.",
+    "Preserve the exact wording, bullet order, wrapping, role heading, dates, and factual content.",
+    "Do not reposition unrelated sections or redesign the Resume Template.",
+    "The final result must have positive spacing, no text overlap, no page overflow, and the requested gap must be materially smaller than before."
+   ],
+   "executed_operation_mix": {
+    "set_dimensions": 1,
+    "set_position": 1
+   }
+  },
+  {
+   "task_id": "revtask-9875c4b2-407",
+   "status": "FAILED_GATE",
+   "role": "Teacher",
+   "created_at": "2026-08-27T08:42:02.693Z",
+   "requested_changes": [
+    "Keep the name, role title, and complete contact-information row visually contained inside the light-gray header rectangle as one unified header block.",
+    "Increase the bottom padding between the contact-information row and the lower edge of the gray header background so the contact details do not appear cramped against the boundary.",
+    "Adjust the vertical positions of the header text elements as needed so the name, role, and contact information have balanced top and bottom spacing within the gray header.",
+    "Preserve the existing left alignment and horizontal margins of the header content.",
+    "Maintain a clear and consistent gap between the bottom of the gray header section and the Summary section below.",
+    "Preserve the current Summary, Experience, Education, Skills, Certifications, and Languages layout unless movement is required only to accommodate the corrected header spacing.",
+    "Do not change the existing typography, section styling, colors, content, or overall single-column design while correcting the header spacing."
+   ],
+   "executed_operation_mix": {
+    "set_position": 1
+   }
+  },
+  {
+   "task_id": "revtask-9b5f9aeb-027",
+   "status": "FAILED",
+   "role": "VP of Operations",
+   "created_at": "2026-08-26T08:48:40.205Z",
+   "requested_changes": [
+    "Reflow the bottom portion of the Skills content so the lines containing Vendor Management, Change, Tools, Documentation, Stakeholder Management, and Process Design are fully readable with zero text collision.",
+    "Ensure every wrapped line inside the Skills content has sufficient vertical clearance from the line above and below it.",
+    "Preserve the existing Skills sidebar width, heading position, blue marker, typography, factual content, and general placement.",
+    "Ensure the Skills content fully finishes before the Projects heading begins, with a clean visible section gap.",
+    "Increase the vertical separation between the wrapped project title “Global ERP Rollout and IoT Integration” and its description beginning “Led a $35M global ERP deployment…”.",
+    "Treat the complete wrapped title “Global ERP Rollout and IoT Integration” as one title block and place its description only after the full effective bottom of that title block.",
+    "Increase the vertical separation between “Warehouse Consolidation & Optimization” and its description beginning “Directed consolidation of three regional warehouses…”.",
+    "Treat every Projects title and its associated description as an ordered title-description stack with no collision, touching, or visually compressed transition.",
+    "Maintain consistent internal spacing between project titles, project descriptions, and the following project.",
+    "Preserve the Certifications and Languages sections because their current layout is visually acceptable.",
+    "Preserve the current right-column Summary, Experience, and Education layout without unnecessary repositioning.",
+    "Preserve the dark header, two-column architecture, sidebar background, blue heading markers, typography hierarchy, colors, and overall visual identity.",
+    "Keep all factual resume content unchanged; do not shorten, remove, rewrite, or invent content to create spacing.",
+    "Keep the resume on one page.",
+    "Final output must have zero text overlap, zero clipping, zero section intrusion, and clear visual separation between every wrapped text block in Skills and Projects."
+   ],
+   "executed_operation_mix": {}
+  },
+  {
+   "task_id": "revtask-a350f482-abf",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "Operations Analyst",
+   "created_at": "2026-09-02T16:11:29.117Z",
+   "requested_changes": [
+    "Reduce the excessive internal vertical gap inside the SKILLS section so all skill lines read as one coherent block with consistent line spacing.",
+    "Keep the SKILLS content in the same section and same order, but rebalance the text positions so the lower skills lines are not visually detached from the upper group.",
+    "Tighten the vertical spacing between EXPERIENCE bullet points and between experience role blocks to create a more consistent and compact reading rhythm.",
+    "Rebalance the overall page layout to use the available vertical space better and reduce unnecessary empty space, while preserving clean separation and zero text overlap.",
+    "Do not add new sections or invent extra content; solve this by correcting spacing, alignment, and section rhythm only."
+   ],
+   "executed_operation_mix": {
+    "set_position": 29
+   }
+  },
+  {
+   "task_id": "revtask-a8653c03-20f",
+   "status": "FAILED_GATE",
+   "role": "Marketing Manager",
+   "created_at": "2026-09-01T18:22:27.774Z",
+   "requested_changes": [
+    "Adjust the top header so the job title and the full contact/details line below the name sit fully inside the gray header background with proper bottom padding.",
+    "Extend the gray header rectangle downward as needed, or rebalance the header content, so the contact/details line is fully contained within the header band.",
+    "Preserve the rest of the resume layout, spacing, typography, and section structure, since the remaining template looks good."
+   ],
+   "executed_operation_mix": {
+    "set_dimensions": 1,
+    "set_position": 1
+   }
+  },
+  {
+   "task_id": "revtask-a9aec2fc-53f",
+   "status": "FAILED_COVERAGE",
+   "role": "HR Manager",
+   "created_at": "2026-08-11T07:38:32.749Z",
+   "requested_changes": [
+    "Improve the vertical spacing and hierarchy between the Summary and Experience sections so the transition feels deliberate and easy to scan.",
+    "Refine the Experience section spacing so job entries and supporting text have consistent breathing room and alignment without creating collisions.",
+    "Improve the Education-to-Skills transition and overall lower-page spacing so the one-column layout feels balanced rather than crowded or uneven.",
+    "Preserve all existing truthful resume information unless a formatting or structural change requires repositioning it. Do not fabricate skills, certifications, education, employment history, achievements, metrics, tools, or other credentials to increase visual density.",
+    "Perform a final collision and page-bounds QA pass after all repositioning: no heading, text, bullet, background shape, or section may overlap another element or extend outside the page boundaries.",
+    "Perform a final visual-consistency QA pass across the entire template so repeated headings, spacing intervals, alignment grids, typography, indentation, and column margins use a coherent and repeatable design system."
+   ],
+   "executed_operation_mix": {
+    "set_position": 20
+   }
+  },
+  {
+   "task_id": "revtask-adab817e-ce4",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "Software Engineer",
+   "created_at": "2026-07-30T06:13:19.820Z",
+   "requested_changes": [
+    "* Group the name, job title, and contact information together as a single visual header. Move the contact information inside the blue header section, directly below the “Software Engineer” title, by extending the blue background downward so the entire header feels unified.",
+    "* Improve the visual hierarchy of the header so the contact details feel intentionally included within the header instead of appearing separated between the blue banner and the resume body."
+   ],
+   "executed_operation_mix": {
+    "resize_object": 1,
+    "set_position": 1,
+    "adjust_spacing": 2
+   }
+  },
+  {
+   "task_id": "revtask-afd3f4b0-fae",
+   "status": "FAILED",
+   "role": "Chief of Staff",
+   "created_at": "2026-09-02T11:56:48.653Z",
+   "requested_changes": [
+    "Reflow the entire left sidebar vertically so every text object is positioned below the actual rendered bottom of the previous object, including any additional height created by text wrapping.",
+    "Increase or recalculate the effective height of the Skills content so all skill lines are fully readable with consistent line spacing and no text-on-text overlap.",
+    "Move the Projects section downward as required after the corrected Skills section, while preserving a clear and consistent gap between the Skills content and the Projects heading.",
+    "Reflow every project entry sequentially so each project title and its complete description finish before the next project begins; no project text may share or overlap the vertical space of another project.",
+    "Move all sections below Projects downward according to the final rendered height of the Projects content so the Certifications and Languages sections remain completely separate and readable.",
+    "Maintain a consistent positive vertical gap between each sidebar section and ensure there are zero text overlaps anywhere in the left column.",
+    "Treat this as a reusable layout rule for future Resume Templates: whenever text wraps onto additional lines, recalculate its effective rendered height and reposition every dependent object or following section from the new bottom boundary rather than using fixed original coordinates.",
+    "Before considering the revision complete, validate the final rendered layout for zero text overlaps, zero section collisions, and zero out-of-bounds content in the entire left sidebar.",
+    "Preserve the current top header, right-side Summary, Experience, Education layout, typography, colors, and overall visual style because those areas are already correctly structured."
+   ],
+   "executed_operation_mix": {}
+  },
+  {
+   "task_id": "revtask-b5339d03-b67",
+   "status": "FAILED",
+   "role": "Operations Analyst revised",
+   "created_at": "2026-09-15T04:22:35.711Z",
+   "requested_changes": [
+    "Change the professional title in the header from Marketing Manager to Operations Analyst and make Operations Analyst the single target role throughout the entire resume.",
+    "Rewrite the Summary completely for an Operations Analyst profile focused on operational analysis, process improvement, KPI tracking, reporting, workflow optimization, data-driven decision-making, and cross-functional operations.",
+    "Replace every marketing-focused Experience role and achievement with realistic Operations Analyst experience; remove Marketing Manager, Senior Marketing Specialist, Marketing Coordinator, campaign, ABM, demand generation, brand, marketing pipeline, MQL, webinar, nurture sequence, and other marketing-specific content.",
+    "Make the Experience section show a believable Operations Analyst career progression with role-relevant responsibilities such as operational reporting, process analysis, workflow improvement, KPI monitoring, root-cause analysis, documentation, stakeholder coordination, and efficiency improvements.",
+    "Replace the current marketing-focused Skills section completely with Operations Analyst skills such as operational analysis, process improvement, KPI reporting, data analysis, Excel, reporting, process mapping, documentation, workflow optimization, stakeholder coordination, and root-cause analysis.",
+    "Remove all remaining marketing-specific skills including Demand Generation, Brand Strategy, ABM, SEO / Content, Marketing Analytics, and Sales Enablement.",
+    "Replace the Always-On ABM Pilot project with a realistic Operations Analyst project focused on process optimization, operational reporting, dashboard/KPI improvement, workflow efficiency, or cost/time reduction.",
+    "Replace the marketing-specific certifications with certifications that are coherent for an Operations Analyst profile and remove Google Analytics IQ, HubSpot Inbound Marketing Certification, Meta Blueprint, and other marketing-specific credentials.",
+    "Update the Education and supporting qualifications where necessary so the overall professional profile is coherent with an Operations Analyst resume and does not read as a recycled Marketing Manager resume.",
+    "Fix the visible text overlap/collision inside the Certifications section in the left sidebar; certification lines must never overlap each other.",
+    "Increase or correct line height, text box height, wrapping, and vertical spacing in the Certifications section so every certification is fully readable and separated with clear positive spacing.",
+    "Ensure the Certifications section has sufficient positive spacing before the Languages heading and that no certification text touches or enters the Languages section.",
+    "Fix the left-sidebar text wrapping so no skill, project, certification, or language line exceeds its text box, clips, collides, or renders on top of another line.",
+    "Rebalance the left-sidebar content vertically using the available empty space rather than compressing Certifications into an overlapping area.",
+    "Maintain consistent vertical spacing between the Skills, Projects, Certifications, and Languages sections throughout the sidebar.",
+    "Check every text object on the page for overlap, clipping, out-of-bounds rendering, accidental duplication, and insufficient positive spacing before returning the revision to Founder Review.",
+    "Preserve the existing dark header, two-column architecture, sidebar treatment, blue section markers, typography hierarchy, and overall visual identity, but adjust text boxes, section positions, line heights, and spacing wherever required to make the corrected content fit safely.",
+    "Preserve the candidate name and contact-information structure unless a layout adjustment is required; do not redesign unrelated header elements.",
+    "Do not solve the role mismatch by changing only the header title; the Summary, Experience, Skills, Projects, Certifications, Education context, and all role-specific wording must consistently describe an Operations Analyst.",
+    "Before returning the revision, verify role-target integrity so the target role, rendered title, Summary, Experience, Skills, Projects, and qualifications all consistently match Operations Analyst.",
+    "Return a clean one-page Operations Analyst Resume Template with no overlapping text, no clipped text, no excessive unexplained gaps, no out-of-bounds objects, and no remaining Marketing Manager or marketing-specific professional content."
+   ],
+   "executed_operation_mix": {}
+  },
+  {
+   "task_id": "revtask-b8630db4-cb9",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "Graphic Designer",
+   "created_at": "2026-07-30T06:13:40.004Z",
+   "requested_changes": [
+    "* Align all content sections (Summary, Experience, Projects, Skills, Education, and Languages) with the same left starting position as the header section (name, job title, and contact information) to create a consistent vertical alignment throughout the resume.",
+    "* Review the overall horizontal alignment so the header and body feel part of one unified layout, giving the resume a cleaner and more premium appearance."
+   ],
+   "executed_operation_mix": {
+    "set_position": 14
+   }
+  },
+  {
+   "task_id": "revtask-bcf30166-95c",
+   "status": "FAILED_COVERAGE",
+   "role": "Data Entry Specialist",
+   "created_at": "2026-09-02T13:01:28.729Z",
+   "requested_changes": [
+    "Reflow only the Certifications content so every certification entry begins below the actual effective rendered bottom of the complete preceding certification entry.",
+    "Recalculate the effective rendered height of each wrapped certification textbox before positioning the next certification, including every additional wrapped line.",
+    "Maintain a clear positive vertical gap between individual certification entries and ensure there is zero text-on-text overlap within the Certifications section.",
+    "Move the Languages section downward only if required by the corrected final rendered bottom of Certifications, while maintaining consistent section spacing.",
+    "Use the available lower sidebar space rather than compressing certification text, reducing line spacing, or allowing entries to share vertical space.",
+    "Before completing the revision, validate the rendered Certifications section specifically for overlap between separate text objects and wrapped lines, not only section-level bounding boxes.",
+    "Preserve the corrected Projects layout, Skills layout, header, right-side Summary, Experience, Education, typography, colors, and column widths because those areas now look correct."
+   ],
+   "executed_operation_mix": {
+    "set_position": 4
+   }
+  },
+  {
+   "task_id": "revtask-c134fd34-f0b",
+   "status": "FAILED_GATE",
+   "role": "Marketing Manager",
+   "created_at": "2026-09-02T19:50:34.190Z",
+   "requested_changes": [
+    "Reduce the excessive vertical gap before the “Conducted quarterly market analysis supporting strategic adjustments…” bullet so all bullets under Senior Marketing Specialist — Nexera Solutions follow a consistent compact vertical rhythm.",
+    "Keep the bullet order, wording, wrapping, and factual content unchanged; correct spacing/positioning only.",
+    "Preserve the existing positions and spacing of the header, Summary, first Marketing Manager experience entry, Projects, Skills, Education, and Languages unless a minimal downstream shift is strictly required to maintain safe geometry.",
+    "Validate the final post-normalization rendered spacing so the corrected bullet gap is visually consistent with the other bullets in the same experience entry, with no overlap or page overflow."
+   ],
+   "executed_operation_mix": {
+    "set_position": 1
+   }
+  },
+  {
+   "task_id": "revtask-de4851c4-36c",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "VP of Operations",
+   "created_at": "2026-08-26T06:27:12.303Z",
+   "requested_changes": [
+    "Remove every remaining text-to-text overlap and collision in the left sidebar.",
+    "Reflow the Skills content so every line is fully readable and vertically separated within the existing sidebar width.",
+    "Ensure the Skills content finishes completely before the Projects heading begins.",
+    "Reflow the Projects section so each project title and its description are clearly separated and stacked vertically with no collision.",
+    "Ensure the Projects content finishes completely before the Certifications heading begins.",
+    "Reflow the Certifications section so every certification is individually readable with consistent line spacing and no overlap.",
+    "Ensure the Certifications content finishes completely before the Languages heading begins.",
+    "Keep Skills, Projects, Certifications, and Languages as one consistent sidebar section system with uniform heading-to-content spacing and section-to-section gaps.",
+    "Preserve the current left anchors and blue marker-to-heading relationship for the sidebar headings.",
+    "Do not allow body text from one sidebar section to intrude into the heading or content area of another section.",
+    "Preserve the current right-column Summary, Experience, and Education layout because those areas are visually acceptable.",
+    "Preserve the dark header, two-column architecture, typography hierarchy, colors, sidebar background, and overall visual identity.",
+    "Keep all existing factual resume content unchanged; do not remove, shorten, invent, or rewrite information merely to make the layout fit.",
+    "Keep the resume on one page.",
+    "The final revised resume must have zero text overlap, zero clipping, zero section intrusion, and all sidebar text must be fully readable."
+   ],
+   "executed_operation_mix": {
+    "set_position": 20
+   }
+  },
+  {
+   "task_id": "revtask-e74b858b-e56",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "VP of Operations",
+   "created_at": "2026-08-12T11:19:18.070Z",
+   "requested_changes": [
+    "Fix all overlapping and colliding text in the left sidebar.",
+    "Ensure the Skills section content stays completely within its allocated area and does not overlap the Projects section.",
+    "Reflow and reposition the Projects content so project titles, descriptions, and subsequent sections have sufficient vertical spacing.",
+    "Ensure the Certifications heading and certification entries do not overlap the Projects content or each other.",
+    "Maintain clear vertical spacing between every sidebar section and prevent any text or heading collisions.",
+    "Preserve the current header, two-column architecture, typography style, colors, and overall visual design; do not redesign the template.",
+    "Keep the right-side Summary, Experience, and Education layout unchanged unless movement is strictly required to maintain alignment.",
+    "Ensure all final resume content remains readable, properly contained, and visually balanced within one page with no clipping or overflow."
+   ],
+   "executed_operation_mix": {
+    "set_position": 17
+   }
+  },
+  {
+   "task_id": "revtask-ec6bf0f8-e3d",
+   "status": "FAILED_COVERAGE",
+   "role": "Customer Success Associate",
+   "created_at": "2026-09-01T15:27:18.930Z",
+   "requested_changes": [
+    "Adjust the top header so the subtitle and contact details line below the name sit fully inside the light blue header background with proper padding.",
+    "Extend the light blue header rectangle downward as needed, or rebalance the header content, so the entire contact/details line is fully contained within the header band.",
+    "Preserve the rest of the resume design, section layout, spacing, and typography, since the remaining template looks good."
+   ],
+   "executed_operation_mix": {
+    "set_dimensions": 1,
+    "set_position": 25
+   }
+  },
+  {
+   "task_id": "revtask-ecd4d24a-139",
+   "status": "FAILED_GATE",
+   "role": "Business Analyst",
+   "created_at": "2026-09-02T15:36:44.892Z",
+   "requested_changes": [
+    "Extend the light-blue header background downward while keeping its top edge fixed so the complete Business Analyst title and contact-details line are fully enclosed within the header area.",
+    "Preserve the current vertical positions of the name, title, and contact information if their existing internal spacing is already non-overlapping; solve the containment issue primarily by increasing the header background height.",
+    "Calculate the final header bottom from the actual rendered bottom of the lowest header identity text plus the required positive bottom padding.",
+    "Maintain approximately 8–12 px of visible bottom padding between the final rendered contact-details text and the bottom edge of the light-blue header background.",
+    "Do not move the contact-details line upward into the name or title, and do not allow any header identity text objects to overlap one another.",
+    "If expanding the header requires additional clearance before the Summary section, move the body content downward only as much as necessary to preserve a clear positive gap.",
+    "Before returning the revision to Founder Review, validate the final post-normalization rendered geometry and confirm that every header identity element is fully contained, internally non-overlapping, and inside the header background.",
+    "Preserve the complete body layout, section positions, typography, colors, widths, and existing spacing because those areas currently look correct."
+   ],
+   "executed_operation_mix": {
+    "set_position": 24,
+    "set_dimensions": 1
+   }
+  },
+  {
+   "task_id": "revtask-f50e5e7b-429",
+   "status": "READY_FOR_FOUNDER_REVIEW",
+   "role": "Graphic Designer",
+   "created_at": "2026-08-11T07:59:39.400Z",
+   "requested_changes": [
+    "Extend the left sidebar cleanly to the page edge while preserving its existing right boundary, and keep the sidebar content aligned within the expanded background.",
+    "Improve the vertical distribution of Skills, Projects, Certifications, and Languages inside the sidebar so the left column feels intentionally balanced without creating excessive gaps or crowding.",
+    "Refine the spacing and hierarchy between Summary, Experience, and Education in the main column so the right side remains easy to scan and individual entries do not collide.",
+    "Preserve all existing truthful resume information unless a formatting or structural change requires repositioning it. Do not fabricate skills, certifications, education, employment history, achievements, metrics, tools, projects, languages, or other credentials to increase visual density.",
+    "Perform a final collision and page-bounds QA pass after all repositioning: no heading, text, bullet, background shape, or section may overlap another element or extend outside the page boundaries.",
+    "Perform a final visual-consistency QA pass across both layout lanes so repeated headings, markers, spacing intervals, alignment grids, indentation, and lane-specific margins remain coherent without forcing one lane to copy the geometry of the other."
+   ],
+   "executed_operation_mix": {
+    "extend_shape": 1,
+    "set_position": 13,
+    "move_object": 5
+   }
+  },
+  {
+   "task_id": "revtask-fc2278c5-d39",
+   "status": "FAILED_GATE",
+   "role": "General Manager",
+   "created_at": "2026-09-02T15:11:08.689Z",
+   "requested_changes": [
+    "Increase the height of the light-gray header background while keeping its top edge fixed so the complete contact-details line is fully enclosed within the header area.",
+    "Ensure the final rendered bottom of the contact-details text sits clearly above the bottom edge of the gray header with positive bottom padding of approximately 8–12 px.",
+    "Do not position the contact line on the gray-to-white boundary; every rendered pixel of the contact text must remain visually inside the gray header background.",
+    "Preserve the current positioning and hierarchy of the name and job title unless a very small adjustment is necessary to maintain consistent internal header spacing.",
+    "After the adjustment, validate the final post-normalization geometry using the rendered bounds of the contact text and confirm that the contact line is fully contained within the header background with positive bottom padding.",
+    "Apply this as a reusable header-layout rule for future Resume Templates: the header background height must always be calculated from the final rendered bottom of the lowest header identity text plus the required bottom padding.",
+    "Preserve the Summary, Experience, Education, Skills, Certifications, typography, colors, widths, spacing, and overall body layout because those areas currently look correct."
+   ],
+   "executed_operation_mix": {
+    "set_dimensions": 1,
+    "set_position": 1
+   }
+  }
+ ]
+}

@@ -671,6 +671,7 @@ export async function runFounderFeedbackRevision(
     decision_id: task.decision_id,
     revision_id: null,
     page_fit: normalized.report.page_fit,
+    target_role: task.role,
   });
   writeJson(
     join(evidenceDir, "revision-acceptance-checks.json"),
@@ -685,6 +686,7 @@ export async function runFounderFeedbackRevision(
     beforeCanvas: priorCanvas,
     afterCanvas: normalized.canvas,
     acceptanceReport,
+    layoutNormalizationReport: normalized.report,
   });
   writeJson(join(evidenceDir, "feedback-coverage.json"), coverage);
 

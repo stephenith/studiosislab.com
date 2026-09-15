@@ -7,6 +7,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { buildFeedbackCoverage } from "./FeedbackCoverage.js";
 import {
+  isPlanCoverageExemptRequestedChange,
   validatePlanCoversRequestedChanges,
   validateRevisionPlan,
   buildRevisionPlannerPrompt,
@@ -18,6 +19,7 @@ import {
   CANONICAL_VISUAL_CONSISTENCY_QA,
   CANONICAL_VISUAL_CONSISTENCY_QA_V2,
   classifyRequestedChange,
+  verificationCheckTypes,
 } from "./RequestedChangeClassification.js";
 import {
   runCollisionBoundsCheck,
@@ -344,21 +346,51 @@ function main(): void {
       "must remain mutation",
     ),
   );
+  // Phase 6G contract change, with evidence.
+  //
+  // Pre-6G these two lines were MUTATION_REQUIRED because anything that was
+  // not an exact canonical QA sentence fell through to a MUTATION_REQUIRED
+  // default. That default is what production failure revtask-9441fe34-4ba
+  // proved harmful: neither line names a concrete target that an operation
+  // could change, yet the coverage mandate demanded an executable operation
+  // for each, so the planner emitted update_text against Rect section markers
+  // (block-certifications-6-r0, block-languages-7-r0) purely to carry
+  // attribution, and the plan died on "values.text string is required".
+  //
+  // The 6G contract requires a concrete target before demanding a mutation, so
+  // both are now acceptance requirements satisfied by deterministic checks and
+  // zero operations. The anti-bypass property still holds: neither line may
+  // reach the acceptance path with a claim it cannot prove, which is asserted
+  // by the check types below rather than by forcing a mutation.
+  const genericQa = classifyRequestedChange("perform QA");
   checks.push(
     assert(
-      classifyRequestedChange("perform QA").classification ===
-        "MUTATION_REQUIRED",
-      "anti_bypass_generic_perform_qa",
-      "must remain mutation",
+      genericQa.classification === "VERIFICATION_ACCEPTANCE" &&
+        verificationCheckTypes(genericQa).includes("GENERAL_ACCEPTANCE") &&
+        isPlanCoverageExemptRequestedChange("perform QA"),
+      "generic_perform_qa_is_general_acceptance",
+      `${genericQa.classification}/${verificationCheckTypes(genericQa).join(",")}`,
     ),
+  );
+  const nearMissQa = classifyRequestedChange(
+    "Perform a final visual QA pass to ensure every section appears intentionally aligned, evenly spaced, and production-ready.",
   );
   checks.push(
     assert(
+      nearMissQa.classification === "VERIFICATION_ACCEPTANCE" &&
+        verificationCheckTypes(nearMissQa).length > 0,
+      "near_miss_qa_form_is_verification_acceptance",
+      `${nearMissQa.classification}/${verificationCheckTypes(nearMissQa).join(",")}`,
+    ),
+  );
+  // A QA phrasing that DOES name a concrete target stays a mutation.
+  checks.push(
+    assert(
       classifyRequestedChange(
-        "Perform a final visual QA pass to ensure every section appears intentionally aligned, evenly spaced, and production-ready.",
+        "QA the Summary and rewrite it for an Operations Analyst.",
       ).classification === "MUTATION_REQUIRED",
-      "anti_bypass_similar_but_not_canonical_qa",
-      "near-miss QA form remains mutation",
+      "qa_phrasing_with_concrete_target_remains_mutation",
+      "must remain mutation",
     ),
   );
   checks.push(
@@ -480,13 +512,17 @@ function main(): void {
       },
     ],
   });
+  // The line must be one the planner genuinely owns. "QA: move the Education
+  // heading down 20px" is deterministic-layout-owned, so it is coverage-exempt
+  // for reasons unrelated to the planner-supplied classification field and
+  // could never detect a bypass.
   const fakeClassCover = validatePlanCoversRequestedChanges(
     planWithFakeClass.plan ?? {
       schema_version: "founder-canvas-revision-plan-1.0.0",
       summary: "x",
       operations: [opFor(MUTATION_0_TO_10[0]!, "x", 0)],
     },
-    ["QA: move the Education heading down 20px"],
+    ["Rewrite the Summary for an Operations Analyst profile."],
   );
   checks.push(
     assert(

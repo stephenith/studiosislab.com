@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PHASE 6F — Deploy revision reliability repair (Slice 1) to VPS FF-only and restart only the dashboard service, then authorize ONE new Operations Analyst Request Changes recovery decision to prove the repaired path in production. Generation overlap/clipping gate remains Slice 2.",
+    "PHASE 6G — Founder will manually issue ONE new Operations Analyst Request Changes Again after reviewing this durable request-contract repair. Do not auto-create the live-proof decision. Generation overlap/clipping gate remains the NEXT controlled step after live proof.",
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B — Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B — Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-15T10:03:16.000Z",
+      "type": "revision_maintenance_repair",
+      "summary": "Phase 6G DURABLE REVISION REQUEST CONTRACT REPAIR implemented and LOCAL_VERIFIED (offline). Local wall=2026-09-15T15:33:16+05:30. UTC=2026-09-15T10:03:16.000Z. Corrected the Founder Request Changes contract from revtask-9441fe34-4ba production evidence after Slice 1: requested-change intent classification no longer defaults unknown wording to MUTATION_REQUIRED; VERIFICATION_ACCEPTANCE / PRESERVATION_CONSTRAINT / DETERMINISTIC_LAYOUT_OWNED are explicit zero-operation coverage modes; dummy attribution-carrier operations are forbidden; per-operation values contract generated from the validator schema; update_text on Rect and empty required values rejected; values-completeness failures eligible for one bounded shape repair; unsupported ops remain fail-closed; content authorization is clause-scoped so 'contact layout' preservation does not block the professional-title mutation; candidate name/contact cannot be rewritten by a preservation request. Historical classification replay 299/299 across 35 tasks (42 lines reclassified with evidence that the old MUTATION_REQUIRED label violated the new contract; zero lines newly demanded mutation). Offline 6G matrix PASS 45/45. Validator NOT relaxed; confidence NEVER defaulted. No OpenAI call, no generation, no revision run, no Founder decision, no publication; both failed historical tasks remain FAILED and unchanged. Generation overlap/clipping gate deliberately deferred. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
+    },
     {
       "at": "2026-09-15T05:34:43.000Z",
       "type": "revision_maintenance_repair",
@@ -2432,7 +2437,7 @@
   "aios_canonical_entrypoint": "SOS/SAIOS/core/first-production-cycle",
   "company_brain_version": "1.0.0",
   "company_brain_mode": "planning_only",
-  "latest_phase": "6F",
+  "latest_phase": "6G",
   "phase_5u": {
     "status": "implemented_pending_deploy",
     "problem": "recurring FAILED_GATE direction contradiction on header containment OR-rebalance",
@@ -2632,5 +2637,69 @@
       "revision_running": 0,
       "revision_failed": 4
     }
+  },
+  "phase_6g": {
+    "status": "local_verified",
+    "classification": "DURABLE_REVISION_REQUEST_CONTRACT_REPAIR",
+    "scope": "Founder Request Changes revision path only. Resume Template Department NOT reopened.",
+    "problem": "Founder Request Changes still failed after Slice 1 because verification/preservation/layout-owned lines were classified MUTATION_REQUIRED, forcing placeholder update_text ops on Rect section markers",
+    "diagnostic_task": "revtask-9441fe34-4ba",
+    "prior_failure_task": "revtask-b5339d03-b67",
+    "root_causes": [
+      "REQUESTED_CHANGE_CLASSIFICATION_DEFAULTED_TO_MUTATION_REQUIRED unless an exact historical verification regex matched",
+      "COVERAGE_MANDATE_REQUIRED_EXECUTABLE_OPS for every MUTATION_REQUIRED line, including verification/preservation/layout-owned items",
+      "ATTRIBUTION_CARRIER_OPS: operations[23]/[24] targeted block-certifications-6-r0 and block-languages-7-r0 (Rect markers) with empty values.text",
+      "VALUES_TEXT_FAILURE_NOT_SHAPE_REPAIRABLE after Slice 1 narrowed SHAPE_REPAIRABLE_ERROR_PATTERNS",
+      "CONTENT_AUTHORIZATION_LINE_SCOPED: LAYOUT_INTENT_SIGNAL on 'contact layout' blocked the professional-title mutation clause"
+    ],
+    "fixes": [
+      "Durable clause-scoped intent resolver: MUTATION_REQUIRED only with explicit mutation verb + concrete target; unknown wording is VERIFICATION_ACCEPTANCE/GENERAL_ACCEPTANCE, never mutation",
+      "Explicit coverage modes: MUTATION_REQUIRED / VERIFICATION_ACCEPTANCE / PRESERVATION_CONSTRAINT / DETERMINISTIC_LAYOUT_OWNED",
+      "Prompt forbids operations solely to represent verification, preservation, QA, or layout-owned requirements",
+      "Per-operation values contract generated from OPERATION_VALUES_CONTRACT (prompt and validator share one source)",
+      "Validator rejects update_text on non-text inventory objects and empty required values",
+      "Values-completeness failures are one-shot shape-repairable; op not allowlisted remains fail-closed",
+      "Content authorization evaluates mutation vs preservation at clause scope",
+      "founderIdentityObjectIds strips candidate name and contact from authorized rewrite targets"
+    ],
+    "not_in_scope": [
+      "GENERATION_OVERLAP_CLIPPING_GATE deferred until after one live Request Changes proof",
+      "No retry or mutation of revtask-9441fe34-4ba or revtask-b5339d03-b67",
+      "No live production OpenAI during implementation"
+    ],
+    "classification_classes": [
+      "MUTATION_REQUIRED",
+      "VERIFICATION_ACCEPTANCE",
+      "PRESERVATION_CONSTRAINT"
+    ],
+    "deterministic_layout_owned_is_coverage_mode": true,
+    "default_unknown_becomes_mutation": false,
+    "dummy_attribution_operations_required": false,
+    "validator_relaxed": false,
+    "confidence_defaulted": false,
+    "max_shape_repair_calls": 1,
+    "unsupported_op_repairable": false,
+    "historical_classification_replay": "299/299",
+    "reclassified_historical_lines": 42,
+    "moved_into_mutation_required": 0,
+    "offline_fixtures": [
+      ".cursor/debug-fixtures/revtask-b5339d03-b67-sanitized",
+      ".cursor/debug-fixtures/revtask-9441fe34-4ba-sanitized",
+      ".cursor/debug-fixtures/historical-requested-changes-corpus.json",
+      ".cursor/debug-fixtures/classification-reclassification-evidence-6g.json"
+    ],
+    "verifier": "aios:revision:request-contract-6g:verify",
+    "matrix_result": "PASS 45/45",
+    "openai_called": false,
+    "generation_executed": false,
+    "revision_executed": false,
+    "founder_decision_created": false,
+    "publication_executed": false,
+    "resume_template_department_status": "OPERATIONALLY_COMPLETE",
+    "revision_engineering_status": "MAINTENANCE / REGRESSION ONLY",
+    "next_major_department": "Website Analysis / QA / Development",
+    "milestone_ist": "2026-09-15T15:33:16+05:30",
+    "milestone_utc": "2026-09-15T10:03:16.000Z",
+    "baseline_commit_before": "23b42c7c5e3fc434bc0559d04cd5466a81a85789"
   }
 }

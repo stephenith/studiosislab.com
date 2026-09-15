@@ -426,6 +426,7 @@ export function prepareExtractedPlanForValidation(input: {
   let shape = validateRevisionPlanShapeAndOperations(strippedEmpty.raw, {
     requested_changes: input.requested_changes,
     allowEmptyOperations: allowEmpty,
+    inventory: input.inventory,
   });
   if (!shape.ok || !shape.plan) {
     return {
@@ -447,6 +448,7 @@ export function prepareExtractedPlanForValidation(input: {
   shape = validateRevisionPlanShapeAndOperations(identity.plan, {
     requested_changes: input.requested_changes,
     allowEmptyOperations: allowEmpty,
+    inventory: input.inventory,
   });
   if (!shape.ok || !shape.plan) {
     return {
@@ -607,6 +609,7 @@ async function runShapePlanRepair(input: {
     allowEmptyOperations: allRequestedChangesAllowEmptyPlan(
       input.task.requested_changes,
     ),
+    inventory: input.inventory,
   });
   if (!validated.ok || !validated.plan) {
     return fail(
@@ -820,6 +823,7 @@ async function runConflictPlanRepair(input: {
 
     const full = validateRevisionPlan(repairedPlan, {
       requested_changes: input.task.requested_changes,
+      inventory: input.inventory,
     });
     if (!full.ok || !full.plan) {
       const errMsg = `conflict repair incomplete: ${full.errors.join("; ")}`;
@@ -1168,6 +1172,7 @@ async function runCoverageRepair(input: {
 
     const full = validateRevisionPlan(merged, {
       requested_changes: input.task.requested_changes,
+      inventory: input.inventory,
     });
     if (!full.ok || !full.plan) {
       const errMsg = `coverage repair incomplete: ${full.errors.join("; ")}`;

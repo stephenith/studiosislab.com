@@ -33,6 +33,7 @@ import {
 import { parseExplicitMoveDirections } from "./PositionOpCanonicalization.js";
 import {
   classifyRequestedChange,
+  hasConcreteContentMutationClause,
   isVerificationAcceptance,
 } from "./RequestedChangeClassification.js";
 import type { CanvasOperation, RevisionPlan } from "./revision-task-types.js";
@@ -117,6 +118,10 @@ export function isDeterministicLayoutNormalizerOwnedChange(
   // not geometry ownership requirements (Phase 5I).
   if (isVerificationAcceptance(requestedChange)) return false;
   if (isValidationOnlyRequestedChange(requestedChange)) return false;
+  // Phase 6G: an explicit content-mutation clause is planner-owned. Geometry
+  // ownership must not exempt it from plan coverage just because the same line
+  // also names header design, contact layout, or typography to preserve.
+  if (hasConcreteContentMutationClause(requestedChange)) return false;
 
   if (isHeaderIdentityLayoutOwnedChange(requestedChange)) return true;
   if (isFounderHeadingToContentEqualityRequest(requestedChange)) return true;
@@ -211,6 +216,20 @@ export function isDeterministicLayoutNormalizerOwnedChange(
     return true;
   }
   if (/\bbottom\s+margin\b/.test(n) || /\bpage ends with balanced\b/.test(n)) {
+    return true;
+  }
+  // Whole-page vertical distribution: "Use the available page space efficiently
+  // and avoid both compressed content clusters and unnecessarily large
+  // unexplained gaps." No single object owns this — the normalizer distributes
+  // it, so it must not force an AI operation (production revtask-9441fe34-4ba).
+  if (
+    /\b(page space|available space|available page space|vertical space|whitespace|white space)\b/.test(
+      n,
+    ) &&
+    /\b(efficient\w*|effective\w*|balanc\w*|distribut\w*|cluster\w*|unexplained|excessive|empty|unused|compressed|crowded)\b/.test(
+      n,
+    )
+  ) {
     return true;
   }
   // Require page/section/heading context — do not own entry-level "Tighten X

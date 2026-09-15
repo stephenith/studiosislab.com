@@ -22,6 +22,7 @@ import {
   verificationCheckTypes,
 } from "./RequestedChangeClassification.js";
 import { detectLayoutLanesFromCanvas } from "./RevisionLayoutNormalizer.js";
+import { runRevisionAcceptanceChecks } from "./RevisionAcceptanceChecks.js";
 import { listRevisionTasks } from "./RevisionTaskStore.js";
 import type { FabricCanvasDoc } from "./CanvasInventory.js";
 import { effectiveTextHeightScaled } from "./TextEffectiveHeight.js";
@@ -430,6 +431,14 @@ function coverFor(
     log,
     beforeCanvas: before,
     afterCanvas: after,
+    // Zero-operation items (verification / preservation) draw their coverage
+    // from deterministic acceptance, exactly as the pipeline supplies it.
+    acceptanceReport: runRevisionAcceptanceChecks({
+      afterCanvas: after,
+      beforeCanvas: before,
+      plan,
+      requested_changes: [change],
+    }),
   });
   return {
     status: String(rep.items[0]?.status),
@@ -741,12 +750,19 @@ function main(): void {
       JSON.stringify(mMixed.items.map((i) => i.status)),
     ),
   );
+  const mAllRequested = [FB7, FB8, FB9, FB10];
   const mAll = buildFeedbackCoverage({
-    requested_changes: [FB7, FB8, FB9, FB10],
+    requested_changes: mAllRequested,
     plan: alignPlan,
     log: alignLog,
     beforeCanvas: uniform,
     afterCanvas: uniform,
+    acceptanceReport: runRevisionAcceptanceChecks({
+      afterCanvas: uniform,
+      beforeCanvas: uniform,
+      plan: alignPlan,
+      requested_changes: mAllRequested,
+    }),
   });
   checks.push(
     assert(

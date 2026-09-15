@@ -10,6 +10,7 @@ import {
   isExplicitMultiObjectAlignmentRequest,
   requiresStructuralProof,
 } from "./FeedbackCoverage.js";
+import { runRevisionAcceptanceChecks } from "./RevisionAcceptanceChecks.js";
 import { listRevisionTasks } from "./RevisionTaskStore.js";
 import type {
   OperationLogEntry,
@@ -36,6 +37,15 @@ const QA_FB =
   "Perform a final visual QA pass to ensure every section appears intentionally aligned, evenly spaced, and production-ready.";
 const EXPLICIT_ALIGN_FB =
   "Align the left edges of the name, summary heading, experience heading, and skills heading.";
+
+/** Real deterministic acceptance evidence, exactly as the pipeline supplies it. */
+function acceptanceFor(requestedChanges: string[], canvas: FabricCanvasDoc) {
+  return runRevisionAcceptanceChecks({
+    afterCanvas: canvas,
+    beforeCanvas: canvas,
+    requested_changes: requestedChanges,
+  });
+}
 
 function textObj(
   id: string,
@@ -209,7 +219,12 @@ function main(): void {
     ),
   );
 
-  // B — final QA wording + successful ops → addressed
+  // B — final QA wording → addressed by deterministic acceptance evidence.
+  //
+  // Phase 6G: QA_FB is a VERIFICATION_ACCEPTANCE item, so it is covered by the
+  // acceptance result rather than by attributed operations. The original
+  // property still holds: this generic wording must not false-fail coverage on
+  // a canvas the alignment-spread heuristic would have rejected.
   const covB = buildFeedbackCoverage({
     requested_changes: [QA_FB],
     plan: planFor(QA_FB),
@@ -220,6 +235,7 @@ function main(): void {
     ],
     beforeCanvas: spread12,
     afterCanvas: spread12,
+    acceptanceReport: acceptanceFor([QA_FB], spread12),
   });
   checks.push(
     assert(
@@ -315,6 +331,7 @@ function main(): void {
     ],
     beforeCanvas: spread12,
     afterCanvas: spread12,
+    acceptanceReport: acceptanceFor([HIERARCHY_FB, QA_FB], spread12),
   });
   checks.push(
     assert(

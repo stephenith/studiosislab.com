@@ -928,7 +928,9 @@ function main(): void {
           gapReduced &&
           spacingCovered,
         "G_spacing_intent_e2e_pass",
-        `${circuit.status}/${circuit.failed_stage}: ${circuit.error} gap ${beforeDom?.gap}->${afterDom?.gap} covered=${spacingCovered}`,
+        `${circuit.status}/${circuit.failed_stage}: ${circuit.error} gap ${beforeDom?.gap}->${afterDom?.gap} covered=${spacingCovered} items=${JSON.stringify(
+          (circuit.coverage_items ?? []).map((it) => [it.status, it.notes]),
+        )}`,
       ),
     );
   }

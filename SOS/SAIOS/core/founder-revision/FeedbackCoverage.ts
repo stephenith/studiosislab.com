@@ -27,7 +27,9 @@ import {
   detectLayoutLanesFromCanvas,
   MIN_HEADING_BODY_GAP_PX,
   MIN_SECTION_GAP_PX,
+  type LayoutNormalizationReport,
 } from "./RevisionLayoutNormalizer.js";
+import { isDeterministicLayoutNormalizerOwnedChange } from "./DeterministicSpacingPlan.js";
 import {
   normalizeFounderFeedbackItem,
   operationFounderAttributions,
@@ -2569,6 +2571,26 @@ function evaluateOverlapReadabilityGeometricProof(
   };
 }
 
+/**
+ * Summarize what the deterministic layout stage actually did.
+ * Returns null when the stage produced no evidence at all (fail closed).
+ */
+function deterministicLayoutOwnershipEvidence(
+  report: LayoutNormalizationReport | null | undefined,
+): string | null {
+  if (!report || !report.ok) return null;
+  const parts = [
+    ["shifts", report.shifts_applied.length],
+    ["heading_body_gap_repairs", report.heading_body_gap_repairs.length],
+    ["collision_resolutions", report.collision_resolutions.length],
+    ["content_grid_changes", report.content_grid_changes.length],
+    ["heading_style_changes", report.heading_style_changes.length],
+  ] as const;
+  return `${report.canvas_source}; ${parts
+    .map(([k, v]) => `${k}=${v}`)
+    .join(" ")}; min_section_gap_px=${report.constants.min_section_gap_px} min_heading_body_gap_px=${report.constants.min_heading_body_gap_px}`;
+}
+
 /** Final-canvas proof: next same-column text clears prior effective bottom. */
 function evaluateSequentialRenderedBottomProof(
   afterCanvas: FabricCanvasDoc,
@@ -2615,15 +2637,38 @@ export function buildFeedbackCoverage(input: {
   afterCanvas: FabricCanvasDoc;
   /** Deterministic post-mutation acceptance evidence for VERIFICATION_ACCEPTANCE items. */
   acceptanceReport?: RevisionAcceptanceReport | null;
+  /**
+   * Deterministic layout/normalization evidence. Supplies coverage for
+   * DETERMINISTIC_LAYOUT_OWNED items so they never require a dummy AI
+   * operation to carry their attribution.
+   */
+  layoutNormalizationReport?: LayoutNormalizationReport | null;
 }): FeedbackCoverageReport {
   const items: FeedbackCoverageItem[] = [];
 
   for (const change of input.requested_changes) {
     const classified = classifyRequestedChange(change);
 
-    // Verification items: addressed ONLY by deterministic acceptance evidence.
-    // Never infer success from mutation operations alone.
-    if (classified.classification === "VERIFICATION_ACCEPTANCE") {
+    /**
+     * Zero-operation coverage modes (Phase 6G).
+     *
+     * VERIFICATION_ACCEPTANCE — addressed only by deterministic acceptance
+     * evidence for the check types the Founder line actually demands.
+     * PRESERVATION_CONSTRAINT — addressed when the protected content /
+     * architecture / layout is proven unchanged after execution.
+     *
+     * Both are satisfied without any canvas mutation. An operation must never
+     * be created to carry their attribution: that pressure is what produced
+     * the empty-values placeholder operations in revtask-9441fe34-4ba.
+     */
+    if (
+      classified.classification === "VERIFICATION_ACCEPTANCE" ||
+      classified.classification === "PRESERVATION_CONSTRAINT"
+    ) {
+      const mode =
+        classified.classification === "PRESERVATION_CONSTRAINT"
+          ? "preservation"
+          : "verification";
       const requiredTypes = verificationCheckTypes(classified);
       const checks = findAcceptanceChecksForChange(
         input.acceptanceReport,
@@ -2639,9 +2684,9 @@ export function buildFeedbackCoverage(input: {
       let pass = false;
       let notes: string;
       if (!input.acceptanceReport) {
-        notes = "verification acceptance evidence missing (fail closed)";
+        notes = `${mode} acceptance evidence missing (fail closed)`;
       } else if (requiredTypes.length === 0) {
-        notes = "verification acceptance check types missing for requested change";
+        notes = `${mode} acceptance check types missing for requested change`;
       } else {
         const results = requiredTypes.map((ct) => {
           const match = checks.find((c) => c.check_type === ct);
@@ -2652,7 +2697,7 @@ export function buildFeedbackCoverage(input: {
           (r) => r.check && (!r.check.evaluable || !r.check.pass),
         );
         if (missing.length > 0) {
-          notes = `verification acceptance check missing: ${missing.map((m) => m.ct).join(", ")}`;
+          notes = `${mode} acceptance check missing: ${missing.map((m) => m.ct).join(", ")}`;
         } else if (failed.length > 0) {
           notes = failed
             .map(
@@ -2742,6 +2787,46 @@ export function buildFeedbackCoverage(input: {
       if (promoted) {
         status = promoted.status;
         notes = promoted.notes;
+      }
+    }
+
+    /**
+     * DETERMINISTIC_LAYOUT_OWNED coverage (Phase 6G).
+     *
+     * The deterministic layout normalizer — not the AI plan — owns this
+     * geometry, so an operation-free plan is the correct outcome. Coverage is
+     * evidenced by the normalization report plus clean final geometry, never
+     * by a placeholder operation created to carry the attribution.
+     */
+    if (
+      status === "not_addressed" &&
+      ops.length === 0 &&
+      isDeterministicLayoutNormalizerOwnedChange(change)
+    ) {
+      const layoutEvidence = deterministicLayoutOwnershipEvidence(
+        input.layoutNormalizationReport,
+      );
+      const geo = evaluateOverlapReadabilityGeometricProof(
+        input.afterCanvas,
+        input.acceptanceReport,
+      );
+      if (layoutEvidence && geo.pass) {
+        status = "addressed";
+        notes = [
+          notes,
+          `deterministic layout ownership: ${layoutEvidence}; ${geo.notes}`,
+        ]
+          .filter(Boolean)
+          .join("; ");
+      } else {
+        notes = [
+          notes,
+          layoutEvidence
+            ? `deterministic layout ownership: ${layoutEvidence}; ${geo.notes}`
+            : "deterministic layout ownership claimed but no normalization evidence supplied (fail closed)",
+        ]
+          .filter(Boolean)
+          .join("; ");
       }
     }
 

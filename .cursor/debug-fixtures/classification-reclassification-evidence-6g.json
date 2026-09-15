@@ -1,0 +1,481 @@
+{
+ "schema_version": "classification-reclassification-evidence-6g-1.0.0",
+ "total_lines": 299,
+ "changed": 42,
+ "moved_into_mutation_required": 0,
+ "transitions": {
+  "MUTATION_REQUIRED->VERIFICATION_ACCEPTANCE": 25,
+  "MUTATION_REQUIRED->PRESERVATION_CONSTRAINT": 17
+ },
+ "rows": [
+  {
+   "task_id": "revtask-14a25bd6-aaa",
+   "index": 9,
+   "text": "Do not allow any text object, section heading, project description, certification entry, or skill entry to overlap another object.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-1ae261a9-127",
+   "index": 3,
+   "text": "Ensure each sidebar section fully contains its own content before the next section begins; the next section heading must never overlap or intrude into the preceding section\u2019s text.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-32098d41-191",
+   "index": 3,
+   "text": "Preserve the existing left alignment, typography, colors, header width, and overall visual style.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "ARCHITECTURE_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-32098d41-191",
+   "index": 5,
+   "text": "Do not modify the Summary, Experience, Education, Skills, Certifications, Languages, or other body layout unless absolutely required to preserve the corrected header spacing.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "CONTENT_PRESERVATION",
+    "LAYOUT_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-349d7980-578",
+   "index": 3,
+   "text": "Do not reposition unrelated sections or other experience entries unless a minimal downstream adjustment is strictly required for safe geometry.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "LAYOUT_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-503c2d4d-1e5",
+   "index": 6,
+   "text": "Perform a final visual QA pass to ensure every section appears intentionally aligned, evenly spaced, and production-ready.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "VISUAL_CONSISTENCY"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-5973faeb-695",
+   "index": 3,
+   "text": "Preserve the existing left alignment, typography, colors, header width, and overall visual style.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "ARCHITECTURE_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-5973faeb-695",
+   "index": 5,
+   "text": "Do not modify the Summary, Experience, Education, Skills, Certifications, or any other body section unless required only to preserve the corrected header spacing.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "CONTENT_PRESERVATION",
+    "LAYOUT_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-7af3e53a-798",
+   "index": 1,
+   "text": "Keep the Skills section readable and use its final rendered bottom as the starting reference for positioning the Projects section with a clear positive gap.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-7af3e53a-798",
+   "index": 9,
+   "text": "Before completing the revision, validate the entire left sidebar for zero text-on-text overlaps, zero section collisions, positive spacing between sequential sections, and zero out-of-bounds content.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-89991999-502",
+   "index": 8,
+   "text": "Keep all content inside the page bounds and preserve readable spacing at the bottom of the page.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-9348b928-68b",
+   "index": 0,
+   "text": "Regenerate the resume after the font rendering issue has been resolved.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "GENERAL_ACCEPTANCE"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-9348b928-68b",
+   "index": 1,
+   "text": "Ensure all text renders correctly without missing glyphs.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "GENERAL_ACCEPTANCE"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-9348b928-68b",
+   "index": 2,
+   "text": "Verify typography before submitting for founder review.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "GENERAL_ACCEPTANCE"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-9441fe34-4ba",
+   "index": 8,
+   "text": "Keep useful Operations Analyst skills such as Documentation, Process Design, stakeholder communication, operational analysis, process improvement, KPI reporting, data analysis, Excel, reporting, and workflow optimization where appropriate.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "CONTENT_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-9441fe34-4ba",
+   "index": 19,
+   "text": "Do not solve the role mismatch by changing only the header title; Summary, Experience, Skills, Projects, Certifications, and Education context must all consistently represent Operations Analyst.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "ROLE_TARGET_INTEGRITY"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-9441fe34-4ba",
+   "index": 20,
+   "text": "Preserve the existing dark navy header, two-column architecture, light sidebar background, blue section markers, typography hierarchy, and overall visual identity because those parts of the design are working well.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "ARCHITECTURE_PRESERVATION",
+    "LAYOUT_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-9441fe34-4ba",
+   "index": 21,
+   "text": "Do not change the candidate name or contact-information structure unless a small positioning adjustment is required for safe rendering.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "CONTENT_PRESERVATION",
+    "LAYOUT_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-9441fe34-4ba",
+   "index": 22,
+   "text": "Check the full page after all content changes and ensure there are no text overlaps, clipped text, duplicate text, out-of-bounds objects, or accidental collisions.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-9441fe34-4ba",
+   "index": 23,
+   "text": "Ensure all section headings and body text maintain clear positive spacing and that no text touches or visually merges with another section.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-9441fe34-4ba",
+   "index": 25,
+   "text": "Before returning this revision to Founder Review, verify that the rendered professional title, Summary, Experience, Skills, Projects, Certifications, and Education all match the target role Operations Analyst.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "ROLE_TARGET_INTEGRITY"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-94df0103-5c3",
+   "index": 3,
+   "text": "Do not reposition unrelated sections or redesign the Resume Template.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "LAYOUT_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-9b5f9aeb-027",
+   "index": 9,
+   "text": "Preserve the Certifications and Languages sections because their current layout is visually acceptable.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "LAYOUT_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-9b5f9aeb-027",
+   "index": 11,
+   "text": "Preserve the dark header, two-column architecture, sidebar background, blue heading markers, typography hierarchy, colors, and overall visual identity.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "ARCHITECTURE_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-b5339d03-b67",
+   "index": 11,
+   "text": "Ensure the Certifications section has sufficient positive spacing before the Languages heading and that no certification text touches or enters the Languages section.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-b5339d03-b67",
+   "index": 15,
+   "text": "Check every text object on the page for overlap, clipping, out-of-bounds rendering, accidental duplication, and insufficient positive spacing before returning the revision to Founder Review.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-b5339d03-b67",
+   "index": 17,
+   "text": "Preserve the candidate name and contact-information structure unless a layout adjustment is required; do not redesign unrelated header elements.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "CONTENT_PRESERVATION",
+    "LAYOUT_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-b5339d03-b67",
+   "index": 18,
+   "text": "Do not solve the role mismatch by changing only the header title; the Summary, Experience, Skills, Projects, Certifications, Education context, and all role-specific wording must consistently describe an Operations Analyst.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "ROLE_TARGET_INTEGRITY"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-b5339d03-b67",
+   "index": 19,
+   "text": "Before returning the revision, verify role-target integrity so the target role, rendered title, Summary, Experience, Skills, Projects, and qualifications all consistently match Operations Analyst.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "ROLE_TARGET_INTEGRITY"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-b5339d03-b67",
+   "index": 20,
+   "text": "Return a clean one-page Operations Analyst Resume Template with no overlapping text, no clipped text, no excessive unexplained gaps, no out-of-bounds objects, and no remaining Marketing Manager or marketing-specific professional content.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS",
+    "PAGE_FIT"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-bcf30166-95c",
+   "index": 5,
+   "text": "Before completing the revision, validate the rendered Certifications section specifically for overlap between separate text objects and wrapped lines, not only section-level bounding boxes.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-c134fd34-f0b",
+   "index": 2,
+   "text": "Preserve the existing positions and spacing of the header, Summary, first Marketing Manager experience entry, Projects, Skills, Education, and Languages unless a minimal downstream shift is strictly required to maintain safe geometry.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "CONTENT_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-de4851c4-36c",
+   "index": 8,
+   "text": "Preserve the current left anchors and blue marker-to-heading relationship for the sidebar headings.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "LAYOUT_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-de4851c4-36c",
+   "index": 9,
+   "text": "Do not allow body text from one sidebar section to intrude into the heading or content area of another section.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-de4851c4-36c",
+   "index": 11,
+   "text": "Preserve the dark header, two-column architecture, typography hierarchy, colors, sidebar background, and overall visual identity.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "ARCHITECTURE_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-e74b858b-e56",
+   "index": 3,
+   "text": "Ensure the Certifications heading and certification entries do not overlap the Projects content or each other.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-e74b858b-e56",
+   "index": 4,
+   "text": "Maintain clear vertical spacing between every sidebar section and prevent any text or heading collisions.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-e74b858b-e56",
+   "index": 6,
+   "text": "Keep the right-side Summary, Experience, and Education layout unchanged unless movement is strictly required to maintain alignment.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "LAYOUT_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  },
+  {
+   "task_id": "revtask-e74b858b-e56",
+   "index": 7,
+   "text": "Ensure all final resume content remains readable, properly contained, and visually balanced within one page with no clipping or overflow.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS",
+    "PAGE_FIT"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-ecd4d24a-139",
+   "index": 4,
+   "text": "Do not move the contact-details line upward into the name or title, and do not allow any header identity text objects to overlap one another.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-ecd4d24a-139",
+   "index": 6,
+   "text": "Before returning the revision to Founder Review, validate the final post-normalization rendered geometry and confirm that every header identity element is fully contained, internally non-overlapping, and inside the header background.",
+   "was": "MUTATION_REQUIRED",
+   "now": "VERIFICATION_ACCEPTANCE",
+   "evidence_check_types": [
+    "COLLISION_BOUNDS"
+   ],
+   "contract_violation": "Line states an acceptance condition to verify, not a concrete mutation with a target; MUTATION_REQUIRED forced an executable operation that could not be filled with real values."
+  },
+  {
+   "task_id": "revtask-fc2278c5-d39",
+   "index": 3,
+   "text": "Preserve the current positioning and hierarchy of the name and job title unless a very small adjustment is necessary to maintain consistent internal header spacing.",
+   "was": "MUTATION_REQUIRED",
+   "now": "PRESERVATION_CONSTRAINT",
+   "evidence_check_types": [
+    "CONTENT_PRESERVATION"
+   ],
+   "contract_violation": "Line forbids change; MUTATION_REQUIRED demanded an operation for an instruction that requests none."
+  }
+ ]
+}

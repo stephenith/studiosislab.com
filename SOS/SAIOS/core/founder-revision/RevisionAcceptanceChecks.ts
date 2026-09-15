@@ -10,6 +10,7 @@ import type { FabricCanvasDoc } from "./CanvasInventory.js";
 import { buildCanvasInventory } from "./CanvasInventory.js";
 import {
   classifyRequestedChange,
+  resolveIntentClauses,
   verificationCheckTypes,
   type RequestedChangeClass,
   type VerificationCheckType,
@@ -21,6 +22,7 @@ import {
 } from "./RevisionLayoutNormalizer.js";
 import type { CanvasInventoryObject } from "./revision-task-types.js";
 import type { RevisionPlan } from "./revision-task-types.js";
+import { evaluateCanvasRoleTargetIntegrity } from "../role-integrity/RoleTargetIntegrity.js";
 import { contentObjects } from "../resume-critic/canvasHelpers.js";
 import type { CanvasDocument, CanvasObject } from "../resume-critic/types.js";
 import {
@@ -921,6 +923,10 @@ export type ContentSectionKey =
 const LAYOUT_INTENT_SIGNAL =
   /\b(overlap|overlapp|collid|collision|clip|clipp|wrap|wrapping|spacing|space|position|reposition|align|alignment|bounds|out-of-bounds|margin|padding|geometry|overflow|move|shift|resize|font size|gap|rhythm|hierarchy|redesign|layout|adjust)\b/;
 
+/** Clauses that forbid change never authorize a content rewrite. */
+const PRESERVATION_CLAUSE_SIGNAL =
+  /\b(preserv|retain|keep|maintain|unchanged|untouched|intact|as-is|as is)\b/;
+
 /** Explicit content-replacement verbs. Layout verbs are deliberately absent. */
 const CONTENT_REPLACEMENT_VERB =
   /\b(replace|rewrite|rewrit|reword|revise|update|change|remove|delete|swap|correct|rework|refresh)\b/;
@@ -943,9 +949,20 @@ const SECTION_NOUN_PATTERNS: ReadonlyArray<
 /**
  * Deterministic Founder-request → authorized section resolution.
  *
- * Fail closed: a line must carry BOTH an explicit content-replacement verb AND
- * an unambiguous section noun, and must not be a layout request. Anything
- * ambiguous grants nothing.
+ * Fail closed: a clause must carry BOTH an explicit content-replacement verb
+ * AND an unambiguous section noun, and must not itself be a layout request.
+ * Anything ambiguous grants nothing.
+ *
+ * Phase 6G — clause scoped. Production evidence (revtask-9441fe34-4ba):
+ *
+ *   "Change the professional title from Marketing Manager to Operations
+ *    Analyst while preserving the current header design, candidate name,
+ *    contact layout, colors, and typography."
+ *
+ * Scoring the whole line rejected the title edit because the PRESERVATION half
+ * contains the word "layout". Intent belongs to the clause that states it, so
+ * the mutation clause authorizes the professional title and the preservation
+ * clauses authorize nothing.
  */
 export function resolveRequestedContentSections(
   requestedChange: string,
@@ -953,10 +970,17 @@ export function resolveRequestedContentSections(
   const out = new Set<ContentSectionKey>();
   const n = String(requestedChange ?? "").toLowerCase();
   if (!n.trim()) return out;
-  if (LAYOUT_INTENT_SIGNAL.test(n)) return out;
-  if (!CONTENT_REPLACEMENT_VERB.test(n)) return out;
-  for (const [key, re] of SECTION_NOUN_PATTERNS) {
-    if (re.test(n)) out.add(key);
+
+  for (const clause of resolveIntentClauses(n)) {
+    // A prohibition or preservation clause never authorizes a rewrite.
+    if (!clause.positive) continue;
+    if (PRESERVATION_CLAUSE_SIGNAL.test(clause.text)) continue;
+    // Geometry clauses stay geometry, exactly as before — just scoped.
+    if (LAYOUT_INTENT_SIGNAL.test(clause.text)) continue;
+    if (!CONTENT_REPLACEMENT_VERB.test(clause.text)) continue;
+    for (const [key, re] of SECTION_NOUN_PATTERNS) {
+      if (re.test(clause.text)) out.add(key);
+    }
   }
   return out;
 }
@@ -1051,7 +1075,60 @@ export function resolveSectionContentObjectIds(
     if (titleId) allowed.add(titleId);
   }
 
+  // Phase 6G — explicit Founder identity protection. The rules above already
+  // exclude these objects structurally; this makes the guarantee checkable
+  // rather than emergent, so no future scoping change can quietly grant a
+  // rewrite of the candidate's name or contact details.
+  for (const id of founderIdentityObjectIds(canvas)) allowed.delete(id);
+
   return allowed;
+}
+
+/**
+ * Candidate name and contact-detail object IDs — never content-edit authorized.
+ *
+ * The candidate name is the largest non-contact header text; contact objects
+ * are those carrying an email, URL, or phone pattern. No requested-change
+ * wording grants these, so a preservation instruction can never be turned into
+ * permission to rewrite them.
+ */
+export function founderIdentityObjectIds(canvas: FabricCanvasDoc): Set<string> {
+  const protectedIds = new Set<string>();
+  const objects = (canvas.objects ?? []) as Record<string, unknown>[];
+  const headerTexts: { id: string; text: string; fontSize: number }[] = [];
+
+  objects.forEach((o, index) => {
+    if (!isTextLikeObject(o)) return;
+    const text = typeof o.text === "string" ? o.text : "";
+    if (!text.trim()) return;
+    const id = objectTextId(o, index);
+    if (CONTACT_TEXT_SIGNAL.test(text)) {
+      protectedIds.add(id);
+      return;
+    }
+    if (canvasSectionOf(o) === "contact") {
+      protectedIds.add(id);
+      return;
+    }
+    if (canvasSectionOf(o) === "header") {
+      headerTexts.push({
+        id,
+        text,
+        fontSize: typeof o.fontSize === "number" ? o.fontSize : 0,
+      });
+    }
+  });
+
+  const nameCandidates = headerTexts.filter(
+    (t) => !CONTACT_TEXT_SIGNAL.test(t.text),
+  );
+  if (nameCandidates.length > 0) {
+    const maxFont = Math.max(...nameCandidates.map((t) => t.fontSize));
+    for (const t of nameCandidates) {
+      if (t.fontSize === maxFont) protectedIds.add(t.id);
+    }
+  }
+  return protectedIds;
 }
 
 /** True when the canvas carries no section metadata on any text object. */
@@ -1443,6 +1520,84 @@ export function runPageFitCheck(input: {
   };
 }
 
+/** Section nouns a layout-preservation clause can protect. */
+const PROTECTED_SECTION_PATTERNS: ReadonlyArray<readonly [string, RegExp]> = [
+  ["header", /\b(header|top header|masthead)\b/],
+  ["summary", /\b(summary|professional summary)\b/],
+  ["experience", /\b(experience|employment history|work history)\b/],
+  ["skills", /\bskills?\b/],
+  ["projects", /\bprojects?\b/],
+  ["certifications", /\b(certifications?|credentials?)\b/],
+  ["education", /\b(education|qualifications?)\b/],
+  ["languages", /\blanguages?\b/],
+  ["contact", /\b(contact|contact information|contact details)\b/],
+];
+
+/**
+ * Prove the sections a preservation clause names did not move or resize.
+ *
+ * Returns null when the clause names no resolvable section or none of those
+ * sections exist on both canvases — the caller then reports unevaluable rather
+ * than claiming a proof it does not have.
+ */
+function protectedSectionGeometryCheck(input: {
+  beforeInv: CanvasInventoryObject[];
+  afterInv: CanvasInventoryObject[];
+  requestedChange: string;
+}): AcceptanceCheckResult | null {
+  const n = String(input.requestedChange ?? "").toLowerCase();
+  const sections = new Set(
+    PROTECTED_SECTION_PATTERNS.filter(([, re]) => re.test(n)).map(([key]) => key),
+  );
+  if (sections.size === 0) return null;
+
+  const afterById = new Map(input.afterInv.map((o) => [o.id, o]));
+  const findings: AcceptanceFinding[] = [];
+  const objectIds: string[] = [];
+
+  for (const before of input.beforeInv) {
+    const section = (before.section ?? "").toLowerCase();
+    if (!sections.has(section)) continue;
+    const after = afterById.get(before.id);
+    if (!after) continue;
+    objectIds.push(before.id);
+    const moved = (["left", "top", "width", "height"] as const).filter((k) => {
+      const a = before[k];
+      const b = after[k];
+      if (typeof a !== "number" || typeof b !== "number") return false;
+      return Math.abs(a - b) > LAYOUT_PRESERVATION_NOISE_PX;
+    });
+    if (moved.length > 0) {
+      findings.push({
+        code: "ACC_LAYOUT_PRESERVATION_PROTECTED_OBJECT_MOVED",
+        message: `Protected ${section} object ${before.id} changed ${moved.join("/")}`,
+        object_ids: [before.id],
+      });
+    }
+  }
+
+  if (objectIds.length === 0) return null;
+
+  const pass = findings.length === 0;
+  return {
+    check_id: "layout_preservation",
+    check_type: "LAYOUT_PRESERVATION",
+    requested_change: input.requestedChange,
+    classification: "VERIFICATION_ACCEPTANCE",
+    pass,
+    evaluable: true,
+    findings,
+    object_ids: objectIds,
+    metrics: {
+      protected_object_count: objectIds.length,
+      noise_px: LAYOUT_PRESERVATION_NOISE_PX,
+    },
+    reason: pass
+      ? `Protected section geometry unchanged (${[...sections].join(", ")}; ${objectIds.length} object(s))`
+      : `${findings.length} protected-object geometry change(s)`,
+  };
+}
+
 export function runLayoutPreservationCheck(input: {
   beforeCanvas: FabricCanvasDoc;
   afterCanvas: FabricCanvasDoc;
@@ -1462,6 +1617,16 @@ export function runLayoutPreservationCheck(input: {
   ].filter((x): x is string => Boolean(x));
 
   if (!beforeSummary || !afterSummary || !beforeExp || !afterExp) {
+    // The Summary→Experience relation is the sharpest proof, but it only
+    // exists on canvases that have both. Fall back to proving the named
+    // sections did not move: preservation is about the absence of change, so
+    // unchanged geometry for the protected objects is a direct proof.
+    const named = protectedSectionGeometryCheck({
+      beforeInv,
+      afterInv,
+      requestedChange: input.requestedChange,
+    });
+    if (named) return named;
     return {
       check_id: "layout_preservation",
       check_type: "LAYOUT_PRESERVATION",
@@ -1637,6 +1802,103 @@ export function runArchitecturePreservationCheck(input: {
   };
 }
 
+/**
+ * Phase 6G — rendered professional role vs the Founder's target role.
+ *
+ * Owns Founder lines such as "verify that the rendered professional title,
+ * Summary, Experience … all match the target role Operations Analyst". The same
+ * evaluator gates candidate staging, so the acceptance result and the staging
+ * gate cannot disagree. Fails closed when the target role is unavailable.
+ */
+export function runRoleTargetIntegrityCheck(input: {
+  afterCanvas: FabricCanvasDoc;
+  requestedChange: string;
+  target_role?: string | null;
+  classification?: RequestedChangeClass;
+}): AcceptanceCheckResult {
+  const base = {
+    check_id: "role_target_integrity",
+    check_type: "ROLE_TARGET_INTEGRITY" as const,
+    requested_change: input.requestedChange,
+    classification: input.classification ?? ("VERIFICATION_ACCEPTANCE" as const),
+    object_ids: [] as string[],
+  };
+  const targetRole = String(input.target_role ?? "").trim();
+  if (!targetRole) {
+    return {
+      ...base,
+      pass: false,
+      evaluable: false,
+      findings: [
+        {
+          code: "ACC_ROLE_TARGET_UNEVALUABLE",
+          message: "target role unavailable for role-target integrity check",
+          object_ids: [],
+        },
+      ],
+      metrics: {},
+      reason: "Role-target integrity unevaluable without a target role",
+    };
+  }
+  const integrity = evaluateCanvasRoleTargetIntegrity({
+    target_title: targetRole,
+    target_role_family: targetRole,
+    canvas: input.afterCanvas as unknown as Parameters<
+      typeof evaluateCanvasRoleTargetIntegrity
+    >[0]["canvas"],
+  });
+  return {
+    ...base,
+    pass: integrity.pass,
+    evaluable: true,
+    findings: integrity.pass
+      ? []
+      : [
+          {
+            code: "ACC_ROLE_TARGET_MISMATCH",
+            message: integrity.reason,
+            object_ids: [],
+          },
+        ],
+    metrics: {
+      target_role: targetRole,
+      rendered_role: integrity.rendered_role ?? null,
+    },
+    reason: integrity.pass
+      ? `Rendered role matches target role ${targetRole}`
+      : integrity.reason,
+  };
+}
+
+/**
+ * Phase 6G — fallback acceptance for Founder wording with no resolvable
+ * mutation, verification topic, or preservation target.
+ *
+ * Requires ZERO operations. Certified by final-geometry cleanliness: no text
+ * overlap and no out-of-bounds content. This replaces the former behaviour
+ * where unrecognised wording became MUTATION_REQUIRED and forced the planner
+ * to invent a placeholder operation to carry its attribution.
+ */
+export function runGeneralAcceptanceCheck(input: {
+  afterCanvas: FabricCanvasDoc;
+  requestedChange: string;
+  classification?: RequestedChangeClass;
+}): AcceptanceCheckResult {
+  const collision = runCollisionBoundsCheck(
+    input.afterCanvas,
+    input.requestedChange,
+  );
+  return {
+    ...collision,
+    check_id: "general_acceptance",
+    check_type: "GENERAL_ACCEPTANCE",
+    classification: input.classification ?? "VERIFICATION_ACCEPTANCE",
+    reason: collision.evaluable
+      ? `${collision.pass ? "No" : "Unresolved"} deterministic geometry regression (no concrete mutation resolvable for this Founder line): ${collision.reason}`
+      : collision.reason,
+  };
+}
+
 function runAcceptanceCheckForType(input: {
   checkType: VerificationCheckType;
   requestedChange: string;
@@ -1645,6 +1907,8 @@ function runAcceptanceCheckForType(input: {
   plan?: RevisionPlan | null;
   requested_changes: string[];
   page_fit?: PageFitReport | null;
+  target_role?: string | null;
+  classification?: RequestedChangeClass;
 }): AcceptanceCheckResult {
   switch (input.checkType) {
     case "COLLISION_BOUNDS":
@@ -1740,6 +2004,19 @@ function runAcceptanceCheckForType(input: {
         afterCanvas: input.afterCanvas,
         requestedChange: input.requestedChange,
       });
+    case "ROLE_TARGET_INTEGRITY":
+      return runRoleTargetIntegrityCheck({
+        afterCanvas: input.afterCanvas,
+        requestedChange: input.requestedChange,
+        target_role: input.target_role,
+        classification: input.classification,
+      });
+    case "GENERAL_ACCEPTANCE":
+      return runGeneralAcceptanceCheck({
+        afterCanvas: input.afterCanvas,
+        requestedChange: input.requestedChange,
+        classification: input.classification,
+      });
     default: {
       const _exhaustive: never = input.checkType;
       return _exhaustive;
@@ -1757,11 +2034,20 @@ export function runRevisionAcceptanceChecks(input: {
   decision_id?: string | null;
   /** Authoritative post-normalization page-fit report. */
   page_fit?: PageFitReport | null;
+  /** Canonical target role; required for ROLE_TARGET_INTEGRITY checks. */
+  target_role?: string | null;
 }): RevisionAcceptanceReport {
   const checks: AcceptanceCheckResult[] = [];
   for (const change of input.requested_changes) {
     const classified = classifyRequestedChange(change);
-    if (classified.classification !== "VERIFICATION_ACCEPTANCE") continue;
+    // Phase 6G: preservation constraints also require ZERO operations, so their
+    // coverage evidence comes from these deterministic checks too.
+    if (
+      classified.classification !== "VERIFICATION_ACCEPTANCE" &&
+      classified.classification !== "PRESERVATION_CONSTRAINT"
+    ) {
+      continue;
+    }
     for (const checkType of verificationCheckTypes(classified)) {
       checks.push(
         runAcceptanceCheckForType({
@@ -1772,6 +2058,8 @@ export function runRevisionAcceptanceChecks(input: {
           plan: input.plan,
           requested_changes: input.requested_changes,
           page_fit: input.page_fit,
+          target_role: input.target_role,
+          classification: classified.classification,
         }),
       );
     }
@@ -1795,7 +2083,12 @@ export function findAcceptanceChecksForChange(
 ): AcceptanceCheckResult[] {
   if (!report) return [];
   const classified = classifyRequestedChange(requestedChange);
-  if (classified.classification !== "VERIFICATION_ACCEPTANCE") return [];
+  if (
+    classified.classification !== "VERIFICATION_ACCEPTANCE" &&
+    classified.classification !== "PRESERVATION_CONSTRAINT"
+  ) {
+    return [];
+  }
   const required = verificationCheckTypes(classified);
   if (required.length === 0) return [];
   return report.checks.filter(

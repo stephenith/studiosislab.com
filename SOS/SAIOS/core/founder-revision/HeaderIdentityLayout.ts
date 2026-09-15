@@ -13,6 +13,7 @@ import {
   isFabricTextObject,
 } from "./TextEffectiveHeight.js";
 import { parseExplicitMoveDirections } from "./PositionOpCanonicalization.js";
+import { hasConcreteContentMutationClause } from "./RequestedChangeClassification.js";
 
 /** Matches RevisionLayoutNormalizer MIN_HEADING_BODY_GAP_PX (avoid circular import). */
 export const HEADER_IDENTITY_PAD_PX = 8;
@@ -174,6 +175,11 @@ export function isHeaderIdentityLayoutOwnedChange(
 ): boolean {
   const n = normalizeFeedback(requestedChange);
   if (!n) return false;
+  // Header geometry never owns a content edit. "Change the professional title
+  // … while preserving the current header design, contact layout, colors, and
+  // typography" is a title mutation the planner must cover, not a
+  // preserve-style-only line.
+  if (hasConcreteContentMutationClause(requestedChange)) return false;
   if (
     /\b(mismatch|restore the correct|do not invent|fabricat|rewrite (?:the )?content|wrong role|font size|recolor|change (?:the )?color)\b/.test(
       n,

@@ -17,11 +17,11 @@ import {
   resolveIntentClauses,
 } from "./RequestedChangeClassification.js";
 import {
-  resolveRequestedContentSections,
   resolveSectionContentObjectIds,
   type AcceptanceFinding,
   type ContentSectionKey,
 } from "./RevisionAcceptanceChecks.js";
+import { resolveRevisionIntentScope } from "./RevisionIntentScope.js";
 import type {
   CanvasInventoryObject,
   CanvasOperation,
@@ -164,20 +164,11 @@ function isTextInventoryType(type: string): boolean {
   return /text/i.test(type);
 }
 
-/** Authorized whole-section replacement keys from MUTATION_REQUIRED Founder lines. */
+/** Authorized whole-section replacement keys from the canonical intent owner. */
 export function authorizedWholeSectionReplacementSections(
   requestedChanges: string[],
 ): Set<ContentSectionKey> {
-  const authorized = new Set<ContentSectionKey>();
-  for (const change of requestedChanges) {
-    if (classifyRequestedChange(change).classification !== "MUTATION_REQUIRED") {
-      continue;
-    }
-    for (const section of resolveRequestedContentSections(change)) {
-      authorized.add(section);
-    }
-  }
-  return authorized;
+  return new Set(resolveRevisionIntentScope(requestedChanges).content_mutation_sections);
 }
 
 export function requiredBodyObjectIdsForSections(
@@ -457,18 +448,37 @@ export function evaluateSectionReplacementCompleteness(input: {
   plan: RevisionPlan;
   requested_changes: string[];
 }): SectionReplacementCompletenessReport {
-  const authorized = authorizedWholeSectionReplacementSections(
-    input.requested_changes,
+  const scope = resolveRevisionIntentScope(input.requested_changes);
+  const authorized = new Set(scope.content_mutation_sections);
+  const preservedOnly = scope.content_preservation_sections.filter(
+    (s) => !authorized.has(s),
   );
-  if (authorized.size === 0) {
+  if (authorized.size === 0 && preservedOnly.length === 0) {
     return { ok: true, sections: [], unaccounted_object_ids: [], error: null };
   }
 
   const intent = buildFounderIntentIndex(input.requested_changes);
+  for (const section of preservedOnly) {
+    for (const item of scope.items) {
+      if (
+        item.clauses.some(
+          (c) =>
+            c.intent_class === "CONTENT_PRESERVATION" &&
+            c.preservation_scope.includes(section),
+        )
+      ) {
+        const cur = intent.keepItemsBySection.get(section) ?? [];
+        if (!cur.includes(item.founder_feedback_item)) {
+          cur.push(item.founder_feedback_item);
+          intent.keepItemsBySection.set(section, cur);
+        }
+      }
+    }
+  }
   const sections: SectionReplacementSectionReport[] = [];
   const unaccounted_object_ids: string[] = [];
 
-  for (const section of authorized) {
+  for (const section of [...authorized, ...preservedOnly]) {
     const sectionSet = new Set<ContentSectionKey>([section]);
     const requiredIds = requiredBodyObjectIdsForSections(
       input.canvas,

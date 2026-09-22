@@ -10,7 +10,6 @@ import type { FabricCanvasDoc } from "./CanvasInventory.js";
 import { buildCanvasInventory } from "./CanvasInventory.js";
 import {
   classifyRequestedChange,
-  resolveIntentClauses,
   verificationCheckTypes,
   type RequestedChangeClass,
   type VerificationCheckType,
@@ -27,6 +26,7 @@ import {
   evaluateSectionReplacementCompleteness,
   sectionReplacementFindings,
 } from "./SectionReplacementCompleteness.js";
+import { resolveRequestedContentMutationSections } from "./RevisionIntentScope.js";
 import { contentObjects } from "../resume-critic/canvasHelpers.js";
 import type { CanvasDocument, CanvasObject } from "../resume-critic/types.js";
 import {
@@ -950,36 +950,6 @@ export type ContentSectionKey =
   | "certifications"
   | "education";
 
-/**
- * Layout-intent signals. A Founder line carrying any of these is a geometry
- * request, not a content-replacement authorization — even when it names a
- * section (e.g. "fix the overlap inside the Certifications section").
- */
-const LAYOUT_INTENT_SIGNAL =
-  /\b(overlap|overlapp|collid|collision|clip|clipp|wrap|wrapping|spacing|space|position|reposition|align|alignment|bounds|out-of-bounds|margin|padding|geometry|overflow|move|shift|resize|font size|gap|rhythm|hierarchy|redesign|layout|adjust)\b/;
-
-/** Clauses that forbid change never authorize a content rewrite. */
-const PRESERVATION_CLAUSE_SIGNAL =
-  /\b(preserv|retain|keep|maintain|unchanged|untouched|intact|as-is|as is)\b/;
-
-/** Explicit content-replacement verbs. Layout verbs are deliberately absent. */
-const CONTENT_REPLACEMENT_VERB =
-  /\b(replace|rewrite|rewrit|reword|revise|update|change|remove|delete|swap|correct|rework|refresh)\b/;
-
-const SECTION_NOUN_PATTERNS: ReadonlyArray<
-  readonly [ContentSectionKey, RegExp]
-> = [
-  [
-    "job_title",
-    /\b(professional title|job title|professional identity|role title|title in the header)\b/,
-  ],
-  ["summary", /\b(summary|professional summary)\b/],
-  ["experience", /\b(experience|employment history|work history)\b/],
-  ["skills", /\bskills?\b/],
-  ["projects", /\bprojects?\b/],
-  ["certifications", /\b(certifications?|credentials?)\b/],
-  ["education", /\b(education|qualifications?)\b/],
-];
 
 /**
  * Deterministic Founder-request → authorized section resolution.
@@ -1002,22 +972,7 @@ const SECTION_NOUN_PATTERNS: ReadonlyArray<
 export function resolveRequestedContentSections(
   requestedChange: string,
 ): Set<ContentSectionKey> {
-  const out = new Set<ContentSectionKey>();
-  const n = String(requestedChange ?? "").toLowerCase();
-  if (!n.trim()) return out;
-
-  for (const clause of resolveIntentClauses(n)) {
-    // A prohibition or preservation clause never authorizes a rewrite.
-    if (!clause.positive) continue;
-    if (PRESERVATION_CLAUSE_SIGNAL.test(clause.text)) continue;
-    // Geometry clauses stay geometry, exactly as before — just scoped.
-    if (LAYOUT_INTENT_SIGNAL.test(clause.text)) continue;
-    if (!CONTENT_REPLACEMENT_VERB.test(clause.text)) continue;
-    for (const [key, re] of SECTION_NOUN_PATTERNS) {
-      if (re.test(clause.text)) out.add(key);
-    }
-  }
-  return out;
+  return resolveRequestedContentMutationSections(requestedChange);
 }
 
 /** Contact-detail signals — contact objects are never content-edit authorized. */

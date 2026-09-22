@@ -1,0 +1,40 @@
+{
+  "schema_version": "revision-failure-fixture-1.0.0",
+  "fixture_origin": "production evidence, read-only copy; production originals unmodified.",
+  "task_id": "revtask-a0009171-849",
+  "decision_id": "fd-880ef6ed-16d",
+  "prior_candidate_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511-revfb-f6c1e7",
+  "role": "Operations Analyst",
+  "design_family": "professional_sidebar",
+  "architecture": "narrow_ats_sidebar",
+  "task_status": "FAILED_GATE",
+  "requested_change_count": 24,
+  "old_code_scope_failure": "requested professional section replacement incomplete",
+  "old_code_scope_sections": ["experience", "education"],
+  "old_code_scope_function": "mutationContentSections → evaluateRevisionRoleTargetIntegrity.findIncompleteFromPlan",
+  "trigger_line_index": 11,
+  "trigger_line": "Remove the excessive blank vertical area currently separating the end of the Fieldwork Media Experience content from the Education heading.",
+  "skills_collision": {
+    "upper_id": "block-skills-4-t2",
+    "lower_id": "block-skills-4-t3",
+    "upper_last_line": "Process Design",
+    "lower_first_line": "Excel",
+    "upper_top": 176,
+    "upper_height": 121.8,
+    "lower_top": 301,
+    "stored_visual_gap_px": 3.2,
+    "excel_set_position_dropped": { "from": 301, "to": 321 }
+  },
+  "education": {
+    "heading_top_before": 900,
+    "last_experience_top": 741.65
+  },
+  "notes": [
+    "Follow-up layout revision. Operations Analyst content already correct.",
+    "Index 11 Remove+blank area+Experience/Education compiled as content replacement.",
+    "Deterministic ownership emitted an empty plan; revalidation retained AI Education-only ops.",
+    "Skills Excel set_position dropped as unsafe because it did not cascade Projects.",
+    "Historical production task remains FAILED_GATE and must not be retried."
+  ],
+  "redacted": ["provider_request_id"]
+}

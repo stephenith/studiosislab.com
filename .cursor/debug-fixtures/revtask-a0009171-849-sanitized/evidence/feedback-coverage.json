@@ -1,0 +1,440 @@
+{
+  "schema_version": "founder-feedback-coverage-1.0.0",
+  "all_addressed": false,
+  "items": [
+    {
+      "founder_feedback_item": "Preserve the current Operations Analyst title, Summary, Experience, Skills wording, Projects, Certifications, Languages, Education content, candidate name, contact information, header, colors, typography, two-column architecture, sidebar design, and overall visual identity.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [
+          "page-root",
+          "block-header-0-r0",
+          "block-header-0-t1",
+          "block-header-0-t2",
+          "block-header-0-t3",
+          "block-summary-1-r0",
+          "block-summary-1-t1",
+          "block-summary-1-t2",
+          "block-skills-4-r0",
+          "block-skills-4-t1",
+          "block-skills-4-t2"
+        ],
+        "notes": "CONTENT_PRESERVATION: Factual resume text preserved (geometry/style/reorder only; no unauthorized fabrication or rewrite); ARCHITECTURE_PRESERVATION: Architecture preserved (lanes=2, header band present)"
+      }
+    },
+    {
+      "founder_feedback_item": "Fix the visible overlap between the “Process Design” and “Excel” entries in the Skills section.",
+      "status": "not_addressed",
+      "evidence": {
+        "affected_object_ids": []
+      }
+    },
+    {
+      "founder_feedback_item": "Ensure “Process Design” and “Excel” render as two completely separate bullet rows with clear positive vertical spacing between them.",
+      "status": "not_addressed",
+      "evidence": {
+        "affected_object_ids": []
+      }
+    },
+    {
+      "founder_feedback_item": "Use the same line height and bullet-to-bullet vertical spacing for “Process Design” and “Excel” that is already used for Operational Analysis, Process Improvement, KPI Reporting, Workflow Optimization, Data Analysis, Documentation, and Stakeholder Communication.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "notes": "GENERAL_ACCEPTANCE: No deterministic geometry regression (no concrete mutation resolvable for this Founder line): No out-of-bounds objects, text overlaps, or heading/body collisions"
+      }
+    },
+    {
+      "founder_feedback_item": "Do not solve the Skills overlap by deleting either “Process Design” or “Excel”; both skills should remain present and fully readable.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "notes": "COLLISION_BOUNDS: No out-of-bounds objects, text overlaps, or heading/body collisions"
+      }
+    },
+    {
+      "founder_feedback_item": "Verify every Skills bullet from Operational Analysis through SQL Basics has consistent vertical spacing and no pair of lines touches, overlaps, clips, or visually merges.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "notes": "COLLISION_BOUNDS: No out-of-bounds objects, text overlaps, or heading/body collisions"
+      }
+    },
+    {
+      "founder_feedback_item": "Keep the current Skills order unless a very small positioning adjustment is required to achieve safe spacing.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "notes": "CONTENT_PRESERVATION: Factual resume text preserved (geometry/style/reorder only; no unauthorized fabrication or rewrite)"
+      }
+    },
+    {
+      "founder_feedback_item": "Maintain a consistent positive gap between the final Skills bullet and the Projects heading.",
+      "status": "not_addressed",
+      "evidence": {
+        "affected_object_ids": []
+      }
+    },
+    {
+      "founder_feedback_item": "Maintain consistent section-to-section spacing in the sidebar for Skills → Projects, Projects → Certifications, and Certifications → Languages.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "relation": {
+          "type": "CANONICAL_FINAL_STATE_LAYOUT",
+          "section": "skills,projects,certifications,languages",
+          "before_gap": null,
+          "after_gap": null,
+          "pass": true,
+          "notes": "canonical_final_state_layout_proof; LAYOUT_RHYTHM_SATISFIED"
+        },
+        "notes": "COVERED_BY=canonical_final_state_layout_proof; LAYOUT_RHYTHM_SATISFIED: final section rhythm has positive readable separation and no unused-frame holes"
+      }
+    },
+    {
+      "founder_feedback_item": "Maintain a consistent positive gap between each section heading and the first line of content beneath that heading.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "relation": {
+          "type": "CANONICAL_FINAL_STATE_LAYOUT",
+          "section": "summary,experience,education,skills,projects,certifications,languages",
+          "before_gap": null,
+          "after_gap": null,
+          "pass": true,
+          "notes": "canonical_final_state_layout_proof; LAYOUT_RHYTHM_SATISFIED"
+        },
+        "notes": "COVERED_BY=canonical_final_state_layout_proof; LAYOUT_RHYTHM_SATISFIED: final section rhythm has positive readable separation and no unused-frame holes"
+      }
+    },
+    {
+      "founder_feedback_item": "Move the Education section upward in the right column so it follows naturally after the final Experience entry.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "relation": {
+          "type": "CANONICAL_FINAL_STATE_LAYOUT",
+          "section": "experience,education",
+          "before_gap": null,
+          "after_gap": null,
+          "pass": true,
+          "notes": "canonical_final_state_layout_proof; LAYOUT_RHYTHM_SATISFIED"
+        },
+        "notes": "COVERED_BY=canonical_final_state_layout_proof; LAYOUT_RHYTHM_SATISFIED: final section rhythm has positive readable separation and no unused-frame holes"
+      }
+    },
+    {
+      "founder_feedback_item": "Remove the excessive blank vertical area currently separating the end of the Fieldwork Media Experience content from the Education heading.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [
+          "block-education-3-r0",
+          "block-education-3-t2",
+          "block-education-3-t3"
+        ],
+        "operation_evidence": [
+          {
+            "target_id": "block-education-3-r0",
+            "before": {
+              "id": "block-education-3-r0",
+              "type": "Rect",
+              "left": 284,
+              "top": 900,
+              "width": 4,
+              "height": 14,
+              "fill": "#1e40af",
+              "stroke": null,
+              "text": null
+            },
+            "after": {
+              "id": "block-education-3-r0",
+              "type": "Rect",
+              "left": 284,
+              "top": 770,
+              "width": 4,
+              "height": 14,
+              "fill": "#1e40af",
+              "stroke": null,
+              "text": null
+            }
+          },
+          {
+            "target_id": "block-education-3-t2",
+            "before": {
+              "id": "block-education-3-t2",
+              "type": "Textbox",
+              "left": 284,
+              "top": 922,
+              "width": 462,
+              "height": 16,
+              "fill": "#0a0a0a",
+              "stroke": null,
+              "text": "B.A. Business Administration — University of Texas at Austin  ·  2014",
+              "fontSize": 10.5,
+              "lineHeight": 1.45
+            },
+            "after": {
+              "id": "block-education-3-t2",
+              "type": "Textbox",
+              "left": 284,
+              "top": 792,
+              "width": 462,
+              "height": 16,
+              "fill": "#0a0a0a",
+              "stroke": null,
+              "text": "B.A. Business Administration — University of Texas at Austin  ·  2014",
+              "fontSize": 10.5,
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "target_id": "block-education-3-t3",
+            "before": {
+              "id": "block-education-3-t3",
+              "type": "Textbox",
+              "left": 284,
+              "top": 940,
+              "width": 462,
+              "height": 16,
+              "fill": "#0a0a0a",
+              "stroke": null,
+              "text": "Certificate, Operations Management — General Assembly  ·  2017",
+              "fontSize": 10.5,
+              "lineHeight": 1.45
+            },
+            "after": {
+              "id": "block-education-3-t3",
+              "type": "Textbox",
+              "left": 284,
+              "top": 810,
+              "width": 462,
+              "height": 16,
+              "fill": "#0a0a0a",
+              "stroke": null,
+              "text": "Certificate, Operations Management — General Assembly  ·  2017",
+              "fontSize": 10.5,
+              "lineHeight": 1.45
+            }
+          }
+        ],
+        "notes": "3 successful planned operation(s)"
+      }
+    },
+    {
+      "founder_feedback_item": "Use a normal positive section gap between the final Experience content and Education that is visually comparable to the spacing used between other major sections.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "relation": {
+          "type": "CANONICAL_FINAL_STATE_LAYOUT",
+          "section": "experience,education",
+          "before_gap": null,
+          "after_gap": null,
+          "pass": true,
+          "notes": "canonical_final_state_layout_proof; LAYOUT_RHYTHM_SATISFIED"
+        },
+        "notes": "COVERED_BY=canonical_final_state_layout_proof; LAYOUT_RHYTHM_SATISFIED: final section rhythm has positive readable separation and no unused-frame holes"
+      }
+    },
+    {
+      "founder_feedback_item": "Do not anchor or push Education toward the bottom of the page.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [
+          "block-summary-1-t2",
+          "block-experience-2-t1"
+        ],
+        "notes": "LAYOUT_PRESERVATION: Summary→Experience spacing preserved within tolerance (prior=43.1 final=43.1)"
+      }
+    },
+    {
+      "founder_feedback_item": "Keep Education below Experience in the right column and preserve its current heading, degree, institution, certificate, and dates.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "notes": "CONTENT_PRESERVATION: Factual resume text preserved (geometry/style/reorder only; no unauthorized fabrication or rewrite)"
+      }
+    },
+    {
+      "founder_feedback_item": "Do not create a new large blank area elsewhere when Education is moved upward.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "notes": "GENERAL_ACCEPTANCE: No deterministic geometry regression (no concrete mutation resolvable for this Founder line): No out-of-bounds objects, text overlaps, or heading/body collisions"
+      }
+    },
+    {
+      "founder_feedback_item": "Do not rewrite the Summary, Experience bullets, Projects, Certifications, Languages, or Education text merely to correct these spacing problems.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "notes": "GENERAL_ACCEPTANCE: No deterministic geometry regression (no concrete mutation resolvable for this Founder line): No out-of-bounds objects, text overlaps, or heading/body collisions"
+      }
+    },
+    {
+      "founder_feedback_item": "Preserve the current Experience internal spacing and bullet structure unless a minor vertical adjustment is required to position Education correctly.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [
+          "block-summary-1-t2",
+          "block-experience-2-t1"
+        ],
+        "notes": "LAYOUT_PRESERVATION: Summary→Experience spacing preserved within tolerance (prior=43.1 final=43.1)"
+      }
+    },
+    {
+      "founder_feedback_item": "Use one consistent vertical-rhythm system across the full resume: section-to-section gaps should be visually consistent, and heading-to-body gaps should be visually consistent.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "relation": {
+          "type": "CANONICAL_FINAL_STATE_LAYOUT",
+          "section": "summary,experience,education,skills,projects,certifications,languages",
+          "before_gap": null,
+          "after_gap": null,
+          "pass": true,
+          "notes": "canonical_final_state_layout_proof; LAYOUT_RHYTHM_SATISFIED"
+        },
+        "notes": "COVERED_BY=canonical_final_state_layout_proof; LAYOUT_RHYTHM_SATISFIED: final section rhythm has positive readable separation and no unused-frame holes"
+      }
+    },
+    {
+      "founder_feedback_item": "After the changes, verify that all text overlap count is zero.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "notes": "COLLISION_BOUNDS: No out-of-bounds objects, text overlaps, or heading/body collisions"
+      }
+    },
+    {
+      "founder_feedback_item": "After the changes, verify that page out-of-bounds count is zero.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "notes": "COLLISION_BOUNDS: No out-of-bounds objects, text overlaps, or heading/body collisions"
+      }
+    },
+    {
+      "founder_feedback_item": "After the changes, verify specifically that “Process Design” and “Excel” have clear positive separation and are both fully readable.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "notes": "COLLISION_BOUNDS: No out-of-bounds objects, text overlaps, or heading/body collisions"
+      }
+    },
+    {
+      "founder_feedback_item": "After the changes, verify specifically that Education follows Experience with a normal section gap and without a large unexplained blank area.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [],
+        "relation": {
+          "type": "CANONICAL_FINAL_STATE_LAYOUT",
+          "section": "experience,education",
+          "before_gap": null,
+          "after_gap": null,
+          "pass": true,
+          "notes": "canonical_final_state_layout_proof; LAYOUT_RHYTHM_SATISFIED"
+        },
+        "notes": "COVERED_BY=canonical_final_state_layout_proof; LAYOUT_RHYTHM_SATISFIED: final section rhythm has positive readable separation and no unused-frame holes"
+      }
+    },
+    {
+      "founder_feedback_item": "Return the same one-page Operations Analyst Resume Template with the current content and design preserved, correcting only the remaining Skills collision, Education positioning, and spacing consistency issues.",
+      "status": "addressed",
+      "evidence": {
+        "affected_object_ids": [
+          "block-education-3-r0",
+          "block-education-3-t2",
+          "block-education-3-t3"
+        ],
+        "operation_evidence": [
+          {
+            "target_id": "block-education-3-r0",
+            "before": {
+              "id": "block-education-3-r0",
+              "type": "Rect",
+              "left": 284,
+              "top": 900,
+              "width": 4,
+              "height": 14,
+              "fill": "#1e40af",
+              "stroke": null,
+              "text": null
+            },
+            "after": {
+              "id": "block-education-3-r0",
+              "type": "Rect",
+              "left": 284,
+              "top": 770,
+              "width": 4,
+              "height": 14,
+              "fill": "#1e40af",
+              "stroke": null,
+              "text": null
+            }
+          },
+          {
+            "target_id": "block-education-3-t2",
+            "before": {
+              "id": "block-education-3-t2",
+              "type": "Textbox",
+              "left": 284,
+              "top": 922,
+              "width": 462,
+              "height": 16,
+              "fill": "#0a0a0a",
+              "stroke": null,
+              "text": "B.A. Business Administration — University of Texas at Austin  ·  2014",
+              "fontSize": 10.5,
+              "lineHeight": 1.45
+            },
+            "after": {
+              "id": "block-education-3-t2",
+              "type": "Textbox",
+              "left": 284,
+              "top": 792,
+              "width": 462,
+              "height": 16,
+              "fill": "#0a0a0a",
+              "stroke": null,
+              "text": "B.A. Business Administration — University of Texas at Austin  ·  2014",
+              "fontSize": 10.5,
+              "lineHeight": 1.45
+            }
+          },
+          {
+            "target_id": "block-education-3-t3",
+            "before": {
+              "id": "block-education-3-t3",
+              "type": "Textbox",
+              "left": 284,
+              "top": 940,
+              "width": 462,
+              "height": 16,
+              "fill": "#0a0a0a",
+              "stroke": null,
+              "text": "Certificate, Operations Management — General Assembly  ·  2017",
+              "fontSize": 10.5,
+              "lineHeight": 1.45
+            },
+            "after": {
+              "id": "block-education-3-t3",
+              "type": "Textbox",
+              "left": 284,
+              "top": 810,
+              "width": 462,
+              "height": 16,
+              "fill": "#0a0a0a",
+              "stroke": null,
+              "text": "Certificate, Operations Management — General Assembly  ·  2017",
+              "fontSize": 10.5,
+              "lineHeight": 1.45
+            }
+          }
+        ],
+        "notes": "3 successful planned operation(s)"
+      }
+    }
+  ],
+  "gate_pass": false
+}

@@ -17,11 +17,12 @@ import {
 } from "./RoleTargetIntegrity.js";
 import {
   classifyRequestedChange,
-  resolveIntentClauses,
   verificationCheckTypes,
 } from "../founder-revision/RequestedChangeClassification.js";
 import type { FabricCanvasDoc } from "../founder-revision/CanvasInventory.js";
 import type { RevisionPlan } from "../founder-revision/revision-task-types.js";
+import { resolveRevisionIntentScope } from "../founder-revision/RevisionIntentScope.js";
+import type { SectionReplacementCompletenessReport } from "../founder-revision/SectionReplacementCompleteness.js";
 
 export type ContentSectionKey =
   | "job_title"
@@ -73,12 +74,6 @@ const ROLE_PROOF_BODY_NOUNS: ReadonlyArray<readonly [ContentSectionKey, RegExp]>
     ["education", /\b(education|qualifications?)\b/i],
   ];
 
-const CONTENT_REPLACEMENT_VERB =
-  /\b(replace|rewrite|rewrit|reword|revise|update|change|remove|delete|swap|correct|rework|refresh)\b/i;
-const LAYOUT_INTENT_SIGNAL =
-  /\b(overlap|overlapp|collid|collision|clip|clipp|wrap|wrapping|spacing|space|position|reposition|align|alignment|bounds|out-of-bounds|margin|padding|geometry|overflow|move|shift|resize|font size|gap|rhythm|hierarchy|redesign|layout|adjust)\b/i;
-const PRESERVATION_CLAUSE_SIGNAL =
-  /\b(preserv|retain|keep|maintain|unchanged|untouched|intact|as-is|as is)\b/i;
 const CONTACT_TEXT_SIGNAL =
   /(@|https?:\/\/|linkedin\.com|github\.com|\+\d[\d\s()-]{6,}|\b\d{3}[)\s-]\s?\d{3}[\s-]\d{4}\b)/i;
 const DATE_ONLY_TEXT_RE =
@@ -143,22 +138,9 @@ function canvasHasSectionMetadata(canvas: CanvasLike): boolean {
 }
 
 function mutationContentSections(requested_changes: string[]): Set<ContentSectionKey> {
-  const out = new Set<ContentSectionKey>();
-  for (const change of requested_changes) {
-    if (classifyRequestedChange(change).classification !== "MUTATION_REQUIRED") {
-      continue;
-    }
-    for (const clause of resolveIntentClauses(change.toLowerCase())) {
-      if (!clause.positive) continue;
-      if (PRESERVATION_CLAUSE_SIGNAL.test(clause.text)) continue;
-      if (LAYOUT_INTENT_SIGNAL.test(clause.text)) continue;
-      if (!CONTENT_REPLACEMENT_VERB.test(clause.text)) continue;
-      for (const [key, re] of ROLE_PROOF_BODY_NOUNS) {
-        if (re.test(clause.text)) out.add(key);
-      }
-    }
-  }
-  return out;
+  return new Set(
+    resolveRevisionIntentScope(requested_changes).content_mutation_sections,
+  );
 }
 
 /**
@@ -383,6 +365,25 @@ function baseResult(input: {
   };
 }
 
+function preservedIdsFromReplacement(
+  report: SectionReplacementCompletenessReport | null | undefined,
+): Set<string> {
+  const ids = new Set<string>();
+  if (!report) return ids;
+  for (const section of report.sections) {
+    for (const account of section.accounts) {
+      if (
+        account.disposition === "EXPLICITLY_PRESERVED" ||
+        account.disposition === "REPLACED" ||
+        account.disposition === "REMOVED"
+      ) {
+        ids.add(account.object_id);
+      }
+    }
+  }
+  return ids;
+}
+
 export function evaluateRevisionRoleTargetIntegrity(input: {
   target_role: string | null | undefined;
   afterCanvas?: CanvasLike;
@@ -390,6 +391,7 @@ export function evaluateRevisionRoleTargetIntegrity(input: {
   requested_changes?: string[];
   plan?: RevisionPlan | null;
   incomplete_replacement_findings?: RevisionIncompleteFinding[] | null;
+  section_replacement?: SectionReplacementCompletenessReport | null;
 }): RevisionRoleTargetIntegrityResult {
   const target_role = String(input.target_role ?? "").trim();
   const target_normalized = canonicalRoleKey(target_role);
@@ -489,11 +491,12 @@ export function evaluateRevisionRoleTargetIntegrity(input: {
         });
       }
     } else if (input.plan) {
+      const preserved = preservedIdsFromReplacement(input.section_replacement);
       const missing = findIncompleteFromPlan({
         canvas: before ?? after,
         plan: input.plan,
         sections: mutationSections,
-      });
+      }).filter((id) => !preserved.has(id));
       complete = missing.length === 0;
       if (!complete) {
         return baseResult({
@@ -516,8 +519,10 @@ export function evaluateRevisionRoleTargetIntegrity(input: {
       canvasObjects(before).forEach((o, i) => {
         beforeById.set(objectId(o, i), objectText(o).trim());
       });
+      const preserved = preservedIdsFromReplacement(input.section_replacement);
       const unchanged: string[] = [];
       for (const id of required) {
+        if (preserved.has(id)) continue;
         const prev = beforeById.get(id) ?? "";
         const next = afterById.get(id) ?? "";
         if (prev && prev === next && !DATE_ONLY_TEXT_RE.test(prev)) {

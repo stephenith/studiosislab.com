@@ -1,0 +1,109 @@
+{
+  "task_id": "revtask-a0009171-849",
+  "provider": "openai",
+  "provider_request_id": "resp_02b5b146b044268a006ab24069557c87d28f0d04f1b0273007",
+  "model": "gpt-4.1-mini-2025-04-14",
+  "input_tokens": 19538,
+  "output_tokens": 1188,
+  "structured_output": {
+    "schema_version": "founder-canvas-revision-plan-1.0.0",
+    "summary": "This revision plan corrects the visible overlap between the “Process Design” and “Excel” entries in the Skills section by adjusting the vertical position of the Excel skill line to ensure clear separation and consistent spacing. It also moves the Education section upward in the right column to close the large blank area below Experience, using a normal positive section gap consistent with the rest of the resume's vertical rhythm. All other content, wording, design, and layout are preserved as requested, ensuring no content removal or rewriting occurs. All required mutation items are covered with at least one concrete operation carrying exact founder feedback attribution. No conflicting mutations or preservation violations are present.",
+    "operations": [
+      {
+        "op": "set_position",
+        "target_id": "block-skills-4-t3",
+        "before_summary": "Textbox id=block-skills-4-t3 in Skills section currently at left=48 top=301 height=60.9 with overlapping issue with line above",
+        "intended_change": "Move the 'Excel' skill line textbox down by 20 px to fix overlap and ensure separate bullet rows with consistent vertical spacing.",
+        "values": {
+          "top": 321
+        },
+        "founder_feedback_item": "Fix the visible overlap between the “Process Design” and “Excel” entries in the Skills section.",
+        "founder_feedback_items": [
+          "Ensure “Process Design” and “Excel” render as two completely separate bullet rows with clear positive vertical spacing between them.",
+          "Maintain a consistent positive gap between the final Skills bullet and the Projects heading.",
+          "Return the same one-page Operations Analyst Resume Template with the current content and design preserved, correcting only the remaining Skills collision, Education positioning, and spacing consistency issues."
+        ],
+        "confidence": 0.98
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-education-3-r0",
+        "before_summary": "Rect id=block-education-3-r0 section=education marker currently at left=284 top=900 height=14",
+        "intended_change": "Move the Education section marker rectangle upward by 130 px to reduce excessive blank space below Experience and position Education naturally after Experience section.",
+        "values": {
+          "top": 770
+        },
+        "founder_feedback_item": "Remove the excessive blank vertical area currently separating the end of the Fieldwork Media Experience content from the Education heading.",
+        "founder_feedback_items": [
+          "Move the Education section upward in the right column so it follows naturally after the final Experience entry.",
+          "Return the same one-page Operations Analyst Resume Template with the current content and design preserved, correcting only the remaining Skills collision, Education positioning, and spacing consistency issues."
+        ],
+        "confidence": 0.97
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-education-3-t1",
+        "before_summary": "Textbox id=block-education-3-t1 education heading currently at left=296 top=900 height=14",
+        "intended_change": "Move the Education heading textbox upward by 130 px to maintain grouping with section marker and consistent sidebar vertical rhythm.",
+        "values": {
+          "top": 770
+        },
+        "founder_feedback_item": "Remove the excessive blank vertical area currently separating the end of the Fieldwork Media Experience content from the Education heading.",
+        "founder_feedback_items": [
+          "Move the Education section upward in the right column so it follows naturally after the final Experience entry.",
+          "Return the same one-page Operations Analyst Resume Template with the current content and design preserved, correcting only the remaining Skills collision, Education positioning, and spacing consistency issues."
+        ],
+        "confidence": 0.97
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-education-3-t2",
+        "before_summary": "Textbox id=block-education-3-t2 education content line 'B.A. Business Administration — University of Texas at Austin · 2014' currently at left=284 top=922 height=16",
+        "intended_change": "Move the first content line of the Education section upward by 130 px to maintain consistent section spacing and grouping below Education heading.",
+        "values": {
+          "top": 792
+        },
+        "founder_feedback_item": "Remove the excessive blank vertical area currently separating the end of the Fieldwork Media Experience content from the Education heading.",
+        "founder_feedback_items": [
+          "Move the Education section upward in the right column so it follows naturally after the final Experience entry.",
+          "Return the same one-page Operations Analyst Resume Template with the current content and design preserved, correcting only the remaining Skills collision, Education positioning, and spacing consistency issues."
+        ],
+        "confidence": 0.97
+      },
+      {
+        "op": "set_position",
+        "target_id": "block-education-3-t3",
+        "before_summary": "Textbox id=block-education-3-t3 education content line 'Certificate, Operations Management — General Assembly · 2017' currently at left=284 top=940 height=16",
+        "intended_change": "Move the second content line of the Education section upward by 130 px to maintain consistent section spacing and grouping below Education heading.",
+        "values": {
+          "top": 810
+        },
+        "founder_feedback_item": "Remove the excessive blank vertical area currently separating the end of the Fieldwork Media Experience content from the Education heading.",
+        "founder_feedback_items": [
+          "Move the Education section upward in the right column so it follows naturally after the final Experience entry.",
+          "Return the same one-page Operations Analyst Resume Template with the current content and design preserved, correcting only the remaining Skills collision, Education positioning, and spacing consistency issues."
+        ],
+        "confidence": 0.97
+      }
+    ],
+    "notes": [
+      "All unchanged content and layout preserved per preservation constraints.",
+      "Spacing adjustments ensure consistent vertical rhythm in sidebar sections as per deterministic layout ownership.",
+      "No content rewriting performed, only geometry mutations.",
+      "Vertical moves of Education section marker, heading, and content lines are coordinated to maintain section unit coherence.",
+      "Only the overlapping Skills textbox 'Excel' was adjusted downward; Skills order preserved per Founder request.",
+      "No operations target any locked system page background objects.",
+      "No conflicting or redundant operations created; all mutations have unique target and axis.",
+      "All required mutations have exact attribution with correct executable values per contract.",
+      "Spacing between Skills section final bullet and Projects heading is preserved and maintained via Excel textbox downward move only."
+    ],
+    "capability": "revision_planning",
+    "provider": "openai"
+  },
+  "publication_allowed": false,
+  "live": false,
+  "coverage_repair_attempted": false,
+  "conflict_repair_attempted": false,
+  "shape_repair_attempted": false,
+  "shape_repair_accepted": false
+}

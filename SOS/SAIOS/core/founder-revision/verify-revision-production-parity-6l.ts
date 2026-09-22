@@ -60,6 +60,7 @@ const HISTORICAL = [
   "revtask-7a1c0899-4d6",
   "revtask-dd26226e-d8b",
   "revtask-6ddb8eb8-e9c",
+  "revtask-a0009171-849",
 ];
 
 type Check = { name: string; pass: boolean; detail: string };
@@ -554,6 +555,82 @@ async function main(): Promise<void> {
     setRevisionTasksDirForTests(null);
   }
 
+  const FIX6M = join(
+    REPO,
+    ".cursor/debug-fixtures/revtask-a0009171-849-sanitized",
+  );
+  const task6m = readJson<{
+    requested_changes: string[];
+    prior_candidate_id: string;
+    role: string;
+    founder_reason: string;
+  }>(join(FIX6M, "revtask-a0009171-849.json"));
+  const primary6m = readJson<RevisionPlan>(
+    join(FIX6M, "revision-plan-ai-primary.json"),
+  );
+  const golden6mTmp = mkdtempSync(join(tmpdir(), "aios-6l-6m-golden-"));
+  const golden6mCand = join(golden6mTmp, "candidates");
+  const golden6mOut = join(golden6mTmp, "founder-revision");
+  const golden6mTasks = join(golden6mOut, "tasks");
+  mkdirSync(golden6mTasks, { recursive: true });
+  cpSync(join(FIX6M, "prior"), join(golden6mCand, task6m.prior_candidate_id), {
+    recursive: true,
+  });
+  setRevisionTasksDirForTests(golden6mTasks);
+  setRevisionPipelineRootsForTests({
+    candRoot: golden6mCand,
+    outRoot: golden6mOut,
+  });
+  let golden6mStatus = "UNRUN";
+  let golden6mError: string | null = null;
+  try {
+    const created = createRevisionTask({
+      decision_id: `fd-6l-6m-golden-${Date.now().toString(36)}`,
+      review_id: "founder-review-6l-6m-golden",
+      prior_candidate_id: task6m.prior_candidate_id,
+      prior_canvas_path: join(
+        golden6mCand,
+        task6m.prior_candidate_id,
+        "canvas.json",
+      ),
+      founder_reason: task6m.founder_reason,
+      requested_changes: task6m.requested_changes,
+      role: task6m.role,
+      design_family: "professional_sidebar",
+      architecture: "narrow_ats_sidebar",
+    });
+    const run = await runFounderFeedbackRevision({
+      task_id: created.task.task_id,
+      skip_preview: true,
+      critiqueOverride: passingCritic,
+      executePlanner: async () => ({
+        status: "COMPLETED",
+        structured_output: primary6m as unknown as Record<string, unknown>,
+        provider_request_id: "6l-6m-golden",
+        model_identifier_internal: "fixture",
+        input_tokens: 1,
+        output_tokens: 1,
+      }),
+    });
+    golden6mStatus = run.task.status;
+    golden6mError = run.error;
+    checks.push(
+      assert(
+        run.ok && run.task.status === "READY_FOR_FOUNDER_REVIEW",
+        "golden_followup_layout_ready_for_founder_review",
+        `${run.task.status} owner=${run.task.failure_owner ?? ""} ${run.error ?? ""}`,
+      ),
+    );
+  } finally {
+    setRevisionPipelineRootsForTests(null);
+    setRevisionTasksDirForTests(null);
+    try {
+      rmSync(golden6mTmp, { recursive: true, force: true });
+    } catch {
+      /* ignore */
+    }
+  }
+
   const malformed = await runIsolated({
     priorId: "cand-6l-malformed",
     canvas: miniCanvas([textObj("t1", "Operations Analyst", 40)]),
@@ -992,6 +1069,8 @@ async function main(): Promise<void> {
     golden_error: goldenError,
     golden_revised: goldenRevised,
     golden_owner: goldenOwner,
+    golden_followup_layout_status: golden6mStatus,
+    golden_followup_layout_error: golden6mError,
     checks,
     publication_allowed: false,
     live: false,

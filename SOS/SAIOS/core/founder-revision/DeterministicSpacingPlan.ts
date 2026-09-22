@@ -53,6 +53,10 @@ import {
   hasConcreteContentMutationClause,
   isVerificationAcceptance,
 } from "./RequestedChangeClassification.js";
+import {
+  isCollisionOrReadableGapLayoutRequest,
+  isExcessiveSectionGapLayoutRequest,
+} from "./RevisionIntentScope.js";
 import type { CanvasOperation, RevisionPlan } from "./revision-task-types.js";
 import { snapCoord } from "./EquivalentHorizontalOwnership.js";
 import {
@@ -135,10 +139,23 @@ export function isDeterministicLayoutNormalizerOwnedChange(
   // not geometry ownership requirements (Phase 5I).
   if (isVerificationAcceptance(requestedChange)) return false;
   if (isValidationOnlyRequestedChange(requestedChange)) return false;
+  if (
+    classifyRequestedChange(requestedChange).classification ===
+    "PRESERVATION_CONSTRAINT"
+  ) {
+    return false;
+  }
   // Phase 6G: an explicit content-mutation clause is planner-owned. Geometry
   // ownership must not exempt it from plan coverage just because the same line
   // also names header design, contact layout, or typography to preserve.
   if (hasConcreteContentMutationClause(requestedChange)) return false;
+
+  if (
+    isCollisionOrReadableGapLayoutRequest(requestedChange) ||
+    isExcessiveSectionGapLayoutRequest(requestedChange)
+  ) {
+    return true;
+  }
 
   if (isHeaderIdentityLayoutOwnedChange(requestedChange)) return true;
   if (isFounderHeadingToContentEqualityRequest(requestedChange)) return true;
@@ -495,10 +512,11 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
   );
   const primaryFb =
     nonDirectionalOwned ??
-    ownedAttribution[0] ??
-    attributionLines[0] ??
     "Normalize vertical spacing with deterministic layout ownership.";
-  const extraFb = attributionLines.filter((c) => c !== primaryFb);
+  const extraFb = attributionLines.filter((c) => {
+    if (c === primaryFb) return false;
+    return parseExplicitMoveDirections(c).size === 0;
+  });
 
   const spacingOps: CanvasOperation[] = [];
   for (let i = 0; i < afterObjs.length; i++) {

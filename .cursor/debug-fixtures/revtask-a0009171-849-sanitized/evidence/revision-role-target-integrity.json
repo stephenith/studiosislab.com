@@ -1,0 +1,21 @@
+{
+  "schema_version": "revision-role-target-integrity-1.0.0",
+  "proof_kind": "REVISION",
+  "pass": false,
+  "evaluable": true,
+  "match": "ROLE_CONTENT_INCOMPLETE",
+  "reason": "requested professional section replacement incomplete: block-experience-2-t2,block-experience-2-t4,block-experience-2-t5,block-experience-2-t6,block-experience-2-t7,block-experience-2-t8,block-experience-2-t10,block-experience-2-t11,block-experience-2-t12,block-experience-2-t13,block-experience-2-t15,block-experience-2-t16,block-experience-2-t17,block-education-3-t2,block-education-3-t3",
+  "target_role": "Operations Analyst",
+  "target_normalized": "operations_analyst",
+  "rendered_title_role": "Operations Analyst",
+  "rendered_title_normalized": "operations_analyst",
+  "requested_role_sections": [
+    "experience",
+    "education"
+  ],
+  "requested_role_sections_complete": false,
+  "source_role_identities": [],
+  "source_role_residue": [],
+  "residue_object_ids": [],
+  "evaluated_at": "2026-09-22T08:46:47.937Z"
+}

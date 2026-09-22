@@ -1,0 +1,7 @@
+{
+  "ok": false,
+  "errors": [
+    "operations must be a non-empty array"
+  ],
+  "note": "deterministic spacing/header plan not activated; retaining AI plan"
+}

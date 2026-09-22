@@ -1,0 +1,36 @@
+{
+  "dropped": [
+    {
+      "op": "set_position",
+      "target_id": "block-skills-4-t3",
+      "before_summary": "Textbox id=block-skills-4-t3 in Skills section currently at left=48 top=301 height=60.9 with overlapping issue with line above",
+      "intended_change": "Move the 'Excel' skill line textbox down by 20 px to fix overlap and ensure separate bullet rows with consistent vertical spacing.",
+      "values": {
+        "top": 321
+      },
+      "founder_feedback_item": "Fix the visible overlap between the “Process Design” and “Excel” entries in the Skills section.",
+      "confidence": 0.98,
+      "founder_feedback_items": [
+        "Ensure “Process Design” and “Excel” render as two completely separate bullet rows with clear positive vertical spacing between them.",
+        "Maintain a consistent positive gap between the final Skills bullet and the Projects heading.",
+        "Return the same one-page Operations Analyst Resume Template with the current content and design preserved, correcting only the remaining Skills collision, Education positioning, and spacing consistency issues."
+      ]
+    },
+    {
+      "op": "set_position",
+      "target_id": "block-education-3-t1",
+      "before_summary": "Textbox id=block-education-3-t1 education heading currently at left=296 top=900 height=14",
+      "intended_change": "Move the Education heading textbox upward by 130 px to maintain grouping with section marker and consistent sidebar vertical rhythm.",
+      "values": {
+        "top": 770
+      },
+      "founder_feedback_item": "Remove the excessive blank vertical area currently separating the end of the Fieldwork Media Experience content from the Education heading.",
+      "confidence": 0.97,
+      "founder_feedback_items": [
+        "Move the Education section upward in the right column so it follows naturally after the final Experience entry.",
+        "Return the same one-page Operations Analyst Resume Template with the current content and design preserved, correcting only the remaining Skills collision, Education positioning, and spacing consistency issues."
+      ]
+    }
+  ],
+  "remaining_operations": 3
+}

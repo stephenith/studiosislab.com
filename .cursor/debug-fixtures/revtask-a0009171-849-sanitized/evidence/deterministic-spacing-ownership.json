@@ -1,0 +1,300 @@
+{
+  "ok": true,
+  "plan": {
+    "schema_version": "founder-canvas-revision-plan-1.0.0",
+    "summary": "Deterministic spacing ownership: prior geometry already satisfied layout normalizer (no position mutations).",
+    "operations": [],
+    "notes": [
+      "normalizer_owned_spacing",
+      "zero_position_ops_preferred_over_identity"
+    ]
+  },
+  "error": null,
+  "report_ok": true,
+  "shifted_object_count": 0,
+  "preserved_ai_ops": 0,
+  "replaced_ai_position_ops": 3,
+  "ownership_mode": "UNCHANGED",
+  "canonical_layout_evidence": [
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "Preserve the current Operations Analyst title, Summary, Experience, Skills wording, Projects, Certifications, Languages, Education content, candidate name, contact information, header, colors, typography, two-column architecture, sidebar design, and overall visual identity.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "summary,experience,education,skills,projects,certifications,languages",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    },
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "Maintain consistent section-to-section spacing in the sidebar for Skills → Projects, Projects → Certifications, and Certifications → Languages.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "skills,projects,certifications,languages",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    },
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "Maintain a consistent positive gap between each section heading and the first line of content beneath that heading.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "summary,experience,education,skills,projects,certifications,languages",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    },
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "Move the Education section upward in the right column so it follows naturally after the final Experience entry.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "experience,education",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    },
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "Use a normal positive section gap between the final Experience content and Education that is visually comparable to the spacing used between other major sections.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "experience,education",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    },
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "Use one consistent vertical-rhythm system across the full resume: section-to-section gaps should be visually consistent, and heading-to-body gaps should be visually consistent.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "summary,experience,education,skills,projects,certifications,languages",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    },
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "After the changes, verify specifically that Education follows Experience with a normal section gap and without a large unexplained blank area.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "experience,education",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    }
+  ]
+}

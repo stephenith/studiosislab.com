@@ -479,6 +479,12 @@ export function detectDirectionScope(text: string): DirectionScope {
     );
   const wholeSection =
     /\b(?:entire|whole|all)\b/.test(n) && SECTION_SCOPE_RE.test(n);
+  const namedSectionMove =
+    /\bmov(?:e|ing|ed)\b[\s\S]{0,48}\b(?:summary|education|skills|certifications|languages|experience|projects|header|sidebar)\s+section\b/.test(
+      n,
+    ) ||
+    /\bmov(?:e|ing|ed)\b[\s\S]{0,16}\bthe\s+section\b/.test(n);
+  if (namedSectionMove) return "section";
   if (
     hasMoveVerb &&
     classes.length > 0 &&

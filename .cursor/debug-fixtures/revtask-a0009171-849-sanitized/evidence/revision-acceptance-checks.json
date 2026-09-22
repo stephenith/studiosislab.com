@@ -1,0 +1,267 @@
+{
+  "schema_version": "founder-revision-acceptance-1.0.0",
+  "task_id": "revtask-a0009171-849",
+  "revision_id": null,
+  "decision_id": "fd-880ef6ed-16d",
+  "at": "2026-09-22T08:46:47.934Z",
+  "canvas_source": "post_mutation",
+  "checks": [
+    {
+      "check_id": "content_preservation",
+      "check_type": "CONTENT_PRESERVATION",
+      "requested_change": "Preserve the current Operations Analyst title, Summary, Experience, Skills wording, Projects, Certifications, Languages, Education content, candidate name, contact information, header, colors, typography, two-column architecture, sidebar design, and overall visual identity.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "before_text_objects": 37,
+        "after_text_objects": 37,
+        "authorized_content_edit_targets": [],
+        "findings_count": 0
+      },
+      "reason": "Factual resume text preserved (geometry/style/reorder only; no unauthorized fabrication or rewrite)"
+    },
+    {
+      "check_id": "architecture_preservation",
+      "check_type": "ARCHITECTURE_PRESERVATION",
+      "requested_change": "Preserve the current Operations Analyst title, Summary, Experience, Skills wording, Projects, Certifications, Languages, Education content, candidate name, contact information, header, colors, typography, two-column architecture, sidebar design, and overall visual identity.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [
+        "page-root",
+        "block-header-0-r0",
+        "block-header-0-t1",
+        "block-header-0-t2",
+        "block-header-0-t3",
+        "block-summary-1-r0",
+        "block-summary-1-t1",
+        "block-summary-1-t2",
+        "block-skills-4-r0",
+        "block-skills-4-t1",
+        "block-skills-4-t2"
+      ],
+      "metrics": {
+        "before_lane_count": 2,
+        "after_lane_count": 2,
+        "before_lanes": [
+          "lane-0",
+          "lane-1"
+        ],
+        "after_lanes": [
+          "lane-0",
+          "lane-1"
+        ],
+        "header_band_supported": true,
+        "typography_colors_sidebar": "not independently proven — lane/topology/header band only"
+      },
+      "reason": "Architecture preserved (lanes=2, header band present)"
+    },
+    {
+      "check_id": "general_acceptance",
+      "check_type": "GENERAL_ACCEPTANCE",
+      "requested_change": "Use the same line height and bullet-to-bullet vertical spacing for “Process Design” and “Excel” that is already used for Operational Analysis, Process Improvement, KPI Reporting, Workflow Optimization, Data Analysis, Documentation, and Stakeholder Communication.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No deterministic geometry regression (no concrete mutation resolvable for this Founder line): No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "collision_bounds",
+      "check_type": "COLLISION_BOUNDS",
+      "requested_change": "Do not solve the Skills overlap by deleting either “Process Design” or “Excel”; both skills should remain present and fully readable.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "collision_bounds",
+      "check_type": "COLLISION_BOUNDS",
+      "requested_change": "Verify every Skills bullet from Operational Analysis through SQL Basics has consistent vertical spacing and no pair of lines touches, overlaps, clips, or visually merges.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "content_preservation",
+      "check_type": "CONTENT_PRESERVATION",
+      "requested_change": "Keep the current Skills order unless a very small positioning adjustment is required to achieve safe spacing.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "before_text_objects": 37,
+        "after_text_objects": 37,
+        "authorized_content_edit_targets": [],
+        "findings_count": 0
+      },
+      "reason": "Factual resume text preserved (geometry/style/reorder only; no unauthorized fabrication or rewrite)"
+    },
+    {
+      "check_id": "layout_preservation",
+      "check_type": "LAYOUT_PRESERVATION",
+      "requested_change": "Do not anchor or push Education toward the bottom of the page.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [
+        "block-summary-1-t2",
+        "block-summary-1-t2",
+        "block-experience-2-t1",
+        "block-experience-2-t1"
+      ],
+      "metrics": {
+        "prior_gap": 43.1,
+        "final_gap": 43.1
+      },
+      "reason": "Summary→Experience spacing preserved within tolerance (prior=43.1 final=43.1)"
+    },
+    {
+      "check_id": "content_preservation",
+      "check_type": "CONTENT_PRESERVATION",
+      "requested_change": "Keep Education below Experience in the right column and preserve its current heading, degree, institution, certificate, and dates.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "before_text_objects": 37,
+        "after_text_objects": 37,
+        "authorized_content_edit_targets": [],
+        "findings_count": 0
+      },
+      "reason": "Factual resume text preserved (geometry/style/reorder only; no unauthorized fabrication or rewrite)"
+    },
+    {
+      "check_id": "general_acceptance",
+      "check_type": "GENERAL_ACCEPTANCE",
+      "requested_change": "Do not create a new large blank area elsewhere when Education is moved upward.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No deterministic geometry regression (no concrete mutation resolvable for this Founder line): No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "general_acceptance",
+      "check_type": "GENERAL_ACCEPTANCE",
+      "requested_change": "Do not rewrite the Summary, Experience bullets, Projects, Certifications, Languages, or Education text merely to correct these spacing problems.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No deterministic geometry regression (no concrete mutation resolvable for this Founder line): No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "layout_preservation",
+      "check_type": "LAYOUT_PRESERVATION",
+      "requested_change": "Preserve the current Experience internal spacing and bullet structure unless a minor vertical adjustment is required to position Education correctly.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [
+        "block-summary-1-t2",
+        "block-summary-1-t2",
+        "block-experience-2-t1",
+        "block-experience-2-t1"
+      ],
+      "metrics": {
+        "prior_gap": 43.1,
+        "final_gap": 43.1
+      },
+      "reason": "Summary→Experience spacing preserved within tolerance (prior=43.1 final=43.1)"
+    },
+    {
+      "check_id": "collision_bounds",
+      "check_type": "COLLISION_BOUNDS",
+      "requested_change": "After the changes, verify that all text overlap count is zero.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "collision_bounds",
+      "check_type": "COLLISION_BOUNDS",
+      "requested_change": "After the changes, verify that page out-of-bounds count is zero.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "collision_bounds",
+      "check_type": "COLLISION_BOUNDS",
+      "requested_change": "After the changes, verify specifically that “Process Design” and “Excel” have clear positive separation and are both fully readable.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No out-of-bounds objects, text overlaps, or heading/body collisions"
+    }
+  ],
+  "all_verification_pass": true
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": "founder-plan-geometry-safety-1.0.0",
+  "at": "2026-09-22T08:46:47.912Z",
+  "ok": true,
+  "error": null,
+  "simulation_ok": true,
+  "text_overlaps": 0,
+  "page_oob": 0,
+  "findings": [],
+  "mutated_object_ids": [
+    "block-education-3-r0",
+    "block-education-3-t2",
+    "block-education-3-t3"
+  ],
+  "proposed_positions": [
+    {
+      "id": "block-education-3-t2",
+      "top": 792,
+      "left": 284,
+      "stored_height": 16,
+      "effective_height": 16,
+      "effective_bottom": 808
+    },
+    {
+      "id": "block-education-3-t3",
+      "top": 810,
+      "left": 284,
+      "stored_height": 16,
+      "effective_height": 16,
+      "effective_bottom": 826
+    }
+  ]
+}

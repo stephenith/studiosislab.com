@@ -1,0 +1,14 @@
+{
+  "schema_version": "revision-old-code-failure-1.0.0",
+  "task_id": "revtask-a0009171-849",
+  "reproduced_offline": true,
+  "scope_error": "requested professional section replacement incomplete",
+  "requested_role_sections": [
+    "experience",
+    "education"
+  ],
+  "function": "mutationContentSections \u2192 evaluateRevisionRoleTargetIntegrity.findIncompleteFromPlan",
+  "skills_visual_gap_px": 3.2,
+  "excel_set_position_dropped": true,
+  "note": "Immutable production leftover. Do not retry the production task."
+}

@@ -1,0 +1,100 @@
+[
+  {
+    "index": 0,
+    "op": "set_position",
+    "target_id": "block-education-3-r0",
+    "founder_feedback_item": "Remove the excessive blank vertical area currently separating the end of the Fieldwork Media Experience content from the Education heading.",
+    "ok": true,
+    "before": {
+      "id": "block-education-3-r0",
+      "type": "Rect",
+      "left": 284,
+      "top": 900,
+      "width": 4,
+      "height": 14,
+      "fill": "#1e40af",
+      "stroke": null,
+      "text": null
+    },
+    "after": {
+      "id": "block-education-3-r0",
+      "type": "Rect",
+      "left": 284,
+      "top": 770,
+      "width": 4,
+      "height": 14,
+      "fill": "#1e40af",
+      "stroke": null,
+      "text": null
+    },
+    "error": null
+  },
+  {
+    "index": 1,
+    "op": "set_position",
+    "target_id": "block-education-3-t2",
+    "founder_feedback_item": "Remove the excessive blank vertical area currently separating the end of the Fieldwork Media Experience content from the Education heading.",
+    "ok": true,
+    "before": {
+      "id": "block-education-3-t2",
+      "type": "Textbox",
+      "left": 284,
+      "top": 922,
+      "width": 462,
+      "height": 16,
+      "fill": "#0a0a0a",
+      "stroke": null,
+      "text": "B.A. Business Administration — University of Texas at Austin  ·  2014",
+      "fontSize": 10.5,
+      "lineHeight": 1.45
+    },
+    "after": {
+      "id": "block-education-3-t2",
+      "type": "Textbox",
+      "left": 284,
+      "top": 792,
+      "width": 462,
+      "height": 16,
+      "fill": "#0a0a0a",
+      "stroke": null,
+      "text": "B.A. Business Administration — University of Texas at Austin  ·  2014",
+      "fontSize": 10.5,
+      "lineHeight": 1.45
+    },
+    "error": null
+  },
+  {
+    "index": 2,
+    "op": "set_position",
+    "target_id": "block-education-3-t3",
+    "founder_feedback_item": "Remove the excessive blank vertical area currently separating the end of the Fieldwork Media Experience content from the Education heading.",
+    "ok": true,
+    "before": {
+      "id": "block-education-3-t3",
+      "type": "Textbox",
+      "left": 284,
+      "top": 940,
+      "width": 462,
+      "height": 16,
+      "fill": "#0a0a0a",
+      "stroke": null,
+      "text": "Certificate, Operations Management — General Assembly  ·  2017",
+      "fontSize": 10.5,
+      "lineHeight": 1.45
+    },
+    "after": {
+      "id": "block-education-3-t3",
+      "type": "Textbox",
+      "left": 284,
+      "top": 810,
+      "width": 462,
+      "height": 16,
+      "fill": "#0a0a0a",
+      "stroke": null,
+      "text": "Certificate, Operations Management — General Assembly  ·  2017",
+      "fontSize": 10.5,
+      "lineHeight": 1.45
+    },
+    "error": null
+  }
+]

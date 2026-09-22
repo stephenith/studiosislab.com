@@ -193,6 +193,7 @@
     "aios:revision:section-replacement-6j:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-section-replacement-completeness-6j.ts",
     "aios:revision:canonical-layout-6k:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-canonical-layout-proof-6k.ts",
     "aios:revision:production-parity-6l:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-revision-production-parity-6l.ts",
+    "aios:revision:intent-scope-6m:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-revision-intent-scope-6m.ts",
     "aios:revision:section-content-auth:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-section-content-authorization-6f.ts",
     "aios:memory:task-wiring:verify": "npx --yes tsx SOS/SAIOS/core/founder-memory/verify-memory-task-wiring-6f.ts",
     "aios:revision:heading-rect:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-heading-rect-pairing.ts",

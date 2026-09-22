@@ -16,6 +16,7 @@ import {
   isDeprecatedPlannerOp,
 } from "./allowedCanvasOps.js";
 import { classifyRequestedChange } from "./RequestedChangeClassification.js";
+import { isLayoutOnlyIntentChange } from "./RevisionIntentScope.js";
 import { buildWholeSectionRequiredBodyInventoryPrompt } from "./SectionReplacementCompleteness.js";
 import {
   isDeterministicLayoutNormalizerOwnedChange,
@@ -454,6 +455,9 @@ export function resolveItemCoverageMode(
   }
   if (isValidationOnlyRequestedChange(requestedChange)) return "VALIDATION_ONLY";
   if (isDeterministicLayoutNormalizerOwnedChange(requestedChange)) {
+    return "DETERMINISTIC_LAYOUT_OWNED";
+  }
+  if (isLayoutOnlyIntentChange(requestedChange)) {
     return "DETERMINISTIC_LAYOUT_OWNED";
   }
   return "MUTATION_REQUIRED";

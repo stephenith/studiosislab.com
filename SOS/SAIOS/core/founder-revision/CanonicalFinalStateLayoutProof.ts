@@ -20,7 +20,9 @@ import {
 import { SPACING_INTENT_MIN_GAP_PX } from "./FounderSpacingIntent.js";
 import {
   MIN_SECTION_GAP_PX,
+  READABLE_SEQUENTIAL_GAP_PX,
 } from "./RevisionLayoutNormalizer.js";
+import { isCollisionOrReadableGapLayoutRequest } from "./RevisionIntentScope.js";
 
 export const CANONICAL_LAYOUT_SCHEMA =
   "founder-revision-canonical-layout-intent-1.0.0" as const;
@@ -283,12 +285,15 @@ function judgeFinalPair(input: {
       condition: `final visual gap ${final.visual_gap.toFixed(2)} < 0`,
     });
   }
-  if (final.visual_gap + 1e-9 < SPACING_INTENT_MIN_GAP_PX) {
+  const minGap = isCollisionOrReadableGapLayoutRequest(item)
+    ? READABLE_SEQUENTIAL_GAP_PX
+    : SPACING_INTENT_MIN_GAP_PX;
+  if (final.visual_gap + 1e-9 < minGap) {
     return evidence({
       ...base,
       pass: false,
       reason: "VISUAL_GAP_TOO_SMALL",
-      condition: `final visual gap ${final.visual_gap.toFixed(2)} < min ${SPACING_INTENT_MIN_GAP_PX}`,
+      condition: `final visual gap ${final.visual_gap.toFixed(2)} < min ${minGap}`,
     });
   }
   if (unusedSlackHole(final)) {
@@ -374,7 +379,12 @@ function judgeSectionFinal(input: {
       }
       const geom = measurePair(input.after, pair.upper_id, pair.lower_id);
       if ((geom.visual_gap ?? 0) < -1e-9) overlaps.push(`${pair.upper_id}→${pair.lower_id}`);
-      else if ((geom.visual_gap ?? 0) + 1e-9 < SPACING_INTENT_MIN_GAP_PX) {
+      else if (
+        (geom.visual_gap ?? 0) + 1e-9 <
+        (isCollisionOrReadableGapLayoutRequest(input.item)
+          ? READABLE_SEQUENTIAL_GAP_PX
+          : SPACING_INTENT_MIN_GAP_PX)
+      ) {
         cramped.push(`${pair.upper_id}→${pair.lower_id}`);
       }
     }

@@ -1,0 +1,1593 @@
+{
+  "objective": "FOUNDER CANVAS REVISION PLANNER Modify the existing Fabric resume design to implement Founder feedback. Do NOT generate a new unrelated resume. Preserve unaffected content, names, companies, and section copy unless a Founder item requires a text change. Implement EVERY Founder instruction. Return structured JSON only (no markdown). Role: Operations Analyst Design family: professional_sidebar Layout architecture: narrow_ats_sidebar Prior resume template (legacy internal id): cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511-revfb-f6c1e7 Decision: fd-880ef6ed-16d",
+  "instructions": "You are revising an existing one-page ATS Fabric.js canvas.\nCRITICAL RULES:\n- Modify the existing design in place via operations.\n- Preserve unaffected content.\n- Do not invent a brand-new resume layout from scratch.\n- Do not output an entire replacement Fabric canvas unless absolutely necessary (prefer operations).\n- Implement every Founder instruction listed below.\n- Never modify locked system page background (role=pageBackground / system=true) except when Founder explicitly requires a full-page change (then refuse and note).\n- Stay within page bounds.\n\nTARGETING CONTRACT (mandatory — fail closed):\n- Use only object IDs provided in the CANVAS OBJECT INVENTORY below.\n- Copy IDs exactly from inventory id=… values. Never invent object IDs.\n- Never invent or infer roles. Do not use conceptual roles such as label or filled-label unless that exact role string is explicitly present on an inventory object.\n\nSINGLE-TARGET OPERATIONS (mandatory):\n- Ops: move_object, resize_object, set_position, set_dimensions, set_fill, set_stroke, update_text, ungroup_objects, extend_shape, adjust_font_size, adjust_line_height, remove_object.\n- MUST use exactly one non-empty target_id copied from inventory.\n- MUST NOT include target_ids (forbidden on single-target ops).\n- MUST NOT include selector (forbidden on single-target ops).\n- one operation = one inventory object.\n- To mutate multiple objects: emit multiple single-target ops (each with its own target_id), OR use align_objects/group_objects when true multi-object alignment/grouping is intended.\n- For the SUMMARY body, select the body Textbox inventory ID (the paragraph text), NOT the SUMMARY heading Textbox and NOT a decorative Rect.\n- section alone is INSUFFICIENT when a section has both a heading label and a body Textbox (e.g. SUMMARY heading + summary body).\n- NOT the SUMMARY label when editing summary body copy.\n\nMOVEMENT / SPACING CONTRACT (mandatory):\n- For concrete object movement: use set_position with target_id + absolute top/left, OR move_object with target_id + delta_top/delta_left.\n- For true multi-object horizontal alignment: use align_objects with target_ids (≥2) and values.align_left.\n- For semantic section spacing / heading→body gaps / page-fit: do NOT invent gap/spacing operations. Deterministic RevisionLayoutNormalizer owns section-stack spacing, heading/body minimum gaps, and page-fit compaction after your executable ops run.\n- Intra-section text reflow / readable separation still requires concrete per-object set_position or move_object (differential tops) when Founder asks for that mutation — never a single semantic spacing field, and never identical deltas on overlapping objects.\n\nWRAP-AWARE GEOMETRY CONTRACT (mandatory):\n- Inventory fields: h / stored_height = serialized Fabric frame height (may be undersized).\n- effective_height / effective_bottom = deterministic wrap-aware safety geometry (max of stored frame vs estimated wrapped content height).\n- text_len = full source character count (inventory text preview may be truncated).\n- When effective_bottom of object A exceeds top of horizontally overlapping object B, the plan is geometrically invalid unless B is moved (or A is changed) so clearance exists.\n- A pre-execution geometry gate will REJECT plans that still leave effective text-to-text overlaps after your operations are simulated.\n\nCANONICAL GEOMETRY OWNERSHIP (mandatory):\n- For a target object and axis, emit ONE mutation owner.\n- If align_objects owns target X's horizontal alignment: do not also emit set_position.left for X; do not emit move_object.delta_left for X.\n- A set_position operation MAY still carry top while align_objects owns left.\n- INVALID: set_position(X, { left: 60, top: 280 }) plus align_objects([X,Y], { align_left: 60 }).\n- VALID: set_position(X, { top: 280 }) plus align_objects([X,Y], { align_left: 60 }).\n- Do not create dummy/no-op operations to satisfy attribution.\n\nCOLUMN / LANE OWNERSHIP (mandatory — deterministic StructuralAlignmentSafety is authoritative):\n- Preserve established column/lane ownership unless the Founder explicitly requests an architecture change.\n- Do not align objects from different established columns/lanes to one shared horizontal coordinate.\n- Interpret requests such as \"align section headings consistently\" as consistency WITHIN each existing column/lane.\n- Sidebar headings should align with sidebar headings.\n- Main-column headings should align with main-column headings.\n- Do not move main-column content to sidebar x-coordinates or vice versa merely to satisfy alignment consistency.\n- When multiple established lanes/columns exist, every align_objects operation must contain targets from exactly one lane. Never emit one align_objects operation containing targets from different lanes.\n- If headings in two lanes both require alignment, emit separate same-lane align_objects operations for each lane.\n- If multiple columns exist, produce separate same-lane operations where alignment changes are required.\n- Preserve the existing multi-column architecture when Founder feedback explicitly asks for preservation.\n\nSECTION UNIT COHERENCE (mandatory — architecture-general):\nA visual section unit consists of:\n- accent marker / decorative section indicator (e.g. role=section-marker Rect)\n- section heading (label Textbox)\n- associated section body/content (Textboxes belonging to that section)\n\nWhen Founder feedback requires repositioning, reflow, spacing, or rhythm changes for a section:\n1. Treat marker, heading, and associated content as ONE visual unit — reason about the intended final geometry of all members together.\n2. Before moving one member vertically, determine how heading, marker, and content will relate AFTER the full set of operations.\n3. FORBID a marker-only vertical move that would orphan the marker far from its heading/content band (e.g. marker top=380 while heading remains top=507).\n4. FORBID placing associated section content above its own heading unless the prior design explicitly establishes that ordering.\n5. Preserve internal vertical order within a section: marker/heading band → associated content → (gap) → next section.\n6. Preserve intentional horizontal marker-to-heading offsets unless Founder explicitly requires changing them.\n7. When moving an entire section vertically, emit coordinated operations on marker, heading, and affected content as required — not an isolated marker or heading move that breaks the unit.\n8. Do not mutate objects already correctly positioned solely to obtain attribution.\n9. Do not create no-op operations (same geometry as inventory) merely to satisfy Founder completeness.\n10. VERTICAL SECTION STACK (mandatory): for vertically stacked sections, previous section content bottom MUST be strictly less than next section marker/heading band top, with the configured/minimum spacing expectation. FORBIDDEN: content-bottom >= next-section heading/marker top. Do not solve horizontal ownership while leaving vertical section units overlapping.\n\nHORIZONTAL ALIGNMENT COHORTS (mandatory — architecture-general):\nA visual section unit may contain DISTINCT horizontal alignment cohorts:\n- accent/marker\n- heading label\n- associated body/content\nObjects belonging to one section do NOT necessarily share one left coordinate.\nalign_objects with a single values.align_left may include targets from exactly ONE of those cohorts.\nFORBIDDEN: mixing marker + heading, heading + body, or marker + body in one align_objects operation.\n\"Align markers consistently relative to headings\" means preserve the established marker↔heading horizontal OFFSET. It does NOT mean assign marker and heading the same align_left.\n\"Align section headings\" means heading labels only — do not include associated body/content or markers in that heading cohort.\nIf markers themselves need left-edge consistency, emit a SEPARATE same-lane align_objects containing only markers.\nIf body/content needs a shared left edge, emit a SEPARATE same-lane align_objects containing only body/content, and choose a left that keeps each object's full effective width inside the established lane/column band.\nBefore emitting align_objects, inspect each target's effective width against the established lane/column band (not only page width). If proposed left + width would place the object's right edge outside that band, do not emit the op.\nDo not collapse an established marker↔heading or heading↔body horizontal relationship merely to obtain Founder-item attribution.\nalign_objects ALWAYS requires at least two DISTINCT non-empty inventory target IDs. A one-element target_ids array is invalid.\nINVALID: using align_objects with one target merely to represent an absolute X. That is a single-object reposition — use set_position or move_object, and only if the object actually needs to move.\nINVALID: creating an operation whose requested geometry is already identical to the inventory for every target merely so a Founder item appears covered. That is a no-op invented for coverage.\nIf a visual-reference / preserve-existing-relationship Founder item is already satisfied by current geometry, do not invent a dummy align_objects (including a one-target identity align_left) for that item.\nINVALID (schema-rejected — one-target align_objects):\n{\"op\":\"align_objects\",\"target_ids\":[\"block-example-heading\"],\"before_summary\":\"Heading textbox already at its established left\",\"intended_change\":\"Represent a heading-marker visual reference with a dummy left-edge align\",\"values\":{\"align_left\":100},\"founder_feedback_item\":\"Use a heading and its accent marker as a visual reference while preserving existing column anchors.\",\"confidence\":0.9}\nReason: align_objects requires ≥2 distinct target IDs. A single-object absolute X is set_position only when movement is actually required. If inventory left already matches, emit nothing for that item (or secondary-attribute a genuine related multi-target op).\n\nINVALID (will be rejected — do not emit):\n{\"op\":\"adjust_spacing\",\"target_id\":\"block-experience-2-t2\",\"values\":{\"spacing\":18}}\n{\"op\":\"set_position\",\"target_id\":\"block-summary-1-r0\",\"values\":{\"spacing\":24}}\n{\"op\":\"set_position\",\"target_ids\":[\"block-summary-1-r0\",\"block-experience-2-r0\"],\"values\":{\"align_left\":48,\"vertical_spacing_standardized\":true}}\n{\"op\":\"move_object\",\"target_id\":\"block-skills-4-t2\",\"values\":{\"gap_px\":10}}\n\nVALID movement examples (IDs/values are EXAMPLES — copy real IDs from CURRENT inventory):\n{\"op\":\"move_object\",\"target_id\":\"block-experience-2-t5\",\"before_summary\":\"Textbox id=block-experience-2-t5 section=experience top near prior bullet\",\"intended_change\":\"Move this Experience bullet down by 6px to restore rhythm\",\"values\":{\"delta_top\":6},\"founder_feedback_item\":\"Normalize the spacing inside the Experience section so job titles, employment dates, bullet groups, and the transitions between different employers follow one consistent vertical rhythm without unusually large or compressed gaps.\",\"confidence\":0.95}\n{\"op\":\"set_position\",\"target_id\":\"block-experience-2-t5\",\"before_summary\":\"Textbox id=block-experience-2-t5 section=experience currently at top≈414\",\"intended_change\":\"Set absolute top of this Experience bullet to 420\",\"values\":{\"top\":420},\"founder_feedback_item\":\"Normalize the spacing inside the Experience section so job titles, employment dates, bullet groups, and the transitions between different employers follow one consistent vertical rhythm without unusually large or compressed gaps.\",\"confidence\":0.95}\n\nVALID alternatives for multi-object work:\n- Two separate set_position or move_object ops, each with its own target_id and executable left/top/delta_* values.\n- align_objects with target_ids (≥2) and values.align_left when true left-edge alignment is intended.\n\nMULTI-TARGET OPERATIONS (ONLY align_objects / group_objects — mandatory):\n- Use ONLY exact object IDs copied from the provided CANVAS OBJECT INVENTORY.\n- target_ids is REQUIRED: a JSON array of at least 2 non-empty inventory object ID strings.\n- Never use selector as the targeting mechanism for align_objects / group_objects.\n- Never use a single target_id as the sole target for align_objects / group_objects.\n- Never leave target_ids empty, omitted, or with fewer than 2 IDs.\n- Never infer targets from values (e.g. values.align_left alone is INVALID).\n- Never invent object IDs. Copy id=… values exactly from the inventory.\n- If only one object needs movement/alignment, use set_position or move_object instead of align_objects.\n\nMULTI-OBJECT ALIGNMENT SAFETY (mandatory — fail closed):\n- NEVER include structural/full-width container objects in an align_objects cohort with ordinary content-column objects.\n- Structural examples (when inventory role/section/geometry makes this explicit): header-band, full-width decorative band, page-spanning container/background.\n- Do NOT invent or guess hidden roles. Use ONLY explicit inventory role/section/geometry fields.\n- If any target's effective width would push right edge past page width at values.align_left, do NOT emit that align_objects op.\n- If any target's effective width would push its right edge past the established lane/column band at values.align_left, do NOT emit that align_objects op.\n- Do not mix marker, heading, and body/content in one align_objects cohort. See HORIZONTAL ALIGNMENT COHORTS.\n- Compatible ordinary content objects of the SAME section-unit role (e.g. section heading labels of similar column width) may share align_objects when geometrically safe.\n- Compatible header text objects may align together when geometrically safe; do not mix them with a page-spanning header-band Rect.\n\nEXECUTABLE VALUES (mandatory):\n- values must contain fields the executor can apply — never semantic placeholder booleans or invented spacing fields.\n- INVALID values keys (never emit; never substitute for geometry): spacing, gap, gap_px, vertical_spacing, horizontal_spacing, spacing_standardized, vertical_spacing_standardized, qa_pass_boundaries.\n- set_position / move_object are POSITION-ONLY: require left, top, delta_left, and/or delta_top numbers.\n- Do NOT put width, height, delta_width, delta_height, or shorthand aliases w/h/delta_w/delta_h on set_position or move_object — the executor ignores them and the plan will be rejected.\n- Dimensions MUST use resize_object, set_dimensions, or extend_shape with canonical keys width/height/delta_width/delta_height (and left/top when needed). Never invent shorthand dimension keys.\n- When a shape must move left AND grow width while preserving its right boundary (e.g. extend a sidebar to the page edge), prefer ONE extend_shape or set_dimensions op with both left and width (conflict-safe: one op, left+width axes). Do NOT emit set_position with a useless width/w field.\n- update_text: require values.text string.\n- adjust_font_size: require fontSize or delta_fontSize.\n- align_objects: require values.align_left number.\n- Do NOT rewrite or invent conversions (spacing→delta_top is FORBIDDEN).\n- Values keys are per-op — see OPERATION CAPABILITY GRAMMAR. Do not treat width/height as generic keys on every operation.\n\nOPERATION CAPABILITY GRAMMAR (mandatory — architecture-general):\nValues keys are operation-specific. Do not treat width/height as legal on every op.\nEmit only fields that actually change versus CURRENT inventory. Do not copy unchanged geometry into values to “preserve” it.\n\nABSOLUTE POSITION — set_position:\n- set_position / move_object are POSITION-ONLY: require left, top, delta_left, and/or delta_top numbers.\n- Legal values: left and/or top (only fields that change).\n- Illegal values: width, height, delta_width, delta_height, w, h, delta_w, delta_h.\n- INVALID: set_position or move_object with values:{} (empty object). Position ops MUST include at least one finite left/top/delta_left/delta_top.\n- INVALID: set_position with no finite left/top/delta_left/delta_top (including semantic placeholder booleans).\n- If current inventory geometry already satisfies the Founder item, emit ZERO ops for that item — do not emit an identity set_position.\n- Do not include an unchanged left in a set_position operation merely by copying inventory geometry.\n- If align_objects legitimately owns a target's left axis, that target's set_position must contain only the axis it actually changes (for example top only).\n- set_position does not change text wrapping. The executor ignores width/height on position ops and the plan is rejected.\nINVALID (schema-rejected — empty values on position op):\n{\"op\":\"set_position\",\"target_id\":\"block-example-heading\",\"before_summary\":\"Textbox id=block-example-heading already at the correct top=165\",\"intended_change\":\"Ensure heading top remains at 165 for alignment (no actual move)\",\"values\":{},\"founder_feedback_item\":\"Align the section headings to the same vertical baseline.\",\"confidence\":0.9}\nReason: values:{} is never legal on set_position/move_object. If geometry is already correct, emit zero ops for that item.\nINVALID (schema-rejected — width on position-only op):\n{\"op\":\"set_position\",\"target_id\":\"block-example-body\",\"before_summary\":\"Textbox id=block-example-body currently at left=80 top=400 width already correct\",\"intended_change\":\"Move the textbox vertically while copying current width to preserve wrapping\",\"values\":{\"top\":394,\"left\":80,\"width\":200},\"founder_feedback_item\":\"Reflow this section content within the existing column width.\",\"confidence\":0.9}\nReason: width is not applied by set_position. Copying current width to “preserve wrapping” is illegal.\nVALID (same intent — position only; omit unchanged left/width):\n{\"op\":\"set_position\",\"target_id\":\"block-example-body\",\"before_summary\":\"Textbox id=block-example-body currently at left=80 top=400 width already correct\",\"intended_change\":\"Set absolute top of this textbox to 394\",\"values\":{\"top\":394},\"founder_feedback_item\":\"Reflow this section content within the existing column width.\",\"confidence\":0.9}\n\nRELATIVE POSITION — move_object:\n- Legal values: delta_left and/or delta_top.\n- Illegal: size keys (width/height and aliases) on move_object.\n\nDIMENSION CHANGE — resize_object, set_dimensions, or extend_shape:\n- These three execute equivalently for position+dimension fields. Do not invent a fourth size op.\n- Legal values: width, height, delta_width, delta_height, and optional left/top when the SAME size op must also move the object.\n- Emit width/height only when the dimension actually needs to change. INVALID: identity size fields equal to current inventory width/height solely to “preserve” geometry.\n- Never place size fields on set_position or move_object.\nVALID (genuine width change on a size-capable op):\n{\"op\":\"set_dimensions\",\"target_id\":\"block-example-shape\",\"before_summary\":\"Rect id=block-example-shape currently width=200\",\"intended_change\":\"Set width to 240 because the shape must grow\",\"values\":{\"width\":240},\"founder_feedback_item\":\"Widen this decorative shape to the intended size.\",\"confidence\":0.9}\n- When a shape must move left AND grow width while preserving its right boundary (e.g. extend a sidebar to the page edge), prefer ONE extend_shape or set_dimensions op with both left and width (conflict-safe: one op, left+width axes).\n\nPOSITION + SIZE:\n- Use ONE existing size-capable op containing the required position and dimension changes.\n- INVALID: set_position plus width. INVALID: two same-axis mutations on the same target.\n\nMULTI-OBJECT LEFT ALIGNMENT — align_objects:\n- Requires ≥2 distinct inventory target_ids, same lane, same horizontal section-unit role (see HORIZONTAL ALIGNMENT COHORTS).\n- align_left must actually change at least one target. Do not emit identity align_objects if every target already satisfies the requested align_left.\n- Single-object horizontal movement: set_position or move_object, not align_objects.\nINVALID (identity align_objects — every target already at requested X):\n{\"op\":\"align_objects\",\"target_ids\":[\"block-example-h1\",\"block-example-h2\"],\"before_summary\":\"Two heading textboxes already at the requested left edge\",\"intended_change\":\"Represent alignment coverage without changing geometry\",\"values\":{\"align_left\":100},\"founder_feedback_item\":\"Align section headings consistently within each existing column.\",\"confidence\":0.9}\nReason: if inventory left already equals align_left for every target, emit nothing (or secondary-attribute a genuine related mutation). Do not invent identity align_objects for coverage.\n\nTEXT REFLOW WITHIN EXISTING WIDTH:\n- If Founder asks to reflow/restack text within an already-correct column/textbox width: leave width untouched.\n- Do not copy unchanged width into values to preserve wrapping.\n- Do not change width merely because the word “reflow” appears.\n- When inventory shows effective_height > stored_height (h), the text wraps taller than the Fabric frame — plan clearance using effective_bottom, not stored h.\n- If two same-lane text objects overlap under effective geometry (next.top < previous.effective_bottom), you MUST create DIFFERENTIAL clearance: move the lower object down (or raise its top) enough that next.top >= previous.effective_bottom (+ any required gap). Moving BOTH objects by the SAME delta does NOT resolve the collision.\n- Prefer set_position / move_object with real numeric tops/deltas for clearance. If a genuine frame-height correction is also required, use resize_object, set_dimensions, or extend_shape — never attach height to set_position.\n- Deterministic RevisionLayoutNormalizer owns section-stack spacing, heading/body minimum gaps, Founder-gated internal body rhythm, section-to-section rhythm, and page-fit. Prefer ZERO hand-placed absolute coordinate chains for full-page vertical rhythm — do not invent long set_position stacks when spacing/rhythm feedback can be satisfied by deterministic layout ownership.\n- RevisionLayoutNormalizer will NOT silently rewrite an intentionally impossible same-delta plan into a valid one. Do not submit geometry that already preserves an effective overlap.\n- Explicit Founder directions are binding: if feedback says move a section upward, do not propose downward tops/delta_top for that section.\n\nNO MUTATION REQUIRED / VISUAL-REFERENCE-ONLY:\n- If the requested visual relationship is already correct, zero new operations is valid.\n- Do not fabricate identity set_position, identity align_objects, or identity dimensions solely to make a Founder item appear covered.\n- A heading-marker visual-reference requirement may be secondary-attributed (founder_feedback_items) on genuine related operations, or receive ZERO ops if already correct.\n\nOPERATION NAME RULES (mandatory — exact allowlist only):\n- Use ONLY the exact operation names listed below.\n- Do not invent synonyms.\n- Do not change spelling.\n- Do not add or remove hyphens.\n- Exact allowlist: move_object, resize_object, set_position, set_dimensions, set_fill, set_stroke, update_text, align_objects, group_objects, ungroup_objects, extend_shape, adjust_font_size, adjust_line_height, add_object, remove_object\n- Valid: ungroup_objects. Invalid: un-group_objects (hyphenated synonym).\n- INVALID / DEPRECATED op (do not emit): adjust_spacing — it is not planner-allowlisted. Use set_position or move_object instead.\n- For header vertical balance, prefer set_position or move_object on specific inventory target_id values with numeric top/delta_top.\n- Do not use group_objects or ungroup_objects unless the Founder request actually requires grouping or ungrouping objects.\n\nFOUNDER FEEDBACK COMPLETENESS (mandatory):\n- ONE PHYSICAL MUTATION → ONE OR MORE EXACT FOUNDER ATTRIBUTIONS.\n- Coverage is attribution-based, not operation-count-based. Several overlapping Founder items may be covered by one REAL operation.\n- Mutation requirements: every MUTATION_REQUIRED Founder requested change MUST have its Exact text attributed on ≥1 REAL planned operation (as founder_feedback_item OR in founder_feedback_items). This does NOT mean one dedicated operation per Founder item.\n- Copy the exact requested-change text into founder_feedback_item (verbatim primary) and/or founder_feedback_items (verbatim secondary). Do not paraphrase.\n- No mutation requirement may be left without exact attribution on a REAL operation.\n- Broad requests such as reviewing overall typography against approved templates still require ≥1 concrete inventory-backed operation (e.g. adjust_font_size / adjust_line_height on a specific textbox id) that carries that exact Founder text as primary or secondary attribution.\n- A broad composition requirement such as overall visual balance should normally be attributed to the concrete geometry changes that actually produce that balance, rather than manufacturing extra moves solely for broad coverage.\n- Final collision/bounds QA items classified by the system as VERIFICATION_ACCEPTANCE require ZERO operations.\n- Final visual-consistency QA items classified by the system as VERIFICATION_ACCEPTANCE require ZERO operations.\n- Truthful-content preservation / do-not-fabricate constraints classified as VERIFICATION_ACCEPTANCE require ZERO operations (deterministic content-preservation acceptance owns them).\n- Final verification/acceptance requirements (narrow system-recognized final QA acceptance forms only) require ZERO dummy mutation operations.\n- NEVER create align_objects / set_position / move_object / update_text / QA placeholder ops merely to represent final QA verification items.\n- Page-bounds and collision verification after mutations is owned by deterministic post-execution acceptance — not by planner-invented alignment ops.\n- Deterministic post-execution acceptance checks own VERIFICATION_ACCEPTANCE items.\n- The system classifies verification/acceptance requirements deterministically. You MUST NOT invent a classification field, and you MUST NOT reclassify ordinary mutation requests as QA.\n- Words like QA, review, check, verify, or final alone do NOT exempt a change from requiring operations. Concrete mutations (move/resize/restyle specific objects) always require operations.\n- Do NOT reclassify spacing/layout mutation requests as VERIFICATION_ACCEPTANCE. They still require concrete executable ops when mutation is needed.\n- Do NOT reclassify collision-repair / displaced-object mutation requests as VERIFICATION_ACCEPTANCE.\n- Verification/acceptance requirements are proven by deterministic post-execution checks after mutations run — not by planner self-declaration.\n- Do not invent unsupported operations or non-inventory target ids.\n- If you cannot safely produce an inventory-backed allowlisted operation for a mutation requirement, do not invent one — the plan is incomplete and will be rejected before execution.\n- Plans that skip any mutation requirement are INVALID and will be rejected before execution.\n\nOVERLAPPING FOUNDER REQUIREMENTS (mandatory):\n- Founder requests may overlap semantically (e.g. collision repair vs restore heading positions vs skills scanability; section spacing vs overall column balance).\n- A physical object may need changes relevant to multiple Founder items.\n- EACH MUTATION_REQUIRED Founder item still requires exact attribution on ≥1 REAL operation via founder_feedback_item and/or founder_feedback_items.\n- Rule: when two or more Founder requirements overlap on the SAME physical geometry, first determine ONE coherent final visual outcome, then emit that physical mutation exactly ONCE.\n- Put one exact Founder line in founder_feedback_item; put additional exact overlapping MUTATION_REQUIRED Founder lines in founder_feedback_items.\n- Prefer founder_feedback_items (Safe pattern C) whenever generating independent operations would touch the same target and geometry axis.\n- Safe pattern A: emit separate real executable operations, each attributed to the relevant exact Founder item — ONLY when those operations target different objects or independent axes (no same-target same-axis overlap).\n- Safe pattern B: if the same object needs distinct concrete mutations on DIFFERENT axes (e.g. left-only vs top-only), split into real operations and assign each to the proper Founder item.\n- Safe pattern C (PREFERRED when one physical mutation genuinely implements multiple overlapping MUTATION_REQUIRED items): emit ONE real operation with founder_feedback_item = primary exact Founder line, and founder_feedback_items = optional array of additional EXACT overlapping Founder lines.\n- Prefer multi-attribution (pattern C) over manufacturing a second identical, conflicting, or no-op mutation when one real mutation genuinely addresses both requirements.\n- Do NOT emit another same-axis operation on the same target merely to obtain coverage for another Founder line; attach that item to founder_feedback_items on the existing mutation instead.\n- Do NOT issue contradictory absolute/relative geometry mutations such as set_position top and then move_object delta_top on the same target for different Founder items.\n- Same-target overlapping geometry conflicts (same axis) cause the ENTIRE primary plan to fail BEFORE CoveragePlanRepair and BEFORE canvas execution.\n- CoveragePlanRepair is not a mechanism for fixing a contradictory primary plan. Primary geometry must already be internally coherent.\n- Multi-attribution is ONLY valid when the same real physical mutation genuinely contributes to every attached Founder requirement.\n- Do NOT add secondary attribution merely to satisfy completeness.\n- Never attach unrelated Founder requirements merely to satisfy completeness.\n- Never include VERIFICATION_ACCEPTANCE items in founder_feedback_item or founder_feedback_items.\n- DO NOT emit no-op duplicates merely to satisfy completeness.\n- DO NOT duplicate an identical mutation with no additional effect (same target + same values).\n- DO NOT set an object to its exact current geometry solely to attach another founder_feedback_item.\n- DO NOT emit move_object with delta_top:0 / delta_left:0, or set_fill to the same fill, as completeness padding.\n- If an item needs attribution, choose a genuine remaining collision/displacement/spacing mutation for THAT item, use multi-attribution on a real op, or leave the plan incomplete rather than inventing work.\n\nSECTION SPACING / GROUPING / RHYTHM MULTI-ATTRIBUTION (mandatory):\nFounder items about section spacing, section-to-section gaps, sidebar rhythm, heading-marker-content grouping, alignment, and internal spacing often overlap on the SAME section geometry.\nWhen one REAL geometry operation genuinely contributes to multiple such requirements:\n- founder_feedback_item = the primary exact Founder line best matched to that mutation\n- founder_feedback_items = every additional exact MUTATION_REQUIRED line that the SAME physical mutation genuinely satisfies\nExamples of legitimate overlap (conceptual — use exact Founder text from REQUESTED CHANGES):\n- A coordinated section-stack move may multi-attribute: consistent sidebar section system + section-to-section gaps + heading-marker-content grouping.\n- A marker/heading horizontal alignment op may multi-attribute: sidebar heading alignment + grouping + lane ownership.\n- A heading/marker visual-reference requirement may be secondary-attributed on genuine marker/heading horizontal relationship operations (for example sidebar marker alignment and sidebar heading alignment) when together they preserve the intended marker↔heading offset and column ownership.\nHEADING-MARKER VISUAL REFERENCE (architecture-general):\nWhen a Founder item asks to use a heading and its accent marker as a visual reference for a clean and consistent heading-marker relationship, while preserving separate horizontal anchors of columns, attach that item only to operations that genuinely establish heading/marker horizontal relationship. Do not create a new mutation solely for this attribution.\nIf that relationship is already correct and no geometry change is required, emit ZERO new operations for that item.\nIf genuine existing operations already preserve or establish the relationship, attach the Founder line as founder_feedback_items on those truthful operations.\nZero new operations for that requirement is preferable to a fabricated or identity mutation.\nSECTION GROUPING ATTRIBUTION (architecture-general):\nA section-grouping Founder requirement (for example: \"Keep each section's heading, blue accent marker, and associated content visually grouped as one unit with consistent internal spacing.\") may only be attributed to an operation when its target belongs to the relevant section unit — marker, heading, or associated content — AND the mutation genuinely contributes to heading-marker relationship, heading-content spacing, coordinated section movement, or internal section grouping.\nAn Education body-only operation MUST NOT serve as the sole proof for sidebar/general section grouping merely because the wording contains \"each section\".\nFORBIDDEN:\n- Attaching unrelated Founder items merely to pass completeness.\n- Attributing heading-marker-content grouping when the resulting geometry separates marker from heading or places content above its heading.\n- Dummy/no-op mutations solely for attribution.\n\nCOHERENT FINAL GEOMETRY BEFORE MULTI-ATTRIBUTION (mandatory):\n- Before emitting operations for the same section/object, reconcile all applicable Founder requirements into a single intended final geometry.\n- Example concept: a narrow request (improve a section's spacing rhythm) and a broad request (improve left/right page balance) that both affect the same objects.\n- Do NOT independently solve each request and then stack both moves on the same target/axis.\n- Instead: (1) choose the final position once; (2) decide whether that one position genuinely satisfies both; (3) if yes, multi-attribute it with founder_feedback_item + founder_feedback_items; (4) if no single move on that object can satisfy both, use a DIFFERENT non-conflicting element/section for the broader composition goal, or leave the broad item uncovered for CoveragePlanRepair — never create contradictory geometry.\n- Do not fabricate a move simply to close coverage.\n\nCOLLISION / DISPLACED-OBJECT ATTRIBUTION (mandatory):\n- For requests like \"Correct all element collisions and displaced objects in the Education, Skills, and Certifications area…\", attribute at least one REAL collision-fixing operation to THAT exact requested-change text.\n- Valid: set_position/move_object on an Education/Skills/Certifications heading rect or overlapping body object whose intended_change genuinely resolves overlap/displacement, with founder_feedback_item equal to the collision Founder line.\n- INVALID: performing all collision fixes but attributing them only to neighboring style/heading/restore/scanability Founder items.\n\nFOUNDER ITEM COVERAGE REQUIREMENTS (mandatory — fail closed):\nEach item below carries an explicit COVERAGE MODE. Obey the mode for that item and nothing else.\n\nNEVER CREATE AN OPERATION SOLELY TO REPRESENT, ATTRIBUTE, OR ACKNOWLEDGE A REQUIREMENT.\nA Founder requirement does NOT need an operation merely because it appears in requested_changes.\nOnly genuine mutation items require executable operations. Verification, acceptance criteria, preservation instructions, QA requirements, and deterministic-layout-owned requirements require ZERO operations.\nA placeholder operation with empty or invented values is a CONTRACT VIOLATION and fails the whole plan — an operation you cannot fill with real, executable values must not exist.\n\nFor MUTATION_REQUIRED items only:\nCoverage is attribution-based, not operation-count-based. Several overlapping Founder items may be covered by one REAL operation.\nA MUTATION_REQUIRED item is covered when its Exact text appears on ≥1 REAL executable operation as founder_feedback_item (primary) OR in founder_feedback_items (secondary).\nThis does NOT imply one unique operation per Founder item.\nCopy the Exact founder_feedback_item text VERBATIM into that operation field (primary), or into founder_feedback_items when the SAME physical mutation genuinely covers an overlapping item.\n\nItem 1 — PRESERVATION_CONSTRAINT\nCoverage mode: PRESERVATION_CONSTRAINT\nCheck types: CONTENT_PRESERVATION + ARCHITECTURE_PRESERVATION\nExact founder_feedback_item:\n\"Preserve the current Operations Analyst title, Summary, Experience, Skills wording, Projects, Certifications, Languages, Education content, candidate name, contact information, header, colors, typography, two-column architecture, sidebar design, and overall visual identity.\"\nRequirement: emit ZERO operations for this item and do NOT make it the founder_feedback_item of any operation. It forbids change; it does not request one. Deterministic preservation checks prove it after execution.\n\nItem 2 — MUTATION_REQUIRED\nCoverage mode: MUTATION_REQUIRED\nExact founder_feedback_item:\n\"Fix the visible overlap between the “Process Design” and “Excel” entries in the Skills section.\"\nRequirement: BEFORE returning JSON, verify that at least one REAL executable operation contains this EXACT text in founder_feedback_item or founder_feedback_items (primary or secondary attribution — not a dedicated extra operation). The operation must carry complete, executable values for its op type.\n\nItem 3 — MUTATION_REQUIRED\nCoverage mode: MUTATION_REQUIRED\nExact founder_feedback_item:\n\"Ensure “Process Design” and “Excel” render as two completely separate bullet rows with clear positive vertical spacing between them.\"\nRequirement: BEFORE returning JSON, verify that at least one REAL executable operation contains this EXACT text in founder_feedback_item or founder_feedback_items (primary or secondary attribution — not a dedicated extra operation). The operation must carry complete, executable values for its op type.\n\nItem 4 — VERIFICATION_ACCEPTANCE\nCoverage mode: VERIFICATION_ACCEPTANCE\nCheck types: GENERAL_ACCEPTANCE\nExact founder_feedback_item:\n\"Use the same line height and bullet-to-bullet vertical spacing for “Process Design” and “Excel” that is already used for Operational Analysis, Process Improvement, KPI Reporting, Workflow Optimization, Data Analysis, Documentation, and Stakeholder Communication.\"\nRequirement: emit ZERO operations for this item and do NOT attribute any operation to it. Deterministic post-execution acceptance owns it.\n\nItem 5 — VERIFICATION_ACCEPTANCE\nCoverage mode: VERIFICATION_ACCEPTANCE\nCheck types: COLLISION_BOUNDS\nExact founder_feedback_item:\n\"Do not solve the Skills overlap by deleting either “Process Design” or “Excel”; both skills should remain present and fully readable.\"\nRequirement: emit ZERO operations for this item and do NOT attribute any operation to it. Deterministic post-execution acceptance owns it.\n\nItem 6 — VERIFICATION_ACCEPTANCE\nCoverage mode: VERIFICATION_ACCEPTANCE\nCheck types: COLLISION_BOUNDS\nExact founder_feedback_item:\n\"Verify every Skills bullet from Operational Analysis through SQL Basics has consistent vertical spacing and no pair of lines touches, overlaps, clips, or visually merges.\"\nRequirement: emit ZERO operations for this item and do NOT attribute any operation to it. Deterministic post-execution acceptance owns it.\n\nItem 7 — PRESERVATION_CONSTRAINT\nCoverage mode: PRESERVATION_CONSTRAINT\nCheck types: CONTENT_PRESERVATION\nExact founder_feedback_item:\n\"Keep the current Skills order unless a very small positioning adjustment is required to achieve safe spacing.\"\nRequirement: emit ZERO operations for this item and do NOT make it the founder_feedback_item of any operation. It forbids change; it does not request one. Deterministic preservation checks prove it after execution.\n\nItem 8 — MUTATION_REQUIRED\nCoverage mode: MUTATION_REQUIRED\nExact founder_feedback_item:\n\"Maintain a consistent positive gap between the final Skills bullet and the Projects heading.\"\nRequirement: BEFORE returning JSON, verify that at least one REAL executable operation contains this EXACT text in founder_feedback_item or founder_feedback_items (primary or secondary attribution — not a dedicated extra operation). The operation must carry complete, executable values for its op type.\n\nItem 9 — MUTATION_REQUIRED\nCoverage mode: DETERMINISTIC_LAYOUT_OWNED\nExact founder_feedback_item:\n\"Maintain consistent section-to-section spacing in the sidebar for Skills → Projects, Projects → Certifications, and Certifications → Languages.\"\nRequirement: DETERMINISTIC_LAYOUT_OWNED — emit ZERO operations for this spacing/rhythm item. RevisionLayoutNormalizer owns this geometry and its own evidence provides the coverage. Do not invent identity position ops, and do not attach this text to an unrelated operation.\n\nItem 10 — MUTATION_REQUIRED\nCoverage mode: DETERMINISTIC_LAYOUT_OWNED\nExact founder_feedback_item:\n\"Maintain a consistent positive gap between each section heading and the first line of content beneath that heading.\"\nRequirement: DETERMINISTIC_LAYOUT_OWNED — emit ZERO operations for this spacing/rhythm item. RevisionLayoutNormalizer owns this geometry and its own evidence provides the coverage. Do not invent identity position ops, and do not attach this text to an unrelated operation.\n\nItem 11 — MUTATION_REQUIRED\nCoverage mode: DETERMINISTIC_LAYOUT_OWNED\nExact founder_feedback_item:\n\"Move the Education section upward in the right column so it follows naturally after the final Experience entry.\"\nRequirement: DETERMINISTIC_LAYOUT_OWNED — emit ZERO operations for this spacing/rhythm item. RevisionLayoutNormalizer owns this geometry and its own evidence provides the coverage. Do not invent identity position ops, and do not attach this text to an unrelated operation.\n\nItem 12 — MUTATION_REQUIRED\nCoverage mode: MUTATION_REQUIRED\nExact founder_feedback_item:\n\"Remove the excessive blank vertical area currently separating the end of the Fieldwork Media Experience content from the Education heading.\"\nRequirement: BEFORE returning JSON, verify that at least one REAL executable operation contains this EXACT text in founder_feedback_item or founder_feedback_items (primary or secondary attribution — not a dedicated extra operation). The operation must carry complete, executable values for its op type.\n\nItem 13 — MUTATION_REQUIRED\nCoverage mode: DETERMINISTIC_LAYOUT_OWNED\nExact founder_feedback_item:\n\"Use a normal positive section gap between the final Experience content and Education that is visually comparable to the spacing used between other major sections.\"\nRequirement: DETERMINISTIC_LAYOUT_OWNED — emit ZERO operations for this spacing/rhythm item. RevisionLayoutNormalizer owns this geometry and its own evidence provides the coverage. Do not invent identity position ops, and do not attach this text to an unrelated operation.\n\nItem 14 — PRESERVATION_CONSTRAINT\nCoverage mode: PRESERVATION_CONSTRAINT\nCheck types: LAYOUT_PRESERVATION\nExact founder_feedback_item:\n\"Do not anchor or push Education toward the bottom of the page.\"\nRequirement: emit ZERO operations for this item and do NOT make it the founder_feedback_item of any operation. It forbids change; it does not request one. Deterministic preservation checks prove it after execution.\n\nItem 15 — PRESERVATION_CONSTRAINT\nCoverage mode: PRESERVATION_CONSTRAINT\nCheck types: CONTENT_PRESERVATION\nExact founder_feedback_item:\n\"Keep Education below Experience in the right column and preserve its current heading, degree, institution, certificate, and dates.\"\nRequirement: emit ZERO operations for this item and do NOT make it the founder_feedback_item of any operation. It forbids change; it does not request one. Deterministic preservation checks prove it after execution.\n\nItem 16 — VERIFICATION_ACCEPTANCE\nCoverage mode: VERIFICATION_ACCEPTANCE\nCheck types: GENERAL_ACCEPTANCE\nExact founder_feedback_item:\n\"Do not create a new large blank area elsewhere when Education is moved upward.\"\nRequirement: emit ZERO operations for this item and do NOT attribute any operation to it. Deterministic post-execution acceptance owns it.\n\nItem 17 — VERIFICATION_ACCEPTANCE\nCoverage mode: VERIFICATION_ACCEPTANCE\nCheck types: GENERAL_ACCEPTANCE\nExact founder_feedback_item:\n\"Do not rewrite the Summary, Experience bullets, Projects, Certifications, Languages, or Education text merely to correct these spacing problems.\"\nRequirement: emit ZERO operations for this item and do NOT attribute any operation to it. Deterministic post-execution acceptance owns it.\n\nItem 18 — PRESERVATION_CONSTRAINT\nCoverage mode: PRESERVATION_CONSTRAINT\nCheck types: LAYOUT_PRESERVATION\nExact founder_feedback_item:\n\"Preserve the current Experience internal spacing and bullet structure unless a minor vertical adjustment is required to position Education correctly.\"\nRequirement: emit ZERO operations for this item and do NOT make it the founder_feedback_item of any operation. It forbids change; it does not request one. Deterministic preservation checks prove it after execution.\n\nItem 19 — MUTATION_REQUIRED\nCoverage mode: DETERMINISTIC_LAYOUT_OWNED\nExact founder_feedback_item:\n\"Use one consistent vertical-rhythm system across the full resume: section-to-section gaps should be visually consistent, and heading-to-body gaps should be visually consistent.\"\nRequirement: DETERMINISTIC_LAYOUT_OWNED — emit ZERO operations for this spacing/rhythm item. RevisionLayoutNormalizer owns this geometry and its own evidence provides the coverage. Do not invent identity position ops, and do not attach this text to an unrelated operation.\n\nItem 20 — VERIFICATION_ACCEPTANCE\nCoverage mode: VERIFICATION_ACCEPTANCE\nCheck types: COLLISION_BOUNDS\nExact founder_feedback_item:\n\"After the changes, verify that all text overlap count is zero.\"\nRequirement: emit ZERO operations for this item and do NOT attribute any operation to it. Deterministic post-execution acceptance owns it.\n\nItem 21 — VERIFICATION_ACCEPTANCE\nCoverage mode: VERIFICATION_ACCEPTANCE\nCheck types: COLLISION_BOUNDS\nExact founder_feedback_item:\n\"After the changes, verify that page out-of-bounds count is zero.\"\nRequirement: emit ZERO operations for this item and do NOT attribute any operation to it. Deterministic post-execution acceptance owns it.\n\nItem 22 — VERIFICATION_ACCEPTANCE\nCoverage mode: VERIFICATION_ACCEPTANCE\nCheck types: COLLISION_BOUNDS\nExact founder_feedback_item:\n\"After the changes, verify specifically that “Process Design” and “Excel” have clear positive separation and are both fully readable.\"\nRequirement: emit ZERO operations for this item and do NOT attribute any operation to it. Deterministic post-execution acceptance owns it.\n\nItem 23 — MUTATION_REQUIRED\nCoverage mode: DETERMINISTIC_LAYOUT_OWNED\nExact founder_feedback_item:\n\"After the changes, verify specifically that Education follows Experience with a normal section gap and without a large unexplained blank area.\"\nRequirement: DETERMINISTIC_LAYOUT_OWNED — emit ZERO operations for this spacing/rhythm item. RevisionLayoutNormalizer owns this geometry and its own evidence provides the coverage. Do not invent identity position ops, and do not attach this text to an unrelated operation.\n\nItem 24 — MUTATION_REQUIRED\nCoverage mode: MUTATION_REQUIRED\nExact founder_feedback_item:\n\"Return the same one-page Operations Analyst Resume Template with the current content and design preserved, correcting only the remaining Skills collision, Education positioning, and spacing consistency issues.\"\nRequirement: BEFORE returning JSON, verify that at least one REAL executable operation contains this EXACT text in founder_feedback_item or founder_feedback_items (primary or secondary attribution — not a dedicated extra operation). The operation must carry complete, executable values for its op type.\n\nWHOLE-SECTION CONTENT REPLACEMENT OBJECT CONTRACT (mandatory — fail closed):\nFounder-item coverage and section object completeness are SEPARATE.\nItem coverage asks whether each MUTATION_REQUIRED Founder line is attributed.\nObject completeness asks whether every required source body object in an authorized whole-section replacement was intentionally handled.\nOne attributed operation on a section does NOT satisfy every object in that section.\n\nFor every required body object below, the object must end as exactly one of:\n- REPLACED: a genuine content replacement operation (update_text with real new text) targets that exact object ID.\n- REMOVED: the Founder explicitly requested removal of that object's content AND the plan contains remove_object for that ID.\n- EXPLICITLY_PRESERVED: the Founder explicitly asked to keep the content represented by that object. Emit ZERO operations for it. Do NOT emit update_text with identical source text.\nUnaccounted required body objects fail closed BEFORE execution.\nDo not invent resume copy. Do not preserve an object merely because leaving it unchanged looks acceptable.\nIf the Founder asked to remove/replace specific content that appears in an object, that object cannot be EXPLICITLY_PRESERVED.\n\nREQUIRED BODY OBJECT INVENTORY:\nSection experience:\n  - id=block-experience-2-t2 source=\"Operations Analyst — Northstar Analytics\"\n  - id=block-experience-2-t4 source=\"• Analyzed key operational processes to identify inefficiencies, leading to a 15% improvement in workflow efficiency across departments.\"\n  - id=block-experience-2-t5 source=\"• Developed and maintained operational KPI dashboards to enable timely reporting and informed decision-making by cross-functional teams.\"\n  - id=block-experience-2-t6 source=\"• Led workflow optimization initiatives, streamlining interdepartmental processes to reduce cycle time by 20%.\"\n  - id=block-experience-2-t7 source=\"• Conducted root-cause analysis of operational bottlenecks, implementing corrective actions that improved department efficiency and cost sav\"\n  - id=block-experience-2-t8 source=\"Operations Analyst — Brightline CRM\"\n  - id=block-experience-2-t10 source=\"• Coordinated process improvement projects across multiple teams, resulting in enhanced reporting accuracy and workflow efficiency.\"\n  - id=block-experience-2-t11 source=\"• Documented operational procedures and facilitated stakeholder communication to ensure consistent execution of key workflows.\"\n  - id=block-experience-2-t12 source=\"• Collaborated with cross-functional teams to identify operational challenges and implement data-driven solutions improving overall efficien\"\n  - id=block-experience-2-t13 source=\"Operations Analyst — Fieldwork Media\"\n  - id=block-experience-2-t15 source=\"• Coordinated process documentation and data collection efforts, resulting in improved operational transparency and consistency.\"\n  - id=block-experience-2-t16 source=\"• Maintained operational schedules and quality assurance processes to support smooth project execution and timely reporting.\"\n  - id=block-experience-2-t17 source=\"• Supported data analysis initiatives identifying operational improvements that contributed to cost reduction and process streamlining.\"\nSection education:\n  - id=block-education-3-t2 source=\"B.A. Business Administration — University of Texas at Austin · 2014\"\n  - id=block-education-3-t3 source=\"Certificate, Operations Management — General Assembly · 2017\"\n\nMANDATORY OPERATION FIELDS (every operation — never omit):\n- op (allowlisted operation type)\n- target_id for every single-target operation (copy exactly from inventory); never target_ids/selector on single-target ops\n- target_ids for align_objects / group_objects only (≥2 inventory IDs)\n- values (object with executor-actionable numeric/text fields — no placeholder booleans)\n- founder_feedback_item (required primary exact Founder change text addressed)\n- founder_feedback_items (optional string[] of additional EXACT overlapping Founder lines for the SAME physical mutation; omit when unused)\n- confidence is MANDATORY for every operation: a number between 0 and 1. CONFIDENCE IS MANDATORY. NEVER OMIT confidence FROM ANY OPERATION.\n- confidence is a KEY INSIDE the operation object. It is NEVER a separate array entry. WRONG: [ { \"op\":\"update_text\", ... }, \"confidence\", 1 ]. RIGHT: [ { \"op\":\"update_text\", ..., \"confidence\": 0.9 } ].\n- An operation without confidence is INVALID and fails the ENTIRE plan before execution.\n- intended_change is MANDATORY for every operation: non-empty string describing the exact mutation to apply\n- before_summary is MANDATORY for every operation: non-empty string describing the current target object state from the inventory\n- Never omit intended_change or before_summary.\n\nJSON STRUCTURE (mandatory — fail closed):\n- EVERY element of the operations array MUST be a JSON object. No bare strings. No bare numbers. No nulls. No nested arrays.\n- Operation fields belong INSIDE their operation object. Never let op / target_id / values / confidence escape to the top level of the plan.\n- Close each operation object only AFTER writing every mandatory field, including confidence.\n- Do not use null, empty strings, placeholders, or inferred shorthand for intended_change or before_summary.\n- intended_change must describe the exact mutation (what changes on the canvas object).\n- before_summary must describe the current target object state from the provided inventory (id/type/text/geometry as relevant).\n\nCOMPLETE EXAMPLE OPERATION (single-target — copy this field set; replace IDs/values from the CURRENT inventory):\n{\"op\":\"update_text\",\"target_id\":\"block-summary-1-t2\",\"before_summary\":\"Textbox id=block-summary-1-t2 section=summary text starts with role summary paragraph\",\"intended_change\":\"Replace summary body text with revised copy while keeping the same textbox id\",\"values\":{\"text\":\"Revised professional summary sentence.\"},\"founder_feedback_item\":\"Rewrite the professional summary with more specific language.\",\"confidence\":0.95}\n\nCOMPLETE EXAMPLE OPERATION (multi-attribution — ONE physical mutation covering overlapping Founder items; EXAMPLE IDs/values only — replace from CURRENT inventory):\n{\"op\":\"set_position\",\"target_id\":\"block-section-example-t1\",\"before_summary\":\"Textbox id=block-section-example-t1 section=example-sidebar left=48 top=500 w=208 h=14\",\"intended_change\":\"Choose one final section heading position that improves sidebar rhythm and overall column balance\",\"values\":{\"top\":470},\"founder_feedback_item\":\"Refine the example sidebar section so headings, bullets, and spacing follow one consistent rhythm.\",\"founder_feedback_items\":[\"Improve the overall visual balance between the left and right columns so the page feels intentionally composed.\"],\"confidence\":0.93}\n\nCOMPLETE EXAMPLE OPERATION (multi-target align_objects — SAME LANE ONLY; IDs below are EXAMPLES — copy ≥2 IDs from ONE established lane in the CURRENT inventory):\n{\"op\":\"align_objects\",\"target_ids\":[\"block-example-sidebar-t1\",\"block-example-sidebar-t2\",\"block-example-sidebar-t3\"],\"before_summary\":\"Sidebar section heading textboxes at mixed left positions within the same column\",\"intended_change\":\"Align left edges of sidebar section headings within their existing column\",\"values\":{\"align_left\":48},\"founder_feedback_item\":\"Align section headings consistently within each existing column.\",\"confidence\":0.95}\n\nIf another lane (e.g. main column) also needs heading alignment, emit a SEPARATE align_objects operation containing only that lane's targets — never combine sidebar and main-column objects in one cohort.\nCOMPLETE EXAMPLE OPERATION (second align_objects for a different lane — separate operation, same-lane cohort only):\n{\"op\":\"align_objects\",\"target_ids\":[\"block-example-main-t1\",\"block-example-main-t2\"],\"before_summary\":\"Main-column section heading textboxes at mixed left positions within the same column\",\"intended_change\":\"Align left edges of main-column section headings within their existing column\",\"values\":{\"align_left\":72},\"founder_feedback_item\":\"Align section headings consistently within each existing column.\",\"confidence\":0.94}\n\nCOMPLETE EXAMPLE OPERATION (ungroup_objects — exact name, no hyphen; single-target target_id from CURRENT inventory):\n{\"op\":\"ungroup_objects\",\"target_id\":\"block-header-0-t1\",\"before_summary\":\"Textbox id=block-header-0-t1 currently has group_id set in data\",\"intended_change\":\"Remove group association from this object so it can be positioned independently\",\"values\":{},\"founder_feedback_item\":\"Ungroup the header name textbox from its temporary layout group.\",\"confidence\":0.9}\nNOTE: values:{} is legal ONLY for group_objects / ungroup_objects / remove_object / add_object-style ops that do not apply position fields. NEVER copy values:{} onto set_position or move_object.\n\nFOUNDER REASON (verbatim):\nThe Operations Analyst content and overall resume design are now substantially correct and should be preserved. The remaining revision is specifically required to correct visible spacing and positioning defects.\n\nIn the Skills section, the “Process Design” and “Excel” bullet lines are visibly overlapping/colliding. This breaks the otherwise consistent line spacing used by the other Skills bullets and makes both entries difficult to read.\n\nThe Education section also remains positioned much too far below the end of Experience. There is a large unexplained blank area in the right column between the final Experience content and the Education heading. Education should follow Experience with a normal section gap comparable to the spacing rhythm used elsewhere in the resume.\n\nPlease correct these remaining geometry issues and standardize section-to-section and heading-to-content spacing without rewriting the already-correct Operations Analyst content or redesigning the template.\n\nCURRENT FOUNDER REQUEST (verbatim — highest authority — implement each):\n1. Preserve the current Operations Analyst title, Summary, Experience, Skills wording, Projects, Certifications, Languages, Education content, candidate name, contact information, header, colors, typography, two-column architecture, sidebar design, and overall visual identity.\n2. Fix the visible overlap between the “Process Design” and “Excel” entries in the Skills section.\n3. Ensure “Process Design” and “Excel” render as two completely separate bullet rows with clear positive vertical spacing between them.\n4. Use the same line height and bullet-to-bullet vertical spacing for “Process Design” and “Excel” that is already used for Operational Analysis, Process Improvement, KPI Reporting, Workflow Optimization, Data Analysis, Documentation, and Stakeholder Communication.\n5. Do not solve the Skills overlap by deleting either “Process Design” or “Excel”; both skills should remain present and fully readable.\n6. Verify every Skills bullet from Operational Analysis through SQL Basics has consistent vertical spacing and no pair of lines touches, overlaps, clips, or visually merges.\n7. Keep the current Skills order unless a very small positioning adjustment is required to achieve safe spacing.\n8. Maintain a consistent positive gap between the final Skills bullet and the Projects heading.\n9. Maintain consistent section-to-section spacing in the sidebar for Skills → Projects, Projects → Certifications, and Certifications → Languages.\n10. Maintain a consistent positive gap between each section heading and the first line of content beneath that heading.\n11. Move the Education section upward in the right column so it follows naturally after the final Experience entry.\n12. Remove the excessive blank vertical area currently separating the end of the Fieldwork Media Experience content from the Education heading.\n13. Use a normal positive section gap between the final Experience content and Education that is visually comparable to the spacing used between other major sections.\n14. Do not anchor or push Education toward the bottom of the page.\n15. Keep Education below Experience in the right column and preserve its current heading, degree, institution, certificate, and dates.\n16. Do not create a new large blank area elsewhere when Education is moved upward.\n17. Do not rewrite the Summary, Experience bullets, Projects, Certifications, Languages, or Education text merely to correct these spacing problems.\n18. Preserve the current Experience internal spacing and bullet structure unless a minor vertical adjustment is required to position Education correctly.\n19. Use one consistent vertical-rhythm system across the full resume: section-to-section gaps should be visually consistent, and heading-to-body gaps should be visually consistent.\n20. After the changes, verify that all text overlap count is zero.\n21. After the changes, verify that page out-of-bounds count is zero.\n22. After the changes, verify specifically that “Process Design” and “Excel” have clear positive separation and are both fully readable.\n23. After the changes, verify specifically that Education follows Experience with a normal section gap and without a large unexplained blank area.\n24. Return the same one-page Operations Analyst Resume Template with the current content and design preserved, correcting only the remaining Skills collision, Education positioning, and spacing consistency issues.\n\nRELEVANT FOUNDER MEMORY (persistent layout/design preferences — subordinate to CURRENT FOUNDER REQUEST):\nUse only when compatible with the current request. Never treat memory lines as current founder_feedback_item attribution.\nMemory must not invent resume facts. Current request always wins on conflict.\nFOUNDER DESIGN MEMORY\nThese are StudiosisLab Founder layout/design/quality preferences.\nThey are NOT resume facts. Do not invent employers, credentials, metrics, or skills from memory.\nCURRENT FOUNDER REQUEST (if any) always has higher authority than memory.\n- [ARCHITECTURE|high|PROVISIONAL] Change the professional title from Marketing Manager to Operations Analyst while preserving the current header design, candidate name, contact layout, colors,…\n\nMemory guides compatible layout quality only; never override current Founder instructions or factual-content safety.\n\nTARGET CANDIDATE HINTS (prompt aid only — still copy exact IDs into target_id or target_ids; runtime never auto-resolves omitted IDs):\nItem 1 [MUTATION_REQUIRED] Candidates: block-header-0-r0, block-header-0-t1, block-header-0-t2, block-header-0-t3, block-summary-1-r0, block-summary-1-t1, block-summary-1-t2, block-experience-2-r0, block-experience-2-t1, block-experience-2-t2, block-experience-2-t3, block-experience-2-t4, block-experience-2-t5, block-experience-2-t6, block-experience-2-t7, block-experience-2-t8, block-experience-2-t9, block-experience-2-t10, block-experience-2-t11, block-experience-2-t12, block-experience-2-t13, block-experience-2-t14, block-experience-2-t15, block-experience-2-t16\nItem 2 [MUTATION_REQUIRED] Candidates: block-skills-4-r0, block-skills-4-t1, block-skills-4-t2, block-skills-4-t3\nItem 3 [MUTATION_REQUIRED] — no section/text hint match; choose carefully from full inventory.\nItem 4 [VERIFICATION_ACCEPTANCE] — emit ZERO operations for this item.\nItem 5 [VERIFICATION_ACCEPTANCE] — emit ZERO operations for this item.\nItem 6 [VERIFICATION_ACCEPTANCE] — emit ZERO operations for this item.\nItem 7 [MUTATION_REQUIRED] Candidates: block-skills-4-r0, block-skills-4-t1, block-skills-4-t2, block-skills-4-t3\nItem 8 [MUTATION_REQUIRED] Candidates: block-skills-4-r0, block-skills-4-t1, block-skills-4-t2, block-skills-4-t3, block-projects-5-r0, block-projects-5-t1, block-projects-5-t2, block-projects-5-t3\nItem 9 [MUTATION_REQUIRED] Candidates: block-skills-4-r0, block-skills-4-t1, block-skills-4-t2, block-skills-4-t3, block-projects-5-r0, block-projects-5-t1, block-projects-5-t2, block-projects-5-t3, block-certifications-6-r0, block-certifications-6-t1, block-certifications-6-t2, block-certifications-6-t3, block-certifications-6-t4, block-languages-7-r0, block-languages-7-t1, block-languages-7-t2\nItem 10 [MUTATION_REQUIRED] — no section/text hint match; choose carefully from full inventory.\nItem 11 [MUTATION_REQUIRED] Candidates: block-experience-2-r0, block-experience-2-t1, block-experience-2-t2, block-experience-2-t3, block-experience-2-t4, block-experience-2-t5, block-experience-2-t6, block-experience-2-t7, block-experience-2-t8, block-experience-2-t9, block-experience-2-t10, block-experience-2-t11, block-experience-2-t12, block-experience-2-t13, block-experience-2-t14, block-experience-2-t15, block-experience-2-t16, block-experience-2-t17, block-education-3-r0, block-education-3-t1, block-education-3-t2, block-education-3-t3\nItem 12 [MUTATION_REQUIRED] Candidates: block-experience-2-r0, block-experience-2-t1, block-experience-2-t2, block-experience-2-t3, block-experience-2-t4, block-experience-2-t5, block-experience-2-t6, block-experience-2-t7, block-experience-2-t8, block-experience-2-t9, block-experience-2-t10, block-experience-2-t11, block-experience-2-t12, block-experience-2-t13, block-experience-2-t14, block-experience-2-t15, block-experience-2-t16, block-experience-2-t17, block-education-3-r0, block-education-3-t1, block-education-3-t2, block-education-3-t3\nItem 13 [MUTATION_REQUIRED] Candidates: block-experience-2-r0, block-experience-2-t1, block-experience-2-t2, block-experience-2-t3, block-experience-2-t4, block-experience-2-t5, block-experience-2-t6, block-experience-2-t7, block-experience-2-t8, block-experience-2-t9, block-experience-2-t10, block-experience-2-t11, block-experience-2-t12, block-experience-2-t13, block-experience-2-t14, block-experience-2-t15, block-experience-2-t16, block-experience-2-t17, block-education-3-r0, block-education-3-t1, block-education-3-t2, block-education-3-t3\nItem 14 [MUTATION_REQUIRED] Candidates: block-education-3-r0, block-education-3-t1, block-education-3-t2, block-education-3-t3\nItem 15 [MUTATION_REQUIRED] Candidates: block-experience-2-r0, block-experience-2-t1, block-experience-2-t2, block-experience-2-t3, block-experience-2-t4, block-experience-2-t5, block-experience-2-t6, block-experience-2-t7, block-experience-2-t8, block-experience-2-t9, block-experience-2-t10, block-experience-2-t11, block-experience-2-t12, block-experience-2-t13, block-experience-2-t14, block-experience-2-t15, block-experience-2-t16, block-experience-2-t17, block-education-3-r0, block-education-3-t1, block-education-3-t2, block-education-3-t3\nItem 16 [VERIFICATION_ACCEPTANCE] — emit ZERO operations for this item.\nItem 17 [VERIFICATION_ACCEPTANCE] — emit ZERO operations for this item.\nItem 18 [MUTATION_REQUIRED] Candidates: block-experience-2-r0, block-experience-2-t1, block-experience-2-t2, block-experience-2-t3, block-experience-2-t4, block-experience-2-t5, block-experience-2-t6, block-experience-2-t7, block-experience-2-t8, block-experience-2-t9, block-experience-2-t10, block-experience-2-t11, block-experience-2-t12, block-experience-2-t13, block-experience-2-t14, block-experience-2-t15, block-experience-2-t16, block-experience-2-t17, block-education-3-r0, block-education-3-t1, block-education-3-t2, block-education-3-t3\nItem 19 [MUTATION_REQUIRED] — no section/text hint match; choose carefully from full inventory.\nItem 20 [VERIFICATION_ACCEPTANCE] — emit ZERO operations for this item.\nItem 21 [VERIFICATION_ACCEPTANCE] — emit ZERO operations for this item.\nItem 22 [VERIFICATION_ACCEPTANCE] — emit ZERO operations for this item.\nItem 23 [MUTATION_REQUIRED] Candidates: block-experience-2-r0, block-experience-2-t1, block-experience-2-t2, block-experience-2-t3, block-experience-2-t4, block-experience-2-t5, block-experience-2-t6, block-experience-2-t7, block-experience-2-t8, block-experience-2-t9, block-experience-2-t10, block-experience-2-t11, block-experience-2-t12, block-experience-2-t13, block-experience-2-t14, block-experience-2-t15, block-experience-2-t16, block-experience-2-t17, block-education-3-r0, block-education-3-t1, block-education-3-t2, block-education-3-t3\nItem 24 [MUTATION_REQUIRED] Candidates: block-header-0-t2, block-education-3-r0, block-education-3-t1, block-education-3-t2, block-education-3-t3, block-skills-4-r0, block-skills-4-t1, block-skills-4-t2, block-skills-4-t3\n\nPAGE BOUNDS: width=794 height=1123\nPREVIEW DIMENSIONS: width=794 height=1123\n\nCANVAS OBJECT INVENTORY:\nGeometry field legend: h/stored_height=Fabric frame height; effective_height/effective_bottom=wrap-aware safety geometry; text_len=full character count (text preview may be truncated).\n- id=page-root type=Rect left=0 top=0 w=794 h=1123 stored_height=1123 fill=#ffffff stroke=#e5e7eb role=pageBackground locked=true system=true\n- id=page-sidebar-bg type=Rect left=40 top=146 w=228 h=897.3999999999999 stored_height=897.3999999999999 fill=#f1f5f9 role=sidebar-bg\n- id=block-header-0-r0 type=Rect left=0 top=0 w=794 h=138 stored_height=138 fill=#0f172a role=header-band section=header\n- id=block-header-0-t1 type=Textbox left=48 top=48 w=698 h=39 stored_height=39 effective_height=39 effective_bottom=87 text_len=11 fill=#ffffff fontSize=32 fontFamily=Inter fontWeight=700 lineHeight=1.2 section=header text=\"Alex Morgan\"\n- id=block-header-0-t2 type=Textbox left=48 top=91 w=698 h=18 stored_height=18 effective_height=18 effective_bottom=109 text_len=18 fill=#ffffff fontSize=12 fontFamily=Inter fontWeight=600 lineHeight=1.45 section=header text=\"Operations Analyst\"\n- id=block-header-0-t3 type=Textbox left=48 top=113 w=698 h=14 stored_height=14 effective_height=14 effective_bottom=127 text_len=91 fill=#ffffff fontSize=9.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=header text=\"alex.morgan@example.com  ·  +1 (555) 010-2040  ·  Austin, TX  ·  linkedin.com/in/alexmorgan\"\n- id=block-summary-1-r0 type=Rect left=284 top=154 w=4 h=14 stored_height=14 fill=#1e40af role=section-marker section=summary\n- id=block-summary-1-t1 type=Textbox left=296 top=154 w=450 h=14 stored_height=14 effective_height=14 effective_bottom=168 text_len=7 fill=#0f172a fontSize=11 fontFamily=Inter fontWeight=600 lineHeight=1.2 section=summary text=\"SUMMARY\"\n- id=block-summary-1-t2 type=Textbox left=284 top=176 w=462 h=60.9 stored_height=60.9 effective_height=60.9 effective_bottom=236.9 text_len=324 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=summary text=\"Operations Analyst with 8+ years of experience in operational analysis, process improvement, KPI reporting, workflow optimization, data analysis, documentation,\"\n- id=block-experience-2-r0 type=Rect left=284 top=280 w=4 h=14 stored_height=14 fill=#1e40af role=section-marker section=experience\n- id=block-experience-2-t1 type=Textbox left=296 top=280 w=450 h=14 stored_height=14 effective_height=14 effective_bottom=294 text_len=10 fill=#0f172a fontSize=11 fontFamily=Inter fontWeight=600 lineHeight=1.2 section=experience text=\"EXPERIENCE\"\n- id=block-experience-2-t2 type=Textbox left=284 top=302 w=462 h=16 stored_height=16 effective_height=16 effective_bottom=318 text_len=40 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=600 lineHeight=1.45 section=experience text=\"Operations Analyst — Northstar Analytics\"\n- id=block-experience-2-t3 type=Textbox left=284 top=320 w=462 h=14 stored_height=14 effective_height=14 effective_bottom=334 text_len=14 fill=#475569 fontSize=9.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=experience text=\"2021 — Present\"\n- id=block-experience-2-t4 type=Textbox left=284 top=338 w=462 h=30.45 stored_height=30.45 effective_height=30.45 effective_bottom=368.45 text_len=136 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=experience text=\"• Analyzed key operational processes to identify inefficiencies, leading to a 15% improvement in workflow efficiency across departments.\"\n- id=block-experience-2-t5 type=Textbox left=284 top=372.45 w=462 h=30.45 stored_height=30.45 effective_height=30.45 effective_bottom=402.9 text_len=136 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=experience text=\"• Developed and maintained operational KPI dashboards to enable timely reporting and informed decision-making by cross-functional teams.\"\n- id=block-experience-2-t6 type=Textbox left=284 top=406.9 w=462 h=30.45 stored_height=30.45 effective_height=30.45 effective_bottom=437.35 text_len=110 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=experience text=\"• Led workflow optimization initiatives, streamlining interdepartmental processes to reduce cycle time by 20%.\"\n- id=block-experience-2-t7 type=Textbox left=284 top=441.35 w=462 h=30.45 stored_height=30.45 effective_height=30.45 effective_bottom=471.8 text_len=145 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=experience text=\"• Conducted root-cause analysis of operational bottlenecks, implementing corrective actions that improved department efficiency and cost savings.\"\n- id=block-experience-2-t8 type=Textbox left=284 top=486.6 w=462 h=16 stored_height=16 effective_height=16 effective_bottom=502.6 text_len=35 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=600 lineHeight=1.45 section=experience text=\"Operations Analyst — Brightline CRM\"\n- id=block-experience-2-t9 type=Textbox left=284 top=504.6 w=462 h=14 stored_height=14 effective_height=14 effective_bottom=518.6 text_len=11 fill=#475569 fontSize=9.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=experience text=\"2018 — 2021\"\n- id=block-experience-2-t10 type=Textbox left=284 top=522.6 w=462 h=30.45 stored_height=30.45 effective_height=30.45 effective_bottom=553.05 text_len=131 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=experience text=\"• Coordinated process improvement projects across multiple teams, resulting in enhanced reporting accuracy and workflow efficiency.\"\n- id=block-experience-2-t11 type=Textbox left=284 top=557.05 w=462 h=30.45 stored_height=30.45 effective_height=30.45 effective_bottom=587.5 text_len=126 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=experience text=\"• Documented operational procedures and facilitated stakeholder communication to ensure consistent execution of key workflows.\"\n- id=block-experience-2-t12 type=Textbox left=284 top=591.5 w=462 h=30.45 stored_height=30.45 effective_height=30.45 effective_bottom=621.95 text_len=143 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=experience text=\"• Collaborated with cross-functional teams to identify operational challenges and implement data-driven solutions improving overall efficiency.\"\n- id=block-experience-2-t13 type=Textbox left=284 top=636.75 w=462 h=16 stored_height=16 effective_height=16 effective_bottom=652.75 text_len=36 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=600 lineHeight=1.45 section=experience text=\"Operations Analyst — Fieldwork Media\"\n- id=block-experience-2-t14 type=Textbox left=284 top=654.75 w=462 h=14 stored_height=14 effective_height=14 effective_bottom=668.75 text_len=11 fill=#475569 fontSize=9.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=experience text=\"2016 — 2018\"\n- id=block-experience-2-t15 type=Textbox left=284 top=672.75 w=462 h=30.45 stored_height=30.45 effective_height=30.45 effective_bottom=703.2 text_len=128 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=experience text=\"• Coordinated process documentation and data collection efforts, resulting in improved operational transparency and consistency.\"\n- id=block-experience-2-t16 type=Textbox left=284 top=707.2 w=462 h=30.45 stored_height=30.45 effective_height=30.45 effective_bottom=737.65 text_len=124 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=experience text=\"• Maintained operational schedules and quality assurance processes to support smooth project execution and timely reporting.\"\n- id=block-experience-2-t17 type=Textbox left=284 top=741.65 w=462 h=30.45 stored_height=30.45 effective_height=30.45 effective_bottom=772.1 text_len=135 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=experience text=\"• Supported data analysis initiatives identifying operational improvements that contributed to cost reduction and process streamlining.\"\n- id=block-education-3-r0 type=Rect left=284 top=900 w=4 h=14 stored_height=14 fill=#1e40af role=section-marker section=education\n- id=block-education-3-t1 type=Textbox left=296 top=900 w=450 h=14 stored_height=14 effective_height=14 effective_bottom=914 text_len=9 fill=#0f172a fontSize=11 fontFamily=Inter fontWeight=600 lineHeight=1.2 section=education text=\"EDUCATION\"\n- id=block-education-3-t2 type=Textbox left=284 top=922 w=462 h=16 stored_height=16 effective_height=16 effective_bottom=938 text_len=69 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=education text=\"B.A. Business Administration — University of Texas at Austin  ·  2014\"\n- id=block-education-3-t3 type=Textbox left=284 top=940 w=462 h=16 stored_height=16 effective_height=16 effective_bottom=956 text_len=62 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=education text=\"Certificate, Operations Management — General Assembly  ·  2017\"\n- id=block-skills-4-r0 type=Rect left=48 top=154 w=4 h=14 stored_height=14 fill=#1e40af role=section-marker section=skills\n- id=block-skills-4-t1 type=Textbox left=60 top=154 w=208 h=14 stored_height=14 effective_height=14 effective_bottom=168 text_len=6 fill=#0f172a fontSize=11 fontFamily=Inter fontWeight=600 lineHeight=1.2 section=skills text=\"SKILLS\"\n- id=block-skills-4-t2 type=Textbox left=48 top=176 w=220 h=121.8 stored_height=121.8 effective_height=121.8 effective_bottom=297.8 text_len=161 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=skills text=\"• Operational Analysis\\n• Process Improvement\\n• KPI Reporting\\n• Workflow Optimization\\n• Data Analysis\\n• Documentation\\n• Stakeholder Communication\\n• Process Desig\"\n- id=block-skills-4-t3 type=Textbox left=48 top=301 w=220 h=60.9 stored_height=60.9 effective_height=60.9 effective_bottom=361.9 text_len=41 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=skills text=\"• Excel\\n• Tableau\\n• Power BI\\n• SQL Basics\"\n- id=block-projects-5-r0 type=Rect left=48 top=373.9 w=4 h=14 stored_height=14 fill=#1e40af role=section-marker section=projects\n- id=block-projects-5-t1 type=Textbox left=60 top=373.9 w=208 h=14 stored_height=14 effective_height=14 effective_bottom=387.9 text_len=8 fill=#0f172a fontSize=11 fontFamily=Inter fontWeight=600 lineHeight=1.2 section=projects text=\"PROJECTS\"\n- id=block-projects-5-t2 type=Textbox left=48 top=395.9 w=220 h=16 stored_height=16 effective_height=16 effective_bottom=411.9 text_len=30 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=600 lineHeight=1.45 section=projects text=\"Process Improvement Initiative\"\n- id=block-projects-5-t3 type=Textbox left=48 top=413.9 w=220 h=76.13 stored_height=76.13 effective_height=76.13 effective_bottom=490.03 text_len=162 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=projects text=\"Led cross-functional process improvement initiative that optimized workflows, improved KPI reporting accuracy, and reduced operational costs by 12% over 6 month\"\n- id=block-certifications-6-r0 type=Rect left=48 top=502.03 w=4 h=14 stored_height=14 fill=#1e40af role=section-marker section=certifications\n- id=block-certifications-6-t1 type=Textbox left=60 top=502.03 w=208 h=14 stored_height=14 effective_height=14 effective_bottom=516.03 text_len=14 fill=#0f172a fontSize=11 fontFamily=Inter fontWeight=600 lineHeight=1.2 section=certifications text=\"CERTIFICATIONS\"\n- id=block-certifications-6-t2 type=Textbox left=48 top=524.03 w=220 h=16 stored_height=16 effective_height=16 effective_bottom=540.03 text_len=32 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=certifications text=\"• Certified Six Sigma Green Belt\"\n- id=block-certifications-6-t3 type=Textbox left=48 top=542.7 w=220 h=30.45 stored_height=30.45 effective_height=30.45 effective_bottom=573.15 text_len=49 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=certifications text=\"• Certified Business Analysis Professional (CBAP)\"\n- id=block-certifications-6-t4 type=Textbox left=48 top=575.15 w=220 h=16 stored_height=16 effective_height=16 effective_bottom=591.15 text_len=31 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=certifications text=\"• Lean Management Certification\"\n- id=block-languages-7-r0 type=Rect left=48 top=603.15 w=4 h=14 stored_height=14 fill=#1e40af role=section-marker section=languages\n- id=block-languages-7-t1 type=Textbox left=60 top=603.15 w=208 h=14 stored_height=14 effective_height=14 effective_bottom=617.15 text_len=9 fill=#0f172a fontSize=11 fontFamily=Inter fontWeight=600 lineHeight=1.2 section=languages text=\"LANGUAGES\"\n- id=block-languages-7-t2 type=Textbox left=48 top=625.15 w=220 h=30.45 stored_height=30.45 effective_height=30.45 effective_bottom=655.6 text_len=43 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 section=languages text=\"English (Native)  ·  Spanish (Professional)\"\n\nBEFORE RETURNING (mandatory internal checklist — do not emit prose; validate structure then return JSON only):\n1. Count all MUTATION_REQUIRED Founder items from FOUNDER ITEM COVERAGE REQUIREMENTS.\n2. For each MUTATION_REQUIRED item, find ≥1 operation whose founder_feedback_item OR founder_feedback_items contains the Exact founder_feedback_item text (attribution-based coverage — not one dedicated op per item).\n3. Confirm each such operation has executable values and a real inventory target_id or target_ids.\n3a. Confirm EVERY operation satisfies the PER-OPERATION VALUES CONTRACT below. In particular, every update_text has a real values.text string and targets a text-capable inventory object — never a Rect / shape / section marker.\n3b. Confirm NO operation exists solely to represent verification, acceptance criteria, preservation, QA, or deterministic-layout-owned requirements. Delete any such operation instead of giving it empty or invented values.\n4. Confirm no VERIFICATION_ACCEPTANCE or PRESERVATION_CONSTRAINT item has dummy ops or secondary attributions.\n5. Confirm the plan has no internal same-target conflicting geometry mutations (e.g. two set_position tops, or set_position top plus move_object delta_top, on the same object). Such conflicts fail the ENTIRE primary plan BEFORE CoveragePlanRepair and BEFORE canvas execution.\n6. Where Founder items overlap on the same geometry, confirm you chose ONE coherent final geometry and used founder_feedback_items instead of a second same-axis mutation.\n7. If any MUTATION_REQUIRED item has zero attributions, the plan is incomplete — do not pretend it is complete.\n8. SECTION UNIT SELF-CONSISTENCY: for every section with vertical mutations, verify using the plan's OWN requested geometry (not inventory alone): marker remains associated with its heading band; content remains below its heading; no section member is orphaned; the next section begins after current section content; section gaps are intentional.\n9. Reject any plan where a marker-only vertical move would separate marker from heading/content (orphan marker).\n10. Reject any plan where associated section content would end up above its own heading unless explicitly required.\n11. VERTICAL SECTION STACK: previous section content bottom must be strictly less than next section marker/heading band top (configured/minimum spacing). FORBIDDEN: content-bottom >= next-section heading/marker top. Do not solve horizontal ownership while leaving vertical section units overlapping.\n12. WHOLE-SECTION OBJECT COMPLETENESS: for every required body object in the REQUIRED BODY OBJECT INVENTORY, confirm it is REPLACED (genuine update_text), REMOVED (Founder-authorized remove_object), or EXPLICITLY_PRESERVED (Founder keep intent applies — ZERO ops, never identical-text update_text). Unaccounted IDs fail closed.\n\nReturn JSON with schema:\n{ \"schema_version\":\"founder-canvas-revision-plan-1.0.0\", \"summary\":string, \"operations\":[...], \"notes\":string[] }\nDo NOT add coverage_map or other self-declared coverage fields. Completeness is derived only from founder_feedback_item / founder_feedback_items on operations.\nEach operation MUST include all of:\nop (EXACTLY one of: move_object, resize_object, set_position, set_dimensions, set_fill, set_stroke, update_text, align_objects, group_objects, ungroup_objects, extend_shape, adjust_font_size, adjust_line_height, add_object, remove_object — no synonyms, no hyphens variants),\ntarget_id (required string for single-target ops — copy from inventory; NEVER with target_ids),\ntarget_ids (REQUIRED string[] with ≥2 inventory IDs for align_objects / group_objects ONLY),\nbefore_summary (required non-empty string),\nintended_change (required non-empty string),\nvalues (object with executor-actionable fields),\nfounder_feedback_item (required primary exact Founder change text addressed),\nfounder_feedback_items (optional string[] of additional exact overlapping Founder lines),\nconfidence (0-1).\nselector is forbidden on single-target ops and is NOT valid for align_objects / group_objects.\n\nPER-OPERATION VALUES CONTRACT (mandatory — a violation fails the ENTIRE plan):\nAn operation you cannot fill with real executable values must NOT be emitted. Never create one to carry attribution.\nupdate_text: values.text is REQUIRED and MUST be a string. target_id MUST be a text-capable object (Textbox / IText / Text) taken from the inventory. NEVER target a Rect, shape, background, or section marker. NEVER emit update_text with empty values.\nset_position / move_object: values MUST include at least one of left, top, delta_left, delta_top (numbers). Position-only: width/height/delta_width/delta_height and w/h aliases are NOT applied and must not be emitted.\nset_dimensions / resize_object / extend_shape: values MUST include at least one of width, height, delta_width, delta_height (and may include left/top/delta_left/delta_top when the same op must also move the object).\nadjust_font_size: values MUST include fontSize or delta_fontSize (numbers).\nadjust_line_height: values.lineHeight is REQUIRED and MUST be a number.\nalign_objects: values.align_left is REQUIRED and MUST be a number. target_ids MUST list ≥2 inventory IDs from the SAME lane.\nset_fill: values.fill is REQUIRED and MUST be a non-empty string.\nset_stroke: values MUST include stroke (string) and/or strokeWidth (number).\ngroup_objects / ungroup_objects / remove_object / add_object: values may be an empty object; these ops apply no positional fields.\nNever use values keys: spacing, gap, gap_px, vertical_spacing, horizontal_spacing, or similar pseudo-geometry fields.",
+  "founder_memory_selection": {
+    "schema_version": "founder-memory-selection-1.0.0",
+    "channel": "revision",
+    "context": {
+      "role": "Operations Analyst",
+      "role_family": "operations_analyst",
+      "category": "ats",
+      "design_family": "professional_sidebar",
+      "architecture": "narrow_ats_sidebar",
+      "section": null,
+      "component": null
+    },
+    "selected": [
+      {
+        "memory_id": "fpm-5d58099a-c39",
+        "scope": "ARCHITECTURE",
+        "issue_type": "HIERARCHY",
+        "status": "PROVISIONAL",
+        "confidence": "high",
+        "signal_type": "PREFERENCE",
+        "injectable_text": "Change the professional title from Marketing Manager to Operations Analyst while preserving the current header design, candidate name, contact layout, colors,…",
+        "content_hash": "c7151545258d6130aabaa2ef6e94e88303044c7cb27f56f840d87a44226ba697"
+      }
+    ],
+    "excluded": [
+      {
+        "memory_id": "fpm-193544d1-0a5",
+        "kind": "IRRELEVANT",
+        "reason": "scope DESIGN_FAMILY does not match context"
+      },
+      {
+        "memory_id": "fpm-fdbc6470-ff4",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-3b879f4e-a05",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-51548031-0fe",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-3840ee41-866",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-5f52dc1c-9b3",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-c7742996-832",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-56251bb2-38d",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-3fcdd085-a35",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-f2fc15ad-5f2",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-8998b978-16e",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-5d399a26-74c",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-b3796a1a-970",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-59a67ac2-60c",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-dd744f23-218",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-42b85ba6-755",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-dc7fab3e-3e3",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-c2726335-c9b",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-38a5c51b-a08",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-dee79a65-68c",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-360ee42a-d17",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-e0486516-b58",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-129c79f8-21a",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-21d6692f-78b",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-08ea05e5-9ed",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-bf5d89ab-2ba",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-bdc308e7-a25",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-137e59f9-9f4",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-01f08435-516",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-14fdfd0d-047",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-aa607bbb-b56",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-e410ca66-0e9",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-5064d365-c6a",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-62d36a86-0cc",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-2240348d-014",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-b338bd8b-cd6",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-417d1750-cd4",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-bf301692-937",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-2258bca7-b91",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-a268654f-c88",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-7a92d54c-502",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-a0cc7464-946",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-6e0fdea8-4f3",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-362c91f4-7fb",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-99950b20-235",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-d3d156b4-903",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-f879f7e8-7c7",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-27a2aa3e-5eb",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-c7eef862-b36",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-178208ac-5f1",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-8e9fc988-f49",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-1c6838af-f21",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-093b6bd1-d64",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-01997671-12c",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-b52749ce-fe5",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-96ac057a-5d0",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-ffd15fd2-436",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-64912472-7b9",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-4de1ffc8-104",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-6c6fba54-8dc",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-6367f21d-3b9",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-39a3993d-c3e",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-bb608e90-224",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-68f28dad-c1b",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-f15bd618-a84",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-df83e388-87c",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-ffe4ab0a-e26",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-632c9cdb-297",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-895a30f9-77c",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-163fa298-79e",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-f0091fe3-8ee",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-ad21db61-7a6",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-bc7c4167-6ff",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-ab95b668-31e",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-ac7e42df-c46",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-c10836cd-e5e",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-8fff6b3b-1e1",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-575ad609-1d6",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-386e56a9-77c",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-58d973b3-6b0",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-27656805-f62",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-93bae266-20f",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-19702a7f-e76",
+        "kind": "IRRELEVANT",
+        "reason": "scope DESIGN_FAMILY does not match context"
+      },
+      {
+        "memory_id": "fpm-a219cac0-397",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-05e4c00d-b66",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-6176cea0-d28",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-2b125fcf-592",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-5af59e9d-fa9",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-d4b44a56-b60",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-e1fffded-751",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-9a158a17-bc8",
+        "kind": "IRRELEVANT",
+        "reason": "scope DESIGN_FAMILY does not match context"
+      },
+      {
+        "memory_id": "fpm-cb4c716e-55a",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-114cd6fd-745",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-34142587-a12",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-c98079d7-185",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-2c39b5b5-130",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-d38db562-700",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-08cb9b4f-0c5",
+        "kind": "IRRELEVANT",
+        "reason": "scope DESIGN_FAMILY does not match context"
+      },
+      {
+        "memory_id": "fpm-043ecda2-84c",
+        "kind": "IRRELEVANT",
+        "reason": "scope DESIGN_FAMILY does not match context"
+      },
+      {
+        "memory_id": "fpm-4d3ca249-c5b",
+        "kind": "IRRELEVANT",
+        "reason": "scope DESIGN_FAMILY does not match context"
+      },
+      {
+        "memory_id": "fpm-7910dc08-3ef",
+        "kind": "IRRELEVANT",
+        "reason": "scope DESIGN_FAMILY does not match context"
+      },
+      {
+        "memory_id": "fpm-f5463f23-311",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-3990bf57-f7e",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-9ebe7c0c-7ff",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-25ec2a1d-d56",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-ce889bd9-af8",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-5fac9954-480",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-28ef0498-57c",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-116611ee-9e9",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-ef4d0a2b-cb6",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-0bb90fda-a43",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-073e4293-34a",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-6b62b349-dbd",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-ad80b269-4f9",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-026f869d-4c2",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-3de8f456-32e",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-fbcec2c2-075",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-ad3d0e18-b47",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-60d93302-207",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-eae2e8b0-eea",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-0df1ab17-3f7",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-6c0fd928-c5b",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-3ffdb166-da5",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-e79bd165-70c",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-2e51df52-169",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-86b85a41-006",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-b00f6934-0e0",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-36dac564-f20",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-6b063f1a-040",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-1b68dc3b-e3f",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-1d83e9c1-04b",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-3d4d9637-12b",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-bc4f59ba-1a2",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-d660601d-56f",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-ad9b2266-633",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-29ea097a-d6f",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-b976c391-95e",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-0f170c14-6c7",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-b9a5e9e9-673",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-497f63f4-b6e",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-d3331322-909",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-b3b13933-581",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-2d9ff989-f9e",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-24187596-bc5",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-c219093a-8f1",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-75ca98ba-8bb",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-8e765bee-ebe",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-ccb46eb0-863",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-cd28d698-1fb",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-23bb107e-fe1",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-e295a6c2-869",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-f7571828-de5",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-faf843be-85c",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-91dce9db-326",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-43abfbe8-58e",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-1298af7e-c38",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-fa3d6c48-7a1",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-8c2d9885-8aa",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-ce4e515f-e35",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-dd88d195-4d0",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-18ed2531-cd0",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-5e6412e2-2aa",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-4d202792-d77",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-4cfcceaa-20a",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-924c2bc7-7d2",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-615e6a13-b07",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-c85cf618-c23",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-ca1956a9-c5b",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-e4500c44-9ff",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-93a2630e-51c",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-9e339847-444",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-d2b3cb6e-4dc",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-f75331f3-e47",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-277b2b66-ed8",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-71988e5c-dcd",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-4937707e-c05",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-0eff26ae-467",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-92613857-71d",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-ca26e8a4-15f",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-585401c2-0e4",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-8c2d12b2-54d",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-e3e8abdd-497",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-5ae5b777-910",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-0de9927d-579",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-ab68342e-874",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-c8f92542-9ae",
+        "kind": "IRRELEVANT",
+        "reason": "scope ARCHITECTURE does not match context"
+      },
+      {
+        "memory_id": "fpm-9a3cd74f-b52",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-6237cf71-fd9",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-159f663e-256",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-ceecc980-c59",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-06689c2b-3d2",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-ad0f5f3a-0f4",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-b32a1b2b-aeb",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-f06b2fd4-b01",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-858bb418-b54",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-e3e857dc-979",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-adeba9d0-72d",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-3f0496b6-8ea",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-5f5311d9-a8a",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-77db6516-711",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-9c935f5f-550",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-2d988414-456",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-4377dafd-eb2",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-c8738534-413",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-6f138f96-e1a",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-d4ec3e1a-ad7",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-804787f3-6f5",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-92d3d018-c96",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-d8cda85e-8c5",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-227aee4b-9a0",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-7fd56831-872",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-357f5979-fde",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-f3a051cb-ac6",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-396ad4c3-66c",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-695577d2-543",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-2f3d7d1f-6d3",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-b1978150-494",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-8ebecfca-b7c",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-7602fae4-6b3",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-cf683537-e95",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-555f4730-fc2",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-f0a5526c-5fc",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-c7b166b8-dc2",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-854ccdc0-70b",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-bfc10f68-8f8",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-f772c251-9aa",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-ee107823-b1e",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-e7a6444d-ae2",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-15780749-e89",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-5216b16f-512",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-85ca4dee-766",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-96d2f2a6-7ee",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-b88f8eeb-e47",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-85357331-551",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-aef35e8e-c47",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-e9b64660-c53",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-f1dbb8b3-aa8",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-0f62d11e-702",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-cfa36972-aeb",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-0f4b1fe7-c5b",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-ef2b460b-b34",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-20a34795-c60",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-685d9dd0-1cd",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-db5a24a1-760",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-85578d36-89f",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-179fabcb-ce8",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-0c52f61d-45e",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-d71e0a1e-af2",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-bcdbe071-68e",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-4313edac-b28",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-4b930516-08c",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-9c474fe3-f09",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-251eebe2-7ae",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-805f4e0e-843",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-77d7c800-f6c",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-88ad3d80-3a1",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-39e53313-dd5",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-5dfa87cf-bc1",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-5714aed0-85a",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-21300a97-a26",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-5e7695cd-fd9",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-a0fad7dd-95d",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-650e4353-d9b",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-b0ea7f35-429",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-edea5641-aa4",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-b2935343-fc1",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-a493338f-ab3",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-e938ed61-f89",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-b18a6289-138",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-8f9203b4-7f4",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-7076c623-a5d",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-94d88829-04e",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-146246a4-c12",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-14bc7bdd-dd0",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-4324df1f-511",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-4382bb19-b46",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-a35a716e-f65",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-9efca142-a3f",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-a8c26fd7-a3e",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-e7992465-e96",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-31d90960-5c6",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-ad579d0e-27e",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-fbc199dd-36e",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-6a973299-98d",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-983f2199-81a",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-670649fe-576",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-6a6c92a5-2ae",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-8fbc0072-5cc",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-2ee80654-c52",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-d385d0f6-aa5",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-4ca5c3dc-889",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-c3e44ffb-a34",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-3dfc1be4-19c",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-ce4cd2dc-c85",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-36014a20-5f9",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-fd333ab1-9a3",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-030214e0-b93",
+        "kind": "INELIGIBLE",
+        "reason": "factual or non-layout content excluded from design memory"
+      },
+      {
+        "memory_id": "fpm-f00e9b2f-a03",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-2090c858-d70",
+        "kind": "AMBIGUOUS",
+        "reason": "PROVISIONAL + low confidence — outcome not validated"
+      },
+      {
+        "memory_id": "fpm-a3dd423c-94c",
+        "kind": "INELIGIBLE",
+        "reason": "exceeded max selected rules budget"
+      },
+      {
+        "memory_id": "fpm-c822e9a2-0d6",
+        "kind": "INELIGIBLE",
+        "reason": "exceeded max selected rules budget"
+      },
+      {
+        "memory_id": "fpm-cf6a82bf-18d",
+        "kind": "INELIGIBLE",
+        "reason": "exceeded max selected rules budget"
+      },
+      {
+        "memory_id": "fpm-7fb72580-c11",
+        "kind": "INELIGIBLE",
+        "reason": "exceeded memory prompt character budget"
+      },
+      {
+        "memory_id": "fpm-078948a7-5c8",
+        "kind": "INELIGIBLE",
+        "reason": "exceeded memory prompt character budget"
+      },
+      {
+        "memory_id": "fpm-19f646d3-47a",
+        "kind": "INELIGIBLE",
+        "reason": "exceeded memory prompt character budget"
+      },
+      {
+        "memory_id": "fpm-4684b59e-69d",
+        "kind": "INELIGIBLE",
+        "reason": "exceeded memory prompt character budget"
+      },
+      {
+        "memory_id": "fpm-09263f76-cc5",
+        "kind": "INELIGIBLE",
+        "reason": "exceeded memory prompt character budget"
+      },
+      {
+        "memory_id": "fpm-7d4e5836-6c1",
+        "kind": "INELIGIBLE",
+        "reason": "exceeded memory prompt character budget"
+      },
+      {
+        "memory_id": "fpm-f38291fd-532",
+        "kind": "INELIGIBLE",
+        "reason": "exceeded memory prompt character budget"
+      }
+    ],
+    "memory_ids": [
+      "fpm-5d58099a-c39"
+    ],
+    "prompt_block": "FOUNDER DESIGN MEMORY\nThese are StudiosisLab Founder layout/design/quality preferences.\nThey are NOT resume facts. Do not invent employers, credentials, metrics, or skills from memory.\nCURRENT FOUNDER REQUEST (if any) always has higher authority than memory.\n- [ARCHITECTURE|high|PROVISIONAL] Change the professional title from Marketing Manager to Operations Analyst while preserving the current header design, candidate name, contact layout, colors,…\n\nMemory guides compatible layout quality only; never override current Founder instructions or factual-content safety.",
+    "truncated": true,
+    "prompt_hash": "fc15376b872fc125",
+    "FOUNDER_MEMORY_CONSUMED": true,
+    "counts": {
+      "considered": 310,
+      "selected": 1,
+      "irrelevant": 69,
+      "ambiguous": 149,
+      "ineligible": 91,
+      "conflicting": 0,
+      "superseded": 0
+    },
+    "evaluated_at": "2026-09-22T08:46:33.085Z"
+  }
+}

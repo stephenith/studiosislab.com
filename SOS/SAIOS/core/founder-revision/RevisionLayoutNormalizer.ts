@@ -33,7 +33,15 @@ import {
   effectiveObjectBBox,
   effectiveTextHeightScaled,
   isFabricTextObject,
+  visualTextContentBottom,
 } from "./TextEffectiveHeight.js";
+import {
+  isCollisionOrReadableGapLayoutRequest,
+  isExcessiveSectionGapLayoutRequest,
+} from "./RevisionIntentScope.js";
+
+/** Readable same-section sequential gap when Founder asked to separate colliding lines. */
+export const READABLE_SEQUENTIAL_GAP_PX = 6;
 
 /** Minimum gap between consecutive stacked sections in the same lane (px). */
 export const MIN_SECTION_GAP_PX = 12;
@@ -1198,6 +1206,121 @@ function restackOrderedBodyTextsClearEffectiveOverlap(
     );
   }
   return moved;
+}
+
+function readableSequentialGapPx(upper: Record<string, unknown>): number {
+  const font = Number(upper.fontSize ?? 0);
+  const lineHeight = Number(upper.lineHeight ?? 1.2);
+  const leading = font > 0 ? Math.max(0, font * Math.max(0, lineHeight - 1)) : 0;
+  return Math.max(READABLE_SEQUENTIAL_GAP_PX, Number(leading.toFixed(2)));
+}
+
+function founderRequestsReadableSequentialGaps(
+  requestedChanges: string[],
+  section: string,
+): boolean {
+  return requestedChanges.some((c) => {
+    if (!isCollisionOrReadableGapLayoutRequest(c)) return false;
+    const named = /\b(skills?|projects?|certifications?|languages?|experience|education|summary)\b/i.exec(
+      c,
+    );
+    if (!named) return section === "skills";
+    return new RegExp(`\\b${section}\\b`, "i").test(named[0]);
+  });
+}
+
+function enforceFounderReadableSequentialGaps(
+  groups: SectionGroup[],
+  lanes: LayoutLane[],
+  requestedChanges: string[],
+  report: LayoutNormalizationReport,
+): void {
+  if (!requestedChanges.some((c) => isCollisionOrReadableGapLayoutRequest(c))) {
+    return;
+  }
+  for (const g of groups) {
+    if (!founderRequestsReadableSequentialGaps(requestedChanges, g.section)) {
+      continue;
+    }
+    const texts = sectionBodyContentTexts(g);
+    if (texts.length < 2) continue;
+    const moved: string[] = [];
+    for (let i = 1; i < texts.length; i++) {
+      const prev = texts[i - 1]!;
+      const cur = texts[i]!;
+      const minGap = readableSequentialGapPx(prev.o);
+      const desired =
+        Math.ceil((visualTextContentBottom(prev.o) + minGap) * 100) / 100;
+      const beforeTop = Number(cur.o.top ?? 0);
+      if (beforeTop + 1e-9 < desired) {
+        const delta = desired - beforeTop;
+        cur.o.top = desired;
+        moved.push(cur.id);
+        const later = texts.slice(i + 1);
+        for (const item of later) {
+          item.o.top = Number((Number(item.o.top ?? 0) + delta).toFixed(2));
+          if (!moved.includes(item.id)) moved.push(item.id);
+        }
+      }
+    }
+    if (moved.length > 0) {
+      report.collision_resolutions.push(
+        `readable sequential gaps (${g.section}): moved=[${moved.join(",")}]`,
+      );
+    }
+  }
+  enforceSectionStack(lanes, report);
+}
+
+function enforceFounderExcessiveSectionGapClose(
+  lanes: LayoutLane[],
+  requestedChanges: string[],
+  report: LayoutNormalizationReport,
+): void {
+  if (!requestedChanges.some((c) => isExcessiveSectionGapLayoutRequest(c))) {
+    return;
+  }
+  for (const lane of lanes) {
+    const ordered = sortLaneGroupsByTop(lane);
+    const legalGaps: number[] = [];
+    for (let i = 1; i < ordered.length; i++) {
+      const gap =
+        sectionBounds(ordered[i]!).top - sectionBounds(ordered[i - 1]!).bottom;
+      if (gap + 1e-9 >= MIN_SECTION_GAP_PX) legalGaps.push(gap);
+    }
+    const peer =
+      legalGaps.length === 0
+        ? MIN_SECTION_GAP_PX
+        : legalGaps.slice().sort((a, b) => a - b)[
+            Math.floor((legalGaps.length - 1) / 2)
+          ]!;
+    const target = Math.max(MIN_SECTION_GAP_PX, peer);
+    for (let i = 1; i < ordered.length; i++) {
+      const prev = ordered[i - 1]!;
+      const cur = ordered[i]!;
+      const named = requestedChanges.some(
+        (c) =>
+          isExcessiveSectionGapLayoutRequest(c) &&
+          new RegExp(`\\b${cur.section}\\b`, "i").test(c) &&
+          new RegExp(`\\b${prev.section}\\b`, "i").test(c),
+      );
+      if (!named && cur.section !== "education") continue;
+      const gap = sectionBounds(cur).top - sectionBounds(prev).bottom;
+      if (gap <= target + 2) continue;
+      const delta = target - gap;
+      const moved = shiftSection(cur, delta);
+      report.shifts_applied.push({
+        section: cur.section,
+        lane_id: lane.lane_id,
+        delta_top: delta,
+        object_ids: moved,
+        reason: `close excessive ${prev.section}→${cur.section} gap ${gap.toFixed(1)}→${target.toFixed(1)}`,
+      });
+      report.collision_resolutions.push(
+        `excessive section gap closed ${prev.section}→${cur.section}: ${gap.toFixed(1)}→${(gap + delta).toFixed(1)}`,
+      );
+    }
+  }
 }
 
 function totalReclaimableSlack(
@@ -2419,11 +2542,22 @@ export function normalizeRevisionLayout(input: {
     report,
     input.prior_canvas ?? null,
   );
+  enforceFounderReadableSequentialGaps(
+    groups,
+    lanes,
+    input.requested_changes ?? [],
+    report,
+  );
   enforceSectionStack(lanes, report);
   enforceHeaderContactToSummaryGap(groups, lanes, report);
 
   enforceFounderSectionSystemSectionGapRhythm(
     groups,
+    lanes,
+    input.requested_changes ?? [],
+    report,
+  );
+  enforceFounderExcessiveSectionGapClose(
     lanes,
     input.requested_changes ?? [],
     report,

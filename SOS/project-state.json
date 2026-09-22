@@ -40,6 +40,11 @@
   ],
   "history": [
     {
+      "at": "2026-09-22T13:55:39.000Z",
+      "type": "revision_maintenance_repair",
+      "summary": "Phase 6M REVISION INTENT SCOPE AND LAYOUT EXECUTION CONSOLIDATION deployed. Local wall=2026-09-22T19:25:39+05:30. UTC=2026-09-22T13:55:39.000Z. Implementation commit 161099a7143fb64d91627b32975815e3328e431a fast-forwarded to origin and VPS /root/studiosislab.com (backup 20260922T135520Z). Restarted aios-founder-dashboard.service only; service active; SOS_AIOS_LIVE=0. Historical failed revision tasks remain immutable FAILED/FAILED_GATE/FAILED_COVERAGE. Founder will authorize ONE follow-up layout live proof after this review. No OpenAI call, no generation, no revision run, no Founder decision, no publication. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
+    },
+    {
       "at": "2026-09-22T13:54:15.000Z",
       "type": "revision_maintenance_repair",
       "summary": "Phase 6M REVISION INTENT SCOPE AND LAYOUT EXECUTION CONSOLIDATION implemented and LOCAL_VERIFIED (offline). Local wall=2026-09-22T19:24:15+05:30. UTC=2026-09-22T13:54:15.000Z. One canonical revision-intent scope owner distinguishes CONTENT_REPLACEMENT / CONTENT_REMOVAL / LAYOUT_MUTATION / CONTENT_PRESERVATION / LAYOUT_PRESERVATION / VERIFICATION. 6I and 6J consume that owner and EXPLICITLY_PRESERVED dispositions. Deterministic layout separates Process Design/Excel (3.20\u21926.00) and packs Education (900\u2192815.2, gap 127.9\u219243.1). Offline fixture revtask-a0009171-849: old false replacement scope reproduced, then runFounderFeedbackRevision reaches READY_FOR_FOUNDER_REVIEW. 6G/6H/6I/6J/6K/6L/generation/Marketing Manager regressions PASS. Historical failed tasks unchanged. No OpenAI call, no generation, no revision run, no Founder decision, no publication. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
@@ -3043,7 +3048,7 @@
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
   },
   "phase_6m": {
-    "status": "local_verified",
+    "status": "deployed",
     "classification": "REVISION_INTENT_SCOPE_AND_LAYOUT_EXECUTION_CONSOLIDATION",
     "scope": "Founder Request Changes intent-scope and deterministic layout execution only. Resume Template Department NOT reopened.",
     "problem": "revtask-a0009171-849 FAILED_GATE at revision_role_integrity because a layout-only Remove-blank-area line compiled Experience+Education into 6I replacement scope, and the Process Design/Excel Skills collision was not repaired (Excel set_position dropped unsafe).",
@@ -3102,6 +3107,11 @@
     "next_major_department": "Website Analysis / QA / Development",
     "milestone_ist": "2026-09-22T19:24:15+05:30",
     "milestone_utc": "2026-09-22T13:54:15.000Z",
-    "baseline_commit_before": "1f8d483739cfcc856108073d488ecc77617510a1"
+    "baseline_commit_before": "1f8d483739cfcc856108073d488ecc77617510a1",
+    "deployed_commit": "161099a7143fb64d91627b32975815e3328e431a",
+    "deployed_at_ist": "2026-09-22T19:25:39+05:30",
+    "deployed_at_utc": "2026-09-22T13:55:39.000Z",
+    "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only",
+    "vps_backup": "20260922T135520Z"
   }
 }

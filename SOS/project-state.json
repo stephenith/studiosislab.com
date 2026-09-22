@@ -2900,7 +2900,7 @@
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
   },
   "phase_6k": {
-    "status": "local_verified",
+    "status": "deployed",
     "classification": "CANONICAL_FINAL_STATE_LAYOUT_INTENT_PROOF",
     "scope": "Founder Request Changes layout-owned final-state proof only. Resume Template Department NOT reopened.",
     "problem": "revtask-dd26226e-d8b passed Phase 6J completeness/reflow/role/geometry then FAILED_COVERAGE because ownership PASS and FeedbackCoverage independently applied a 35% source-relative REDUCE_GAP heuristic to Skills t2→t3 52.32→37.10",
@@ -2960,6 +2960,10 @@
     "next_major_department": "Website Analysis / QA / Development",
     "milestone_ist": "2026-09-22T12:57:04+05:30",
     "milestone_utc": "2026-09-22T07:27:04.000Z",
-    "baseline_commit_before": "a029439a85c2907936b2dcce1d435b0e62f4b4be"
+    "baseline_commit_before": "a029439a85c2907936b2dcce1d435b0e62f4b4be",
+    "deployed_commit": "44c4dc496c854398d001e535734a55590f3b14f1",
+    "deployed_at_ist": "2026-09-22T12:58:20+05:30",
+    "deployed_at_utc": "2026-09-22T07:28:20.000Z",
+    "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
   }
 }

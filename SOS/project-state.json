@@ -40,6 +40,11 @@
   ],
   "history": [
     {
+      "at": "2026-09-22T08:04:43.000Z",
+      "type": "revision_maintenance_repair",
+      "summary": "Phase 6L FOUNDER REVISION PIPELINE CONSOLIDATION deployed. Local wall=2026-09-22T13:34:43+05:30. UTC=2026-09-22T08:04:43.000Z. Implementation commit ac01670e46998b247821be696a547cde6ebb2fb1 fast-forwarded to origin and VPS /root/studiosislab.com (backup 20260922T080349Z). Restarted aios-founder-dashboard.service only; service active; SOS_AIOS_LIVE=0. Historical failed revision tasks remain immutable FAILED/FAILED_GATE/FAILED_COVERAGE. Founder will authorize ONE final Operations Analyst live proof after this review. No OpenAI call, no generation, no revision run, no Founder decision, no publication. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
+    },
+    {
       "at": "2026-09-22T08:02:56.000Z",
       "type": "revision_maintenance_repair",
       "summary": "Phase 6L FOUNDER REVISION PIPELINE CONSOLIDATION implemented and LOCAL_VERIFIED (offline). Local wall=2026-09-22T13:32:56+05:30. UTC=2026-09-22T08:02:56.000Z. One production Request Changes executor (runFounderFeedbackRevision). One revision final-acceptance aggregator consumes owner verdicts. Materialization no longer calls evaluateCanvasRoleTargetIntegrity. Critic scores are advisory after semantic PASS. Generation dual structured+rendered role contract unchanged. Offline fixture revtask-6ddb8eb8-e9c: old generation-role tail reproduced (structured generated role missing), then same runFounderFeedbackRevision path reaches READY_FOR_FOUNDER_REVIEW. Production-parity harness PASS. 6G/6H/6I/6J/6K/generation/Marketing Manager regressions PASS. Historical failed tasks unchanged. No OpenAI call, no generation, no revision run, no Founder decision, no publication. Generation overlap/clipping gate deliberately deferred. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
@@ -2972,7 +2977,7 @@
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
   },
   "phase_6l": {
-    "status": "local_verified",
+    "status": "deployed",
     "classification": "FOUNDER_REVISION_PIPELINE_CONSOLIDATION",
     "scope": "Founder Request Changes production executor, final acceptance, and materialization boundary only. Resume Template Department NOT reopened.",
     "problem": "revtask-6ddb8eb8-e9c passed 6I–6K and coverage 28/28 then FAILED_GATE because materializeCriticAndGateArtifacts invoked generation evaluateCanvasRoleTargetIntegrity requiring structured generated role JSON",
@@ -3022,6 +3027,11 @@
     "revision_engineering_status": "MAINTENANCE / REGRESSION ONLY",
     "next_major_department": "Website Analysis / QA / Development",
     "milestone_ist": "2026-09-22T13:32:56+05:30",
-    "milestone_utc": "2026-09-22T08:02:56.000Z"
+    "milestone_utc": "2026-09-22T08:02:56.000Z",
+    "baseline_commit_before": "455ec8b953d679fae384ca5d97069d6684f080cc",
+    "deployed_commit": "ac01670e46998b247821be696a547cde6ebb2fb1",
+    "deployed_at_ist": "2026-09-22T13:33:53+05:30",
+    "deployed_at_utc": "2026-09-22T08:03:53.000Z",
+    "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
   }
 }

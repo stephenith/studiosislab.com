@@ -15,6 +15,8 @@ import { validateScoresForGate } from "../critic-gate/CriticGateValidator.js";
 import type { CriticResult } from "../resume-critic/types.js";
 import { evaluateCanvasRoleTargetIntegrity } from "../role-integrity/RoleTargetIntegrity.js";
 import { resolveRoleSample } from "../resume-renderer/SampleContent.js";
+import type { RevisionRoleTargetIntegrityResult } from "../role-integrity/RevisionRoleTargetIntegrity.js";
+import type { RevisionFinalAcceptance } from "./RevisionFinalAcceptance.js";
 
 /** Exact StagingService required set — do not weaken. */
 export const STAGING_PACKAGE_REQUIRED_FILES = [
@@ -32,6 +34,12 @@ export const REVISION_CANDIDATE_REQUIRED_FILES = [
   "gate.json",
 ] as const;
 
+/** Phase 6L — revision-native semantic evidence required after acceptance. */
+export const REVISION_ACCEPTANCE_REQUIRED_FILES = [
+  "revision-final-acceptance.json",
+  "revision-role-target-integrity.json",
+] as const;
+
 export type ArtifactValidationResult = {
   ok: boolean;
   missing: string[];
@@ -41,12 +49,17 @@ export type ArtifactValidationResult = {
 
 export function validateCandidateArtifactsForStaging(
   candidateDir: string,
-  opts?: { requireGate?: boolean },
+  opts?: { requireGate?: boolean; requireRevisionAcceptance?: boolean },
 ): ArtifactValidationResult {
   const requireGate = opts?.requireGate === true;
-  const required = requireGate
-    ? REVISION_CANDIDATE_REQUIRED_FILES
-    : STAGING_PACKAGE_REQUIRED_FILES;
+  const required = [
+    ...(requireGate
+      ? REVISION_CANDIDATE_REQUIRED_FILES
+      : STAGING_PACKAGE_REQUIRED_FILES),
+    ...(opts?.requireRevisionAcceptance === true
+      ? REVISION_ACCEPTANCE_REQUIRED_FILES
+      : []),
+  ];
   const missing: string[] = [];
   const present: string[] = [];
   for (const f of required) {
@@ -167,6 +180,13 @@ export function materializeCriticAndGateArtifacts(input: {
   role?: string;
   /** Test injection — production omits this. */
   critiqueOverride?: () => CriticResult;
+  /**
+   * Phase 6L — revision materialization consumes revision-native acceptance.
+   * When set, generation evaluateCanvasRoleTargetIntegrity is not a blocker.
+   */
+  pipeline?: "generation" | "revision";
+  revisionAcceptance?: RevisionFinalAcceptance | null;
+  revisionRoleProof?: RevisionRoleTargetIntegrityResult | null;
 }): MaterializeCriticResult {
   const criticPath = join(input.candidateDir, "critic.json");
   const gatePath = join(input.candidateDir, "gate.json");
@@ -189,6 +209,9 @@ export function materializeCriticAndGateArtifacts(input: {
     };
   }
 
+  const isRevisionPipeline =
+    input.pipeline === "revision" || Boolean(input.revisionAcceptance);
+
   let critic: CriticResult;
   try {
     if (input.critiqueOverride) {
@@ -205,19 +228,58 @@ export function materializeCriticAndGateArtifacts(input: {
       });
     }
   } catch (e) {
-    return {
-      ok: false,
-      failure: "CRITIC",
-      error: e instanceof Error ? e.message : String(e),
-      critic: null,
-      gate_ready: false,
-      critic_path: null,
-      gate_path: null,
-      scores: null,
-      overflow: false,
-      layout_pass: false,
-      ats_pass: false,
-    };
+    if (!isRevisionPipeline) {
+      return {
+        ok: false,
+        failure: "CRITIC",
+        error: e instanceof Error ? e.message : String(e),
+        critic: null,
+        gate_ready: false,
+        critic_path: null,
+        gate_path: null,
+        scores: null,
+        overflow: false,
+        layout_pass: false,
+        ats_pass: false,
+      };
+    }
+    const msg = e instanceof Error ? e.message : String(e);
+    critic = {
+      scores: {
+        overall: 0,
+        ats: 0,
+        visual: 0,
+        typography: 0,
+        layout: 0,
+        technical: 0,
+        consistency: 0,
+        sections: 0,
+        thumbnail_appeal: 0,
+        contrast: 0,
+      },
+      reports: {} as CriticResult["reports"],
+      readiness: {
+        ready: false,
+        founder_review_allowed: false,
+        blocked_reasons: [`advisory_critic_error: ${msg}`],
+        rules: {
+          overall_min: 90,
+          ats_min: 95,
+          technical_required: 100,
+          no_overflow: true,
+          no_schema_mismatch: true,
+          no_missing_sections: true,
+          no_renderer_errors: true,
+        },
+      },
+      evaluated_at: new Date().toISOString(),
+      dry_run: true,
+      publication_allowed: false,
+      live_enabled: false,
+      mutated_resume: false,
+      used_ai: false,
+      used_mock_provider: false,
+    } as CriticResult;
   }
 
   if (
@@ -226,24 +288,26 @@ export function materializeCriticAndGateArtifacts(input: {
     typeof critic.scores.ats !== "number" ||
     typeof critic.scores.technical !== "number"
   ) {
-    return {
-      ok: false,
-      failure: "CRITIC",
-      error: "ResumeCritic returned incomplete scores",
-      critic,
-      gate_ready: false,
-      critic_path: null,
-      gate_path: null,
-      scores: null,
-      overflow: false,
-      layout_pass: false,
-      ats_pass: false,
-    };
+    if (!isRevisionPipeline) {
+      return {
+        ok: false,
+        failure: "CRITIC",
+        error: "ResumeCritic returned incomplete scores",
+        critic,
+        gate_ready: false,
+        critic_path: null,
+        gate_path: null,
+        scores: null,
+        overflow: false,
+        layout_pass: false,
+        ats_pass: false,
+      };
+    }
   }
 
   const criticArtifact = {
-    scores: critic.scores,
-    readiness: critic.readiness,
+    scores: critic.scores ?? null,
+    readiness: critic.readiness ?? null,
     used_ai: false,
     used_mock_provider: false,
     revision_number: 1,
@@ -252,13 +316,14 @@ export function materializeCriticAndGateArtifacts(input: {
       0,
     ),
     founder_feedback_revision: true,
+    critic_role: isRevisionPipeline ? "advisory" : "generation_gate",
   };
   try {
     writeJson(criticPath, criticArtifact);
   } catch (e) {
     return {
       ok: false,
-      failure: "CRITIC",
+      failure: isRevisionPipeline ? "ARTIFACTS" : "CRITIC",
       error: `Failed to write critic.json: ${e instanceof Error ? e.message : String(e)}`,
       critic,
       gate_ready: false,
@@ -277,7 +342,94 @@ export function materializeCriticAndGateArtifacts(input: {
     ),
   );
 
-  // Phase 6A — revision must not change professional role vs target.
+  const isRevision =
+    input.pipeline === "revision" || Boolean(input.revisionAcceptance);
+
+  const scores = {
+    overall: critic.scores?.overall ?? 0,
+    ats: critic.scores?.ats ?? 0,
+    layout: critic.scores?.layout ?? 0,
+    technical: critic.scores?.technical ?? 0,
+    visual: critic.scores?.visual ?? 0,
+    typography: critic.scores?.typography ?? 0,
+  };
+
+  if (isRevision) {
+    const roleProof = input.revisionRoleProof ?? null;
+    const acceptance = input.revisionAcceptance ?? null;
+    writeJson(join(input.candidateDir, "role-target-integrity.json"), {
+      schema_version: "role-target-integrity-1.0.0",
+      source: "revision_role_integrity",
+      proof_kind: "REVISION_DERIVED",
+      pass: roleProof?.pass === true,
+      match: roleProof?.match ?? "ROLE_UNEVALUABLE",
+      reason: roleProof?.reason ?? "revision-native role proof not supplied",
+      target_title: String(input.role ?? input.title ?? "").trim(),
+      target_role_family: String(input.role ?? input.title ?? "").trim(),
+      structured_role: null,
+      structured_normalized: null,
+      rendered_role: roleProof?.rendered_title_role ?? null,
+      rendered_normalized: roleProof?.rendered_title_normalized ?? null,
+      evaluated_at: new Date().toISOString(),
+      generation_role_integrity: "not_evaluated",
+    });
+    const ready = acceptance?.may_return_to_founder_review === true;
+    const gateArtifact = {
+      ready,
+      founder_review_allowed: ready,
+      publication_allowed: false,
+      dry_run: true,
+      overall: critic.scores.overall,
+      ats: critic.scores.ats,
+      technical: critic.scores.technical,
+      visual: critic.scores.visual,
+      typography: critic.scores.typography,
+      layout: critic.scores.layout,
+      blocking_reasons: ready
+        ? []
+        : [acceptance?.failure_reason ?? "revision final acceptance missing"],
+      warnings: [
+        "critic_scores_are_advisory_after_revision_final_acceptance",
+      ],
+      critic_report_reference: criticPath,
+      candidate_id: input.candidate_id,
+      evaluated_at: new Date().toISOString(),
+      founder_feedback_revision: true,
+      acceptance_source: "revision_final_acceptance",
+    };
+    try {
+      writeJson(gatePath, gateArtifact);
+    } catch (e) {
+      return {
+        ok: false,
+        failure: "ARTIFACTS",
+        error: `Failed to write gate.json: ${e instanceof Error ? e.message : String(e)}`,
+        critic,
+        gate_ready: false,
+        critic_path: criticPath,
+        gate_path: null,
+        scores,
+        overflow,
+        layout_pass: (critic.scores.layout ?? 0) >= 90 && !overflow,
+        ats_pass: (critic.scores.ats ?? 0) >= 95,
+      };
+    }
+    return {
+      ok: true,
+      failure: null,
+      error: null,
+      critic,
+      gate_ready: ready,
+      critic_path: criticPath,
+      gate_path: gatePath,
+      scores,
+      overflow,
+      layout_pass: (critic.scores.layout ?? 0) >= 90 && !overflow,
+      ats_pass: (critic.scores.ats ?? 0) >= 95,
+    };
+  }
+
+  // Generation path — Phase 6A dual structured+rendered contract (unchanged).
   const targetRole = String(input.role ?? input.title ?? "").trim();
   if (targetRole) {
     let resumeContent: unknown = null;

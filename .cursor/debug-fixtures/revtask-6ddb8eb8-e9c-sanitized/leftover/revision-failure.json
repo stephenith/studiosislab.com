@@ -1,0 +1,6 @@
+{
+  "status": "FAILED_GATE",
+  "error": "ROLE_INTEGRITY_FAILED: structured generated role missing",
+  "publication_allowed": false,
+  "ready_for_founder_review": false
+}

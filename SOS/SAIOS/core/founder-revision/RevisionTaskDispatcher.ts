@@ -208,9 +208,28 @@ export async function dispatchRevisionTick(
       const { emitAiosOpsAlert } = await import("../ops/AiosOpsAlert.js");
       await emitAiosOpsAlert({
         title: `Revision ${result.task.status}`,
-        message: `task=${claimedId} error=${result.error ?? "unknown"}`,
+        message: [
+          `task=${claimedId}`,
+          result.task.failure_owner
+            ? `owner=${result.task.failure_owner}`
+            : null,
+          result.task.failure_code ? `code=${result.task.failure_code}` : null,
+          result.task.failure_stage
+            ? `stage=${result.task.failure_stage}`
+            : null,
+          `error=${result.error ?? "unknown"}`,
+        ]
+          .filter(Boolean)
+          .join(" "),
         severity: "P1",
-        meta: { task_id: claimedId, status: result.task.status },
+        meta: {
+          task_id: claimedId,
+          status: result.task.status,
+          failure_owner: result.task.failure_owner ?? null,
+          failure_code: result.task.failure_code ?? null,
+          failure_stage: result.task.failure_stage ?? null,
+          failure_reason: result.task.failure_reason ?? result.error ?? null,
+        },
       });
     } catch {
       /* alert fail-open */

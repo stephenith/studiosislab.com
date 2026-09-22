@@ -1,0 +1,16 @@
+{
+  "schema_version": "role-target-integrity-1.0.0",
+  "target_title": "Operations Analyst",
+  "target_role_family": "Operations Analyst",
+  "target_normalized": "operations_analyst",
+  "structured_role": null,
+  "structured_normalized": null,
+  "rendered_role": "Operations Analyst",
+  "rendered_normalized": "operations_analyst",
+  "content_source": null,
+  "pack_family": null,
+  "evaluated_at": "2026-09-22T07:36:02.918Z",
+  "pass": false,
+  "match": "ROLE_UNEVALUABLE",
+  "reason": "structured generated role missing"
+}

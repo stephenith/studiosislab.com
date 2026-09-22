@@ -1,6 +1,13 @@
 /**
- * Production gate circuit for a validated RevisionPlan (no OpenAI, no task I/O).
- * Invokes the same modules FounderRevisionPipeline uses after plan creation.
+ * TEST-ONLY PARTIAL CIRCUIT.
+ *
+ * Runs post-plan subsystem gates on an already shape-valid plan.
+ * Does not write revision tasks, candidates, Telegram, or call OpenAI.
+ * Does not run critic/gate materialization or generation role checks.
+ *
+ * This is NOT the Founder Request Changes production executor.
+ * Production Request Changes = runFounderFeedbackRevision only.
+ * Release proof requires verify-revision-production-parity-6l.ts.
  */
 import {
   buildCanvasInventory,

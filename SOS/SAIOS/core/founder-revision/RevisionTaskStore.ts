@@ -37,7 +37,12 @@ export function tasksDir(): string {
 
 /** In-flight statuses that may be reclaimed after a stale timeout. */
 export const IN_FLIGHT_REVISION_STATUSES: ReadonlySet<RevisionTaskStatus> =
-  new Set<RevisionTaskStatus>(["EXECUTING", "PLANNING", "VALIDATING"]);
+  new Set<RevisionTaskStatus>([
+    "EXECUTING",
+    "PLANNING",
+    "VALIDATING",
+    "ACCEPTED_FOR_MATERIALIZATION",
+  ]);
 
 /** Terminal statuses — never auto-executed again. */
 export const TERMINAL_REVISION_STATUSES: ReadonlySet<RevisionTaskStatus> =

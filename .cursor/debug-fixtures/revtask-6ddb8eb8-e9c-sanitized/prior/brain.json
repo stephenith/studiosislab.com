@@ -1,0 +1,12 @@
+{
+  "provider": "mock",
+  "router": "ResumeBrainGateway",
+  "dry_run": true,
+  "openai": false,
+  "research_attached": true,
+  "research_briefing_present": true,
+  "steps": [
+    "common.planning",
+    "resume.layout_planning"
+  ]
+}

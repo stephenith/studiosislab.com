@@ -1,0 +1,29 @@
+{
+  "schema_version": "revision-role-target-integrity-1.0.0",
+  "proof_kind": "REVISION",
+  "pass": true,
+  "evaluable": true,
+  "match": "ROLE_MATCH",
+  "reason": "rendered title and requested professional sections match target \"Operations Analyst\"",
+  "target_role": "Operations Analyst",
+  "target_normalized": "operations_analyst",
+  "rendered_title_role": "Operations Analyst",
+  "rendered_title_normalized": "operations_analyst",
+  "requested_role_sections": [
+    "summary",
+    "experience",
+    "skills",
+    "projects",
+    "certifications",
+    "education"
+  ],
+  "requested_role_sections_complete": true,
+  "source_role_identities": [
+    "Marketing Manager",
+    "Senior Marketing Specialist",
+    "and Marketing Coordinator"
+  ],
+  "source_role_residue": [],
+  "residue_object_ids": [],
+  "evaluated_at": "2026-09-22T07:36:01.954Z"
+}

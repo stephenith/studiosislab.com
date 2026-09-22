@@ -1,0 +1,10 @@
+{
+  "schema_version": "revision-old-code-failure-1.0.0",
+  "task_id": "revtask-6ddb8eb8-e9c",
+  "reproduced_offline": true,
+  "error": "ROLE_INTEGRITY_FAILED: structured generated role missing",
+  "function": "materializeCriticAndGateArtifacts → evaluateCanvasRoleTargetIntegrity → evaluateRoleTargetIntegrity",
+  "revision_native_role": "ROLE_MATCH PASS",
+  "feedback_coverage": "28/28",
+  "note": "Immutable production leftover + offline generation-role replay. Do not retry the production task."
+}

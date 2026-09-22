@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PHASE 6K — Founder will manually issue ONE new Operations Analyst Request Changes after reviewing this canonical final-state layout-intent proof. Do not auto-create the live-proof decision. Generation overlap/clipping gate remains the NEXT controlled step after live proof.",
+    "PHASE 6L — Founder will manually issue ONE final Operations Analyst Request Changes after reviewing this pipeline consolidation. Do not auto-create the live-proof decision. Generation overlap/clipping gate remains the NEXT controlled step after live proof.",
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B — Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B — Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-22T08:02:56.000Z",
+      "type": "revision_maintenance_repair",
+      "summary": "Phase 6L FOUNDER REVISION PIPELINE CONSOLIDATION implemented and LOCAL_VERIFIED (offline). Local wall=2026-09-22T13:32:56+05:30. UTC=2026-09-22T08:02:56.000Z. One production Request Changes executor (runFounderFeedbackRevision). One revision final-acceptance aggregator consumes owner verdicts. Materialization no longer calls evaluateCanvasRoleTargetIntegrity. Critic scores are advisory after semantic PASS. Generation dual structured+rendered role contract unchanged. Offline fixture revtask-6ddb8eb8-e9c: old generation-role tail reproduced (structured generated role missing), then same runFounderFeedbackRevision path reaches READY_FOR_FOUNDER_REVIEW. Production-parity harness PASS. 6G/6H/6I/6J/6K/generation/Marketing Manager regressions PASS. Historical failed tasks unchanged. No OpenAI call, no generation, no revision run, no Founder decision, no publication. Generation overlap/clipping gate deliberately deferred. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
+    },
     {
       "at": "2026-09-22T07:27:04.000Z",
       "type": "revision_maintenance_repair",
@@ -2965,5 +2970,58 @@
     "deployed_at_ist": "2026-09-22T12:58:20+05:30",
     "deployed_at_utc": "2026-09-22T07:28:20.000Z",
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
+  },
+  "phase_6l": {
+    "status": "local_verified",
+    "classification": "FOUNDER_REVISION_PIPELINE_CONSOLIDATION",
+    "scope": "Founder Request Changes production executor, final acceptance, and materialization boundary only. Resume Template Department NOT reopened.",
+    "problem": "revtask-6ddb8eb8-e9c passed 6I–6K and coverage 28/28 then FAILED_GATE because materializeCriticAndGateArtifacts invoked generation evaluateCanvasRoleTargetIntegrity requiring structured generated role JSON",
+    "diagnostic_task": "revtask-6ddb8eb8-e9c",
+    "prior_failure_tasks": [
+      "revtask-b5339d03-b67",
+      "revtask-9441fe34-4ba",
+      "revtask-b9a65ad0-eb0",
+      "revtask-33ef5466-f24",
+      "revtask-7a1c0899-4d6",
+      "revtask-dd26226e-d8b",
+      "revtask-6ddb8eb8-e9c"
+    ],
+    "root_causes": [
+      "REVISION_MATERIALIZATION_REUSED_GENERATION_ROLE_CONTRACT after revision-native owners already passed",
+      "NO_SINGLE_FINAL_ACCEPTANCE_AGGREGATOR so coverage PASS was not the last semantic gate",
+      "OFFLINE_6G_6K_VERIFIERS_BYPASSED_PRODUCTION_TAIL so each live run exposed the next unowned gate"
+    ],
+    "fixes": [
+      "evaluateRevisionFinalAcceptance is the only semantic MAY_RETURN_TO_FOUNDER_REVIEW gate",
+      "materializeCriticAndGateArtifacts(pipeline=revision) consumes revision-role-target-integrity and does not call evaluateCanvasRoleTargetIntegrity",
+      "Critic scores are advisory after semantic PASS; artifact integrity is a separate FAILED_ARTIFACTS stage",
+      "verify-revision-production-parity-6l.ts calls runFounderFeedbackRevision through materialization in isolated temp dirs"
+    ],
+    "not_in_scope": [
+      "GENERATION_OVERLAP_CLIPPING_GATE deferred until after one live Request Changes proof",
+      "No retry or mutation of historical failed revision tasks including revtask-6ddb8eb8-e9c",
+      "No live production OpenAI during implementation"
+    ],
+    "offline_fixture": ".cursor/debug-fixtures/revtask-6ddb8eb8-e9c-sanitized",
+    "production_failure_reproduced_offline": true,
+    "verifier": "aios:revision:production-parity-6l:verify",
+    "matrix_result": "PASS",
+    "six_g_regression": "PASS 45/45",
+    "six_h_regression": "PASS 43/43",
+    "six_i_regression": "PASS 34/34",
+    "six_j_regression": "PASS 43/43",
+    "six_k_regression": "PASS 42/42",
+    "generation_role_regression": "PASS",
+    "marketing_manager_replay": "PASS 17/17",
+    "openai_called": false,
+    "generation_executed": false,
+    "revision_executed": false,
+    "founder_decision_created": false,
+    "publication_executed": false,
+    "resume_template_department_status": "OPERATIONALLY_COMPLETE",
+    "revision_engineering_status": "MAINTENANCE / REGRESSION ONLY",
+    "next_major_department": "Website Analysis / QA / Development",
+    "milestone_ist": "2026-09-22T13:32:56+05:30",
+    "milestone_utc": "2026-09-22T08:02:56.000Z"
   }
 }

@@ -11,6 +11,7 @@ export type RevisionTaskStatus =
   | "PLANNING"
   | "EXECUTING"
   | "VALIDATING"
+  | "ACCEPTED_FOR_MATERIALIZATION"
   | "READY_FOR_FOUNDER_REVIEW"
   | "FAILED_PROVIDER"
   | "FAILED_COVERAGE"
@@ -142,6 +143,11 @@ export type RevisionTask = {
   revised_review_id: string | null;
   revision_number: number;
   error: string | null;
+  /** Phase 6L — canonical owner that failed, when known. */
+  failure_owner?: string | null;
+  failure_code?: string | null;
+  failure_stage?: string | null;
+  failure_reason?: string | null;
   openai_execution_path: string | null;
   publication_allowed: false;
   live: false;

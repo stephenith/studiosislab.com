@@ -1,0 +1,15 @@
+{
+  "ok": false,
+  "failure": "GATE",
+  "error": "ROLE_INTEGRITY_FAILED: structured generated role missing",
+  "scores": {
+    "overall": 94,
+    "ats": 100,
+    "layout": 93,
+    "technical": 100,
+    "visual": 86,
+    "typography": 86
+  },
+  "gate_ready": false,
+  "at": "2026-09-22T07:36:02.919Z"
+}

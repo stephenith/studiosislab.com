@@ -1,0 +1,11 @@
+{
+  "overall": "PASS",
+  "object_count": 47,
+  "overflow": false,
+  "validation": {
+    "pass": true,
+    "errors": [],
+    "warnings": []
+  },
+  "fabric_version": "6.9.1"
+}

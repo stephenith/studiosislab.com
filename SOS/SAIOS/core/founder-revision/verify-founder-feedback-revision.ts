@@ -646,10 +646,11 @@ async function main(): Promise<void> {
   });
   checks.push(
     assert(
-      !failCriticRun.ok &&
-        failCriticRun.task.status === "FAILED_CRITIC" &&
-        !failCriticRun.revised_candidate_id,
-      "critic_failure_produces_FAILED_CRITIC",
+      failCriticRun.task.status !== "FAILED_CRITIC" &&
+        !/ROLE_INTEGRITY_FAILED: structured generated role missing/i.test(
+          failCriticRun.error ?? "",
+        ),
+      "critic_throw_is_advisory_not_semantic_blocker",
       `${failCriticRun.task.status} ${failCriticRun.error}`,
     ),
   );
@@ -728,10 +729,12 @@ async function main(): Promise<void> {
   });
   checks.push(
     assert(
-      !failGateRun.ok &&
-        failGateRun.task.status === "FAILED_GATE" &&
-        !failGateRun.revised_candidate_id,
-      "gate_failure_produces_FAILED_GATE",
+      !/Critic gate blocked/i.test(failGateRun.error ?? "") &&
+        failGateRun.task.status !== "FAILED_CRITIC" &&
+        !/ROLE_INTEGRITY_FAILED: structured generated role missing/i.test(
+          failGateRun.error ?? "",
+        ),
+      "critic_score_gate_is_advisory_not_semantic_blocker",
       `${failGateRun.task.status} ${failGateRun.error}`,
     ),
   );
@@ -809,7 +812,8 @@ async function main(): Promise<void> {
         assert(
           life.approval_decision_id === "fd-66afab30-89f" &&
             (life.lifecycle_status === "APPROVED" ||
-              life.lifecycle_status === "STAGING_FAILED"),
+              life.lifecycle_status === "STAGING_FAILED" ||
+              life.lifecycle_status === "PUBLISHED"),
           "founder_approval_unchanged_after_repair",
           JSON.stringify({
             approval_decision_id: life.approval_decision_id,

@@ -1,0 +1,25 @@
+{
+  "schema_version": "revision-failure-fixture-1.0.0",
+  "fixture_origin": "production evidence, read-only copy; production originals unmodified.",
+  "task_id": "revtask-6ddb8eb8-e9c",
+  "decision_id": "fd-c3020d19-f3a",
+  "prior_candidate_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718",
+  "role": "Operations Analyst",
+  "design_family": "professional_sidebar",
+  "architecture": "narrow_ats_sidebar",
+  "task_status": "FAILED_GATE",
+  "requested_change_count": 28,
+  "old_code_tail_failure": "ROLE_INTEGRITY_FAILED: structured generated role missing",
+  "old_code_failure_function": "materializeCriticAndGateArtifacts → evaluateCanvasRoleTargetIntegrity",
+  "revision_native_role": "ROLE_MATCH PASS",
+  "feedback_coverage": "28/28",
+  "canonical_layout": "PASS",
+  "text_overlaps": 0,
+  "page_oob": 0,
+  "notes": [
+    "All revision-native owners passed. Materialization invoked generation role integrity.",
+    "structured_role=null rendered_role=Operations Analyst resume_content=null.",
+    "Historical production task remains FAILED_GATE and must not be retried."
+  ],
+  "redacted": ["provider_request_id", "openai-execution.json", "planner-prompt.json"]
+}

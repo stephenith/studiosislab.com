@@ -1,0 +1,29 @@
+{
+  "schema_version": "founder-canvas-revision-plan-1.0.0",
+  "summary": "Repair plan to cover missing Founder attribution for updating Education content to be coherent with the Operations Analyst profile, by replacing marketing-specific education details with appropriate content reflecting the new profile.",
+  "operations": [
+    {
+      "op": "update_text",
+      "target_id": "block-education-3-t2",
+      "before_summary": "Textbox id=block-education-3-t2 section=education left=284 top=983.4 w=462 h=16 effective_height=16 effective_bottom=999.4 text_len=55 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 text='B.A. Marketing — University of Texas at Austin  \u0000\u0000 2014'",
+      "intended_change": "Update Education degree to reflect a relevant degree aligned with Operations Analyst role, replacing marketing-specific content",
+      "values": {
+        "text": "B.S. Business Administration — University of Texas at Austin \u0000\u0000 2014"
+      },
+      "founder_feedback_item": "Update the Education content where necessary so the qualifications are coherent with the Operations Analyst professional profile rather than a Marketing Manager profile.",
+      "confidence": 0.95
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-education-3-t3",
+      "before_summary": "Textbox id=block-education-3-t3 section=education left=284 top=1001.9 w=462 h=16 effective_height=16 effective_bottom=1017.9 text_len=67 fill=#0a0a0a fontSize=10.5 fontFamily=Inter fontWeight=400 lineHeight=1.45 text='Certificate, Digital Marketing Strategy \u0000\u0000 General Assembly \u0000\u0000 2017'",
+      "intended_change": "Replace marketing-focused certificate with a certification or training relevant to Operations Analyst profile",
+      "values": {
+        "text": "Certificate, Data Analytics \u0000\u0000 General Assembly \u0000\u0000 2017"
+      },
+      "founder_feedback_item": "Update the Education content where necessary so the qualifications are coherent with the Operations Analyst professional profile rather than a Marketing Manager profile.",
+      "confidence": 0.95
+    }
+  ],
+  "notes": []
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "candidate_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718",
+  "template_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718",
+  "product_kind": "resume_template",
+  "task_id": "cycle-cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718",
+  "review_id": "founder-review-cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718",
+  "cycle_id": "cycle-run-cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718",
+  "run_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718",
+  "created_at": "2026-09-02T16:12:41.991Z",
+  "updated_at": "2026-09-02T16:12:41.991Z",
+  "status": "READY_FOR_FOUNDER_REVIEW",
+  "publication_allowed": false,
+  "provider": "openai",
+  "failure_stage": null,
+  "failure_detail": null,
+  "revision": {
+    "revision_id": "revision-revfb-73c718",
+    "revision_number": 1,
+    "prior_candidate_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf",
+    "prior_review_id": "founder-review-cycle-ats-operations-analyst-20260807T223735Z-2c9bcf",
+    "prior_decision_id": "fd-9b7557d7-88e",
+    "revision_task_id": "revtask-a350f482-abf",
+    "tag": "revfb",
+    "engine": "openai_canvas_revision_v1",
+    "ready_for_founder_review": true,
+    "approved": false
+  },
+  "target": {
+    "category": "ats",
+    "title": "Operations Analyst  revised v1",
+    "industry": "software",
+    "seniority": "entry",
+    "objective": "Founder feedback revision of cand-ats-operations-analyst-20260807T223735Z-2c9bcf · decision fd-9b7557d7-88e",
+    "role_family": "operations_analyst"
+  },
+  "artifacts": {
+    "canvas": "canvas.json",
+    "preview": "preview.png",
+    "thumbnail": "thumbnail.png",
+    "critic": "critic.json",
+    "gate": "gate.json",
+    "editor_compatibility": "editor-compatibility.json",
+    "resume_template": "resume-template.json",
+    "revision_summary": "revision-summary.json",
+    "feedback_coverage": "feedback-coverage.json",
+    "operation_log": "operation-log.json",
+    "openai_execution": "openai-execution.json"
+  }
+}

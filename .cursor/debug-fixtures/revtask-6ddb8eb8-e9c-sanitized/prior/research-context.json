@@ -1,0 +1,104 @@
+{
+  "category": "ats",
+  "title": "Operations Analyst",
+  "industry": "software",
+  "seniority": "entry",
+  "ats_guidance": {
+    "compatibility_tier": "ats_safe",
+    "parse_reliability_score": 95,
+    "keyword_strategy": [
+      "Mirror standard section headings (Experience, Education, Skills)",
+      "Include industry-relevant keywords in experience bullets",
+      "Avoid graphics for skill representation in ATS tier",
+      "Target industry: software",
+      "Target role: Operations Analyst (entry)"
+    ],
+    "forbidden_elements": [
+      "Skill bars",
+      "Star ratings",
+      "Tables for layout",
+      "Icons as content",
+      "Multi-column text boxes",
+      "Images in content area"
+    ],
+    "heading_structure": [
+      "H1 equivalent: person name on the resume (largest size)",
+      "Section headings: uppercase or bold, consistent style",
+      "Job titles bold; employers regular weight"
+    ],
+    "text_hierarchy_rules": [
+      "All content as selectable text objects",
+      "No text in images",
+      "Minimum 10.5pt body",
+      "Left-aligned body text for ATS parse"
+    ]
+  },
+  "typography_guidance": {
+    "font_family": "Inter",
+    "body_size_pt": 10.5,
+    "heading_scale": [
+      20,
+      12,
+      11
+    ],
+    "line_height": 1.35,
+    "visual_density": "balanced",
+    "accessibility_notes": [
+      "Minimum 10.5pt body for ATS parse reliability",
+      "Maximum 2 font families",
+      "Sufficient contrast between headings and body",
+      "Maintain balanced whitespace between sections"
+    ]
+  },
+  "layout_guidance": {
+    "structure": "ats_first",
+    "columns": 1,
+    "margins_mm": {
+      "top": 14,
+      "right": 14,
+      "bottom": 14,
+      "left": 14
+    },
+    "section_order": [
+      "summary",
+      "experience",
+      "education",
+      "skills",
+      "certifications"
+    ],
+    "reading_flow": "Top-to-bottom, left-to-right; name → contact → summary → experience → education → skills",
+    "whitespace_strategy": "Balanced whitespace with consistent section gaps; avoid dense text blocks"
+  },
+  "industry_guidance": {
+    "hiring_style": "Skills-forward, project evidence, ATS keyword matching",
+    "ats_sensitivity": "high",
+    "expected_resume_length": "one_page",
+    "visual_preference": "ats_first",
+    "target_recruiter_style": "Technical recruiter, fast scan"
+  },
+  "writing_recommendations": [
+    "Lead with achievements relevant to Operations Analyst",
+    "Quantify impact with metrics where plausible (fictional samples only)",
+    "Match seniority tone for entry level",
+    "Reflect software hiring expectations: Skills-forward, project evidence, ATS keyword matching",
+    "Use standard date formats (MM/YYYY or Month YYYY)"
+  ],
+  "design_constraints": [
+    "Single-column reading order for ATS-safe tiers",
+    "No publication / no live website writes in this cycle",
+    "Fictional sample content only — no real personal data",
+    "Category=ats; respect coverage-selected ProductionTarget",
+    "Prefer system-safe fonts and linear text order"
+  ],
+  "research_sources": [
+    "donor:runtime/research/IndustryAnalyzer (lifted profiles)",
+    "donor:runtime/research/ATSPlanner (lifted rules)",
+    "donor:runtime/research/TypographyPlanner (lifted defaults)",
+    "donor:runtime/research/LayoutPlanner (lifted section order)",
+    "donor:domain/studiosislab/resume/ATSStandards (ATS-safe principles)",
+    "production_target:ats/Operations Analyst"
+  ],
+  "generated_at": "2026-08-07T22:37:35.138Z",
+  "deterministic": true,
+  "ai_planner": false
+}

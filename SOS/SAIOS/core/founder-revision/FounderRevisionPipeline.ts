@@ -63,6 +63,16 @@ import {
   validateCandidateArtifactsForStaging,
   writeEditorCompatibilityFromCanvas,
 } from "./CandidateStagingArtifacts.js";
+import {
+  compatibilityStatusForOwner,
+  evaluateRevisionFinalAcceptance,
+  type RevisionFinalAcceptance,
+} from "./RevisionFinalAcceptance.js";
+import { PRODUCTION_REQUEST_CHANGES_ENTRY_POINT } from "./RevisionPipelineClassification.js";
+import type { CanonicalLayoutIntentEvidence } from "./CanonicalFinalStateLayoutProof.js";
+import type { RevisionRoleTargetIntegrityResult } from "../role-integrity/RevisionRoleTargetIntegrity.js";
+
+void PRODUCTION_REQUEST_CHANGES_ENTRY_POINT;
 
 const REPO = resolve(import.meta.dirname, "../../../..");
 const CAND_ROOT = join(
@@ -71,21 +81,53 @@ const CAND_ROOT = join(
 );
 const OUT_ROOT = join(REPO, "SOS/07_LOGS/saios/founder-revision");
 
-const COPY_FILES = [
-  "designbrief.json",
-  "resume-json-instructions.json",
-  "resume-template.json",
-  "production-target.json",
-  "research-context.json",
-  "research-handoff.json",
-  "brain.json",
-  "knowledge.json",
-  "skills.json",
-  // editor-compatibility.json is regenerated from revised canvas — never copied
-  "renderer.json",
-  "pipeline.json",
-  "canvas-meta.json",
+/** Test-only isolated roots. Never set on the production dashboard path. */
+let candRootOverride: string | null = null;
+let outRootOverride: string | null = null;
+
+export function setRevisionPipelineRootsForTests(
+  roots: { candRoot: string; outRoot: string } | null,
+): void {
+  candRootOverride = roots?.candRoot ?? null;
+  outRootOverride = roots?.outRoot ?? null;
+}
+
+function candRoot(): string {
+  return candRootOverride ?? CAND_ROOT;
+}
+
+function outRoot(): string {
+  return outRootOverride ?? OUT_ROOT;
+}
+
+export type RevisionCopyClass =
+  | "SAFE_TO_COPY"
+  | "LEGACY_ONLY"
+  | "DO_NOT_COPY"
+  | "REGENERATE_FOR_REVISION";
+
+export const REVISION_COPY_FILE_AUDIT: Array<{
+  file: string;
+  classification: RevisionCopyClass;
+}> = [
+  { file: "designbrief.json", classification: "SAFE_TO_COPY" },
+  { file: "resume-json-instructions.json", classification: "DO_NOT_COPY" },
+  { file: "resume-template.json", classification: "SAFE_TO_COPY" },
+  { file: "production-target.json", classification: "LEGACY_ONLY" },
+  { file: "research-context.json", classification: "LEGACY_ONLY" },
+  { file: "research-handoff.json", classification: "LEGACY_ONLY" },
+  { file: "brain.json", classification: "LEGACY_ONLY" },
+  { file: "knowledge.json", classification: "LEGACY_ONLY" },
+  { file: "skills.json", classification: "LEGACY_ONLY" },
+  { file: "renderer.json", classification: "SAFE_TO_COPY" },
+  { file: "pipeline.json", classification: "SAFE_TO_COPY" },
+  { file: "canvas-meta.json", classification: "SAFE_TO_COPY" },
+  { file: "editor-compatibility.json", classification: "REGENERATE_FOR_REVISION" },
 ];
+
+const COPY_FILES = REVISION_COPY_FILE_AUDIT.filter(
+  (e) => e.classification === "SAFE_TO_COPY" || e.classification === "LEGACY_ONLY",
+).map((e) => e.file);
 
 function writeJson(path: string, data: unknown): void {
   mkdirSync(join(path, ".."), { recursive: true });
@@ -94,6 +136,26 @@ function writeJson(path: string, data: unknown): void {
 
 function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, "utf8")) as T;
+}
+
+function persistRevisionFailure(
+  taskId: string,
+  status: RevisionTask["status"],
+  owner: string,
+  code: string,
+  stage: string,
+  reason: string,
+  extra?: Partial<RevisionTask>,
+): RevisionTask {
+  return updateRevisionTask(taskId, {
+    status,
+    error: reason,
+    failure_owner: owner,
+    failure_code: code,
+    failure_stage: stage,
+    failure_reason: reason,
+    ...extra,
+  });
 }
 
 function newCandidateIds(priorId: string, decisionId: string): {
@@ -129,6 +191,11 @@ export type RunRevisionOptions = {
   skip_preview?: boolean;
   /** Test injection for ResumeCritic */
   critiqueOverride?: () => CriticResult;
+  /** Isolated-harness only: corrupt one artifact after writes, before integrity. */
+  testCorruptArtifact?:
+    | "preview.png"
+    | "gate.json"
+    | "revision-final-acceptance.json";
 };
 
 export type RunRevisionResult = {
@@ -144,7 +211,7 @@ export async function runFounderFeedbackRevision(
 ): Promise<RunRevisionResult> {
   process.env.SOS_AIOS_LIVE = "0";
   let task = loadRevisionTask(opts.task_id);
-  const priorDir = join(CAND_ROOT, task.prior_candidate_id);
+  const priorDir = join(candRoot(), task.prior_candidate_id);
   const priorCanvasPath = join(priorDir, "canvas.json");
   if (!existsSync(priorCanvasPath)) {
     task = updateRevisionTask(task.task_id, {
@@ -182,7 +249,7 @@ export async function runFounderFeedbackRevision(
     repoRoot: REPO,
   });
 
-  const evidenceDir = join(OUT_ROOT, "evidence", task.task_id);
+  const evidenceDir = join(outRoot(), "evidence", task.task_id);
   mkdirSync(evidenceDir, { recursive: true });
   writeJson(join(evidenceDir, "planner-prompt.json"), planned.prompt);
   writeJson(join(evidenceDir, "inventory.json"), inventory);
@@ -322,15 +389,21 @@ export async function runFounderFeedbackRevision(
     });
     const status =
       planned.status === "FAILED_PROVIDER" ? "FAILED_PROVIDER" : "FAILED";
-    task = updateRevisionTask(task.task_id, {
+    task = persistRevisionFailure(
+      task.task_id,
       status,
-      error: planned.error,
-      openai_execution_path: join(
-        "SOS/07_LOGS/saios/founder-revision/evidence",
-        task.task_id,
-        "planner-failure.json",
-      ),
-    });
+      planned.status === "FAILED_PROVIDER" ? "provider" : "plan_schema",
+      planned.status === "FAILED_PROVIDER" ? "FAILED_PROVIDER" : "FAILED_PLAN",
+      "PLANNING",
+      planned.error ?? "planner failed",
+      {
+        openai_execution_path: join(
+          "SOS/07_LOGS/saios/founder-revision/evidence",
+          task.task_id,
+          "planner-failure.json",
+        ),
+      },
+    );
     return {
       ok: false,
       task,
@@ -361,6 +434,8 @@ export async function runFounderFeedbackRevision(
   });
 
   let activePlan: RevisionPlan = planned.plan;
+  let canonicalLayoutEvidence: CanonicalLayoutIntentEvidence[] = [];
+  let ownershipPageOob = 0;
   const geometrySafety = dropUnsafeGeometryOps({
     canvas: priorCanvas,
     plan: activePlan,
@@ -386,6 +461,10 @@ export async function runFounderFeedbackRevision(
       aiPlan: activePlan,
     });
     writeJson(join(evidenceDir, "deterministic-spacing-ownership.json"), det);
+    if (Array.isArray(det.canonical_layout_evidence)) {
+      canonicalLayoutEvidence = det.canonical_layout_evidence as CanonicalLayoutIntentEvidence[];
+    }
+    ownershipPageOob = Number(det.page_oob_count ?? 0);
     if (det.post_content_reflow) {
       writeJson(join(evidenceDir, "post-content-reflow.json"), det.post_content_reflow);
     }
@@ -532,15 +611,21 @@ export async function runFounderFeedbackRevision(
       error: err,
       report: planGeometryGate,
     });
-    task = updateRevisionTask(task.task_id, {
-      status: "FAILED_GATE",
-      error: err,
-      openai_execution_path: join(
-        "SOS/07_LOGS/saios/founder-revision/evidence",
-        task.task_id,
-        "openai-execution.json",
-      ),
-    });
+    task = persistRevisionFailure(
+      task.task_id,
+      "FAILED_GATE",
+      "final_geometry",
+      "FAILED_GEOMETRY",
+      "GEOMETRY",
+      err,
+      {
+        openai_execution_path: join(
+          "SOS/07_LOGS/saios/founder-revision/evidence",
+          task.task_id,
+          "openai-execution.json",
+        ),
+      },
+    );
     return {
       ok: false,
       task,
@@ -566,15 +651,21 @@ export async function runFounderFeedbackRevision(
         requested_changes: task.requested_changes,
       }),
     });
-    task = updateRevisionTask(task.task_id, {
-      status: "FAILED_GATE",
-      error: err,
-      openai_execution_path: join(
-        "SOS/07_LOGS/saios/founder-revision/evidence",
-        task.task_id,
-        "openai-execution.json",
-      ),
-    });
+    task = persistRevisionFailure(
+      task.task_id,
+      "FAILED_GATE",
+      "section_replacement",
+      "FAILED_SECTION_COMPLETENESS",
+      "SECTION_REPLACEMENT",
+      err,
+      {
+        openai_execution_path: join(
+          "SOS/07_LOGS/saios/founder-revision/evidence",
+          task.task_id,
+          "openai-execution.json",
+        ),
+      },
+    );
     return {
       ok: false,
       task,
@@ -758,23 +849,86 @@ export async function runFounderFeedbackRevision(
   });
   writeJson(join(evidenceDir, "feedback-coverage.json"), coverage);
 
-  if (!coverage.gate_pass) {
-    task = updateRevisionTask(task.task_id, {
-      status: "FAILED_COVERAGE",
-      error: "feedback coverage gate failed — not returning to Founder Review",
-    });
+  const preservationChecks = (acceptanceReport.checks ?? []).filter(
+    (c) => c.check_type === "CONTENT_PRESERVATION",
+  );
+  const contentPreservationOk =
+    preservationChecks.length === 0 ||
+    preservationChecks.every((c) => c.pass === true);
+  const pageFit = normalized.report.page_fit;
+  const pageFitOk =
+    pageFit == null ||
+    pageFit.fit_pass === true ||
+    Number(pageFit.overflow_after ?? 0) === 0;
+  const overlapCount = finalRenderedGeometry.text_overlap_findings.length;
+  const pageOobCount = Math.max(
+    ownershipPageOob,
+    Number(normalized.report.page_overflow ? 1 : 0),
+  );
+
+  const finalAcceptance = evaluateRevisionFinalAcceptance({
+    plan_ok: true,
+    authorization_ok: true,
+    section_replacement: replacementReport,
+    content_execution_ok: executed.ok,
+    content_preservation_ok: contentPreservationOk,
+    content_preservation_reason: contentPreservationOk
+      ? null
+      : preservationChecks.find((c) => !c.pass)?.reason ??
+        "content preservation failed",
+    canonical_layout_evidence: canonicalLayoutEvidence,
+    text_overlap_count: overlapCount,
+    page_oob_count: pageOobCount,
+    page_fit_ok: pageFitOk,
+    page_fit_reason: pageFitOk ? null : "page overflow after normalization",
+    revision_role: revisionRoleProof,
+    coverage,
+  });
+  writeJson(
+    join(evidenceDir, "revision-final-acceptance.json"),
+    finalAcceptance,
+  );
+
+  if (!finalAcceptance.may_return_to_founder_review) {
+    const status = compatibilityStatusForOwner(finalAcceptance.failed_owner);
+    task = persistRevisionFailure(
+      task.task_id,
+      status,
+      finalAcceptance.failed_owner ?? "revision_final_acceptance",
+      finalAcceptance.failure_code ?? "FAILED_ACCEPTANCE",
+      finalAcceptance.failure_stage ?? "FINAL_ACCEPTANCE",
+      finalAcceptance.failure_reason ??
+        "revision final acceptance failed — not returning to Founder Review",
+    );
     return {
       ok: false,
       task,
       revised_candidate_id: null,
       error: task.error,
-      coverage_gate_pass: false,
+      coverage_gate_pass: coverage.gate_pass,
     };
   }
 
+  task = persistRevisionFailure(
+    task.task_id,
+    "ACCEPTED_FOR_MATERIALIZATION",
+    "revision_final_acceptance",
+    "ACCEPTED",
+    "FINAL_ACCEPTANCE",
+    "semantic owners passed — materializing artifacts",
+  );
+  task = updateRevisionTask(task.task_id, {
+    status: "ACCEPTED_FOR_MATERIALIZATION",
+    error: null,
+    failure_owner: null,
+    failure_code: null,
+    failure_stage: null,
+    failure_reason: null,
+  });
+
   // Materialize immutable revised resume template (legacy candidate_id path)
   const ids = newCandidateIds(task.prior_candidate_id, task.decision_id);
-  const outDir = join(CAND_ROOT, ids.candidate_id);
+  const outDir = join(candRoot(), ids.candidate_id);
   if (existsSync(outDir)) {
     rmSync(outDir, { recursive: true, force: true });
   }
@@ -798,6 +952,8 @@ export async function runFounderFeedbackRevision(
   writeJson(join(outDir, "operation-log.json"), executed.log);
   writeJson(join(outDir, "revision-layout-normalization.json"), normalized.report);
   writeJson(join(outDir, "revision-acceptance-checks.json"), acceptanceReport);
+  writeJson(join(outDir, "revision-role-target-integrity.json"), revisionRoleProof);
+  writeJson(join(outDir, "revision-final-acceptance.json"), finalAcceptance);
   writeJson(join(outDir, "feedback-coverage.json"), coverage);
   if (planned.prompt?.founder_memory_selection) {
     writeJson(
@@ -835,7 +991,7 @@ export async function runFounderFeedbackRevision(
   // Regenerate editor compatibility from normalized revised canvas (do not copy prior)
   writeEditorCompatibilityFromCanvas(outDir, normalized.canvas as never);
 
-  // Fresh ResumeCritic + gate — never copy prior critic.json / gate.json
+  // Critic/gate are artifact writes. Semantic role is already owned by 6I.
   const quality = materializeCriticAndGateArtifacts({
     repoRoot: REPO,
     candidateDir: outDir,
@@ -843,6 +999,9 @@ export async function runFounderFeedbackRevision(
     title: task.role,
     role: task.role,
     critiqueOverride: opts.critiqueOverride,
+    pipeline: "revision",
+    revisionAcceptance: finalAcceptance,
+    revisionRoleProof,
   });
   writeJson(join(evidenceDir, "critic-materialization.json"), {
     ok: quality.ok,
@@ -850,22 +1009,22 @@ export async function runFounderFeedbackRevision(
     error: quality.error,
     scores: quality.scores,
     gate_ready: quality.gate_ready,
+    critic_role: "advisory",
+    generation_role_integrity: "not_evaluated",
     at: new Date().toISOString(),
   });
 
   if (!quality.ok) {
-    const status =
-      quality.failure === "CRITIC"
-        ? "FAILED_CRITIC"
-        : quality.failure === "GATE"
-          ? "FAILED_GATE"
-          : "FAILED_ARTIFACTS";
-    task = updateRevisionTask(task.task_id, {
+    const status = "FAILED_ARTIFACTS";
+    task = persistRevisionFailure(
+      task.task_id,
       status,
-      error: quality.error,
-      revised_candidate_id: null,
-      revised_review_id: null,
-    });
+      "artifact_integrity",
+      "FAILED_ARTIFACT_INTEGRITY",
+      "MATERIALIZATION",
+      quality.error ?? "revision materialization artifact failure",
+      { revised_candidate_id: null, revised_review_id: null },
+    );
     writeJson(join(evidenceDir, "run-result.json"), {
       ok: false,
       status,
@@ -873,7 +1032,6 @@ export async function runFounderFeedbackRevision(
       revised_candidate_id: null,
       at: new Date().toISOString(),
     });
-    // Leave outDir as evidence; do not mark READY_FOR_FOUNDER_REVIEW
     writeJson(join(outDir, "revision-failure.json"), {
       status,
       error: quality.error,
@@ -889,15 +1047,25 @@ export async function runFounderFeedbackRevision(
     };
   }
 
+  if (opts.testCorruptArtifact) {
+    const corruptPath = join(outDir, opts.testCorruptArtifact);
+    if (existsSync(corruptPath)) rmSync(corruptPath);
+  }
+
   const artifactCheck = validateCandidateArtifactsForStaging(outDir, {
     requireGate: true,
+    requireRevisionAcceptance: true,
   });
   if (!artifactCheck.ok) {
-    task = updateRevisionTask(task.task_id, {
-      status: "FAILED_ARTIFACTS",
-      error: `Incomplete staging artifacts: ${artifactCheck.missing.join(", ")}`,
-      revised_candidate_id: null,
-    });
+    task = persistRevisionFailure(
+      task.task_id,
+      "FAILED_ARTIFACTS",
+      "artifact_integrity",
+      "FAILED_ARTIFACT_INTEGRITY",
+      "ARTIFACT_VALIDATION",
+      `Incomplete staging artifacts: ${artifactCheck.missing.join(", ")}`,
+      { revised_candidate_id: null },
+    );
     writeJson(join(evidenceDir, "artifact-validation.json"), artifactCheck);
     writeJson(join(outDir, "revision-failure.json"), {
       status: "FAILED_ARTIFACTS",
@@ -1040,12 +1208,17 @@ export async function runFounderFeedbackRevision(
   // Final inventory gate — must not mark ready with incomplete files
   const finalArtifacts = validateCandidateArtifactsForStaging(outDir, {
     requireGate: true,
+    requireRevisionAcceptance: true,
   });
   if (!finalArtifacts.ok) {
-    task = updateRevisionTask(task.task_id, {
-      status: "FAILED_ARTIFACTS",
-      error: `Final artifact inventory incomplete: ${finalArtifacts.missing.join(", ")}`,
-    });
+    task = persistRevisionFailure(
+      task.task_id,
+      "FAILED_ARTIFACTS",
+      "artifact_integrity",
+      "FAILED_ARTIFACT_INTEGRITY",
+      "ARTIFACT_VALIDATION",
+      `Final artifact inventory incomplete: ${finalArtifacts.missing.join(", ")}`,
+    );
     return {
       ok: false,
       task,

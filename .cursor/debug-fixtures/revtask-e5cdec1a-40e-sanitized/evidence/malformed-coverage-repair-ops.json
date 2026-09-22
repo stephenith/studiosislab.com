@@ -1,0 +1,42 @@
+{
+  "schema_version": "phase-6n-malformed-ops-1.0.0",
+  "source": "coverage-repair-execution.structured_output.operations",
+  "operations": {
+    "4": {
+      "op": "set_position",
+      "target_id": "block-certifications-6-t2",
+      "before_summary": "Textbox id=block-certifications-6-t2 section=certifications left=48 top=524.03 w=220 h=16",
+      "intended_change": "Increase text-box height and adjust vertical positions, line heights, and wrapping in the Certifications section to ensure no line renders on top of another.",
+      "values": {
+        "h": 18,
+        "top": 523
+      },
+      "founder_feedback_item": "Correct the Certifications text-box heights, line heights, wrapping, and vertical positions so no line renders on top of another line.",
+      "confidence": 0.93
+    },
+    "5": {
+      "op": "set_position",
+      "target_id": "block-certifications-6-t3",
+      "before_summary": "Textbox id=block-certifications-6-t3 section=certifications left=48 top=542.7 w=220 h=30.45",
+      "intended_change": "Adjust vertical position and text-box height of Certification entries for correct line spacing to prevent overlapping text in the Certifications section.",
+      "values": {
+        "top": 542,
+        "h": 32
+      },
+      "founder_feedback_item": "Correct the Certifications text-box heights, line heights, wrapping, and vertical positions so no line renders on top of another line.",
+      "confidence": 0.93
+    },
+    "6": {
+      "op": "set_position",
+      "target_id": "block-certifications-6-t4",
+      "before_summary": "Textbox id=block-certifications-6-t4 section=certifications left=48 top=575.15 w=220 h=16",
+      "intended_change": "Refine vertical position and height of final Certification entry for consistent spacing, ensuring no text overlap in Certifications section.",
+      "values": {
+        "top": 576,
+        "h": 18
+      },
+      "founder_feedback_item": "Correct the Certifications text-box heights, line heights, wrapping, and vertical positions so no line renders on top of another line.",
+      "confidence": 0.93
+    }
+  }
+}

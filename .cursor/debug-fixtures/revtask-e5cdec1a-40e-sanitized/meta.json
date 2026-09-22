@@ -1,0 +1,51 @@
+{
+  "schema_version": "revision-failure-fixture-1.0.0",
+  "fixture_origin": "production evidence, read-only copy; production originals unmodified.",
+  "task_id": "revtask-e5cdec1a-40e",
+  "decision_id": "fd-0c59171b-14e",
+  "prior_candidate_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511-revfb-f6c1e7",
+  "role": "Operations Analyst",
+  "design_family": "professional_sidebar",
+  "architecture": "narrow_ats_sidebar",
+  "task_status": "FAILED",
+  "failure_owner": "plan_schema",
+  "failure_code": "FAILED_PLAN",
+  "failure_stage": "PLANNING",
+  "requested_change_count": 28,
+  "coverage_repair_triggered": true,
+  "malformed_operations": {
+    "4": {
+      "op": "set_position",
+      "target_id": "block-certifications-6-t2",
+      "values": {
+        "h": 18,
+        "top": 523
+      }
+    },
+    "5": {
+      "op": "set_position",
+      "target_id": "block-certifications-6-t3",
+      "values": {
+        "top": 542,
+        "h": 32
+      }
+    },
+    "6": {
+      "op": "set_position",
+      "target_id": "block-certifications-6-t4",
+      "values": {
+        "top": 576,
+        "h": 18
+      }
+    }
+  },
+  "notes": [
+    "Primary plan was schema-valid (24 update_text).",
+    "Coverage repair provider emitted set_position + values.h.",
+    "Schema validator correctly rejected values.h on set_position.",
+    "Historical production task remains FAILED and must not be retried."
+  ],
+  "redacted": [
+    "provider_request_id"
+  ]
+}

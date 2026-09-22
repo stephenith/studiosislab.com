@@ -1,0 +1,30 @@
+{
+  "attempted": true,
+  "missing_before": [
+    {
+      "index": 4,
+      "text": "Ensure all Experience bullets focus on realistic Operations Analyst responsibilities such as process analysis, KPI monitoring, operational reporting, workflow improvement, root-cause analysis, documentation, stakeholder coordination, and efficiency improvements."
+    },
+    {
+      "index": 13,
+      "text": "Correct the Certifications text-box heights, line heights, wrapping, and vertical positions so no line renders on top of another line."
+    }
+  ],
+  "repair_operation_count": 0,
+  "missing_after": [
+    {
+      "index": 4,
+      "text": "Ensure all Experience bullets focus on realistic Operations Analyst responsibilities such as process analysis, KPI monitoring, operational reporting, workflow improvement, root-cause analysis, documentation, stakeholder coordination, and efficiency improvements."
+    },
+    {
+      "index": 13,
+      "text": "Correct the Certifications text-box heights, line heights, wrapping, and vertical positions so no line renders on top of another line."
+    }
+  ],
+  "merged_validation_pass": false,
+  "provider_request_id": "REDACTED_PROVIDER_REQUEST_ID",
+  "input_tokens": 14563,
+  "output_tokens": 1108,
+  "error": "coverage repair failed: operations[4] set_position: values.h is not applied by set_position (position-only); use resize_object, set_dimensions, or extend_shape with canonical width/height/delta_width/delta_height (never w/h aliases on position ops); operations[5] set_position: values.h is not applied by set_position (position-only); use resize_object, set_dimensions, or extend_shape with canonical width/height/delta_width/delta_height (never w/h aliases on position ops); operations[6] set_position: values.h is not applied by set_position (position-only); use resize_object, set_dimensions, or extend_shape with canonical width/height/delta_width/delta_height (never w/h aliases on position ops)",
+  "failure_kind": "repair_plan_invalid"
+}

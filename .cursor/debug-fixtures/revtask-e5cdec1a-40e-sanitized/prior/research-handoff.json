@@ -1,0 +1,27 @@
+{
+  "production_target": {
+    "category": "ats",
+    "title": "Operations Analyst",
+    "industry": "software",
+    "seniority": "entry",
+    "objective": "Premium ATS-optimized ats resume for software professional",
+    "role_family": "operations_analyst",
+    "goal_id": "goal-missing_seniority-ats-entry-software",
+    "strategy_version": 1,
+    "priority": 1,
+    "strategy_reason": "Missing or underrepresented seniority \"entry\"",
+    "strategy_source": "portfolio.gaps.underrepresented_seniorities"
+  },
+  "research_attached": true,
+  "research_briefing": "ResearchContext[category=ats; title=Operations Analyst; industry=software; seniority=entry] \u00b7 ATS[tier=ats_safe; score=95; forbid=Skill bars|Star ratings|Tables for layout|Icons as content] \u00b7 Typography[font=Inter; body=10.5pt; density=balanced] \u00b7 Layout[structure=ats_first; columns=1; sections=summary>experience>education>skills>certifications] \u00b7 Industry[hiring=Skills-forward, project evidence, ATS keyword matching; ats=high; length=one_page] \u00b7 Writing[Lead with achievements relevant to Operations Analyst; Quantify impact with metrics where plausible (fictional samples only); Match seniority tone for entry level] \u00b7 Constraints[Single-column reading order for ATS-safe tiers; No publication / no live website writes in this cycle; Fictional sample content only \u2014 no real personal data]",
+  "sources": [
+    "donor:runtime/research/IndustryAnalyzer (lifted profiles)",
+    "donor:runtime/research/ATSPlanner (lifted rules)",
+    "donor:runtime/research/TypographyPlanner (lifted defaults)",
+    "donor:runtime/research/LayoutPlanner (lifted section order)",
+    "donor:domain/studiosislab/resume/ATSStandards (ATS-safe principles)",
+    "production_target:ats/Operations Analyst"
+  ],
+  "owner": "canonical_resume_research",
+  "ai_planner": false
+}

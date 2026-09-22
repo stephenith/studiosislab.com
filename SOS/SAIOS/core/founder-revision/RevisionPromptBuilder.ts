@@ -2174,6 +2174,16 @@ export function validateRevisionPlanShapeAndOperations(
         founder_feedback_item: feedback,
         confidence,
       };
+      const rawOrigin = opItem.plan_origin;
+      if (
+        rawOrigin === "PRIMARY" ||
+        rawOrigin === "SHAPE_REPAIR" ||
+        rawOrigin === "COVERAGE_REPAIR" ||
+        rawOrigin === "CONFLICT_REPAIR" ||
+        rawOrigin === "DETERMINISTIC_LAYOUT"
+      ) {
+        built.plan_origin = rawOrigin;
+      }
       if (secondaryItems && secondaryItems.length > 0) {
         built.founder_feedback_items = secondaryItems;
       }

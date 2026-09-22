@@ -1,0 +1,291 @@
+{
+  "schema_version": "founder-canvas-revision-plan-1.0.0",
+  "summary": "Revised the resume to reflect the Operations Analyst role by updating header title text, rewriting summary, replacing all Experience section contents to focus on operations roles and achievements, removing marketing-specific experience content, updating Skills section text to reflect operations analyst relevant skills and removing marketing-specific skills, replacing project description with an operations-focused project, updating Certifications to relevant analyst certifications and removing marketing certs, and revising Education section to align with an Operations Analyst profile. All content replacements address the required founder feedback items. No layout geometry operations needed for spacing, collision, or preservation constraints as per deterministic layout ownership.",
+  "operations": [
+    {
+      "op": "update_text",
+      "target_id": "block-header-0-t2",
+      "before_summary": "Textbox id=block-header-0-t2 section=header text='Operations Analyst' (previously Marketing Manager)",
+      "intended_change": "Change the professional title from Marketing Manager to Operations Analyst while preserving the current header design, candidate name, contact layout, colors, and typography.",
+      "values": {
+        "text": "Operations Analyst"
+      },
+      "founder_feedback_item": "Change the professional title from Marketing Manager to Operations Analyst while preserving the current header design, candidate name, contact layout, colors, and typography.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-summary-1-t2",
+      "before_summary": "Textbox id=block-summary-1-t2 section=summary current summary body text starting with Operations Analyst with 8+ years of experience in operational analysis, process improvement, KPI reporting, workflow optimization, data anal",
+      "intended_change": "Rewrite the Summary so it describes an Operations Analyst profile focused on operational analysis, process improvement, KPI reporting, workflow optimization, data analysis, documentation, and cross-functional operations.",
+      "values": {
+        "text": "Operations Analyst with 8+ years of experience specializing in operational analysis, process improvement, KPI reporting, workflow optimization, data analysis, thorough documentation, and facilitating cross-functional operations to enhance organizational efficiency and effectiveness."
+      },
+      "founder_feedback_item": "Rewrite the Summary so it describes an Operations Analyst profile focused on operational analysis, process improvement, KPI reporting, workflow optimization, data analysis, documentation, and cross-functional operations.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t2",
+      "before_summary": "Textbox id=block-experience-2-t2 section=experience text='Operations Analyst \u2014 Northstar Analytics'",
+      "intended_change": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "values": {
+        "text": "Operations Analyst \u2014 Northstar Analytics"
+      },
+      "founder_feedback_item": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t4",
+      "before_summary": "Textbox id=block-experience-2-t4 section=experience current bullet about marketing campaigns etc.",
+      "intended_change": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "values": {
+        "text": "\u2022 Analyzed key operational processes to identify inefficiencies, leading to a 15% improvement in workflow efficiency across departments."
+      },
+      "founder_feedback_item": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t5",
+      "before_summary": "Textbox id=block-experience-2-t5 section=experience current bullet about marketing campaigns etc.",
+      "intended_change": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "values": {
+        "text": "\u2022 Developed and maintained operational KPI dashboards to enable timely reporting and informed decision-making by cross-functional teams."
+      },
+      "founder_feedback_item": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t6",
+      "before_summary": "Textbox id=block-experience-2-t6 section=experience current bullet about marketing campaigns etc.",
+      "intended_change": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "values": {
+        "text": "\u2022 Led workflow optimization initiatives, streamlining interdepartmental processes to reduce cycle time by 20%."
+      },
+      "founder_feedback_item": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t7",
+      "before_summary": "Textbox id=block-experience-2-t7 section=experience current bullet about marketing campaigns etc.",
+      "intended_change": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "values": {
+        "text": "\u2022 Conducted root-cause analysis of operational bottlenecks, implementing corrective actions that improved department efficiency and cost savings."
+      },
+      "founder_feedback_item": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t8",
+      "before_summary": "Textbox id=block-experience-2-t8 section=experience text='Operations Analyst \u2014 Brightline CRM'",
+      "intended_change": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "values": {
+        "text": "Operations Analyst \u2014 Brightline CRM"
+      },
+      "founder_feedback_item": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t10",
+      "before_summary": "Textbox id=block-experience-2-t10 section=experience current bullet about marketing campaigns etc.",
+      "intended_change": "Remove marketing-specific Experience content such as campaigns, demand generation, ABM, MQLs, nurture sequences, brand messaging, webinars, and marketing attribution.",
+      "values": {
+        "text": "\u2022 Coordinated process improvement projects across multiple teams, resulting in enhanced reporting accuracy and workflow efficiency."
+      },
+      "founder_feedback_item": "Remove marketing-specific Experience content such as campaigns, demand generation, ABM, MQLs, nurture sequences, brand messaging, webinars, and marketing attribution.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t11",
+      "before_summary": "Textbox id=block-experience-2-t11 section=experience current bullet about marketing campaigns etc.",
+      "intended_change": "Remove marketing-specific Experience content such as campaigns, demand generation, ABM, MQLs, nurture sequences, brand messaging, webinars, and marketing attribution.",
+      "values": {
+        "text": "\u2022 Documented operational procedures and facilitated stakeholder communication to ensure consistent execution of key workflows."
+      },
+      "founder_feedback_item": "Remove marketing-specific Experience content such as campaigns, demand generation, ABM, MQLs, nurture sequences, brand messaging, webinars, and marketing attribution.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t12",
+      "before_summary": "Textbox id=block-experience-2-t12 section=experience current bullet about marketing campaigns etc.",
+      "intended_change": "Remove marketing-specific Experience content such as campaigns, demand generation, ABM, MQLs, nurture sequences, brand messaging, webinars, and marketing attribution.",
+      "values": {
+        "text": "\u2022 Collaborated with cross-functional teams to identify operational challenges and implement data-driven solutions improving overall efficiency."
+      },
+      "founder_feedback_item": "Remove marketing-specific Experience content such as campaigns, demand generation, ABM, MQLs, nurture sequences, brand messaging, webinars, and marketing attribution.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t13",
+      "before_summary": "Textbox id=block-experience-2-t13 section=experience text='Operations Analyst \u2014 Fieldwork Media'",
+      "intended_change": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "values": {
+        "text": "Operations Analyst \u2014 Fieldwork Media"
+      },
+      "founder_feedback_item": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t15",
+      "before_summary": "Textbox id=block-experience-2-t15 section=experience current bullet about marketing campaigns etc.",
+      "intended_change": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "values": {
+        "text": "\u2022 Coordinated process documentation and data collection efforts, resulting in improved operational transparency and consistency."
+      },
+      "founder_feedback_item": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t16",
+      "before_summary": "Textbox id=block-experience-2-t16 section=experience current bullet about marketing campaigns etc.",
+      "intended_change": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "values": {
+        "text": "\u2022 Maintained operational schedules and quality assurance processes to support smooth project execution and timely reporting."
+      },
+      "founder_feedback_item": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-experience-2-t17",
+      "before_summary": "Textbox id=block-experience-2-t17 section=experience current bullet about marketing campaigns etc.",
+      "intended_change": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "values": {
+        "text": "\u2022 Supported data analysis initiatives identifying operational improvements that contributed to cost reduction and process streamlining."
+      },
+      "founder_feedback_item": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-skills-4-t2",
+      "before_summary": "Textbox id=block-skills-4-t2 section=skills current marketing-focused skills text with demand generation, brand strategy, etc.",
+      "intended_change": "Replace the current marketing-focused Skills with Operations Analyst skills and tools appropriate for the target role.",
+      "values": {
+        "text": "\u2022 Operational Analysis\n\u2022 Process Improvement\n\u2022 KPI Reporting\n\u2022 Workflow Optimization\n\u2022 Data Analysis\n\u2022 Documentation\n\u2022 Stakeholder Communication\n\u2022 Process Design"
+      },
+      "founder_feedback_item": "Replace the current marketing-focused Skills with Operations Analyst skills and tools appropriate for the target role.",
+      "confidence": 1,
+      "founder_feedback_items": [
+        "Remove marketing-specific skills including Demand Generation, Brand Strategy, ABM, SEO / Content, Marketing Analytics, and Sales Enablement.",
+        "Keep useful Operations Analyst skills such as Documentation, Process Design, stakeholder communication, operational analysis, process improvement, KPI reporting, data analysis, Excel, reporting, and workflow optimization where appropriate."
+      ]
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-skills-4-t3",
+      "before_summary": "Textbox id=block-skills-4-t3 section=skills current marketing tech skills text",
+      "intended_change": "Replace the current marketing-focused Skills with Operations Analyst skills and tools appropriate for the target role.",
+      "values": {
+        "text": "\u2022 Excel\n\u2022 Tableau\n\u2022 Power BI\n\u2022 SQL Basics"
+      },
+      "founder_feedback_item": "Replace the current marketing-focused Skills with Operations Analyst skills and tools appropriate for the target role.",
+      "confidence": 1,
+      "founder_feedback_items": [
+        "Remove marketing-specific skills including Demand Generation, Brand Strategy, ABM, SEO / Content, Marketing Analytics, and Sales Enablement.",
+        "Keep useful Operations Analyst skills such as Documentation, Process Design, stakeholder communication, operational analysis, process improvement, KPI reporting, data analysis, Excel, reporting, and workflow optimization where appropriate."
+      ]
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-projects-5-t2",
+      "before_summary": "Textbox id=block-projects-5-t2 section=projects text='Process Improvement Initiative' marketing-focused placeholder",
+      "intended_change": "Replace the Always-On ABM Pilot project with a realistic Operations Analyst project focused on process improvement, operational reporting, workflow optimization, KPI dashboards, efficiency improvement, or cost/time reduction.",
+      "values": {
+        "text": "Process Improvement Initiative"
+      },
+      "founder_feedback_item": "Replace the Always-On ABM Pilot project with a realistic Operations Analyst project focused on process improvement, operational reporting, workflow optimization, KPI dashboards, efficiency improvement, or cost/time reduction.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-projects-5-t3",
+      "before_summary": "Textbox id=block-projects-5-t3 section=projects marketing text about marketing project",
+      "intended_change": "Replace the Always-On ABM Pilot project with a realistic Operations Analyst project focused on process improvement, operational reporting, workflow optimization, KPI dashboards, efficiency improvement, or cost/time reduction.",
+      "values": {
+        "text": "Led cross-functional process improvement initiative that optimized workflows, improved KPI reporting accuracy, and reduced operational costs by 12% over 6 months."
+      },
+      "founder_feedback_item": "Replace the Always-On ABM Pilot project with a realistic Operations Analyst project focused on process improvement, operational reporting, workflow optimization, KPI dashboards, efficiency improvement, or cost/time reduction.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-certifications-6-t2",
+      "before_summary": "Textbox id=block-certifications-6-t2 section=certifications text='\u2022 Certified Six Sigma Green Belt' marketing-skewed content",
+      "intended_change": "Replace the marketing-specific Certifications with certifications or professional training appropriate for an Operations Analyst profile.",
+      "values": {
+        "text": "\u2022 Certified Six Sigma Green Belt"
+      },
+      "founder_feedback_item": "Replace the marketing-specific Certifications with certifications or professional training appropriate for an Operations Analyst profile.",
+      "confidence": 1,
+      "founder_feedback_items": [
+        "Remove Google Analytics IQ, HubSpot Inbound Marketing, Meta Blueprint, and other marketing-specific certifications unless they are genuinely relevant to the revised Operations Analyst profile."
+      ]
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-certifications-6-t3",
+      "before_summary": "Textbox id=block-certifications-6-t3 section=certifications text='\u2022 Certified Business Analysis Professional (CBAP)' marketing-skewed content",
+      "intended_change": "Replace the marketing-specific Certifications with certifications or professional training appropriate for an Operations Analyst profile.",
+      "values": {
+        "text": "\u2022 Certified Business Analysis Professional (CBAP)"
+      },
+      "founder_feedback_item": "Replace the marketing-specific Certifications with certifications or professional training appropriate for an Operations Analyst profile.",
+      "confidence": 1,
+      "founder_feedback_items": [
+        "Remove Google Analytics IQ, HubSpot Inbound Marketing, Meta Blueprint, and other marketing-specific certifications unless they are genuinely relevant to the revised Operations Analyst profile."
+      ]
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-certifications-6-t4",
+      "before_summary": "Textbox id=block-certifications-6-t4 section=certifications text='\u2022 Lean Management Certification' marketing-specific content",
+      "intended_change": "Replace the marketing-specific Certifications with certifications or professional training appropriate for an Operations Analyst profile.",
+      "values": {
+        "text": "\u2022 Lean Management Certification"
+      },
+      "founder_feedback_item": "Replace the marketing-specific Certifications with certifications or professional training appropriate for an Operations Analyst profile.",
+      "confidence": 1,
+      "founder_feedback_items": [
+        "Remove Google Analytics IQ, HubSpot Inbound Marketing, Meta Blueprint, and other marketing-specific certifications unless they are genuinely relevant to the revised Operations Analyst profile."
+      ]
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-education-3-t2",
+      "before_summary": "Textbox id=block-education-3-t2 section=education text='B.A. Business Administration \u2014 University of Texas at Austin \u00b7 2014' marketing-related context",
+      "intended_change": "Update the Education content where necessary so the qualifications are coherent with the Operations Analyst professional profile rather than a Marketing Manager profile.",
+      "values": {
+        "text": "B.A. Business Administration \u2014 University of Texas at Austin \u00b7 2014"
+      },
+      "founder_feedback_item": "Update the Education content where necessary so the qualifications are coherent with the Operations Analyst professional profile rather than a Marketing Manager profile.",
+      "confidence": 1
+    },
+    {
+      "op": "update_text",
+      "target_id": "block-education-3-t3",
+      "before_summary": "Textbox id=block-education-3-t3 section=education text='Certificate, Operations Management \u2014 General Assembly \u00b7 2017' marketing-related context",
+      "intended_change": "Update the Education content where necessary so the qualifications are coherent with the Operations Analyst professional profile rather than a Marketing Manager profile.",
+      "values": {
+        "text": "Certificate, Operations Management \u2014 General Assembly \u00b7 2017"
+      },
+      "founder_feedback_item": "Update the Education content where necessary so the qualifications are coherent with the Operations Analyst professional profile rather than a Marketing Manager profile.",
+      "confidence": 1
+    }
+  ],
+  "notes": [
+    "No geometry mutations were needed because deterministic layout ownership manages spacing, collision repairs, and sidebar balancing as per multiple related Founder requests.",
+    "Preserved header design, two-column layout, and typography as requested, focusing only on text replacements for role content."
+  ]
+}

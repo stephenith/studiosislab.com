@@ -1,0 +1,15 @@
+{
+  "schema_version": "phase-6n-current-failure-1.0.0",
+  "CURRENT_FAILURE_REPRODUCED": "YES",
+  "validator": "validateExecutableMutationValues",
+  "rejected": [
+    "operations[4] set_position: values.h is not applied by set_position",
+    "operations[5] set_position: values.h is not applied by set_position",
+    "operations[6] set_position: values.h is not applied by set_position"
+  ],
+  "raw_ops": {
+    "4": { "op": "set_position", "values": { "h": 18, "top": 523 } },
+    "5": { "op": "set_position", "values": { "top": 542, "h": 32 } },
+    "6": { "op": "set_position", "values": { "top": 576, "h": 18 } }
+  }
+}

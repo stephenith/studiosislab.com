@@ -61,7 +61,19 @@ export type CanvasOperation = {
    */
   founder_feedback_items?: string[];
   confidence: number;
+  /**
+   * Which plan origin produced this operation. Canonicalization must preserve
+   * this when splitting mixed position+dimension intents.
+   */
+  plan_origin?: RevisionPlanOrigin;
 };
+
+export type RevisionPlanOrigin =
+  | "PRIMARY"
+  | "SHAPE_REPAIR"
+  | "COVERAGE_REPAIR"
+  | "CONFLICT_REPAIR"
+  | "DETERMINISTIC_LAYOUT";
 
 export type RevisionPlan = {
   schema_version: "founder-canvas-revision-plan-1.0.0";

@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PHASE 6M \u2014 Founder will authorize exactly ONE follow-up layout live proof for the Operations Analyst Resume Template after reviewing this report. Do not auto-create the Founder Request Changes decision. Generation overlap/clipping gate remains the NEXT controlled step after that live proof.",
+    "PHASE 6N \u2014 Unified revision-plan canonicalization LOCAL_VERIFIED. Founder will authorize exactly ONE follow-up layout live proof after reviewing this report. Do not auto-create the Founder Request Changes decision. Do not retry revtask-e5cdec1a-40e. Generation overlap/clipping gate remains the NEXT controlled step after that live proof.",
     "NEXT DEPARTMENT \u2014 Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B \u2014 Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B \u2014 Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back \u2014 snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-22T14:44:12.000Z",
+      "type": "revision_maintenance_repair",
+      "summary": "Phase 6N UNIFIED REVISION PLAN CANONICALIZATION implemented and LOCAL_VERIFIED (offline). Local wall=2026-09-22T20:14:12+05:30. UTC=2026-09-22T14:44:12.000Z. One shared prepareRevisionPlanForValidation pipeline now serves PRIMARY / SHAPE_REPAIR / COVERAGE_REPAIR / CONFLICT_REPAIR. Deterministic set_position+h/w/width/height split preserves height 18/32/18 as set_dimensions. Schema validator remains position-only. Executor still ignores w/h. Offline fixture revtask-e5cdec1a-40e: current values.h reject reproduced, then planning PASS (2 provider calls). 6G/6H/6I/6J/6K/6L/6M/generation/Marketing Manager regressions PASS. Historical failed tasks unchanged. No OpenAI call, no generation, no revision run, no Founder decision, no publication. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
+    },
     {
       "at": "2026-09-22T13:55:39.000Z",
       "type": "revision_maintenance_repair",
@@ -3113,5 +3118,68 @@
     "deployed_at_utc": "2026-09-22T13:55:39.000Z",
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only",
     "vps_backup": "20260922T135520Z"
+  },
+  "phase_6n": {
+    "status": "local_verified",
+    "classification": "UNIFIED_REVISION_PLAN_CANONICALIZATION",
+    "scope": "Revision-plan canonicalize\u2192normalize\u2192validate only. Resume Template Department NOT reopened.",
+    "problem": "revtask-e5cdec1a-40e FAILED at plan_schema because CoveragePlanRepair emitted set_position+values.h and validated before a shared operation canonicalizer.",
+    "diagnostic_task": "revtask-e5cdec1a-40e",
+    "prior_failure_tasks": [
+      "revtask-b5339d03-b67",
+      "revtask-9441fe34-4ba",
+      "revtask-b9a65ad0-eb0",
+      "revtask-33ef5466-f24",
+      "revtask-7a1c0899-4d6",
+      "revtask-dd26226e-d8b",
+      "revtask-6ddb8eb8-e9c",
+      "revtask-a0009171-849",
+      "revtask-e5cdec1a-40e"
+    ],
+    "root_causes": [
+      "COVERAGE_REPAIR_INLINED_PROVENANCE_STRIP_VALIDATE without the primary prepare pipeline",
+      "NO_DETERMINISTIC_POSITION_DIMENSION_ALIAS_CANONICALIZER so provider inventory shorthand h survived into schema validation",
+      "COVERAGE_REPAIR_CANNOT_SPEND_SHAPEPLANREPAIR because it is already provider call #2"
+    ],
+    "fixes": [
+      "prepareRevisionPlanForValidation is the single shared canonicalize\u2192normalize\u2192shape-validate pipeline",
+      "PRIMARY, SHAPE_REPAIR, COVERAGE_REPAIR, and CONFLICT_REPAIR all call that function",
+      "set_position/move_object carrying w/h/width/height/delta_* split into set_position + set_dimensions without inventing values",
+      "Schema validator still rejects set_position+h; executor still does not apply w/h aliases",
+      "MAX_PROVIDER_CALLS remains 2; no third OpenAI call"
+    ],
+    "not_in_scope": [
+      "No retry or mutation of historical failed revision tasks including revtask-e5cdec1a-40e",
+      "No live production OpenAI during implementation",
+      "Generation planner, generation role integrity, and publication unchanged"
+    ],
+    "offline_fixture": ".cursor/debug-fixtures/revtask-e5cdec1a-40e-sanitized",
+    "production_failure_reproduced_offline": true,
+    "verifier": "aios:revision:plan-canonicalization-6n:verify",
+    "matrix_result": "PASS",
+    "six_g_regression": "PASS 45/45",
+    "six_h_regression": "PASS 43/43",
+    "six_i_regression": "PASS 34/34",
+    "six_j_regression": "PASS 43/43",
+    "six_k_regression": "PASS 42/42",
+    "six_l_production_parity": "PASS",
+    "six_m_production_parity": "PASS",
+    "generation_role_regression": "PASS",
+    "marketing_manager_replay": "PASS 17/17",
+    "max_provider_calls": 2,
+    "e5cdec1a_planning_result_after": "PASS",
+    "e5cdec1a_fixture_final_state": "FAILED_GATE",
+    "e5cdec1a_final_owner": "section_replacement",
+    "openai_called": false,
+    "generation_executed": false,
+    "revision_executed": false,
+    "founder_decision_created": false,
+    "publication_executed": false,
+    "resume_template_department_status": "OPERATIONALLY_COMPLETE",
+    "revision_engineering_status": "MAINTENANCE / REGRESSION ONLY",
+    "next_major_department": "Website Analysis / QA / Development",
+    "milestone_ist": "2026-09-22T20:14:12+05:30",
+    "milestone_utc": "2026-09-22T14:44:12.000Z",
+    "baseline_commit_before": "65962256e21c9bf956f9739c0f55111b392f3378"
   }
 }

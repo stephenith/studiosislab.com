@@ -44,13 +44,10 @@ import {
 } from "./PlanMutationConflicts.js";
 import { canonicalizeRevisionPlanHorizontalOwnership } from "./EquivalentHorizontalOwnership.js";
 import {
-  stripIdentityPositionOps,
-  stripNonExecutablePositionOpsFromRaw,
-} from "./PositionOpCanonicalization.js";
-import {
-  repairAiPlanFounderAttribution,
-  type ProvenanceRepairRecord,
-} from "./RevisionPlanProvenanceRepair.js";
+  prepareRevisionPlanForValidation,
+  prepareExtractedPlanForValidation,
+  REVISION_PLANNING_MAX_PROVIDER_CALLS,
+} from "./RevisionPlanCanonicalization.js";
 import {
   buildRevisionConflictRepairPrompt,
   buildRevisionCoverageRepairPrompt,
@@ -62,7 +59,6 @@ import {
   normalizeFounderFeedbackItem,
   allRequestedChangesAllowEmptyPlan,
   validateRevisionPlan,
-  validateRevisionPlanShapeAndOperations,
   type UncoveredRequestedChange,
 } from "./RevisionPromptBuilder.js";
 
@@ -78,6 +74,9 @@ export const REVISION_COVERAGE_REPAIR_MAX_OUTPUT_TOKENS = 4_000;
 /** Conflict repair returns a complete plan — same budget class as primary. */
 export const REVISION_CONFLICT_REPAIR_MAX_OUTPUT_TOKENS =
   REVISION_PLANNING_MAX_OUTPUT_TOKENS;
+
+/** Bounded provider budget: primary + at most one repair. Phase 6N unchanged. */
+export { REVISION_PLANNING_MAX_PROVIDER_CALLS, prepareRevisionPlanForValidation, prepareExtractedPlanForValidation };
 
 export type PlannerExecuteFn = (request: ReasoningRequest) => Promise<{
   status: string;
@@ -403,70 +402,6 @@ export function restoreMissingConfidenceFromPrimary(
 }
 
 /**
- * Strip empty/identity position ops then shape-validate.
- * Empty values:{} are omitted (not invented). Coverage revalidated by caller.
- */
-export function prepareExtractedPlanForValidation(input: {
-  extracted: unknown;
-  inventory: CanvasInventoryObject[];
-  requested_changes: string[];
-}): {
-  ok: boolean;
-  plan: RevisionPlan | null;
-  errors: string[];
-  provenance_repairs?: ProvenanceRepairRecord[];
-} {
-  const allowEmpty = allRequestedChangesAllowEmptyPlan(input.requested_changes);
-  // Phase 5V: repair missing companion-op founder_feedback_item before shape.
-  const provenance = repairAiPlanFounderAttribution({
-    extracted: input.extracted,
-    requested_changes: input.requested_changes,
-  });
-  const strippedEmpty = stripNonExecutablePositionOpsFromRaw(provenance.repaired);
-  let shape = validateRevisionPlanShapeAndOperations(strippedEmpty.raw, {
-    requested_changes: input.requested_changes,
-    allowEmptyOperations: allowEmpty,
-    inventory: input.inventory,
-  });
-  if (!shape.ok || !shape.plan) {
-    return {
-      ok: false,
-      plan: null,
-      errors: shape.errors,
-      provenance_repairs: provenance.repairs,
-    };
-  }
-  const identity = stripIdentityPositionOps(shape.plan, input.inventory);
-  if (identity.stripped_count === 0) {
-    return {
-      ok: true,
-      plan: shape.plan,
-      errors: [],
-      provenance_repairs: provenance.repairs,
-    };
-  }
-  shape = validateRevisionPlanShapeAndOperations(identity.plan, {
-    requested_changes: input.requested_changes,
-    allowEmptyOperations: allowEmpty,
-    inventory: input.inventory,
-  });
-  if (!shape.ok || !shape.plan) {
-    return {
-      ok: false,
-      plan: null,
-      errors: shape.errors,
-      provenance_repairs: provenance.repairs,
-    };
-  }
-  return {
-    ok: true,
-    plan: shape.plan,
-    errors: [],
-    provenance_repairs: provenance.repairs,
-  };
-}
-
-/**
  * ShapePlanRepair — the ONE and ONLY structural repair attempt (Phase 6F).
  *
  * Consumes the same repair budget as ConflictPlanRepair / CoveragePlanRepair:
@@ -561,11 +496,12 @@ async function runShapePlanRepair(input: {
     );
   }
 
-  // SAME validator as the primary path — no relaxation, no confidence default.
-  const prepared = prepareExtractedPlanForValidation({
+  // SAME shared canonicalize→validate pipeline as every other plan origin.
+  const prepared = prepareRevisionPlanForValidation({
     extracted: extractPlanFromProviderOutput(so),
     inventory: input.inventory,
     requested_changes: input.task.requested_changes,
+    origin: "SHAPE_REPAIR",
   });
   if (!prepared.ok || !prepared.plan) {
     return fail(
@@ -746,10 +682,11 @@ async function runConflictPlanRepair(input: {
       input.primaryPlan,
       extracted,
     );
-    const prepared = prepareExtractedPlanForValidation({
+    const prepared = prepareRevisionPlanForValidation({
       extracted: withRestoredConfidence,
       inventory: input.inventory,
       requested_changes: input.task.requested_changes,
+      origin: "CONFLICT_REPAIR",
     });
     if (!prepared.ok || !prepared.plan) {
       const errMsg = `conflict repair failed: ${prepared.errors.join("; ")}`;
@@ -999,32 +936,16 @@ async function runCoverageRepair(input: {
     const extracted = extractPlanFromProviderOutput(so);
     // Coverage repair is invoked only when MUTATION_REQUIRED items are missing.
     // A successful repair response must include ≥1 operation (empty is invalid).
-    // Phase 5V provenance repair then strip empty/identity before shape validation.
-    const provenance = repairAiPlanFounderAttribution({
+    // Same shared canonicalize→validate pipeline as PRIMARY / SHAPE / CONFLICT.
+    const prepared = prepareRevisionPlanForValidation({
       extracted,
+      inventory: input.inventory,
       requested_changes: input.task.requested_changes,
-    });
-    const strippedEmpty = stripNonExecutablePositionOpsFromRaw(
-      provenance.repaired,
-    );
-    let repairShape = validateRevisionPlanShapeAndOperations(strippedEmpty.raw, {
+      origin: "COVERAGE_REPAIR",
       allowEmptyOperations: false,
-      requested_changes: input.task.requested_changes,
     });
-    if (repairShape.ok && repairShape.plan) {
-      const identity = stripIdentityPositionOps(
-        repairShape.plan,
-        input.inventory,
-      );
-      if (identity.stripped_count > 0) {
-        repairShape = validateRevisionPlanShapeAndOperations(identity.plan, {
-          allowEmptyOperations: false,
-          requested_changes: input.task.requested_changes,
-        });
-      }
-    }
-    if (!repairShape.ok || !repairShape.plan) {
-      const errMsg = `coverage repair failed: ${repairShape.errors.join("; ")}`;
+    if (!prepared.ok || !prepared.plan) {
+      const errMsg = `coverage repair failed: ${prepared.errors.join("; ")}`;
       return {
         ok: false,
         merged: null,
@@ -1048,7 +969,7 @@ async function runCoverageRepair(input: {
       };
     }
 
-    const repairPlan = canonicalizeRevisionPlanHorizontalOwnership(repairShape.plan);
+    const repairPlan = prepared.plan;
     const repairInternal = detectInternalPlanMutationConflicts(
       repairPlan.operations,
     );
@@ -1342,10 +1263,11 @@ export async function planFounderCanvasRevision(input: {
     };
 
     const extracted = extractPlanFromProviderOutput(so);
-    const prepared = prepareExtractedPlanForValidation({
+    const prepared = prepareRevisionPlanForValidation({
       extracted,
       inventory: input.inventory,
       requested_changes: input.task.requested_changes,
+      origin: "PRIMARY",
     });
     if (!prepared.ok || !prepared.plan) {
       const primaryShapeError = `invalid revision plan: ${prepared.errors.join("; ")}`;

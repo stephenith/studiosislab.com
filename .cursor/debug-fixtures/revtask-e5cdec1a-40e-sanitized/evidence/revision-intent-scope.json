@@ -1,0 +1,820 @@
+{
+  "schema_version": "revision-intent-scope-1.0.0",
+  "items": [
+    {
+      "founder_feedback_item": "Change the professional title from Marketing Manager to Operations Analyst while preserving the current header design, candidate name, contact layout, colors, and typography.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "change the professional title from marketing manager to operations analyst",
+          "positive": true,
+          "intent_class": "CONTENT_REPLACEMENT",
+          "target_sections": [
+            "job_title"
+          ],
+          "content_scope": [
+            "job_title"
+          ],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "preserving the current header design, candidate name, contact layout, colors, and typography",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "change the professional title from marketing manager to operations analyst while preserving the current header design, candidate name, contact layout, colors, and typography.",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "job_title"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "job_title"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Rewrite the Summary so it describes an Operations Analyst profile focused on operational analysis, process improvement, KPI reporting, workflow optimization, data analysis, documentation, and cross-functional operations.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "rewrite the summary so it describes an operations analyst profile focused on operational analysis, process improvement, kpi reporting, workflow optimization, data analysis, documentation, and cross-functional operations",
+          "positive": true,
+          "intent_class": "CONTENT_REPLACEMENT",
+          "target_sections": [
+            "summary"
+          ],
+          "content_scope": [
+            "summary"
+          ],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Replace all Marketing Manager, Senior Marketing Specialist, and Marketing Coordinator Experience content with realistic Operations Analyst-focused roles and achievements.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "replace all marketing manager, senior marketing specialist, and marketing coordinator experience content with realistic operations analyst-focused roles and achievements",
+          "positive": true,
+          "intent_class": "CONTENT_REPLACEMENT",
+          "target_sections": [
+            "experience"
+          ],
+          "content_scope": [
+            "experience"
+          ],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Remove marketing-specific Experience content such as campaigns, demand generation, ABM, MQLs, nurture sequences, brand messaging, webinars, and marketing attribution.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "remove marketing-specific experience content such as campaigns, demand generation, abm, mqls, nurture sequences, brand messaging, webinars, and marketing attribution",
+          "positive": true,
+          "intent_class": "CONTENT_REMOVAL",
+          "target_sections": [
+            "experience"
+          ],
+          "content_scope": [
+            "experience"
+          ],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Ensure all Experience bullets focus on realistic Operations Analyst responsibilities such as process analysis, KPI monitoring, operational reporting, workflow improvement, root-cause analysis, documentation, stakeholder coordination, and efficiency improvements.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "ensure all experience bullets focus on realistic operations analyst responsibilities such as process analysis, kpi monitoring, operational reporting, workflow improvement, root-cause analysis, documentation, stakeholder coordination, and efficiency improvements",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "experience"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "experience"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Replace the current marketing-focused Skills with Operations Analyst skills and tools appropriate for the target role.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "replace the current marketing-focused skills with operations analyst skills and tools appropriate for the target role",
+          "positive": true,
+          "intent_class": "CONTENT_REPLACEMENT",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [
+            "skills"
+          ],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Reorganize the Skills section into a clean, readable structure with consistent line spacing and wrapping; the skills must not appear scattered, cramped, duplicated, or visually disconnected.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "reorganize the skills section into a clean, readable structure with consistent line spacing and wrapping",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "skills"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "the skills",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "skills"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "appear scattered, cramped, duplicated, or visually disconnected",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "the skills must not appear scattered, cramped, duplicated, or visually disconnected",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "skills"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Remove marketing-specific skills including Demand Generation, Brand Strategy, ABM, SEO / Content, Marketing Analytics, and Sales Enablement.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "remove marketing-specific skills including demand generation, brand strategy, abm, seo / content, marketing analytics, and sales enablement",
+          "positive": true,
+          "intent_class": "CONTENT_REMOVAL",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [
+            "skills"
+          ],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Keep useful Operations Analyst skills such as Documentation, Process Design, stakeholder communication, operational analysis, process improvement, KPI reporting, data analysis, Excel, reporting, and workflow optimization where appropriate.",
+      "classification": "PRESERVATION_CONSTRAINT",
+      "clauses": [
+        {
+          "text": "keep useful operations analyst skills such as documentation, process design, stakeholder communication, operational analysis, process improvement, kpi reporting, data analysis, excel, reporting, and workflow optimization where appropriate",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "skills"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Replace the Always-On ABM Pilot project with a realistic Operations Analyst project focused on process improvement, operational reporting, workflow optimization, KPI dashboards, efficiency improvement, or cost/time reduction.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "replace the always-on abm pilot project with a realistic operations analyst project focused on process improvement, operational reporting, workflow optimization, kpi dashboards, efficiency improvement, or cost/time reduction",
+          "positive": true,
+          "intent_class": "CONTENT_REPLACEMENT",
+          "target_sections": [
+            "projects"
+          ],
+          "content_scope": [
+            "projects"
+          ],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Replace the marketing-specific Certifications with certifications or professional training appropriate for an Operations Analyst profile.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "replace the marketing-specific certifications with certifications or professional training appropriate for an operations analyst profile",
+          "positive": true,
+          "intent_class": "CONTENT_REPLACEMENT",
+          "target_sections": [
+            "certifications"
+          ],
+          "content_scope": [
+            "certifications"
+          ],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Remove Google Analytics IQ, HubSpot Inbound Marketing, Meta Blueprint, and other marketing-specific certifications unless they are genuinely relevant to the revised Operations Analyst profile.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "remove google analytics iq, hubspot inbound marketing, meta blueprint, and other marketing-specific certifications",
+          "positive": true,
+          "intent_class": "CONTENT_REMOVAL",
+          "target_sections": [
+            "certifications"
+          ],
+          "content_scope": [
+            "certifications"
+          ],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "they are genuinely relevant to the revised operations analyst profile",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Fix the visible overlapping/colliding text in the Certifications section so every certification line is fully readable and separated by clear positive vertical spacing.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "fix the visible overlapping/colliding text in the certifications section so every certification line is fully readable and separated by clear positive vertical spacing",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "certifications"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "certifications"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Correct the Certifications text-box heights, line heights, wrapping, and vertical positions so no line renders on top of another line.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "correct the certifications text-box heights, line heights, wrapping, and vertical positions so no line renders on top of another line",
+          "positive": true,
+          "intent_class": "CONTENT_REPLACEMENT",
+          "target_sections": [
+            "certifications"
+          ],
+          "content_scope": [
+            "certifications"
+          ],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Ensure there is clear positive spacing between the end of the Certifications section and the Languages heading.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "ensure there is clear positive spacing between the end of the certifications section and the languages heading",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "certifications"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "certifications"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Rebalance the entire left sidebar vertically so Skills, Projects, Certifications, and Languages use the available sidebar space evenly instead of being compressed near the top with excessive empty space below.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "rebalance the entire left sidebar vertically so skills, projects, certifications, and languages use the available sidebar space evenly",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "skills",
+            "projects",
+            "certifications"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "skills",
+            "projects",
+            "certifications"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "being compressed near the top with excessive empty space below",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Ensure every sidebar text object stays fully inside the sidebar column and does not clip, overflow, overlap, or extend into another section.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "ensure every sidebar text object stays fully inside the sidebar column and",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "clip, overflow, overlap, or extend into another section",
+          "positive": false,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "ensure every sidebar text object stays fully inside the sidebar column and does not clip, overflow, overlap, or extend into another section",
+          "positive": false,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Maintain consistent vertical spacing between the Skills, Projects, Certifications, and Languages section headings and their content.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "maintain consistent vertical spacing between the skills, projects, certifications, and languages section headings and their content",
+          "positive": true,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [
+            "skills",
+            "projects",
+            "certifications"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "skills",
+            "projects",
+            "certifications"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Update the Education content where necessary so the qualifications are coherent with the Operations Analyst professional profile rather than a Marketing Manager profile.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "update the education content where necessary so the qualifications are coherent with the operations analyst professional profile",
+          "positive": true,
+          "intent_class": "CONTENT_REPLACEMENT",
+          "target_sections": [
+            "education"
+          ],
+          "content_scope": [
+            "education"
+          ],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "a marketing manager profile",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Do not solve the role mismatch by changing only the header title; Summary, Experience, Skills, Projects, Certifications, and Education context must all consistently represent Operations Analyst.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "solve the role mismatch by changing only the header title",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "do not solve the role mismatch by changing only the header title",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "summary, experience, skills, projects, certifications, and education context must all consistently represent operations analyst",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [
+            "summary",
+            "experience",
+            "skills",
+            "projects",
+            "certifications",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": [
+            "summary",
+            "experience",
+            "skills",
+            "projects",
+            "certifications",
+            "education"
+          ]
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Preserve the existing dark navy header, two-column architecture, light sidebar background, blue section markers, typography hierarchy, and overall visual identity because those parts of the design are working well.",
+      "classification": "PRESERVATION_CONSTRAINT",
+      "clauses": [
+        {
+          "text": "preserve the existing dark navy header, two-column architecture, light sidebar background, blue section markers, typography hierarchy, and overall visual identity",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "those parts of the design are working well",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Do not change the candidate name or contact-information structure unless a small positioning adjustment is required for safe rendering.",
+      "classification": "PRESERVATION_CONSTRAINT",
+      "clauses": [
+        {
+          "text": "change the candidate name or contact-information structure",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "a small positioning adjustment is required for safe rendering",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "do not change the candidate name or contact-information structure unless a small positioning adjustment is required for safe rendering",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Check the full page after all content changes and ensure there are no text overlaps, clipped text, duplicate text, out-of-bounds objects, or accidental collisions.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "check the full page after all content changes",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "ensure there are no text overlaps, clipped text, duplicate text, out-of-bounds objects, or accidental collisions",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Ensure all section headings and body text maintain clear positive spacing and that no text touches or visually merges with another section.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "ensure all section headings and body text maintain clear positive spacing and that no text touches or visually merges with another section",
+          "positive": true,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Use the available page space efficiently and avoid both compressed content clusters and unnecessarily large unexplained gaps.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "use the available page space efficiently and",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "both compressed content clusters and unnecessarily large unexplained gaps",
+          "positive": false,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "use the available page space efficiently and avoid both compressed content clusters and unnecessarily large unexplained gaps",
+          "positive": false,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Before returning this revision to Founder Review, verify that the rendered professional title, Summary, Experience, Skills, Projects, Certifications, and Education all match the target role Operations Analyst.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "before returning this revision to founder review",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "verify that the rendered professional title, summary, experience, skills, projects, certifications, and education all match the target role operations analyst",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [
+            "job_title",
+            "summary",
+            "experience",
+            "skills",
+            "projects",
+            "certifications",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": [
+            "job_title",
+            "summary",
+            "experience",
+            "skills",
+            "projects",
+            "certifications",
+            "education"
+          ]
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Before returning this revision to Founder Review, verify that text overlap count is zero, page out-of-bounds count is zero, and every text block is fully readable.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "before returning this revision to founder review",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "verify that text overlap count is zero, page out-of-bounds count is zero, and every text block is fully readable",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Return a clean one-page Operations Analyst Resume Template with the existing strong visual architecture preserved but with the role content and sidebar geometry fully corrected.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "return a clean one-page operations analyst resume template with the existing strong visual architecture preserved",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "with the role content and sidebar geometry fully corrected",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    }
+  ],
+  "content_replacement_sections": [
+    "job_title",
+    "summary",
+    "experience",
+    "skills",
+    "projects",
+    "certifications",
+    "education"
+  ],
+  "content_removal_sections": [
+    "experience",
+    "skills",
+    "certifications"
+  ],
+  "content_mutation_sections": [
+    "job_title",
+    "summary",
+    "experience",
+    "skills",
+    "projects",
+    "certifications",
+    "education"
+  ],
+  "layout_sections": [
+    "experience",
+    "skills",
+    "certifications",
+    "projects"
+  ],
+  "content_preservation_sections": [],
+  "layout_preservation_sections": [
+    "skills",
+    "projects",
+    "certifications"
+  ]
+}

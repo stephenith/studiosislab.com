@@ -1,0 +1,897 @@
+{
+  "brief_id": "dbf-9ccd902c-0ac",
+  "version": "1.0.0",
+  "created_at": "2026-08-07T22:37:35.144Z",
+  "source": {
+    "provider": "mock",
+    "task_id": "cycle-ats-operations-analyst-20260807T223735Z-2c9bcf",
+    "skill_id": "resume.layout_planning",
+    "plan_type": "design_planning",
+    "fingerprint": "design_planning|Premium ATS-optimized ats resume for software professional|Skill:design_planning; skill_id=resume.layout_planning; knowledge_snapshot=knsnap-knreq-resume-msjizcis; ResearchContext[category=ats; title=Operations Analyst; industry=software; seniority=entry] \u00b7 ATS[tier=ats_safe; score=95; forbid=Skill bars|Star ratings|Tables for layout|Icons as content] \u00b7 Typography[font=Inter; body=10.5pt; density=balanced] \u00b7 Layout[structure=ats_first; columns=1; sections=summary>experience>education>skills>certifications] \u00b7 Industry[hiring=Skills-forward, project evidence, ATS keyword matching; ats=high; length=one_page] \u00b7 Writing[Lead with achievements relevant to Operations Analyst; Quantify impact with metrics where plausible (fictional samples only); Match seniority tone for entry level] \u00b7 Constraints[Single-column reading order for ATS-safe tiers; No publication / no live website writes in this cycle; Fictional sample content only \u2014 no real personal data]|strong|resume"
+  },
+  "dry_run": true,
+  "live_enabled": false,
+  "publication_allowed": false,
+  "template_generated": false,
+  "renderer_ready": true,
+  "layout": {
+    "structure": "single_column",
+    "columns": 1,
+    "page_size": "A4",
+    "width_px": 794,
+    "height_px": 1123,
+    "margins_mm": {
+      "top": 11,
+      "right": 11,
+      "bottom": 11,
+      "left": 11
+    },
+    "margins_px": {
+      "top": 42,
+      "right": 42,
+      "bottom": 42,
+      "left": 42
+    },
+    "content_width_px": 710,
+    "reading_flow": "top_to_bottom",
+    "whitespace_strategy": "DNA-influenced ATS whitespace \u2014 filled page rhythm, clear section gaps, no sparse empty lower half"
+  },
+  "typography": {
+    "heading_family": "Inter",
+    "body_family": "Inter",
+    "scale_pt": {
+      "name": 32,
+      "heading": 11,
+      "body": 10.5,
+      "meta": 9.5
+    },
+    "line_height": {
+      "heading": 1.2,
+      "body": 1.45
+    },
+    "weights": {
+      "name": 700,
+      "heading": 600,
+      "body": 400
+    },
+    "ats_safe_fonts_only": true
+  },
+  "sections": {
+    "order": [
+      "header",
+      "summary",
+      "experience",
+      "education",
+      "skills",
+      "projects",
+      "certifications",
+      "languages"
+    ],
+    "required": [
+      "header",
+      "summary",
+      "experience",
+      "skills",
+      "education"
+    ],
+    "optional": [
+      "projects",
+      "certifications",
+      "languages"
+    ],
+    "omitted": []
+  },
+  "spacing": {
+    "unit_px": 4,
+    "section_gap_px": 16,
+    "item_gap_px": 8,
+    "paragraph_gap_px": 5,
+    "header_rule_gap_px": 8,
+    "density": "compact"
+  },
+  "colors": {
+    "id": "family-professional_sidebar",
+    "background": "#ffffff",
+    "body_text": "#0f172a",
+    "heading_text": "#0f172a",
+    "accent": "#1e40af",
+    "rule": "#e2e8f0",
+    "muted": "#475569",
+    "contrast_ok": true,
+    "ats_safe": true,
+    "rationale": "Design family color strategy (professional_sidebar)"
+  },
+  "ats": {
+    "tier": "ats_safe",
+    "single_column_required": true,
+    "tables_allowed": false,
+    "images_allowed": false,
+    "icons_allowed": false,
+    "text_boxes_only": true,
+    "multi_column_forbidden": true,
+    "min_margin_mm": 11,
+    "standard_section_headings": true,
+    "parse_notes": [
+      "Single-column text flow only",
+      "No tables, images, icons, or multi-column sidebars",
+      "Standard section headings for parser reliability",
+      "Fictional sample content only \u2014 not personal user data"
+    ]
+  },
+  "visual_guidance": {
+    "hero_emphasis": "dark_band_full on narrow_ats_sidebar",
+    "typography_scale": {
+      "name_pt": 32,
+      "heading_pt": 11,
+      "body_pt": 10.5,
+      "meta_pt": 9.5
+    },
+    "spacing_scale": {
+      "section_gap_px": 12,
+      "item_gap_px": 8,
+      "paragraph_gap_px": 5,
+      "density": "compact"
+    },
+    "margin_strategy": "11mm \u2014 family professional_sidebar",
+    "alignment_rules": [
+      "sidebar_main",
+      "Text remains Fabric Textbox objects",
+      "Shapes must not cover text"
+    ],
+    "section_rhythm": "12px before sections; title=sidebar_label",
+    "content_density": "page-fill objective 92%; density compact",
+    "visual_weight": "Family silhouette \u2192 header \u2192 section markers \u2192 body",
+    "divider_strategy": "short",
+    "ats_constraints": [
+      "text_as_text_objects",
+      "no_images",
+      "no_icons",
+      "no_tables",
+      "narrow_ats_safe_sidebar_allowed",
+      "high_contrast_text"
+    ],
+    "design_variant": 0,
+    "visual_profile": "professional_sidebar__narrow_ats_sidebar",
+    "content_profile": "marketing_manager_professional_sidebar",
+    "rule_style": "short",
+    "name_weight": 700,
+    "layout_intent": "professional_sidebar / narrow_ats_sidebar / left-sidebar-zone-header-band",
+    "visual_hierarchy": "name 32pt \u2192 heading 11pt \u2192 body 10.5pt",
+    "page_fill_objective": 0.92,
+    "typography_strategy": "Inter / 700",
+    "spacing_strategy": "{\"page_margin_mm\":11,\"header_to_summary_gap_px\":12,\"section_before_gap_px\":12,\"section_after_heading_gap_px\":5,\"role_to_date_gap_px\":2,\"bullet_gap_px\":2,\"subsection_gap_px\":8,\"line_height_body\":1.32,\"line_height_heading\":1.12,\"density\":\"compact\"}",
+    "design_personality": [
+      "organized",
+      "scanable",
+      "dual-zone"
+    ],
+    "information_density": "compact",
+    "visual_rhythm": "left-sidebar-zone-header-band",
+    "layout_family": "narrow_ats_sidebar",
+    "role_family": "marketing_manager",
+    "header_style": "dark_band_full",
+    "design_family": "professional_sidebar",
+    "layout_architecture": "narrow_ats_sidebar",
+    "header_system": "dark_band_full",
+    "section_title_system": "sidebar_label",
+    "alignment_system": "sidebar_main",
+    "accent_shape_strategy": "header_band",
+    "sidebar_policy": "narrow_ats_safe",
+    "color_strategy": {
+      "primary_neutral": "#0f172a",
+      "accent": "#1e40af",
+      "pale_tint": "#e2e8f0",
+      "text": "#0f172a",
+      "muted": "#475569",
+      "on_accent": "#ffffff",
+      "header_band": "#0f172a",
+      "sidebar_bg": "#f1f5f9"
+    },
+    "spacing_tokens": {
+      "page_margin_mm": 11,
+      "header_to_summary_gap_px": 12,
+      "section_before_gap_px": 12,
+      "section_after_heading_gap_px": 5,
+      "role_to_date_gap_px": 2,
+      "bullet_gap_px": 2,
+      "subsection_gap_px": 8,
+      "line_height_body": 1.32,
+      "line_height_heading": 1.12,
+      "density": "compact"
+    },
+    "ats_risk_level": "medium",
+    "silhouette_hint": "left-sidebar-zone-header-band",
+    "family_contract": {
+      "family_id": "professional_sidebar",
+      "design_personality": [
+        "organized",
+        "scanable",
+        "dual-zone"
+      ],
+      "layout_architecture": "narrow_ats_sidebar",
+      "header_system": "dark_band_full",
+      "alignment_system": "sidebar_main",
+      "typography_scale": {
+        "name_pt": 32,
+        "heading_pt": 11,
+        "body_pt": 10.5,
+        "meta_pt": 9.5,
+        "heading_family": "Inter",
+        "body_family": "Inter",
+        "name_weight": 700
+      },
+      "spacing": {
+        "page_margin_mm": 11,
+        "header_to_summary_gap_px": 12,
+        "section_before_gap_px": 12,
+        "section_after_heading_gap_px": 5,
+        "role_to_date_gap_px": 2,
+        "bullet_gap_px": 2,
+        "subsection_gap_px": 8,
+        "line_height_body": 1.32,
+        "line_height_heading": 1.12,
+        "density": "compact"
+      },
+      "section_title_system": "sidebar_label",
+      "divider_strategy": "none",
+      "accent_shape_strategy": "header_band",
+      "color_strategy": {
+        "primary_neutral": "#0f172a",
+        "accent": "#1e40af",
+        "pale_tint": "#e2e8f0",
+        "text": "#0f172a",
+        "muted": "#475569",
+        "on_accent": "#ffffff",
+        "header_band": "#0f172a",
+        "sidebar_bg": "#f1f5f9"
+      },
+      "sidebar_policy": "narrow_ats_safe",
+      "icon_policy": "forbidden",
+      "page_fill_target": 0.92,
+      "density_target": "compact",
+      "role_suitability": [
+        "marketing_manager",
+        "hr_manager",
+        "software_engineer",
+        "accountant"
+      ],
+      "ats_risk_level": "medium",
+      "allowed_fabric_object_types": [
+        "Rect",
+        "Textbox",
+        "Line",
+        "Circle",
+        "IText"
+      ],
+      "forbidden_visual_treatments": [
+        "gradients",
+        "raster_headers",
+        "infographic_charts",
+        "icon_only_contact",
+        "more_than_two_strong_accents",
+        "overlapping_text_shapes",
+        "wide_sidebar_over_240px",
+        "text_only_in_icons"
+      ],
+      "silhouette_hint": "left-sidebar-zone-header-band",
+      "variant": 0,
+      "role_family": "marketing_manager",
+      "selected_at": "2026-08-07T22:37:35.144Z",
+      "reasoning_order": [
+        "1_select_design_family",
+        "2_build_family_visual_system",
+        "3_apply_ats_constraints",
+        "4_adapt_design_to_role",
+        "5_generate_content_and_canvas",
+        "6_evaluate_visual_distinctness",
+        "7_render_preview_and_thumbnail"
+      ]
+    },
+    "content_source": "planning_only"
+  },
+  "components": [
+    {
+      "section": "header",
+      "component": "HeaderBlock",
+      "role": "identity",
+      "required": true,
+      "children": [
+        "NameText",
+        "ContactLine",
+        "AccentRule"
+      ]
+    },
+    {
+      "section": "summary",
+      "component": "SummaryBlock",
+      "role": "summary",
+      "required": true,
+      "children": [
+        "SectionHeading",
+        "BodyParagraph"
+      ]
+    },
+    {
+      "section": "experience",
+      "component": "ExperienceBlock",
+      "role": "experience",
+      "required": true,
+      "children": [
+        "SectionHeading",
+        "RoleHeader",
+        "BulletList"
+      ]
+    },
+    {
+      "section": "education",
+      "component": "EducationBlock",
+      "role": "education",
+      "required": true,
+      "children": [
+        "SectionHeading",
+        "EducationRow"
+      ]
+    },
+    {
+      "section": "skills",
+      "component": "SkillsBlock",
+      "role": "skills",
+      "required": true,
+      "children": [
+        "SectionHeading",
+        "SkillsLine"
+      ]
+    },
+    {
+      "section": "projects",
+      "component": "ProjectsBlock",
+      "role": "projects",
+      "required": false,
+      "children": [
+        "SectionHeading",
+        "RoleHeader",
+        "BulletList"
+      ]
+    },
+    {
+      "section": "certifications",
+      "component": "CertificationsBlock",
+      "role": "certifications",
+      "required": false,
+      "children": [
+        "SectionHeading",
+        "BulletList"
+      ]
+    },
+    {
+      "section": "languages",
+      "component": "LanguagesBlock",
+      "role": "languages",
+      "required": false,
+      "children": [
+        "SectionHeading",
+        "SkillsLine"
+      ]
+    }
+  ],
+  "resume_json": {
+    "version": "designbrief-resume-json-1.0.0",
+    "dry_run": true,
+    "publication_allowed": false,
+    "template_generated": false,
+    "page": {
+      "size": "A4",
+      "width_px": 794,
+      "height_px": 1123,
+      "background": "#ffffff"
+    },
+    "typography": {
+      "heading_family": "Inter",
+      "body_family": "Inter",
+      "scale_pt": {
+        "name": 32,
+        "heading": 11,
+        "body": 10.5,
+        "meta": 9.5
+      },
+      "line_height": {
+        "heading": 1.2,
+        "body": 1.45
+      },
+      "weights": {
+        "name": 700,
+        "heading": 600,
+        "body": 400
+      },
+      "ats_safe_fonts_only": true
+    },
+    "spacing": {
+      "unit_px": 4,
+      "section_gap_px": 16,
+      "item_gap_px": 8,
+      "paragraph_gap_px": 5,
+      "header_rule_gap_px": 8,
+      "density": "compact"
+    },
+    "colors": {
+      "id": "family-professional_sidebar",
+      "background": "#ffffff",
+      "body_text": "#0f172a",
+      "heading_text": "#0f172a",
+      "accent": "#1e40af",
+      "rule": "#e2e8f0",
+      "muted": "#475569",
+      "contrast_ok": true,
+      "ats_safe": true,
+      "rationale": "Design family color strategy (professional_sidebar)"
+    },
+    "visual_guidance": {
+      "hero_emphasis": "dark_band_full on narrow_ats_sidebar",
+      "typography_scale": {
+        "name_pt": 32,
+        "heading_pt": 11,
+        "body_pt": 10.5,
+        "meta_pt": 9.5
+      },
+      "spacing_scale": {
+        "section_gap_px": 12,
+        "item_gap_px": 8,
+        "paragraph_gap_px": 5,
+        "density": "compact"
+      },
+      "margin_strategy": "11mm \u2014 family professional_sidebar",
+      "alignment_rules": [
+        "sidebar_main",
+        "Text remains Fabric Textbox objects",
+        "Shapes must not cover text"
+      ],
+      "section_rhythm": "12px before sections; title=sidebar_label",
+      "content_density": "page-fill objective 92%; density compact",
+      "visual_weight": "Family silhouette \u2192 header \u2192 section markers \u2192 body",
+      "divider_strategy": "short",
+      "ats_constraints": [
+        "text_as_text_objects",
+        "no_images",
+        "no_icons",
+        "no_tables",
+        "narrow_ats_safe_sidebar_allowed",
+        "high_contrast_text"
+      ],
+      "design_variant": 0,
+      "visual_profile": "professional_sidebar__narrow_ats_sidebar",
+      "content_profile": "marketing_manager_professional_sidebar",
+      "rule_style": "short",
+      "name_weight": 700,
+      "layout_intent": "professional_sidebar / narrow_ats_sidebar / left-sidebar-zone-header-band",
+      "visual_hierarchy": "name 32pt \u2192 heading 11pt \u2192 body 10.5pt",
+      "page_fill_objective": 0.92,
+      "typography_strategy": "Inter / 700",
+      "spacing_strategy": "{\"page_margin_mm\":11,\"header_to_summary_gap_px\":12,\"section_before_gap_px\":12,\"section_after_heading_gap_px\":5,\"role_to_date_gap_px\":2,\"bullet_gap_px\":2,\"subsection_gap_px\":8,\"line_height_body\":1.32,\"line_height_heading\":1.12,\"density\":\"compact\"}",
+      "design_personality": [
+        "organized",
+        "scanable",
+        "dual-zone"
+      ],
+      "information_density": "compact",
+      "visual_rhythm": "left-sidebar-zone-header-band",
+      "layout_family": "narrow_ats_sidebar",
+      "role_family": "marketing_manager",
+      "header_style": "dark_band_full",
+      "design_family": "professional_sidebar",
+      "layout_architecture": "narrow_ats_sidebar",
+      "header_system": "dark_band_full",
+      "section_title_system": "sidebar_label",
+      "alignment_system": "sidebar_main",
+      "accent_shape_strategy": "header_band",
+      "sidebar_policy": "narrow_ats_safe",
+      "color_strategy": {
+        "primary_neutral": "#0f172a",
+        "accent": "#1e40af",
+        "pale_tint": "#e2e8f0",
+        "text": "#0f172a",
+        "muted": "#475569",
+        "on_accent": "#ffffff",
+        "header_band": "#0f172a",
+        "sidebar_bg": "#f1f5f9"
+      },
+      "spacing_tokens": {
+        "page_margin_mm": 11,
+        "header_to_summary_gap_px": 12,
+        "section_before_gap_px": 12,
+        "section_after_heading_gap_px": 5,
+        "role_to_date_gap_px": 2,
+        "bullet_gap_px": 2,
+        "subsection_gap_px": 8,
+        "line_height_body": 1.32,
+        "line_height_heading": 1.12,
+        "density": "compact"
+      },
+      "ats_risk_level": "medium",
+      "silhouette_hint": "left-sidebar-zone-header-band",
+      "family_contract": {
+        "family_id": "professional_sidebar",
+        "design_personality": [
+          "organized",
+          "scanable",
+          "dual-zone"
+        ],
+        "layout_architecture": "narrow_ats_sidebar",
+        "header_system": "dark_band_full",
+        "alignment_system": "sidebar_main",
+        "typography_scale": {
+          "name_pt": 32,
+          "heading_pt": 11,
+          "body_pt": 10.5,
+          "meta_pt": 9.5,
+          "heading_family": "Inter",
+          "body_family": "Inter",
+          "name_weight": 700
+        },
+        "spacing": {
+          "page_margin_mm": 11,
+          "header_to_summary_gap_px": 12,
+          "section_before_gap_px": 12,
+          "section_after_heading_gap_px": 5,
+          "role_to_date_gap_px": 2,
+          "bullet_gap_px": 2,
+          "subsection_gap_px": 8,
+          "line_height_body": 1.32,
+          "line_height_heading": 1.12,
+          "density": "compact"
+        },
+        "section_title_system": "sidebar_label",
+        "divider_strategy": "none",
+        "accent_shape_strategy": "header_band",
+        "color_strategy": {
+          "primary_neutral": "#0f172a",
+          "accent": "#1e40af",
+          "pale_tint": "#e2e8f0",
+          "text": "#0f172a",
+          "muted": "#475569",
+          "on_accent": "#ffffff",
+          "header_band": "#0f172a",
+          "sidebar_bg": "#f1f5f9"
+        },
+        "sidebar_policy": "narrow_ats_safe",
+        "icon_policy": "forbidden",
+        "page_fill_target": 0.92,
+        "density_target": "compact",
+        "role_suitability": [
+          "marketing_manager",
+          "hr_manager",
+          "software_engineer",
+          "accountant"
+        ],
+        "ats_risk_level": "medium",
+        "allowed_fabric_object_types": [
+          "Rect",
+          "Textbox",
+          "Line",
+          "Circle",
+          "IText"
+        ],
+        "forbidden_visual_treatments": [
+          "gradients",
+          "raster_headers",
+          "infographic_charts",
+          "icon_only_contact",
+          "more_than_two_strong_accents",
+          "overlapping_text_shapes",
+          "wide_sidebar_over_240px",
+          "text_only_in_icons"
+        ],
+        "silhouette_hint": "left-sidebar-zone-header-band",
+        "variant": 0,
+        "role_family": "marketing_manager",
+        "selected_at": "2026-08-07T22:37:35.144Z",
+        "reasoning_order": [
+          "1_select_design_family",
+          "2_build_family_visual_system",
+          "3_apply_ats_constraints",
+          "4_adapt_design_to_role",
+          "5_generate_content_and_canvas",
+          "6_evaluate_visual_distinctness",
+          "7_render_preview_and_thumbnail"
+        ]
+      },
+      "content_source": "planning_only"
+    },
+    "sections": [
+      {
+        "id": "header",
+        "component": "HeaderBlock",
+        "order": 0,
+        "placeholder_content": "fictional_sample_only"
+      },
+      {
+        "id": "summary",
+        "component": "SummaryBlock",
+        "order": 1,
+        "placeholder_content": "fictional_sample_only"
+      },
+      {
+        "id": "experience",
+        "component": "ExperienceBlock",
+        "order": 2,
+        "placeholder_content": "fictional_sample_only"
+      },
+      {
+        "id": "education",
+        "component": "EducationBlock",
+        "order": 3,
+        "placeholder_content": "fictional_sample_only"
+      },
+      {
+        "id": "skills",
+        "component": "SkillsBlock",
+        "order": 4,
+        "placeholder_content": "fictional_sample_only"
+      },
+      {
+        "id": "projects",
+        "component": "ProjectsBlock",
+        "order": 5,
+        "placeholder_content": "fictional_sample_only"
+      },
+      {
+        "id": "certifications",
+        "component": "CertificationsBlock",
+        "order": 6,
+        "placeholder_content": "fictional_sample_only"
+      },
+      {
+        "id": "languages",
+        "component": "LanguagesBlock",
+        "order": 7,
+        "placeholder_content": "fictional_sample_only"
+      }
+    ],
+    "objects_plan": [
+      {
+        "kind": "pageBackground",
+        "section": "page",
+        "component": "PageBackground",
+        "fill": "#ffffff"
+      },
+      {
+        "kind": "section",
+        "section": "header",
+        "component": "HeaderBlock",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "primitive",
+        "section": "header",
+        "component": "NameText",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 32
+      },
+      {
+        "kind": "primitive",
+        "section": "header",
+        "component": "ContactLine",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "primitive",
+        "section": "header",
+        "component": "AccentRule",
+        "fill": "#1e40af",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "section",
+        "section": "summary",
+        "component": "SummaryBlock",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "primitive",
+        "section": "summary",
+        "component": "SectionHeading",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 11
+      },
+      {
+        "kind": "primitive",
+        "section": "summary",
+        "component": "BodyParagraph",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "section",
+        "section": "experience",
+        "component": "ExperienceBlock",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "primitive",
+        "section": "experience",
+        "component": "SectionHeading",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 11
+      },
+      {
+        "kind": "primitive",
+        "section": "experience",
+        "component": "RoleHeader",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "primitive",
+        "section": "experience",
+        "component": "BulletList",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "section",
+        "section": "education",
+        "component": "EducationBlock",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "primitive",
+        "section": "education",
+        "component": "SectionHeading",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 11
+      },
+      {
+        "kind": "primitive",
+        "section": "education",
+        "component": "EducationRow",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "section",
+        "section": "skills",
+        "component": "SkillsBlock",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "primitive",
+        "section": "skills",
+        "component": "SectionHeading",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 11
+      },
+      {
+        "kind": "primitive",
+        "section": "skills",
+        "component": "SkillsLine",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "section",
+        "section": "projects",
+        "component": "ProjectsBlock",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "primitive",
+        "section": "projects",
+        "component": "SectionHeading",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 11
+      },
+      {
+        "kind": "primitive",
+        "section": "projects",
+        "component": "RoleHeader",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "primitive",
+        "section": "projects",
+        "component": "BulletList",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "section",
+        "section": "certifications",
+        "component": "CertificationsBlock",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "primitive",
+        "section": "certifications",
+        "component": "SectionHeading",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 11
+      },
+      {
+        "kind": "primitive",
+        "section": "certifications",
+        "component": "BulletList",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "section",
+        "section": "languages",
+        "component": "LanguagesBlock",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      },
+      {
+        "kind": "primitive",
+        "section": "languages",
+        "component": "SectionHeading",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 11
+      },
+      {
+        "kind": "primitive",
+        "section": "languages",
+        "component": "SkillsLine",
+        "fill": "#0f172a",
+        "fontFamily": "Inter",
+        "fontSize": 10.5
+      }
+    ]
+  },
+  "notes": [
+    "Mock design plan for dry-run validation",
+    "Use fictional sample content only",
+    "Premium ATS-optimized ats resume for software professional",
+    "role_family:operations_analyst",
+    "design_family:professional_sidebar",
+    "design_variant:0",
+    "layout_architecture:narrow_ats_sidebar",
+    "header_system:dark_band_full",
+    "section_title_system:sidebar_label",
+    "role_family:marketing_manager",
+    "design_family_engine:v1",
+    "DesignBrief V1 \u2014 dry-run construction instructions only",
+    "No Fabric template written",
+    "No publication",
+    "Mock provider source only",
+    "Agent #235 visual_guidance + DNA-influenced profiles applied"
+  ],
+  "validation": {
+    "pass": true,
+    "errors": [],
+    "warnings": []
+  }
+}

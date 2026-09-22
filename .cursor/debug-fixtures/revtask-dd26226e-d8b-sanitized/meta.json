@@ -1,0 +1,38 @@
+{
+  "schema_version": "revision-failure-fixture-1.0.0",
+  "fixture_origin": "production evidence, read-only copy; production originals unmodified.",
+  "task_id": "revtask-dd26226e-d8b",
+  "decision_id": "from-task.json",
+  "review_id": "from-task.json",
+  "prior_candidate_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718",
+  "role": "Operations Analyst",
+  "canonical_target_role": "Operations Analyst",
+  "design_family": "professional_sidebar",
+  "architecture": "narrow_ats_sidebar",
+  "task_status": "FAILED_COVERAGE",
+  "requested_change_count": 28,
+  "skills_relation": {
+    "upper_id": "block-skills-4-t2",
+    "lower_id": "block-skills-4-t3",
+    "source_visual_gap_px": 52.32,
+    "final_visual_gap_px": 37.1,
+    "reduction_px": 15.22,
+    "feedback_coverage_required_reduction_px": 18.3,
+    "t2_stored_top": 176,
+    "t2_stored_height": 92,
+    "t3_stored_top": 274
+  },
+  "founder_item_0_based": 6,
+  "founder_item_1_based": 7,
+  "founder_item": "Reorganize the Skills section into a clean, readable structure with consistent line spacing and wrapping; the skills must not appear scattered, cramped, duplicated, or visually disconnected.",
+  "pre_fix_ownership": "PASS",
+  "pre_fix_coverage_item_status": "partially_addressed",
+  "pre_fix_coverage": "27/28",
+  "notes": [
+    "Classification, plan schema, section replacement, post-content reflow, geometry safety, and revision role integrity all passed.",
+    "Only Founder item 6 failed: ownership PASS, FeedbackCoverage independent 35% REDUCE_GAP FAIL.",
+    "Stored t2/t3 frames never moved; unused t2 frame slack created the visual hole.",
+    "Historical production task remains FAILED_COVERAGE and must not be retried."
+  ],
+  "redacted": ["provider_request_id", "openai-execution.json", "planner-prompt.json", "founder-memory-selection.json"]
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": "founder-revision-post-content-reflow-1.0.0",
+  "grown_object_ids": [
+    "block-projects-5-t2",
+    "block-projects-5-t3",
+    "block-certifications-6-t3",
+    "block-languages-7-t2"
+  ],
+  "shifted_object_ids": [
+    "block-projects-5-t3",
+    "block-certifications-6-r0",
+    "block-certifications-6-t1",
+    "block-certifications-6-t2",
+    "block-certifications-6-t3",
+    "block-certifications-6-t4",
+    "block-languages-7-r0",
+    "block-languages-7-t1",
+    "block-languages-7-t2"
+  ],
+  "intra_section_pushes": 2,
+  "cross_section_pushes": 1
+}

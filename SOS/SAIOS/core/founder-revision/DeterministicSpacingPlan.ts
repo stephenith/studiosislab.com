@@ -43,6 +43,10 @@ import {
   isContentMutationOp,
   type PostContentReflowReport,
 } from "./PostContentReflow.js";
+import {
+  evaluateOwnedCanonicalLayoutProofs,
+  type CanonicalLayoutIntentEvidence,
+} from "./CanonicalFinalStateLayoutProof.js";
 import { parseExplicitMoveDirections } from "./PositionOpCanonicalization.js";
 import {
   classifyRequestedChange,
@@ -356,6 +360,8 @@ export type DeterministicSpacingPlanResult = {
   post_content_reflow?: PostContentReflowReport;
   overlap_count?: number;
   page_oob_count?: number;
+  /** Phase 6K — same final-state layout verdict consumed by coverage. */
+  canonical_layout_evidence?: CanonicalLayoutIntentEvidence[];
 };
 
 export type OwnershipFailureKind =
@@ -426,7 +432,15 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       failure_kind: "CONTENT_REFLOW_FAILED",
     };
   }
-  const postContent = applyPostContentReflow({ canvas: contentExec.canvas });
+  const contentTargetIds = new Set(
+    contentOps
+      .map((op) => ("target_id" in op ? String(op.target_id ?? "") : ""))
+      .filter(Boolean),
+  );
+  const postContent = applyPostContentReflow({
+    canvas: contentExec.canvas,
+    content_object_ids: contentTargetIds,
+  });
 
   const normalized = normalizeRevisionLayout({
     canvas: postContent.canvas,
@@ -447,6 +461,13 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       replaced_ai_position_ops: 0,
     };
   }
+
+  const canonical_layout_evidence = evaluateOwnedCanonicalLayoutProofs({
+    requested_changes: input.requested_changes,
+    beforeCanvas: input.priorCanvas,
+    afterCanvas: normalized.canvas,
+    owned_item: isDeterministicLayoutNormalizerOwnedChange,
+  });
 
   const beforeObjs = (input.priorCanvas.objects ?? []) as Array<
     Record<string, unknown>
@@ -643,6 +664,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
           (o) => !preservedNonPosition.includes(o),
         ).length,
         ownership_mode: "UNCHANGED",
+        canonical_layout_evidence,
       };
     }
     return {
@@ -656,6 +678,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
         (o) => !preservedNonPosition.includes(o),
       ).length,
       ownership_mode: "DETERMINISTIC",
+      canonical_layout_evidence,
     };
   }
 
@@ -703,6 +726,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
         resolved_relations: resolvedRelations,
         named_pair_only: namedPairOnly,
         post_content_reflow: postContent.report,
+        canonical_layout_evidence,
       };
     }
     const detOnlyExec = executeCanvasOperations({
@@ -810,6 +834,12 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       post_content_reflow: postContent.report,
       overlap_count: detOnlyOverlaps,
       page_oob_count: detOnlyOob,
+      canonical_layout_evidence: evaluateOwnedCanonicalLayoutProofs({
+        requested_changes: input.requested_changes,
+        beforeCanvas: input.priorCanvas,
+        afterCanvas: detOnlyExec.canvas,
+        owned_item: isDeterministicLayoutNormalizerOwnedChange,
+      }),
     };
   }
 
@@ -917,6 +947,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       spacing_intents_ai: aiIntents.intents,
       resolved_relations: resolvedRelations,
       named_pair_only: true,
+      canonical_layout_evidence,
     };
   }
 
@@ -934,6 +965,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       spacing_intents_ai: aiIntents.intents,
       resolved_relations: resolvedRelations,
       named_pair_only: namedPairOnly,
+      canonical_layout_evidence,
     };
   }
 
@@ -1009,6 +1041,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
         spacing_intents_ai: aiIntents.intents,
         resolved_relations: resolvedRelations,
         named_pair_only: namedPairOnly,
+        canonical_layout_evidence,
       };
     }
   }
@@ -1038,6 +1071,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       spacing_intents_ai: aiIntents.intents,
       resolved_relations: resolvedRelations,
       named_pair_only: namedPairOnly,
+      canonical_layout_evidence,
     };
   }
 
@@ -1068,6 +1102,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
       spacing_intents_ai: aiIntents.intents,
       resolved_relations: resolvedRelations,
       named_pair_only: namedPairOnly,
+      canonical_layout_evidence,
     };
   }
 

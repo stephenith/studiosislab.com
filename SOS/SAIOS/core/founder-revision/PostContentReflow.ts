@@ -37,6 +37,8 @@ export type PostContentReflowReport = {
   shifted_object_ids: string[];
   intra_section_pushes: number;
   cross_section_pushes: number;
+  trimmed_object_ids?: string[];
+  slack_reclaims?: number;
 };
 
 function deepCloneCanvas(canvas: FabricCanvasDoc): FabricCanvasDoc {
@@ -223,20 +225,138 @@ export function reflowDownstreamAfterContent(
   };
 }
 
+/**
+ * Phase 6K — when a stored text frame significantly exceeds rendered content
+ * and that unused slack opens a visual hole before the next same-lane object,
+ * shrink the frame to visual height and pull downstream by the slack (clamped
+ * to the existing sequential / section minimum). Inverse of grow+push.
+ */
+export function reclaimUnusedTextFrameSlack(
+  canvas: FabricCanvasDoc,
+  content_object_ids?: Set<string>,
+): {
+  trimmed_object_ids: string[];
+  shifted_object_ids: string[];
+  slack_reclaims: number;
+} {
+  if (!content_object_ids || content_object_ids.size === 0) {
+    return { trimmed_object_ids: [], shifted_object_ids: [], slack_reclaims: 0 };
+  }
+  const objects = (canvas.objects ?? []) as Array<Record<string, unknown>>;
+  const objectToLane = detectLayoutLanesFromCanvas(canvas).object_id_to_lane;
+  const trimmed: string[] = [];
+  const shifted = new Set<string>();
+  let reclaims = 0;
+
+  const members = objects
+    .map((o, i) => ({ o, i, id: objectId(o, i) }))
+    .map((x) => ({ ...x, lane: laneKeyOf(x.o, x.id, objectToLane) }))
+    .filter((x) => x.lane != null) as Array<{
+    o: Record<string, unknown>;
+    i: number;
+    id: string;
+    lane: string;
+  }>;
+
+  const lanes = [...new Set(members.map((m) => m.lane))];
+  for (const lane of lanes) {
+    const items = members
+      .filter((m) => m.lane === lane)
+      .sort((a, b) => {
+        const dt = Number(a.o.top ?? 0) - Number(b.o.top ?? 0);
+        if (dt !== 0) return dt;
+        return a.id.localeCompare(b.id);
+      });
+
+    for (let i = 0; i < items.length; i++) {
+      const upper = items[i]!;
+      if (!isFabricTextObject(upper.o)) continue;
+      if (content_object_ids && !content_object_ids.has(upper.id)) continue;
+      const stored = storedTextHeightScaled(upper.o);
+      const visual = visualTextContentHeightScaled(upper.o);
+      const slack = stored - visual;
+      if (slack <= 1) continue;
+
+      const upperBox = geomBox(upper.o);
+      let lowerIndex = -1;
+      for (let j = i + 1; j < items.length; j++) {
+        const candidateTop = Number(items[j]!.o.top ?? 0);
+        if (candidateTop - Number(upper.o.top ?? 0) < POST_CONTENT_SAME_ROW_PX) {
+          continue;
+        }
+        const lowerBox = geomBox(items[j]!.o);
+        if (overlapX(upperBox, lowerBox) < 20) continue;
+        lowerIndex = j;
+        break;
+      }
+      if (lowerIndex < 0) continue;
+
+      const lower = items[lowerIndex]!;
+      const lowerTop = Number(lower.o.top ?? 0);
+      const visualGap = lowerTop - (Number(upper.o.top ?? 0) + visual);
+      const storedGap = lowerTop - (Number(upper.o.top ?? 0) + stored);
+      if (visualGap <= storedGap + 1) continue;
+
+      const scaleY =
+        typeof upper.o.scaleY === "number" && upper.o.scaleY > 0
+          ? upper.o.scaleY
+          : 1;
+      upper.o.height = snap(visual / scaleY);
+      trimmed.push(upper.id);
+
+      const sameSection =
+        sectionOf(upper.o) !== "" &&
+        sectionOf(upper.o) === sectionOf(lower.o);
+      const minGap = sameSection
+        ? MIN_SEQUENTIAL_RENDERED_TEXT_GAP_PX
+        : MIN_SECTION_GAP_PX;
+      let pull = snap(slack);
+      const remaining = visualGap - pull;
+      if (remaining + 1e-9 < minGap) {
+        pull = snap(visualGap - minGap);
+      }
+      if (pull <= 0.01) {
+        reclaims += 1;
+        continue;
+      }
+      const threshold = lowerTop - 0.01;
+      const upperSection = sectionOf(upper.o);
+      for (const item of items) {
+        if (Number(item.o.top ?? 0) + 1e-9 < threshold) continue;
+        if (upperSection && sectionOf(item.o) !== upperSection) continue;
+        item.o.top = snap(Number(item.o.top ?? 0) - pull);
+        shifted.add(item.id);
+      }
+      reclaims += 1;
+    }
+  }
+
+  return {
+    trimmed_object_ids: trimmed,
+    shifted_object_ids: [...shifted],
+    slack_reclaims: reclaims,
+  };
+}
+
 export function applyPostContentReflow(input: {
   canvas: FabricCanvasDoc;
+  content_object_ids?: Set<string>;
 }): { canvas: FabricCanvasDoc; report: PostContentReflowReport } {
   const canvas = deepCloneCanvas(input.canvas);
   const grown_object_ids = syncStoredTextHeightsToVisual(canvas);
   const pushed = reflowDownstreamAfterContent(canvas);
+  const slack = reclaimUnusedTextFrameSlack(canvas, input.content_object_ids);
+  const shifted = [...new Set([...pushed.shifted_object_ids, ...slack.shifted_object_ids])];
   return {
     canvas,
     report: {
       schema_version: "founder-revision-post-content-reflow-1.0.0",
       grown_object_ids,
-      shifted_object_ids: pushed.shifted_object_ids,
+      shifted_object_ids: shifted,
       intra_section_pushes: pushed.intra_section_pushes,
       cross_section_pushes: pushed.cross_section_pushes,
+      trimmed_object_ids: slack.trimmed_object_ids,
+      slack_reclaims: slack.slack_reclaims,
     },
   };
 }

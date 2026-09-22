@@ -91,6 +91,9 @@ export type FeedbackRelationEvidence = {
   gap_px?: number | null;
   minimum_gap_px?: number | null;
   name_contact_gap_px?: number | null;
+  section?: string;
+  before_gap?: number | null;
+  after_gap?: number | null;
   pass?: boolean;
   notes?: string;
 };

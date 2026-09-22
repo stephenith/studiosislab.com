@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PHASE 6J — Founder will manually issue ONE new Operations Analyst Request Changes after reviewing this whole-section replacement completeness contract. Do not auto-create the live-proof decision. Generation overlap/clipping gate remains the NEXT controlled step after live proof.",
+    "PHASE 6K — Founder will manually issue ONE new Operations Analyst Request Changes after reviewing this canonical final-state layout-intent proof. Do not auto-create the live-proof decision. Generation overlap/clipping gate remains the NEXT controlled step after live proof.",
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B — Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B — Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-22T07:27:04.000Z",
+      "type": "revision_maintenance_repair",
+      "summary": "Phase 6K CANONICAL FINAL-STATE LAYOUT INTENT PROOF implemented and LOCAL_VERIFIED (offline). Local wall=2026-09-22T12:57:04+05:30. UTC=2026-09-22T07:27:04.000Z. Ownership and FeedbackCoverage now consume one canonical final-state layout verdict. Unused text-frame slack is reclaimed in post-content reflow for content-rewritten objects. Offline fixture revtask-dd26226e-d8b: reproduced 52.32→37.10 ownership PASS / coverage 27/28, then repaired t2 92→60.9 / t3 274→242.9 / visual gap 37.10→6.00, canonical PASS, coverage 28/28, TEXT_OVERLAPS=0 PAGE_OOB=0. 6K matrix PASS 42/42. 6G/6H/6I/6J/Marketing Manager regressions PASS. Historical failed tasks unchanged. No OpenAI call, no generation, no revision run, no Founder decision, no publication. Generation overlap/clipping gate deliberately deferred. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
+    },
     {
       "at": "2026-09-15T13:02:07.000Z",
       "type": "revision_maintenance_repair",
@@ -2893,5 +2898,68 @@
     "deployed_at_ist": "2026-09-15T18:33:28+05:30",
     "deployed_at_utc": "2026-09-15T13:03:28.000Z",
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only"
+  },
+  "phase_6k": {
+    "status": "local_verified",
+    "classification": "CANONICAL_FINAL_STATE_LAYOUT_INTENT_PROOF",
+    "scope": "Founder Request Changes layout-owned final-state proof only. Resume Template Department NOT reopened.",
+    "problem": "revtask-dd26226e-d8b passed Phase 6J completeness/reflow/role/geometry then FAILED_COVERAGE because ownership PASS and FeedbackCoverage independently applied a 35% source-relative REDUCE_GAP heuristic to Skills t2→t3 52.32→37.10",
+    "diagnostic_task": "revtask-dd26226e-d8b",
+    "prior_failure_tasks": [
+      "revtask-b5339d03-b67",
+      "revtask-9441fe34-4ba",
+      "revtask-b9a65ad0-eb0",
+      "revtask-33ef5466-f24",
+      "revtask-7a1c0899-4d6",
+      "revtask-dd26226e-d8b"
+    ],
+    "root_causes": [
+      "TWO_JUDGES_TWO_CONTRACTS: DeterministicSpacingPlan ownership and FeedbackCoverage structuralHints REDUCE_GAP did not share one final-state verdict",
+      "UNUSED_TEXT_FRAME_SLACK: stored t2 height 92 vs visual ~61 left a 37px visual hole while stored frame gap stayed ~6px",
+      "LAYOUT_OWNED_EVIDENCE_GATED_ON_ZERO_OPS so attributed sidebar operations skipped the 6G owned-layout path"
+    ],
+    "fixes": [
+      "CanonicalFinalStateLayoutProof: one final-state rhythm verdict from rendered bounds, unused slack, heading-body peers, overlap/OOB/cramped floors",
+      "FeedbackCoverage consumes that verdict for DETERMINISTIC_LAYOUT_OWNED items regardless of operation count; no independent 35% REDUCE_GAP recheck",
+      "PostContentReflow reclaimUnusedTextFrameSlack shrinks content-rewritten oversized frames and pulls same-section downstream to the prior stored packing, clamped to sequential/section minima"
+    ],
+    "not_in_scope": [
+      "GENERATION_OVERLAP_CLIPPING_GATE deferred until after one live Request Changes proof",
+      "No retry or mutation of revtask-b5339d03-b67, revtask-9441fe34-4ba, revtask-b9a65ad0-eb0, revtask-33ef5466-f24, revtask-7a1c0899-4d6, or revtask-dd26226e-d8b",
+      "No live production OpenAI during implementation"
+    ],
+    "offline_fixture": ".cursor/debug-fixtures/revtask-dd26226e-d8b-sanitized",
+    "production_failure_reproduced_offline": true,
+    "verifier": "aios:revision:canonical-layout-6k:verify",
+    "matrix_result": "PASS 42/42",
+    "six_g_regression": "PASS",
+    "six_h_regression": "PASS",
+    "six_i_regression": "PASS",
+    "six_j_regression": "PASS",
+    "marketing_manager_replay": "PASS",
+    "fixture_skills_t2_stored_height_before": 92,
+    "fixture_skills_t2_stored_height_after": 60.9,
+    "fixture_skills_t2_visual_height": 60.9,
+    "fixture_skills_t3_top_before": 274,
+    "fixture_skills_t3_top_after": 242.9,
+    "fixture_skills_visual_gap_before": 37.1,
+    "fixture_skills_visual_gap_after": 6,
+    "fixture_canonical_layout_verdict": "PASS",
+    "fixture_feedback_coverage_after": "28/28",
+    "fixture_text_overlaps_after": 0,
+    "fixture_page_oob_after": 0,
+    "source_relative_35_percent_is_sole_gate": false,
+    "layout_owner_depends_on_op_count": false,
+    "openai_called": false,
+    "generation_executed": false,
+    "revision_executed": false,
+    "founder_decision_created": false,
+    "publication_executed": false,
+    "resume_template_department_status": "OPERATIONALLY_COMPLETE",
+    "revision_engineering_status": "MAINTENANCE / REGRESSION ONLY",
+    "next_major_department": "Website Analysis / QA / Development",
+    "milestone_ist": "2026-09-22T12:57:04+05:30",
+    "milestone_utc": "2026-09-22T07:27:04.000Z",
+    "baseline_commit_before": "a029439a85c2907936b2dcce1d435b0e62f4b4be"
   }
 }

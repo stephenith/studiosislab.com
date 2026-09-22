@@ -8,6 +8,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { buildFeedbackCoverage } from "./FeedbackCoverage.js";
+import { buildPlanWithDeterministicSpacingOwnership } from "./DeterministicSpacingPlan.js";
+import { executeCanvasOperations } from "./CanvasOperationExecutor.js";
 import { founderIdentityObjectIds, findIncompleteRequestedSectionReplacements, findTextOverlapFindings, runRevisionAcceptanceChecks } from "./RevisionAcceptanceChecks.js";
 import { normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
 import { pairGap } from "./PostContentReflow.js";
@@ -302,14 +304,37 @@ assert(
   roleChecks.map((c) => `${c.pass}:${c.reason}`).join(" | "),
 );
 
+const ownedForCoverage = buildPlanWithDeterministicSpacingOwnership({
+  priorCanvas: priorCanvas,
+  requested_changes: meta.requested_changes,
+  aiPlan: plan,
+});
+const coveredExec = executeCanvasOperations({
+  canvas: priorCanvas,
+  operations: ownedForCoverage.plan?.operations ?? [],
+});
+const coveredCanvas = coveredExec.ok ? coveredExec.canvas : afterCanvas;
+const coveredLayout = normalizeRevisionLayout({
+  canvas: coveredCanvas,
+  requested_changes: meta.requested_changes,
+  prior_canvas: priorCanvas,
+});
+const coveredAcceptance = runRevisionAcceptanceChecks({
+  afterCanvas: coveredCanvas,
+  beforeCanvas: priorCanvas,
+  plan: ownedForCoverage.plan ?? plan,
+  requested_changes: meta.requested_changes,
+  target_role: "Operations Analyst",
+  page_fit: coveredLayout.report.page_fit,
+});
 const coverage = buildFeedbackCoverage({
   requested_changes: meta.requested_changes,
-  plan,
-  log: logFromPlan(plan),
+  plan: ownedForCoverage.plan ?? plan,
+  log: coveredExec.ok ? coveredExec.log : logFromPlan(plan),
   beforeCanvas: priorCanvas,
-  afterCanvas,
-  acceptanceReport: acceptance,
-  layoutNormalizationReport: layout.report,
+  afterCanvas: coveredCanvas,
+  acceptanceReport: coveredAcceptance,
+  layoutNormalizationReport: coveredLayout.report,
 });
 const covered = coverage.items.filter((i) => i.status === "addressed").length;
 assert(

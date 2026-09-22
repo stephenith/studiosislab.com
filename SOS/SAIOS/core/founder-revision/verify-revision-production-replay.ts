@@ -239,7 +239,10 @@ function main(): void {
   checks.push(
     assert(
       primaryCov?.status === "addressed" &&
-        String(primaryCov.evidence.notes ?? "").includes("spacing intent"),
+        (String(primaryCov.evidence.notes ?? "").includes("spacing intent") ||
+          String(primaryCov.evidence.notes ?? "").includes(
+            "canonical_final_state_layout_proof",
+          )),
       "MM_relation_specific_coverage",
       JSON.stringify(primaryCov ?? cov.items[0] ?? null).slice(0, 600),
     ),

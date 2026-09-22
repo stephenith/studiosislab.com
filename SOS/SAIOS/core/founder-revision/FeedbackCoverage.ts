@@ -44,6 +44,10 @@ import {
 } from "./FounderSpacingIntent.js";
 import { resolveFounderSpacingRelation } from "./FounderSpacingRelation.js";
 import {
+  CANONICAL_LAYOUT_COVERED_BY,
+  evaluateCanonicalFinalStateLayoutProof,
+} from "./CanonicalFinalStateLayoutProof.js";
+import {
   HEADER_IDENTITY_PAD_PX,
   HEADER_TO_SUMMARY_CLEARANCE_PX,
   headerIdentityMemberId,
@@ -2716,6 +2720,40 @@ export function buildFeedbackCoverage(input: {
         evidence: {
           affected_object_ids: [...affected],
           notes,
+        },
+      });
+      continue;
+    }
+
+    /**
+     * Phase 6K — DETERMINISTIC_LAYOUT_OWNED items use ONE canonical
+     * final-state layout proof. Operation count does not change the owner.
+     * FeedbackCoverage must not independently re-run source-relative
+     * REDUCE_GAP / structuralHints for the same item.
+     */
+    if (isDeterministicLayoutNormalizerOwnedChange(change)) {
+      const proof = evaluateCanonicalFinalStateLayoutProof({
+        requestedChange: change,
+        beforeCanvas: input.beforeCanvas,
+        afterCanvas: input.afterCanvas,
+      });
+      const ids = [proof.relation.upper_id, proof.relation.lower_id].filter(
+        (id): id is string => Boolean(id),
+      );
+      items.push({
+        founder_feedback_item: change,
+        status: proof.pass ? "addressed" : "not_addressed",
+        evidence: {
+          affected_object_ids: ids,
+          relation: {
+            type: "CANONICAL_FINAL_STATE_LAYOUT",
+            section: proof.section,
+            before_gap: proof.source_geometry.visual_gap,
+            after_gap: proof.final_geometry.visual_gap,
+            pass: proof.pass,
+            notes: `${CANONICAL_LAYOUT_COVERED_BY}; ${proof.reason}`,
+          },
+          notes: `COVERED_BY=${CANONICAL_LAYOUT_COVERED_BY}; ${proof.reason}: ${proof.final_condition}`,
         },
       });
       continue;

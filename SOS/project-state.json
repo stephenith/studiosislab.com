@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PHASE 6N \u2014 Unified revision-plan canonicalization LOCAL_VERIFIED. Founder will authorize exactly ONE follow-up layout live proof after reviewing this report. Do not auto-create the Founder Request Changes decision. Do not retry revtask-e5cdec1a-40e. Generation overlap/clipping gate remains the NEXT controlled step after that live proof.",
+    "PHASE 6N \u2014 Unified revision-plan canonicalization deployed. Founder will authorize exactly ONE follow-up layout live proof after reviewing this report. Do not auto-create the Founder Request Changes decision. Do not retry revtask-e5cdec1a-40e. Generation overlap/clipping gate remains the NEXT controlled step after that live proof.",
     "NEXT DEPARTMENT \u2014 Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B \u2014 Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B \u2014 Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back \u2014 snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-22T14:45:41.000Z",
+      "type": "revision_maintenance_repair",
+      "summary": "Phase 6N UNIFIED REVISION PLAN CANONICALIZATION deployed. Local wall=2026-09-22T20:15:41+05:30. UTC=2026-09-22T14:45:41.000Z. Implementation commit f1694b3b27b70eb3c52280c9d60e36866f8497a3 fast-forwarded to origin and VPS /root/studiosislab.com (backup 20260922T144521Z). Restarted aios-founder-dashboard.service only; service active; SOS_AIOS_LIVE=0. Historical failed revision tasks remain immutable FAILED/FAILED_GATE. Founder will authorize ONE follow-up layout live proof after this review. No OpenAI call, no generation, no revision run, no Founder decision, no publication. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
+    },
     {
       "at": "2026-09-22T14:44:12.000Z",
       "type": "revision_maintenance_repair",
@@ -3120,7 +3125,7 @@
     "vps_backup": "20260922T135520Z"
   },
   "phase_6n": {
-    "status": "local_verified",
+    "status": "deployed",
     "classification": "UNIFIED_REVISION_PLAN_CANONICALIZATION",
     "scope": "Revision-plan canonicalize\u2192normalize\u2192validate only. Resume Template Department NOT reopened.",
     "problem": "revtask-e5cdec1a-40e FAILED at plan_schema because CoveragePlanRepair emitted set_position+values.h and validated before a shared operation canonicalizer.",
@@ -3180,6 +3185,11 @@
     "next_major_department": "Website Analysis / QA / Development",
     "milestone_ist": "2026-09-22T20:14:12+05:30",
     "milestone_utc": "2026-09-22T14:44:12.000Z",
-    "baseline_commit_before": "65962256e21c9bf956f9739c0f55111b392f3378"
+    "baseline_commit_before": "65962256e21c9bf956f9739c0f55111b392f3378",
+    "deployed_commit": "f1694b3b27b70eb3c52280c9d60e36866f8497a3",
+    "deployed_at_ist": "2026-09-22T20:15:41+05:30",
+    "deployed_at_utc": "2026-09-22T14:45:41.000Z",
+    "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only",
+    "vps_backup": "20260922T144521Z"
   }
 }

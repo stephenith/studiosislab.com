@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PHASE 6P — Canonical layout ownership consolidation LOCAL_VERIFIED. Founder will authorize exactly ONE follow-up sidebar live proof after reviewing this report. Do not auto-create the Founder Request Changes decision. Do not retry revtask-76a04a21-6ff. Generation overlap/clipping gate remains the NEXT controlled step after that live proof.",
+    "PHASE 6P — Canonical layout ownership consolidation deployed. Founder will authorize exactly ONE follow-up sidebar live proof after reviewing this report. Do not auto-create the Founder Request Changes decision. Do not retry revtask-76a04a21-6ff. Generation overlap/clipping gate remains the NEXT controlled step after that live proof.",
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B — Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B — Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-23T07:36:41.000Z",
+      "type": "revision_maintenance_repair",
+      "summary": "Phase 6P CANONICAL_LAYOUT_OWNERSHIP_CONSOLIDATION deployed. Local wall=2026-09-23T13:06:41+05:30. UTC=2026-09-23T07:36:41.000Z. Implementation commit 19c153b7a37e5ce1bbf36412105a6750b6e7c92e. VPS backup 20260923T073638Z. Fast-forward-only merge origin/main. Restarted aios-founder-dashboard.service only. Health 127.0.0.1:4310 ok live=false. SOS_AIOS_LIVE=0 unchanged. Historical failed tasks including revtask-76a04a21-6ff remain FAILED_COVERAGE. No production OpenAI, no production revision, no Founder decision, no publication. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development. Founder will authorize one sidebar live proof."
+    },
     {
       "at": "2026-09-23T07:35:14.000Z",
       "type": "revision_maintenance_repair",
@@ -3280,7 +3285,7 @@
     "vps_backup": "20260923T064346Z"
   },
   "phase_6p": {
-    "status": "local_verified",
+    "status": "deployed",
     "classification": "CANONICAL_LAYOUT_OWNERSHIP_CONSOLIDATION",
     "scope": "Canonical layout-owner unification only. Resume Template Department NOT reopened.",
     "problem": "revtask-76a04a21-6ff FAILED_COVERAGE because resolveItemCoverageMode said DETERMINISTIC_LAYOUT_OWNED for items 5/6/10 while FeedbackCoverage and canonical proof still used isDeterministicLayoutNormalizerOwnedChange.",
@@ -3352,7 +3357,12 @@
     "next_major_department": "Website Analysis / QA / Development",
     "milestone_ist": "2026-09-23T13:05:14+05:30",
     "milestone_utc": "2026-09-23T07:35:14.000Z",
-    "baseline_commit_before": "c7668b935553c52a727dfaeb15f6cd2c24f9ea39"
+    "baseline_commit_before": "c7668b935553c52a727dfaeb15f6cd2c24f9ea39",
+    "deployed_commit": "19c153b7a37e5ce1bbf36412105a6750b6e7c92e",
+    "deployed_at_ist": "2026-09-23T13:06:41+05:30",
+    "deployed_at_utc": "2026-09-23T07:36:41.000Z",
+    "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only",
+    "vps_backup": "20260923T073638Z"
   }
 
 }

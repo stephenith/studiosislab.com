@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PHASE 6P — Canonical layout ownership consolidation deployed. Founder will authorize exactly ONE follow-up sidebar live proof after reviewing this report. Do not auto-create the Founder Request Changes decision. Do not retry revtask-76a04a21-6ff. Generation overlap/clipping gate remains the NEXT controlled step after that live proof.",
+    "RESUME TEMPLATE DEPARTMENT — CONSOLIDATION_REQUIRED. Canonical human master: SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md. Core factory historical goal remains met. Do not treat OPERATIONALLY_COMPLETE as current live truth. Do not retry revtask-5d933072-daf or revtask-76a04a21-6ff. Next authorized step is consolidation planning, not another Request Changes. Website Department remains the next major product department.",
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B — Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B — Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-23T13:27:52.000Z",
+      "type": "department_source_of_truth",
+      "summary": "Resume Template Department canonical master baseline. Local wall=2026-09-23T18:57:52+05:30. UTC=2026-09-23T13:27:52.000Z. Created SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md as the single human-readable source of truth. project-state remains the machine checkpoint and now points at that file. Current operational status set to CONSOLIDATION_REQUIRED. Historical CORE_RESUME_TEMPLATE_FACTORY_GOAL_MET preserved. OPERATIONALLY_COMPLETE is not asserted as live truth. Fresh SHAs local=origin=VPS 388895bf90d603f24882eb016841f82b8dad5d46. Fresh VPS: waiting_founder=20 queue_max=20 review_queue_count=51 revision READY 18 / FAILED_GATE 15 / FAILED_COVERAGE 9 / FAILED 7; memory JSONL 1242 active-index 382; revtask-5d933072-daf FAILED_SECTION_COMPLETENESS recorded. No architecture code change, no OpenAI, no revision, no generation, no publication, no service restart."
+    },
     {
       "at": "2026-09-23T07:36:41.000Z",
       "type": "revision_maintenance_repair",
@@ -3363,6 +3368,29 @@
     "deployed_at_utc": "2026-09-23T07:36:41.000Z",
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only",
     "vps_backup": "20260923T073638Z"
+  },
+  "resume_template_department_master_doc": "SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md",
+  "resume_template_department_current_status": "CONSOLIDATION_REQUIRED",
+  "core_resume_template_factory_goal_met": true,
+  "resume_template_department": {
+    "master_doc": "SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md",
+    "current_status": "CONSOLIDATION_REQUIRED",
+    "core_factory_historical_goal_met": true,
+    "operationally_complete_currently_asserted": false,
+    "revision_engineering_status": "CONSOLIDATION_REQUIRED",
+    "next_major_department": "Website Analysis / QA / Development",
+    "next_authorized_step": "Resume Template Department consolidation planning",
+    "do_not_retry_tasks": [
+      "revtask-5d933072-daf",
+      "revtask-76a04a21-6ff"
+    ],
+    "snapshot_ist": "2026-09-23T18:57:52+05:30",
+    "snapshot_utc": "2026-09-23T13:27:52.000Z",
+    "heads": {
+      "local": "388895bf90d603f24882eb016841f82b8dad5d46",
+      "origin": "388895bf90d603f24882eb016841f82b8dad5d46",
+      "vps": "388895bf90d603f24882eb016841f82b8dad5d46"
+    }
   }
 
 }

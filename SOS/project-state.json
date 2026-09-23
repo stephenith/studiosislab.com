@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "RESUME TEMPLATE DEPARTMENT — CONSOLIDATION_REQUIRED. Canonical human master: SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md. Core factory historical goal remains met. Do not treat OPERATIONALLY_COMPLETE as current live truth. Do not retry revtask-5d933072-daf or revtask-76a04a21-6ff. Next authorized step is consolidation planning, not another Request Changes. Website Department remains the next major product department.",
+    "PROJECT-WIDE MASTER — SOS/STUDIOSISLAB_PROJECT_MASTER.md is the canonical human project source of truth. project-state remains the machine checkpoint. Resume Template Department remains CONSOLIDATION_REQUIRED. Next authorized step is Resume Template Department consolidation planning. Do not treat OPERATIONALLY_COMPLETE as current live truth. Do not retry revtask-5d933072-daf or revtask-76a04a21-6ff. Website Department remains the next major product department and is not activated.",
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B — Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B — Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-23T13:42:41.000Z",
+      "type": "project_source_of_truth",
+      "summary": "StudiosisLab project-wide canonical master baseline. Local wall=2026-09-23T19:12:41+05:30. UTC=2026-09-23T13:42:41.000Z. Created SOS/STUDIOSISLAB_PROJECT_MASTER.md as the single project-wide human-readable source of truth. Resume Template master remains the independent department master. project-state remains the machine checkpoint and now points at the project master. Fresh SHAs local=origin=VPS c6f143bc9a047fc15bee853c7de5e4eca5a14012. Resume status remains CONSOLIDATION_REQUIRED. No planned department activated. No architecture/Website/Resume code change, no OpenAI, no revision, no generation, no publication, no service restart."
+    },
     {
       "at": "2026-09-23T13:27:52.000Z",
       "type": "department_source_of_truth",
@@ -3369,6 +3374,7 @@
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only",
     "vps_backup": "20260923T073638Z"
   },
+  "studiosislab_project_master_doc": "SOS/STUDIOSISLAB_PROJECT_MASTER.md",
   "resume_template_department_master_doc": "SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md",
   "resume_template_department_current_status": "CONSOLIDATION_REQUIRED",
   "core_resume_template_factory_goal_met": true,
@@ -3390,6 +3396,29 @@
       "local": "388895bf90d603f24882eb016841f82b8dad5d46",
       "origin": "388895bf90d603f24882eb016841f82b8dad5d46",
       "vps": "388895bf90d603f24882eb016841f82b8dad5d46"
+    }
+  },
+  "studiosislab_project": {
+    "master_doc": "SOS/STUDIOSISLAB_PROJECT_MASTER.md",
+    "resume_template_department_master_doc": "SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md",
+    "current_priority": "Resume Template Department consolidation planning",
+    "resume_template_department_current_status": "CONSOLIDATION_REQUIRED",
+    "core_resume_template_factory_goal_met": true,
+    "operationally_complete_currently_asserted": false,
+    "next_major_department": "Website Analysis / QA / Development",
+    "planned_departments_not_activated": [
+      "Website Analysis / QA / Development",
+      "SEO",
+      "Paid Ads / Traffic",
+      "Revenue / Monetization",
+      "AIOS System Audit / Optimization"
+    ],
+    "snapshot_ist": "2026-09-23T19:12:41+05:30",
+    "snapshot_utc": "2026-09-23T13:42:41.000Z",
+    "heads": {
+      "local": "c6f143bc9a047fc15bee853c7de5e4eca5a14012",
+      "origin": "c6f143bc9a047fc15bee853c7de5e4eca5a14012",
+      "vps": "c6f143bc9a047fc15bee853c7de5e4eca5a14012"
     }
   }
 

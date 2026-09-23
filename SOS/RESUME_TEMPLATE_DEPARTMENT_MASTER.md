@@ -6,14 +6,15 @@ This file is the **canonical human-readable source of truth** for the StudiosisL
 
 | Surface | Role |
 |---|---|
-| `SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md` | Human-readable complete system truth (this file) |
+| `SOS/STUDIOSISLAB_PROJECT_MASTER.md` | Project-wide human master (read first for any StudiosisLab task) |
+| `SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md` | Human-readable complete system truth for this department (this file) |
 | `SOS/project-state.json` | Machine-readable current checkpoint |
 | Code + runtime evidence | Overrides stale prose |
 | Historical tasks / fixtures / evidence JSON | Immutable |
 
 **Rules**
 
-- All future Resume Template Agent work must read this file first, then `SOS/project-state.json`.
+- All future Resume Template Agent work must read the project-wide master, then this file, then `SOS/project-state.json`.
 - Code and VPS evidence override this file when they disagree.
 - Historical evidence is never mutated or rewritten.
 - After every audit, implementation, commit, deploy, production proof, failure, Founder decision, or architecture decision, **this file must be updated**.
@@ -23,19 +24,20 @@ This file is the **canonical human-readable source of truth** for the StudiosisL
 
 **BEFORE any future Resume Template Department change:**
 
-1. Read this entire master file.
-2. Read `SOS/project-state.json`.
-3. Verify relevant code/runtime evidence.
-4. State current position in the consolidation roadmap.
-5. State whether proposed work advances the business objective.
-6. Record the planned action here (Change Log + Current Next Step).
-7. Only then implement.
+1. Read `SOS/STUDIOSISLAB_PROJECT_MASTER.md`.
+2. Read this entire master file.
+3. Read `SOS/project-state.json`.
+4. Verify relevant code/runtime evidence.
+5. State current position in the consolidation roadmap.
+6. State whether proposed work advances the business objective.
+7. Record the planned action here (Change Log + Current Next Step).
+8. Only then implement.
 
-**AFTER every:** audit, Agent run, implementation, commit, deploy, production proof, failure, Founder decision, architecture decision — update this file and `SOS/project-state.json` as required.
+**AFTER every:** audit, Agent run, implementation, commit, deploy, production proof, failure, Founder decision, architecture decision — update this file, the project-wide master when the change is cross-project, and `SOS/project-state.json` as required.
 
 Every future Cursor Agent prompt must include:
 
-> Read the canonical Resume Template Department master document and `SOS/project-state.json` before making any change, and update both as required before stopping.
+> Read `SOS/STUDIOSISLAB_PROJECT_MASTER.md`, this Resume Template Department master, and `SOS/project-state.json` before making any change, and update the appropriate documents before stopping.
 
 ### Older documentation (not deleted)
 

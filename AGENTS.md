@@ -2,9 +2,10 @@
 
 ## Authoritative state
 
-- Before every major implementation, read `SOS/project-state.json`.
+- Before every StudiosisLab task, read `SOS/STUDIOSISLAB_PROJECT_MASTER.md`, the relevant department master if one exists, and `SOS/project-state.json`.
 - Compare proposed work with the recorded current department, roadmap and business goal.
 - Do not create unrelated architecture, duplicate systems, broad side fixes or speculative hardening.
+- Update the project master, the relevant department master, and project-state as required by the change (see the project master update protocol).
 - Update project-state only after a meaningful verified milestone and only when the task explicitly authorizes it.
 - Milestone timestamps must include exact India time with `+05:30` and corresponding UTC time.
 
@@ -13,9 +14,11 @@
 - StudiosisLab is a public SaaS website built with Next.js App Router, TypeScript, React, Tailwind, Fabric.js, Firebase and Vercel.
 - AIOS operational code primarily lives under `SOS/SAIOS/`.
 - Persisted AIOS evidence/state primarily lives under `SOS/07_LOGS/saios/`.
+- Human project-wide source of truth: `SOS/STUDIOSISLAB_PROJECT_MASTER.md`.
+- Machine checkpoint: `SOS/project-state.json`.
 - Roadmap order:
-  1. Resume Template Department — operationally complete
-  2. Website Analysis / QA / Development — current
+  1. Resume Template Department — current work; `CONSOLIDATION_REQUIRED` (historical core factory goal remains met; do not assert live `OPERATIONALLY_COMPLETE`)
+  2. Website Analysis / QA / Development — next major product department (not current authorized work)
   3. SEO
   4. Paid acquisition/campaigns
   5. Ad placement and monetization
@@ -23,9 +26,10 @@
 
 ## Resume Template boundary
 
-- The Resume Template Department is `OPERATIONALLY_COMPLETE`.
-- Revision engineering is maintenance/regression-only.
-- Do not redesign or reopen Resume Template production systems unless a new real production regression is proven.
+- Canonical department master: `SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md`.
+- Current live status is `CONSOLIDATION_REQUIRED`. Historical `CORE_RESUME_TEMPLATE_FACTORY_GOAL_MET` remains true.
+- Next authorized Resume step is consolidation planning, not another Operations Analyst Request Changes retry.
+- Do not redesign or reopen Resume Template production systems unless the Founder authorizes consolidation work or a new real production regression is proven.
 - In user-facing text, always use “Resume Template” and “Resume Template ID”.
 - Existing `candidate`, `candidate_id` and `candidates/` names are legacy internal identifiers and may remain for compatibility.
 

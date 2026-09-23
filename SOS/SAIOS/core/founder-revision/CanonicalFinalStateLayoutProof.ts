@@ -23,6 +23,7 @@ import {
   READABLE_SEQUENTIAL_GAP_PX,
 } from "./RevisionLayoutNormalizer.js";
 import { isCollisionOrReadableGapLayoutRequest } from "./RevisionIntentScope.js";
+import { sectionTokensFromText } from "./PositionOpCanonicalization.js";
 
 export const CANONICAL_LAYOUT_SCHEMA =
   "founder-revision-canonical-layout-intent-1.0.0" as const;
@@ -351,12 +352,14 @@ function sequentialTextPairs(
 }
 
 function mentionedSections(item: string, canvas: FabricCanvasDoc): string[] {
-  const n = item.toLowerCase();
   const present = new Set<string>();
   for (const o of (canvas.objects ?? []) as Array<Record<string, unknown>>) {
     const s = sectionOf(o);
     if (s && s !== "header") present.add(s);
   }
+  const focused = sectionTokensFromText(item).filter((s) => present.has(s));
+  if (focused.length > 0) return focused;
+  const n = item.toLowerCase();
   const named = [...present].filter((s) => new RegExp(`\\b${s}\\b`, "i").test(n));
   if (named.length > 0) return named;
   if (/\b(sidebar|column|page|section)\b/.test(n)) return [...present];

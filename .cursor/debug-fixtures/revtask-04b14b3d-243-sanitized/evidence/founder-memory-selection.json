@@ -1,0 +1,30 @@
+{
+  "schema_version": "founder-memory-selection-1.0.0",
+  "channel": "revision",
+  "context": {
+    "role": "Operations Analyst",
+    "role_family": null,
+    "category": null,
+    "design_family": "professional_sidebar",
+    "architecture": "narrow_ats_sidebar",
+    "section": null,
+    "component": null
+  },
+  "selected": [],
+  "excluded": [],
+  "memory_ids": [],
+  "prompt_block": "",
+  "truncated": false,
+  "prompt_hash": "e3b0c44298fc1c14",
+  "FOUNDER_MEMORY_CONSUMED": false,
+  "counts": {
+    "considered": 0,
+    "selected": 0,
+    "irrelevant": 0,
+    "ambiguous": 0,
+    "ineligible": 0,
+    "conflicting": 0,
+    "superseded": 0
+  },
+  "evaluated_at": "2026-09-23T06:34:20.765Z"
+}

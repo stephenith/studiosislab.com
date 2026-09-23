@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PHASE 6N \u2014 Unified revision-plan canonicalization deployed. Founder will authorize exactly ONE follow-up layout live proof after reviewing this report. Do not auto-create the Founder Request Changes decision. Do not retry revtask-e5cdec1a-40e. Generation overlap/clipping gate remains the NEXT controlled step after that live proof.",
+    "PHASE 6O \u2014 Layout-owned empty-plan contract alignment implemented. Founder will authorize exactly ONE follow-up layout live proof after reviewing this report. Do not auto-create the Founder Request Changes decision. Do not retry revtask-04b14b3d-243. Generation overlap/clipping gate remains the NEXT controlled step after that live proof.",
     "NEXT DEPARTMENT \u2014 Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B \u2014 Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B \u2014 Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back \u2014 snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-23T06:42:30.000Z",
+      "type": "revision_maintenance_repair",
+      "summary": "Phase 6O LAYOUT_OWNED_EMPTY_PLAN_CONTRACT_ALIGNMENT implemented and LOCAL_VERIFIED (offline). Local wall=2026-09-23T12:12:30+05:30. UTC=2026-09-23T06:42:30.000Z. Plan completeness now consumes resolveItemCoverageMode; DETERMINISTIC_LAYOUT_OWNED / VERIFICATION_ACCEPTANCE / PRESERVATION_CONSTRAINT / VALIDATION_ONLY allow an empty AI plan. Offline fixture revtask-04b14b3d-243: empty primary contradiction reproduced, then runFounderFeedbackRevision reaches READY_FOR_FOUNDER_REVIEW without ShapePlanRepair. Skills 3.20\u21926.00; Education 900\u2192799.6; gap 127.9\u219243.1; overlaps=0 oob=0; coverage 23/23. Ambiguous attribution still fail-closed. 6G/6H/6I/6J/6K/6L/6M/6N/Marketing Manager regressions PASS. Historical failed tasks unchanged. No OpenAI call, no generation, no revision run, no Founder decision, no publication. Resume Template Department remains OPERATIONALLY_COMPLETE; revision engineering remains MAINTENANCE / REGRESSION ONLY. NEXT DEPARTMENT remains Website Analysis / QA / Development."
+    },
     {
       "at": "2026-09-22T14:45:41.000Z",
       "type": "revision_maintenance_repair",
@@ -3191,5 +3196,72 @@
     "deployed_at_utc": "2026-09-22T14:45:41.000Z",
     "deploy_method": "git merge --ff-only origin/main on VPS; restarted aios-founder-dashboard.service only",
     "vps_backup": "20260922T144521Z"
+  },
+  "phase_6o": {
+    "status": "local_verified",
+    "classification": "LAYOUT_OWNED_EMPTY_PLAN_CONTRACT_ALIGNMENT",
+    "scope": "Plan-completeness / allow-empty contract only. Resume Template Department NOT reopened.",
+    "problem": "revtask-04b14b3d-243 FAILED at plan_schema because an empty layout-owned primary plan was rejected as operations must be a non-empty array, triggering ShapePlanRepair and a dummy unattributable move.",
+    "diagnostic_task": "revtask-04b14b3d-243",
+    "prior_failure_tasks": [
+      "revtask-b5339d03-b67",
+      "revtask-9441fe34-4ba",
+      "revtask-b9a65ad0-eb0",
+      "revtask-33ef5466-f24",
+      "revtask-7a1c0899-4d6",
+      "revtask-dd26226e-d8b",
+      "revtask-6ddb8eb8-e9c",
+      "revtask-a0009171-849",
+      "revtask-e5cdec1a-40e",
+      "revtask-04b14b3d-243"
+    ],
+    "invariant": [
+      "resolveItemCoverageMode is the canonical mutation-requirement owner",
+      "DETERMINISTIC_LAYOUT_OWNED items do not require AI executable operations",
+      "Empty AI plan is valid only when every Founder item is a non-AI owner",
+      "Genuine MUTATION_REQUIRED content still requires an executable operation",
+      "founder_feedback_item remains required on executable AI operations",
+      "Ambiguous attribution fail-closed; no invented Founder item",
+      "No dummy zero-delta operations",
+      "Empty AI plan still continues through deterministic layout and acceptance",
+      "Phase 6N shared prepare pipeline and max provider calls=2 unchanged",
+      "No retry or mutation of historical failed revision tasks including revtask-04b14b3d-243",
+      "No live production OpenAI during implementation"
+    ],
+    "offline_fixture": ".cursor/debug-fixtures/revtask-04b14b3d-243-sanitized",
+    "production_failure_reproduced_offline": true,
+    "verifier": "aios:revision:empty-plan-contract-6o:verify",
+    "matrix_result": "PASS",
+    "six_g_regression": "PASS 45/45",
+    "six_h_regression": "PASS 43/43",
+    "six_i_regression": "PASS 34/34",
+    "six_j_regression": "PASS 43/43",
+    "six_k_regression": "PASS 42/42",
+    "six_l_production_parity": "PASS",
+    "six_m_production_parity": "PASS",
+    "six_n_regression": "PASS",
+    "generation_role_regression": "PASS",
+    "marketing_manager_replay": "PASS 17/17",
+    "empty_plan_owners": 4,
+    "04b_primary_empty_plan_allowed": true,
+    "04b_shape_repair_triggered_after": false,
+    "04b_production_parity_final_state": "READY_FOR_FOUNDER_REVIEW",
+    "skills_gap_before_px": 3.2,
+    "skills_gap_after_px": 6.0,
+    "education_top_before_px": 900,
+    "education_top_after_px": 799.6,
+    "experience_education_gap_before_px": 127.9,
+    "experience_education_gap_after_px": 43.1,
+    "openai_called": false,
+    "generation_executed": false,
+    "revision_executed": false,
+    "founder_decision_created": false,
+    "publication_executed": false,
+    "resume_template_department_status": "OPERATIONALLY_COMPLETE",
+    "revision_engineering_status": "MAINTENANCE / REGRESSION ONLY",
+    "next_major_department": "Website Analysis / QA / Development",
+    "milestone_ist": "2026-09-23T12:12:30+05:30",
+    "milestone_utc": "2026-09-23T06:42:30.000Z",
+    "baseline_commit_before": "60cb0f127dcd66c34d044b33ce93e27ea726b32a"
   }
 }

@@ -63,6 +63,7 @@ const HISTORICAL = [
   "revtask-6ddb8eb8-e9c",
   "revtask-a0009171-849",
   "revtask-e5cdec1a-40e",
+  "revtask-04b14b3d-243",
 ];
 
 type Check = { name: string; pass: boolean; detail: string };
@@ -717,6 +718,88 @@ async function main(): Promise<void> {
     }
   }
 
+  const FIX6O = join(
+    REPO,
+    ".cursor/debug-fixtures/revtask-04b14b3d-243-sanitized",
+  );
+  const task6o = readJson<{
+    requested_changes: string[];
+    prior_candidate_id: string;
+    role: string;
+    founder_reason: string;
+  }>(join(FIX6O, "revtask-04b14b3d-243.json"));
+  const primary6o = readJson<Record<string, unknown>>(
+    join(FIX6O, "evidence/primary-raw-structured.json"),
+  );
+  const golden6oTmp = mkdtempSync(join(tmpdir(), "aios-6l-6o-golden-"));
+  const golden6oCand = join(golden6oTmp, "candidates");
+  const golden6oOut = join(golden6oTmp, "founder-revision");
+  const golden6oTasks = join(golden6oOut, "tasks");
+  mkdirSync(golden6oTasks, { recursive: true });
+  cpSync(join(FIX6O, "prior"), join(golden6oCand, task6o.prior_candidate_id), {
+    recursive: true,
+  });
+  setRevisionTasksDirForTests(golden6oTasks);
+  setRevisionPipelineRootsForTests({
+    candRoot: golden6oCand,
+    outRoot: golden6oOut,
+  });
+  let golden6oStatus = "UNRUN";
+  let golden6oError: string | null = null;
+  let golden6oCalls = 0;
+  try {
+    const created = createRevisionTask({
+      decision_id: `fd-6l-6o-golden-${Date.now().toString(36)}`,
+      review_id: "founder-review-6l-6o-golden",
+      prior_candidate_id: task6o.prior_candidate_id,
+      prior_canvas_path: join(
+        golden6oCand,
+        task6o.prior_candidate_id,
+        "canvas.json",
+      ),
+      founder_reason: task6o.founder_reason,
+      requested_changes: task6o.requested_changes,
+      role: task6o.role,
+      design_family: "professional_sidebar",
+      architecture: "narrow_ats_sidebar",
+    });
+    const run = await runFounderFeedbackRevision({
+      task_id: created.task.task_id,
+      skip_preview: true,
+      critiqueOverride: passingCritic,
+      executePlanner: async () => {
+        golden6oCalls += 1;
+        return {
+          status: "COMPLETED",
+          structured_output: primary6o,
+          provider_request_id: "6l-6o-golden",
+          model_identifier_internal: "fixture",
+          input_tokens: 1,
+          output_tokens: 1,
+        };
+      },
+    });
+    golden6oStatus = run.task.status;
+    golden6oError = run.error;
+    checks.push(
+      assert(
+        golden6oCalls === 1 &&
+          run.ok &&
+          run.task.status === "READY_FOR_FOUNDER_REVIEW",
+        "golden_04b14b3d_empty_plan_ready_for_founder_review",
+        `calls=${golden6oCalls} ${run.task.status} owner=${run.task.failure_owner ?? ""} ${run.error ?? ""}`,
+      ),
+    );
+  } finally {
+    setRevisionPipelineRootsForTests(null);
+    setRevisionTasksDirForTests(null);
+    try {
+      rmSync(golden6oTmp, { recursive: true, force: true });
+    } catch {
+      /* ignore */
+    }
+  }
+
   const malformed = await runIsolated({
     priorId: "cand-6l-malformed",
     canvas: miniCanvas([textObj("t1", "Operations Analyst", 40)]),
@@ -1159,6 +1242,8 @@ async function main(): Promise<void> {
     golden_followup_layout_error: golden6mError,
     golden_e5cdec1a_status: golden6nStatus,
     golden_e5cdec1a_error: golden6nError,
+    golden_04b14b3d_status: golden6oStatus,
+    golden_04b14b3d_error: golden6oError,
     checks,
     publication_allowed: false,
     live: false,

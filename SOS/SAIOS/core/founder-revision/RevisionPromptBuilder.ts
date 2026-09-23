@@ -442,6 +442,23 @@ export type ItemCoverageMode =
   | "VALIDATION_ONLY"
   | "DETERMINISTIC_LAYOUT_OWNED";
 
+/** Coverage modes that must not require an AI executable mutation. */
+export const NON_AI_OPERATION_COVERAGE_MODES = [
+  "DETERMINISTIC_LAYOUT_OWNED",
+  "VERIFICATION_ACCEPTANCE",
+  "PRESERVATION_CONSTRAINT",
+  "VALIDATION_ONLY",
+] as const satisfies readonly ItemCoverageMode[];
+
+export const NUMBER_OF_EMPTY_PLAN_OWNERS =
+  NON_AI_OPERATION_COVERAGE_MODES.length;
+
+export function founderItemRequiresAiExecutableMutation(
+  requestedChange: string,
+): boolean {
+  return resolveItemCoverageMode(requestedChange) === "MUTATION_REQUIRED";
+}
+
 export function resolveItemCoverageMode(
   requestedChange: string,
 ): ItemCoverageMode {
@@ -1808,24 +1825,15 @@ function feedbackItemCovered(
  * VERIFICATION_ACCEPTANCE items are exempt from plan-operation completeness only
  * (they still require deterministic post-execution acceptance evidence).
  */
-/** True when plan completeness may omit ops for this Founder line. */
+/**
+ * True when plan completeness may omit ops for this Founder line.
+ * Canonical owner is resolveItemCoverageMode — do not re-derive exemption
+ * from a second regex set (Phase 6O).
+ */
 export function isPlanCoverageExemptRequestedChange(
   requestedChange: string,
 ): boolean {
-  const classification =
-    classifyRequestedChange(requestedChange).classification;
-  // Verification and preservation requirements are proven by deterministic
-  // post-execution evidence and require ZERO operations (Phase 6G).
-  if (
-    classification === "VERIFICATION_ACCEPTANCE" ||
-    classification === "PRESERVATION_CONSTRAINT"
-  ) {
-    return true;
-  }
-  if (isValidationOnlyRequestedChange(requestedChange)) {
-    return true;
-  }
-  return isDeterministicLayoutNormalizerOwnedChange(requestedChange);
+  return !founderItemRequiresAiExecutableMutation(requestedChange);
 }
 
 /** All MUTATION_REQUIRED items are verification or normalizer-owned. */

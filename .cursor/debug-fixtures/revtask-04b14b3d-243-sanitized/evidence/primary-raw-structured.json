@@ -1,0 +1,13 @@
+{
+  "schema_version": "founder-canvas-revision-plan-1.0.0",
+  "summary": "This plan implements the required layout-only revisions to correct the visible collision and vertical spacing between the \"Process Design\" and \"Excel\" bullets in the Skills section and moves the Education section upward to follow the final Experience entry with an appropriate major-section gap, without altering any content or overall design. All spacing/rhythm corrections are managed by deterministic layout normalization, so no direct geometry mutations are needed.",
+  "operations": [],
+  "notes": [
+    "All spacing and collision corrections within the Skills section and between Experience and Education sections are managed by deterministic layout normalization, resulting in zero direct mutation operations.",
+    "No content or typography changes were needed or performed according to the explicit preservation constraints.",
+    "No section headings or markers required repositioning as vertical rhythm corrections are handled externally.",
+    "No operation objects emitted due to deterministic layout ownership of all requested spacing and positioning corrections."
+  ],
+  "capability": "revision_planning",
+  "provider": "openai"
+}

@@ -1,0 +1,172 @@
+{
+  "schema_version": "phase-6o-pre-change-contradiction-1.0.0",
+  "generated_at": "2026-09-23T06:34:20.769Z",
+  "allow_empty_plan": false,
+  "primary_operations_length": 0,
+  "primary_shape_ok": false,
+  "primary_shape_errors": [
+    "operations must be a non-empty array"
+  ],
+  "shape_repairable": true,
+  "layout_owned_count": 11,
+  "layout_owned_not_exempt": [
+    {
+      "index": 2,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": false,
+      "text": "Correct the visible collision between the “Process Design” and “Excel” bullet rows in the Skills section."
+    },
+    {
+      "index": 4,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": false,
+      "text": "Position “Excel” below “Process Design” with clear positive vertical separation."
+    },
+    {
+      "index": 22,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": false,
+      "text": "Return the same one-page Operations Analyst Resume Template with the existing content preserved and only the remaining Skills spacing and Experience-to-Education positioning corrected."
+    }
+  ],
+  "modes": [
+    {
+      "index": 0,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "exempt": true,
+      "text": "Treat this request as a layout-only revision and preserve all existing Operations Analyst content."
+    },
+    {
+      "index": 1,
+      "mode": "PRESERVATION_CONSTRAINT",
+      "exempt": true,
+      "text": "Preserve the current professional title, Summary, Experience text, Skills wording, Projects, Certifications, Languages, Education text, candidate name, contact information, colors, typography, header, sidebar, and two-column architecture."
+    },
+    {
+      "index": 2,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": false,
+      "text": "Correct the visible collision between the “Process Design” and “Excel” bullet rows in the Skills section."
+    },
+    {
+      "index": 3,
+      "mode": "PRESERVATION_CONSTRAINT",
+      "exempt": true,
+      "text": "Keep both “Process Design” and “Excel” as separate Skills entries; do not delete, combine, rename, or rewrite either entry."
+    },
+    {
+      "index": 4,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": false,
+      "text": "Position “Excel” below “Process Design” with clear positive vertical separation."
+    },
+    {
+      "index": 5,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": true,
+      "text": "Use the same visual line spacing between “Process Design” and “Excel” that is used between the other Skills bullet rows."
+    },
+    {
+      "index": 6,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "exempt": true,
+      "text": "Verify the entire Skills list from Operational Analysis through SQL Basics and ensure every consecutive bullet has consistent readable vertical spacing."
+    },
+    {
+      "index": 7,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "exempt": true,
+      "text": "Ensure no Skills bullet touches, overlaps, clips, or visually merges with another Skills bullet."
+    },
+    {
+      "index": 8,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": true,
+      "text": "If correcting the Skills bullet positions changes the total Skills section height, safely reflow Projects, Certifications, and Languages downward or upward as required while preserving their order."
+    },
+    {
+      "index": 9,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": true,
+      "text": "Maintain a consistent section gap between the end of Skills and the Projects heading."
+    },
+    {
+      "index": 10,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": true,
+      "text": "Maintain a consistent section gap between the end of Projects and the Certifications heading."
+    },
+    {
+      "index": 11,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": true,
+      "text": "Maintain a consistent section gap between the end of Certifications and the Languages heading."
+    },
+    {
+      "index": 12,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": true,
+      "text": "Reduce the vertical gap between the final Experience content and the Education heading."
+    },
+    {
+      "index": 13,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": true,
+      "text": "Move the Education section upward so it follows the final Fieldwork Media Experience entry with a normal readable major-section gap."
+    },
+    {
+      "index": 14,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": true,
+      "text": "Use the Summary-to-Experience spacing and the existing right-column visual rhythm as references when positioning Education after Experience."
+    },
+    {
+      "index": 15,
+      "mode": "PRESERVATION_CONSTRAINT",
+      "exempt": true,
+      "text": "Preserve the current Education heading, degree, institution, certificate, and dates; change only its vertical positioning."
+    },
+    {
+      "index": 16,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "exempt": true,
+      "text": "Do not rewrite Experience or Education content in order to perform these positioning changes."
+    },
+    {
+      "index": 17,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "exempt": true,
+      "text": "Do not introduce a new large blank gap elsewhere when Education is moved upward."
+    },
+    {
+      "index": 18,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "exempt": true,
+      "text": "Keep Education below Experience and ensure there is clear positive separation with no overlap."
+    },
+    {
+      "index": 19,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "exempt": true,
+      "text": "After the layout adjustment, verify that the Skills section has zero text overlaps."
+    },
+    {
+      "index": 20,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "exempt": true,
+      "text": "After the layout adjustment, verify that the entire resume has zero text overlaps and zero page out-of-bounds objects."
+    },
+    {
+      "index": 21,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "exempt": true,
+      "text": "Before returning to Founder Review, visually verify that “Process Design” and “Excel” are clearly separated and that Education follows Experience without an excessive blank vertical gap."
+    },
+    {
+      "index": 22,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "exempt": false,
+      "text": "Return the same one-page Operations Analyst Resume Template with the existing content preserved and only the remaining Skills spacing and Experience-to-Education positioning corrected."
+    }
+  ]
+}

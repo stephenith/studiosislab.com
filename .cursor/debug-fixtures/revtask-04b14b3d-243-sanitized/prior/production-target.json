@@ -1,0 +1,17 @@
+{
+  "category": "ats",
+  "title": "Operations Analyst",
+  "industry": "software",
+  "seniority": "entry",
+  "objective": "Premium ATS-optimized ats resume for software professional",
+  "role_family": "operations_analyst",
+  "goal_id": "goal-missing_seniority-ats-entry-software",
+  "strategy_version": 1,
+  "priority": 1,
+  "strategy_reason": "Missing or underrepresented seniority \"entry\"",
+  "strategy_source": "portfolio.gaps.underrepresented_seniorities",
+  "selected_at": "2026-08-07T22:37:35.137Z",
+  "owner": "canonical_resume_production_intake",
+  "ai_planner": false,
+  "company_brain": false
+}

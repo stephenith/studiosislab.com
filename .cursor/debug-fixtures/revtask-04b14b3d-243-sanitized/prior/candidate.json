@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "candidate_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511-revfb-f6c1e7",
+  "template_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511-revfb-f6c1e7",
+  "product_kind": "resume_template",
+  "task_id": "cycle-cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511-revfb-f6c1e7",
+  "review_id": "founder-review-cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511-revfb-f6c1e7",
+  "cycle_id": "cycle-run-cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511-revfb-f6c1e7",
+  "run_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511-revfb-f6c1e7",
+  "created_at": "2026-09-22T08:37:50.829Z",
+  "updated_at": "2026-09-22T08:37:50.829Z",
+  "status": "READY_FOR_FOUNDER_REVIEW",
+  "publication_allowed": false,
+  "provider": "openai",
+  "failure_stage": null,
+  "failure_detail": null,
+  "revision": {
+    "revision_id": "revision-revfb-f6c1e7",
+    "revision_number": 1,
+    "prior_candidate_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511",
+    "prior_review_id": "founder-review-cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511",
+    "prior_decision_id": "fd-c9949bc8-cd8",
+    "revision_task_id": "revtask-46b4c3c5-01a",
+    "tag": "revfb",
+    "engine": "openai_canvas_revision_v1",
+    "ready_for_founder_review": true,
+    "approved": false
+  },
+  "target": {
+    "category": "ats",
+    "title": "Operations Analyst professional_sidebar revised v1",
+    "industry": "software",
+    "seniority": "entry",
+    "objective": "Founder feedback revision of cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511 · decision fd-c9949bc8-cd8",
+    "role_family": "operations_analyst"
+  },
+  "artifacts": {
+    "canvas": "canvas.json",
+    "preview": "preview.png",
+    "thumbnail": "thumbnail.png",
+    "critic": "critic.json",
+    "gate": "gate.json",
+    "editor_compatibility": "editor-compatibility.json",
+    "resume_template": "resume-template.json",
+    "revision_summary": "revision-summary.json",
+    "feedback_coverage": "feedback-coverage.json",
+    "operation_log": "operation-log.json",
+    "openai_execution": "openai-execution.json"
+  }
+}

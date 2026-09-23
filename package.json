@@ -195,6 +195,7 @@
     "aios:revision:production-parity-6l:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-revision-production-parity-6l.ts",
     "aios:revision:intent-scope-6m:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-revision-intent-scope-6m.ts",
     "aios:revision:plan-canonicalization-6n:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-revision-plan-canonicalization-6n.ts",
+    "aios:revision:empty-plan-contract-6o:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-empty-plan-contract-6o.ts",
     "aios:revision:section-content-auth:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-section-content-authorization-6f.ts",
     "aios:memory:task-wiring:verify": "npx --yes tsx SOS/SAIOS/core/founder-memory/verify-memory-task-wiring-6f.ts",
     "aios:revision:heading-rect:verify": "npx --yes tsx SOS/SAIOS/core/founder-revision/verify-heading-rect-pairing.ts",

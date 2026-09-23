@@ -266,6 +266,13 @@ function parseExplicitMoveDirectionsUnmasked(n: string): Set<VerticalDirection> 
   const out = new Set<VerticalDirection>();
   if (!n) return out;
 
+  // Disjunctive permission ("downward or upward as required") is not a hard
+  // dual-direction requirement. The owner may choose either axis.
+  n = n.replace(
+    /\b(?:upward|upwards|downward|downwards|up|down)\s+or\s+(?:upward|upwards|downward|downwards|up|down)(?:\s+as\s+required)?\b/g,
+    " ",
+  );
+
   // Explicit *-ward movement forms (after extension/negation masking).
   if (/\b(upward|upwards)\b/.test(n)) out.add("up");
   if (/\b(downward|downwards)\b/.test(n)) out.add("down");
@@ -381,7 +388,11 @@ function sectionTokensFromMoveActionClauses(n: string): string[] {
     /\b(?:mov(?:e|ing|ed)|shift(?:ing|ed)?|nudg(?:e|ing|ed)|reposition(?:ing|ed)?|rais(?:e|ing|ed)|lower(?:ing|ed)?)\b[\s\S]{0,100}/gi;
   let m: RegExpExecArray | null;
   while ((m = clauseRe.exec(n)) !== null) {
-    const clause = m[0]!;
+    // Relational tails ("so it follows … Experience") name landmarks, not
+    // additional move targets.
+    const clause = m[0]!.split(
+      /\b(?:so that|so it|after|before|below|above|under|over|following|beside)\b/,
+    )[0]!;
     for (const s of ALL_SECTION_TOKENS) {
       if (new RegExp(`\\b${s}\\b`).test(clause)) found.add(s);
     }

@@ -1,0 +1,33 @@
+{
+  "schema_version": "revision-failure-fixture-1.0.0",
+  "fixture_origin": "production evidence, sanitized offline copy; production originals unmodified.",
+  "task_id": "revtask-04b14b3d-243",
+  "decision_id": "fd-577a9ee2-6e8",
+  "prior_candidate_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511-revfb-f6c1e7",
+  "role": "Operations Analyst",
+  "design_family": "professional_sidebar",
+  "architecture": "narrow_ats_sidebar",
+  "task_status": "FAILED",
+  "failure_owner": "plan_schema",
+  "failure_code": "FAILED_PLAN",
+  "failure_stage": "PLANNING",
+  "requested_change_count": 23,
+  "primary_operations": [],
+  "primary_shape_error": "operations must be a non-empty array",
+  "shape_repair_triggered": true,
+  "shape_repair_operation_0": {
+    "op": "move_object",
+    "target_id": "block-skills-4-t3",
+    "values": { "delta_top": 0 },
+    "founder_feedback_item": null,
+    "founder_feedback_items_count": 11
+  },
+  "notes": [
+    "Primary provider emitted a legal layout-owned empty plan.",
+    "Completeness exemption did not follow resolveItemCoverageMode DETERMINISTIC_LAYOUT_OWNED.",
+    "Empty plan was rejected; ShapePlanRepair emitted a dummy zero-delta move.",
+    "Shared provenance repair correctly fail-closed on 11 MUTATION_REQUIRED secondaries.",
+    "Historical production task remains FAILED and must not be retried."
+  ],
+  "redacted": ["provider_request_id"]
+}

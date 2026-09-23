@@ -1,0 +1,706 @@
+{
+  "schema_version": "revision-intent-scope-1.0.0",
+  "items": [
+    {
+      "founder_feedback_item": "Treat this request as a layout-only revision and preserve all existing Operations Analyst content.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "treat this request as a layout-only revision",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "preserve all existing operations analyst content",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Preserve the current professional title, Summary, Experience text, Skills wording, Projects, Certifications, Languages, Education text, candidate name, contact information, colors, typography, header, sidebar, and two-column architecture.",
+      "classification": "PRESERVATION_CONSTRAINT",
+      "clauses": [
+        {
+          "text": "preserve the current professional title, summary, experience text, skills wording, projects, certifications, languages, education text, candidate name, contact information, colors, typography, header, sidebar, and two-column architecture",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "job_title",
+            "summary",
+            "experience",
+            "skills",
+            "projects",
+            "certifications",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "job_title",
+            "summary",
+            "experience",
+            "skills",
+            "projects",
+            "certifications",
+            "education"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Correct the visible collision between the “Process Design” and “Excel” bullet rows in the Skills section.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "correct the visible collision between the “process design” and “excel” bullet rows in the skills section",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "skills"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Keep both “Process Design” and “Excel” as separate Skills entries; do not delete, combine, rename, or rewrite either entry.",
+      "classification": "PRESERVATION_CONSTRAINT",
+      "clauses": [
+        {
+          "text": "keep both “process design” and “excel” as separate skills entries",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "skills"
+          ],
+          "verification_scope": []
+        },
+        {
+          "text": "delete, combine, rename, or rewrite either entry",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "do not delete, combine, rename, or rewrite either entry",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Position “Excel” below “Process Design” with clear positive vertical separation.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "position “excel” below “process design” with clear positive vertical separation",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Use the same visual line spacing between “Process Design” and “Excel” that is used between the other Skills bullet rows.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "use the same visual line spacing between “process design” and “excel” that is used between the other skills bullet rows",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "skills"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Verify the entire Skills list from Operational Analysis through SQL Basics and ensure every consecutive bullet has consistent readable vertical spacing.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "verify the entire skills list from operational analysis through sql basics",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": [
+            "skills"
+          ]
+        },
+        {
+          "text": "ensure every consecutive bullet has consistent readable vertical spacing",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Ensure no Skills bullet touches, overlaps, clips, or visually merges with another Skills bullet.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "ensure no skills bullet touches, overlaps, clips, or visually merges with another skills bullet",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": [
+            "skills"
+          ]
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "If correcting the Skills bullet positions changes the total Skills section height, safely reflow Projects, Certifications, and Languages downward or upward as required while preserving their order.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "if correcting the skills bullet positions changes the total skills section height, safely reflow projects, certifications, and languages downward or upward as required",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "skills",
+            "projects",
+            "certifications"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "skills",
+            "projects",
+            "certifications"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "preserving their order",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "if correcting the skills bullet positions changes the total skills section height, safely reflow projects, certifications, and languages downward or upward as required while preserving their order.",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "skills"
+          ],
+          "verification_scope": []
+        },
+        {
+          "text": "if correcting the skills bullet positions changes the total skills section height, safely reflow projects, certifications, and languages downward or upward as required while preserving their order.",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "projects"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "projects"
+          ],
+          "verification_scope": []
+        },
+        {
+          "text": "if correcting the skills bullet positions changes the total skills section height, safely reflow projects, certifications, and languages downward or upward as required while preserving their order.",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "certifications"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "certifications"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Maintain a consistent section gap between the end of Skills and the Projects heading.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "maintain a consistent section gap between the end of skills and the projects heading",
+          "positive": true,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [
+            "skills",
+            "projects"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "skills",
+            "projects"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Maintain a consistent section gap between the end of Projects and the Certifications heading.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "maintain a consistent section gap between the end of projects and the certifications heading",
+          "positive": true,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [
+            "projects",
+            "certifications"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "projects",
+            "certifications"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Maintain a consistent section gap between the end of Certifications and the Languages heading.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "maintain a consistent section gap between the end of certifications and the languages heading",
+          "positive": true,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [
+            "certifications"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "certifications"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Reduce the vertical gap between the final Experience content and the Education heading.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "reduce the vertical gap between the final experience content and the education heading",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "experience",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "experience",
+            "education"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Move the Education section upward so it follows the final Fieldwork Media Experience entry with a normal readable major-section gap.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "move the education section upward so it follows the final fieldwork media experience entry with a normal readable major-section gap",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "experience",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "experience",
+            "education"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Use the Summary-to-Experience spacing and the existing right-column visual rhythm as references when positioning Education after Experience.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "use the summary-to-experience spacing and the existing right-column visual rhythm as references when positioning education after experience",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "summary",
+            "experience",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "summary",
+            "experience",
+            "education"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Preserve the current Education heading, degree, institution, certificate, and dates; change only its vertical positioning.",
+      "classification": "PRESERVATION_CONSTRAINT",
+      "clauses": [
+        {
+          "text": "preserve the current education heading, degree, institution, certificate, and dates",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "education"
+          ],
+          "verification_scope": []
+        },
+        {
+          "text": "change only its vertical positioning",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Do not rewrite Experience or Education content in order to perform these positioning changes.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "rewrite experience or education content in order to perform these positioning changes",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "experience",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "experience",
+            "education"
+          ],
+          "verification_scope": []
+        },
+        {
+          "text": "do not rewrite experience or education content in order to perform these positioning changes",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "experience",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "experience",
+            "education"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Do not introduce a new large blank gap elsewhere when Education is moved upward.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "introduce a new large blank gap elsewhere when education is moved upward",
+          "positive": false,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "education"
+          ],
+          "verification_scope": []
+        },
+        {
+          "text": "do not introduce a new large blank gap elsewhere when education is moved upward",
+          "positive": false,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "education"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Keep Education below Experience and ensure there is clear positive separation with no overlap.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "keep education below experience",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "experience",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "experience",
+            "education"
+          ],
+          "verification_scope": []
+        },
+        {
+          "text": "ensure there is clear positive separation with no overlap",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "After the layout adjustment, verify that the Skills section has zero text overlaps.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "after the layout adjustment",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "verify that the skills section has zero text overlaps",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": [
+            "skills"
+          ]
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "After the layout adjustment, verify that the entire resume has zero text overlaps and zero page out-of-bounds objects.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "after the layout adjustment",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "verify that the entire resume has zero text overlaps and zero page out-of-bounds objects",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Before returning to Founder Review, visually verify that “Process Design” and “Excel” are clearly separated and that Education follows Experience without an excessive blank vertical gap.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "before returning to founder review, visually verify that “process design” and “excel” are clearly separated and that education follows experience",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [
+            "experience",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": [
+            "experience",
+            "education"
+          ]
+        },
+        {
+          "text": "an excessive blank vertical gap",
+          "positive": false,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "before returning to founder review, visually verify that “process design” and “excel” are clearly separated and that education follows experience without an excessive blank vertical gap",
+          "positive": false,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [
+            "experience",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "experience",
+            "education"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Return the same one-page Operations Analyst Resume Template with the existing content preserved and only the remaining Skills spacing and Experience-to-Education positioning corrected.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "return the same one-page operations analyst resume template with the existing content preserved and only the remaining skills spacing and experience-to-education positioning corrected",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "experience",
+            "skills",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "experience",
+            "skills",
+            "education"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    }
+  ],
+  "content_replacement_sections": [],
+  "content_removal_sections": [],
+  "content_mutation_sections": [],
+  "layout_sections": [
+    "skills",
+    "projects",
+    "certifications",
+    "experience",
+    "education",
+    "summary"
+  ],
+  "content_preservation_sections": [
+    "job_title",
+    "summary",
+    "experience",
+    "skills",
+    "projects",
+    "certifications",
+    "education"
+  ],
+  "layout_preservation_sections": [
+    "skills",
+    "projects",
+    "certifications",
+    "education",
+    "experience"
+  ]
+}

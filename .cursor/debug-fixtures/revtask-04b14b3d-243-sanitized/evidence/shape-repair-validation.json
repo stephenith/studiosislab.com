@@ -1,0 +1,14 @@
+{
+  "attempted": true,
+  "accepted": false,
+  "primary_shape_errors": [
+    "operations must be a non-empty array"
+  ],
+  "failure_kind": "repair_plan_invalid",
+  "error": "invalid revision plan after shape repair: operations[0].founder_feedback_item required",
+  "provider": "openai",
+  "provider_request_id": "REDACTED",
+  "model": "gpt-4.1-mini-2025-04-14",
+  "publication_allowed": false,
+  "live": false
+}

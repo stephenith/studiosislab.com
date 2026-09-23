@@ -65,6 +65,7 @@ const HISTORICAL = [
   "revtask-6ddb8eb8-e9c",
   "revtask-a0009171-849",
   "revtask-e5cdec1a-40e",
+  "revtask-04b14b3d-243",
 ];
 
 type Check = { name: string; pass: boolean; detail: string };

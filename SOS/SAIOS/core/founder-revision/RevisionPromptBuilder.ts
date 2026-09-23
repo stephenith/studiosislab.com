@@ -16,10 +16,9 @@ import {
   isDeprecatedPlannerOp,
 } from "./allowedCanvasOps.js";
 import { classifyRequestedChange } from "./RequestedChangeClassification.js";
-import { isLayoutOnlyIntentChange } from "./RevisionIntentScope.js";
 import { buildWholeSectionRequiredBodyInventoryPrompt } from "./SectionReplacementCompleteness.js";
 import {
-  isDeterministicLayoutNormalizerOwnedChange,
+  isCanonicalLayoutOwnedItem,
   isValidationOnlyRequestedChange,
 } from "./DeterministicSpacingPlan.js";
 import {
@@ -453,6 +452,9 @@ export const NON_AI_OPERATION_COVERAGE_MODES = [
 export const NUMBER_OF_EMPTY_PLAN_OWNERS =
   NON_AI_OPERATION_COVERAGE_MODES.length;
 
+/** Phase 6P — one downstream layout-owner decision path. */
+export const NUMBER_OF_LAYOUT_OWNER_DECISION_PATHS = 1;
+
 export function founderItemRequiresAiExecutableMutation(
   requestedChange: string,
 ): boolean {
@@ -471,13 +473,20 @@ export function resolveItemCoverageMode(
     return "PRESERVATION_CONSTRAINT";
   }
   if (isValidationOnlyRequestedChange(requestedChange)) return "VALIDATION_ONLY";
-  if (isDeterministicLayoutNormalizerOwnedChange(requestedChange)) {
-    return "DETERMINISTIC_LAYOUT_OWNED";
-  }
-  if (isLayoutOnlyIntentChange(requestedChange)) {
+  if (isCanonicalLayoutOwnedItem(requestedChange)) {
     return "DETERMINISTIC_LAYOUT_OWNED";
   }
   return "MUTATION_REQUIRED";
+}
+
+/**
+ * Phase 6P — single layout-ownership consumer.
+ * Downstream stages must not re-derive ownership from a second regex helper.
+ */
+export function isCanonicalDeterministicLayoutOwnedChange(
+  requestedChange: string,
+): boolean {
+  return resolveItemCoverageMode(requestedChange) === "DETERMINISTIC_LAYOUT_OWNED";
 }
 
 /** Prompt-only candidate ID hints from inventory section/text overlap. */

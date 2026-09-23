@@ -495,16 +495,34 @@ export async function runFounderFeedbackRevision(
       };
     }
     if (det.ok && det.plan) {
+      const detOpsEmpty = (det.plan.operations?.length ?? 0) === 0;
       const revalidated = validateRevisionPlan(det.plan, {
         requested_changes: task.requested_changes,
-        allowEmptyOperations: allRequestedChangesAllowEmptyPlan(
-          task.requested_changes,
-        ),
+        allowEmptyOperations:
+          allRequestedChangesAllowEmptyPlan(task.requested_changes) ||
+          detOpsEmpty,
       });
       if (revalidated.ok && revalidated.plan) {
+        const aiOps = planned.plan.operations ?? [];
+        if (aiOps.length > 0 && (revalidated.plan.operations?.length ?? 0) === 0) {
+          writeJson(join(evidenceDir, "ai-geometry-superseded-by-canonical-layout.json"), {
+            reason: "AI_OPERATION_SUPERSEDED_BY_CANONICAL_LAYOUT",
+            ai_operation_count: aiOps.length,
+            ai_operations: aiOps,
+            canonical_plan_operations: revalidated.plan.operations,
+            ownership_mode: det.ownership_mode ?? null,
+          });
+        }
         activePlan = revalidated.plan;
         writeJson(join(evidenceDir, "revision-plan.json"), activePlan);
         writeJson(join(evidenceDir, "revision-plan-ai-primary.json"), planned.plan);
+        writeJson(join(evidenceDir, "deterministic-spacing-revalidation.json"), {
+          ok: true,
+          errors: [],
+          note: detOpsEmpty
+            ? "empty deterministic plan accepted; canonical layout owns geometry"
+            : "deterministic spacing plan activated",
+        });
       } else {
         writeJson(join(evidenceDir, "deterministic-spacing-revalidation.json"), {
           ok: false,

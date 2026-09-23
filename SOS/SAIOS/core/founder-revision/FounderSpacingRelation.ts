@@ -154,11 +154,11 @@ function extractNamedNeedles(text: string): string[] {
   const seen = new Set<string>();
   const push = (raw: string) => {
     const n = stripDecor(raw);
-    if (n.length < 8 || seen.has(n)) return;
+    if (n.length < 3 || seen.has(n)) return;
     seen.add(n);
     out.push(n);
   };
-  const quoted = text.matchAll(/[“"']([^”"']{6,})[”"']/g);
+  const quoted = text.matchAll(/[“"']([^”"']{3,})[”"']/g);
   for (const m of quoted) push(m[1] ?? "");
   const beforeBullet = text.match(
     /\bbefore\s+(?:the\s+)?[“"']?([^”"']{6,}?)[”"']?\s+bullet/i,
@@ -174,7 +174,7 @@ function extractNamedNeedles(text: string): string[] {
 function needleMatchesText(needle: string, haystack: string): boolean {
   const n = stripDecor(needle);
   const h = stripDecor(haystack);
-  if (!n || n.length < 8 || !h) return false;
+  if (!n || n.length < 3 || !h) return false;
   return h.includes(n) || n.includes(h) || h.startsWith(n) || n.startsWith(h);
 }
 
@@ -302,17 +302,18 @@ export function resolveFounderSpacingRelation(input: {
     lower_id: "",
     before_gap: 0,
   };
-  if (
-    direction !== "REDUCE_GAP" &&
-    direction !== "TIGHTEN_RHYTHM" &&
-    direction !== "INCREASE_GAP" &&
-    direction !== "SEPARATE"
-  ) {
-    return { ...base, kind: "UNEVALUABLE", notes: "no measurable spacing direction" };
-  }
-
   const rows = collectTextRows(input.canvas);
   const needles = extractNamedNeedles(raw);
+  const measurableDirection =
+    direction === "REDUCE_GAP" ||
+    direction === "TIGHTEN_RHYTHM" ||
+    direction === "INCREASE_GAP" ||
+    direction === "SEPARATE";
+  // Named endpoints are a measurable pair even when the sentence uses
+  // consistency language ("same", "inconsistent") instead of increase/reduce.
+  if (!measurableDirection && needles.length < 2) {
+    return { ...base, kind: "UNEVALUABLE", notes: "no measurable spacing direction" };
+  }
   const hits = namedObjectHits(rows, needles);
   const uniqueHits = [...new Map(hits.map((h) => [h.id, h])).values()];
   const n = normalize(raw);

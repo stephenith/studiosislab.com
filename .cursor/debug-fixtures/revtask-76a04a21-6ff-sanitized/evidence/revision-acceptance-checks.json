@@ -1,0 +1,183 @@
+{
+  "schema_version": "founder-revision-acceptance-1.0.0",
+  "task_id": "revtask-76a04a21-6ff",
+  "revision_id": null,
+  "decision_id": "fd-885726cd-f9e",
+  "at": "2026-09-23T07:01:01.849Z",
+  "canvas_source": "post_mutation",
+  "checks": [
+    {
+      "check_id": "content_preservation",
+      "check_type": "CONTENT_PRESERVATION",
+      "requested_change": "Treat this as a layout-only refinement and preserve all existing resume content.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "before_text_objects": 37,
+        "after_text_objects": 37,
+        "authorized_content_edit_targets": [],
+        "findings_count": 0
+      },
+      "reason": "Factual resume text preserved (geometry/style/reorder only; no unauthorized fabrication or rewrite)"
+    },
+    {
+      "check_id": "content_preservation",
+      "check_type": "CONTENT_PRESERVATION",
+      "requested_change": "Preserve the current Operations Analyst title, Summary, Experience, Education position, Projects, Certifications, Languages, candidate name, contact information, colors, typography, header, sidebar design, and two-column architecture.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "before_text_objects": 37,
+        "after_text_objects": 37,
+        "authorized_content_edit_targets": [],
+        "findings_count": 0
+      },
+      "reason": "Factual resume text preserved (geometry/style/reorder only; no unauthorized fabrication or rewrite)"
+    },
+    {
+      "check_id": "architecture_preservation",
+      "check_type": "ARCHITECTURE_PRESERVATION",
+      "requested_change": "Preserve the current Operations Analyst title, Summary, Experience, Education position, Projects, Certifications, Languages, candidate name, contact information, colors, typography, header, sidebar design, and two-column architecture.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [
+        "page-root",
+        "block-header-0-r0",
+        "block-header-0-t1",
+        "block-header-0-t2",
+        "block-header-0-t3",
+        "block-summary-1-r0",
+        "block-summary-1-t1",
+        "block-summary-1-t2",
+        "block-skills-4-r0",
+        "block-skills-4-t1",
+        "block-skills-4-t2"
+      ],
+      "metrics": {
+        "before_lane_count": 2,
+        "after_lane_count": 2,
+        "before_lanes": [
+          "lane-0",
+          "lane-1"
+        ],
+        "after_lanes": [
+          "lane-0",
+          "lane-1"
+        ],
+        "header_band_supported": true,
+        "typography_colors_sidebar": "not independently proven — lane/topology/header band only"
+      },
+      "reason": "Architecture preserved (lanes=2, header band present)"
+    },
+    {
+      "check_id": "layout_preservation",
+      "check_type": "LAYOUT_PRESERVATION",
+      "requested_change": "Preserve the current right-column spacing between Summary, Experience, and Education because that spacing now looks balanced and correct.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [
+        "block-summary-1-t2",
+        "block-summary-1-t2",
+        "block-experience-2-t1",
+        "block-experience-2-t1"
+      ],
+      "metrics": {
+        "prior_gap": 43.1,
+        "final_gap": 43.1
+      },
+      "reason": "Summary→Experience spacing preserved within tolerance (prior=43.1 final=43.1)"
+    },
+    {
+      "check_id": "content_preservation",
+      "check_type": "CONTENT_PRESERVATION",
+      "requested_change": "Do not change, delete, rename, combine, or reorder the existing Skills entries merely to correct spacing.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "before_text_objects": 37,
+        "after_text_objects": 37,
+        "authorized_content_edit_targets": [],
+        "findings_count": 0
+      },
+      "reason": "Factual resume text preserved (geometry/style/reorder only; no unauthorized fabrication or rewrite)"
+    },
+    {
+      "check_id": "general_acceptance",
+      "check_type": "GENERAL_ACCEPTANCE",
+      "requested_change": "Do not stretch the sidebar excessively; keep the spacing balanced, compact, and professional.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No deterministic geometry regression (no concrete mutation resolvable for this Founder line): No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "general_acceptance",
+      "check_type": "GENERAL_ACCEPTANCE",
+      "requested_change": "Do not change the current Experience-to-Education spacing on the right side unless required to prevent a geometry conflict.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No deterministic geometry regression (no concrete mutation resolvable for this Founder line): No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "collision_bounds",
+      "check_type": "COLLISION_BOUNDS",
+      "requested_change": "After the changes, verify that every Skills bullet has clear positive separation and that no text touches, overlaps, clips, or visually merges.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No out-of-bounds objects, text overlaps, or heading/body collisions"
+    },
+    {
+      "check_id": "collision_bounds",
+      "check_type": "COLLISION_BOUNDS",
+      "requested_change": "Verify that the full resume has zero text overlaps and zero page out-of-bounds objects.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "pass": true,
+      "evaluable": true,
+      "findings": [],
+      "object_ids": [],
+      "metrics": {
+        "out_of_bounds": 0,
+        "text_overlaps": 0,
+        "heading_obscures": 0
+      },
+      "reason": "No out-of-bounds objects, text overlaps, or heading/body collisions"
+    }
+  ],
+  "all_verification_pass": true
+}

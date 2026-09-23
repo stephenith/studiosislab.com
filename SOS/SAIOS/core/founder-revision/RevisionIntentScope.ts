@@ -127,7 +127,19 @@ function classifyClause(
   lineClass: RequestedChangeClass,
 ): RevisionIntentClass {
   if (!positive || PRESERVATION_RE.test(text)) {
-    if (LAYOUT_OBJECT_RE.test(text) && !CONTENT_REWRITE_VERB.test(text) && !isContentRemovalClause(text)) {
+    if (
+      isLayoutObjectClause(text) &&
+      !CONTENT_REWRITE_VERB.test(text) &&
+      !isContentRemovalClause(text)
+    ) {
+      // "Maintain/keep a required gap/separation" on a mutation line is a
+      // geometry requirement. "Preserve the current spacing" stays preservation.
+      if (
+        lineClass === "MUTATION_REQUIRED" &&
+        !/\b(current|existing|already|now looks)\b/i.test(text)
+      ) {
+        return "LAYOUT_MUTATION";
+      }
       return "LAYOUT_PRESERVATION";
     }
     return "CONTENT_PRESERVATION";

@@ -29,8 +29,8 @@ import {
   MIN_SECTION_GAP_PX,
   type LayoutNormalizationReport,
 } from "./RevisionLayoutNormalizer.js";
-import { isDeterministicLayoutNormalizerOwnedChange } from "./DeterministicSpacingPlan.js";
 import {
+  isCanonicalDeterministicLayoutOwnedChange,
   normalizeFounderFeedbackItem,
   operationFounderAttributions,
 } from "./RevisionPromptBuilder.js";
@@ -2731,7 +2731,7 @@ export function buildFeedbackCoverage(input: {
      * FeedbackCoverage must not independently re-run source-relative
      * REDUCE_GAP / structuralHints for the same item.
      */
-    if (isDeterministicLayoutNormalizerOwnedChange(change)) {
+    if (isCanonicalDeterministicLayoutOwnedChange(change)) {
       const proof = evaluateCanonicalFinalStateLayoutProof({
         requestedChange: change,
         beforeCanvas: input.beforeCanvas,
@@ -2839,7 +2839,7 @@ export function buildFeedbackCoverage(input: {
     if (
       status === "not_addressed" &&
       ops.length === 0 &&
-      isDeterministicLayoutNormalizerOwnedChange(change)
+      isCanonicalDeterministicLayoutOwnedChange(change)
     ) {
       const layoutEvidence = deterministicLayoutOwnershipEvidence(
         input.layoutNormalizationReport,

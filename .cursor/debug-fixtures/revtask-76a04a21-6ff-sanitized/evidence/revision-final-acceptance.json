@@ -1,0 +1,71 @@
+{
+  "schema_version": "founder-revision-final-acceptance-1.0.0",
+  "evaluated_at": "2026-09-23T07:01:01.860Z",
+  "may_return_to_founder_review": false,
+  "overall": "FAIL",
+  "failed_owner": "feedback_coverage",
+  "failure_code": "FAILED_FEEDBACK_COVERAGE",
+  "failure_stage": "FEEDBACK_COVERAGE",
+  "failure_reason": "feedback coverage gate failed",
+  "owners": {
+    "plan_schema": {
+      "owner": "plan_schema",
+      "pass": true,
+      "reason": "PASS"
+    },
+    "authorization": {
+      "owner": "authorization",
+      "pass": true,
+      "reason": "PASS"
+    },
+    "section_replacement": {
+      "owner": "section_replacement",
+      "pass": true,
+      "reason": "PASS"
+    },
+    "content_execution": {
+      "owner": "content_execution",
+      "pass": true,
+      "reason": "PASS"
+    },
+    "content_preservation": {
+      "owner": "content_preservation",
+      "pass": true,
+      "reason": "PASS"
+    },
+    "canonical_layout": {
+      "owner": "canonical_layout",
+      "pass": true,
+      "reason": "PASS"
+    },
+    "final_geometry": {
+      "owner": "final_geometry",
+      "pass": true,
+      "reason": "PASS"
+    },
+    "page_fit": {
+      "owner": "page_fit",
+      "pass": true,
+      "reason": "PASS"
+    },
+    "revision_role_integrity": {
+      "owner": "revision_role_integrity",
+      "pass": true,
+      "reason": "PASS"
+    },
+    "feedback_coverage": {
+      "owner": "feedback_coverage",
+      "pass": false,
+      "reason": "feedback coverage gate failed"
+    }
+  },
+  "provenance": {
+    "role_integrity": "revision_role_integrity",
+    "section_replacement": "section_replacement_completeness",
+    "layout_intent": "canonical_final_state_layout_proof",
+    "geometry": "final_rendered_geometry",
+    "page_fit": "revision_layout_normalization",
+    "feedback_coverage": "feedback_coverage",
+    "generation_role_integrity": "not_consumed"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": "revision-failure-fixture-1.0.0",
+  "fixture_origin": "production evidence, sanitized offline copy; production originals unmodified.",
+  "task_id": "revtask-76a04a21-6ff",
+  "decision_id": "fd-885726cd-f9e",
+  "prior_candidate_id": "cand-ats-operations-analyst-20260807T223735Z-2c9bcf-revfb-73c718-revfb-a44a47-revfb-6ac511-revfb-f6c1e7-revfb-a546e7",
+  "prior_ready_task_id": "revtask-a1ca72e9-4e6",
+  "role": "Operations Analyst",
+  "design_family": "professional_sidebar",
+  "architecture": "narrow_ats_sidebar",
+  "task_status": "FAILED_COVERAGE",
+  "failure_owner": "feedback_coverage",
+  "failure_code": "FAILED_FEEDBACK_COVERAGE",
+  "failure_stage": "FEEDBACK_COVERAGE",
+  "requested_change_count": 21,
+  "covered_before": 18,
+  "uncovered_before": [5, 6, 10],
+  "primary_operations": [
+    {
+      "op": "set_position",
+      "target_id": "block-skills-4-t3",
+      "values": { "top": 312.8 },
+      "delta_top": 9
+    }
+  ],
+  "process_design_excel_gap_prior": 6.0,
+  "process_design_excel_gap_failed": 15.0,
+  "notes": [
+    "Phase 6O was active. Planning and schema passed.",
+    "Items 5/6/10 are DETERMINISTIC_LAYOUT_OWNED via resolveItemCoverageMode/isLayoutOnlyIntentChange.",
+    "FeedbackCoverage and evaluateOwnedCanonicalLayoutProofs still used isDeterministicLayoutNormalizerOwnedChange.",
+    "Empty deterministic plan was rejected (operations must be a non-empty array); AI +9 retained.",
+    "Historical production task remains FAILED_COVERAGE and must not be retried."
+  ],
+  "redacted": ["provider_request_id"]
+}

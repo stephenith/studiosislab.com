@@ -64,6 +64,7 @@ const HISTORICAL = [
   "revtask-a0009171-849",
   "revtask-e5cdec1a-40e",
   "revtask-04b14b3d-243",
+  "revtask-76a04a21-6ff",
 ];
 
 type Check = { name: string; pass: boolean; detail: string };
@@ -795,6 +796,84 @@ async function main(): Promise<void> {
     setRevisionTasksDirForTests(null);
     try {
       rmSync(golden6oTmp, { recursive: true, force: true });
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const FIX6P = join(
+    REPO,
+    ".cursor/debug-fixtures/revtask-76a04a21-6ff-sanitized",
+  );
+  const task6p = readJson<{
+    requested_changes: string[];
+    prior_candidate_id: string;
+    role: string;
+    founder_reason: string;
+  }>(join(FIX6P, "revtask-76a04a21-6ff.json"));
+  const primary6p = readJson<Record<string, unknown>>(
+    join(FIX6P, "evidence/revision-plan.json"),
+  );
+  const golden6pTmp = mkdtempSync(join(tmpdir(), "aios-6l-6p-golden-"));
+  const golden6pCand = join(golden6pTmp, "candidates");
+  const golden6pOut = join(golden6pTmp, "founder-revision");
+  const golden6pTasks = join(golden6pOut, "tasks");
+  mkdirSync(golden6pTasks, { recursive: true });
+  cpSync(join(FIX6P, "prior"), join(golden6pCand, task6p.prior_candidate_id), {
+    recursive: true,
+  });
+  setRevisionTasksDirForTests(golden6pTasks);
+  setRevisionPipelineRootsForTests({
+    candRoot: golden6pCand,
+    outRoot: golden6pOut,
+  });
+  let golden6pCalls = 0;
+  try {
+    const created = createRevisionTask({
+      decision_id: `fd-6l-6p-golden-${Date.now().toString(36)}`,
+      review_id: "founder-review-6l-6p-golden",
+      prior_candidate_id: task6p.prior_candidate_id,
+      prior_canvas_path: join(
+        golden6pCand,
+        task6p.prior_candidate_id,
+        "canvas.json",
+      ),
+      founder_reason: task6p.founder_reason,
+      requested_changes: task6p.requested_changes,
+      role: task6p.role,
+      design_family: "professional_sidebar",
+      architecture: "narrow_ats_sidebar",
+    });
+    const run = await runFounderFeedbackRevision({
+      task_id: created.task.task_id,
+      skip_preview: true,
+      critiqueOverride: passingCritic,
+      executePlanner: async () => {
+        golden6pCalls += 1;
+        return {
+          status: "COMPLETED",
+          structured_output: primary6p,
+          provider_request_id: "6l-6p-golden",
+          model_identifier_internal: "fixture",
+          input_tokens: 1,
+          output_tokens: 1,
+        };
+      },
+    });
+    checks.push(
+      assert(
+        golden6pCalls === 1 &&
+          run.ok &&
+          run.task.status === "READY_FOR_FOUNDER_REVIEW",
+        "golden_76a04a21_layout_owned_ready_for_founder_review",
+        `calls=${golden6pCalls} ${run.task.status} owner=${run.task.failure_owner ?? ""} ${run.error ?? ""}`,
+      ),
+    );
+  } finally {
+    setRevisionPipelineRootsForTests(null);
+    setRevisionTasksDirForTests(null);
+    try {
+      rmSync(golden6pTmp, { recursive: true, force: true });
     } catch {
       /* ignore */
     }

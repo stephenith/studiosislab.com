@@ -237,6 +237,33 @@ function evidence(input: {
   };
 }
 
+function bodyPeerGaps(
+  canvas: FabricCanvasDoc,
+  section: string,
+  excludeUpper: string | null,
+  excludeLower: string | null,
+): number[] {
+  const gaps: number[] = [];
+  for (const pair of sequentialTextPairs(canvas, section)) {
+    if (isHeadingLikeRole(pair.upper)) continue;
+    if (pair.upper_id === excludeUpper && pair.lower_id === excludeLower) continue;
+    const geom = measurePair(canvas, pair.upper_id, pair.lower_id);
+    if (geom.visual_gap != null && geom.visual_gap + 1e-9 >= 0) {
+      gaps.push(geom.visual_gap);
+    }
+  }
+  return gaps;
+}
+
+function isHeadingLikeRole(o: Record<string, unknown>): boolean {
+  const role = roleOf(o).toLowerCase();
+  return (
+    role === "section-heading" ||
+    role === "heading" ||
+    role === "section_heading"
+  );
+}
+
 function judgeFinalPair(input: {
   item: string;
   rel: ResolvedSpacingRelation;
@@ -317,11 +344,39 @@ function judgeFinalPair(input: {
       condition: `final visual gap ${final.visual_gap.toFixed(2)} disconnected vs heading→body ${headingBody.toFixed(2)}`,
     });
   }
+  const consistencyRequested =
+    /\b(same|consistent|inconsistent|equal|uniform|other consecutive|peer)\b/i.test(
+      item,
+    );
+  const peerCandidates = [
+    ...bodyPeerGaps(after, rel.section, final.upper_id, final.lower_id),
+    ...(source.visual_gap != null && source.visual_gap + 1e-9 >= minGap
+      ? [source.visual_gap]
+      : []),
+  ];
+  const peer =
+    peerCandidates.length > 0
+      ? peerCandidates.slice().sort((a, b) => a - b)[
+          Math.floor(peerCandidates.length / 2)
+        ]!
+      : null;
+  if (
+    consistencyRequested &&
+    peer != null &&
+    final.visual_gap > peer + GAP_NOISE_PX
+  ) {
+    return evidence({
+      ...base,
+      pass: false,
+      reason: "LAYOUT_RHYTHM_UNSATISFIED",
+      condition: `final visual gap ${final.visual_gap.toFixed(2)} exceeds peer rhythm ${peer.toFixed(2)}`,
+    });
+  }
   return evidence({
     ...base,
     pass: true,
     reason: "LAYOUT_RHYTHM_SATISFIED",
-    condition: `final visual gap ${final.visual_gap.toFixed(2)} readable; slack=${(final.unused_frame_slack ?? 0).toFixed(2)}; heading_body=${headingBody == null ? "n/a" : headingBody.toFixed(2)}`,
+    condition: `final visual gap ${final.visual_gap.toFixed(2)} readable; slack=${(final.unused_frame_slack ?? 0).toFixed(2)}; heading_body=${headingBody == null ? "n/a" : headingBody.toFixed(2)}; peer=${peer == null ? "n/a" : peer.toFixed(2)}`,
   });
 }
 
@@ -351,6 +406,63 @@ function sequentialTextPairs(
   return pairs;
 }
 
+function sectionHeadingTop(
+  canvas: FabricCanvasDoc,
+  section: string,
+): number | null {
+  const objs = (canvas.objects ?? []) as Array<Record<string, unknown>>;
+  let top: number | null = null;
+  for (const o of objs) {
+    if (!isFabricTextObject(o) || sectionOf(o) !== section) continue;
+    if (!isHeadingLikeRole(o) && roleOf(o).toLowerCase() !== "") continue;
+    const t = Number(o.top ?? 0);
+    if (top == null || t < top) top = t;
+  }
+  if (top != null) return top;
+  for (const o of objs) {
+    if (!isFabricTextObject(o) || sectionOf(o) !== section) continue;
+    const t = Number(o.top ?? 0);
+    if (top == null || t < top) top = t;
+  }
+  return top;
+}
+
+function sectionContentBottom(
+  canvas: FabricCanvasDoc,
+  section: string,
+): number | null {
+  const objs = (canvas.objects ?? []) as Array<Record<string, unknown>>;
+  let bottom: number | null = null;
+  for (const o of objs) {
+    if (!isFabricTextObject(o) || sectionOf(o) !== section) continue;
+    const b = visualTextContentBottom(o);
+    if (bottom == null || b > bottom) bottom = b;
+  }
+  return bottom;
+}
+
+function interSectionGaps(canvas: FabricCanvasDoc, sections: string[]): number[] {
+  const ordered = sections
+    .map((s) => ({ s, top: sectionHeadingTop(canvas, s) }))
+    .filter((x): x is { s: string; top: number } => x.top != null)
+    .sort((a, b) => a.top - b.top);
+  const gaps: number[] = [];
+  for (let i = 1; i < ordered.length; i++) {
+    const prevBottom = sectionContentBottom(canvas, ordered[i - 1]!.s);
+    const nextTop = ordered[i]!.top;
+    if (prevBottom == null) continue;
+    gaps.push(nextTop - prevBottom);
+  }
+  return gaps;
+}
+
+const SIDEBAR_LANE_SECTIONS = new Set([
+  "skills",
+  "projects",
+  "certifications",
+  "languages",
+]);
+
 function mentionedSections(item: string, canvas: FabricCanvasDoc): string[] {
   const present = new Set<string>();
   for (const o of (canvas.objects ?? []) as Array<Record<string, unknown>>) {
@@ -362,7 +474,9 @@ function mentionedSections(item: string, canvas: FabricCanvasDoc): string[] {
   const n = item.toLowerCase();
   const named = [...present].filter((s) => new RegExp(`\\b${s}\\b`, "i").test(n));
   if (named.length > 0) return named;
-  if (/\b(sidebar|column|page|section)\b/.test(n)) return [...present];
+  if (/\bsidebar\b/.test(n)) {
+    return [...present].filter((s) => SIDEBAR_LANE_SECTIONS.has(s));
+  }
   return [];
 }
 
@@ -424,6 +538,32 @@ function judgeSectionFinal(input: {
       reason: "VISUAL_GAP_TOO_SMALL",
       condition: `cramped pairs ${cramped.join(",")}`,
     });
+  }
+  const headingToBodyOnly =
+    /\bheading\b/i.test(input.item) &&
+    /\bfirst body\b/i.test(input.item);
+  const wantsSectionEquality =
+    !headingToBodyOnly &&
+    (/\b(consistent|equal|uniform)\b/i.test(input.item) ||
+      /\bsame\b.{0,40}\b(spacing|rhythm|gap|separation)\b/i.test(input.item)) &&
+    /\b(section|sidebar)\b/i.test(input.item) &&
+    /\b(spacing|rhythm|gap|separation)\b/i.test(input.item);
+  if (wantsSectionEquality && sections.length >= 2) {
+    const lane = sections.some((s) => SIDEBAR_LANE_SECTIONS.has(s))
+      ? sections.filter((s) => SIDEBAR_LANE_SECTIONS.has(s))
+      : sections;
+    const inter = interSectionGaps(input.after, lane.length >= 2 ? lane : sections);
+    if (inter.length >= 2) {
+      const spread = Math.max(...inter) - Math.min(...inter);
+      if (spread > GAP_NOISE_PX) {
+        return evidence({
+          ...base,
+          pass: false,
+          reason: "LAYOUT_RHYTHM_UNSATISFIED",
+          condition: `sidebar section gaps inconsistent: ${inter.map((g) => g.toFixed(2)).join("/")} spread=${spread.toFixed(2)}`,
+        });
+      }
+    }
   }
   return evidence({
     ...base,

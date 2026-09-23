@@ -56,6 +56,7 @@ import {
 import {
   isCollisionOrReadableGapLayoutRequest,
   isExcessiveSectionGapLayoutRequest,
+  isLayoutOnlyIntentChange,
 } from "./RevisionIntentScope.js";
 import type { CanvasOperation, RevisionPlan } from "./revision-task-types.js";
 import { snapCoord } from "./EquivalentHorizontalOwnership.js";
@@ -308,6 +309,17 @@ export function isDeterministicLayoutNormalizerOwnedChange(
   return false;
 }
 
+/**
+ * Phase 6P — one layout-owned predicate. Must stay equivalent to
+ * resolveItemCoverageMode === DETERMINISTIC_LAYOUT_OWNED.
+ */
+export function isCanonicalLayoutOwnedItem(requestedChange: string): boolean {
+  return (
+    isDeterministicLayoutNormalizerOwnedChange(requestedChange) ||
+    isLayoutOnlyIntentChange(requestedChange)
+  );
+}
+
 /** Heavy vertical spacing / rhythm Founder packet → prefer normalizer geometry. */
 export function isVerticalSpacingRhythmHeavyFeedback(
   requestedChanges: string[],
@@ -319,7 +331,7 @@ export function isVerticalSpacingRhythmHeavyFeedback(
     return true;
   }
   const owned = requestedChanges.filter((c) =>
-    isDeterministicLayoutNormalizerOwnedChange(c),
+    isCanonicalLayoutOwnedItem(c),
   );
   if (owned.length >= 3) return true;
   if (
@@ -483,7 +495,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
     requested_changes: input.requested_changes,
     beforeCanvas: input.priorCanvas,
     afterCanvas: normalized.canvas,
-    owned_item: isDeterministicLayoutNormalizerOwnedChange,
+    owned_item: isCanonicalLayoutOwnedItem,
   });
 
   const beforeObjs = (input.priorCanvas.objects ?? []) as Array<
@@ -503,7 +515,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
     input.requested_changes,
   );
   const ownedAttribution = attributionLines.filter((c) =>
-    isDeterministicLayoutNormalizerOwnedChange(c),
+    isCanonicalLayoutOwnedItem(c),
   );
   // Prefer a non-directional owned line so every spacing op is not constrained
   // by an unrelated section's "move X down/up" attribution.
@@ -856,7 +868,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
         requested_changes: input.requested_changes,
         beforeCanvas: input.priorCanvas,
         afterCanvas: detOnlyExec.canvas,
-        owned_item: isDeterministicLayoutNormalizerOwnedChange,
+        owned_item: isCanonicalLayoutOwnedItem,
       }),
     };
   }
@@ -1068,7 +1080,7 @@ export function buildPlanWithDeterministicSpacingOwnership(input: {
   // deterministic ownership and let FeedbackCoverage prove spacing relations.
   // Never use this escape hatch for named-pair-only (would ship false relation).
   const ownedCount = input.requested_changes.filter((c) =>
-    isDeterministicLayoutNormalizerOwnedChange(c),
+    isCanonicalLayoutOwnedItem(c),
   ).length;
   const detGeomSafe =
     detExec.ok &&

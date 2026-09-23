@@ -1,0 +1,575 @@
+{
+  "schema_version": "revision-intent-scope-1.0.0",
+  "items": [
+    {
+      "founder_feedback_item": "Treat this as a layout-only refinement and preserve all existing resume content.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "treat this as a layout-only refinement",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "preserve all existing resume content",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Preserve the current Operations Analyst title, Summary, Experience, Education position, Projects, Certifications, Languages, candidate name, contact information, colors, typography, header, sidebar design, and two-column architecture.",
+      "classification": "PRESERVATION_CONSTRAINT",
+      "clauses": [
+        {
+          "text": "preserve the current operations analyst title, summary, experience, education position, projects, certifications, languages, candidate name, contact information, colors, typography, header, sidebar design, and two-column architecture",
+          "positive": true,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [
+            "summary",
+            "experience",
+            "projects",
+            "certifications",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "summary",
+            "experience",
+            "projects",
+            "certifications",
+            "education"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Preserve the current right-column spacing between Summary, Experience, and Education because that spacing now looks balanced and correct.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "preserve the current right-column spacing between summary, experience, and education",
+          "positive": true,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [
+            "summary",
+            "experience",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "summary",
+            "experience",
+            "education"
+          ],
+          "verification_scope": []
+        },
+        {
+          "text": "that spacing now looks balanced and correct",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Use the right-column section rhythm as the visual reference when refining the left-sidebar section spacing.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "use the right-column section rhythm as the visual reference when refining the left-sidebar section spacing",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Correct the remaining inconsistent spacing between the “Process Design” and “Excel” Skills bullet rows.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "correct the remaining inconsistent spacing between the “process design” and “excel” skills bullet rows",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "skills"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Give “Process Design” and “Excel” the same positive vertical separation used between the other consecutive Skills bullets.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "give “process design” and “excel” the same positive vertical separation used between the other consecutive skills bullets",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "skills"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Ensure every Skills bullet from Operational Analysis through SQL Basics follows one consistent line-spacing rhythm.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "ensure every skills bullet from operational analysis through sql basics follows one consistent line-spacing rhythm",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "skills"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Do not change, delete, rename, combine, or reorder the existing Skills entries merely to correct spacing.",
+      "classification": "PRESERVATION_CONSTRAINT",
+      "clauses": [
+        {
+          "text": "change, delete, rename, combine, or reorder the existing skills entries merely to correct spacing",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "skills"
+          ],
+          "verification_scope": []
+        },
+        {
+          "text": "do not change, delete, rename, combine, or reorder the existing skills entries merely to correct spacing",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "skills"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Maintain clear positive separation between the final Skills bullet and the Projects heading.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "maintain clear positive separation between the final skills bullet and the projects heading",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "skills",
+            "projects"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "skills",
+            "projects"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Increase the breathing room between Skills and Projects slightly so the transition does not look compressed.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "increase the breathing room between skills and projects slightly so the transition",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "skills",
+            "projects"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "skills",
+            "projects"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "look compressed",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "increase the breathing room between skills and projects slightly so the transition does not look compressed",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "skills",
+            "projects"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "skills",
+            "projects"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Maintain clear and visually consistent separation between the end of Projects and the Certifications heading.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "maintain clear and visually consistent separation between the end of projects and the certifications heading",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "projects",
+            "certifications"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "projects",
+            "certifications"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Maintain clear and visually consistent separation between the end of Certifications and the Languages heading.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "maintain clear and visually consistent separation between the end of certifications and the languages heading",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "certifications"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "certifications"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Use one consistent sidebar section-spacing rhythm for Skills → Projects, Projects → Certifications, and Certifications → Languages.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "use one consistent sidebar section-spacing rhythm for skills → projects, projects → certifications, and certifications → languages",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "skills",
+            "projects",
+            "certifications"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "skills",
+            "projects",
+            "certifications"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Keep the spacing between each sidebar section heading and its first body line consistent.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "keep the spacing between each sidebar section heading and its first body line consistent",
+          "positive": true,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Use some of the available empty vertical space lower in the sidebar to give the sidebar sections slightly more breathing room instead of keeping them compressed near the top.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "use some of the available empty vertical space lower in the sidebar to give the sidebar sections slightly more breathing room",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "keeping them compressed near the top",
+          "positive": true,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Do not stretch the sidebar excessively; keep the spacing balanced, compact, and professional.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "stretch the sidebar excessively",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "do not stretch the sidebar excessively",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "keep the spacing balanced, compact, and professional",
+          "positive": true,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Do not change the current Experience-to-Education spacing on the right side unless required to prevent a geometry conflict.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "change the current experience-to-education spacing on the right side",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "experience",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "experience",
+            "education"
+          ],
+          "verification_scope": []
+        },
+        {
+          "text": "required to prevent a geometry conflict",
+          "positive": false,
+          "intent_class": "LAYOUT_PRESERVATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "do not change the current experience-to-education spacing on the right side unless required to prevent a geometry conflict",
+          "positive": false,
+          "intent_class": "CONTENT_PRESERVATION",
+          "target_sections": [
+            "experience",
+            "education"
+          ],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [
+            "experience",
+            "education"
+          ],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "After the changes, verify that every Skills bullet has clear positive separation and that no text touches, overlaps, clips, or visually merges.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "after the changes",
+          "positive": true,
+          "intent_class": "VERIFICATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "verify that every skills bullet has clear positive separation and that no text touches, overlaps, clips, or visually merges",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [
+            "skills"
+          ],
+          "content_scope": [],
+          "layout_scope": [
+            "skills"
+          ],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "After the changes, verify that the spacing between all left-sidebar sections is visually consistent.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "after the changes",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        },
+        {
+          "text": "verify that the spacing between all left-sidebar sections is visually consistent",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Verify that the full resume has zero text overlaps and zero page out-of-bounds objects.",
+      "classification": "VERIFICATION_ACCEPTANCE",
+      "clauses": [
+        {
+          "text": "verify that the full resume has zero text overlaps and zero page out-of-bounds objects",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    },
+    {
+      "founder_feedback_item": "Return the same one-page Operations Analyst Resume Template with all current content and the corrected right-column layout preserved, changing only the remaining left-sidebar bullet and section-spacing rhythm.",
+      "classification": "MUTATION_REQUIRED",
+      "clauses": [
+        {
+          "text": "return the same one-page operations analyst resume template with all current content and the corrected right-column layout preserved, changing only the remaining left-sidebar bullet and section-spacing rhythm",
+          "positive": true,
+          "intent_class": "LAYOUT_MUTATION",
+          "target_sections": [],
+          "content_scope": [],
+          "layout_scope": [],
+          "preservation_scope": [],
+          "verification_scope": []
+        }
+      ]
+    }
+  ],
+  "content_replacement_sections": [],
+  "content_removal_sections": [],
+  "content_mutation_sections": [],
+  "layout_sections": [
+    "skills",
+    "projects",
+    "certifications"
+  ],
+  "content_preservation_sections": [
+    "skills",
+    "projects",
+    "certifications",
+    "experience",
+    "education"
+  ],
+  "layout_preservation_sections": [
+    "summary",
+    "experience",
+    "projects",
+    "certifications",
+    "education"
+  ]
+}

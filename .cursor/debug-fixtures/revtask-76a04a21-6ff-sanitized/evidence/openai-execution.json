@@ -1,0 +1,43 @@
+{
+  "task_id": "revtask-76a04a21-6ff",
+  "provider": "openai",
+  "provider_request_id": "redacted",
+  "model": "gpt-4.1-mini-2025-04-14",
+  "input_tokens": 17749,
+  "output_tokens": 316,
+  "structured_output": {
+    "schema_version": "founder-canvas-revision-plan-1.0.0",
+    "summary": "Refine left sidebar vertical spacing to correct inconsistent spacing between 'Process Design' and 'Excel' Skills bullets, maintain clear separation between Skills and Projects, Projects and Certifications, and Certifications and Languages, ensuring consistent sidebar section rhythm without altering content or right-column layout.",
+    "operations": [
+      {
+        "op": "set_position",
+        "target_id": "block-skills-4-t3",
+        "before_summary": "Textbox id=block-skills-4-t3 section=skills left=48 top=303.8 h=60.9 effective_bottom=364.7 text starts with '\u2022 Excel\n\u2022 Tableau\n\u2022 Power BI\n\u2022 SQL Basics'",
+        "intended_change": "Move 'Excel' and following Skills bullets down to create consistent spacing with preceding Skills bullets and maintain clear separation from Projects heading",
+        "values": {
+          "top": 312.8
+        },
+        "founder_feedback_item": "Maintain clear positive separation between the final Skills bullet and the Projects heading.",
+        "founder_feedback_items": [
+          "Maintain clear and visually consistent separation between the end of Projects and the Certifications heading.",
+          "Maintain clear and visually consistent separation between the end of Certifications and the Languages heading."
+        ],
+        "confidence": 0.98
+      }
+    ],
+    "notes": [
+      "No other mutations required as spacing rhythm adjustments for left sidebar are deterministic layout owned and do not require explicit ops.",
+      "Preserved all content and right-column layout as instructed.",
+      "Left sidebar bullet and section spacing refined only as requested.",
+      "Multi-attribution used on position adjustment of block-skills-4-t3 to cover multiple spacing requirements."
+    ],
+    "capability": "revision_planning",
+    "provider": "openai"
+  },
+  "publication_allowed": false,
+  "live": false,
+  "coverage_repair_attempted": false,
+  "conflict_repair_attempted": false,
+  "shape_repair_attempted": false,
+  "shape_repair_accepted": false
+}

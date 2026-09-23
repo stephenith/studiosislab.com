@@ -1,0 +1,36 @@
+[
+  {
+    "index": 0,
+    "op": "set_position",
+    "target_id": "block-skills-4-t3",
+    "founder_feedback_item": "Maintain clear positive separation between the final Skills bullet and the Projects heading.",
+    "ok": true,
+    "before": {
+      "id": "block-skills-4-t3",
+      "type": "Textbox",
+      "left": 48,
+      "top": 303.8,
+      "width": 220,
+      "height": 60.9,
+      "fill": "#0a0a0a",
+      "stroke": null,
+      "text": "• Excel\n• Tableau\n• Power BI\n• SQL Basics",
+      "fontSize": 10.5,
+      "lineHeight": 1.45
+    },
+    "after": {
+      "id": "block-skills-4-t3",
+      "type": "Textbox",
+      "left": 48,
+      "top": 312.8,
+      "width": 220,
+      "height": 60.9,
+      "fill": "#0a0a0a",
+      "stroke": null,
+      "text": "• Excel\n• Tableau\n• Power BI\n• SQL Basics",
+      "fontSize": 10.5,
+      "lineHeight": 1.45
+    },
+    "error": null
+  }
+]

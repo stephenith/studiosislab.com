@@ -2299,7 +2299,16 @@ function enforceFounderSectionSystemSectionGapRhythm(
     }
     cohort.push(g);
   }
-  const laneIds = new Set(cohort.map((g) => g.lane_id));
+  const sidebarNames = new Set([
+    "skills",
+    "projects",
+    "certifications",
+    "languages",
+  ]);
+  const sidebarCohort = cohort.filter((g) => sidebarNames.has(g.section));
+  const useCohort =
+    sidebarCohort.length >= 2 ? sidebarCohort : cohort;
+  const laneIds = new Set(useCohort.map((g) => g.lane_id).filter((id) => id != null));
   if (laneIds.size !== 1 || [...laneIds][0] == null) {
     report.warnings.push(
       "section-system section-gap equality skipped: requested cohort is not a single measurable lane",
@@ -2310,7 +2319,7 @@ function enforceFounderSectionSystemSectionGapRhythm(
   const lane = lanes.find((l) => l.lane_id === laneId);
   if (!lane) return;
 
-  const cohortSet = new Set(resolved.sections);
+  const cohortSet = new Set(useCohort.map((g) => g.section));
   const orderedLane = sortLaneGroupsByTop(lane);
   const orderedCohort = orderedLane.filter((g) => cohortSet.has(g.section));
   if (orderedCohort.length < 2) return;

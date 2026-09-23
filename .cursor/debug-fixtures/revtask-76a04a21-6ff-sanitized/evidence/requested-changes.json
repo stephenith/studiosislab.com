@@ -1,0 +1,23 @@
+[
+  "Treat this as a layout-only refinement and preserve all existing resume content.",
+  "Preserve the current Operations Analyst title, Summary, Experience, Education position, Projects, Certifications, Languages, candidate name, contact information, colors, typography, header, sidebar design, and two-column architecture.",
+  "Preserve the current right-column spacing between Summary, Experience, and Education because that spacing now looks balanced and correct.",
+  "Use the right-column section rhythm as the visual reference when refining the left-sidebar section spacing.",
+  "Correct the remaining inconsistent spacing between the \u201cProcess Design\u201d and \u201cExcel\u201d Skills bullet rows.",
+  "Give \u201cProcess Design\u201d and \u201cExcel\u201d the same positive vertical separation used between the other consecutive Skills bullets.",
+  "Ensure every Skills bullet from Operational Analysis through SQL Basics follows one consistent line-spacing rhythm.",
+  "Do not change, delete, rename, combine, or reorder the existing Skills entries merely to correct spacing.",
+  "Maintain clear positive separation between the final Skills bullet and the Projects heading.",
+  "Increase the breathing room between Skills and Projects slightly so the transition does not look compressed.",
+  "Maintain clear and visually consistent separation between the end of Projects and the Certifications heading.",
+  "Maintain clear and visually consistent separation between the end of Certifications and the Languages heading.",
+  "Use one consistent sidebar section-spacing rhythm for Skills \u2192 Projects, Projects \u2192 Certifications, and Certifications \u2192 Languages.",
+  "Keep the spacing between each sidebar section heading and its first body line consistent.",
+  "Use some of the available empty vertical space lower in the sidebar to give the sidebar sections slightly more breathing room instead of keeping them compressed near the top.",
+  "Do not stretch the sidebar excessively; keep the spacing balanced, compact, and professional.",
+  "Do not change the current Experience-to-Education spacing on the right side unless required to prevent a geometry conflict.",
+  "After the changes, verify that every Skills bullet has clear positive separation and that no text touches, overlaps, clips, or visually merges.",
+  "After the changes, verify that the spacing between all left-sidebar sections is visually consistent.",
+  "Verify that the full resume has zero text overlaps and zero page out-of-bounds objects.",
+  "Return the same one-page Operations Analyst Resume Template with all current content and the corrected right-column layout preserved, changing only the remaining left-sidebar bullet and section-spacing rhythm."
+]

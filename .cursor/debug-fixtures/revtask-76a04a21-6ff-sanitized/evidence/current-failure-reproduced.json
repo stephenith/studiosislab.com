@@ -1,0 +1,186 @@
+{
+  "schema_version": "phase-6p-current-failure-reproduced-1.0.0",
+  "owned_not_old_helper": [
+    5,
+    6,
+    10
+  ],
+  "process_design_excel_prior": 6,
+  "process_design_excel_after": 15,
+  "covered": 18,
+  "uncovered": [
+    5,
+    6,
+    10
+  ],
+  "rows": [
+    {
+      "index": 1,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "old_helper": false,
+      "layout_only": false,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 2,
+      "mode": "PRESERVATION_CONSTRAINT",
+      "old_helper": false,
+      "layout_only": false,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 3,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "old_helper": false,
+      "layout_only": false,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 4,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "old_helper": true,
+      "layout_only": true,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 5,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "old_helper": false,
+      "layout_only": true,
+      "contradiction": true,
+      "coverage_status": "not_addressed"
+    },
+    {
+      "index": 6,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "old_helper": false,
+      "layout_only": true,
+      "contradiction": true,
+      "coverage_status": "not_addressed"
+    },
+    {
+      "index": 7,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "old_helper": true,
+      "layout_only": true,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 8,
+      "mode": "PRESERVATION_CONSTRAINT",
+      "old_helper": false,
+      "layout_only": false,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 9,
+      "mode": "MUTATION_REQUIRED",
+      "old_helper": false,
+      "layout_only": false,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 10,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "old_helper": false,
+      "layout_only": true,
+      "contradiction": true,
+      "coverage_status": "not_addressed"
+    },
+    {
+      "index": 11,
+      "mode": "MUTATION_REQUIRED",
+      "old_helper": false,
+      "layout_only": false,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 12,
+      "mode": "MUTATION_REQUIRED",
+      "old_helper": false,
+      "layout_only": false,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 13,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "old_helper": true,
+      "layout_only": true,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 14,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "old_helper": true,
+      "layout_only": false,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 15,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "old_helper": true,
+      "layout_only": true,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 16,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "old_helper": false,
+      "layout_only": false,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 17,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "old_helper": false,
+      "layout_only": false,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 18,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "old_helper": false,
+      "layout_only": false,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 19,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "old_helper": true,
+      "layout_only": true,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 20,
+      "mode": "VERIFICATION_ACCEPTANCE",
+      "old_helper": false,
+      "layout_only": false,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    },
+    {
+      "index": 21,
+      "mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "old_helper": true,
+      "layout_only": true,
+      "contradiction": false,
+      "coverage_status": "addressed"
+    }
+  ]
+}

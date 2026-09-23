@@ -1,0 +1,300 @@
+{
+  "ok": true,
+  "plan": {
+    "schema_version": "founder-canvas-revision-plan-1.0.0",
+    "summary": "Deterministic spacing ownership: prior geometry already satisfied layout normalizer (no position mutations).",
+    "operations": [],
+    "notes": [
+      "normalizer_owned_spacing",
+      "zero_position_ops_preferred_over_identity"
+    ]
+  },
+  "error": null,
+  "report_ok": true,
+  "shifted_object_count": 0,
+  "preserved_ai_ops": 0,
+  "replaced_ai_position_ops": 1,
+  "ownership_mode": "UNCHANGED",
+  "canonical_layout_evidence": [
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "Use the right-column section rhythm as the visual reference when refining the left-sidebar section spacing.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "summary,experience,education,skills,projects,certifications,languages",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    },
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "Ensure every Skills bullet from Operational Analysis through SQL Basics follows one consistent line-spacing rhythm.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "skills",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    },
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "Use one consistent sidebar section-spacing rhythm for Skills → Projects, Projects → Certifications, and Certifications → Languages.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "skills,certifications,languages,projects",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    },
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "Keep the spacing between each sidebar section heading and its first body line consistent.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "summary,experience,education,skills,projects,certifications,languages",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    },
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "Use some of the available empty vertical space lower in the sidebar to give the sidebar sections slightly more breathing room instead of keeping them compressed near the top.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "summary,experience,education,skills,projects,certifications,languages",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    },
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "After the changes, verify that the spacing between all left-sidebar sections is visually consistent.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "summary,experience,education,skills,projects,certifications,languages",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    },
+    {
+      "schema_version": "founder-revision-canonical-layout-intent-1.0.0",
+      "founder_feedback_item": "Return the same one-page Operations Analyst Resume Template with all current content and the corrected right-column layout preserved, changing only the remaining left-sidebar bullet and section-spacing rhythm.",
+      "intent_type": "SECTION_RHYTHM",
+      "owner": "DETERMINISTIC_LAYOUT",
+      "section": "summary,experience,education,skills,projects,certifications,languages",
+      "relation": {
+        "kind": "SECTION_RHYTHM",
+        "upper_id": null,
+        "lower_id": null
+      },
+      "source_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "final_geometry": {
+        "upper_id": null,
+        "lower_id": null,
+        "upper_top": null,
+        "upper_stored_height": null,
+        "upper_visual_height": null,
+        "lower_top": null,
+        "stored_gap": null,
+        "visual_gap": null,
+        "unused_frame_slack": null
+      },
+      "peer_gaps": [],
+      "heading_body_gap": null,
+      "final_condition": "final section rhythm has positive readable separation and no unused-frame holes",
+      "pass": true,
+      "reason": "LAYOUT_RHYTHM_SATISFIED",
+      "evidence_source": "canonical_final_state_layout_proof"
+    }
+  ]
+}

@@ -64,9 +64,9 @@ Snapshot taken **2026-09-29T16:52:35+05:30** / **2026-09-29T11:22:35.000Z**. C4 
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `059a0fa5d964249156526ccd7384ebced2340fca` before C4 commit (`main`) |
-| ORIGIN HEAD | `059a0fa5d964249156526ccd7384ebced2340fca` |
-| VPS HEAD | `059a0fa5d964249156526ccd7384ebced2340fca` (last verified C3 SHA-record; C4 is test-only) |
+| LOCAL HEAD | `5068ce36d66458fdfba6c5192195b9906520a92a` (`main`) |
+| ORIGIN HEAD | `5068ce36d66458fdfba6c5192195b9906520a92a` (after push) |
+| VPS HEAD | pending FF of C4 test-only commit |
 | LOCAL STATUS | Dirty Website department files preserved; C4 harness staged explicitly |
 | VPS STATUS | FF sync of offline harness if push succeeds; no service restart required |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service`; last live claim still `revtask-5d933072-daf` |
@@ -923,8 +923,8 @@ Append-only. Do not overwrite.
 - **CHANGE:** `verify-department-production-parity-c4.ts` calls generation admission spine, `runFounderFeedbackRevision`, C1 IR, C3 memory, simulated APPROVE/maturation/staging eligibility. Temp dirs. No runtime production change.
 - **FILES MODIFIED:** C4 harness (new); `package.json`; this file; project master; project-state; `AGENTS.md`
 - **TESTS:** `aios:department-parity-c4:verify` PASS; C1 + C2 + C3 + 6L PASS
-- **COMMIT:** *(filled after commit)*
-- **DEPLOY:** FF docs/tests only; no service restart
+- **COMMIT:** `5068ce36d66458fdfba6c5192195b9906520a92a`
+- **DEPLOY:** FF origin; VPS FF if reachable; no service restart
 - **LIVE PROOF:** None
 - **RESULT:** C4 offline proven. Full generation persist remains a documented isolation gap (`CYCLE_LOG` not relocatable).
 - **NEW RISKS:** Agent may treat C4 as live proof; C5 still required

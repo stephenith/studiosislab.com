@@ -3439,9 +3439,9 @@
     "snapshot_ist": "2026-09-29T16:52:35+05:30",
     "snapshot_utc": "2026-09-29T11:22:35.000Z",
     "heads": {
-      "local": "059a0fa5d964249156526ccd7384ebced2340fca",
-      "origin": "059a0fa5d964249156526ccd7384ebced2340fca",
-      "vps": "059a0fa5d964249156526ccd7384ebced2340fca"
+      "local": "5068ce36d66458fdfba6c5192195b9906520a92a",
+      "origin": "5068ce36d66458fdfba6c5192195b9906520a92a",
+      "vps": "5068ce36d66458fdfba6c5192195b9906520a92a"
     }
   },
   "studiosislab_project": {
@@ -3462,9 +3462,9 @@
     "snapshot_ist": "2026-09-29T16:52:35+05:30",
     "snapshot_utc": "2026-09-29T11:22:35.000Z",
     "heads": {
-      "local": "059a0fa5d964249156526ccd7384ebced2340fca",
-      "origin": "059a0fa5d964249156526ccd7384ebced2340fca",
-      "vps": "059a0fa5d964249156526ccd7384ebced2340fca"
+      "local": "5068ce36d66458fdfba6c5192195b9906520a92a",
+      "origin": "5068ce36d66458fdfba6c5192195b9906520a92a",
+      "vps": "5068ce36d66458fdfba6c5192195b9906520a92a"
     }
   }
 

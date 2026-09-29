@@ -56,7 +56,7 @@ export class FounderQueueGatekeeper {
       if (!Array.isArray(doc.actions)) doc.actions = [];
     }
 
-    if (gate.ready) {
+    if (gate.founder_review_allowed) {
       const id = `critic-review-${gate.candidate_id}`;
       if (doc.actions.some((a) => a.id === id)) {
         return { added_id: id, skipped_duplicate: true };
@@ -88,8 +88,11 @@ export class FounderQueueGatekeeper {
     const action: Action = {
       id,
       priority: "P1",
-      title: `Resolve critic failure: ${gate.candidate_title}`,
-      detail: `BLOCKED_BY_CRITIC · ${gate.blocking_reasons.join("; ")}. ${remediation?.detail ?? "Remediation proposed — not auto-started."}`,
+      title:
+        gate.geometry_pass === false
+          ? `Resolve geometry admission: ${gate.candidate_title}`
+          : `Resolve critic failure: ${gate.candidate_title}`,
+      detail: `${gate.geometry_pass === false ? "BLOCKED_BY_GEOMETRY" : "BLOCKED_BY_CRITIC"} · ${gate.blocking_reasons.join("; ")}. ${remediation?.detail ?? "Remediation proposed — not auto-started."}`,
       source: "critic-gate",
       category: "remediation",
       task_id: gate.task_id,

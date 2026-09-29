@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PROJECT-WIDE / RESUME — C1 FEEDBACK COMPILER IR IMPLEMENTED 2026-09-29. Canonical docs: SOS/STUDIOSISLAB_PROJECT_MASTER.md + SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md. Status remains CONSOLIDATION_REQUIRED. Next implementation is C2 Shared geometry admission after Founder reviews C1. Do not retry revtask-5d933072-daf or revtask-76a04a21-6ff. Do not treat OPERATIONALLY_COMPLETE as live truth. Website Department remains the next major product department and is not activated.",
+    "PROJECT-WIDE / RESUME — C2 SHARED GEOMETRY ADMISSION IMPLEMENTED 2026-09-29. Canonical docs: SOS/STUDIOSISLAB_PROJECT_MASTER.md + SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md. Status remains CONSOLIDATION_REQUIRED. Next implementation is C3 Memory selection discipline after Founder reviews C2. Do not retry revtask-5d933072-daf or revtask-76a04a21-6ff. Do not treat OPERATIONALLY_COMPLETE as live truth. Website Department remains the next major product department and is not activated.",
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B — Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B — Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-29T10:26:26.000Z",
+      "type": "consolidation_c2",
+      "summary": "C2 Shared geometry admission implemented. Local wall=2026-09-29T15:56:26+05:30. UTC=2026-09-29T10:26:26.000Z. evaluateSharedGeometryAdmission is the sole Founder Review geometry oracle (overlap / OOB / page-fit). Generation cannot WAITING_FOUNDER when the kernel fails; critic scores remain advisory. Revision fail-closed uses the same kernel. Offline: C2 verifier PASS; C1 + 5W + 6L + 6P PASS. Historical revtask-5d933072-daf not retried. No production OpenAI, generation, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY changes. Next authorized step C3 Memory selection discipline after Founder reviews C2."
+    },
     {
       "at": "2026-09-29T10:18:00.000Z",
       "type": "consolidation_c1",
@@ -3395,7 +3400,7 @@
     "operationally_complete_currently_asserted": false,
     "revision_engineering_status": "CONSOLIDATION_REQUIRED",
     "next_major_department": "Website Analysis / QA / Development",
-    "next_authorized_step": "C2 Shared geometry admission (after Founder reviews C1)",
+    "next_authorized_step": "C3 Memory selection discipline (after Founder reviews C2)",
     "consolidation_plan": {
       "recorded_at_ist": "2026-09-29T15:22:52+05:30",
       "recorded_at_utc": "2026-09-29T09:52:52.100Z",
@@ -3406,24 +3411,27 @@
       "c1_status": "IMPLEMENTED_OFFLINE",
       "c1_at_ist": "2026-09-29T15:48:00+05:30",
       "c1_at_utc": "2026-09-29T10:18:00.000Z",
+      "c2_status": "IMPLEMENTED_OFFLINE",
+      "c2_at_ist": "2026-09-29T15:56:26+05:30",
+      "c2_at_utc": "2026-09-29T10:26:26.000Z",
       "do_not_retry_live_tasks": true
     },
     "do_not_retry_tasks": [
       "revtask-5d933072-daf",
       "revtask-76a04a21-6ff"
     ],
-    "snapshot_ist": "2026-09-29T15:48:00+05:30",
-    "snapshot_utc": "2026-09-29T10:18:00.000Z",
+    "snapshot_ist": "2026-09-29T15:56:26+05:30",
+    "snapshot_utc": "2026-09-29T10:26:26.000Z",
     "heads": {
-      "local": "6f97bb4257baf420d648c252bdb95455b025c84e",
-      "origin": "6f97bb4257baf420d648c252bdb95455b025c84e",
-      "vps": "6f97bb4257baf420d648c252bdb95455b025c84e"
+      "local": "5a84e2f5762dfd6f8743d93e76963b5b99bccab5",
+      "origin": "5a84e2f5762dfd6f8743d93e76963b5b99bccab5",
+      "vps": "5a84e2f5762dfd6f8743d93e76963b5b99bccab5"
     }
   },
   "studiosislab_project": {
     "master_doc": "SOS/STUDIOSISLAB_PROJECT_MASTER.md",
     "resume_template_department_master_doc": "SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md",
-    "current_priority": "Resume Template consolidation phase C2 Shared geometry admission (after Founder reviews C1)",
+    "current_priority": "Resume Template consolidation phase C3 Memory selection discipline (after Founder reviews C2)",
     "resume_template_department_current_status": "CONSOLIDATION_REQUIRED",
     "core_resume_template_factory_goal_met": true,
     "operationally_complete_currently_asserted": false,
@@ -3435,12 +3443,12 @@
       "Revenue / Monetization",
       "AIOS System Audit / Optimization"
     ],
-    "snapshot_ist": "2026-09-29T15:48:00+05:30",
-    "snapshot_utc": "2026-09-29T10:18:00.000Z",
+    "snapshot_ist": "2026-09-29T15:56:26+05:30",
+    "snapshot_utc": "2026-09-29T10:26:26.000Z",
     "heads": {
-      "local": "6f97bb4257baf420d648c252bdb95455b025c84e",
-      "origin": "6f97bb4257baf420d648c252bdb95455b025c84e",
-      "vps": "6f97bb4257baf420d648c252bdb95455b025c84e"
+      "local": "5a84e2f5762dfd6f8743d93e76963b5b99bccab5",
+      "origin": "5a84e2f5762dfd6f8743d93e76963b5b99bccab5",
+      "vps": "5a84e2f5762dfd6f8743d93e76963b5b99bccab5"
     }
   }
 

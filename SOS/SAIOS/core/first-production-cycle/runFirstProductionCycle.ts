@@ -63,6 +63,12 @@ import {
   type RevisionLoopOutcome,
 } from "./RevisionLoop.js";
 import { resolveGenerationDesignContext } from "../founder-memory/FounderMemoryContext.js";
+import {
+  evaluateGenerationFounderReviewAdmission,
+  evaluateSharedGeometryAdmission,
+  type SharedGeometryAdmission,
+} from "../geometry-admission/SharedGeometryAdmission.js";
+import type { FabricCanvasDoc } from "../founder-revision/CanvasInventory.js";
 
 const REPO = resolve(import.meta.dirname, "../../../..");
 export const CYCLE_LOG = join(REPO, "SOS/07_LOGS/saios/first-production-cycle");
@@ -94,6 +100,7 @@ export type CycleResult = {
   state:
     | "WAITING_FOUNDER"
     | "CRITIC_BLOCKED"
+    | "GEOMETRY_BLOCKED"
     | "ROLE_INTEGRITY_FAILED"
     | "COMPLETED"
     | "FAILED"
@@ -403,6 +410,7 @@ async function runFirstProductionCycleInner(opts?: {
     ready: boolean;
   } | null = null;
   let gateResult: Awaited<ReturnType<CriticGate["evaluate"]>> | null = null;
+  let geometryAdmission: SharedGeometryAdmission | null = null;
   let research_context = buildResearchContext(production_target);
   let researchBriefing = formatResearchBriefing(research_context);
   let revisionOutcome: RevisionLoopOutcome | null = null;
@@ -483,6 +491,19 @@ async function runFirstProductionCycleInner(opts?: {
       failure_detail: null,
     });
     ws.writeLatestPointer("CRITIC_BLOCKED");
+  };
+
+  const markGeometryBlocked = (detail: string) => {
+    if (cx.terminalWritten) return;
+    cx.terminalWritten = true;
+    cx.cycleState = "GEOMETRY_BLOCKED";
+    ws.updateManifest({
+      status: "GEOMETRY_BLOCKED",
+      provider: cx.provider,
+      failure_stage: "shared_geometry_admission",
+      failure_detail: detail,
+    });
+    ws.writeLatestPointer("GEOMETRY_BLOCKED");
   };
 
   const markRoleIntegrityFailed = (detail: string) => {
@@ -1557,10 +1578,15 @@ async function runFirstProductionCycleInner(opts?: {
       ),
     );
 
-    // 13. Critic Gate
+    // 13. Shared geometry admission + Critic Gate
     stages.push(
       await runStage("critic_gate", join(ws.dir, "critic.json"), async () => {
         if (!criticScores) throw new Error("missing critic scores");
+        const canvas = JSON.parse(
+          readFileSync(join(ws.dir, "canvas.json"), "utf8"),
+        ) as FabricCanvasDoc;
+        geometryAdmission = evaluateSharedGeometryAdmission(canvas);
+        ws.writeArtifact("shared-geometry-admission.json", geometryAdmission);
         const gate = new CriticGate();
         gateResult = gate.evaluate({
           task_id,
@@ -1571,6 +1597,17 @@ async function runFirstProductionCycleInner(opts?: {
           critic_report_reference:
             "SOS/07_LOGS/saios/resume-critic/readiness.json",
           scores: criticScores,
+          geometry_pass: geometryAdmission.pass,
+          geometry_blocking_reasons: geometryAdmission.pass
+            ? []
+            : geometryAdmission.fail_codes.map(
+                (c) => `SHARED_GEOMETRY_${c}`,
+              ),
+        });
+        const admission = evaluateGenerationFounderReviewAdmission({
+          critic_ready,
+          critic_gate_ready: gateResult.gate.ready,
+          geometry: geometryAdmission,
         });
         const out = ws.writeArtifact("gate.json", {
           gate: gateResult.gate,
@@ -1578,15 +1615,17 @@ async function runFirstProductionCycleInner(opts?: {
           queue: gateResult.queue,
           revision_outcome: revisionOutcome?.outcome ?? null,
           revisions_performed: revisionOutcome?.revisions_performed ?? 0,
+          shared_geometry_admission: geometryAdmission,
+          generation_founder_review_admission: admission,
         });
         return {
           output_reference: out,
           validation: {
             pass:
-              gateResult.gate.ready &&
+              admission.admit &&
               gateResult.review_create.allowed &&
               gateResult.gate.publication_allowed === false,
-            detail: `ready=${gateResult.gate.ready} review_allowed=${gateResult.review_create.allowed}`,
+            detail: `ready=${gateResult.gate.ready} geometry=${geometryAdmission.pass} review_allowed=${gateResult.review_create.allowed} admit=${admission.admit}`,
           },
         };
       }),
@@ -1598,27 +1637,37 @@ async function runFirstProductionCycleInner(opts?: {
         "founder_review_queue",
         join(ws.dir, "gate.json"),
         async () => {
+          const geometryOk = geometryAdmission?.pass !== false;
+          const reviewAllowed = Boolean(
+            gateResult?.gate.founder_review_allowed && geometryOk,
+          );
           const out = ws.writeArtifact("review.json", {
             review_id,
             task_id,
             cycle_id,
             run_id,
             candidate_id,
-            status: "waiting_founder",
+            status: reviewAllowed ? "waiting_founder" : "blocked",
             critic_ready,
-            founder_review_allowed:
-              gateResult?.gate.founder_review_allowed ?? false,
+            founder_review_allowed: reviewAllowed,
             publication_allowed: false,
-            queue_action_id: gateResult?.queue.added_id ?? null,
+            queue_action_id: reviewAllowed
+              ? (gateResult?.queue.added_id ?? null)
+              : null,
             dashboard: "SOS/SAIOS/dashboard Founder Review",
             auto_decision: false,
             candidate_dir: ws.dir,
+            shared_geometry_admission: geometryAdmission,
           });
           return {
             output_reference: out,
             validation: {
-              pass: Boolean(gateResult?.gate.founder_review_allowed),
-              detail: "queued for interactive founder decision",
+              pass: reviewAllowed,
+              detail: reviewAllowed
+                ? "queued for interactive founder decision"
+                : geometryOk
+                  ? "critic blocked — not queued"
+                  : "geometry blocked — not queued",
             },
           };
         },
@@ -1662,6 +1711,30 @@ async function runFirstProductionCycleInner(opts?: {
             throw new Error(
               "Auto-decision removed from real cycle path — use founder-gate-runtime fixtures",
             );
+          }
+          if (geometryAdmission && !geometryAdmission.pass) {
+            if (
+              cx.cycleState !== "ROLE_INTEGRITY_FAILED" &&
+              cx.cycleState !== "CRITIC_BLOCKED"
+            ) {
+              markGeometryBlocked(
+                geometryAdmission.fail_codes.join(",") ||
+                  "shared geometry admission failed",
+              );
+            }
+            const out = ws.writeArtifact("waiting-founder.json", {
+              state: cx.cycleState,
+              message: "Shared geometry admission failed — never reaches founder gate",
+              candidate_dir: ws.dir,
+              shared_geometry_admission: geometryAdmission,
+            });
+            return {
+              output_reference: out,
+              validation: {
+                pass: true,
+                detail: "geometry blocked — no founder pause",
+              },
+            };
           }
           if (!critic_ready || !gateResult?.gate.ready) {
             if (cx.cycleState !== "ROLE_INTEGRITY_FAILED") {
@@ -1907,6 +1980,7 @@ async function runFirstProductionCycleInner(opts?: {
               pass:
                 paused ||
                 cx.cycleState === "CRITIC_BLOCKED" ||
+                cx.cycleState === "GEOMETRY_BLOCKED" ||
                 cx.cycleState === "ROLE_INTEGRITY_FAILED",
               detail: cx.cycleState,
             },
@@ -1945,6 +2019,7 @@ async function runFirstProductionCycleInner(opts?: {
     if (
       cx.cycleState !== "WAITING_FOUNDER" &&
       cx.cycleState !== "CRITIC_BLOCKED" &&
+      cx.cycleState !== "GEOMETRY_BLOCKED" &&
       cx.cycleState !== "ROLE_INTEGRITY_FAILED" &&
       cx.cycleState !== "PREVIEW_FAILED" &&
       cx.cycleState !== "THUMBNAIL_FAILED"

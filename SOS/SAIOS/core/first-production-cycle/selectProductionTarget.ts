@@ -342,6 +342,7 @@ export function collectReservedTargetClusters(opts?: {
       m.status !== "RUNNING" &&
       m.status !== "WAITING_FOUNDER" &&
       m.status !== "CRITIC_BLOCKED" &&
+      m.status !== "GEOMETRY_BLOCKED" &&
       m.status !== "APPROVED" &&
       m.status !== "COMPLETED"
     ) {

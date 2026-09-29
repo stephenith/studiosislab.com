@@ -60,25 +60,25 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-29T15:48:00+05:30** / **2026-09-29T10:18:00.000Z**. C1 offline proofs recorded; live ops snapshot otherwise unchanged from 2026-09-29T09:52:52Z `/api/ops-24-7`.
+Snapshot taken **2026-09-29T15:56:26+05:30** / **2026-09-29T10:26:26.000Z**. C2 offline proofs recorded; live ops snapshot otherwise unchanged from 2026-09-29T09:52:52Z `/api/ops-24-7`.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `6f97bb4257baf420d648c252bdb95455b025c84e` (`main`) |
-| ORIGIN HEAD | `6f97bb4257baf420d648c252bdb95455b025c84e` |
-| VPS HEAD | `6f97bb4257baf420d648c252bdb95455b025c84e` |
-| LOCAL STATUS | Dirty Website/e-sign/unrelated untracked SOS folders preserved; C1 Resume Template files staged explicitly |
-| VPS STATUS | C1 deploy if proofs pass; do not clean porcelain |
+| LOCAL HEAD | `5a84e2f5762dfd6f8743d93e76963b5b99bccab5` before C2 commit (`main`) |
+| ORIGIN HEAD | `5a84e2f5762dfd6f8743d93e76963b5b99bccab5` |
+| VPS HEAD | `5a84e2f5762dfd6f8743d93e76963b5b99bccab5` |
+| LOCAL STATUS | Dirty Website/e-sign/unrelated untracked SOS folders preserved; C2 Resume Template files staged explicitly |
+| VPS STATUS | C2 deploy if proofs pass; do not clean porcelain |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service`; health `{ok:true,live:false}`; last live claim still `revtask-5d933072-daf` |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1 Feedback Compiler IR implemented offline |
+| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1 + C2 implemented offline |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
-| REVISION STATUS | One executor; latest live task still `revtask-5d933072-daf` `FAILED_SECTION_COMPLETENESS` (immutable; not retried) |
-| GENERATION STATUS | Unchanged in C1; `SOS_AIOS_LIVE=0` |
-| FOUNDER REVIEW STATUS | Unchanged; no live Request Changes |
-| MEMORY STATUS | Unchanged in C1 (C3 later) |
+| REVISION STATUS | Shared geometry kernel; latest live task still `revtask-5d933072-daf` `FAILED_SECTION_COMPLETENESS` (immutable; not retried) |
+| GENERATION STATUS | Shared geometry admission before Founder Review; `SOS_AIOS_LIVE=0` |
+| FOUNDER REVIEW STATUS | Unchanged queue; no live Request Changes; geometry-failed generation cannot enter Review |
+| MEMORY STATUS | Unchanged (C3 later) |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
-| CURRENT PRIMARY BLOCKERS | C2 shared geometry admission; C3 memory selection; live 5d933072 remains historical; no department E2E harness |
-| NEXT AUTHORIZED STEP | **C2 Shared geometry admission** — Founder review of C1 first; do not retry 5d933072 |
+| CURRENT PRIMARY BLOCKERS | C3 memory selection; live 5d933072 remains historical; no department E2E harness |
+| NEXT AUTHORIZED STEP | **C3 Memory selection discipline** — Founder review of C2 first; do not retry 5d933072 |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -334,17 +334,19 @@ Memory did **not** carry a sidebar spacing rule. It injected a stale role-change
 
 ## 14. Generation Quality Gap
 
-**Generation can still send geometry defects to Founder Review.**
+**C2 resolved generation-side hard geometry admission.**
 
-Reasons: `SpacingCritic` checks consecutive text and skips low horizontal overlap; clipping often only lowers layout score; readiness uses overflow boolean + score floors (overall ≥ 90, ATS ≥ 95, technical = 100); no shared revision overlap/OOB function at admission. Duplicate *text* is not a canvas gate (`DuplicateDetector` is target fingerprinting).
+`evaluateSharedGeometryAdmission` is the single Founder Review geometry contract: pairwise same-column text overlap (`findTextOverlapFindings`), page OOB (`findOutOfBoundsObjects`), and read-only page-fit (content bottom vs page height, `overflow <= 0.5`). Generation calls it before WAITING_FOUNDER. Revision uses the same function as its fail-closed gate. Critic / Readiness scores remain advisory and cannot override a deterministic fail.
 
-Mark **generation-side hard geometry admission = UNRESOLVED**.
+Still not hard-admission (intentionally): intra-box clipping and heading-obscure stay in Founder-requested `COLLISION_BOUNDS` QA; SpacingCritic / LayoutCritic remain heuristic scores; sequential gap findings remain evidence-only; plan-time `PlanGeometrySafety` still inspects mutated objects only.
+
+Duplicate *text* is still not a canvas gate (`DuplicateDetector` is target fingerprinting).
 
 ---
 
 ## 15. Revision Quality State
 
-**Guarantees (when the run reaches those stages):** overlap/OOB hard fail; 6P layout owner agreed with coverage on the 76a fixture; 6I role-native proof; empty layout-owned plan legal (6O); max 2 provider calls.
+**Guarantees (when the run reaches those stages):** shared geometry admission (overlap / OOB / page-fit) fail-closed via the same kernel as generation; 6P layout owner agreed with coverage on the 76a fixture; 6I role-native proof; empty layout-owned plan legal (6O); max 2 provider calls.
 
 **Remaining architectural failure:** 6J completeness on `content_preservation_sections` can fail a layout-only preserve packet before execution (`revtask-5d933072-daf`). Coverage/layout never get a chance.
 
@@ -643,23 +645,32 @@ C1 did **not** absorb Telegram `FAILED_GATE` vs `FAILED_SECTION_COMPLETENESS` ho
 - True rewrite/removal still sets `completeness_sections` and fails closed if body objects are omitted.
 - IR is suitable future memory evidence (C3); C1 does not migrate historical memory.
 
-#### C2 — Shared geometry admission
+#### C2 — Shared geometry admission *(implemented 2026-09-29; stop before C3)*
 
 | Field | Content |
 |---|---|
-| BUSINESS PURPOSE | Objectively broken layouts never reach Founder Review from generation. |
-| ARCHITECTURAL OUTCOME | One overlap / OOB / page-fit kernel used by generation admission and revision final gate. Critic scores remain advisory. |
-| COMPONENTS AFFECTED | Extract from revision hard gate; `runFirstProductionCycle.ts`; `CriticGate` / `ReadinessGate` callers |
-| DEPENDENCIES | C1 offline green (so revision path is not still dying before geometry) |
-| DATA / MEMORY IMPACT | None. Queue may stop growing until Founder clears 20. |
-| RISKS | False-positive block of acceptable templates; queue freeze |
-| OFFLINE PROOF | Overlapping fixture cannot become `WAITING_FOUNDER`; revision overlap still fail-closed |
-| PRODUCTION-PARITY PROOF | Generation cycle with injected/local canvas; `SOS_AIOS_LIVE=0` |
-| ROLLBACK | Flag generation geometry gate off |
-| LIVE FOUNDER PROOF | **No** unless gate would block the live queue (Founder must approve enablement) |
-| BEFORE NEXT PHASE | Gate proven offline; Founder informed if admission will shrink inflow |
+| BUSINESS PURPOSE | Objectively broken layouts never reach Founder Review from generation merely because critic scores passed. |
+| ARCHITECTURAL OUTCOME | One `evaluateSharedGeometryAdmission(canvas)` kernel (overlap / OOB / page-fit) used by generation admission and revision fail-closed gate. Critic scores remain advisory. |
+| COMPONENTS CHANGED | `SharedGeometryAdmission.ts` (new); `runFirstProductionCycle.ts`; `CriticGate` / `FounderQueueGatekeeper` / integrity; `FounderRevisionPipeline.ts`; `RevisionPlanGateCircuit.ts`; candidate `GEOMETRY_BLOCKED` status |
+| COMPATIBILITY | Critic `ready` remains score-only. `founder_review_allowed = ready && geometry_pass`. Revision still fail-closes `FAILED_GATE` on kernel fail. Intra-box / heading-obscure stay collision-bounds QA. |
+| DEPENDENCIES | C1 offline green |
+| DATA / MEMORY IMPACT | None. New evidence files `shared-geometry-admission.json` on new runs only. Historical records not mutated. Queue policy unchanged. |
+| RISKS | False-positive block of measurable-but-Founder-acceptable overflow; later LIVE inflow may shrink |
+| OFFLINE PROOF | `npm run aios:geometry-admission-c2:verify` PASS; C1 + 5W + 6L + 6P PASS |
+| PRODUCTION-PARITY PROOF | Kernel + CriticGate fixture (no LIVE generation); revision pipeline consumes the same function |
+| ROLLBACK | Revert C2 commit |
+| LIVE FOUNDER PROOF | **No** (reserved for C5) |
+| BEFORE NEXT PHASE | Founder reviews C2; then C3 only |
 
 C2 must not wait for another OA task. It is the generation-side half of one quality standard.
+
+#### C2 architecture (as implemented)
+
+- Authoritative contract: pairwise same-column text overlap (gap < -1, overlapX ≥ 20), page object OOB (±0.5px), read-only page-fit (content bottom − page height ≤ 0.5px). Unevaluable canvas fail-closes.
+- One kernel. Generation and revision do not keep separate overlap/OOB oracles for Founder Review admission.
+- Generation: evaluate canvas after critic; CriticGate cannot queue Review when `geometry_pass=false`; cycle state `GEOMETRY_BLOCKED`.
+- Revision: same kernel after normalization, before Founder return; final-acceptance geometry/page-fit counts come from that result.
+- Critic / Readiness scores still block when geometry passes and scores fail. They cannot admit a geometrically invalid canvas.
 
 #### C3 — Memory selection discipline *(no migration)*
 
@@ -782,8 +793,8 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | Dashboard | active, PID 4063798, started 2026-09-23 07:36:41 UTC; NRestarts=0 |
 | Last revision of note | `revtask-5d933072-daf` FAILED_GATE 2026-09-23T12:13:55Z — still latest; no new live revision since |
 | Candidate dirs on VPS | 80 (WAITING_FOUNDER files 46 ≠ projection waiting 20) |
-| P0 | C2 shared geometry admission (C1 compiler shipped) |
-| P1 | Generation geometry admission (C2); memory selection (C3) |
+| P0 | C3 memory selection discipline (C1 + C2 shipped) |
+| P1 | Memory selection (C3); department E2E harness (C4) |
 | P2 | READY_FOR_FOUNDER_REVIEW success Telegram; overlay vs capacity honesty |
 
 ---
@@ -798,6 +809,7 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | 2026-09-29T15:22:52+05:30 | Six-phase consolidation C1–C6; first implementation = C1 Feedback Compiler IR | 6G–6P patch chain + independently re-verified 5d933072 (mutation=[], 0 ops, 16 unaccounted preserve objects) | Fresh VPS task/evidence/journal 2026-09-29; HEAD `b1e07bb` matches origin/VPS; no newer live revision | Another OA retry; 6Q regex; rewriting `runFounderFeedbackRevision`; destroying memory; combining C1 with C2/C5 | Resume architecture plan | Yes until C1 ships |
 | 2026-09-29T15:22:52+05:30 | No destructive memory/artifact migration | Store is attached-not-learned; 990 provisionals; filter on read | active-index 382 unchanged since 12:12:50Z; 5d933072 selected MM→OA provisional | Rebuild JSONL; retry 5d933072 | Founder Memory | Yes |
 | 2026-09-29T15:48:00+05:30 | C1 Feedback Compiler IR is the sole public semantic owner; completeness = mutation sections only | Same Founder sentence was independently reclassified (layout vs preserve vs replace vs verify) | C1 verifier PASS; legacy ledger 16 unaccounted; 6J incomplete replace still fails; 6G–6P+6L PASS | 6Q sentence patch; retry 5d933072; weakening true replace; starting C2 in this run | Feedback compiler + completeness + coverage + prompt + acceptance + pipeline | Yes until C2 ships |
+| 2026-09-29T15:56:26+05:30 | C2 shared geometry admission is the sole Founder Review geometry oracle | Generation could enter Review on critic scores while revision already fail-closed on overlap/OOB/page-fit | C2 verifier PASS; C1 + 5W + 6L + 6P PASS; historical good fixture accepted; 5W-class overlap rejected | Second generation checker; turning critic scores into hard geometry; starting C3; enabling LIVE | SharedGeometryAdmission + generation cycle + CriticGate + revision pipeline | Yes until C3 ships |
 
 ---
 
@@ -850,14 +862,29 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** IR still regex-heavy internally; Founder may authorize C2 before reviewing C1
 - **NEXT STEP:** C2 Shared geometry admission (after Founder review)
 
+### 2026-09-29T15:56:26+05:30 — C2 SHARED GEOMETRY ADMISSION
+
+- **PHASE/TASK:** C2 Shared geometry admission
+- **PURPOSE:** One deterministic geometry/safety contract so generation cannot send objectively broken canvases to Founder Review
+- **BEFORE STATE:** Revision fail-closed on `findTextOverlapFindings` + OOB/page-fit mix; generation admitted on CriticGate/Readiness scores
+- **CHANGE:** `evaluateSharedGeometryAdmission` reused by generation admission and revision fail-closed; critic scores advisory; `GEOMETRY_BLOCKED` cycle status
+- **FILES MODIFIED:** `SOS/SAIOS/core/geometry-admission/*`; critic-gate admission coupling; `runFirstProductionCycle.ts`; `FounderRevisionPipeline.ts`; `RevisionPlanGateCircuit.ts`; candidate/batch/duplicate/runtime status; this file; project master; project-state; `AGENTS.md`
+- **TESTS:** `aios:geometry-admission-c2:verify` PASS; C1 + 5W + 6L + 6P PASS
+- **COMMIT:** *(filled after commit)*
+- **DEPLOY:** *(filled after deploy)*
+- **LIVE PROOF:** None
+- **RESULT:** C2 offline proven; no production generation/revision
+- **NEW RISKS:** False-positive page-fit/OOB blocks; LIVE inflow may shrink later
+- **NEXT STEP:** C3 Memory selection discipline (after Founder review)
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**C2 — Shared geometry admission**
+**C3 — Memory selection discipline**
 
-Do not start C2 until the Founder reviews C1.  
+Do not start C3 until the Founder reviews C2.  
 Do not retry `revtask-5d933072-daf` or `revtask-76a04a21-6ff`.  
 Do not enable `SOS_AIOS_LIVE`.

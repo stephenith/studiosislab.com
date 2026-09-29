@@ -22,10 +22,8 @@ import { buildFeedbackCoverage } from "./FeedbackCoverage.js";
 import { isHeaderIdentityLayoutFeedback } from "./HeaderIdentityLayout.js";
 import { validatePlanGeometrySafety } from "./PlanGeometrySafety.js";
 import { validatePlanVerticalDirections } from "./PositionOpCanonicalization.js";
-import {
-  findTextOverlapFindings,
-  runRevisionAcceptanceChecks,
-} from "./RevisionAcceptanceChecks.js";
+import { runRevisionAcceptanceChecks } from "./RevisionAcceptanceChecks.js";
+import { evaluateSharedGeometryAdmission } from "../geometry-admission/SharedGeometryAdmission.js";
 import { normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
 import {
   allRequestedChangesAllowEmptyPlan,
@@ -415,15 +413,15 @@ export function runRevisionPlanGateCircuit(input: {
   }
   stages.LAYOUT_NORMALIZATION = "PASS";
 
-  // Phase 5W: final post-normalization pairwise rendered overlap gate.
-  const finalOverlaps = findTextOverlapFindings(normalized.canvas);
-  if (finalOverlaps.length > 0) {
+  // C2: shared deterministic geometry admission (same kernel as production).
+  const sharedGeometry = evaluateSharedGeometryAdmission(normalized.canvas);
+  if (!sharedGeometry.pass) {
     stages.ACCEPTANCE = "FAIL";
     return {
       ok: false,
       failed_stage: "ACCEPTANCE",
       status: "FAILED_GATE",
-      error: `final rendered geometry failed: text_overlaps=${finalOverlaps.length}`,
+      error: `final rendered geometry failed: ${sharedGeometry.fail_codes.join(",") || "SHARED_GEOMETRY"} text_overlaps=${sharedGeometry.text_overlap_count} page_oob=${sharedGeometry.page_oob_count} page_overflow_px=${sharedGeometry.page_overflow_px}`,
       stages,
       active_plan: activePlan,
       after_canvas: normalized.canvas,

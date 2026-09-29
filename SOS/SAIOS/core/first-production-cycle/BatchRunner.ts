@@ -75,7 +75,7 @@ export type BatchCandidateRecord = {
   industry: string | null;
   seniority: string | null;
   provider: string | null;
-  result: "WAITING_FOUNDER" | "FAILED" | "CRITIC_BLOCKED" | "ROLE_INTEGRITY_FAILED" | "SKIPPED" | "PREVIEW_FAILED" | "THUMBNAIL_FAILED";
+  result: "WAITING_FOUNDER" | "FAILED" | "CRITIC_BLOCKED" | "GEOMETRY_BLOCKED" | "ROLE_INTEGRITY_FAILED" | "SKIPPED" | "PREVIEW_FAILED" | "THUMBNAIL_FAILED";
   overall: "PASS" | "FAIL" | "SKIPPED";
   duration_ms: number;
   error: string | null;
@@ -590,6 +590,8 @@ export async function runCanonicalBatch(
         ? "WAITING_FOUNDER"
         : result.state === "CRITIC_BLOCKED"
           ? "CRITIC_BLOCKED"
+          : result.state === "GEOMETRY_BLOCKED"
+            ? "GEOMETRY_BLOCKED"
           : result.state === "ROLE_INTEGRITY_FAILED"
             ? "ROLE_INTEGRITY_FAILED"
           : result.state === "PREVIEW_FAILED"

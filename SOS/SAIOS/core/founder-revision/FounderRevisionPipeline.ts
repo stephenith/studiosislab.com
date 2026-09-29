@@ -28,6 +28,7 @@ import {
   findTextOverlapFindings,
   runRevisionAcceptanceChecks,
 } from "./RevisionAcceptanceChecks.js";
+import { evaluateSharedGeometryAdmission } from "../geometry-admission/SharedGeometryAdmission.js";
 import {
   evaluateSectionReplacementCompleteness,
   formatSectionReplacementIncompleteError,
@@ -804,8 +805,9 @@ export async function runFounderFeedbackRevision(
     };
   }
 
-  // Phase 5W: final post-normalization rendered-geometry gate (pairwise
-  // wrap-aware same-column overlaps). Fail closed before Founder return.
+  // C2: shared deterministic geometry admission (overlap / OOB / page-fit).
+  // Sequential gap findings remain evidence-only, not admission.
+  const sharedGeometry = evaluateSharedGeometryAdmission(normalized.canvas);
   const finalRenderedGeometry = {
     schema_version: "founder-final-rendered-geometry-1.0.0",
     at: new Date().toISOString(),
@@ -813,13 +815,21 @@ export async function runFounderFeedbackRevision(
     sequential_gap_findings: findSequentialRenderedTextGapFindings(
       normalized.canvas,
     ),
+    shared_geometry_admission: sharedGeometry,
+    ownership_page_oob_count: ownershipPageOob,
+    normalizer_page_overflow: Boolean(normalized.report.page_overflow),
+    normalizer_page_fit: normalized.report.page_fit,
   };
   writeJson(
     join(evidenceDir, "final-rendered-geometry.json"),
     finalRenderedGeometry,
   );
-  if (finalRenderedGeometry.text_overlap_findings.length > 0) {
-    const err = `final rendered geometry failed: text_overlaps=${finalRenderedGeometry.text_overlap_findings.length}`;
+  writeJson(
+    join(evidenceDir, "shared-geometry-admission.json"),
+    sharedGeometry,
+  );
+  if (!sharedGeometry.pass) {
+    const err = `final rendered geometry failed: ${sharedGeometry.fail_codes.join(",") || "SHARED_GEOMETRY"} text_overlaps=${sharedGeometry.text_overlap_count} page_oob=${sharedGeometry.page_oob_count} page_overflow_px=${sharedGeometry.page_overflow_px}`;
     task = updateRevisionTask(task.task_id, {
       status: "FAILED_GATE",
       error: err,
@@ -881,16 +891,9 @@ export async function runFounderFeedbackRevision(
   const contentPreservationOk =
     preservationChecks.length === 0 ||
     preservationChecks.every((c) => c.pass === true);
-  const pageFit = normalized.report.page_fit;
-  const pageFitOk =
-    pageFit == null ||
-    pageFit.fit_pass === true ||
-    Number(pageFit.overflow_after ?? 0) === 0;
-  const overlapCount = finalRenderedGeometry.text_overlap_findings.length;
-  const pageOobCount = Math.max(
-    ownershipPageOob,
-    Number(normalized.report.page_overflow ? 1 : 0),
-  );
+  const pageFitOk = sharedGeometry.page_fit_pass;
+  const overlapCount = sharedGeometry.text_overlap_count;
+  const pageOobCount = sharedGeometry.page_oob_count;
 
   const finalAcceptance = evaluateRevisionFinalAcceptance({
     plan_ok: true,

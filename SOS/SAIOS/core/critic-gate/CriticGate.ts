@@ -48,6 +48,16 @@ export class CriticGate {
     const ref =
       input.critic_report_reference ?? this.loader.defaultReportReference();
     const verdict = validateScoresForGate(input.scores);
+    const geometry_pass = input.geometry_pass !== false;
+    const geometryReasons = input.geometry_blocking_reasons ?? [];
+    const blocking_reasons = geometry_pass
+      ? verdict.blocking_reasons
+      : [
+          ...verdict.blocking_reasons,
+          ...(geometryReasons.length
+            ? geometryReasons
+            : ["SHARED_GEOMETRY_ADMISSION_FAILED"]),
+        ];
 
     const gate: CriticGateResult = {
       gate_id: `cg-${randomUUID().slice(0, 12)}`,
@@ -65,13 +75,14 @@ export class CriticGate {
       consistency_score: input.scores.consistency,
       section_score: input.scores.sections,
       ready: verdict.ready,
-      blocking_reasons: verdict.blocking_reasons,
+      blocking_reasons,
       warnings: verdict.warnings,
       evaluated_at: new Date().toISOString(),
       dry_run: true,
-      founder_review_allowed: verdict.ready,
+      founder_review_allowed: verdict.ready && geometry_pass,
       publication_allowed: false,
       fixture: input.fixture,
+      geometry_pass,
     };
 
     const integrity = assertGateIntegrity(gate);

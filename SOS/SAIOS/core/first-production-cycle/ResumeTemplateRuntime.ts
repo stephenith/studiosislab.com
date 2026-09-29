@@ -12,6 +12,7 @@ export type ResumeTemplateFounderStatus =
   | "preview_failed"
   | "thumbnail_failed"
   | "critic_blocked"
+  | "geometry_blocked"
   | "failed"
   | "running";
 
@@ -153,6 +154,7 @@ export function founderStatusFromCandidateStatus(
   if (status === "PREVIEW_FAILED") return "preview_failed";
   if (status === "THUMBNAIL_FAILED") return "thumbnail_failed";
   if (status === "CRITIC_BLOCKED") return "critic_blocked";
+  if (status === "GEOMETRY_BLOCKED") return "geometry_blocked";
   if (status === "FAILED") return "failed";
   return "running";
 }

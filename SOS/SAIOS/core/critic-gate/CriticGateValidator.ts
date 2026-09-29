@@ -55,11 +55,18 @@ export function assertGateIntegrity(gate: CriticGateResult): string[] {
     errors.push("publication_allowed must be false");
   }
   if (gate.dry_run !== true) errors.push("dry_run must be true");
-  if (gate.ready && !gate.founder_review_allowed) {
-    errors.push("ready=YES requires founder_review_allowed");
-  }
   if (!gate.ready && gate.founder_review_allowed) {
     errors.push("ready=NO forbids founder_review_allowed");
+  }
+  if (gate.geometry_pass === false && gate.founder_review_allowed) {
+    errors.push("geometry_pass=NO forbids founder_review_allowed");
+  }
+  if (
+    gate.ready &&
+    gate.geometry_pass !== false &&
+    !gate.founder_review_allowed
+  ) {
+    errors.push("ready=YES and geometry_pass=YES require founder_review_allowed");
   }
   if (!gate.critic_report_reference) {
     errors.push("critic_report_reference required");

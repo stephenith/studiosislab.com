@@ -26,6 +26,8 @@ export type CriticGateResult = {
   founder_review_allowed: boolean;
   publication_allowed: false;
   fixture?: boolean;
+  /** C2 — deterministic shared geometry; default true when omitted. */
+  geometry_pass?: boolean;
 };
 
 export type BlockedCandidate = {
@@ -91,6 +93,9 @@ export type CriticGateInput = {
   critic_report_reference?: string;
   scores: CriticScoresSnapshot;
   fixture?: boolean;
+  /** C2 — when false, critic scores cannot admit to Founder Review. */
+  geometry_pass?: boolean;
+  geometry_blocking_reasons?: string[];
 };
 
 export type GateEventType =

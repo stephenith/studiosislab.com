@@ -17,6 +17,7 @@ export const RESERVING_STATUSES: ReadonlySet<CandidateStatus | string> = new Set
   "RUNNING",
   "WAITING_FOUNDER",
   "CRITIC_BLOCKED",
+  "GEOMETRY_BLOCKED",
   "APPROVED",
   "COMPLETED",
 ]);

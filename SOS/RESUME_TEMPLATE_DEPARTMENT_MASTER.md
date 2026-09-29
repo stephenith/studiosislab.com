@@ -64,9 +64,9 @@ Snapshot taken **2026-09-29T15:56:26+05:30** / **2026-09-29T10:26:26.000Z**. C2 
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `5a84e2f5762dfd6f8743d93e76963b5b99bccab5` before C2 commit (`main`) |
-| ORIGIN HEAD | `5a84e2f5762dfd6f8743d93e76963b5b99bccab5` |
-| VPS HEAD | `5a84e2f5762dfd6f8743d93e76963b5b99bccab5` |
+| LOCAL HEAD | `add19ab7da4fbcfb5d354cc1772d6538f4af655a` (`main`) |
+| ORIGIN HEAD | `add19ab7da4fbcfb5d354cc1772d6538f4af655a` |
+| VPS HEAD | `add19ab7da4fbcfb5d354cc1772d6538f4af655a` |
 | LOCAL STATUS | Dirty Website/e-sign/unrelated untracked SOS folders preserved; C2 Resume Template files staged explicitly |
 | VPS STATUS | C2 deploy if proofs pass; do not clean porcelain |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service`; health `{ok:true,live:false}`; last live claim still `revtask-5d933072-daf` |
@@ -870,8 +870,8 @@ Append-only. Do not overwrite.
 - **CHANGE:** `evaluateSharedGeometryAdmission` reused by generation admission and revision fail-closed; critic scores advisory; `GEOMETRY_BLOCKED` cycle status
 - **FILES MODIFIED:** `SOS/SAIOS/core/geometry-admission/*`; critic-gate admission coupling; `runFirstProductionCycle.ts`; `FounderRevisionPipeline.ts`; `RevisionPlanGateCircuit.ts`; candidate/batch/duplicate/runtime status; this file; project master; project-state; `AGENTS.md`
 - **TESTS:** `aios:geometry-admission-c2:verify` PASS; C1 + 5W + 6L + 6P PASS
-- **COMMIT:** *(filled after commit)*
-- **DEPLOY:** *(filled after deploy)*
+- **COMMIT:** `add19ab7da4fbcfb5d354cc1772d6538f4af655a`
+- **DEPLOY:** FF origin + VPS `/root/studiosislab.com`; backup `20260929T102935Z.tar.gz`; restarted `aios-founder-dashboard.service`; health `{ok:true,live:false}`
 - **LIVE PROOF:** None
 - **RESULT:** C2 offline proven; no production generation/revision
 - **NEW RISKS:** False-positive page-fit/OOB blocks; LIVE inflow may shrink later

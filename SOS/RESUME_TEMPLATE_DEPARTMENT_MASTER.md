@@ -64,9 +64,9 @@ Snapshot taken **2026-09-29T15:48:00+05:30** / **2026-09-29T10:18:00.000Z**. C1 
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | *(filled after C1 commit)* (`main`) |
-| ORIGIN HEAD | *(filled after C1 push)* |
-| VPS HEAD | *(filled after C1 deploy)* |
+| LOCAL HEAD | `6f97bb4257baf420d648c252bdb95455b025c84e` (`main`) |
+| ORIGIN HEAD | `6f97bb4257baf420d648c252bdb95455b025c84e` |
+| VPS HEAD | `6f97bb4257baf420d648c252bdb95455b025c84e` |
 | LOCAL STATUS | Dirty Website/e-sign/unrelated untracked SOS folders preserved; C1 Resume Template files staged explicitly |
 | VPS STATUS | C1 deploy if proofs pass; do not clean porcelain |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service`; health `{ok:true,live:false}`; last live claim still `revtask-5d933072-daf` |
@@ -843,8 +843,8 @@ Append-only. Do not overwrite.
 - **CHANGE:** `compileFounderFeedbackIR`; completeness = mutation sections only; coverage/prompt/acceptance/pipeline consume IR; `founder-feedback-ir.json` evidence
 - **FILES MODIFIED:** `SOS/SAIOS/core/founder-revision/FounderFeedbackIR.ts` (new) plus completeness, coverage, prompt builder, acceptance, pipeline, intent-scope comments; C1/6M/6P verifiers; package.json script; this file; project master; project-state
 - **TESTS:** `aios:revision:founder-feedback-ir-c1:verify` PASS; 6G–6P and 6L PASS
-- **COMMIT:** *(filled after commit)*
-- **DEPLOY:** *(filled after FF deploy)*
+- **COMMIT:** `6f97bb4257baf420d648c252bdb95455b025c84e`
+- **DEPLOY:** FF origin + VPS `/root/studiosislab.com`; backup `20260929T101344Z.bundle`; restarted `aios-founder-dashboard.service`; health `{ok:true,live:false}`
 - **LIVE PROOF:** None
 - **RESULT:** C1 offline proven; live 5d933072 immutable
 - **NEW RISKS:** IR still regex-heavy internally; Founder may authorize C2 before reviewing C1

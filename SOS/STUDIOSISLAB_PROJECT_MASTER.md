@@ -53,9 +53,9 @@ Snapshot taken **2026-09-29T15:48:00+05:30** / **2026-09-29T10:18:00.000Z**.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | *(filled after C1 commit)* (`main`) |
-| ORIGIN HEAD | *(filled after C1 push)* |
-| VPS HEAD | *(filled after C1 deploy)* |
+| LOCAL HEAD | `6f97bb4257baf420d648c252bdb95455b025c84e` (`main`) |
+| ORIGIN HEAD | `6f97bb4257baf420d648c252bdb95455b025c84e` |
+| VPS HEAD | `6f97bb4257baf420d648c252bdb95455b025c84e` |
 | PUBLIC PRODUCT | Next.js SaaS at `studiosislab.com` (Vercel) |
 | AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` |
 | CURRENT PROJECT PRIORITY | **Resume Template consolidation phase C2 (Shared geometry admission)** — after Founder reviews C1 |
@@ -352,7 +352,7 @@ Append-only. Do not overwrite historical entries.
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 2026-09-23T19:12:41+05:30 | Project-wide master baseline | Establish one human project source of truth | No project-wide master; Resume master existed; `AGENTS.md` still said Resume `OPERATIONALLY_COMPLETE` | Added this file; project-state pointer; `AGENTS.md` now points here and records Resume `CONSOLIDATION_REQUIRED` | `SOS/STUDIOSISLAB_PROJECT_MASTER.md`, `SOS/project-state.json`, `AGENTS.md`, Resume master authority pointer | Docs/state only | *(filled after commit)* | FF-only if safe; no service restart | None | Project documentation hierarchy established | Agents may still read stale historical `OPERATIONALLY_COMPLETE` rows — those remain historical | Resume Template Department consolidation planning |
 | 2026-09-29T15:22:52+05:30 | Resume consolidation plan | Record C1–C6; refresh stale SHA snapshot | Priority was consolidation planning; SHAs still showed `c6f143b` | Planning outcome + C1 as next implementation; no architecture code | This file; Resume master; project-state; `AGENTS.md` | Docs only | *(filled after commit)* | FF docs; no restart | None | Plan recorded; C1 not started | Agent may implement C1 without reading §29 | C1 Feedback Compiler IR |
-| 2026-09-29T15:48:00+05:30 | C1 Feedback Compiler IR | One canonical Founder Request Changes interpretation | C1 not started; 6J preservation ledger | IR + mutation-only completeness; consumers migrated | Resume revision compiler files; this file; Resume master; project-state | C1 + 6G–6P + 6L | *(filled after commit)* | FF + dashboard restart if code deployed | None | C1 offline PASS | IR still regex-internal; live 5d933072 unchanged | C2 Shared geometry admission |
+| 2026-09-29T15:48:00+05:30 | C1 Feedback Compiler IR | One canonical Founder Request Changes interpretation | C1 not started; 6J preservation ledger | IR + mutation-only completeness; consumers migrated | Resume revision compiler files; this file; Resume master; project-state | C1 + 6G–6P + 6L | `6f97bb4` | FF + dashboard restart `20260929T101344Z` | None | C1 offline PASS | IR still regex-internal; live 5d933072 unchanged | C2 Shared geometry admission |
 
 ---
 

@@ -53,9 +53,9 @@ Snapshot taken **2026-09-29T16:52:35+05:30** / **2026-09-29T11:22:35.000Z**.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `5068ce36d66458fdfba6c5192195b9906520a92a` (`main`) |
-| ORIGIN HEAD | `5068ce36d66458fdfba6c5192195b9906520a92a` (after push) |
-| VPS HEAD | pending FF of C4 test-only commit |
+| LOCAL HEAD | `0d5590b705abdaeaa845b80eafb6e15e3073a896` (`main`) |
+| ORIGIN HEAD | `0d5590b705abdaeaa845b80eafb6e15e3073a896` |
+| VPS HEAD | `0d5590b705abdaeaa845b80eafb6e15e3073a896` |
 | PUBLIC PRODUCT | Next.js SaaS at `studiosislab.com` (Vercel) |
 | AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` |
 | CURRENT PROJECT PRIORITY | **Resume Template consolidation phase C5 (One authorized live Request Changes)** — after Founder reviews C4 |

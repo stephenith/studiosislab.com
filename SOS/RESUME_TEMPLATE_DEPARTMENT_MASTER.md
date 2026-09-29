@@ -60,13 +60,13 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-29T16:52:35+05:30** / **2026-09-29T11:22:35.000Z**. C4 offline harness recorded; no live generation/revision.
+Snapshot taken **2026-09-29T17:01:13+05:30** / **2026-09-29T11:31:13.000Z**. C5 preflight: no new Founder decision yet.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `5068ce36d66458fdfba6c5192195b9906520a92a` (`main`) |
-| ORIGIN HEAD | `5068ce36d66458fdfba6c5192195b9906520a92a` (after push) |
-| VPS HEAD | pending FF of C4 test-only commit |
+| LOCAL HEAD | `0d5590b705abdaeaa845b80eafb6e15e3073a896` (`main`) |
+| ORIGIN HEAD | `0d5590b705abdaeaa845b80eafb6e15e3073a896` |
+| VPS HEAD | `0d5590b705abdaeaa845b80eafb6e15e3073a896` |
 | LOCAL STATUS | Dirty Website department files preserved; C4 harness staged explicitly |
 | VPS STATUS | FF sync of offline harness if push succeeds; no service restart required |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service`; last live claim still `revtask-5d933072-daf` |
@@ -74,11 +74,11 @@ Snapshot taken **2026-09-29T16:52:35+05:30** / **2026-09-29T11:22:35.000Z**. C4 
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
 | REVISION STATUS | Department harness calls `runFounderFeedbackRevision`; latest live task still `revtask-5d933072-daf` (immutable) |
 | GENERATION STATUS | Admission spine proven in C4; full `runFirstProductionCycle` persist still not relocatable; `SOS_AIOS_LIVE=0` |
-| FOUNDER REVIEW STATUS | Unchanged queue; no live Request Changes |
-| MEMORY STATUS | JSONL intact. C4 uses temp-root `selectFounderMemory` / maturation. |
+| FOUNDER REVIEW STATUS | Queue unchanged; C5 waiting for ONE new Request Changes on selected UI Designer |
+| MEMORY STATUS | JSONL 1242; CONFIRMED 19 / PROVISIONAL 990 / SUPERSEDED 233; active-index 382 |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
-| CURRENT PRIMARY BLOCKERS | C5 live Founder proof; live 5d933072 remains historical |
-| NEXT AUTHORIZED STEP | **C5 One authorized live Request Changes** — Founder review of C4 first; do not retry 5d933072 |
+| CURRENT PRIMARY BLOCKERS | C5 waiting for Founder Request Changes; live 5d933072 remains historical |
+| NEXT AUTHORIZED STEP | **C5** — Founder submits ONE Request Changes on `cand-creative-ui-designer-20260915T122023Z-79af7d`; then Agent observes to terminal state |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -725,10 +725,11 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 - Older verifiers (6G–6P, 6L, C1–C3 unit files) remain. 6L is still the revision-only release harness; C4 is the department workflow harness.
 - Known debt: older critic-gate verifier dashboard/OpenAI dependency failures (unchanged; not required for C4).
 
-#### C5 — One authorized live Request Changes
+#### C5 — One authorized live Request Changes *(preflight 2026-09-29; waiting for Founder)*
 
 | Field | Content |
 |---|---|
+| PREFLIGHT | Local=origin=VPS `0d5590b`. Dashboard `{ok:true,live:false}`. Dispatcher started, pending=0. No decision newer than `fd-29f3e572-06b` (2026-09-23). Selected: `cand-creative-ui-designer-20260915T122023Z-79af7d` (WAITING_FOUNDER, preview, role PASS). Do not retry 5d933072 / 76a04a21. |
 | BUSINESS PURPOSE | Prove C1–C4 on a **new** Founder decision, not a mutated historical task. |
 | ARCHITECTURAL OUTCOME | One production `runFounderFeedbackRevision` with real bounded OpenAI reaches `READY_FOR_FOUNDER_REVIEW`; coverage agrees with IR; Telegram names the true owner on failure. |
 | COMPONENTS AFFECTED | Production path only (no code required if C1–C4 already shipped) |
@@ -930,14 +931,29 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** Agent may treat C4 as live proof; C5 still required
 - **NEXT STEP:** C5 one authorized live Request Changes (after Founder review)
 
+### 2026-09-29T17:01:13+05:30 — C5 PREFLIGHT WAITING FOR FOUNDER
+
+- **PHASE/TASK:** C5 live proof preflight
+- **PURPOSE:** Confirm C1–C4 on VPS and select one current WAITING_FOUNDER template
+- **BEFORE STATE:** Docs still showed C4 SHA `5068ce3` / pending VPS FF
+- **CHANGE:** Runtime HEADs are `0d5590b`. No new decision since `fd-29f3e572-06b`. Selected `cand-creative-ui-designer-20260915T122023Z-79af7d`. Agent did not submit feedback.
+- **FILES MODIFIED:** this file; project master HEADs; project-state heads
+- **TESTS:** Read-only VPS inspect
+- **COMMIT:** *(filled after commit)*
+- **DEPLOY:** FF docs; no restart
+- **LIVE PROOF:** Waiting
+- **RESULT:** WAITING_FOR_FOUNDER_REQUEST_CHANGES
+- **NEW RISKS:** Founder might open the OA failure-chain template instead
+- **NEXT STEP:** Founder submits ONE Request Changes on the selected UI Designer
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**C5 — One authorized live Request Changes**
+**C5 — Founder submits ONE Request Changes, then Agent observes**
 
-Do not start C5 until the Founder reviews C4.  
+Selected Resume Template ID: `cand-creative-ui-designer-20260915T122023Z-79af7d`.  
 Do not retry `revtask-5d933072-daf` or `revtask-76a04a21-6ff`.  
-Do not enable `SOS_AIOS_LIVE` unless the Founder explicitly authorizes C5.
+Do not enable `SOS_AIOS_LIVE`.

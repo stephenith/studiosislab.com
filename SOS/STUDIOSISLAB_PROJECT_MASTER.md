@@ -49,24 +49,24 @@ Code and VPS evidence override this file when they disagree. Historical evidence
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-23T19:12:41+05:30** / **2026-09-23T13:42:41.000Z**.
+Snapshot taken **2026-09-29T15:22:52+05:30** / **2026-09-29T09:52:52.100Z**.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `c6f143bc9a047fc15bee853c7de5e4eca5a14012` (`main`) |
-| ORIGIN HEAD | `c6f143bc9a047fc15bee853c7de5e4eca5a14012` |
-| VPS HEAD | `c6f143bc9a047fc15bee853c7de5e4eca5a14012` |
+| LOCAL HEAD | `b1e07bbb975259ca68e5e098a89589606803cd75` (`main`) |
+| ORIGIN HEAD | `b1e07bbb975259ca68e5e098a89589606803cd75` |
+| VPS HEAD | `b1e07bbb975259ca68e5e098a89589606803cd75` |
 | PUBLIC PRODUCT | Next.js SaaS at `studiosislab.com` (Vercel) |
-| AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` |
-| CURRENT PROJECT PRIORITY | **Resume Template Department consolidation planning** |
+| AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` since 2026-09-23 07:36:41 UTC |
+| CURRENT PROJECT PRIORITY | **Resume Template consolidation phase C1 (Feedback Compiler IR)** — planned, not started |
 | CURRENTLY ACTIVE DEPARTMENT | Resume Template Department (`CONSOLIDATION_REQUIRED`) |
 | NEXT MAJOR PRODUCT DEPARTMENT | Website Analysis / QA / Development (not authorized as current work) |
 | CORE FACTORY HISTORICAL GOAL | **MET** — do not erase |
 | LIVE `OPERATIONALLY_COMPLETE` | **NOT ASSERTED** |
 | PUBLICATION | Manual; `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` |
-| LIVE GENERATION | Guarded; `SOS_AIOS_LIVE=0` |
-| PRIMARY BLOCKERS | Resume feedback-compiler / completeness fragmentation; generation geometry admission gap; no true Resume E2E harness; Website still disabled |
-| NEXT AUTHORIZED STEP | Resume Template Department consolidation planning — not another OA retry, not Website activation |
+| LIVE GENERATION | Guarded; `SOS_AIOS_LIVE=0`; timers still firing and skipping live produce |
+| PRIMARY BLOCKERS | Resume Feedback Compiler IR missing; 6J completeness on preservation sections; generation geometry admission gap; no true Resume E2E harness; Website still disabled |
+| NEXT AUTHORIZED STEP | **C1 Feedback Compiler IR** (implementation not started; no OA retry; no Website activation) |
 
 ---
 
@@ -270,7 +270,7 @@ Resume-specific queue / memory / revision counts belong in the Resume master. La
 | Risk | Why it matters | Current handling |
 |---|---|---|
 | Stale `OPERATIONALLY_COMPLETE` in `AGENTS.md`, historical project-state phases, and older reports | Agents may skip Resume consolidation or jump to Website | This file + live project-state keys are current; historical rows stay immutable |
-| Resume compiler / completeness fragmentation (`revtask-5d933072-daf`) | Blocks truthful department closure | Consolidation planning; **do not retry** that task |
+| Resume compiler / completeness fragmentation (`revtask-5d933072-daf`) | Blocks truthful department closure | Consolidation **C1** recorded; **do not retry** that task; do not start C1 in a docs-only run |
 | Generation can still admit geometry defects to Review | Founder becomes the QA gate | Recorded in Resume master; not a Website problem |
 | Dirty local/VPS trees | Unrelated Website/e-sign work can be destroyed by broad git | Explicit staging only |
 | Website enablement before Resume consolidation | Violates roadmap and current pending_actions | Website stays disabled |
@@ -325,19 +325,11 @@ Preserve all of these. Do not delete, merge, or rewrite to make the hierarchy lo
 
 **Exactly one authorized next major action:**
 
-**Resume Template Department consolidation planning.**
+**Resume Template consolidation phase C1 — Feedback Compiler IR.**
 
-Not:
+Not Website activation. Not another Operations Analyst retry. Not C2–C6 until C1 offline proofs pass.
 
-- another Operations Analyst Request Changes retry
-- a fix for `revtask-5d933072-daf` in this documentation baseline
-- Website Phase 2B enablement
-- SEO / Ads / Revenue activation
-- architecture implementation of the Resume target compiler
-
-Founder reviews this project master before consolidation planning begins.
-
-Deep Resume blockers, closure criteria, and consolidation stages: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MASTER.md).
+Deep phases, KEEP/MERGE lists, and closure criteria: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MASTER.md) §29–§34.
 
 ---
 
@@ -347,6 +339,7 @@ Deep Resume blockers, closure criteria, and consolidation stages: [Resume Templa
 |---|---|---|---|---|---|---|
 | 2026-09-23T19:12:41+05:30 | Create `SOS/STUDIOSISLAB_PROJECT_MASTER.md` as the only project-wide human master | Hierarchy audit: no existing Markdown was a living project index | Repo search; Resume master is department-only; `PROJECT_STATUS.md` / `MASTER_BACKLOG.md` / SAIOS README are stale or specialized | Reusing `PROJECT_STATUS.md` or `AGENTS.md`; absorbing Resume master | Project docs, project-state pointer, `AGENTS.md` protocol | Yes — keep file; do not fork a second master |
 | 2026-09-23T19:12:41+05:30 | Do not create Website/SEO/Ads/Revenue masters now | Those departments are disabled or planned | `department-enablement.json`; Website `enabled=false`; no SEO/Ads/Revenue department runtime | Empty stub masters | Planned departments | Yes when a department is actually activated |
+| 2026-09-29T15:22:52+05:30 | Resume next step = C1 Feedback Compiler IR; Website still not current | Planning pass complete; implementation not started | Resume master §29; VPS 5d933072 re-verified; HEAD `b1e07bb` | Starting C1 in this run; jumping to Website | Project priority | Yes |
 
 ---
 
@@ -357,6 +350,7 @@ Append-only. Do not overwrite historical entries.
 | DATE/TIME | PHASE/TASK | PURPOSE | BEFORE | CHANGE | FILES | TESTS | COMMIT | DEPLOY | LIVE PROOF | RESULT | NEW RISKS | NEXT STEP |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 2026-09-23T19:12:41+05:30 | Project-wide master baseline | Establish one human project source of truth | No project-wide master; Resume master existed; `AGENTS.md` still said Resume `OPERATIONALLY_COMPLETE` | Added this file; project-state pointer; `AGENTS.md` now points here and records Resume `CONSOLIDATION_REQUIRED` | `SOS/STUDIOSISLAB_PROJECT_MASTER.md`, `SOS/project-state.json`, `AGENTS.md`, Resume master authority pointer | Docs/state only | *(filled after commit)* | FF-only if safe; no service restart | None | Project documentation hierarchy established | Agents may still read stale historical `OPERATIONALLY_COMPLETE` rows — those remain historical | Resume Template Department consolidation planning |
+| 2026-09-29T15:22:52+05:30 | Resume consolidation plan | Record C1–C6; refresh stale SHA snapshot | Priority was consolidation planning; SHAs still showed `c6f143b` | Planning outcome + C1 as next implementation; no architecture code | This file; Resume master; project-state; `AGENTS.md` | Docs only | *(filled after commit)* | FF docs; no restart | None | Plan recorded; C1 not started | Agent may implement C1 without reading §29 | C1 Feedback Compiler IR |
 
 ---
 

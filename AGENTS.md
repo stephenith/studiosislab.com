@@ -28,8 +28,8 @@
 
 - Canonical department master: `SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md`.
 - Current live status is `CONSOLIDATION_REQUIRED`. Historical `CORE_RESUME_TEMPLATE_FACTORY_GOAL_MET` remains true.
-- Next authorized Resume step is consolidation planning, not another Operations Analyst Request Changes retry.
-- Do not redesign or reopen Resume Template production systems unless the Founder authorizes consolidation work or a new real production regression is proven.
+- Next authorized Resume implementation is consolidation phase **C1 (Feedback Compiler IR)**. Do not start C1 during a planning-only run. Do not retry historical revision tasks.
+- Do not redesign or reopen Resume Template production systems except to execute the recorded C1–C6 plan after Founder-authorized implementation.
 - In user-facing text, always use “Resume Template” and “Resume Template ID”.
 - Existing `candidate`, `candidate_id` and `candidates/` names are legacy internal identifiers and may remain for compatibility.
 

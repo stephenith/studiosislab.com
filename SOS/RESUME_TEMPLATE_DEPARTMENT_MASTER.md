@@ -60,25 +60,26 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-23T18:57:52+05:30** / **2026-09-23T13:27:52.000Z**.
+Snapshot taken **2026-09-29T15:22:52+05:30** / **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`). Code HEAD unchanged since the 2026-09-23 documentation baseline.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `388895bf90d603f24882eb016841f82b8dad5d46` (`main`) |
-| ORIGIN HEAD | `388895bf90d603f24882eb016841f82b8dad5d46` |
-| VPS HEAD | `388895bf90d603f24882eb016841f82b8dad5d46` |
+| LOCAL HEAD | `b1e07bbb975259ca68e5e098a89589606803cd75` (`main`) |
+| ORIGIN HEAD | `b1e07bbb975259ca68e5e098a89589606803cd75` |
+| VPS HEAD | `b1e07bbb975259ca68e5e098a89589606803cd75` |
 | LOCAL STATUS | Dirty Website/e-sign/unrelated untracked SOS folders; Resume Template code at HEAD |
-| VPS STATUS | Same HEAD; 33 porcelain items (unrelated/untracked); do not clean |
-| ACTIVE RUNTIME | `aios-founder-dashboard.service` active since 2026-09-23 07:36:41 UTC; health `127.0.0.1:4310` `{ok:true,live:false}` |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** (fragile / partially operational) |
-| CORE FACTORY STATUS | **HISTORICAL GOAL MET** — factory can generate, critique, and enqueue templates |
-| REVISION STATUS | Production executor exists; live OA Request Changes still fails a new owner after each phase |
-| GENERATION STATUS | Timers enabled; service unit disabled as standalone; `SOS_AIOS_LIVE=0` refuses live produce |
-| FOUNDER REVIEW STATUS | `waiting_founder=20` / `queue_max=20`; `review_queue_count=51` (includes overlays) |
-| MEMORY STATUS | Store exists on VPS; 1242 JSONL rows; 382 active-index; selection often 1 misleading provisional |
-| PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0`; manual only |
-| CURRENT PRIMARY BLOCKERS | Feedback-compiler / 6J completeness fragmentation (`revtask-5d933072-daf`); generation geometry admission gap; no true department E2E harness |
-| NEXT AUTHORIZED STEP | **Resume Template Department consolidation planning** — not another OA Request Changes retry |
+| VPS STATUS | Same HEAD; 33 porcelain items; do not clean |
+| ACTIVE RUNTIME | `aios-founder-dashboard.service` active since 2026-09-23 07:36:41 UTC; PID 4063798; health `{ok:true,live:false}`; dispatcher 60s; last claim still `revtask-5d933072-daf` |
+| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — plan recorded; implementation not started |
+| CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
+| REVISION STATUS | One executor; latest live task still `revtask-5d933072-daf` `FAILED_SECTION_COMPLETENESS` (independently re-verified 2026-09-29) |
+| GENERATION STATUS | Timers enabled; last morning trigger 2026-09-29 03:20 UTC; evening last 2026-09-28 12:20 UTC; `SOS_AIOS_LIVE=0` refuses live produce |
+| FOUNDER REVIEW STATUS | `waiting_founder=20` / `queue_max=20`; `review_queue_count=51` (projection vs overlay; candidate dirs still show more WAITING_FOUNDER files) |
+| MEMORY STATUS | JSONL 1242 (CONFIRMED 19 / PROVISIONAL 990 / SUPERSEDED 233); active-index 382 unchanged since 2026-09-23T12:12:50Z |
+| PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0`; nightly timer last 2026-09-29 02:00 UTC |
+| SPEND | daily $0 / $5; monthly $0.385 / $20 (2026-09-29T09:52:52Z) |
+| CURRENT PRIMARY BLOCKERS | One Feedback Compiler IR missing; 6J completeness on preservation sections; generation geometry admission gap; memory injects task-specific provisionals; no department E2E harness |
+| NEXT AUTHORIZED STEP | **C1 Feedback Compiler IR** — do not execute in this planning pass; do not retry 5d933072 |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -318,18 +319,17 @@ Parallel stores **not** wired to `selectFounderMemory`: `learning-entries.jsonl`
 
 ## 13. Current Memory Evidence
 
-Fresh VPS read **2026-09-23T13:27Z** (`/root/studiosislab.com/SOS/07_LOGS/saios/knowledge/founder-memory/`).
+Fresh VPS read **2026-09-29T09:51:57Z** (`/root/studiosislab.com/SOS/07_LOGS/saios/knowledge/founder-memory/`). Unchanged since the 5d933072 run.
 
 | Metric | Value |
 |---|---|
 | JSONL rows | 1242 |
 | JSONL status | CONFIRMED 19 / PROVISIONAL 990 / SUPERSEDED 233 |
-| JSONL REJECTED | 0 observed in `status` |
-| Acceptance | accepted 22 / pending 1220 |
-| Active-index count | **382** (CONFIRMED 16 / PROVISIONAL 366) at 2026-09-23T12:12:50Z |
-| `revtask-5d933072-daf` selection | considered 382, selected **1**: `fpm-6c083f5f-35f` PROVISIONAL “Change … Marketing Manager to Operations Analyst …” |
+| JSONL `acceptance` field | **Not present** on rows (do not repeat the older “accepted 22 / pending 1220” as current) |
+| Active-index count | **382** (mtime 2026-09-23T12:12:50Z) |
+| `revtask-5d933072-daf` selection | considered 382, selected **1**: `fpm-6c083f5f-35f` PROVISIONAL HIERARCHY “Change … Marketing Manager to Operations Analyst …” (188 AMBIGUOUS, 124 INELIGIBLE, 69 IRRELEVANT) |
 
-Memory did **not** carry the sidebar spacing rule into a useful learned constraint. It injected a stale role-change line.
+Memory did **not** carry a sidebar spacing rule. It injected a stale role-change line into a layout-only preserve request.
 
 ---
 
@@ -411,7 +411,18 @@ Intent scope (fresh read):
 
 6J then required per-object REPLACED / REMOVED / EXPLICITLY_PRESERVED on preserved body objects. Keep-phrases did not match object source text → unaccounted `block-summary-1-t2`, experience `t2–t17`, education `t2–t3`.
 
-**Do not implement a fix in this documentation task.**  
+**Independently re-verified 2026-09-29T09:51Z** from VPS task JSON, evidence files, and dashboard journal (not from chat):
+
+- 28 Founder lines; clause mix VERIFICATION 5 / CONTENT_PRESERVATION 11 / LAYOUT_PRESERVATION 6 / LAYOUT_MUTATION 26
+- `content_mutation_sections`: `[]`
+- `content_preservation_sections` and `layout_sections` both include summary / experience / education
+- Plan operations: **0** (`normalizer_owned_spacing`)
+- Completeness error: keep-instruction exists but does not apply to object source text; **16** unaccounted IDs
+- Telegram status still `FAILED_GATE` while `failure_code=FAILED_SECTION_COMPLETENESS`
+
+This task is a **test case** for the consolidation IR (layout-only + preservation must not enter the replacement ledger). It is not a sentence to patch.
+
+**Do not implement a fix in this planning task.**  
 **Do not retry this task.**
 
 ---
@@ -575,20 +586,159 @@ Safety outcomes become **deterministic invariants**, not more regex memory.
 
 ---
 
-## 29. Consolidation Roadmap
+## 29. Consolidation Plan (authoritative 2026-09-29)
 
-| Stage | STATUS | OBJECTIVE | FILES (indicative) | DEPENDENCIES | PROOF | RISK | ROLLBACK | FOUNDER APPROVAL? |
-|---|---|---|---|---|---|---|---|---|
-| FREEZE | **ACTIVE** | No more 6Q patches / no OA retry | this file, project-state | — | This baseline | Delay of live OA | n/a | Already implied |
-| SNAPSHOT | NEXT | Read-only VPS evidence pack for 5d933072 (done in this baseline; optional sanitized fixture later) | evidence refs only | FREEZE | Task+intent+plan recorded | None | n/a | No |
-| COMPILER CONSOLIDATION | PLANNED | One IR; 6J only on mutation sections | IntentScope, SectionReplacementCompleteness, PromptBuilder | SNAPSHOT | 5d933072 sanitized PASS; 6J still fail-closes real incomplete replace | Under-enforcing replace | Flag old 6J | **Yes** before live |
-| VALIDATION/GATE CONSOLIDATION | PLANNED | One acceptance model; stop FAILED_GATE soup | FinalAcceptance, Telegram mapping | COMPILER | Owner-accurate Telegram | UI wording | Flag | Yes if user-facing |
-| GENERATION QUALITY GATE | PLANNED | Shared overlap/OOB at admission | runFirstProductionCycle, critic vs revision geometry | COMPILER or parallel | Overlap fixture cannot WAITING_FOUNDER | Queue shrinks | Flag | Yes if it blocks Review |
-| MEMORY CONSOLIDATION | PLANNED | Selection filter; classify not destroy | FounderMemoryConsumption, Maturation | COMPILER | OA layout task does not select MM→OA title rule | Missed useful rules | Old selector | Yes before rewrite |
-| ONE E2E HARNESS | PLANNED | One business-workflow runner | new verify + 6L reuse | COMPILER | Layout+content+approve path | Time | Keep old verifies until green | No |
-| SHADOW REPLAY | PLANNED | Replay last N OA decisions offline | fixtures | COMPILER+HARNESS | No new surprise owner | None if write-isolated | n/a | No |
-| ONE LIVE PROOF | PLANNED | Founder-authorized one Request Changes | production path | all above | READY + coverage agree | Spend 1–2 calls | No historical mutate | **Yes** |
-| RESUME SCHEDULE | LATER | Consider LIVE only after geometry admission + truthful queue + READY Telegram | systemd/env | LIVE PROOF | 7-day autonomy criteria | Cost/queue | LIVE=0 | **Yes** |
+2026-09-23 conceptual stages (FREEZE → RESUME SCHEDULE) are **superseded as the implementation sequence**. FREEZE remains in force (no OA retry / no 6Q patch). SNAPSHOT of `revtask-5d933072-daf` is **done** (re-verified 2026-09-29). Implementation uses the phases below.
+
+### Architecture decision
+
+Keep the production spine. Consolidate **interpretation and ownership**, do not rewrite the factory.
+
+- **One Feedback Compiler IR** is compiled once per Request Changes packet and consumed by planning, completeness, preservation, layout ownership, coverage, and final acceptance.
+- Completeness (today’s 6J) applies **only** to `CONTENT_MUTATION` sections. Preservation is zero content ops + content hash, not a replacement ledger.
+- AI writes semantic content only. Deterministic owners own geometry, overlap/OOB/page-fit, schema, and safety.
+- Generation and revision must share the **same geometry admission primitives**.
+- Founder Memory stays attached storage for now; C4 adds selection/write taxonomy. **No destructive memory migration.**
+- Historical tasks remain immutable. Sanitized fixtures may be added; production IDs are never retried.
+
+### Classification (planning pass)
+
+| Action | Components |
+|---|---|
+| **KEEP** | `runFounderFeedbackRevision`; dispatcher; bounded OpenAI (max 2); health/budget/`queue_max`; `ResumeRenderer`; Founder Dashboard; `evaluateRevisionFinalAcceptance`; 6I revision-native role; 6P `isCanonicalLayoutOwnedItem`; revision overlap/OOB gate; memory JSONL + maturation machinery; Telegram failure alerts; manual `AUTO_APPLY=0` publication |
+| **ADAPT** | `RevisionIntentScope`, `classifyRequestedChange`, `resolveItemCoverageMode` — become IR producers, not parallel oracles |
+| **MERGE** | Completeness keep-index, coverage item proofs, and intent clauses into the IR; generation critic geometry with revision overlap/OOB into one geometry kernel |
+| **RETIRE** (later, not now) | `runFounderRevisionBatch` / `reviseOne` after readers migrate; parallel learning stores after C4 filter is proven; `FAILED_GATE` as a catch-all Telegram status |
+| **REWRITE** | None of the production executor. Rewrite only the **compiler contract** (new IR type + single compile function) |
+| **LEAVE HISTORICAL** | All `revtask-*` evidence, 6G–6P verifiers as regression until the department harness exists, V1 reports |
+
+### Phases
+
+Do not add a 6Q. Each phase must change the architecture, not a fixture ID.
+
+#### C1 — Feedback Compiler IR *(first implementation; not started)*
+
+| Field | Content |
+|---|---|
+| BUSINESS PURPOSE | Founder Request Changes is understood once. Layout-only + preserve packets return to Review instead of failing a replacement ledger. |
+| ARCHITECTURAL OUTCOME | `compileFounderFeedbackIR(requested_changes, canvas)` is the only semantic owner. Completeness iterates mutation sections only. Preservation = no content ops. Coverage reads IR proofs. |
+| COMPONENTS AFFECTED | `RevisionIntentScope.ts`, `RequestedChangeClassification.ts`, `RevisionPromptBuilder.ts` (`resolveItemCoverageMode`), `SectionReplacementCompleteness.ts`, `FeedbackCoverage.ts`, `FounderRevisionPipeline.ts` |
+| DEPENDENCIES | None (FREEZE + SNAPSHOT already true) |
+| DATA / MEMORY IMPACT | None. No task mutation. Optional sanitized **offline** fixture copied from 5d933072 evidence. |
+| RISKS | Under-enforcing a real whole-section replace; IR still regex-heavy internally (acceptable if **consumers** stop re-parsing) |
+| OFFLINE PROOF | Sanitized 5d933072-class packet → `READY_FOR_FOUNDER_REVIEW` with 0 content ops; 6J matrix still fail-closes omitted replace; 6G–6P + 6L parity PASS |
+| PRODUCTION-PARITY PROOF | Injected-provider `runFounderFeedbackRevision` on sanitized layout-only preserve packet |
+| ROLLBACK | Feature-flag old completeness loop; no production task writes |
+| LIVE FOUNDER PROOF | **No** |
+| BEFORE NEXT PHASE | Offline proofs green; no historical task mutated |
+
+C1 may absorb a small **failure-code honesty** change (persist `FAILED_SECTION_COMPLETENESS` in Telegram/dashboard instead of only `FAILED_GATE`) if it stays in the same PR. Do not expand C1 into geometry or memory.
+
+#### C2 — Shared geometry admission
+
+| Field | Content |
+|---|---|
+| BUSINESS PURPOSE | Objectively broken layouts never reach Founder Review from generation. |
+| ARCHITECTURAL OUTCOME | One overlap / OOB / page-fit kernel used by generation admission and revision final gate. Critic scores remain advisory. |
+| COMPONENTS AFFECTED | Extract from revision hard gate; `runFirstProductionCycle.ts`; `CriticGate` / `ReadinessGate` callers |
+| DEPENDENCIES | C1 offline green (so revision path is not still dying before geometry) |
+| DATA / MEMORY IMPACT | None. Queue may stop growing until Founder clears 20. |
+| RISKS | False-positive block of acceptable templates; queue freeze |
+| OFFLINE PROOF | Overlapping fixture cannot become `WAITING_FOUNDER`; revision overlap still fail-closed |
+| PRODUCTION-PARITY PROOF | Generation cycle with injected/local canvas; `SOS_AIOS_LIVE=0` |
+| ROLLBACK | Flag generation geometry gate off |
+| LIVE FOUNDER PROOF | **No** unless gate would block the live queue (Founder must approve enablement) |
+| BEFORE NEXT PHASE | Gate proven offline; Founder informed if admission will shrink inflow |
+
+C2 must not wait for another OA task. It is the generation-side half of one quality standard.
+
+#### C3 — Memory selection discipline *(no migration)*
+
+| Field | Content |
+|---|---|
+| BUSINESS PURPOSE | Stop injecting task-specific provisionals (e.g. MM→OA title) into unrelated layout requests. Learn taste/family/voice only after attributed APPROVE. |
+| ARCHITECTURAL OUTCOME | Write/select taxonomy: DETERMINISTIC_INVARIANT (never memory) / LEARNED_PREFERENCE / ROLE_VOICE / DESIGN_FAMILY / TASK_SPECIFIC (current request only) / NEGATIVE. Provisional task-specific lines are ineligible for retrieval. |
+| COMPONENTS AFFECTED | `FounderMemoryConsumption.ts`, `FounderMemoryMaturation.ts`, writer classifier |
+| DEPENDENCIES | C1 (IR can label task-specific vs reusable) |
+| DATA / MEMORY IMPACT | **No delete / no rewrite of JSONL.** Filter on read; optional new fields on *new* writes only. |
+| RISKS | Dropping a useful layout preference; over-filtering |
+| OFFLINE PROOF | 5d933072-class selection does not choose `fpm-6c083f5f-35f`; a CONFIRMED family spacing rule still can |
+| PRODUCTION-PARITY PROOF | Selection evidence JSON on injected revision |
+| ROLLBACK | Previous selector |
+| LIVE FOUNDER PROOF | **No** |
+| BEFORE NEXT PHASE | Historical store intact; selection fixture PASS |
+
+#### C4 — Department production-parity harness
+
+| Field | Content |
+|---|---|
+| BUSINESS PURPOSE | Prove the real business workflow once, not 66 isolated owners. |
+| ARCHITECTURAL OUTCOME | One harness: generation admission → Review envelope → layout-only / content-only / mixed / preserve / already-satisfied / malformed plan / bad geometry / bad role → (simulated) APPROVE → maturation candidate → staging eligibility. Injected provider. |
+| COMPONENTS AFFECTED | New verify wrapper reusing `verify-revision-production-parity-6l.ts`; generation admission tests from C2 |
+| DEPENDENCIES | C1 + C2 |
+| DATA / MEMORY IMPACT | Temp dirs only |
+| RISKS | Slow CI; temptation to skip old verifiers too early |
+| OFFLINE PROOF | Harness PASS; keep 6G–6P until harness covers those contracts |
+| PRODUCTION-PARITY PROOF | This phase **is** that proof (offline) |
+| ROLLBACK | Keep old npm verify scripts |
+| LIVE FOUNDER PROOF | **No** |
+| BEFORE NEXT PHASE | Harness green including 5d933072-class + at least one content-mutation replace |
+
+#### C5 — One authorized live Request Changes
+
+| Field | Content |
+|---|---|
+| BUSINESS PURPOSE | Prove C1–C4 on a **new** Founder decision, not a mutated historical task. |
+| ARCHITECTURAL OUTCOME | One production `runFounderFeedbackRevision` with real bounded OpenAI reaches `READY_FOR_FOUNDER_REVIEW`; coverage agrees with IR; Telegram names the true owner on failure. |
+| COMPONENTS AFFECTED | Production path only (no code required if C1–C4 already shipped) |
+| DEPENDENCIES | C1–C4 deployed FF; `SOS_AIOS_LIVE` still 0 unless Founder says otherwise |
+| DATA / MEMORY IMPACT | New decision + new `revtask-*` only |
+| RISKS | 1–2 provider calls; new owner could still fail — then stop, do not patch-chain |
+| OFFLINE PROOF | Already done in C4 |
+| PRODUCTION-PARITY PROOF | This phase |
+| ROLLBACK | Leave failed new task immutable |
+| LIVE FOUNDER PROOF | **Yes — Founder must authorize the decision** |
+| BEFORE NEXT PHASE | READY + IR/coverage agree **or** a precise new architectural gap is recorded (not a regex patch) |
+
+#### C6 — Closure audit (schedule remains later)
+
+| Field | Content |
+|---|---|
+| BUSINESS PURPOSE | Mark `OPERATIONALLY_COMPLETE` only if section 30 is true in production. |
+| ARCHITECTURAL OUTCOME | Status change in this master + project-state; Website remains next major department. |
+| DEPENDENCIES | C5 pass |
+| DATA / MEMORY IMPACT | Docs/state only |
+| RISKS | Premature completeness label (the 6G–6P failure mode) |
+| OFFLINE / LIVE | Audit checklist vs section 30 |
+| ROLLBACK | Remain `CONSOLIDATION_REQUIRED` |
+| LIVE FOUNDER PROOF | Founder accepts the audit |
+| BEFORE ENABLING `SOS_AIOS_LIVE` | Section 30 generation bullets + truthful queue + READY Telegram — **separate Founder approval** |
+
+**Combinable:** C1 + small Telegram `failure_code` honesty. **Not combinable with C1:** C2 generation gate, C3 memory, C5 live proof.
+
+**Total implementation phases: 6.** First: **C1**.
+
+### Proof strategy (department)
+
+| Workflow | How proven | When |
+|---|---|---|
+| Layout-only preserve (5d933072-class) | Injected `runFounderFeedbackRevision` | C1 |
+| True section replace still fail-closed if incomplete | 6J matrix / harness | C1 |
+| Generation overlap cannot enter Review | Shared kernel fixture | C2 |
+| Content-only / mixed / already-satisfied / malformed plan | Department harness | C4 |
+| Approval → memory taxonomy | Harness + C3 selector | C3–C4 |
+| Staging eligibility | Existing staging checks in harness | C4 |
+| Live Request Changes | New Founder decision only | C5 |
+
+### Migration
+
+| Store | Required? |
+|---|---|
+| Founder Memory JSONL | **NO** destructive migration |
+| Candidate artifacts | **NO** |
+| Revision evidence | **NO** (immutable) |
+| State schemas | Additive IR evidence JSON only |
+| Legacy modules | Retire later, not in C1 |
 
 ---
 
@@ -606,7 +756,7 @@ The department may be marked **OPERATIONALLY_COMPLETE** only when **all** of the
 
 ## 31. Current Operational Snapshot
 
-Fresh **2026-09-23T13:27Z** unless noted.
+Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 
 | Item | Value |
 |---|---|
@@ -614,18 +764,18 @@ Fresh **2026-09-23T13:27Z** unless noted.
 | Notify | `SOS_AIOS_NOTIFY_LIVE=1` |
 | AUTO_APPLY | 0 / false |
 | OpenAI bounded | enabled |
-| Spend | daily $0.036 / limit $5; monthly $0.385 / $20 (ops snapshot 13:27:26Z) |
+| Spend | daily $0 / $5; monthly $0.385 / $20 |
 | waiting_founder | 20 |
 | queue_max | 20 |
 | review_queue_count | 51 |
 | revision_task_counts | READY 18 / FAILED_COVERAGE 9 / FAILED 7 / FAILED_GATE 15 / PENDING 0 |
-| Timers | morning+evening generation **enabled** (last trigger 03:20Z / 12:20Z); generation **service** disabled as standalone; publication nightly enabled |
-| Dashboard | active, PID 4063798, started 07:36:41Z |
-| Last revision of note | `revtask-5d933072-daf` FAILED_GATE 12:13:55Z |
-| Candidate dirs on VPS | 80 |
-| P0 | Compiler/completeness fragmentation (5d933072) |
-| P1 | Generation geometry admission; truthful queue vs 51 overlay cards |
-| P2 | READY_FOR_FOUNDER_REVIEW success Telegram still listed as missing in prior project-state |
+| Timers | morning last 2026-09-29 03:20 UTC; evening last 2026-09-28 12:20 UTC; next morning 2026-09-30 03:20 UTC; generation **service** disabled; publication nightly last 2026-09-29 02:00 UTC |
+| Dashboard | active, PID 4063798, started 2026-09-23 07:36:41 UTC; NRestarts=0 |
+| Last revision of note | `revtask-5d933072-daf` FAILED_GATE 2026-09-23T12:13:55Z — still latest; no new live revision since |
+| Candidate dirs on VPS | 80 (WAITING_FOUNDER files 46 ≠ projection waiting 20) |
+| P0 | Compiler IR / 6J preservation ledger (C1) |
+| P1 | Generation geometry admission (C2); memory selection (C3) |
+| P2 | READY_FOR_FOUNDER_REVIEW success Telegram; overlay vs capacity honesty |
 
 ---
 
@@ -636,6 +786,8 @@ Fresh **2026-09-23T13:27Z** unless noted.
 | 2026-09-23T18:57:52+05:30 | Create `SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md` as the single human master; keep `project-state.json` as machine checkpoint | No existing Markdown covered the full living department | Repo MD search + reconstruction audit + fresh VPS snapshot | Reusing stale `PROJECT_STATUS.md` or a V1 report as master; creating multiple new architecture docs | Docs + project-state pointer | Yes (docs only) |
 | 2026-09-23T18:57:52+05:30 | Current department status = CONSOLIDATION_REQUIRED; preserve historical core factory goal | Live OA revision still failing; OPERATIONALLY_COMPLETE is not truthful | 5d933072 FAILED_SECTION_COMPLETENESS; patch chain 6G–6P | Another 6Q sentence patch; retry 5d933072 | project-state current fields | Yes |
 | 2026-09-23T18:57:52+05:30 | Next authorized step = consolidation planning, not OA Request Changes retry | Retry would hit the same 6J/compiler mismatch | Empty plan + preserve sections + keep-phrase fail | Immediate 5d933072 code fix in this task | Roadmap | Yes |
+| 2026-09-29T15:22:52+05:30 | Six-phase consolidation C1–C6; first implementation = C1 Feedback Compiler IR | 6G–6P patch chain + independently re-verified 5d933072 (mutation=[], 0 ops, 16 unaccounted preserve objects) | Fresh VPS task/evidence/journal 2026-09-29; HEAD `b1e07bb` matches origin/VPS; no newer live revision | Another OA retry; 6Q regex; rewriting `runFounderFeedbackRevision`; destroying memory; combining C1 with C2/C5 | Resume architecture plan | Yes until C1 ships |
+| 2026-09-29T15:22:52+05:30 | No destructive memory/artifact migration | Store is attached-not-learned; 990 provisionals; filter on read | active-index 382 unchanged since 12:12:50Z; 5d933072 selected MM→OA provisional | Rebuild JSONL; retry 5d933072 | Founder Memory | Yes |
 
 ---
 
@@ -658,16 +810,30 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** Agents may still follow stale V1 reports if they skip this file
 - **NEXT STEP:** Resume Template Department consolidation planning (Founder reviews this file first)
 
+### 2026-09-29T15:22:52+05:30 — CONSOLIDATION PLAN
+
+- **PHASE/TASK:** Resume Template Department consolidation planning (docs/state only)
+- **PURPOSE:** Replace patch-chain operations with one department architecture and a six-phase implementation sequence
+- **BEFORE STATE:** CONSOLIDATION_REQUIRED; conceptual FREEZE/SNAPSHOT roadmap; live failure still 5d933072; docs SHA snapshot stale vs `b1e07bb`
+- **CHANGE:** Independently re-verified 5d933072; recorded C1–C6; first implementation C1 Feedback Compiler IR; no code/runtime change
+- **FILES MODIFIED:** this file; `SOS/STUDIOSISLAB_PROJECT_MASTER.md`; `SOS/project-state.json`; `AGENTS.md`
+- **TESTS:** None (planning only)
+- **COMMIT:** *(filled after commit)*
+- **DEPLOY:** FF docs only; no service restart
+- **LIVE PROOF:** None
+- **RESULT:** Plan ready; implementation not started
+- **NEW RISKS:** Agent may start C1 without Founder seeing this plan; C1 under-enforcing real replaces
+- **NEXT STEP:** C1 Feedback Compiler IR (do not execute in this pass)
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-# Resume Template Department consolidation
+**C1 — Feedback Compiler IR**
 
-Not another Operations Analyst Request Changes retry.  
-Not a 6Q sentence patch.  
-Not a 5d933072 mutation.
-
-Founder reviews this master first. Only then authorize a dedicated consolidation Agent, which must read this file and `SOS/project-state.json` before any code change.
+Do not execute C1 in a planning-only run.  
+Do not retry `revtask-5d933072-daf` or `revtask-76a04a21-6ff`.  
+Do not start C2–C6 until C1 offline proofs are green (except the documented C1 Telegram honesty add-on).  
+Do not enable `SOS_AIOS_LIVE`.

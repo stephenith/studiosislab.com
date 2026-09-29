@@ -167,6 +167,10 @@ async function main(): Promise<void> {
     join(REPO, "SOS/SAIOS/core/founder-revision/RevisionPromptBuilder.ts"),
     "utf8",
   );
+  const irSrc = readFileSync(
+    join(REPO, "SOS/SAIOS/core/founder-revision/FounderFeedbackIR.ts"),
+    "utf8",
+  );
   const covSrc = readFileSync(
     join(REPO, "SOS/SAIOS/core/founder-revision/FeedbackCoverage.ts"),
     "utf8",
@@ -177,13 +181,15 @@ async function main(): Promise<void> {
   );
   assert(
     NUMBER_OF_LAYOUT_OWNER_DECISION_PATHS === 1 &&
-      ownerSrc.includes("isCanonicalLayoutOwnedItem") &&
+      irSrc.includes("isCanonicalLayoutOwnedItem") &&
+      ownerSrc.includes("compileFounderFeedbackIR") &&
       !ownerSrc.includes("isLayoutOnlyIntentChange(requestedChange)"),
     "canonical_layout_owner_implemented",
     String(NUMBER_OF_LAYOUT_OWNER_DECISION_PATHS),
   );
   assert(
-    covSrc.includes("isCanonicalDeterministicLayoutOwnedChange") &&
+    covSrc.includes("compileFounderFeedbackIR") &&
+      covSrc.includes("DETERMINISTIC_LAYOUT_OWNED") &&
       !covSrc.includes("isDeterministicLayoutNormalizerOwnedChange"),
     "feedback_coverage_uses_canonical_owner",
   );
@@ -193,11 +199,11 @@ async function main(): Promise<void> {
   );
   assert(
     detSrc.includes("isCanonicalLayoutOwnedItem") &&
-      ownerSrc.includes("isCanonicalLayoutOwnedItem"),
+      irSrc.includes("isCanonicalLayoutOwnedItem"),
     "deterministic_spacing_uses_canonical_owner",
   );
   assert(
-    ownerSrc.includes("isCanonicalLayoutOwnedItem(requestedChange)") &&
+    ownerSrc.includes("compileFounderFeedbackIR") &&
       ownerSrc.includes("resolveItemCoverageMode"),
     "resolve_item_coverage_mode_is_canonical",
   );

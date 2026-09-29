@@ -60,26 +60,25 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-29T15:22:52+05:30** / **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`). Code HEAD unchanged since the 2026-09-23 documentation baseline.
+Snapshot taken **2026-09-29T15:48:00+05:30** / **2026-09-29T10:18:00.000Z**. C1 offline proofs recorded; live ops snapshot otherwise unchanged from 2026-09-29T09:52:52Z `/api/ops-24-7`.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `b1e07bbb975259ca68e5e098a89589606803cd75` (`main`) |
-| ORIGIN HEAD | `b1e07bbb975259ca68e5e098a89589606803cd75` |
-| VPS HEAD | `b1e07bbb975259ca68e5e098a89589606803cd75` |
-| LOCAL STATUS | Dirty Website/e-sign/unrelated untracked SOS folders; Resume Template code at HEAD |
-| VPS STATUS | Same HEAD; 33 porcelain items; do not clean |
-| ACTIVE RUNTIME | `aios-founder-dashboard.service` active since 2026-09-23 07:36:41 UTC; PID 4063798; health `{ok:true,live:false}`; dispatcher 60s; last claim still `revtask-5d933072-daf` |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — plan recorded; implementation not started |
+| LOCAL HEAD | *(filled after C1 commit)* (`main`) |
+| ORIGIN HEAD | *(filled after C1 push)* |
+| VPS HEAD | *(filled after C1 deploy)* |
+| LOCAL STATUS | Dirty Website/e-sign/unrelated untracked SOS folders preserved; C1 Resume Template files staged explicitly |
+| VPS STATUS | C1 deploy if proofs pass; do not clean porcelain |
+| ACTIVE RUNTIME | `aios-founder-dashboard.service`; health `{ok:true,live:false}`; last live claim still `revtask-5d933072-daf` |
+| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1 Feedback Compiler IR implemented offline |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
-| REVISION STATUS | One executor; latest live task still `revtask-5d933072-daf` `FAILED_SECTION_COMPLETENESS` (independently re-verified 2026-09-29) |
-| GENERATION STATUS | Timers enabled; last morning trigger 2026-09-29 03:20 UTC; evening last 2026-09-28 12:20 UTC; `SOS_AIOS_LIVE=0` refuses live produce |
-| FOUNDER REVIEW STATUS | `waiting_founder=20` / `queue_max=20`; `review_queue_count=51` (projection vs overlay; candidate dirs still show more WAITING_FOUNDER files) |
-| MEMORY STATUS | JSONL 1242 (CONFIRMED 19 / PROVISIONAL 990 / SUPERSEDED 233); active-index 382 unchanged since 2026-09-23T12:12:50Z |
-| PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0`; nightly timer last 2026-09-29 02:00 UTC |
-| SPEND | daily $0 / $5; monthly $0.385 / $20 (2026-09-29T09:52:52Z) |
-| CURRENT PRIMARY BLOCKERS | One Feedback Compiler IR missing; 6J completeness on preservation sections; generation geometry admission gap; memory injects task-specific provisionals; no department E2E harness |
-| NEXT AUTHORIZED STEP | **C1 Feedback Compiler IR** — do not execute in this planning pass; do not retry 5d933072 |
+| REVISION STATUS | One executor; latest live task still `revtask-5d933072-daf` `FAILED_SECTION_COMPLETENESS` (immutable; not retried) |
+| GENERATION STATUS | Unchanged in C1; `SOS_AIOS_LIVE=0` |
+| FOUNDER REVIEW STATUS | Unchanged; no live Request Changes |
+| MEMORY STATUS | Unchanged in C1 (C3 later) |
+| PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
+| CURRENT PRIMARY BLOCKERS | C2 shared geometry admission; C3 memory selection; live 5d933072 remains historical; no department E2E harness |
+| NEXT AUTHORIZED STEP | **C2 Shared geometry admission** — Founder review of C1 first; do not retry 5d933072 |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -252,7 +251,7 @@ Current components that independently answer “what is this Founder line?”:
 | Completeness keep-phrases | `buildFounderIntentIndex` in `SectionReplacementCompleteness.ts` |
 | Coverage item proofs | `FeedbackCoverage.ts` + canonical layout proof |
 
-**Duplicated semantic ownership remains.** 6P unified *layout coverage owner*. 6J still applies a replacement ledger to *preservation* sections. That is the 5d933072 failure.
+**Public semantic owner after C1:** `compileFounderFeedbackIR`. Completeness iterates mutation sections only. 6P layout owner remains the layout-execution predicate consumed by the IR. Historical 5d933072 remains the regression class, not a live retry.
 
 ---
 
@@ -265,7 +264,7 @@ Current components that independently answer “what is this Founder line?”:
 | Role writing / section rewrite | AI |
 | Plan shape / attribution | AI + deterministic canonicalize |
 | Geometry / rhythm / named pair | Deterministic after 6P; AI may emit ops that get superseded |
-| Preservation | Acceptance checks + 6J keep-phrases (conflict) |
+| Preservation | IR `CONTENT_PRESERVATION` + acceptance checks; 6J keep-phrases only inside authorized mutation sections |
 | Validation | Many sequential owners |
 | Memory | Prompt injection, not a measured layout learner |
 
@@ -616,23 +615,33 @@ Keep the production spine. Consolidate **interpretation and ownership**, do not 
 
 Do not add a 6Q. Each phase must change the architecture, not a fixture ID.
 
-#### C1 — Feedback Compiler IR *(first implementation; not started)*
+#### C1 — Feedback Compiler IR *(implemented 2026-09-29; stop before C2)*
 
 | Field | Content |
 |---|---|
 | BUSINESS PURPOSE | Founder Request Changes is understood once. Layout-only + preserve packets return to Review instead of failing a replacement ledger. |
-| ARCHITECTURAL OUTCOME | `compileFounderFeedbackIR(requested_changes, canvas)` is the only semantic owner. Completeness iterates mutation sections only. Preservation = no content ops. Coverage reads IR proofs. |
-| COMPONENTS AFFECTED | `RevisionIntentScope.ts`, `RequestedChangeClassification.ts`, `RevisionPromptBuilder.ts` (`resolveItemCoverageMode`), `SectionReplacementCompleteness.ts`, `FeedbackCoverage.ts`, `FounderRevisionPipeline.ts` |
-| DEPENDENCIES | None (FREEZE + SNAPSHOT already true) |
-| DATA / MEMORY IMPACT | None. No task mutation. Optional sanitized **offline** fixture copied from 5d933072 evidence. |
-| RISKS | Under-enforcing a real whole-section replace; IR still regex-heavy internally (acceptable if **consumers** stop re-parsing) |
-| OFFLINE PROOF | Sanitized 5d933072-class packet → `READY_FOR_FOUNDER_REVIEW` with 0 content ops; 6J matrix still fail-closes omitted replace; 6G–6P + 6L parity PASS |
-| PRODUCTION-PARITY PROOF | Injected-provider `runFounderFeedbackRevision` on sanitized layout-only preserve packet |
-| ROLLBACK | Feature-flag old completeness loop; no production task writes |
-| LIVE FOUNDER PROOF | **No** |
-| BEFORE NEXT PHASE | Offline proofs green; no historical task mutated |
+| ARCHITECTURAL OUTCOME | `compileFounderFeedbackIR(requested_changes)` is the only public semantic owner (`founder-feedback-ir-1.0.0`). Completeness iterates `completeness_sections` = content mutation/removal only. Preservation = no content ops and no replacement ledger. Coverage, prompt coverage mode, plan validation, and acceptance consume IR. |
+| CANONICAL MODEL | Per-item `action`: CONTENT_MUTATION / CONTENT_REMOVAL / LAYOUT_MUTATION / CONTENT_PRESERVATION / LAYOUT_PRESERVATION / VERIFICATION / ALREADY_SATISFIED. Packet fields: `content_mutation_sections`, `content_preservation_sections`, `layout_mutation_sections`, `completeness_sections`. Coverage mode remains the 6G/6P execution predicate. |
+| COMPONENTS CHANGED | `FounderFeedbackIR.ts` (new); `RevisionIntentScope.ts` (assembler + compatibility `resolveRevisionIntentScope`); `SectionReplacementCompleteness.ts`; `FeedbackCoverage.ts`; `RevisionPromptBuilder.ts`; `RevisionAcceptanceChecks.ts`; `FounderRevisionPipeline.ts` writes `founder-feedback-ir.json`. |
+| COMPATIBILITY | `resolveRevisionIntentScope` is the same assembler as IR `intent_scope`. `classifyRequestedChange` remains an IR callee, not a second public answer. `isCanonicalLayoutOwnedItem` remains the layout-execution predicate (loaded lazily from IR). 6J keep-phrase index still runs *inside* authorized mutation sections. Historical verifiers may still call classifiers directly. |
+| DEPENDENCIES | None |
+| DATA / MEMORY IMPACT | None. No task mutation. No Founder Memory writes. Pipeline evidence file `founder-feedback-ir.json` on new runs only. |
+| RISKS | Under-enforcing a real whole-section replace (mitigated: 6J incomplete replace still fails closed); IR still regex-heavy internally; live 5d933072 unchanged |
+| OFFLINE PROOF | `npm run aios:revision:founder-feedback-ir-c1:verify` PASS; legacy preservation ledger reproduces 16 unaccounted keep-phrase misses; mutation-only completeness ok; injected empty-plan layout+preserve → `READY_FOR_FOUNDER_REVIEW`; 6G–6P + 6L PASS |
+| PRODUCTION-PARITY PROOF | Injected-provider `runFounderFeedbackRevision` on sanitized layout+preserve packet (C1 verifier) |
+| ROLLBACK | Revert C1 commit; completeness would again iterate preservation sections |
+| LIVE FOUNDER PROOF | **No** (reserved for C5) |
+| BEFORE NEXT PHASE | Founder reviews C1; then C2 only |
 
-C1 may absorb a small **failure-code honesty** change (persist `FAILED_SECTION_COMPLETENESS` in Telegram/dashboard instead of only `FAILED_GATE`) if it stays in the same PR. Do not expand C1 into geometry or memory.
+C1 did **not** absorb Telegram `FAILED_GATE` vs `FAILED_SECTION_COMPLETENESS` honesty. That remains later.
+
+#### C1 architecture (as implemented)
+
+- One compile per Request Changes packet. Downstream must not re-parse Founder language for meaning.
+- `completeness_sections` never includes preservation-only sections. Keep-list matching still applies when a section is actually authorized for replacement.
+- Layout-only items remain `DETERMINISTIC_LAYOUT_OWNED` / layout execution; they do not enter the replacement ledger.
+- True rewrite/removal still sets `completeness_sections` and fails closed if body objects are omitted.
+- IR is suitable future memory evidence (C3); C1 does not migrate historical memory.
 
 #### C2 — Shared geometry admission
 
@@ -773,7 +782,7 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | Dashboard | active, PID 4063798, started 2026-09-23 07:36:41 UTC; NRestarts=0 |
 | Last revision of note | `revtask-5d933072-daf` FAILED_GATE 2026-09-23T12:13:55Z — still latest; no new live revision since |
 | Candidate dirs on VPS | 80 (WAITING_FOUNDER files 46 ≠ projection waiting 20) |
-| P0 | Compiler IR / 6J preservation ledger (C1) |
+| P0 | C2 shared geometry admission (C1 compiler shipped) |
 | P1 | Generation geometry admission (C2); memory selection (C3) |
 | P2 | READY_FOR_FOUNDER_REVIEW success Telegram; overlay vs capacity honesty |
 
@@ -788,6 +797,7 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | 2026-09-23T18:57:52+05:30 | Next authorized step = consolidation planning, not OA Request Changes retry | Retry would hit the same 6J/compiler mismatch | Empty plan + preserve sections + keep-phrase fail | Immediate 5d933072 code fix in this task | Roadmap | Yes |
 | 2026-09-29T15:22:52+05:30 | Six-phase consolidation C1–C6; first implementation = C1 Feedback Compiler IR | 6G–6P patch chain + independently re-verified 5d933072 (mutation=[], 0 ops, 16 unaccounted preserve objects) | Fresh VPS task/evidence/journal 2026-09-29; HEAD `b1e07bb` matches origin/VPS; no newer live revision | Another OA retry; 6Q regex; rewriting `runFounderFeedbackRevision`; destroying memory; combining C1 with C2/C5 | Resume architecture plan | Yes until C1 ships |
 | 2026-09-29T15:22:52+05:30 | No destructive memory/artifact migration | Store is attached-not-learned; 990 provisionals; filter on read | active-index 382 unchanged since 12:12:50Z; 5d933072 selected MM→OA provisional | Rebuild JSONL; retry 5d933072 | Founder Memory | Yes |
+| 2026-09-29T15:48:00+05:30 | C1 Feedback Compiler IR is the sole public semantic owner; completeness = mutation sections only | Same Founder sentence was independently reclassified (layout vs preserve vs replace vs verify) | C1 verifier PASS; legacy ledger 16 unaccounted; 6J incomplete replace still fails; 6G–6P+6L PASS | 6Q sentence patch; retry 5d933072; weakening true replace; starting C2 in this run | Feedback compiler + completeness + coverage + prompt + acceptance + pipeline | Yes until C2 ships |
 
 ---
 
@@ -825,15 +835,29 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** Agent may start C1 without Founder seeing this plan; C1 under-enforcing real replaces
 - **NEXT STEP:** C1 Feedback Compiler IR (do not execute in this pass)
 
+### 2026-09-29T15:48:00+05:30 — C1 FEEDBACK COMPILER IR
+
+- **PHASE/TASK:** C1 Feedback Compiler IR
+- **PURPOSE:** One canonical interpretation of a Founder Request Changes packet
+- **BEFORE STATE:** classify / intent scope / coverage mode / 6J preservation ledger independently answered “what did the Founder ask for?”; 5d933072-class packets failed section completeness
+- **CHANGE:** `compileFounderFeedbackIR`; completeness = mutation sections only; coverage/prompt/acceptance/pipeline consume IR; `founder-feedback-ir.json` evidence
+- **FILES MODIFIED:** `SOS/SAIOS/core/founder-revision/FounderFeedbackIR.ts` (new) plus completeness, coverage, prompt builder, acceptance, pipeline, intent-scope comments; C1/6M/6P verifiers; package.json script; this file; project master; project-state
+- **TESTS:** `aios:revision:founder-feedback-ir-c1:verify` PASS; 6G–6P and 6L PASS
+- **COMMIT:** *(filled after commit)*
+- **DEPLOY:** *(filled after FF deploy)*
+- **LIVE PROOF:** None
+- **RESULT:** C1 offline proven; live 5d933072 immutable
+- **NEW RISKS:** IR still regex-heavy internally; Founder may authorize C2 before reviewing C1
+- **NEXT STEP:** C2 Shared geometry admission (after Founder review)
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**C1 — Feedback Compiler IR**
+**C2 — Shared geometry admission**
 
-Do not execute C1 in a planning-only run.  
+Do not start C2 until the Founder reviews C1.  
 Do not retry `revtask-5d933072-daf` or `revtask-76a04a21-6ff`.  
-Do not start C2–C6 until C1 offline proofs are green (except the documented C1 Telegram honesty add-on).  
 Do not enable `SOS_AIOS_LIVE`.

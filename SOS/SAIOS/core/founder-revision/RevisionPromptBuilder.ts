@@ -15,12 +15,8 @@ import {
   isAllowedCanvasOp,
   isDeprecatedPlannerOp,
 } from "./allowedCanvasOps.js";
-import { classifyRequestedChange } from "./RequestedChangeClassification.js";
+import { compileFounderFeedbackIR } from "./FounderFeedbackIR.js";
 import { buildWholeSectionRequiredBodyInventoryPrompt } from "./SectionReplacementCompleteness.js";
-import {
-  isCanonicalLayoutOwnedItem,
-  isValidationOnlyRequestedChange,
-} from "./DeterministicSpacingPlan.js";
 import {
   detectInternalPlanMutationConflicts,
   geomAxesPresent,
@@ -390,10 +386,15 @@ export function buildFounderItemCoverageLedger(
     "Copy the Exact founder_feedback_item text VERBATIM into that operation field (primary), or into founder_feedback_items when the SAME physical mutation genuinely covers an overlapping item.",
     "",
   ];
-  for (let i = 0; i < requestedChanges.length; i++) {
-    const change = requestedChanges[i]!;
-    const classified = classifyRequestedChange(change);
-    const mode = resolveItemCoverageMode(change);
+  const ir = compileFounderFeedbackIR(requestedChanges);
+  for (let i = 0; i < ir.items.length; i++) {
+    const irItem = ir.items[i]!;
+    const change = irItem.founder_feedback_item;
+    const classified = {
+      classification: irItem.classification,
+      check_types: irItem.check_types,
+    };
+    const mode = irItem.coverage_mode;
     lines.push(`Item ${i + 1} — ${classified.classification}`);
     lines.push(`Coverage mode: ${mode}`);
     if (classified.check_types.length > 0) {
@@ -464,19 +465,7 @@ export function founderItemRequiresAiExecutableMutation(
 export function resolveItemCoverageMode(
   requestedChange: string,
 ): ItemCoverageMode {
-  const classification =
-    classifyRequestedChange(requestedChange).classification;
-  if (classification === "VERIFICATION_ACCEPTANCE") {
-    return "VERIFICATION_ACCEPTANCE";
-  }
-  if (classification === "PRESERVATION_CONSTRAINT") {
-    return "PRESERVATION_CONSTRAINT";
-  }
-  if (isValidationOnlyRequestedChange(requestedChange)) return "VALIDATION_ONLY";
-  if (isCanonicalLayoutOwnedItem(requestedChange)) {
-    return "DETERMINISTIC_LAYOUT_OWNED";
-  }
-  return "MUTATION_REQUIRED";
+  return compileFounderFeedbackIR([requestedChange]).items[0]!.coverage_mode;
 }
 
 /**
@@ -497,10 +486,11 @@ export function buildTargetCandidateHints(
   const lines: string[] = [
     "TARGET CANDIDATE HINTS (prompt aid only — still copy exact IDs into target_id or target_ids; runtime never auto-resolves omitted IDs):",
   ];
-  for (let i = 0; i < requestedChanges.length; i++) {
-    const change = requestedChanges[i]!;
-    const classified = classifyRequestedChange(change);
-    if (classified.classification === "VERIFICATION_ACCEPTANCE") {
+  const ir = compileFounderFeedbackIR(requestedChanges);
+  for (let i = 0; i < ir.items.length; i++) {
+    const irItem = ir.items[i]!;
+    const change = irItem.founder_feedback_item;
+    if (irItem.classification === "VERIFICATION_ACCEPTANCE") {
       lines.push(
         `Item ${i + 1} [VERIFICATION_ACCEPTANCE] — emit ZERO operations for this item.`,
       );
@@ -1933,10 +1923,19 @@ export function validateRevisionPlanShapeAndOperations(
   const inventoryById = new Map<string, CanvasInventoryObject>();
   for (const obj of opts?.inventory ?? []) inventoryById.set(obj.id, obj);
   const requestedByNorm = new Map<string, string>();
+  const irByNorm = new Map<
+    string,
+    ReturnType<typeof compileFounderFeedbackIR>["items"][number]
+  >();
   if (requestedChanges) {
+    const ir = compileFounderFeedbackIR(requestedChanges);
     for (const change of requestedChanges) {
       const n = normalizeFounderFeedbackItem(change);
       if (n) requestedByNorm.set(n, change);
+    }
+    for (const item of ir.items) {
+      const n = normalizeFounderFeedbackItem(item.founder_feedback_item);
+      if (n) irByNorm.set(n, item);
     }
   }
   if (!Array.isArray(operationsRaw)) {
@@ -2143,8 +2142,8 @@ export function validateRevisionPlanShapeAndOperations(
         );
         if (
           primaryMatch &&
-          classifyRequestedChange(primaryMatch).classification ===
-            "PRESERVATION_CONSTRAINT"
+          irByNorm.get(normalizeFounderFeedbackItem(primaryMatch))
+            ?.classification === "PRESERVATION_CONSTRAINT"
         ) {
           errors.push(
             `operations[${i}] founder_feedback_item must not be a PRESERVATION_CONSTRAINT item (it forbids change; emit no operation for it): ${feedback}`,
@@ -2167,8 +2166,7 @@ export function validateRevisionPlanShapeAndOperations(
             continue;
           }
           if (
-            classifyRequestedChange(matched).classification ===
-            "VERIFICATION_ACCEPTANCE"
+            irByNorm.get(n)?.classification === "VERIFICATION_ACCEPTANCE"
           ) {
             errors.push(
               `operations[${i}] founder attribution must not claim VERIFICATION_ACCEPTANCE item: ${attr}`,

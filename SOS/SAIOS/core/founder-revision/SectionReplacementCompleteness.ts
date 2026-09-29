@@ -21,7 +21,7 @@ import {
   type AcceptanceFinding,
   type ContentSectionKey,
 } from "./RevisionAcceptanceChecks.js";
-import { resolveRevisionIntentScope } from "./RevisionIntentScope.js";
+import { compileFounderFeedbackIR } from "./FounderFeedbackIR.js";
 import type {
   CanvasInventoryObject,
   CanvasOperation,
@@ -164,11 +164,13 @@ function isTextInventoryType(type: string): boolean {
   return /text/i.test(type);
 }
 
-/** Authorized whole-section replacement keys from the canonical intent owner. */
+/** Authorized whole-section replacement keys from the canonical feedback IR. */
 export function authorizedWholeSectionReplacementSections(
   requestedChanges: string[],
 ): Set<ContentSectionKey> {
-  return new Set(resolveRevisionIntentScope(requestedChanges).content_mutation_sections);
+  return new Set(
+    compileFounderFeedbackIR(requestedChanges).completeness_sections,
+  );
 }
 
 export function requiredBodyObjectIdsForSections(
@@ -443,42 +445,22 @@ function resolveObjectDisposition(input: {
   };
 }
 
-export function evaluateSectionReplacementCompleteness(input: {
+function evaluateSectionReplacementCompletenessWithAuthorized(input: {
   canvas: FabricCanvasDoc;
   plan: RevisionPlan;
   requested_changes: string[];
+  authorized: Set<ContentSectionKey>;
 }): SectionReplacementCompletenessReport {
-  const scope = resolveRevisionIntentScope(input.requested_changes);
-  const authorized = new Set(scope.content_mutation_sections);
-  const preservedOnly = scope.content_preservation_sections.filter(
-    (s) => !authorized.has(s),
-  );
-  if (authorized.size === 0 && preservedOnly.length === 0) {
+  const authorized = input.authorized;
+  if (authorized.size === 0) {
     return { ok: true, sections: [], unaccounted_object_ids: [], error: null };
   }
 
   const intent = buildFounderIntentIndex(input.requested_changes);
-  for (const section of preservedOnly) {
-    for (const item of scope.items) {
-      if (
-        item.clauses.some(
-          (c) =>
-            c.intent_class === "CONTENT_PRESERVATION" &&
-            c.preservation_scope.includes(section),
-        )
-      ) {
-        const cur = intent.keepItemsBySection.get(section) ?? [];
-        if (!cur.includes(item.founder_feedback_item)) {
-          cur.push(item.founder_feedback_item);
-          intent.keepItemsBySection.set(section, cur);
-        }
-      }
-    }
-  }
   const sections: SectionReplacementSectionReport[] = [];
   const unaccounted_object_ids: string[] = [];
 
-  for (const section of [...authorized, ...preservedOnly]) {
+  for (const section of authorized) {
     const sectionSet = new Set<ContentSectionKey>([section]);
     const requiredIds = requiredBodyObjectIdsForSections(
       input.canvas,
@@ -526,6 +508,37 @@ export function evaluateSectionReplacementCompleteness(input: {
     unaccounted_object_ids,
     error,
   };
+}
+
+export function evaluateSectionReplacementCompleteness(input: {
+  canvas: FabricCanvasDoc;
+  plan: RevisionPlan;
+  requested_changes: string[];
+}): SectionReplacementCompletenessReport {
+  const ir = compileFounderFeedbackIR(input.requested_changes);
+  return evaluateSectionReplacementCompletenessWithAuthorized({
+    ...input,
+    authorized: new Set(ir.completeness_sections),
+  });
+}
+
+/**
+ * Pre-C1 ledger: preservation sections were treated as whole-section
+ * replacement completeness. Offline only — not a production path.
+ */
+export function evaluateSectionReplacementCompletenessLegacyPreservationLedger(input: {
+  canvas: FabricCanvasDoc;
+  plan: RevisionPlan;
+  requested_changes: string[];
+}): SectionReplacementCompletenessReport {
+  const ir = compileFounderFeedbackIR(input.requested_changes);
+  return evaluateSectionReplacementCompletenessWithAuthorized({
+    ...input,
+    authorized: new Set([
+      ...ir.completeness_sections,
+      ...ir.content_preservation_sections,
+    ]),
+  });
 }
 
 export function formatSectionReplacementIncompleteError(

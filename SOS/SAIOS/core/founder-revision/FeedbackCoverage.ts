@@ -19,9 +19,10 @@ import {
   findTextOverlapFindings,
   type RevisionAcceptanceReport,
 } from "./RevisionAcceptanceChecks.js";
+import { compileFounderFeedbackIR } from "./FounderFeedbackIR.js";
 import {
-  classifyRequestedChange,
   verificationCheckTypes,
+  type ClassifiedRequestedChange,
 } from "./RequestedChangeClassification.js";
 import {
   detectLayoutLanesFromCanvas,
@@ -30,7 +31,6 @@ import {
   type LayoutNormalizationReport,
 } from "./RevisionLayoutNormalizer.js";
 import {
-  isCanonicalDeterministicLayoutOwnedChange,
   normalizeFounderFeedbackItem,
   operationFounderAttributions,
 } from "./RevisionPromptBuilder.js";
@@ -2648,10 +2648,17 @@ export function buildFeedbackCoverage(input: {
    */
   layoutNormalizationReport?: LayoutNormalizationReport | null;
 }): FeedbackCoverageReport {
+  const ir = compileFounderFeedbackIR(input.requested_changes);
   const items: FeedbackCoverageItem[] = [];
 
-  for (const change of input.requested_changes) {
-    const classified = classifyRequestedChange(change);
+  for (const irItem of ir.items) {
+    const change = irItem.founder_feedback_item;
+    const classified: ClassifiedRequestedChange = {
+      classification: irItem.classification,
+      check_type: irItem.check_types[0] ?? null,
+      check_types: irItem.check_types,
+      canonical_form: null,
+    };
 
     /**
      * Zero-operation coverage modes (Phase 6G).
@@ -2666,11 +2673,11 @@ export function buildFeedbackCoverage(input: {
      * the empty-values placeholder operations in revtask-9441fe34-4ba.
      */
     if (
-      classified.classification === "VERIFICATION_ACCEPTANCE" ||
-      classified.classification === "PRESERVATION_CONSTRAINT"
+      irItem.coverage_mode === "VERIFICATION_ACCEPTANCE" ||
+      irItem.coverage_mode === "PRESERVATION_CONSTRAINT"
     ) {
       const mode =
-        classified.classification === "PRESERVATION_CONSTRAINT"
+        irItem.coverage_mode === "PRESERVATION_CONSTRAINT"
           ? "preservation"
           : "verification";
       const requiredTypes = verificationCheckTypes(classified);
@@ -2731,7 +2738,7 @@ export function buildFeedbackCoverage(input: {
      * FeedbackCoverage must not independently re-run source-relative
      * REDUCE_GAP / structuralHints for the same item.
      */
-    if (isCanonicalDeterministicLayoutOwnedChange(change)) {
+    if (irItem.coverage_mode === "DETERMINISTIC_LAYOUT_OWNED") {
       const proof = evaluateCanonicalFinalStateLayoutProof({
         requestedChange: change,
         beforeCanvas: input.beforeCanvas,
@@ -2839,7 +2846,7 @@ export function buildFeedbackCoverage(input: {
     if (
       status === "not_addressed" &&
       ops.length === 0 &&
-      isCanonicalDeterministicLayoutOwnedChange(change)
+      irItem.coverage_mode === "DETERMINISTIC_LAYOUT_OWNED"
     ) {
       const layoutEvidence = deterministicLayoutOwnershipEvidence(
         input.layoutNormalizationReport,

@@ -9,11 +9,12 @@
 import type { FabricCanvasDoc } from "./CanvasInventory.js";
 import { buildCanvasInventory } from "./CanvasInventory.js";
 import {
-  classifyRequestedChange,
   verificationCheckTypes,
+  type ClassifiedRequestedChange,
   type RequestedChangeClass,
   type VerificationCheckType,
 } from "./RequestedChangeClassification.js";
+import { compileFounderFeedbackIR } from "./FounderFeedbackIR.js";
 import {
   detectLayoutLanesFromCanvas,
   MIN_SECTION_GAP_PX,
@@ -1164,12 +1165,14 @@ function authorizedContentEditTargetIds(
   if (!plan) return allowed;
 
   const mutationContentItems = new Map<string, Set<ContentSectionKey>>();
-  for (const c of requestedChanges) {
-    if (classifyRequestedChange(c).classification !== "MUTATION_REQUIRED") {
-      continue;
-    }
-    if (!looksLikeContentEditFounderItem(c.toLowerCase())) continue;
-    mutationContentItems.set(c, resolveRequestedContentSections(c));
+  const ir = compileFounderFeedbackIR(requestedChanges);
+  for (const item of ir.items) {
+    if (item.action !== "CONTENT_MUTATION") continue;
+    if (item.content_sections.length === 0) continue;
+    mutationContentItems.set(
+      item.founder_feedback_item,
+      new Set(item.content_sections),
+    );
   }
 
   const sectionScoped =
@@ -2077,8 +2080,15 @@ export function runRevisionAcceptanceChecks(input: {
   target_role?: string | null;
 }): RevisionAcceptanceReport {
   const checks: AcceptanceCheckResult[] = [];
-  for (const change of input.requested_changes) {
-    const classified = classifyRequestedChange(change);
+  const ir = compileFounderFeedbackIR(input.requested_changes);
+  for (const irItem of ir.items) {
+    const change = irItem.founder_feedback_item;
+    const classified: ClassifiedRequestedChange = {
+      classification: irItem.classification,
+      check_type: irItem.check_types[0] ?? null,
+      check_types: irItem.check_types,
+      canonical_form: null,
+    };
     // Phase 6G: preservation constraints also require ZERO operations, so their
     // coverage evidence comes from these deterministic checks too.
     if (
@@ -2121,7 +2131,14 @@ export function findAcceptanceChecksForChange(
   requestedChange: string,
 ): AcceptanceCheckResult[] {
   if (!report) return [];
-  const classified = classifyRequestedChange(requestedChange);
+  const irItem = compileFounderFeedbackIR([requestedChange]).items[0];
+  if (!irItem) return [];
+  const classified: ClassifiedRequestedChange = {
+    classification: irItem.classification,
+    check_type: irItem.check_types[0] ?? null,
+    check_types: irItem.check_types,
+    canonical_form: null,
+  };
   if (
     classified.classification !== "VERIFICATION_ACCEPTANCE" &&
     classified.classification !== "PRESERVATION_CONSTRAINT"
@@ -2145,14 +2162,22 @@ export function findAcceptanceCheckForChange(
   const all = findAcceptanceChecksForChange(report, requestedChange);
   if (all.length > 0) return all[0]!;
   if (!report) return null;
-  const classified = classifyRequestedChange(requestedChange);
-  if (classified.classification !== "VERIFICATION_ACCEPTANCE") return null;
+  const irItem = compileFounderFeedbackIR([requestedChange]).items[0];
+  if (!irItem || irItem.classification !== "VERIFICATION_ACCEPTANCE") {
+    return null;
+  }
+  const classified: ClassifiedRequestedChange = {
+    classification: irItem.classification,
+    check_type: irItem.check_types[0] ?? null,
+    check_types: irItem.check_types,
+    canonical_form: null,
+  };
   return (
     report.checks.find(
       (c) =>
         c.check_type === classified.check_type &&
-        classifyRequestedChange(c.requested_change).check_type ===
-          classified.check_type,
+        (compileFounderFeedbackIR([c.requested_change]).items[0]?.check_types[0] ??
+          null) === classified.check_type,
     ) ?? null
   );
 }

@@ -1,9 +1,9 @@
 /**
- * Phase 6M — one canonical revision-intent / content-vs-layout scope owner.
+ * Phase 6M assembler used by the C1 Founder Feedback IR.
  *
- * RevisionRoleTargetIntegrity, SectionReplacementCompleteness,
- * RevisionAcceptanceChecks, FeedbackCoverage, and the planner must consume
- * this resolver instead of independently compiling section nouns + verbs.
+ * Production semantic consumers must call compileFounderFeedbackIR.
+ * resolveRevisionIntentScope remains a compatibility projection of the same
+ * assembler (not a second public meaning of Founder language).
  *
  * Generation RoleTargetIntegrity is intentionally not imported.
  */
@@ -227,10 +227,9 @@ export function resolveRevisionIntentForChange(
  * Conflict precedence: an explicit content mutation for a section wins over
  * preservation of that same section. Layout never creates content scope.
  */
-export function resolveRevisionIntentScope(
-  requested_changes: string[],
+export function assembleRevisionIntentScope(
+  items: ResolvedRevisionIntentItem[],
 ): RevisionIntentScope {
-  const items = requested_changes.map((c) => resolveRevisionIntentForChange(c));
   const contentReplacement = new Set<ContentSectionKey>();
   const contentRemoval = new Set<ContentSectionKey>();
   const layout = new Set<ContentSectionKey>();
@@ -267,6 +266,19 @@ export function resolveRevisionIntentScope(
     content_preservation_sections: [...contentPreserve],
     layout_preservation_sections: [...layoutPreserve],
   };
+}
+
+/**
+ * Compatibility projection of {@link compileFounderFeedbackIR}.
+ * Production semantic consumers must use the IR, not this function plus a
+ * second parser.
+ */
+export function resolveRevisionIntentScope(
+  requested_changes: string[],
+): RevisionIntentScope {
+  return assembleRevisionIntentScope(
+    requested_changes.map((c) => resolveRevisionIntentForChange(c)),
+  );
 }
 
 export function resolveRequestedContentMutationSections(

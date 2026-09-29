@@ -447,21 +447,11 @@ async function main(): Promise<void> {
     requested_changes: task.requested_changes,
   });
   assert(completeness.ok, "6j_layout_followup_no_replacement_required", completeness.error ?? "");
-  const expDisp = completeness.sections.find((s) => s.section === "experience");
-  const eduDisp = completeness.sections.find((s) => s.section === "education");
   assert(
-    !!expDisp &&
-      expDisp.accounts.length > 0 &&
-      expDisp.accounts.every((a) => a.disposition === "EXPLICITLY_PRESERVED"),
-    "experience_disposition_explicitly_preserved",
-    expDisp?.accounts.map((a) => a.disposition).join(",") ?? "missing",
-  );
-  assert(
-    !!eduDisp &&
-      eduDisp.accounts.length > 0 &&
-      eduDisp.accounts.every((a) => a.disposition === "EXPLICITLY_PRESERVED"),
-    "education_disposition_explicitly_preserved",
-    eduDisp?.accounts.map((a) => a.disposition).join(",") ?? "missing",
+    completeness.sections.length === 0 &&
+      completeness.unaccounted_object_ids.length === 0,
+    "preservation_sections_absent_from_replacement_ledger",
+    completeness.sections.map((s) => s.section).join(",") || "empty",
   );
 
   const primary = readJson<RevisionPlan>(join(FIX, "revision-plan-ai-primary.json"));

@@ -68,8 +68,8 @@ import {
   evaluateRevisionFinalAcceptance,
   type RevisionFinalAcceptance,
 } from "./RevisionFinalAcceptance.js";
+import { compileFounderFeedbackIR } from "./FounderFeedbackIR.js";
 import { PRODUCTION_REQUEST_CHANGES_ENTRY_POINT } from "./RevisionPipelineClassification.js";
-import { resolveRevisionIntentScope } from "./RevisionIntentScope.js";
 import type { CanonicalLayoutIntentEvidence } from "./CanonicalFinalStateLayoutProof.js";
 import type { RevisionRoleTargetIntegrityResult } from "../role-integrity/RevisionRoleTargetIntegrity.js";
 
@@ -252,9 +252,11 @@ export async function runFounderFeedbackRevision(
 
   const evidenceDir = join(outRoot(), "evidence", task.task_id);
   mkdirSync(evidenceDir, { recursive: true });
+  const feedbackIR = compileFounderFeedbackIR(task.requested_changes);
+  writeJson(join(evidenceDir, "founder-feedback-ir.json"), feedbackIR);
   writeJson(
     join(evidenceDir, "revision-intent-scope.json"),
-    resolveRevisionIntentScope(task.requested_changes),
+    feedbackIR.intent_scope,
   );
   writeJson(join(evidenceDir, "planner-prompt.json"), planned.prompt);
   writeJson(join(evidenceDir, "inventory.json"), inventory);

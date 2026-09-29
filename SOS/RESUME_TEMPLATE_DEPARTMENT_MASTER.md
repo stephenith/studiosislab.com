@@ -60,25 +60,25 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-29T16:19:10+05:30** / **2026-09-29T10:49:10.000Z**. C3 offline proofs recorded; live memory store counts unchanged (read-only).
+Snapshot taken **2026-09-29T16:52:35+05:30** / **2026-09-29T11:22:35.000Z**. C4 offline harness recorded; no live generation/revision.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `baf3fe431bdd8d327bb5c107dfdbb4677df02c00` (`main`) |
-| ORIGIN HEAD | `baf3fe431bdd8d327bb5c107dfdbb4677df02c00` |
-| VPS HEAD | `baf3fe431bdd8d327bb5c107dfdbb4677df02c00` |
-| LOCAL STATUS | Dirty Website/e-sign/unrelated untracked SOS folders preserved; C3 Resume Template files staged explicitly |
-| VPS STATUS | C3 deploy if proofs pass; do not clean porcelain |
-| ACTIVE RUNTIME | `aios-founder-dashboard.service`; health `{ok:true,live:false}`; last live claim still `revtask-5d933072-daf` |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1 + C2 + C3 implemented offline |
+| LOCAL HEAD | `059a0fa5d964249156526ccd7384ebced2340fca` before C4 commit (`main`) |
+| ORIGIN HEAD | `059a0fa5d964249156526ccd7384ebced2340fca` |
+| VPS HEAD | `059a0fa5d964249156526ccd7384ebced2340fca` (last verified C3 SHA-record; C4 is test-only) |
+| LOCAL STATUS | Dirty Website department files preserved; C4 harness staged explicitly |
+| VPS STATUS | FF sync of offline harness if push succeeds; no service restart required |
+| ACTIVE RUNTIME | `aios-founder-dashboard.service`; last live claim still `revtask-5d933072-daf` |
+| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1 + C2 + C3 + C4 implemented offline |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
-| REVISION STATUS | Shared geometry + C3 memory selection; latest live task still `revtask-5d933072-daf` (immutable; not retried) |
-| GENERATION STATUS | Shared geometry admission; C3 selection taxonomy; `SOS_AIOS_LIVE=0` |
+| REVISION STATUS | Department harness calls `runFounderFeedbackRevision`; latest live task still `revtask-5d933072-daf` (immutable) |
+| GENERATION STATUS | Admission spine proven in C4; full `runFirstProductionCycle` persist still not relocatable; `SOS_AIOS_LIVE=0` |
 | FOUNDER REVIEW STATUS | Unchanged queue; no live Request Changes |
-| MEMORY STATUS | JSONL intact (1242). Read-side learning class. `fpm-6c083f5f-35f` is SUPERSEDED on VPS; class still excluded if active. |
+| MEMORY STATUS | JSONL intact. C4 uses temp-root `selectFounderMemory` / maturation. |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
-| CURRENT PRIMARY BLOCKERS | C4 department E2E harness; live 5d933072 remains historical |
-| NEXT AUTHORIZED STEP | **C4 Department production-parity harness** — Founder review of C3 first; do not retry 5d933072 |
+| CURRENT PRIMARY BLOCKERS | C5 live Founder proof; live 5d933072 remains historical |
+| NEXT AUTHORIZED STEP | **C5 One authorized live Request Changes** — Founder review of C4 first; do not retry 5d933072 |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -700,21 +700,30 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 - APPROVE + successful revision still promotes attributed layout/family preferences; it does not confirm task-specific title changes.
 - Parallel stores (`learning-entries.jsonl`, `design-memory.json`, `founder-preferences.json`, `learned-rules.json`) are still not wired to `selectFounderMemory`.
 
-#### C4 — Department production-parity harness
+#### C4 — Department production-parity harness *(implemented 2026-09-29; stop before C5)*
 
 | Field | Content |
 |---|---|
 | BUSINESS PURPOSE | Prove the real business workflow once, not 66 isolated owners. |
-| ARCHITECTURAL OUTCOME | One harness: generation admission → Review envelope → layout-only / content-only / mixed / preserve / already-satisfied / malformed plan / bad geometry / bad role → (simulated) APPROVE → maturation candidate → staging eligibility. Injected provider. |
-| COMPONENTS AFFECTED | New verify wrapper reusing `verify-revision-production-parity-6l.ts`; generation admission tests from C2 |
+| ARCHITECTURAL OUTCOME | One harness `verify-department-production-parity-c4.ts`. Calls production functions: generation admission spine, `runFounderFeedbackRevision`, C1 IR, C3 `selectFounderMemory` / maturation, staging eligibility. Injected planner. Temp dirs. |
+| COMPONENTS CHANGED | New harness + `package.json` script. No runtime production behavior change. |
 | DEPENDENCIES | C1 + C2 + C3 |
-| DATA / MEMORY IMPACT | Temp dirs only |
-| RISKS | Slow CI; temptation to skip old verifiers too early |
-| OFFLINE PROOF | Harness PASS; keep 6G–6P until harness covers those contracts |
+| DATA / MEMORY IMPACT | Temp dirs only. Evidence JSON under `SOS/07_LOGS/saios/department-parity/`. |
+| RISKS | Full `runFirstProductionCycle` persist is not relocatable (`CYCLE_LOG` hardcoded); C4 proves post-render admission, not generate/render/preview persist. |
+| OFFLINE PROOF | `npm run aios:department-parity-c4:verify` PASS; C1 + C2 + C3 + 6L PASS |
 | PRODUCTION-PARITY PROOF | This phase **is** that proof (offline) |
-| ROLLBACK | Keep old npm verify scripts |
+| ROLLBACK | Delete harness / revert C4 commit |
 | LIVE FOUNDER PROOF | **No** |
-| BEFORE NEXT PHASE | Harness green including 5d933072-class + at least one content-mutation replace |
+| BEFORE NEXT PHASE | Founder reviews C4; then C5 only |
+
+#### C4 architecture (as implemented)
+
+- One npm script: `aios:department-parity-c4:verify`.
+- Generation: same post-render functions the cycle uses (`evaluateSharedGeometryAdmission`, `evaluateGenerationFounderReviewAdmission`, `CriticGate.evaluate` with `fixture:true`, `FounderReviewGatekeeper.canCreateReview`, `evaluateCanvasRoleTargetIntegrity`). Does **not** call `runFirstProductionCycle` because `CYCLE_LOG` is not injectable without a runtime hook.
+- Revision: `runFounderFeedbackRevision` via `setRevisionPipelineRootsForTests` + injected `executePlanner`.
+- Approval: `evaluateMemoryMaturation` + temp-root `FounderPreferenceWriter.writeFromDecision`. Staging: `validateCandidateArtifactsForStaging` + `canTransition` + `autoStageAfterFounderApproval` with mock `stageFn`.
+- Older verifiers (6G–6P, 6L, C1–C3 unit files) remain. 6L is still the revision-only release harness; C4 is the department workflow harness.
+- Known debt: older critic-gate verifier dashboard/OpenAI dependency failures (unchanged; not required for C4).
 
 #### C5 — One authorized live Request Changes
 
@@ -748,7 +757,7 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 
 **Combinable:** C1 + small Telegram `failure_code` honesty. **Not combinable with C1:** C2 generation gate, C3 memory, C5 live proof.
 
-**Total implementation phases: 6.** C1–C3 shipped offline. Next: **C4**.
+**Total implementation phases: 6.** C1–C4 shipped offline. Next: **C5**.
 
 ### Proof strategy (department)
 
@@ -805,8 +814,8 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | Dashboard | active, PID 4063798, started 2026-09-23 07:36:41 UTC; NRestarts=0 |
 | Last revision of note | `revtask-5d933072-daf` FAILED_GATE 2026-09-23T12:13:55Z — still latest; no new live revision since |
 | Candidate dirs on VPS | 80 (WAITING_FOUNDER files 46 ≠ projection waiting 20) |
-| P0 | C4 department production-parity harness (C1 + C2 + C3 shipped) |
-| P1 | Department E2E harness (C4); live Founder proof remains C5 |
+| P0 | C5 one authorized live Request Changes (C1–C4 shipped offline) |
+| P1 | Live Founder proof (C5); closure audit remains C6 |
 | P2 | READY_FOR_FOUNDER_REVIEW success Telegram; overlay vs capacity honesty |
 
 ---
@@ -823,6 +832,7 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | 2026-09-29T15:48:00+05:30 | C1 Feedback Compiler IR is the sole public semantic owner; completeness = mutation sections only | Same Founder sentence was independently reclassified (layout vs preserve vs replace vs verify) | C1 verifier PASS; legacy ledger 16 unaccounted; 6J incomplete replace still fails; 6G–6P+6L PASS | 6Q sentence patch; retry 5d933072; weakening true replace; starting C2 in this run | Feedback compiler + completeness + coverage + prompt + acceptance + pipeline | Yes until C2 ships |
 | 2026-09-29T15:56:26+05:30 | C2 shared geometry admission is the sole Founder Review geometry oracle | Generation could enter Review on critic scores while revision already fail-closed on overlap/OOB/page-fit | C2 verifier PASS; C1 + 5W + 6L + 6P PASS; historical good fixture accepted; 5W-class overlap rejected | Second generation checker; turning critic scores into hard geometry; starting C3; enabling LIVE | SharedGeometryAdmission + generation cycle + CriticGate + revision pipeline | Yes until C3 ships |
 | 2026-09-29T16:20:00+05:30 | C3 memory selection is read-side learning-class discipline; JSONL is not rewritten | Active/provisional MM→OA title rules were retrieved as layout law; 990 provisionals outnumbered 19 confirmed | C3 verifier PASS; 6B/6C/6F + C1 + C2 PASS; 5d933072-class MM→OA not selected | Deleting provisionals; confirming all rows; a second memory store; starting C4; enabling LIVE | FounderMemoryLearningClass + Consumption + Maturation + RevisionPromptBuilder IR handoff | Yes until C4 ships |
+| 2026-09-29T16:52:35+05:30 | C4 is one department harness calling production functions, not a second fake department | Isolated phase tests created false confidence; 6L covers revision only | C4 verifier PASS; C1 + C2 + C3 + 6L PASS | Wrapping 6L only; running live generation; adding CYCLE_LOG hook in this phase; starting C5 | department-parity harness | Yes until C5 |
 
 ---
 
@@ -905,14 +915,29 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** Over-filtering a CONFIRMED preference whose text looks task-specific; parallel design-memory/learned-rules stores still exist but are not `selectFounderMemory` consumers
 - **NEXT STEP:** C4 Department production-parity harness (after Founder review)
 
+### 2026-09-29T16:52:35+05:30 — C4 DEPARTMENT PRODUCTION-PARITY HARNESS
+
+- **PHASE/TASK:** C4 Department production-parity harness
+- **PURPOSE:** One offline harness that exercises real production orchestration without production side effects
+- **BEFORE STATE:** Many isolated verifiers; 6L revision-only; no department workflow harness
+- **CHANGE:** `verify-department-production-parity-c4.ts` calls generation admission spine, `runFounderFeedbackRevision`, C1 IR, C3 memory, simulated APPROVE/maturation/staging eligibility. Temp dirs. No runtime production change.
+- **FILES MODIFIED:** C4 harness (new); `package.json`; this file; project master; project-state; `AGENTS.md`
+- **TESTS:** `aios:department-parity-c4:verify` PASS; C1 + C2 + C3 + 6L PASS
+- **COMMIT:** *(filled after commit)*
+- **DEPLOY:** FF docs/tests only; no service restart
+- **LIVE PROOF:** None
+- **RESULT:** C4 offline proven. Full generation persist remains a documented isolation gap (`CYCLE_LOG` not relocatable).
+- **NEW RISKS:** Agent may treat C4 as live proof; C5 still required
+- **NEXT STEP:** C5 one authorized live Request Changes (after Founder review)
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**C4 — Department production-parity harness**
+**C5 — One authorized live Request Changes**
 
-Do not start C4 until the Founder reviews C3.  
+Do not start C5 until the Founder reviews C4.  
 Do not retry `revtask-5d933072-daf` or `revtask-76a04a21-6ff`.  
-Do not enable `SOS_AIOS_LIVE`.
+Do not enable `SOS_AIOS_LIVE` unless the Founder explicitly authorizes C5.

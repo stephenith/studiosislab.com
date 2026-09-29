@@ -64,9 +64,9 @@ Snapshot taken **2026-09-29T16:19:10+05:30** / **2026-09-29T10:49:10.000Z**. C3 
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `3957ebb5198e1f6563ffed3f81ad8d344e5fffbe` before C3 commit (`main`) |
-| ORIGIN HEAD | `3957ebb5198e1f6563ffed3f81ad8d344e5fffbe` |
-| VPS HEAD | `3957ebb5198e1f6563ffed3f81ad8d344e5fffbe` |
+| LOCAL HEAD | `baf3fe431bdd8d327bb5c107dfdbb4677df02c00` (`main`) |
+| ORIGIN HEAD | `baf3fe431bdd8d327bb5c107dfdbb4677df02c00` |
+| VPS HEAD | `baf3fe431bdd8d327bb5c107dfdbb4677df02c00` |
 | LOCAL STATUS | Dirty Website/e-sign/unrelated untracked SOS folders preserved; C3 Resume Template files staged explicitly |
 | VPS STATUS | C3 deploy if proofs pass; do not clean porcelain |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service`; health `{ok:true,live:false}`; last live claim still `revtask-5d933072-daf` |
@@ -898,8 +898,8 @@ Append-only. Do not overwrite.
 - **CHANGE:** Read-side `classifyMemoryLearningClass`; reusable only CONFIRMED LEARNED_PREFERENCE / DESIGN_FAMILY_PREFERENCE / ROLE_VOICE in scope; TASK_SPECIFIC / DETERMINISTIC_SAFETY / NEGATIVE / UNCLASSIFIED / PROVISIONAL not reusable; generation and revision share `selectFounderMemory`; APPROVE cannot confirm task-specific title changes; JSONL not deleted or rewritten
 - **FILES MODIFIED:** `FounderMemoryLearningClass.ts` (new); `FounderMemoryConsumption.ts`; `FounderMemoryMaturation.ts`; `FounderPreferencePrompt.ts`; `RevisionPromptBuilder.ts`; 6F wiring verifier; C3 verifier; this file; project master; project-state; `AGENTS.md`
 - **TESTS:** `aios:memory-selection-c3:verify` PASS; 6B/6C/6F + C1 + C2 PASS
-- **COMMIT:** *(filled after commit)*
-- **DEPLOY:** *(filled after FF)*
+- **COMMIT:** `baf3fe431bdd8d327bb5c107dfdbb4677df02c00`
+- **DEPLOY:** FF origin + VPS `/root/studiosislab.com`; backup `20260929T105255Z.tar.gz`; restarted `aios-founder-dashboard.service`; health `{ok:true,live:false}`
 - **LIVE PROOF:** None
 - **RESULT:** C3 offline proven; historical JSONL intact; not adaptive/self-learning
 - **NEW RISKS:** Over-filtering a CONFIRMED preference whose text looks task-specific; parallel design-memory/learned-rules stores still exist but are not `selectFounderMemory` consumers

@@ -53,9 +53,9 @@ Snapshot taken **2026-09-29T16:20:00+05:30** / **2026-09-29T10:50:00.000Z**.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `3957ebb5198e1f6563ffed3f81ad8d344e5fffbe` before C3 commit (`main`) |
-| ORIGIN HEAD | `3957ebb5198e1f6563ffed3f81ad8d344e5fffbe` |
-| VPS HEAD | `3957ebb5198e1f6563ffed3f81ad8d344e5fffbe` |
+| LOCAL HEAD | `baf3fe431bdd8d327bb5c107dfdbb4677df02c00` (`main`) |
+| ORIGIN HEAD | `baf3fe431bdd8d327bb5c107dfdbb4677df02c00` |
+| VPS HEAD | `baf3fe431bdd8d327bb5c107dfdbb4677df02c00` |
 | PUBLIC PRODUCT | Next.js SaaS at `studiosislab.com` (Vercel) |
 | AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` |
 | CURRENT PROJECT PRIORITY | **Resume Template consolidation phase C4 (Department production-parity harness)** — after Founder reviews C3 |
@@ -356,7 +356,7 @@ Append-only. Do not overwrite historical entries.
 | 2026-09-29T15:22:52+05:30 | Resume consolidation plan | Record C1–C6; refresh stale SHA snapshot | Priority was consolidation planning; SHAs still showed `c6f143b` | Planning outcome + C1 as next implementation; no architecture code | This file; Resume master; project-state; `AGENTS.md` | Docs only | *(filled after commit)* | FF docs; no restart | None | Plan recorded; C1 not started | Agent may implement C1 without reading §29 | C1 Feedback Compiler IR |
 | 2026-09-29T15:48:00+05:30 | C1 Feedback Compiler IR | One canonical Founder Request Changes interpretation | C1 not started; 6J preservation ledger | IR + mutation-only completeness; consumers migrated | Resume revision compiler files; this file; Resume master; project-state | C1 + 6G–6P + 6L | `6f97bb4` | FF + dashboard restart `20260929T101344Z` | None | C1 offline PASS | IR still regex-internal; live 5d933072 unchanged | C2 Shared geometry admission |
 | 2026-09-29T15:56:26+05:30 | C2 Shared geometry admission | One deterministic geometry contract for generation + revision Founder Review admission | Generation used critic/readiness scores; revision used a separate overlap/OOB/page-fit mix | Shared kernel + generation gate + revision fail-closed reuse | Geometry admission module; critic-gate coupling; generation cycle; revision pipeline; this file; Resume master; project-state; `AGENTS.md` | C2 + C1 + 5W + 6L + 6P | `add19ab` | FF + dashboard restart `20260929T102935Z` | None | C2 offline PASS | False-positive page-fit; LIVE inflow may shrink | C3 Memory selection discipline |
-| 2026-09-29T16:20:00+05:30 | C3 Memory selection discipline | Retrieve only scoped reusable Founder learning | Active/provisional task-specific rows injected as layout law | Read-side learning class; no JSONL rewrite; shared selector for generation/revision | Founder memory classifier/consumption/maturation; revision IR handoff; this file; Resume master; project-state; `AGENTS.md` | C3 + 6B/6C/6F + C1 + C2 | *(filled after commit)* | *(filled after FF)* | None | C3 offline PASS | Over-filter of lookalike CONFIRMED text; parallel stores unused by selector | C4 Department production-parity harness |
+| 2026-09-29T16:20:00+05:30 | C3 Memory selection discipline | Retrieve only scoped reusable Founder learning | Active/provisional task-specific rows injected as layout law | Read-side learning class; no JSONL rewrite; shared selector for generation/revision | Founder memory classifier/consumption/maturation; revision IR handoff; this file; Resume master; project-state; `AGENTS.md` | C3 + 6B/6C/6F + C1 + C2 | `baf3fe4` | FF + dashboard restart `20260929T105255Z` | None | C3 offline PASS | Over-filter of lookalike CONFIRMED text; parallel stores unused by selector | C4 Department production-parity harness |
 
 ---
 

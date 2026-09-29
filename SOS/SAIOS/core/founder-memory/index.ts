@@ -45,6 +45,13 @@ export {
   type MemoryEligibilityKind,
 } from "./FounderMemoryConsumption.js";
 export {
+  classifyMemoryLearningClass,
+  isTaskSpecificInstruction,
+  isDeterministicSafetyText,
+  FOUNDER_MEMORY_LEARNING_CLASS_SCHEMA,
+  type MemoryLearningClass,
+} from "./FounderMemoryLearningClass.js";
+export {
   renderFounderDesignMemoryBlock,
   appendFounderMemoryToInstructions,
   appendFounderMemorySelectionToInstructions,

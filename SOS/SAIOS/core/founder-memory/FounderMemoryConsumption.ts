@@ -13,6 +13,12 @@ import {
 } from "./FounderPreferenceMemoryTypes.js";
 import { FounderPreferenceMemoryStore } from "./FounderPreferenceMemoryStore.js";
 import { classifyIssueType } from "./FounderPreferenceNormalizer.js";
+import {
+  classifyMemoryLearningClass,
+  isLayoutOnlyFeedbackIR,
+  isReusableLearningClass,
+  type MemoryLearningClass,
+} from "./FounderMemoryLearningClass.js";
 
 export const FOUNDER_MEMORY_SELECTION_SCHEMA =
   "founder-memory-selection-1.0.0" as const;
@@ -32,6 +38,7 @@ export type MemoryExclusion = {
   memory_id: string;
   kind: MemoryEligibilityKind;
   reason: string;
+  learning_class?: MemoryLearningClass;
 };
 
 export type SelectedMemoryRule = {
@@ -43,6 +50,8 @@ export type SelectedMemoryRule = {
   signal_type: string;
   injectable_text: string;
   content_hash: string;
+  learning_class: MemoryLearningClass;
+  selection_why: string;
 };
 
 export type MemorySelectionCounts = {
@@ -68,6 +77,7 @@ export type FounderMemorySelectionResult = {
   FOUNDER_MEMORY_CONSUMED: boolean;
   counts: MemorySelectionCounts;
   evaluated_at: string;
+  taxonomy_version: string;
 };
 
 const LAYOUT_ISSUE_TYPES = new Set([
@@ -157,22 +167,83 @@ export function classifyMemoryEligibility(
   rec: FounderPreferenceMemoryRecord,
   ctx: GenerationTargetContext,
   currentFounderRequests: string[] = [],
-): { kind: MemoryEligibilityKind; reason: string; injectable_text?: string } {
+  opts?: {
+    layoutOnlyFeedback?: boolean;
+  },
+): {
+  kind: MemoryEligibilityKind;
+  reason: string;
+  injectable_text?: string;
+  learning_class: MemoryLearningClass;
+} {
+  const rawText = rec.normalized_rule || rec.raw_founder_feedback || "";
+  const learning_class = classifyMemoryLearningClass(rawText, rec);
+
   if (!rec.active) {
-    return { kind: "INELIGIBLE", reason: "inactive record" };
+    return { kind: "INELIGIBLE", reason: "inactive record", learning_class };
   }
   if (rec.status === "SUPERSEDED" || rec.superseded_by) {
-    return { kind: "SUPERSEDED", reason: "superseded by newer memory" };
+    return { kind: "SUPERSEDED", reason: "superseded by newer memory", learning_class };
   }
   if (rec.status === "REJECTED") {
-    return { kind: "INELIGIBLE", reason: "status REJECTED" };
+    return { kind: "INELIGIBLE", reason: "status REJECTED", learning_class };
   }
   if (rec.acceptance_result === "rejected") {
-    return { kind: "INELIGIBLE", reason: "acceptance_result rejected" };
+    return { kind: "INELIGIBLE", reason: "acceptance_result rejected", learning_class };
+  }
+
+  if (learning_class === "DETERMINISTIC_SAFETY") {
+    return {
+      kind: "INELIGIBLE",
+      reason: "deterministic safety is owned by geometry/policy, not learned preference",
+      learning_class,
+    };
+  }
+  if (learning_class === "TASK_SPECIFIC") {
+    return {
+      kind: "INELIGIBLE",
+      reason: "task-specific instruction is not reusable Founder learning",
+      learning_class,
+    };
+  }
+  if (learning_class === "NEGATIVE") {
+    return {
+      kind: "INELIGIBLE",
+      reason: "negative/rejected memory cannot become positive guidance",
+      learning_class,
+    };
+  }
+  if (learning_class === "UNCLASSIFIED") {
+    return {
+      kind: "INELIGIBLE",
+      reason: "unclassified memory is not reusable",
+      learning_class,
+    };
+  }
+  if (
+    opts?.layoutOnlyFeedback &&
+    learning_class === "ROLE_VOICE"
+  ) {
+    return {
+      kind: "IRRELEVANT",
+      reason: "role/voice memory excluded from layout-only Founder packet",
+      learning_class,
+    };
+  }
+  if (!isReusableLearningClass(learning_class)) {
+    return {
+      kind: "INELIGIBLE",
+      reason: `learning class ${learning_class} is not reusable`,
+      learning_class,
+    };
   }
 
   if (!scopeMatches(rec, ctx)) {
-    return { kind: "IRRELEVANT", reason: `scope ${rec.scope} does not match context` };
+    return {
+      kind: "IRRELEVANT",
+      reason: `scope ${rec.scope} does not match context`,
+      learning_class,
+    };
   }
 
   const text = injectableTextForRecord(rec);
@@ -180,44 +251,50 @@ export function classifyMemoryEligibility(
     return {
       kind: "INELIGIBLE",
       reason: "no injectable design/preference text",
+      learning_class,
     };
   }
   if (!isLayoutDesignConstraintText(text)) {
     return {
       kind: "INELIGIBLE",
       reason: "factual or non-layout content excluded from design memory",
+      learning_class,
     };
   }
 
-  // Lifecycle / outcome safety
   if (rec.status === "CONFIRMED") {
-    // ok
+    // reusable only after confirmation
   } else if (rec.status === "PROVISIONAL") {
-    // Fail closed on single low-confidence provisional (often written before revision outcome).
     if (rec.confidence === "low") {
       return {
         kind: "AMBIGUOUS",
         reason: "PROVISIONAL + low confidence — outcome not validated",
+        learning_class,
       };
     }
-    if (!LAYOUT_ISSUE_TYPES.has(rec.issue_type) && rec.issue_type !== "OTHER") {
-      return {
-        kind: "AMBIGUOUS",
-        reason: `PROVISIONAL issue_type ${rec.issue_type} not layout-safe`,
-      };
-    }
+    return {
+      kind: "INELIGIBLE",
+      reason: "PROVISIONAL memory is not reusable until attributed APPROVE",
+      learning_class,
+    };
   } else {
-    return { kind: "INELIGIBLE", reason: `status ${rec.status}` };
+    return { kind: "INELIGIBLE", reason: `status ${rec.status}`, learning_class };
   }
 
   if (conflictsWithCurrentFounderRequest(text, currentFounderRequests)) {
     return {
       kind: "CONFLICTING",
       reason: "conflicts with current Founder request (current wins)",
+      learning_class,
     };
   }
 
-  return { kind: "ELIGIBLE", reason: "eligible for prompt injection", injectable_text: text };
+  return {
+    kind: "ELIGIBLE",
+    reason: `confirmed ${learning_class} matches scope`,
+    injectable_text: text,
+    learning_class,
+  };
 }
 
 export function conflictsWithCurrentFounderRequest(
@@ -340,15 +417,22 @@ export function selectFounderMemory(opts: {
   store?: FounderPreferenceMemoryStore;
   maxRules?: number;
   maxChars?: number;
+  founderFeedbackIR?: {
+    completeness_sections?: string[] | null;
+    items?: Array<{ action?: string }> | null;
+  } | null;
 }): FounderMemorySelectionResult {
   const store =
     opts.store ?? new FounderPreferenceMemoryStore(opts.repoRoot);
   const current = opts.currentFounderRequests ?? [];
   const maxRules = opts.maxRules ?? MAX_SELECTED_RULES;
+  const layoutOnlyFeedback = isLayoutOnlyFeedbackIR(opts.founderFeedbackIR);
   const excluded: MemoryExclusion[] = [];
   const eligibleRecs: Array<{
     rec: FounderPreferenceMemoryRecord;
     text: string;
+    learning_class: MemoryLearningClass;
+    why: string;
   }> = [];
 
   let active: FounderPreferenceMemoryRecord[] = [];
@@ -359,16 +443,24 @@ export function selectFounderMemory(opts: {
   }
 
   for (const rec of active) {
-    const verdict = classifyMemoryEligibility(rec, opts.ctx, current);
+    const verdict = classifyMemoryEligibility(rec, opts.ctx, current, {
+      layoutOnlyFeedback,
+    });
     if (verdict.kind !== "ELIGIBLE" || !verdict.injectable_text) {
       excluded.push({
         memory_id: rec.memory_id,
         kind: verdict.kind,
         reason: verdict.reason,
+        learning_class: verdict.learning_class,
       });
       continue;
     }
-    eligibleRecs.push({ rec, text: verdict.injectable_text });
+    eligibleRecs.push({
+      rec,
+      text: verdict.injectable_text,
+      learning_class: verdict.learning_class,
+      why: verdict.reason,
+    });
   }
 
   // Resolve contradictory pairs
@@ -432,7 +524,8 @@ export function selectFounderMemory(opts: {
     });
   }
 
-  const selected: SelectedMemoryRule[] = capped.map(({ rec, text }) => ({
+  const selected: SelectedMemoryRule[] = capped.map(
+    ({ rec, text, learning_class, why }) => ({
     memory_id: rec.memory_id,
     scope: rec.scope,
     issue_type: rec.issue_type,
@@ -441,7 +534,10 @@ export function selectFounderMemory(opts: {
     signal_type: rec.signal_type,
     injectable_text: text,
     content_hash: rec.content_hash,
-  }));
+    learning_class,
+    selection_why: why,
+  }),
+  );
 
   const rendered = renderFounderMemoryPromptBlock(selected, {
     maxChars: opts.maxChars ?? MAX_MEMORY_PROMPT_CHARS,
@@ -498,5 +594,6 @@ export function selectFounderMemory(opts: {
     FOUNDER_MEMORY_CONSUMED: finalSelected.length > 0,
     counts,
     evaluated_at: new Date().toISOString(),
+    taxonomy_version: "founder-memory-learning-class-1.0.0",
   };
 }

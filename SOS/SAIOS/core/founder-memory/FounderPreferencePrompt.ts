@@ -41,6 +41,8 @@ export function renderFounderDesignMemoryBlock(
     signal_type: rec.signal_type,
     injectable_text: rec.normalized_rule || rec.raw_founder_feedback,
     content_hash: rec.content_hash,
+    learning_class: "LEARNED_PREFERENCE",
+    selection_why: "legacy renderer mapping",
   }));
   return renderFounderMemoryPromptBlock(selected);
 }

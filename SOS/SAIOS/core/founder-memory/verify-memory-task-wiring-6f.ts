@@ -168,9 +168,9 @@ function main(): void {
         currentScope: "ARCHITECTURE",
         normalized_rule: t,
         raw_founder_feedback: t,
-      }) === "GLOBAL",
-      `confirmed_scope_widens_to_global: ${t.slice(0, 30)}`,
-      "ARCHITECTURE → GLOBAL at confirmation",
+      }) === "ARCHITECTURE",
+      `confirmed_scope_does_not_widen_safety: ${t.slice(0, 30)}`,
+      "C3: deterministic safety stays scoped; not GLOBAL reusable memory",
     );
   }
 

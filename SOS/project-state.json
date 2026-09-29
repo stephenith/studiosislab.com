@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PROJECT-WIDE / RESUME — C2 SHARED GEOMETRY ADMISSION IMPLEMENTED 2026-09-29. Canonical docs: SOS/STUDIOSISLAB_PROJECT_MASTER.md + SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md. Status remains CONSOLIDATION_REQUIRED. Next implementation is C3 Memory selection discipline after Founder reviews C2. Do not retry revtask-5d933072-daf or revtask-76a04a21-6ff. Do not treat OPERATIONALLY_COMPLETE as live truth. Website Department remains the next major product department and is not activated.",
+    "PROJECT-WIDE / RESUME — C3 MEMORY SELECTION DISCIPLINE IMPLEMENTED 2026-09-29. Canonical docs: SOS/STUDIOSISLAB_PROJECT_MASTER.md + SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md. Status remains CONSOLIDATION_REQUIRED. Next implementation is C4 Department production-parity harness after Founder reviews C3. Do not retry revtask-5d933072-daf or revtask-76a04a21-6ff. Do not treat OPERATIONALLY_COMPLETE as live truth. Website Department remains the next major product department and is not activated.",
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B — Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B — Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-29T10:50:00.000Z",
+      "type": "consolidation_c3",
+      "summary": "C3 Founder Memory selection discipline implemented. Local wall=2026-09-29T16:20:00+05:30. UTC=2026-09-29T10:50:00.000Z. Read-side classifyMemoryLearningClass; reusable only CONFIRMED LEARNED_PREFERENCE / DESIGN_FAMILY_PREFERENCE / ROLE_VOICE in scope. TASK_SPECIFIC, DETERMINISTIC_SAFETY, NEGATIVE, UNCLASSIFIED, and PROVISIONAL are not reusable prompt memory. JSONL not deleted or rewritten. Generation and revision share selectFounderMemory. APPROVE does not confirm task-specific title changes. Offline: C3 verifier PASS; 6B/6C/6F + C1 + C2 PASS. Historical revtask-5d933072-daf not retried. No production OpenAI, generation, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY changes. Next authorized step C4 Department production-parity harness after Founder reviews C3."
+    },
     {
       "at": "2026-09-29T10:26:26.000Z",
       "type": "consolidation_c2",
@@ -3400,7 +3405,7 @@
     "operationally_complete_currently_asserted": false,
     "revision_engineering_status": "CONSOLIDATION_REQUIRED",
     "next_major_department": "Website Analysis / QA / Development",
-    "next_authorized_step": "C3 Memory selection discipline (after Founder reviews C2)",
+    "next_authorized_step": "C4 Department production-parity harness (after Founder reviews C3)",
     "consolidation_plan": {
       "recorded_at_ist": "2026-09-29T15:22:52+05:30",
       "recorded_at_utc": "2026-09-29T09:52:52.100Z",
@@ -3414,24 +3419,27 @@
       "c2_status": "IMPLEMENTED_OFFLINE",
       "c2_at_ist": "2026-09-29T15:56:26+05:30",
       "c2_at_utc": "2026-09-29T10:26:26.000Z",
+      "c3_status": "IMPLEMENTED_OFFLINE",
+      "c3_at_ist": "2026-09-29T16:20:00+05:30",
+      "c3_at_utc": "2026-09-29T10:50:00.000Z",
       "do_not_retry_live_tasks": true
     },
     "do_not_retry_tasks": [
       "revtask-5d933072-daf",
       "revtask-76a04a21-6ff"
     ],
-    "snapshot_ist": "2026-09-29T15:56:26+05:30",
-    "snapshot_utc": "2026-09-29T10:26:26.000Z",
+    "snapshot_ist": "2026-09-29T16:20:00+05:30",
+    "snapshot_utc": "2026-09-29T10:50:00.000Z",
     "heads": {
-      "local": "add19ab7da4fbcfb5d354cc1772d6538f4af655a",
-      "origin": "add19ab7da4fbcfb5d354cc1772d6538f4af655a",
-      "vps": "add19ab7da4fbcfb5d354cc1772d6538f4af655a"
+      "local": "3957ebb5198e1f6563ffed3f81ad8d344e5fffbe",
+      "origin": "3957ebb5198e1f6563ffed3f81ad8d344e5fffbe",
+      "vps": "3957ebb5198e1f6563ffed3f81ad8d344e5fffbe"
     }
   },
   "studiosislab_project": {
     "master_doc": "SOS/STUDIOSISLAB_PROJECT_MASTER.md",
     "resume_template_department_master_doc": "SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md",
-    "current_priority": "Resume Template consolidation phase C3 Memory selection discipline (after Founder reviews C2)",
+    "current_priority": "Resume Template consolidation phase C4 Department production-parity harness (after Founder reviews C3)",
     "resume_template_department_current_status": "CONSOLIDATION_REQUIRED",
     "core_resume_template_factory_goal_met": true,
     "operationally_complete_currently_asserted": false,
@@ -3443,12 +3451,12 @@
       "Revenue / Monetization",
       "AIOS System Audit / Optimization"
     ],
-    "snapshot_ist": "2026-09-29T15:56:26+05:30",
-    "snapshot_utc": "2026-09-29T10:26:26.000Z",
+    "snapshot_ist": "2026-09-29T16:20:00+05:30",
+    "snapshot_utc": "2026-09-29T10:50:00.000Z",
     "heads": {
-      "local": "add19ab7da4fbcfb5d354cc1772d6538f4af655a",
-      "origin": "add19ab7da4fbcfb5d354cc1772d6538f4af655a",
-      "vps": "add19ab7da4fbcfb5d354cc1772d6538f4af655a"
+      "local": "3957ebb5198e1f6563ffed3f81ad8d344e5fffbe",
+      "origin": "3957ebb5198e1f6563ffed3f81ad8d344e5fffbe",
+      "vps": "3957ebb5198e1f6563ffed3f81ad8d344e5fffbe"
     }
   }
 

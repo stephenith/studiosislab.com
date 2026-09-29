@@ -7,6 +7,9 @@
 import {
   isLayoutDesignConstraintText,
 } from "./FounderMemoryConsumption.js";
+import {
+  classifyMemoryLearningClass,
+} from "./FounderMemoryLearningClass.js";
 import { classifyIssueType } from "./FounderPreferenceNormalizer.js";
 import type {
   FounderPreferenceMemoryRecord,
@@ -92,19 +95,15 @@ export function isUniversalLayoutInvariantRule(text: string): boolean {
 /**
  * Scope for a rule being confirmed.
  *
- * Universal rendering invariants widen to GLOBAL at confirmation time so they
- * reach every future generation instead of staying trapped at the architecture
- * of the one template that produced them. Everything else keeps its original
- * scope. Applies to newly confirmed rules only — historical rows are immutable.
+ * C3: deterministic safety must not be widened into GLOBAL reusable memory.
+ * Historical rows stay as written. New confirmations keep their original scope.
  */
 export function resolveConfirmedMemoryScope(input: {
   currentScope: MemoryScope;
   normalized_rule: string | null;
   raw_founder_feedback: string | null;
 }): MemoryScope {
-  if (input.currentScope === "GLOBAL") return "GLOBAL";
-  const text = input.normalized_rule?.trim() || input.raw_founder_feedback?.trim() || "";
-  return isUniversalLayoutInvariantRule(text) ? "GLOBAL" : input.currentScope;
+  return input.currentScope;
 }
 
 export function sameIssuePersists(
@@ -138,6 +137,22 @@ export function evaluateMemoryMaturation(
       verdict: "KEEP_PROVISIONAL",
       reason:
         "factual or one-off / non-layout content cannot mature as reusable design memory",
+    };
+  }
+
+  const learningClass = classifyMemoryLearningClass(text, rec);
+  if (learningClass === "TASK_SPECIFIC") {
+    return {
+      verdict: "KEEP_PROVISIONAL",
+      reason:
+        "task-specific instruction cannot mature into reusable Founder learning",
+    };
+  }
+  if (learningClass === "DETERMINISTIC_SAFETY") {
+    return {
+      verdict: "KEEP_PROVISIONAL",
+      reason:
+        "deterministic safety is not confirmed as learned preference",
     };
   }
 

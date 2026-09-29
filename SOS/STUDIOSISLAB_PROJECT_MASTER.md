@@ -49,24 +49,24 @@ Code and VPS evidence override this file when they disagree. Historical evidence
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-29T15:56:26+05:30** / **2026-09-29T10:26:26.000Z**.
+Snapshot taken **2026-09-29T16:20:00+05:30** / **2026-09-29T10:50:00.000Z**.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `add19ab7da4fbcfb5d354cc1772d6538f4af655a` (`main`) |
-| ORIGIN HEAD | `add19ab7da4fbcfb5d354cc1772d6538f4af655a` |
-| VPS HEAD | `add19ab7da4fbcfb5d354cc1772d6538f4af655a` |
+| LOCAL HEAD | `3957ebb5198e1f6563ffed3f81ad8d344e5fffbe` before C3 commit (`main`) |
+| ORIGIN HEAD | `3957ebb5198e1f6563ffed3f81ad8d344e5fffbe` |
+| VPS HEAD | `3957ebb5198e1f6563ffed3f81ad8d344e5fffbe` |
 | PUBLIC PRODUCT | Next.js SaaS at `studiosislab.com` (Vercel) |
 | AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` |
-| CURRENT PROJECT PRIORITY | **Resume Template consolidation phase C3 (Memory selection discipline)** — after Founder reviews C2 |
+| CURRENT PROJECT PRIORITY | **Resume Template consolidation phase C4 (Department production-parity harness)** — after Founder reviews C3 |
 | CURRENTLY ACTIVE DEPARTMENT | Resume Template Department (`CONSOLIDATION_REQUIRED`) |
 | NEXT MAJOR PRODUCT DEPARTMENT | Website Analysis / QA / Development (not authorized as current work) |
 | CORE FACTORY HISTORICAL GOAL | **MET** — do not erase |
 | LIVE `OPERATIONALLY_COMPLETE` | **NOT ASSERTED** |
 | PUBLICATION | Manual; `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` |
 | LIVE GENERATION | Guarded; `SOS_AIOS_LIVE=0` |
-| PRIMARY BLOCKERS | C3 memory selection; live 5d933072 remains historical; no true Resume E2E harness; Website still disabled |
-| NEXT AUTHORIZED STEP | **C3 Memory selection discipline** (Founder reviews C2 first; no OA retry; no Website activation) |
+| PRIMARY BLOCKERS | C4 department E2E harness; live 5d933072 remains historical; Website still disabled |
+| NEXT AUTHORIZED STEP | **C4 Department production-parity harness** (Founder reviews C3 first; no OA retry; no Website activation) |
 
 ---
 
@@ -270,8 +270,8 @@ Resume-specific queue / memory / revision counts belong in the Resume master. La
 | Risk | Why it matters | Current handling |
 |---|---|---|
 | Stale `OPERATIONALLY_COMPLETE` in `AGENTS.md`, historical project-state phases, and older reports | Agents may skip Resume consolidation or jump to Website | This file + live project-state keys are current; historical rows stay immutable |
-| Resume compiler / completeness fragmentation (`revtask-5d933072-daf`) | Blocks truthful department closure | **C1 shipped offline**; do not retry that task; next is C2 |
-| Generation can still admit geometry defects to Review | Founder becomes the QA gate | Recorded in Resume master; not a Website problem |
+| Resume compiler / completeness fragmentation (`revtask-5d933072-daf`) | Blocks truthful department closure | **C1 shipped offline**; do not retry that task; next is C4 |
+| Founder Memory attached but poorly selected | Task-specific provisionals retrieved as layout law | **C3 shipped offline** (read-side learning class; JSONL intact) |
 | Dirty local/VPS trees | Unrelated Website/e-sign work can be destroyed by broad git | Explicit staging only |
 | Website enablement before Resume consolidation | Violates roadmap and current pending_actions | Website stays disabled |
 | Treating SDK placeholders as real departments | Fake activation of SEO/Marketing/HR/Legal | Registry above is authoritative |
@@ -325,9 +325,9 @@ Preserve all of these. Do not delete, merge, or rewrite to make the hierarchy lo
 
 **Exactly one authorized next major action:**
 
-**Resume Template consolidation phase C3 — Memory selection discipline.**
+**Resume Template consolidation phase C4 — Department production-parity harness.**
 
-Not Website activation. Not another Operations Analyst retry. Not C4–C6 until C3 is authorized after C2 review.
+Not Website activation. Not another Operations Analyst retry. Not C5–C6 until C4 is authorized after C3 review.
 
 Deep phases: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MASTER.md) §29–§34.
 
@@ -342,6 +342,7 @@ Deep phases: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MA
 | 2026-09-29T15:22:52+05:30 | Resume next step = C1 Feedback Compiler IR; Website still not current | Planning pass complete; implementation not started | Resume master §29; VPS 5d933072 re-verified; HEAD `b1e07bb` | Starting C1 in this run; jumping to Website | Project priority | Yes |
 | 2026-09-29T15:48:00+05:30 | Resume next step = C2 after C1 compiler ships; Website still not current | C1 offline proven; live 5d933072 not retried | C1 verifier + 6G–6P + 6L | Starting C2 in this run; jumping to Website | Project priority | Yes |
 | 2026-09-29T15:56:26+05:30 | Resume next step = C3 after C2 geometry admission ships; Website still not current | C2 offline proven; generation and revision share one geometry kernel | C2 verifier + C1 + 5W + 6L + 6P | Starting C3 in this run; jumping to Website; enabling LIVE | Project priority | Yes |
+| 2026-09-29T16:20:00+05:30 | Resume next step = C4 after C3 memory selection ships; Website still not current | C3 offline proven; read-side learning class; historical JSONL intact | C3 verifier + 6B/6C/6F + C1 + C2 | Starting C4 in this run; deleting provisionals; jumping to Website; enabling LIVE | Project priority | Yes |
 
 ---
 
@@ -355,6 +356,7 @@ Append-only. Do not overwrite historical entries.
 | 2026-09-29T15:22:52+05:30 | Resume consolidation plan | Record C1–C6; refresh stale SHA snapshot | Priority was consolidation planning; SHAs still showed `c6f143b` | Planning outcome + C1 as next implementation; no architecture code | This file; Resume master; project-state; `AGENTS.md` | Docs only | *(filled after commit)* | FF docs; no restart | None | Plan recorded; C1 not started | Agent may implement C1 without reading §29 | C1 Feedback Compiler IR |
 | 2026-09-29T15:48:00+05:30 | C1 Feedback Compiler IR | One canonical Founder Request Changes interpretation | C1 not started; 6J preservation ledger | IR + mutation-only completeness; consumers migrated | Resume revision compiler files; this file; Resume master; project-state | C1 + 6G–6P + 6L | `6f97bb4` | FF + dashboard restart `20260929T101344Z` | None | C1 offline PASS | IR still regex-internal; live 5d933072 unchanged | C2 Shared geometry admission |
 | 2026-09-29T15:56:26+05:30 | C2 Shared geometry admission | One deterministic geometry contract for generation + revision Founder Review admission | Generation used critic/readiness scores; revision used a separate overlap/OOB/page-fit mix | Shared kernel + generation gate + revision fail-closed reuse | Geometry admission module; critic-gate coupling; generation cycle; revision pipeline; this file; Resume master; project-state; `AGENTS.md` | C2 + C1 + 5W + 6L + 6P | `add19ab` | FF + dashboard restart `20260929T102935Z` | None | C2 offline PASS | False-positive page-fit; LIVE inflow may shrink | C3 Memory selection discipline |
+| 2026-09-29T16:20:00+05:30 | C3 Memory selection discipline | Retrieve only scoped reusable Founder learning | Active/provisional task-specific rows injected as layout law | Read-side learning class; no JSONL rewrite; shared selector for generation/revision | Founder memory classifier/consumption/maturation; revision IR handoff; this file; Resume master; project-state; `AGENTS.md` | C3 + 6B/6C/6F + C1 + C2 | *(filled after commit)* | *(filled after FF)* | None | C3 offline PASS | Over-filter of lookalike CONFIRMED text; parallel stores unused by selector | C4 Department production-parity harness |
 
 ---
 

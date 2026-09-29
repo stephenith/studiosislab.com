@@ -784,6 +784,7 @@ export function buildRevisionPlannerPrompt(input: {
     channel: "revision",
     repoRoot: input.repoRoot,
     currentFounderRequests: task.requested_changes,
+    founderFeedbackIR: compileFounderFeedbackIR(task.requested_changes),
     ctx: toSelectionContext(
       deriveRevisionMemoryContext({
         task,

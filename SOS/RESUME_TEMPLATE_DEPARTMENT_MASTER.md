@@ -60,25 +60,25 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-29T15:56:26+05:30** / **2026-09-29T10:26:26.000Z**. C2 offline proofs recorded; live ops snapshot otherwise unchanged from 2026-09-29T09:52:52Z `/api/ops-24-7`.
+Snapshot taken **2026-09-29T16:19:10+05:30** / **2026-09-29T10:49:10.000Z**. C3 offline proofs recorded; live memory store counts unchanged (read-only).
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `add19ab7da4fbcfb5d354cc1772d6538f4af655a` (`main`) |
-| ORIGIN HEAD | `add19ab7da4fbcfb5d354cc1772d6538f4af655a` |
-| VPS HEAD | `add19ab7da4fbcfb5d354cc1772d6538f4af655a` |
-| LOCAL STATUS | Dirty Website/e-sign/unrelated untracked SOS folders preserved; C2 Resume Template files staged explicitly |
-| VPS STATUS | C2 deploy if proofs pass; do not clean porcelain |
+| LOCAL HEAD | `3957ebb5198e1f6563ffed3f81ad8d344e5fffbe` before C3 commit (`main`) |
+| ORIGIN HEAD | `3957ebb5198e1f6563ffed3f81ad8d344e5fffbe` |
+| VPS HEAD | `3957ebb5198e1f6563ffed3f81ad8d344e5fffbe` |
+| LOCAL STATUS | Dirty Website/e-sign/unrelated untracked SOS folders preserved; C3 Resume Template files staged explicitly |
+| VPS STATUS | C3 deploy if proofs pass; do not clean porcelain |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service`; health `{ok:true,live:false}`; last live claim still `revtask-5d933072-daf` |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1 + C2 implemented offline |
+| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1 + C2 + C3 implemented offline |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
-| REVISION STATUS | Shared geometry kernel; latest live task still `revtask-5d933072-daf` `FAILED_SECTION_COMPLETENESS` (immutable; not retried) |
-| GENERATION STATUS | Shared geometry admission before Founder Review; `SOS_AIOS_LIVE=0` |
-| FOUNDER REVIEW STATUS | Unchanged queue; no live Request Changes; geometry-failed generation cannot enter Review |
-| MEMORY STATUS | Unchanged (C3 later) |
+| REVISION STATUS | Shared geometry + C3 memory selection; latest live task still `revtask-5d933072-daf` (immutable; not retried) |
+| GENERATION STATUS | Shared geometry admission; C3 selection taxonomy; `SOS_AIOS_LIVE=0` |
+| FOUNDER REVIEW STATUS | Unchanged queue; no live Request Changes |
+| MEMORY STATUS | JSONL intact (1242). Read-side learning class. `fpm-6c083f5f-35f` is SUPERSEDED on VPS; class still excluded if active. |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
-| CURRENT PRIMARY BLOCKERS | C3 memory selection; live 5d933072 remains historical; no department E2E harness |
-| NEXT AUTHORIZED STEP | **C3 Memory selection discipline** — Founder review of C2 first; do not retry 5d933072 |
+| CURRENT PRIMARY BLOCKERS | C4 department E2E harness; live 5d933072 remains historical |
+| NEXT AUTHORIZED STEP | **C4 Department production-parity harness** — Founder review of C3 first; do not retry 5d933072 |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -295,7 +295,7 @@ Current components that independently answer “what is this Founder line?”:
 
 ## 12. Founder Memory / Learning System
 
-Classification until proven otherwise: **STATIC PIPELINE WITH MEMORY ATTACHED / PARTIALLY ADAPTIVE**.
+Classification after C3: **STATIC PIPELINE WITH SCOPED MEMORY ATTACHED**. Confirmed layout / design-family / role-voice preferences can be retrieved in scope. This is **not** continuous self-learning and **not** adaptive in the sense of automatically generalizing every Founder packet.
 
 ```
 decision → FounderPreferenceWriter → memory.jsonl + active-index.json
@@ -326,9 +326,11 @@ Fresh VPS read **2026-09-29T09:51:57Z** (`/root/studiosislab.com/SOS/07_LOGS/sai
 | JSONL status | CONFIRMED 19 / PROVISIONAL 990 / SUPERSEDED 233 |
 | JSONL `acceptance` field | **Not present** on rows (do not repeat the older “accepted 22 / pending 1220” as current) |
 | Active-index count | **382** (mtime 2026-09-23T12:12:50Z) |
-| `revtask-5d933072-daf` selection | considered 382, selected **1**: `fpm-6c083f5f-35f` PROVISIONAL HIERARCHY “Change … Marketing Manager to Operations Analyst …” (188 AMBIGUOUS, 124 INELIGIBLE, 69 IRRELEVANT) |
+| `revtask-5d933072-daf` selection (historical) | considered 382, selected **1**: `fpm-6c083f5f-35f` (then PROVISIONAL HIERARCHY MM→OA title rule) |
+| `fpm-6c083f5f-35f` now (VPS 2026-09-29) | SUPERSEDED, `active=false` — JSONL row preserved |
+| C3 read-side | That text classifies `TASK_SPECIFIC` and is ineligible for reusable retrieval even if still active |
 
-Memory did **not** carry a sidebar spacing rule. It injected a stale role-change line into a layout-only preserve request.
+C3 does **not** delete or rewrite JSONL. Provisionals stay stored. They are not reusable until attributed APPROVE of a non-task-specific layout/family/voice preference.
 
 ---
 
@@ -672,21 +674,31 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 - Revision: same kernel after normalization, before Founder return; final-acceptance geometry/page-fit counts come from that result.
 - Critic / Readiness scores still block when geometry passes and scores fail. They cannot admit a geometrically invalid canvas.
 
-#### C3 — Memory selection discipline *(no migration)*
+#### C3 — Memory selection discipline *(implemented 2026-09-29; stop before C4)*
 
 | Field | Content |
 |---|---|
 | BUSINESS PURPOSE | Stop injecting task-specific provisionals (e.g. MM→OA title) into unrelated layout requests. Learn taste/family/voice only after attributed APPROVE. |
-| ARCHITECTURAL OUTCOME | Write/select taxonomy: DETERMINISTIC_INVARIANT (never memory) / LEARNED_PREFERENCE / ROLE_VOICE / DESIGN_FAMILY / TASK_SPECIFIC (current request only) / NEGATIVE. Provisional task-specific lines are ineligible for retrieval. |
-| COMPONENTS AFFECTED | `FounderMemoryConsumption.ts`, `FounderMemoryMaturation.ts`, writer classifier |
-| DEPENDENCIES | C1 (IR can label task-specific vs reusable) |
-| DATA / MEMORY IMPACT | **No delete / no rewrite of JSONL.** Filter on read; optional new fields on *new* writes only. |
-| RISKS | Dropping a useful layout preference; over-filtering |
-| OFFLINE PROOF | 5d933072-class selection does not choose `fpm-6c083f5f-35f`; a CONFIRMED family spacing rule still can |
-| PRODUCTION-PARITY PROOF | Selection evidence JSON on injected revision |
-| ROLLBACK | Previous selector |
+| ARCHITECTURAL OUTCOME | Read-side `classifyMemoryLearningClass`. Reusable: CONFIRMED LEARNED_PREFERENCE / DESIGN_FAMILY_PREFERENCE / ROLE_VOICE in scope. Ineligible: TASK_SPECIFIC, DETERMINISTIC_SAFETY, NEGATIVE, UNCLASSIFIED, all PROVISIONAL (except low-confidence stays AMBIGUOUS). Generation and revision share `selectFounderMemory`. |
+| COMPONENTS CHANGED | `FounderMemoryLearningClass.ts` (new); `FounderMemoryConsumption.ts`; `FounderMemoryMaturation.ts`; `RevisionPromptBuilder.ts` passes C1 IR; 6F scope-widen test |
+| COMPATIBILITY | Historical JSONL unchanged. `resolveConfirmedMemoryScope` no longer widens overlap/clip/OOB to GLOBAL. |
+| DEPENDENCIES | C1 IR (layout-only packets exclude ROLE_VOICE); C2 geometry owns safety |
+| DATA / MEMORY IMPACT | **No delete / no rewrite of JSONL.** Selection evidence adds `learning_class` + `selection_why`. |
+| RISKS | Over-filtering a CONFIRMED preference whose text looks task-specific |
+| OFFLINE PROOF | `npm run aios:memory-selection-c3:verify` PASS; 6B/6C/6F + C1 + C2 PASS |
+| PRODUCTION-PARITY PROOF | Injected store + IR; no LIVE |
+| ROLLBACK | Revert C3 commit |
 | LIVE FOUNDER PROOF | **No** |
-| BEFORE NEXT PHASE | Historical store intact; selection fixture PASS |
+| BEFORE NEXT PHASE | Founder reviews C3; then C4 only |
+
+#### C3 architecture (as implemented)
+
+- Taxonomy is computed at read time from stored text + status. JSONL is not migrated.
+- TASK_SPECIFIC includes professional-title / role-swap instructions even when `issue_type=HIERARCHY` because the line mentions “header”.
+- DETERMINISTIC_SAFETY (overlap / clip / OOB / page-fit) is not retrieved; C2 remains the admission owner.
+- PROVISIONAL rows remain in the store and active index but are not reusable prompt memory.
+- APPROVE + successful revision still promotes attributed layout/family preferences; it does not confirm task-specific title changes.
+- Parallel stores (`learning-entries.jsonl`, `design-memory.json`, `founder-preferences.json`, `learned-rules.json`) are still not wired to `selectFounderMemory`.
 
 #### C4 — Department production-parity harness
 
@@ -695,7 +707,7 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 | BUSINESS PURPOSE | Prove the real business workflow once, not 66 isolated owners. |
 | ARCHITECTURAL OUTCOME | One harness: generation admission → Review envelope → layout-only / content-only / mixed / preserve / already-satisfied / malformed plan / bad geometry / bad role → (simulated) APPROVE → maturation candidate → staging eligibility. Injected provider. |
 | COMPONENTS AFFECTED | New verify wrapper reusing `verify-revision-production-parity-6l.ts`; generation admission tests from C2 |
-| DEPENDENCIES | C1 + C2 |
+| DEPENDENCIES | C1 + C2 + C3 |
 | DATA / MEMORY IMPACT | Temp dirs only |
 | RISKS | Slow CI; temptation to skip old verifiers too early |
 | OFFLINE PROOF | Harness PASS; keep 6G–6P until harness covers those contracts |
@@ -736,7 +748,7 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 
 **Combinable:** C1 + small Telegram `failure_code` honesty. **Not combinable with C1:** C2 generation gate, C3 memory, C5 live proof.
 
-**Total implementation phases: 6.** First: **C1**.
+**Total implementation phases: 6.** C1–C3 shipped offline. Next: **C4**.
 
 ### Proof strategy (department)
 
@@ -793,8 +805,8 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | Dashboard | active, PID 4063798, started 2026-09-23 07:36:41 UTC; NRestarts=0 |
 | Last revision of note | `revtask-5d933072-daf` FAILED_GATE 2026-09-23T12:13:55Z — still latest; no new live revision since |
 | Candidate dirs on VPS | 80 (WAITING_FOUNDER files 46 ≠ projection waiting 20) |
-| P0 | C3 memory selection discipline (C1 + C2 shipped) |
-| P1 | Memory selection (C3); department E2E harness (C4) |
+| P0 | C4 department production-parity harness (C1 + C2 + C3 shipped) |
+| P1 | Department E2E harness (C4); live Founder proof remains C5 |
 | P2 | READY_FOR_FOUNDER_REVIEW success Telegram; overlay vs capacity honesty |
 
 ---
@@ -810,6 +822,7 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | 2026-09-29T15:22:52+05:30 | No destructive memory/artifact migration | Store is attached-not-learned; 990 provisionals; filter on read | active-index 382 unchanged since 12:12:50Z; 5d933072 selected MM→OA provisional | Rebuild JSONL; retry 5d933072 | Founder Memory | Yes |
 | 2026-09-29T15:48:00+05:30 | C1 Feedback Compiler IR is the sole public semantic owner; completeness = mutation sections only | Same Founder sentence was independently reclassified (layout vs preserve vs replace vs verify) | C1 verifier PASS; legacy ledger 16 unaccounted; 6J incomplete replace still fails; 6G–6P+6L PASS | 6Q sentence patch; retry 5d933072; weakening true replace; starting C2 in this run | Feedback compiler + completeness + coverage + prompt + acceptance + pipeline | Yes until C2 ships |
 | 2026-09-29T15:56:26+05:30 | C2 shared geometry admission is the sole Founder Review geometry oracle | Generation could enter Review on critic scores while revision already fail-closed on overlap/OOB/page-fit | C2 verifier PASS; C1 + 5W + 6L + 6P PASS; historical good fixture accepted; 5W-class overlap rejected | Second generation checker; turning critic scores into hard geometry; starting C3; enabling LIVE | SharedGeometryAdmission + generation cycle + CriticGate + revision pipeline | Yes until C3 ships |
+| 2026-09-29T16:20:00+05:30 | C3 memory selection is read-side learning-class discipline; JSONL is not rewritten | Active/provisional MM→OA title rules were retrieved as layout law; 990 provisionals outnumbered 19 confirmed | C3 verifier PASS; 6B/6C/6F + C1 + C2 PASS; 5d933072-class MM→OA not selected | Deleting provisionals; confirming all rows; a second memory store; starting C4; enabling LIVE | FounderMemoryLearningClass + Consumption + Maturation + RevisionPromptBuilder IR handoff | Yes until C4 ships |
 
 ---
 
@@ -877,14 +890,29 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** False-positive page-fit/OOB blocks; LIVE inflow may shrink later
 - **NEXT STEP:** C3 Memory selection discipline (after Founder review)
 
+### 2026-09-29T16:20:00+05:30 — C3 MEMORY SELECTION DISCIPLINE
+
+- **PHASE/TASK:** C3 Founder Memory selection discipline
+- **PURPOSE:** Retrieve only memory that is appropriate for the current task, scope, and semantic purpose
+- **BEFORE STATE:** Memory persisted and injected; selection treated active/similar rows as reusable law; 5d933072-class layout request selected provisional MM→OA title rule
+- **CHANGE:** Read-side `classifyMemoryLearningClass`; reusable only CONFIRMED LEARNED_PREFERENCE / DESIGN_FAMILY_PREFERENCE / ROLE_VOICE in scope; TASK_SPECIFIC / DETERMINISTIC_SAFETY / NEGATIVE / UNCLASSIFIED / PROVISIONAL not reusable; generation and revision share `selectFounderMemory`; APPROVE cannot confirm task-specific title changes; JSONL not deleted or rewritten
+- **FILES MODIFIED:** `FounderMemoryLearningClass.ts` (new); `FounderMemoryConsumption.ts`; `FounderMemoryMaturation.ts`; `FounderPreferencePrompt.ts`; `RevisionPromptBuilder.ts`; 6F wiring verifier; C3 verifier; this file; project master; project-state; `AGENTS.md`
+- **TESTS:** `aios:memory-selection-c3:verify` PASS; 6B/6C/6F + C1 + C2 PASS
+- **COMMIT:** *(filled after commit)*
+- **DEPLOY:** *(filled after FF)*
+- **LIVE PROOF:** None
+- **RESULT:** C3 offline proven; historical JSONL intact; not adaptive/self-learning
+- **NEW RISKS:** Over-filtering a CONFIRMED preference whose text looks task-specific; parallel design-memory/learned-rules stores still exist but are not `selectFounderMemory` consumers
+- **NEXT STEP:** C4 Department production-parity harness (after Founder review)
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**C3 — Memory selection discipline**
+**C4 — Department production-parity harness**
 
-Do not start C3 until the Founder reviews C2.  
+Do not start C4 until the Founder reviews C3.  
 Do not retry `revtask-5d933072-daf` or `revtask-76a04a21-6ff`.  
 Do not enable `SOS_AIOS_LIVE`.

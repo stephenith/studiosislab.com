@@ -16,6 +16,7 @@ import { join, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import {
   decisionAllowedForValidity,
+  evaluateFounderDecisionActionability,
   identitiesBound,
   loadActionabilityOverlay,
   resolveFounderDecisionIdentity,
@@ -198,8 +199,12 @@ function main(): void {
   try {
     writeWorkspace(fixture);
     writeManifest(fixture, "cand-valid-wait", "READY_FOR_FOUNDER_REVIEW", {
-      title: "Motion Designer",
+      title: "Valid Waiting Founder",
       created_at: "2026-08-01T00:00:00.000Z",
+    });
+    writeManifest(fixture, MOTION_DESIGNER, "READY_FOR_FOUNDER_REVIEW", {
+      title: "Motion Designer Resume Template",
+      created_at: "2026-09-03T03:20:47.000Z",
     });
     writeManifest(fixture, UI_DESIGNER, "READY_FOR_FOUNDER_REVIEW", {
       title: "UI Designer",
@@ -233,7 +238,9 @@ function main(): void {
     );
     const items = loadFounderReviewProjection(fixture);
     const valid = items.find((i) => i.candidate_id === "cand-valid-wait");
+    const motion = items.find((i) => i.candidate_id === MOTION_DESIGNER);
     const invalid = items.find((i) => i.candidate_id === UI_DESIGNER);
+    const fixtureOverlay = loadActionabilityOverlay(fixture);
     assert(
       valid?.status === "waiting_founder" &&
         valid.validity !== "audit_invalid" &&
@@ -246,6 +253,45 @@ function main(): void {
       }),
     );
     assert(
+      decisionAllowedForValidity("valid", "APPROVED") === true &&
+        evaluateFounderDecisionActionability({
+          overlay: fixtureOverlay,
+          identity: {
+            review_id: `founder-review-cand-valid-wait`,
+            candidate_id: "cand-valid-wait",
+          },
+          projectedValidity: valid?.validity === "audit_invalid" ? "audit_invalid" : "valid",
+          decision: "APPROVED",
+        }).allowed === true,
+      "valid_waiting_approve_allowed",
+    );
+    assert(
+      decisionAllowedForValidity("valid", "CHANGES_REQUESTED") === true &&
+        evaluateFounderDecisionActionability({
+          overlay: fixtureOverlay,
+          identity: {
+            review_id: `founder-review-cand-valid-wait`,
+            candidate_id: "cand-valid-wait",
+          },
+          projectedValidity: "valid",
+          decision: "CHANGES_REQUESTED",
+        }).allowed === true,
+      "valid_waiting_request_changes_allowed",
+    );
+    assert(
+      decisionAllowedForValidity("valid", "REJECTED") === true &&
+        evaluateFounderDecisionActionability({
+          overlay: fixtureOverlay,
+          identity: {
+            review_id: `founder-review-cand-valid-wait`,
+            candidate_id: "cand-valid-wait",
+          },
+          projectedValidity: "valid",
+          decision: "REJECTED",
+        }).allowed === true,
+      "valid_waiting_reject_allowed",
+    );
+    assert(
       invalid?.status === "audit_invalid" &&
         invalid.validity === "audit_invalid" &&
         invalid.actionable === false,
@@ -256,12 +302,88 @@ function main(): void {
         actionable: invalid?.actionable,
       }),
     );
+    const invalidIdentity = {
+      review_id: `founder-review-${UI_DESIGNER}`,
+      candidate_id: UI_DESIGNER,
+    };
     assert(
-      decisionAllowedForValidity("valid", "CHANGES_REQUESTED") === true &&
-        decisionAllowedForValidity("audit_invalid", "CHANGES_REQUESTED") ===
-          false &&
-        decisionAllowedForValidity("audit_invalid", "APPROVED") === false,
-      "audit_invalid_blocks_approve_and_request_changes",
+      decisionAllowedForValidity("audit_invalid", "APPROVED") === false &&
+        evaluateFounderDecisionActionability({
+          overlay: fixtureOverlay,
+          identity: invalidIdentity,
+          projectedValidity: "audit_invalid",
+          decision: "APPROVED",
+        }).allowed === false,
+      "audit_invalid_approve_blocked_server",
+    );
+    assert(
+      decisionAllowedForValidity("audit_invalid", "CHANGES_REQUESTED") ===
+        false &&
+        evaluateFounderDecisionActionability({
+          overlay: fixtureOverlay,
+          identity: invalidIdentity,
+          projectedValidity: "audit_invalid",
+          decision: "CHANGES_REQUESTED",
+        }).allowed === false,
+      "audit_invalid_request_changes_blocked_server",
+    );
+    assert(
+      decisionAllowedForValidity("audit_invalid", "REJECTED") === false &&
+        evaluateFounderDecisionActionability({
+          overlay: fixtureOverlay,
+          identity: invalidIdentity,
+          projectedValidity: "audit_invalid",
+          decision: "REJECTED",
+        }).allowed === false,
+      "audit_invalid_reject_blocked_server",
+    );
+    const decisions = ["APPROVED", "REJECTED", "CHANGES_REQUESTED"] as const;
+    assert(
+      decisions.every(
+        (d) =>
+          decisionAllowedForValidity("valid", d) === true &&
+          decisionAllowedForValidity("audit_invalid", d) === false,
+      ) &&
+        /isAuditInvalid\(selected\.status\)/.test(viewSrc) &&
+        /canApprove/.test(viewSrc) &&
+        /canRequestOrReject/.test(viewSrc) &&
+        /if \(isAuditInvalid\(status\)\) return false/.test(viewSrc) &&
+        /Approve, Request Changes, or Reject/.test(viewSrc),
+      "ui_server_actionability_agreement",
+    );
+    const craftedReject = evaluateFounderDecisionActionability({
+      overlay: fixtureOverlay,
+      identity: invalidIdentity,
+      projectedValidity: "valid",
+      decision: "REJECTED",
+    });
+    assert(
+      craftedReject.allowed === false &&
+        rematch.ok === false &&
+        mismatch.ok === false,
+      "crafted_identity_cannot_bypass_actionability",
+      craftedReject.reason ?? "",
+    );
+    assert(
+      motion?.status === "waiting_founder" &&
+        motion.validity !== "audit_invalid" &&
+        motion.actionable !== false &&
+        !fixtureOverlay.records.some((r) => r.candidate_id === MOTION_DESIGNER) &&
+        evaluateFounderDecisionActionability({
+          overlay: fixtureOverlay,
+          identity: {
+            review_id: `founder-review-${MOTION_DESIGNER}`,
+            candidate_id: MOTION_DESIGNER,
+          },
+          projectedValidity: "valid",
+          decision: "CHANGES_REQUESTED",
+        }).allowed === true,
+      "motion_designer_valid_actionable_unaffected",
+      JSON.stringify({
+        status: motion?.status,
+        validity: motion?.validity,
+        actionable: motion?.actionable,
+      }),
     );
   } finally {
     rmSync(fixture, { recursive: true, force: true });
@@ -270,6 +392,13 @@ function main(): void {
   const overlay = loadActionabilityOverlay(REPO);
   assert(
     overlay.records.some((r) => r.candidate_id === UI_DESIGNER) &&
+      !overlay.records.some((r) => r.candidate_id === MOTION_DESIGNER) &&
+      overlay.records.every(
+        (r) =>
+          r.actionability === "NOT_DECISIONABLE" &&
+          r.validity === "AUDIT_INVALID" &&
+          typeof r.historical_task_status_unchanged === "string",
+      ) &&
       !/cand-creative-ui-designer-20260915T122023Z-79af7d-revfb-f81691/.test(
         readFileSync(
           join(REPO, "SOS/SAIOS/core/founder-review/FounderReviewActionability.ts"),
@@ -285,6 +414,11 @@ function main(): void {
     "no_candidate_id_blacklist_in_code",
   );
   assert(
+    overlay.schema_version === "founder-review-actionability-1.0.0" &&
+      overlay.records.every((r) => r.source === "authorized_audit"),
+    "actionability_overlay_is_current_state_metadata",
+  );
+  assert(
     existsSync(OVERLAY) &&
       JSON.parse(readFileSync(OVERLAY, "utf8")).schema_version ===
         "founder-review-actionability-1.0.0",
@@ -292,13 +426,20 @@ function main(): void {
   );
   assert(
     /resolveFounderDecisionIdentity/.test(serverSrc) &&
-      /isAuditInvalidReview/.test(serverSrc) &&
-      /decisionAllowedForValidity/.test(serverSrc),
+      /evaluateFounderDecisionActionability/.test(serverSrc) &&
+      !/decision === "REJECTED"/.test(
+        serverSrc.slice(
+          serverSrc.indexOf("evaluateFounderDecisionActionability"),
+          serverSrc.indexOf("evaluateFounderDecisionActionability") + 800,
+        ),
+      ),
     "server_enforces_identity_and_actionability",
   );
   assert(
     /isAuditInvalid\(selected\.status\)/.test(viewSrc) &&
-      /audit-invalid and is not actionable/.test(viewSrc),
+      /audit-invalid and is not actionable for Approve, Request Changes, or Reject/.test(
+        viewSrc,
+      ),
     "dashboard_blocks_audit_invalid_actions",
   );
 

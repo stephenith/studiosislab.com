@@ -774,7 +774,7 @@ export function FounderReviewView({ snapshot, onDecided }: Props) {
     }
     if (isAuditInvalid(selected.status) || selected.validity === "audit_invalid") {
       setError(
-        "This Resume Template is audit-invalid and is not actionable for Approve or Request Changes.",
+        "This Resume Template is audit-invalid and is not actionable for Approve, Request Changes, or Reject.",
       );
       return;
     }

@@ -1125,7 +1125,11 @@ async function main() {
 
         const gateRuntime = createFounderGateRuntime();
         const reviewCatalog = loadReviewQueueForRepo(REPO);
-        const { resolveFounderDecisionIdentity, loadActionabilityOverlay, isAuditInvalidReview, decisionAllowedForValidity } =
+        const {
+          resolveFounderDecisionIdentity,
+          loadActionabilityOverlay,
+          evaluateFounderDecisionActionability,
+        } =
           await import("../core/founder-review/FounderReviewActionability.js");
         const identityResolution = resolveFounderDecisionIdentity({
           submitted: {
@@ -1152,15 +1156,21 @@ async function main() {
           return;
         }
         const overlay = loadActionabilityOverlay(REPO);
-        if (
-          isAuditInvalidReview(overlay, identityResolution.identity) &&
-          !decisionAllowedForValidity("audit_invalid", body.decision)
-        ) {
+        const projected = reviewCatalog.find(
+          (c) => c.review_id === identityResolution.identity.review_id,
+        );
+        const actionability = evaluateFounderDecisionActionability({
+          overlay,
+          identity: identityResolution.identity,
+          projectedValidity:
+            projected?.validity === "audit_invalid" ? "audit_invalid" : "valid",
+          decision: body.decision,
+        });
+        if (!actionability.allowed) {
           res.writeHead(403, { "Content-Type": "application/json" });
           res.end(
             JSON.stringify({
-              error:
-                "This Resume Template is audit-invalid and is not actionable for Approve or Request Changes.",
+              error: actionability.reason,
               publication_allowed: false,
             }),
           );

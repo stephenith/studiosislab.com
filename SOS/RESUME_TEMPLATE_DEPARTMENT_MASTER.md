@@ -60,25 +60,25 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-30T16:58:00+05:30** / **2026-09-30T11:28:00.000Z**. Second C5 bounded offline correction implemented.
+Snapshot taken **2026-09-30T17:42:00+05:30** / **2026-09-30T12:12:00.000Z**. Audit-invalid REJECT server enforcement corrected.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `63d5278afbc590e78536618547915b9d443f1a4f` (`main`) before this correction commit |
-| ORIGIN HEAD | `63d5278afbc590e78536618547915b9d443f1a4f` |
-| VPS HEAD | `63d5278afbc590e78536618547915b9d443f1a4f` |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is dual-owner offline correction |
+| LOCAL HEAD | `fb6875fefc2849138a97f79e57f6f01070afab53` (`main`) before this enforcement correction |
+| ORIGIN HEAD | `fb6875fefc2849138a97f79e57f6f01070afab53` |
+| VPS HEAD | `fb6875fefc2849138a97f79e57f6f01070afab53` |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is audit-invalid REJECT enforcement only |
 | VPS STATUS | Pre-deploy: second C5 FAIL evidence immutable; no new live revision |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; both C5 live proofs FAIL and immutable; Owner A/B offline correction proven |
+| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; both C5 live proofs FAIL and immutable; Owner A/B proven; REJECT server hole closed |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
 | REVISION STATUS | Historical `revtask-863f67a5-790` READY unchanged; `revtask-4a0c006c-507` FAILED_COVERAGE unchanged; `5d933072` / `76a04a21` unchanged |
 | GENERATION STATUS | Unchanged; `SOS_AIOS_LIVE=0` |
-| FOUNDER REVIEW STATUS | Audit-invalid overlay marks historical C5 child not currently decisionable. Motion Designer `…-bed721` remains a normal `waiting_founder` item. Identity bind: selected card = payload. Do not Approve historical C5. |
+| FOUNDER REVIEW STATUS | Audit-invalid overlay remains current-state metadata. Historical C5 child is NOT_DECISIONABLE. Server and UI now block Approve, Request Changes, and Reject. Motion Designer `…-bed721` remains a normal `waiting_founder` item. Do not Approve or Reject historical C5. |
 | MEMORY STATUS | C3 unchanged |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
-| CURRENT PRIMARY BLOCKERS | Both C5 live proofs remain FAIL history; no new live proof has been run after this correction |
-| NEXT AUTHORIZED STEP | **One fresh controlled live proof** if Founder authorizes. Do not retry historical C5 tasks. Do not start C6. |
+| CURRENT PRIMARY BLOCKERS | Both C5 live proofs remain FAIL history; third-C5 preflight PASS was invalid; live proof not yet executed after REJECT enforcement |
+| NEXT AUTHORIZED STEP | **One fresh controlled live Request Changes on Motion Designer** if Founder authorizes after this deploy. Do not retry historical C5 tasks. Do not start C6. |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -773,12 +773,12 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 
 | Field | Content |
 |---|---|
-| OWNER A | External actionability overlay + identity resolver. Historical task status is not rewritten. Overlay data at `SOS/SAIOS/core/founder-review/actionability-overlay.json` marks the audit-invalid C5 child `NOT_DECISIONABLE` for Approve/Request Changes. Projection applies overlay on both registry-only and full paths. Dashboard confirm strip shows title + Resume Template ID; POST payload is bound to the selected card; server rejects rematch/mismatch and audit-invalid Approve/Request Changes. |
+| OWNER A | External actionability overlay + identity resolver. Historical task status is not rewritten. Overlay data at `SOS/SAIOS/core/founder-review/actionability-overlay.json` marks the audit-invalid C5 child `NOT_DECISIONABLE`. Projection applies overlay on both registry-only and full paths. Dashboard confirm strip shows title + Resume Template ID; POST payload is bound to the selected card; server rejects rematch/mismatch. After the 2026-09-30 enforcement correction, audit-invalid / NOT_DECISIONABLE blocks Approve, Request Changes, and Reject. |
 | OWNER B | IR `founder-feedback-ir-1.2.0`. One public owner remains `compileFounderFeedbackIR`. New actions `PRESENTATION_MUTATION` / `PRESENTATION_PRESERVATION` with measurable `PRESENTATION` predicates (inline / vertical / bullets / stacked / side_by_side / columns). Desired + prohibited presentation compile together. Deterministic apply for inline↔vertical/bullets; side_by_side/columns are measurable, not auto-applied. Unchanged inline cannot PASS a vertical/list request. Zero applicable ops + unsatisfied presentation cannot READY. |
 | C4 | Generalized CONTENT-PRESERVING PRESENTATION category added; actual canvas fulfillment asserted; exact second-C5 sentence is a fixture, not the architecture. |
 | OFFLINE RESULT | C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6O PASS; Founder Review actionability PASS; projection PASS. |
 | IMMUTABLE | `fd-ef2226ce-0da` / `revtask-863f67a5-790`; `fd-87ecc16c-f45` / `revtask-4a0c006c-507`. No candidate-ID blacklist in code. No Skills-only or UI Designer special case. |
-| NOT DONE | No live revision. No Founder decision. No C6. Telegram code unchanged. |
+| NOT DONE | No live revision. No Founder decision. No C6. Telegram code unchanged. Third-C5 preflight later found REJECT still server-allowed. |
 
 #### C5 live re-proof after correction *(executed 2026-09-30; FAIL)*
 
@@ -798,6 +798,17 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 | ROLE / GATES | ROLE_MATCH UI Designer. Preservation/completeness PASS. Coverage FAIL. Final acceptance FAIL; `may_return_to_founder_review=false`. |
 | C4 / LIVE PARITY | Same `compileFounderFeedbackIR` + fulfillment coverage path as C4. No second English parser. Skills-stacking sentence was not in the C4 matrix and compiled as verification. |
 | C5 RE-PROOF RESULT | **FAIL**. Wrong source vs authorized Motion Designer. Item2 semantic ownership wrong (display/layout → VERIFICATION). Requested stacked skills absent. Fail-closed (no READY). `READY_FOR_C6=NO`. Do not retry. Do not patch. Do not Approve. |
+
+#### Third C5 preflight and REJECT enforcement *(2026-09-30)*
+
+| Field | Content |
+|---|---|
+| PREFLIGHT | Third-C5 live-proof preflight on `fb6875f`. Overlay loaded. Historical child projected `audit_invalid` / NOT_DECISIONABLE. Motion Designer remained valid `waiting_founder`. Preflight still reported PASS. |
+| STOP RULE | If UI/server actionability disagree, STOP. Preflight PASS was therefore not sufficient for live authorization. |
+| DEFECT | `decisionAllowedForValidity("audit_invalid", "REJECTED")` returned true. `/api/founder-decision` would persist a crafted REJECT through `FounderDecisionManager`. UI already blocked Reject. No separate administrative invalidation operation exists. |
+| CORRECTION | Generalized: current `audit_invalid` / NOT_DECISIONABLE blocks all ordinary Founder decisions. Shared `evaluateFounderDecisionActionability` is the server gate. UI copy aligned. No candidate-ID blacklist. Historical READY not rewritten. IR 1.2.0 / C2 / C3 / Telegram unchanged. |
+| OFFLINE RESULT | Valid waiting Approve/Request Changes/Reject allowed. Audit-invalid Approve/Request Changes/Reject blocked. UI/server agreement PASS. Crafted identity cannot bypass. Motion Designer unaffected. Actionability + identity + C1/C2/C3/C4 PASS. |
+| LIVE PROOF | Not executed. |
 
 #### C6 — Closure audit (schedule remains later)
 
@@ -895,6 +906,7 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | 2026-09-30T15:23:42+05:30 | Correct the one C1 semantic owner and strengthen C4 fulfillment assertions; do not retry C5; do not start C6 | C5 FAIL root cause: English-only already-satisfied + content-add falling to layout ownership; C4 asserted labels not canvas state | Offline C1/C2/C3/C4/6J PASS; C5 sentences as fixtures; generalized matrix | Phrase dictionary for “till the bottom”/education/green rail; second English parser; retry `revtask-863f67a5-790`; C6 | FounderFeedbackIR 1.1.0 + FounderFeedbackFulfillment + coverage + C4 harness | Yes until next live proof |
 | 2026-09-30T15:48:31+05:30 | C5 live re-proof is FAIL; do not retry; do not patch; do not start C6 | New decision ran on historical C5 child not Motion Designer; skills-stack request compiled as VERIFICATION and was not fulfilled | `fd-87ecc16c-f45`; `revtask-4a0c006c-507` FAILED_COVERAGE; IR 1.1.0; education 57→162; skills unchanged | Approving; retrying 4a0c/863f; starting another correction; C6 | Docs/state only | Yes |
 | 2026-09-30T16:58:00+05:30 | Correct Owner A actionability/identity and Owner B presentation semantics offline; do not run another live proof; do not start C6 | Second C5 FAIL: audit-invalid READY child stayed actionable; presentation request compiled as verification | Overlay + identity bind; IR 1.2.0 PRESENTATION predicates; C4 presentation category; C1/C2/C3/C4/6O/actionability PASS | Candidate blacklist; Skills-only regex; rewriting historical READY; C2/C3/Telegram redesign; C6 | Actionability overlay, Founder Review projection/dashboard/server, IR 1.2.0, fulfillment, C4 | Yes until next live proof |
+| 2026-09-30T17:42:00+05:30 | Close audit-invalid REJECT server hole; do not execute third C5; do not start C6 | Third-C5 preflight found UI blocked Reject while server allowed crafted REJECT | `decisionAllowedForValidity` + `evaluateFounderDecisionActionability`; actionability/identity/C1–C4 PASS | Inventing admin-reject; candidate blacklist; rewriting historical READY; IR/C2/C3/Telegram change | Founder Review actionability + dashboard server/UI | Yes until next live proof |
 
 ---
 
@@ -1067,16 +1079,31 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** side_by_side/columns are measurable but not auto-applied; next live packet may still expose unmodeled phrasing
 - **NEXT STEP:** One fresh controlled live proof if Founder authorizes. Do not retry historical C5 tasks. Do not start C6.
 
+### 2026-09-30T17:42:00+05:30 — AUDIT-INVALID REJECT SERVER ENFORCEMENT
+
+- **PHASE/TASK:** Pre-third-C5 actionability enforcement correction
+- **PURPOSE:** Make UI and server agree that NOT_DECISIONABLE blocks every ordinary Founder decision
+- **BEFORE STATE:** Overlay + identity bind deployed at `fb6875f`. Third-C5 preflight found crafted REJECT still server-allowed. Preflight PASS was invalid under the UI/server stop rule.
+- **CHANGE:** `decisionAllowedForValidity` fail-closes all decisions for `audit_invalid`. Server uses `evaluateFounderDecisionActionability` (overlay + projected validity). UI error copy includes Reject. Historical tasks/decisions not mutated. IR 1.2.0 unchanged.
+- **FILES MODIFIED:** FounderReviewActionability; dashboard server + FounderReviewView; actionability verifier; this file; project master; project-state; `AGENTS.md`
+- **TESTS:** Actionability PASS; identity PASS; projection PASS; Founder Review UI PASS; C1 PASS; C2 PASS; C3 PASS; C4 PASS
+- **COMMIT:** *(this commit)*
+- **DEPLOY:** FF-only if proofs pass; restart only affected dashboard
+- **LIVE PROOF:** NO
+- **RESULT:** Enforcement offline PASS. Third C5 not executed. `READY_FOR_C6=NO`.
+- **NEW RISKS:** None in the Founder Review POST path if the shared evaluator is used
+- **NEXT STEP:** After deploy, return to Motion Designer `…-bed721` for exactly one Founder-authorized live Request Changes. Do not execute it in this run.
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**One fresh controlled live proof, if and only if the Founder authorizes it.**
+**One fresh controlled live Request Changes on Motion Designer `cand-creative-motion-designer-20260903T032047Z-bed721`, if and only if the Founder authorizes it after this enforcement deploy.**
 
-Do not Approve `revtask-863f67a5-790` or any child of it.  
+Do not Approve or Reject `revtask-863f67a5-790` or any child of it.  
 Do not retry `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
 Do not start C6.  
 Do not enable `SOS_AIOS_LIVE`.  
-Do not submit a Founder decision in the correction run.
+Do not submit a Founder decision in the enforcement run.

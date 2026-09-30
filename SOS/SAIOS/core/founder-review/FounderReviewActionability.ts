@@ -2,8 +2,9 @@
  * Current Founder Review actionability / identity overlay.
  *
  * Historical task status remains immutable. This module only affects the
- * current projection: whether a review may receive Approve / Request Changes.
- * Records are data, not hardcoded Resume Template IDs in production logic.
+ * current projection: whether a review may receive an ordinary Founder
+ * decision (Approve / Request Changes / Reject). Records are data, not
+ * hardcoded Resume Template IDs in production logic.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -91,12 +92,44 @@ export function isAuditInvalidReview(
   return actionabilityRecordFor(overlay, identity) != null;
 }
 
+/**
+ * Ordinary Founder decisions are allowed only when current validity is
+ * `valid`. `audit_invalid` is NOT_DECISIONABLE for Approve, Request Changes,
+ * and Reject. There is no ordinary-decision exception for Reject.
+ */
 export function decisionAllowedForValidity(
   validity: ActionabilityValidity,
-  decision: ActionabilityDecision,
+  _decision: ActionabilityDecision,
 ): boolean {
-  if (validity !== "audit_invalid") return true;
-  return decision === "REJECTED";
+  return validity !== "audit_invalid";
+}
+
+export function evaluateFounderDecisionActionability(input: {
+  overlay: FounderReviewActionabilityOverlay;
+  identity: Pick<ReviewIdentity, "review_id" | "candidate_id">;
+  projectedValidity?: ActionabilityValidity | null;
+  decision: ActionabilityDecision;
+}): {
+  allowed: boolean;
+  validity: ActionabilityValidity;
+  reason: string | null;
+} {
+  const record = actionabilityRecordFor(input.overlay, input.identity);
+  const notDecisionable =
+    record?.actionability === "NOT_DECISIONABLE" ||
+    record != null ||
+    input.projectedValidity === "audit_invalid";
+  const validity: ActionabilityValidity = notDecisionable
+    ? "audit_invalid"
+    : "valid";
+  const allowed = decisionAllowedForValidity(validity, input.decision);
+  return {
+    allowed,
+    validity,
+    reason: allowed
+      ? null
+      : "This Resume Template is audit-invalid and is not actionable for Approve, Request Changes, or Reject.",
+  };
 }
 
 export function identitiesBound(a: ReviewIdentity, b: ReviewIdentity): boolean {

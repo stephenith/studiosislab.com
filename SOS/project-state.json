@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PROJECT-WIDE / RESUME \u2014 SECOND C5 BOUNDED OFFLINE CORRECTION 2026-09-30. Owner A: audit-invalid overlay + identity bind (historical READY unchanged). Owner B: IR founder-feedback-ir-1.2.0 content-preserving presentation. No proven stale-selection or backend rematch; Founder click UNKNOWN. Offline C1/C2/C3/C4/6O/actionability PASS. Do not retry revtask-4a0c006c-507, revtask-863f67a5-790, revtask-5d933072-daf, or revtask-76a04a21-6ff. Do not Approve the audit-invalid C5 child. Do not start C6. READY_FOR_C6=NO. Next: one fresh controlled live proof if Founder authorizes. Website Department remains the next major product department and is not activated.",
+    "PROJECT-WIDE / RESUME \u2014 AUDIT-INVALID REJECT SERVER ENFORCEMENT 2026-09-30. Third-C5 preflight found UI blocked Reject while server decisionAllowedForValidity still allowed crafted REJECT on audit_invalid/NOT_DECISIONABLE. Preflight PASS was therefore not live authorization. Generalized fix: ordinary Approve/Request Changes/Reject all blocked. Historical READY unchanged. Overlay remains current-state metadata. No candidate blacklist. IR 1.2.0 unchanged. Offline actionability/identity/C1/C2/C3/C4 PASS. Do not retry revtask-4a0c006c-507, revtask-863f67a5-790, revtask-5d933072-daf, or revtask-76a04a21-6ff. Do not Approve or Reject the audit-invalid C5 child. Do not start C6. READY_FOR_C6=NO. Next: after deploy, one Founder-authorized Motion Designer Request Changes. Website Department remains the next major product department and is not activated.",
     "NEXT DEPARTMENT \u2014 Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B \u2014 Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B \u2014 Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back \u2014 snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-30T12:12:00.000Z",
+      "type": "consolidation_audit_invalid_reject_enforcement",
+      "summary": "Audit-invalid REJECT server enforcement. Local wall=2026-09-30T17:42:00+05:30. UTC=2026-09-30T12:12:00.000Z. Third-C5 preflight PASS invalid: UI/server disagreed on Reject. decisionAllowedForValidity now fail-closes all ordinary decisions for audit_invalid; evaluateFounderDecisionActionability is the server gate. Historical fd-ef2226ce-0da / revtask-863f67a5-790 and fd-87ecc16c-f45 / revtask-4a0c006c-507 not mutated. Offline: actionability PASS; identity PASS; C1 PASS; C2 PASS; C3 PASS; C4 PASS. No production OpenAI, generation, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY changes. READY_FOR_C6=NO. Third C5 not executed. Next: Motion Designer live Request Changes if Founder authorizes after deploy."
+    },
     {
       "at": "2026-09-30T11:28:00.000Z",
       "type": "consolidation_c5_second_offline_correction",
@@ -3430,7 +3435,7 @@
     "operationally_complete_currently_asserted": false,
     "revision_engineering_status": "CONSOLIDATION_REQUIRED",
     "next_major_department": "Website Analysis / QA / Development",
-    "next_authorized_step": "One fresh controlled live proof if Founder authorizes (do not retry historical C5 tasks; do not start C6)",
+    "next_authorized_step": "One Founder-authorized Motion Designer Request Changes after audit-invalid REJECT enforcement deploy (do not retry historical C5 tasks; do not start C6)",
     "consolidation_plan": {
       "recorded_at_ist": "2026-09-29T15:22:52+05:30",
       "recorded_at_utc": "2026-09-29T09:52:52.100Z",
@@ -3479,7 +3484,11 @@
       "c5_reproof_at_utc": "2026-09-30T10:18:31.000Z",
       "c5_reproof_decision_id": "fd-87ecc16c-f45",
       "c5_reproof_task_id": "revtask-4a0c006c-507",
-      "c5_reproof_result": "FAIL"
+      "c5_reproof_result": "FAIL",
+      "third_c5_preflight_pass_was_authorization": false,
+      "audit_invalid_reject_enforcement_status": "IMPLEMENTED_OFFLINE",
+      "audit_invalid_reject_enforcement_at_ist": "2026-09-30T17:42:00+05:30",
+      "audit_invalid_reject_enforcement_at_utc": "2026-09-30T12:12:00.000Z"
     },
     "do_not_retry_tasks": [
       "revtask-5d933072-daf",
@@ -3487,18 +3496,18 @@
       "revtask-863f67a5-790",
       "revtask-4a0c006c-507"
     ],
-    "snapshot_ist": "2026-09-30T16:58:00+05:30",
-    "snapshot_utc": "2026-09-30T11:28:00.000Z",
+    "snapshot_ist": "2026-09-30T17:42:00+05:30",
+    "snapshot_utc": "2026-09-30T12:12:00.000Z",
     "heads": {
-      "local": "63d5278afbc590e78536618547915b9d443f1a4f",
-      "origin": "63d5278afbc590e78536618547915b9d443f1a4f",
-      "vps": "63d5278afbc590e78536618547915b9d443f1a4f"
+      "local": "fb6875fefc2849138a97f79e57f6f01070afab53",
+      "origin": "fb6875fefc2849138a97f79e57f6f01070afab53",
+      "vps": "fb6875fefc2849138a97f79e57f6f01070afab53"
     }
   },
   "studiosislab_project": {
     "master_doc": "SOS/STUDIOSISLAB_PROJECT_MASTER.md",
     "resume_template_department_master_doc": "SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md",
-    "current_priority": "Resume Template consolidation \u2014 second C5 offline correction proven; one fresh live proof only if Founder authorizes",
+    "current_priority": "Resume Template consolidation \u2014 audit-invalid REJECT enforcement corrected; third C5 live proof pending Founder authorization",
     "resume_template_department_current_status": "CONSOLIDATION_REQUIRED",
     "core_resume_template_factory_goal_met": true,
     "operationally_complete_currently_asserted": false,
@@ -3510,12 +3519,12 @@
       "Revenue / Monetization",
       "AIOS System Audit / Optimization"
     ],
-    "snapshot_ist": "2026-09-30T16:58:00+05:30",
-    "snapshot_utc": "2026-09-30T11:28:00.000Z",
+    "snapshot_ist": "2026-09-30T17:42:00+05:30",
+    "snapshot_utc": "2026-09-30T12:12:00.000Z",
     "heads": {
-      "local": "63d5278afbc590e78536618547915b9d443f1a4f",
-      "origin": "63d5278afbc590e78536618547915b9d443f1a4f",
-      "vps": "63d5278afbc590e78536618547915b9d443f1a4f"
+      "local": "fb6875fefc2849138a97f79e57f6f01070afab53",
+      "origin": "fb6875fefc2849138a97f79e57f6f01070afab53",
+      "vps": "fb6875fefc2849138a97f79e57f6f01070afab53"
     }
   }
 }

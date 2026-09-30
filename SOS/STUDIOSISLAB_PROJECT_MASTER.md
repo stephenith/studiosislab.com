@@ -49,24 +49,24 @@ Code and VPS evidence override this file when they disagree. Historical evidence
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-30T16:58:00+05:30** / **2026-09-30T11:28:00.000Z**.
+Snapshot taken **2026-09-30T17:42:00+05:30** / **2026-09-30T12:12:00.000Z**.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `63d5278afbc590e78536618547915b9d443f1a4f` (`main`) before this correction commit |
-| ORIGIN HEAD | `63d5278afbc590e78536618547915b9d443f1a4f` |
-| VPS HEAD | `63d5278afbc590e78536618547915b9d443f1a4f` |
+| LOCAL HEAD | `fb6875fefc2849138a97f79e57f6f01070afab53` (`main`) before this enforcement correction |
+| ORIGIN HEAD | `fb6875fefc2849138a97f79e57f6f01070afab53` |
+| VPS HEAD | `fb6875fefc2849138a97f79e57f6f01070afab53` |
 | PUBLIC PRODUCT | Next.js SaaS at `studiosislab.com` (Vercel) |
 | AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` |
-| CURRENT PROJECT PRIORITY | **Resume Template consolidation — second C5 offline correction proven; one fresh live proof only if Founder authorizes** |
+| CURRENT PROJECT PRIORITY | **Resume Template consolidation — audit-invalid REJECT enforcement corrected; third C5 live proof pending Founder authorization** |
 | CURRENTLY ACTIVE DEPARTMENT | Resume Template Department (`CONSOLIDATION_REQUIRED`) |
 | NEXT MAJOR PRODUCT DEPARTMENT | Website Analysis / QA / Development (not authorized as current work) |
 | CORE FACTORY HISTORICAL GOAL | **MET** — do not erase |
 | LIVE `OPERATIONALLY_COMPLETE` | **NOT ASSERTED** |
 | PUBLICATION | Manual; `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` |
 | LIVE GENERATION | Guarded; `SOS_AIOS_LIVE=0` |
-| PRIMARY BLOCKERS | Both C5 live proofs remain immutable FAIL history; no new live proof after Owner A/B correction; live 5d933072 remains historical; Website still disabled |
-| NEXT AUTHORIZED STEP | **One fresh controlled live proof if Founder authorizes** (do not retry historical C5 tasks; do not start C6; no Website activation) |
+| PRIMARY BLOCKERS | Both C5 live proofs remain immutable FAIL history; third-C5 preflight PASS was invalid because UI/server REJECT disagreed; live 5d933072 remains historical; Website still disabled |
+| NEXT AUTHORIZED STEP | **After this enforcement deploy: one fresh controlled live Request Changes on Motion Designer if Founder authorizes** (do not retry historical C5 tasks; do not start C6; no Website activation) |
 
 ---
 
@@ -325,9 +325,9 @@ Preserve all of these. Do not delete, merge, or rewrite to make the hierarchy lo
 
 **Exactly one authorized next major action:**
 
-**One fresh controlled live proof, if and only if the Founder authorizes it.**
+**One fresh controlled live Request Changes on Motion Designer, if and only if the Founder authorizes it after this enforcement deploy.**
 
-Both C5 live proofs remain immutable FAIL history. Owner A now separates current Founder Review actionability from historical READY. Owner B compiles content-preserving presentation mutations. Do not retry historical C5 tasks. Do not Approve the audit-invalid C5 child. Do not start C6. Not Website activation.
+Both C5 live proofs remain immutable FAIL history. The third-C5 preflight found UI/server REJECT disagreement on audit-invalid / NOT_DECISIONABLE reviews and therefore did not authorize live proof. Current actionability now fail-closes Approve, Request Changes, and Reject for those reviews. Do not retry historical C5 tasks. Do not Approve or Reject the audit-invalid C5 child. Do not start C6. Not Website activation.
 
 Deep phases: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MASTER.md) §29–§34.
 
@@ -348,6 +348,7 @@ Deep phases: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MA
 | 2026-09-30T15:23:42+05:30 | Resume next step = Founder review of C1/C4 fulfillment correction, then one new live proof; Website still not current | C5 FAIL root cause corrected offline; historical C5 task immutable | C1+C2+C3+C4+6J PASS | Retrying C5; starting C6; jumping to Website; enabling LIVE | Project priority | Yes |
 | 2026-09-30T15:48:31+05:30 | C5 live re-proof FAIL; do not retry; Website still not current | Decision hit historical C5 child; skills-stack not fulfilled; coverage fail-closed | VPS `fd-87ecc16c-f45` / `revtask-4a0c006c-507` | Retrying; patching IR; starting C6 | Project priority | Yes |
 | 2026-09-30T16:58:00+05:30 | Second C5 offline correction; next is one fresh live proof if authorized; Website still not current | Audit-invalid READY stayed actionable; presentation compiled as verification | Overlay + IR 1.2.0 presentation; C1/C2/C3/C4/6O/actionability PASS | Candidate blacklist; retrying historical C5; C6 | Project priority + Resume architecture | Yes |
+| 2026-09-30T17:42:00+05:30 | Third-C5 preflight not sufficient; close audit-invalid REJECT server hole; Website still not current | Server `decisionAllowedForValidity` still allowed crafted REJECT on NOT_DECISIONABLE | Generalized fail-closed ordinary decisions; actionability/identity/C1–C4 PASS | Admin-reject invention; candidate blacklist; rewriting historical READY; C6 | Founder Review actionability + dashboard server/UI | Yes |
 
 ---
 
@@ -366,7 +367,8 @@ Append-only. Do not overwrite historical entries.
 | 2026-09-29T17:15:30+05:30 | C5 One authorized live Request Changes | Prove C1–C4 on one new Founder decision | C5 preflight waiting; no new decision | Observed `fd-ef2226ce-0da` / `revtask-863f67a5-790` to READY; artifacts show unchanged canvas and C1 IR misclassification | This file; Resume master; project-state; `AGENTS.md` | Production evidence inspect only | docs dirty on `e58ef3f` | Docs only; no restart; no Approve | YES — FAIL | C5 FAIL; READY_FOR_C6=NO | C1 IR can send empty-plan READY | Founder reviews C5 failure |
 | 2026-09-30T15:23:42+05:30 | C1/C4 semantic fulfillment correction | Stop false already-satisfied and content-add→layout ownership | C5 FAIL; IR 1.0.0 | IR 1.1.0 + canvas fulfillment predicates + strengthened C4 | Resume IR/fulfillment/coverage/pipeline; C4 harness; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6J | `63d5278` | FF + dashboard restart | None | Offline correction PASS; READY_FOR_C6=NO | Unmodeled Founder phrasing on next live packet | Founder reviews correction; then one new live proof |
 | 2026-09-30T15:48:31+05:30 | C5 live re-proof | Prove corrected IR on one new Founder decision | Correction deployed; Motion Designer preflight selected | Observed `fd-87ecc16c-f45` on historical C5 child, not Motion Designer; task FAILED_COVERAGE | This file; Resume master; project-state; `AGENTS.md` | Production evidence inspect | *(docs)* | FF docs; no restart; no Approve | YES — FAIL | C5 re-proof FAIL; READY_FOR_C6=NO | Skills-as-pointers still VERIFICATION; wrong review card | Founder reviews FAIL |
-| 2026-09-30T16:58:00+05:30 | Second C5 bounded offline correction | Owner A actionability/identity + Owner B presentation semantics | Second C5 FAIL; IR 1.1.0; no audit-invalid overlay | IR 1.2.0 + overlay + identity bind + C4 presentation category | Resume review/revision files; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6O+actionability | *(filled after commit)* | FF + dashboard restart if proofs pass | NO | Offline correction PASS; READY_FOR_C6=NO | side_by_side/columns not auto-applied | One fresh live proof if authorized |
+| 2026-09-30T16:58:00+05:30 | Second C5 bounded offline correction | Owner A actionability/identity + Owner B presentation semantics | Second C5 FAIL; IR 1.1.0; no audit-invalid overlay | IR 1.2.0 + overlay + identity bind + C4 presentation category | Resume review/revision files; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6O+actionability | `fb6875f` | FF + dashboard restart | NO | Offline correction PASS; READY_FOR_C6=NO | side_by_side/columns not auto-applied; REJECT still server-allowed | One fresh live proof if authorized |
+| 2026-09-30T17:42:00+05:30 | Audit-invalid server REJECT enforcement | Make UI and server agree: NOT_DECISIONABLE blocks all ordinary Founder decisions | Third-C5 preflight found crafted REJECT still allowed | `decisionAllowedForValidity` fail-closes all decisions; shared `evaluateFounderDecisionActionability`; UI copy aligned | Actionability module; dashboard server/UI; verifier; this file; Resume master; project-state; `AGENTS.md` | Actionability + identity + C1+C2+C3+C4 | *(this commit)* | FF + dashboard restart if proofs pass | NO | Offline enforcement PASS; third C5 not executed; READY_FOR_C6=NO | Crafted POSTs to other non-review APIs | Return to Motion Designer for one live Request Changes if Founder authorizes |
 
 ---
 

@@ -5,13 +5,13 @@
  * Planner/provider fields cannot change classification.
  * Words like QA / review / check / verify / final alone never admit verification.
  *
- * Fail-closed semantics (Phase 6G):
- *   "fail closed" means DO NOT REQUIRE A MUTATION we cannot establish — it does
- *   NOT mean unknown Founder wording becomes MUTATION_REQUIRED. A line is
- *   MUTATION_REQUIRED only when an explicit mutation verb is paired with a
- *   concrete, changeable target in a non-prohibited clause. Everything else is
- *   verification, preservation, or general acceptance, all of which require
- *   ZERO AI operations and are proven by deterministic post-execution evidence.
+ * Fail-closed semantics (Phase 6G, refined after C5):
+ *   "fail closed" means DO NOT REQUIRE A MUTATION we cannot establish.
+ *   A line is MUTATION_REQUIRED when an explicit mutation verb is paired with
+ *   a concrete target, OR when desired-state language names a visual object
+ *   and a spatial bound, OR when content-add language names a resume section.
+ *   GENERAL_ACCEPTANCE is only for wording with no resolvable object, section,
+ *   or bound. It is never "already satisfied" without canvas proof.
  *
  * Resolution order:
  *   1. exact canonical production forms (compatibility fast path)
@@ -847,7 +847,19 @@ function clauseIsLayoutOutcomeRequirement(clause: IntentClause): boolean {
 
 /** Verbs that edit text content rather than move or size an object. */
 const CONTENT_MUTATION_VERB_RE =
-  /\b(?:chang(?:e|ing)|replac(?:e|ing)|rewrit(?:e|ing)|rewor(?:d|ding)|revis(?:e|ing)|updat(?:e|ing)|remov(?:e|ing)|delet(?:e|ing)|swap(?:ping)?|shorten(?:ing)?|clarif(?:y|ying)|add(?:ing)?|insert(?:ing)?|set(?:ting)?)\b/;
+  /\b(?:chang(?:e|ing)|replac(?:e|ing)|rewrit(?:e|ing)|rewor(?:d|ding)|revis(?:e|ing)|updat(?:e|ing)|remov(?:e|ing)|delet(?:e|ing)|swap(?:ping)?|shorten(?:ing)?|clarif(?:y|ying)|add(?:ing)?|insert(?:ing)?|expand(?:ing)?|includ(?:e|ing)|set(?:ting)?)\b/;
+
+/** Additive content language, including "can add" / "more content". */
+export const CONTENT_ADDITION_VERB_RE =
+  /\b(?:add(?:ing)?|insert(?:ing)?|expand(?:ing)?|includ(?:e|ing)|more content|additional content|further (?:detail|content))\b/;
+
+/** Visible canvas objects a Founder can name without IDs. */
+export const VISUAL_OBJECT_RE =
+  /\b(?:lines?|rails?|bars?|rules?|strokes?|dividers?|bands?|boxes?|rectangles?|rects?|columns?|sidebars?|headings?|markers?|shapes?)\b/;
+
+/** Spatial bounds / relations used in desired-state phrasing. */
+export const SPATIAL_BOUND_RE =
+  /\b(?:bottom|top|edge|edges|left|right|center|centre|closer|farther|equal|aligned|till|until|reach(?:es|ing)?|across|flush|full height|page)\b/;
 
 /** Geometry properties that mark a clause as layout rather than content work. */
 const GEOMETRY_PROPERTY_RE =
@@ -877,9 +889,58 @@ export function hasConcreteContentMutationClause(
     ) {
       return false;
     }
-    if (!CONTENT_MUTATION_VERB_RE.test(clause.text)) return false;
+    if (
+      !CONTENT_MUTATION_VERB_RE.test(clause.text) &&
+      !CONTENT_ADDITION_VERB_RE.test(clause.text)
+    ) {
+      return false;
+    }
     if (GEOMETRY_PROPERTY_RE.test(clause.text)) return false;
     return CONTENT_DOMAIN_TARGET_RE.test(clause.text);
+  });
+}
+
+/**
+ * Desired-state geometry: the Founder names a visible object and a bound
+ * without an imperative mutation verb ("should be till the bottom").
+ */
+export function hasDesiredStateGeometryIntent(requestedChange: string): boolean {
+  const normalized = normalizeForClassification(requestedChange);
+  if (!normalized) return false;
+  return resolveIntentClauses(normalized).some((clause) =>
+    clauseHasDesiredStateGeometryIntent(clause),
+  );
+}
+
+export function clauseHasDesiredStateGeometryIntent(
+  clause: IntentClause,
+): boolean {
+  if (!clause.positive) return false;
+  if (
+    PRESERVATION_VERB_RE.test(clause.text) &&
+    PRESERVE_EXISTING_STATE_RE.test(clause.text)
+  ) {
+    return false;
+  }
+  if (!VISUAL_OBJECT_RE.test(clause.text)) return false;
+  if (!SPATIAL_BOUND_RE.test(clause.text)) return false;
+  return (
+    REQUIREMENT_MODALITY_RE.test(clause.text) ||
+    /\b(?:till|until|reach(?:es|ing)?|across|flush)\b/.test(clause.text)
+  );
+}
+
+export function hasContentAdditionIntent(requestedChange: string): boolean {
+  const normalized = normalizeForClassification(requestedChange);
+  if (!normalized) return false;
+  return resolveIntentClauses(normalized).some((clause) => {
+    if (!clause.positive) return false;
+    if (!CONTENT_ADDITION_VERB_RE.test(clause.text)) return false;
+    if (GEOMETRY_PROPERTY_RE.test(clause.text)) return false;
+    return (
+      CONTENT_DOMAIN_TARGET_RE.test(clause.text) ||
+      /\bsection\b/.test(clause.text)
+    );
   });
 }
 
@@ -1025,6 +1086,10 @@ export function resolveRequestedChangeIntent(
   }
 
   if (clauses.some((c) => clauseHasDeclarativeMutationRequirement(c))) {
+    return mutationResult();
+  }
+
+  if (clauses.some((c) => clauseHasDesiredStateGeometryIntent(c))) {
     return mutationResult();
   }
 

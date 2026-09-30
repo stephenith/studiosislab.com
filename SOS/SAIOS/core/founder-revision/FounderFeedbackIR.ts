@@ -21,6 +21,10 @@ import {
   type RevisionIntentScope,
   type ResolvedRevisionIntentItem,
 } from "./RevisionIntentScope.js";
+import {
+  predicatesForItem,
+  type FulfillmentPredicate,
+} from "./FounderFeedbackFulfillment.js";
 
 /**
  * Layout-ownership predicates live in DeterministicSpacingPlan. Require lazily
@@ -41,7 +45,7 @@ export type FeedbackCoverageMode =
   | "VALIDATION_ONLY"
   | "DETERMINISTIC_LAYOUT_OWNED";
 
-export const FOUNDER_FEEDBACK_IR_SCHEMA = "founder-feedback-ir-1.0.0" as const;
+export const FOUNDER_FEEDBACK_IR_SCHEMA = "founder-feedback-ir-1.1.0" as const;
 
 /** Public semantic interpretation paths after C1. */
 export const NUMBER_OF_SEMANTIC_INTERPRETATION_PATHS = 1;
@@ -67,6 +71,7 @@ export type FounderFeedbackIRItem = {
   layout_sections: ContentSectionKey[];
   preservation_sections: ContentSectionKey[];
   completeness_required: boolean;
+  fulfillment: FulfillmentPredicate[];
   intent: ResolvedRevisionIntentItem;
 };
 
@@ -75,6 +80,7 @@ export type FounderFeedbackIR = {
   items: FounderFeedbackIRItem[];
   content_mutation_sections: ContentSectionKey[];
   content_replacement_sections: ContentSectionKey[];
+  content_addition_sections: ContentSectionKey[];
   content_removal_sections: ContentSectionKey[];
   layout_mutation_sections: ContentSectionKey[];
   content_preservation_sections: ContentSectionKey[];
@@ -89,6 +95,8 @@ function actionFromIntentClass(
 ): FounderFeedbackAction {
   switch (intent_class) {
     case "CONTENT_REPLACEMENT":
+      return "CONTENT_MUTATION";
+    case "CONTENT_ADDITION":
       return "CONTENT_MUTATION";
     case "CONTENT_REMOVAL":
       return "CONTENT_REMOVAL";
@@ -118,7 +126,7 @@ function dominantAction(
   if (clause_actions.includes("LAYOUT_PRESERVATION")) {
     return "LAYOUT_PRESERVATION";
   }
-  if (classification === "VERIFICATION_ACCEPTANCE") return "ALREADY_SATISFIED";
+  if (classification === "VERIFICATION_ACCEPTANCE") return "VERIFICATION";
   if (clause_actions.includes("LAYOUT_MUTATION")) return "LAYOUT_MUTATION";
   if (clause_actions.includes("VERIFICATION")) return "VERIFICATION";
   if (classification === "PRESERVATION_CONSTRAINT") {
@@ -132,6 +140,7 @@ function coverageModeForLine(
   classification: RequestedChangeClass,
   layout_owned: boolean,
   clause_actions: FounderFeedbackAction[],
+  hasExtentPredicate: boolean,
 ): FeedbackCoverageMode {
   if (
     clause_actions.includes("CONTENT_REMOVAL") ||
@@ -143,7 +152,16 @@ function coverageModeForLine(
     if (layoutOwnership().isValidationOnlyRequestedChange(line)) {
       return "VALIDATION_ONLY";
     }
-    if (layout_owned) return "DETERMINISTIC_LAYOUT_OWNED";
+    if (
+      clause_actions.includes("CONTENT_MUTATION") ||
+      clause_actions.includes("CONTENT_REMOVAL")
+    ) {
+      return "MUTATION_REQUIRED";
+    }
+    if (layout_owned && !clause_actions.includes("LAYOUT_MUTATION")) {
+      return "DETERMINISTIC_LAYOUT_OWNED";
+    }
+    if (layout_owned && !hasExtentPredicate) return "DETERMINISTIC_LAYOUT_OWNED";
     return "MUTATION_REQUIRED";
   }
   if (clause_actions.includes("CONTENT_PRESERVATION") && !layout_owned) {
@@ -190,23 +208,39 @@ export function compileFounderFeedbackIR(
     const clause_actions = intent.clauses.map((c) =>
       actionFromIntentClass(c.intent_class),
     );
+    const action = dominantAction(intent, classified.classification);
+    const fulfillment = predicatesForItem(
+      action,
+      clause_actions,
+      content_sections,
+      intent.founder_feedback_item,
+    );
+    const hasExtent = fulfillment.some((p) => p.kind === "GEOMETRY_EXTENT");
     return {
       founder_feedback_item: intent.founder_feedback_item,
-      action: dominantAction(intent, classified.classification),
+      action,
       clause_actions,
       coverage_mode: coverageModeForLine(
         intent.founder_feedback_item,
         classified.classification,
         layout_owned,
         clause_actions,
+        hasExtent,
       ),
-      layout_owned,
+      layout_owned: layout_owned && !hasExtent && action !== "CONTENT_MUTATION",
       classification: classified.classification,
       check_types: classified.check_types ?? [],
       content_sections,
       layout_sections,
       preservation_sections,
-      completeness_required: content_sections.length > 0,
+      completeness_required:
+        content_sections.length > 0 &&
+        intent.clauses.some(
+          (c) =>
+            c.intent_class === "CONTENT_REPLACEMENT" ||
+            c.intent_class === "CONTENT_REMOVAL",
+        ),
+      fulfillment,
       intent,
     };
   });
@@ -216,11 +250,15 @@ export function compileFounderFeedbackIR(
     items,
     content_mutation_sections: intent_scope.content_mutation_sections,
     content_replacement_sections: intent_scope.content_replacement_sections,
+    content_addition_sections: intent_scope.content_addition_sections,
     content_removal_sections: intent_scope.content_removal_sections,
     layout_mutation_sections: intent_scope.layout_sections,
     content_preservation_sections: intent_scope.content_preservation_sections,
     layout_preservation_sections: intent_scope.layout_preservation_sections,
-    completeness_sections: intent_scope.content_mutation_sections,
+    completeness_sections: [
+      ...intent_scope.content_replacement_sections,
+      ...intent_scope.content_removal_sections,
+    ],
     intent_scope,
   };
 }

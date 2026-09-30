@@ -21,6 +21,10 @@ import {
 } from "./RevisionAcceptanceChecks.js";
 import { compileFounderFeedbackIR } from "./FounderFeedbackIR.js";
 import {
+  evaluateItemFulfillment,
+  itemRequiresMutationFulfillment,
+} from "./FounderFeedbackFulfillment.js";
+import {
   verificationCheckTypes,
   type ClassifiedRequestedChange,
 } from "./RequestedChangeClassification.js";
@@ -2659,6 +2663,23 @@ export function buildFeedbackCoverage(input: {
       check_types: irItem.check_types,
       canonical_form: null,
     };
+
+    if (itemRequiresMutationFulfillment(irItem)) {
+      const proof = evaluateItemFulfillment({
+        item: irItem,
+        beforeCanvas: input.beforeCanvas,
+        afterCanvas: input.afterCanvas,
+      });
+      items.push({
+        founder_feedback_item: change,
+        status: proof.pass ? "addressed" : "not_addressed",
+        evidence: {
+          affected_object_ids: proof.bound_object_ids,
+          notes: proof.notes,
+        },
+      });
+      continue;
+    }
 
     /**
      * Zero-operation coverage modes (Phase 6G).

@@ -331,7 +331,7 @@ function main(): void {
 
   const ir = compileFounderFeedbackIR([CANONICAL_CONTENT_PRESERVATION]);
   assert(
-    ir.schema_version === "founder-feedback-ir-1.0.0" &&
+    ir.schema_version.startsWith("founder-feedback-ir-") &&
       ir.items.length >= 1 &&
       ir.completeness_sections.length === 0,
     "c1_ir_unaffected",

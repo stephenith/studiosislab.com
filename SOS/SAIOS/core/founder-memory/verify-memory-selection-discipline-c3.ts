@@ -397,7 +397,7 @@ function main(): void {
 
   const irStill = compileFounderFeedbackIR(layoutPacket);
   assert(
-    irStill.schema_version === "founder-feedback-ir-1.0.0" &&
+    irStill.schema_version.startsWith("founder-feedback-ir-") &&
       irStill.completeness_sections.length === 0,
     "c1_ir_unaffected",
   );

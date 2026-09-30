@@ -28,7 +28,8 @@
 
 - Canonical department master: `SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md`.
 - Current live status is `CONSOLIDATION_REQUIRED`. Historical `CORE_RESUME_TEMPLATE_FACTORY_GOAL_MET` remains true.
-- Next authorized Resume implementation is consolidation phase **C5 (One authorized live Request Changes)** after Founder reviews C4. Do not start C5 until that review. Do not retry historical revision tasks.
+- C5 live Request Changes proof completed **FAIL** on `revtask-863f67a5-790`. That historical task remains immutable. Do not Approve it. Do not retry `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`. Do not start C6.
+- C1/C4 semantic fulfillment was corrected offline (`founder-feedback-ir-1.1.0`). Next authorized Resume step is Founder review of that correction, then **one new** live Request Changes proof on a different task if the Founder authorizes it. `READY_FOR_C6=NO` until that new live proof passes.
 - Do not redesign or reopen Resume Template production systems except to execute the recorded C1–C6 plan after Founder-authorized implementation.
 - In user-facing text, always use “Resume Template” and “Resume Template ID”.
 - Existing `candidate`, `candidate_id` and `candidates/` names are legacy internal identifiers and may remain for compatibility.

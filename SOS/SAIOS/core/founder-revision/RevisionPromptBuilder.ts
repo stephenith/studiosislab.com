@@ -490,11 +490,37 @@ export function buildTargetCandidateHints(
   for (let i = 0; i < ir.items.length; i++) {
     const irItem = ir.items[i]!;
     const change = irItem.founder_feedback_item;
-    if (irItem.classification === "VERIFICATION_ACCEPTANCE") {
+    if (
+      irItem.classification === "VERIFICATION_ACCEPTANCE" &&
+      irItem.action !== "LAYOUT_MUTATION" &&
+      irItem.action !== "CONTENT_MUTATION"
+    ) {
       lines.push(
         `Item ${i + 1} [VERIFICATION_ACCEPTANCE] — emit ZERO operations for this item.`,
       );
       continue;
+    }
+    const descriptor = irItem.fulfillment.find((p) => p.target)?.target;
+    if (descriptor) {
+      const pageW = 794;
+      const descHits = inventory.filter((o) => {
+        if (o.system) return false;
+        const w = o.width ?? 99;
+        const h = o.height ?? 0;
+        const left = o.left ?? 0;
+        if (descriptor.orientation === "vertical" && w <= 16 && h >= 80) return true;
+        if (descriptor.side === "left" && left < pageW / 3 && w <= 16) return true;
+        return false;
+      });
+      if (descHits.length) {
+        lines.push(
+          `Item ${i + 1} [${irItem.action}] Descriptor candidates: ${descHits
+            .map((h) => h.id)
+            .slice(0, 8)
+            .join(", ")}`,
+        );
+        continue;
+      }
     }
     const n = change.toLowerCase();
     const hits = inventory.filter((o) => {

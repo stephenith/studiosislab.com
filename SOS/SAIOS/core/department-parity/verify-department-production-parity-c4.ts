@@ -29,6 +29,7 @@ import {
   evaluateSharedGeometryAdmission,
 } from "../geometry-admission/SharedGeometryAdmission.js";
 import { compileFounderFeedbackIR } from "../founder-revision/FounderFeedbackIR.js";
+import { evaluateItemFulfillment } from "../founder-revision/FounderFeedbackFulfillment.js";
 import {
   CANONICAL_COLLISION_BOUNDS_QA,
   CANONICAL_CONTENT_PRESERVATION,
@@ -942,6 +943,325 @@ async function main(): Promise<void> {
         i.classification === "PRESERVATION_CONSTRAINT",
     ),
     "canonical_preservation_still_preservation",
+  );
+
+  const C5_LINE =
+    "The left green vertical line which is placed should be till the bottom.";
+  const C5_EDU =
+    "In the education section we can add more content for example: High schooling, college details, graduation details etc.";
+  const c5Canvas = page([
+    {
+      type: "rect",
+      id: "page-accent-rail",
+      left: 50,
+      top: 40,
+      width: 4,
+      height: 891,
+      fill: "#0d9488",
+    },
+    text("c5-title", "UI Designer", 48, {
+      section: "header",
+      role: "professional_title",
+      width: 400,
+      height: 18,
+    }),
+    text(
+      "block-education-3-t2",
+      "B.A. in Graphic Design, Arcadia University, 2018",
+      700,
+      { section: "education", width: 420, height: 20 },
+    ),
+  ]);
+  const c5Ir = compileFounderFeedbackIR([C5_LINE, C5_EDU]);
+  assert(
+    c5Ir.items[0]?.action === "LAYOUT_MUTATION" &&
+      c5Ir.items[0]?.coverage_mode === "MUTATION_REQUIRED" &&
+      c5Ir.items[1]?.action === "CONTENT_MUTATION" &&
+      c5Ir.content_addition_sections.includes("education"),
+    "c5_ir_natural_language_ownership",
+    `${c5Ir.items.map((i) => i.action).join(",")} add=${c5Ir.content_addition_sections.join(",")}`,
+  );
+  assert(
+    evaluateItemFulfillment({
+      item: c5Ir.items[0]!,
+      beforeCanvas: c5Canvas,
+      afterCanvas: c5Canvas,
+    }).pass === false &&
+      evaluateItemFulfillment({
+        item: c5Ir.items[1]!,
+        beforeCanvas: c5Canvas,
+        afterCanvas: c5Canvas,
+      }).pass === false,
+    "c5_unchanged_canvas_fulfillment_blocked",
+  );
+  const c5Empty = await runRevision({
+    priorId: "cand-c4-c5empty",
+    canvas: c5Canvas,
+    role: "UI Designer",
+    requested_changes: [C5_LINE, C5_EDU],
+    plan: emptyPlan(),
+  });
+  assert(
+    !c5Empty.ok && c5Empty.status !== "READY_FOR_FOUNDER_REVIEW",
+    "c5_empty_plan_false_pass_blocked",
+    `${c5Empty.status} ${c5Empty.owner ?? ""} ${c5Empty.error ?? ""}`,
+  );
+  const c5Fulfilled: FabricCanvasDoc = JSON.parse(JSON.stringify(c5Canvas));
+  const rail = (c5Fulfilled.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "page-accent-rail",
+  ) as { height?: number };
+  if (rail) rail.height = 1083;
+  const edu = (c5Fulfilled.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "block-education-3-t2",
+  ) as { text?: string };
+  if (edu) {
+    edu.text =
+      "B.A. in Graphic Design, Arcadia University, 2018. High school diploma; additional college coursework.";
+  }
+  assert(
+    evaluateItemFulfillment({
+      item: c5Ir.items[0]!,
+      beforeCanvas: c5Canvas,
+      afterCanvas: c5Fulfilled,
+    }).pass &&
+      evaluateItemFulfillment({
+        item: c5Ir.items[1]!,
+        beforeCanvas: c5Canvas,
+        afterCanvas: c5Fulfilled,
+      }).pass,
+    "c5_fulfilled_canvas_passes_predicates",
+  );
+  const c5Run = await runRevision({
+    priorId: "cand-c4-c5ok",
+    canvas: c5Canvas,
+    role: "UI Designer",
+    requested_changes: [C5_LINE, C5_EDU],
+    plan: {
+      schema_version: "founder-canvas-revision-plan-1.0.0",
+      summary: "extend rail and add education",
+      operations: [
+        {
+          op: "set_dimensions",
+          target_id: "page-accent-rail",
+          intended_change: "extend rail to page bottom",
+          before_summary: "page-accent-rail height 891 top 40",
+          values: { height: 1083 },
+          founder_feedback_item: C5_LINE,
+          confidence: 0.9,
+        },
+        op({
+          target_id: "block-education-3-t2",
+          intended_change: "add education details",
+          values: {
+            text: "B.A. in Graphic Design, Arcadia University, 2018. High school diploma; additional college coursework.",
+          },
+          founder_feedback_item: C5_EDU,
+        }),
+      ],
+    },
+  });
+  assert(
+    c5Run.ok && c5Run.status === "READY_FOR_FOUNDER_REVIEW",
+    "c5_fulfilled_revision_ready",
+    `${c5Run.status} ${c5Run.owner ?? ""} ${c5Run.error ?? ""}`,
+  );
+
+  const natural: Array<[string, string, string]> = [
+    ["add more summary details", "CONTENT_MUTATION", "content_add"],
+    ["Remove the skills section", "CONTENT_REMOVAL", "content_remove"],
+    ["Rewrite the Summary for an Operations Analyst", "CONTENT_MUTATION", "content_rewrite"],
+    ["Preserve Experience content", "CONTENT_PRESERVATION", "content_preserve"],
+    ["Move the Projects section down", "LAYOUT_MUTATION", "object_move"],
+    ["The heading bar should reach the bottom", "LAYOUT_MUTATION", "object_extend"],
+    ["Resize the skills box", "LAYOUT_MUTATION", "object_resize"],
+    ["Tighten Skills to Projects spacing in the sidebar", "LAYOUT_MUTATION", "spacing"],
+    ["The heading should align with the section", "LAYOUT_MUTATION", "alignment"],
+    ["Preserve the current spacing", "LAYOUT_PRESERVATION", "layout_preserve"],
+    ["this divider should reach the bottom", "LAYOUT_MUTATION", "desired_state"],
+    ["Extend the sidebar rail downward", "LAYOUT_MUTATION", "imperative"],
+    ["the vertical rule should be till the page edge", "LAYOUT_MUTATION", "should_be"],
+    ["we can add more certifications content", "CONTENT_MUTATION", "can_add"],
+    [
+      "Add more education details and the left vertical line should reach the bottom",
+      "CONTENT_MUTATION",
+      "mixed",
+    ],
+    [CANONICAL_COLLISION_BOUNDS_QA, "VERIFICATION", "true_already_satisfied"],
+    [C5_LINE, "LAYOUT_MUTATION", "false_already_satisfied"],
+    ["Do not add more education content", "CONTENT_PRESERVATION", "negation"],
+    [
+      "Expand the projects section, for example: case studies, outcomes, metrics etc.",
+      "CONTENT_MUTATION",
+      "embedded_examples",
+    ],
+  ];
+  for (const [line, action, name] of natural) {
+    const got = compileFounderFeedbackIR([line]).items[0]?.action;
+    assert(got === action, `c4_matrix_${name}`, `${line} => ${got ?? "none"}`);
+  }
+
+  const mixedNaturalIr = compileFounderFeedbackIR([
+    "Add more education details and the left vertical line should reach the bottom",
+  ]);
+  assert(
+    mixedNaturalIr.items[0]?.fulfillment.some((p) => p.kind === "CONTENT_ADD") &&
+      mixedNaturalIr.items[0]?.fulfillment.some((p) => p.kind === "GEOMETRY_EXTENT") &&
+      mixedNaturalIr.content_addition_sections.includes("education"),
+    "c4_mixed_keeps_content_and_extent",
+    JSON.stringify(mixedNaturalIr.items[0]?.fulfillment),
+  );
+
+  const probeBefore = page([
+    {
+      type: "rect",
+      id: "probe-rail",
+      left: 40,
+      top: 40,
+      width: 4,
+      height: 400,
+      fill: "#0d9488",
+    },
+    text("probe-summary", "Short summary.", 120, {
+      section: "summary",
+      width: 400,
+      height: 20,
+    }),
+    text("probe-skills", "Excel, Reporting, Demand Generation, ABM", 200, {
+      section: "skills",
+      width: 220,
+      height: 40,
+    }),
+    text("probe-edu", "B.A. Design, 2018", 700, {
+      section: "education",
+      width: 400,
+      height: 20,
+    }),
+    text("probe-title", "Marketing Manager", 60, {
+      section: "header",
+      width: 400,
+      height: 18,
+    }),
+    text("probe-certs", "First Aid", 500, {
+      section: "certifications",
+      width: 220,
+      height: 18,
+    }),
+    text("probe-projects", "Internal tooling", 400, {
+      section: "projects",
+      width: 220,
+      height: 18,
+    }),
+    {
+      type: "rect",
+      id: "heading-bar",
+      left: 48,
+      top: 36,
+      width: 18,
+      height: 70,
+      fill: "#111827",
+    },
+  ]);
+  const probeAfter = JSON.parse(JSON.stringify(probeBefore)) as FabricCanvasDoc;
+  const afterRail = (probeAfter.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "probe-rail",
+  ) as { height?: number };
+  if (afterRail) afterRail.height = 1080;
+  const afterEdu = (probeAfter.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "probe-edu",
+  ) as { text?: string };
+  if (afterEdu) afterEdu.text = "B.A. Design, 2018. High school; college; graduation thesis.";
+  const afterSkills = (probeAfter.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "probe-skills",
+  ) as { text?: string };
+  if (afterSkills) afterSkills.text = "";
+  const afterSummary = (probeAfter.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "probe-summary",
+  ) as { text?: string };
+  if (afterSummary) {
+    afterSummary.text =
+      "Operations Analyst focused on KPI reporting and workflow optimization.";
+  }
+  const afterTitle = (probeAfter.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "probe-title",
+  ) as { text?: string };
+  if (afterTitle) afterTitle.text = "Operations Analyst";
+  const afterCerts = (probeAfter.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "probe-certs",
+  ) as { text?: string };
+  if (afterCerts) afterCerts.text = "First Aid; operations reporting certificate; KPI workshop.";
+  const afterProjects = (probeAfter.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "probe-projects",
+  ) as { text?: string };
+  if (afterProjects) {
+    afterProjects.text =
+      "Internal tooling. Case studies, outcomes, and metrics for process improvement.";
+  }
+  const afterBar = (probeAfter.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "heading-bar",
+  ) as { height?: number };
+  if (afterBar) afterBar.height = 1080;
+
+  const fulfillmentProbes: Array<[string, string, boolean, boolean]> = [
+    ["add more summary details", "content_add", false, true],
+    ["Remove the skills section", "content_remove", false, true],
+    ["Rewrite the Summary for an Operations Analyst", "content_rewrite", false, true],
+    ["The heading bar should reach the bottom", "object_extend", false, true],
+    ["this divider should reach the bottom", "desired_state", false, true],
+    ["Extend the sidebar rail downward", "imperative", false, true],
+    ["the vertical rule should be till the page edge", "should_be", false, true],
+    ["we can add more certifications content", "can_add", false, true],
+    [
+      "Add more education details and the left vertical line should reach the bottom",
+      "mixed",
+      false,
+      true,
+    ],
+    [C5_LINE, "false_already_satisfied", false, true],
+    [
+      "Expand the projects section, for example: case studies, outcomes, metrics etc.",
+      "embedded_examples",
+      false,
+      true,
+    ],
+  ];
+  for (const [line, name, unchangedPass, fulfilledPass] of fulfillmentProbes) {
+    const item = compileFounderFeedbackIR([line]).items[0]!;
+    const unchanged = evaluateItemFulfillment({
+      item,
+      beforeCanvas: probeBefore,
+      afterCanvas: probeBefore,
+    });
+    const fulfilled = evaluateItemFulfillment({
+      item,
+      beforeCanvas: probeBefore,
+      afterCanvas: probeAfter,
+    });
+    assert(
+      unchanged.pass === unchangedPass,
+      `c4_fulfill_${name}_unchanged`,
+      unchanged.notes,
+    );
+    assert(
+      fulfilled.pass === fulfilledPass,
+      `c4_fulfill_${name}_canvas`,
+      fulfilled.notes,
+    );
+  }
+  assert(
+    evaluateItemFulfillment({
+      item: compileFounderFeedbackIR(["Preserve Experience content"]).items[0]!,
+      beforeCanvas: probeBefore,
+      afterCanvas: probeBefore,
+    }).pass,
+    "c4_fulfill_content_preserve_unchanged",
+  );
+  assert(
+    evaluateItemFulfillment({
+      item: compileFounderFeedbackIR([CANONICAL_COLLISION_BOUNDS_QA]).items[0]!,
+      beforeCanvas: probeBefore,
+      afterCanvas: probeBefore,
+    }).pass,
+    "c4_fulfill_true_already_satisfied_verification",
   );
 
   const failed = checks.filter((c) => !c.pass);

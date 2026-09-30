@@ -9,6 +9,8 @@
  */
 import {
   classifyRequestedChange,
+  hasContentAdditionIntent,
+  hasDesiredStateGeometryIntent,
   resolveIntentClauses,
   type RequestedChangeClass,
 } from "./RequestedChangeClassification.js";
@@ -23,6 +25,7 @@ export type ContentSectionKey =
 
 export type RevisionIntentClass =
   | "CONTENT_REPLACEMENT"
+  | "CONTENT_ADDITION"
   | "CONTENT_REMOVAL"
   | "LAYOUT_MUTATION"
   | "CONTENT_PRESERVATION"
@@ -50,6 +53,7 @@ export type RevisionIntentScope = {
   schema_version: "revision-intent-scope-1.0.0";
   items: ResolvedRevisionIntentItem[];
   content_replacement_sections: ContentSectionKey[];
+  content_addition_sections: ContentSectionKey[];
   content_removal_sections: ContentSectionKey[];
   content_mutation_sections: ContentSectionKey[];
   layout_sections: ContentSectionKey[];
@@ -72,6 +76,8 @@ const SECTION_NOUNS: ReadonlyArray<readonly [ContentSectionKey, RegExp]> = [
 
 const CONTENT_REWRITE_VERB =
   /\b(replace|rewrite|rewrit|reword|revise|update|swap|rework|refresh|correct|change)\b/i;
+const CONTENT_ADD_VERB =
+  /\b(add(?:ing)?|insert(?:ing)?|expand(?:ing)?|includ(?:e|ing)|more content|additional content)\b/i;
 const CONTENT_REMOVE_VERB = /\b(remove|delete|drop|strip)\b/i;
 const LAYOUT_OBJECT_RE =
   /\b(blank|whitespace|white space|gap|gaps|area|space|spacing|overlap|overlapp|collid|collision|margin|padding|position|reposition|rhythm|geometry|overflow|clip|wrap|alignment|bounds)\b/i;
@@ -121,6 +127,33 @@ function isContentReplacementClause(text: string): boolean {
   return mentionedSections(text).length > 0;
 }
 
+function isContentAdditionClause(text: string): boolean {
+  if (!CONTENT_ADD_VERB.test(text) && !hasContentAdditionIntent(text)) {
+    return false;
+  }
+  if (isLayoutObjectClause(text) && !/\b(content|copy|wording|text)\b/i.test(text)) {
+    return false;
+  }
+  return (
+    mentionedSections(text).length > 0 ||
+    /\b(content|copy|wording|details?|section)\b/i.test(text)
+  );
+}
+
+function isElaborationClause(text: string): boolean {
+  if (
+    CONTENT_REWRITE_VERB.test(text) ||
+    CONTENT_ADD_VERB.test(text) ||
+    CONTENT_REMOVE_VERB.test(text) ||
+    LAYOUT_MUTATION_RE.test(text) ||
+    LAYOUT_OBJECT_RE.test(text)
+  ) {
+    return false;
+  }
+  if (/\betc\b/i.test(text)) return true;
+  return text.split(/[,;]/).filter((p) => p.trim().length > 0).length >= 2;
+}
+
 function classifyClause(
   text: string,
   positive: boolean,
@@ -145,7 +178,9 @@ function classifyClause(
     return "CONTENT_PRESERVATION";
   }
   if (isContentRemovalClause(text)) return "CONTENT_REMOVAL";
+  if (isContentAdditionClause(text)) return "CONTENT_ADDITION";
   if (isContentReplacementClause(text)) return "CONTENT_REPLACEMENT";
+  if (hasDesiredStateGeometryIntent(text)) return "LAYOUT_MUTATION";
   if (isLayoutObjectClause(text) || LAYOUT_MUTATION_RE.test(text)) {
     return "LAYOUT_MUTATION";
   }
@@ -155,6 +190,9 @@ function classifyClause(
   }
   if (LAYOUT_MUTATION_RE.test(text) || LAYOUT_OBJECT_RE.test(text)) {
     return "LAYOUT_MUTATION";
+  }
+  if (lineClass === "MUTATION_REQUIRED" && isContentAdditionClause(text)) {
+    return "CONTENT_ADDITION";
   }
   return lineClass === "MUTATION_REQUIRED" ? "LAYOUT_MUTATION" : "VERIFICATION";
 }
@@ -176,7 +214,9 @@ export function resolveRevisionIntentForChange(
     );
     const sections = mentionedSections(clause.text);
     const content_scope =
-      intent_class === "CONTENT_REPLACEMENT" || intent_class === "CONTENT_REMOVAL"
+      intent_class === "CONTENT_REPLACEMENT" ||
+      intent_class === "CONTENT_ADDITION" ||
+      intent_class === "CONTENT_REMOVAL"
         ? sections
         : [];
     const layout_scope = intent_class === "LAYOUT_MUTATION" ? sections : [];
@@ -216,6 +256,48 @@ export function resolveRevisionIntentForChange(
       });
     }
   }
+  for (let i = 1; i < clauses.length; i++) {
+    const prev = clauses[i - 1]!;
+    const cur = clauses[i]!;
+    if (!isElaborationClause(cur.text)) continue;
+    if (
+      prev.intent_class !== "CONTENT_ADDITION" &&
+      prev.intent_class !== "CONTENT_REPLACEMENT" &&
+      prev.intent_class !== "CONTENT_REMOVAL"
+    ) {
+      continue;
+    }
+    clauses[i] = {
+      ...cur,
+      intent_class: prev.intent_class,
+      target_sections: uniqueSections([
+        ...cur.target_sections,
+        ...prev.target_sections,
+      ]),
+      content_scope: uniqueSections([
+        ...cur.content_scope,
+        ...prev.content_scope,
+        ...prev.target_sections,
+      ]),
+      layout_scope: [],
+      preservation_scope: [],
+    };
+  }
+  if (
+    clauses.some((c) => c.intent_class === "CONTENT_ADDITION") &&
+    clauses.every((c) => c.content_scope.length === 0)
+  ) {
+    const named = mentionedSections(requestedChange);
+    for (const clause of clauses) {
+      if (clause.intent_class === "CONTENT_ADDITION") {
+        clause.content_scope = named;
+        clause.target_sections = uniqueSections([
+          ...clause.target_sections,
+          ...named,
+        ]);
+      }
+    }
+  }
   return {
     founder_feedback_item: requestedChange,
     classification: classification.classification,
@@ -231,6 +313,7 @@ export function assembleRevisionIntentScope(
   items: ResolvedRevisionIntentItem[],
 ): RevisionIntentScope {
   const contentReplacement = new Set<ContentSectionKey>();
+  const contentAddition = new Set<ContentSectionKey>();
   const contentRemoval = new Set<ContentSectionKey>();
   const layout = new Set<ContentSectionKey>();
   const contentPreserve = new Set<ContentSectionKey>();
@@ -240,6 +323,7 @@ export function assembleRevisionIntentScope(
     for (const clause of item.clauses) {
       for (const s of clause.content_scope) {
         if (clause.intent_class === "CONTENT_REMOVAL") contentRemoval.add(s);
+        else if (clause.intent_class === "CONTENT_ADDITION") contentAddition.add(s);
         else contentReplacement.add(s);
       }
       for (const s of clause.layout_scope) layout.add(s);
@@ -252,6 +336,7 @@ export function assembleRevisionIntentScope(
 
   const mutation = new Set<ContentSectionKey>([
     ...contentReplacement,
+    ...contentAddition,
     ...contentRemoval,
   ]);
   for (const s of mutation) contentPreserve.delete(s);
@@ -260,6 +345,7 @@ export function assembleRevisionIntentScope(
     schema_version: "revision-intent-scope-1.0.0",
     items,
     content_replacement_sections: [...contentReplacement],
+    content_addition_sections: [...contentAddition],
     content_removal_sections: [...contentRemoval],
     content_mutation_sections: [...mutation],
     layout_sections: [...layout],

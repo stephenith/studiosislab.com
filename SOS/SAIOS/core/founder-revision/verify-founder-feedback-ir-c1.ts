@@ -23,6 +23,10 @@ import {
   FOUNDER_FEEDBACK_IR_SCHEMA,
   NUMBER_OF_SEMANTIC_INTERPRETATION_PATHS,
 } from "./FounderFeedbackIR.js";
+import {
+  applyAlreadySatisfiedProof,
+  evaluateItemFulfillment,
+} from "./FounderFeedbackFulfillment.js";
 import { resolveRevisionIntentScope } from "./RevisionIntentScope.js";
 import {
   evaluateSectionReplacementCompleteness,
@@ -531,6 +535,139 @@ async function main(): Promise<void> {
       ),
     );
   }
+
+  const C5_LINE =
+    "The left green vertical line which is placed should be till the bottom.";
+  const C5_EDU =
+    "In the education section we can add more content for example: High schooling, college details, graduation details etc.";
+  const c5LineIr = compileFounderFeedbackIR([C5_LINE]);
+  const c5EduIr = compileFounderFeedbackIR([C5_EDU]);
+  assert(
+    c5LineIr.items[0]?.action === "LAYOUT_MUTATION" &&
+      c5LineIr.items[0]?.classification === "MUTATION_REQUIRED" &&
+      c5LineIr.items[0]?.coverage_mode === "MUTATION_REQUIRED" &&
+      c5LineIr.items[0]?.fulfillment.some((p) => p.kind === "GEOMETRY_EXTENT") &&
+      c5LineIr.items[0]?.action !== "ALREADY_SATISFIED",
+    "c5_item1_desired_state_not_already_satisfied",
+    JSON.stringify({
+      action: c5LineIr.items[0]?.action,
+      class: c5LineIr.items[0]?.classification,
+      mode: c5LineIr.items[0]?.coverage_mode,
+      fulfillment: c5LineIr.items[0]?.fulfillment,
+    }),
+  );
+  assert(
+    c5EduIr.items[0]?.action === "CONTENT_MUTATION" &&
+      c5EduIr.content_addition_sections.includes("education") &&
+      c5EduIr.content_mutation_sections.includes("education") &&
+      !c5EduIr.completeness_sections.includes("education") &&
+      c5EduIr.items[0]?.fulfillment.some((p) => p.kind === "CONTENT_ADD"),
+    "c5_item2_retains_content_add_ownership",
+    JSON.stringify({
+      action: c5EduIr.items[0]?.action,
+      add: c5EduIr.content_addition_sections,
+      mutation: c5EduIr.content_mutation_sections,
+      completeness: c5EduIr.completeness_sections,
+    }),
+  );
+
+  const shortRail: FabricCanvasDoc = {
+    version: "5.3.0",
+    width: 794,
+    height: 1123,
+    objects: [
+      {
+        type: "rect",
+        id: "page-accent-rail",
+        left: 50,
+        top: 40,
+        width: 4,
+        height: 891,
+        fill: "#0d9488",
+      },
+      {
+        type: "textbox",
+        id: "block-education-3-t2",
+        section: "education",
+        text: "B.A. in Graphic Design, Arcadia University, 2018",
+        left: 80,
+        top: 700,
+        width: 400,
+        height: 20,
+      },
+    ],
+  } as FabricCanvasDoc;
+  const provenShort = applyAlreadySatisfiedProof(c5LineIr, shortRail);
+  assert(
+    provenShort.items[0]?.action !== "ALREADY_SATISFIED",
+    "short_rail_not_proven_already_satisfied",
+    provenShort.items[0]?.action ?? "",
+  );
+  const lineProof = evaluateItemFulfillment({
+    item: c5LineIr.items[0]!,
+    beforeCanvas: shortRail,
+    afterCanvas: shortRail,
+  });
+  assert(
+    lineProof.pass === false,
+    "unchanged_short_rail_fulfillment_fails",
+    lineProof.notes,
+  );
+  const eduProof = evaluateItemFulfillment({
+    item: c5EduIr.items[0]!,
+    beforeCanvas: shortRail,
+    afterCanvas: shortRail,
+  });
+  assert(
+    eduProof.pass === false,
+    "unchanged_education_add_fulfillment_fails",
+    eduProof.notes,
+  );
+
+  const matrix: Array<[string, string, string]> = [
+    ["add more summary details", "CONTENT_MUTATION", "content_add"],
+    ["Remove the skills section", "CONTENT_REMOVAL", "content_remove"],
+    ["Rewrite the Summary for an Operations Analyst", "CONTENT_MUTATION", "content_rewrite"],
+    ["Preserve Experience content", "CONTENT_PRESERVATION", "content_preserve"],
+    ["Move the Projects section down", "LAYOUT_MUTATION", "object_move"],
+    ["The heading bar should reach the bottom", "LAYOUT_MUTATION", "object_extend"],
+    ["Resize the skills box", "LAYOUT_MUTATION", "object_resize"],
+    ["Tighten Skills to Projects spacing in the sidebar", "LAYOUT_MUTATION", "spacing"],
+    ["The heading should align with the section", "LAYOUT_MUTATION", "alignment"],
+    ["Preserve the current spacing", "LAYOUT_PRESERVATION", "layout_preserve"],
+    ["this divider should reach the bottom", "LAYOUT_MUTATION", "desired_state"],
+    ["Extend the sidebar rail downward", "LAYOUT_MUTATION", "imperative"],
+    ["the vertical rule should be till the page edge", "LAYOUT_MUTATION", "should_be"],
+    ["we can add more certifications content", "CONTENT_MUTATION", "can_add"],
+    ["Do not add more education content", "CONTENT_PRESERVATION", "negation"],
+    [
+      "Expand the projects section, for example: case studies, outcomes, metrics etc.",
+      "CONTENT_MUTATION",
+      "embedded_examples",
+    ],
+    [
+      "Add more education details and the left vertical line should reach the bottom",
+      "CONTENT_MUTATION",
+      "mixed",
+    ],
+  ];
+  for (const [line, action, name] of matrix) {
+    const ir = compileFounderFeedbackIR([line]);
+    assert(
+      ir.items[0]?.action === action,
+      `matrix_${name}`,
+      `${line} => ${ir.items[0]?.action ?? "none"}`,
+    );
+  }
+  const mixedC1 = compileFounderFeedbackIR([
+    "Add more education details and the left vertical line should reach the bottom",
+  ]);
+  assert(
+    mixedC1.items[0]?.fulfillment.some((p) => p.kind === "CONTENT_ADD") &&
+      mixedC1.items[0]?.fulfillment.some((p) => p.kind === "GEOMETRY_EXTENT"),
+    "matrix_mixed_retains_content_and_extent",
+    JSON.stringify(mixedC1.items[0]?.fulfillment),
+  );
 
   for (const id of HISTORICAL) {
     const p = join(REPO, "SOS/07_LOGS/saios/founder-revision/tasks", `${id}.json`);

@@ -60,25 +60,25 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-29T17:01:13+05:30** / **2026-09-29T11:31:13.000Z**. C5 preflight: no new Founder decision yet.
+Snapshot taken **2026-09-30T15:23:42+05:30** / **2026-09-30T09:53:42.000Z**. C1/C4 semantic fulfillment corrected offline after C5 FAIL.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `0d5590b705abdaeaa845b80eafb6e15e3073a896` (`main`) |
-| ORIGIN HEAD | `0d5590b705abdaeaa845b80eafb6e15e3073a896` |
-| VPS HEAD | `0d5590b705abdaeaa845b80eafb6e15e3073a896` |
-| LOCAL STATUS | Dirty Website department files preserved; C4 harness staged explicitly |
-| VPS STATUS | FF sync of offline harness if push succeeds; no service restart required |
-| ACTIVE RUNTIME | `aios-founder-dashboard.service`; last live claim still `revtask-5d933072-daf` |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1 + C2 + C3 + C4 implemented offline |
+| LOCAL HEAD | `e58ef3fc2e0b14539454fd04376d2fb1dc565370` (`main`) before this commit |
+| ORIGIN HEAD | `e58ef3fc2e0b14539454fd04376d2fb1dc565370` before this commit |
+| VPS HEAD | `e58ef3fc2e0b14539454fd04376d2fb1dc565370` before this commit |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; only C1/C4 correction + docs staged |
+| VPS STATUS | Awaiting FF of this correction; no live revision |
+| ACTIVE RUNTIME | `aios-founder-dashboard.service` (restart only if this correction deploys) |
+| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline corrected; C5 historical FAIL immutable |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
-| REVISION STATUS | Department harness calls `runFounderFeedbackRevision`; latest live task still `revtask-5d933072-daf` (immutable) |
-| GENERATION STATUS | Admission spine proven in C4; full `runFirstProductionCycle` persist still not relocatable; `SOS_AIOS_LIVE=0` |
-| FOUNDER REVIEW STATUS | Queue unchanged; C5 waiting for ONE new Request Changes on selected UI Designer |
-| MEMORY STATUS | JSONL 1242; CONFIRMED 19 / PROVISIONAL 990 / SUPERSEDED 233; active-index 382 |
+| REVISION STATUS | Historical `revtask-863f67a5-790` unchanged READY; `revtask-5d933072-daf` / `revtask-76a04a21-6ff` unchanged |
+| GENERATION STATUS | Unchanged; `SOS_AIOS_LIVE=0` |
+| FOUNDER REVIEW STATUS | Child `…-revfb-f81691` must not be Approved; do not retry that task |
+| MEMORY STATUS | Unchanged this run (C3 not redesigned) |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
-| CURRENT PRIMARY BLOCKERS | C5 waiting for Founder Request Changes; live 5d933072 remains historical |
-| NEXT AUTHORIZED STEP | **C5** — Founder submits ONE Request Changes on `cand-creative-ui-designer-20260915T122023Z-79af7d`; then Agent observes to terminal state |
+| CURRENT PRIMARY BLOCKERS | Founder must review this offline correction before any new live proof; live 5d933072 remains historical |
+| NEXT AUTHORIZED STEP | **Founder reviews C1/C4 semantic fulfillment correction**, then one **new** live Request Changes proof if authorized. Do not retry C5. Do not start C6. |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -725,22 +725,40 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 - Older verifiers (6G–6P, 6L, C1–C3 unit files) remain. 6L is still the revision-only release harness; C4 is the department workflow harness.
 - Known debt: older critic-gate verifier dashboard/OpenAI dependency failures (unchanged; not required for C4).
 
-#### C5 — One authorized live Request Changes *(preflight 2026-09-29; waiting for Founder)*
+#### C5 — One authorized live Request Changes *(executed 2026-09-29; FAIL)*
 
 | Field | Content |
 |---|---|
-| PREFLIGHT | Local=origin=VPS `0d5590b`. Dashboard `{ok:true,live:false}`. Dispatcher started, pending=0. No decision newer than `fd-29f3e572-06b` (2026-09-23). Selected: `cand-creative-ui-designer-20260915T122023Z-79af7d` (WAITING_FOUNDER, preview, role PASS). Do not retry 5d933072 / 76a04a21. |
-| BUSINESS PURPOSE | Prove C1–C4 on a **new** Founder decision, not a mutated historical task. |
-| ARCHITECTURAL OUTCOME | One production `runFounderFeedbackRevision` with real bounded OpenAI reaches `READY_FOR_FOUNDER_REVIEW`; coverage agrees with IR; Telegram names the true owner on failure. |
-| COMPONENTS AFFECTED | Production path only (no code required if C1–C4 already shipped) |
-| DEPENDENCIES | C1–C4 deployed FF; `SOS_AIOS_LIVE` still 0 unless Founder says otherwise |
-| DATA / MEMORY IMPACT | New decision + new `revtask-*` only |
-| RISKS | 1–2 provider calls; new owner could still fail — then stop, do not patch-chain |
-| OFFLINE PROOF | Already done in C4 |
-| PRODUCTION-PARITY PROOF | This phase |
-| ROLLBACK | Leave failed new task immutable |
-| LIVE FOUNDER PROOF | **Yes — Founder must authorize the decision** |
-| BEFORE NEXT PHASE | READY + IR/coverage agree **or** a precise new architectural gap is recorded (not a regex patch) |
+| LIVE DECISION | `fd-ef2226ce-0da` CHANGES_REQUESTED `2026-09-29T11:40:25.917Z` on review `founder-review-cycle-creative-ui-designer-20260915T122023Z-79af7d`. Only 2026-09-29 decision. Not OA chain. |
+| LIVE TASK | `revtask-863f67a5-790` created `2026-09-29T11:40:25.989Z`; terminal `READY_FOR_FOUNDER_REVIEW` `2026-09-29T11:41:10.104Z`; `failure_code=null`. Child `cand-creative-ui-designer-20260915T122023Z-79af7d-revfb-f81691`. |
+| FOUNDER ITEMS | (1) left green vertical line to the bottom; (2) add education content (high school / college / graduation). |
+| C1 IR | `founder-feedback-ir-1.0.0` 2 items: item1 `ALREADY_SATISFIED` / `VERIFICATION_ACCEPTANCE`; item2 `LAYOUT_MUTATION` / `DETERMINISTIC_LAYOUT_OWNED` education; `completeness_sections=[]`. |
+| PROVIDER | openai `gpt-4.1-mini-2025-04-14`; 1 call; `operations=[]`. Plan notes said item1 needs no ops and item2 is layout-normalizer owned. |
+| C3 MEMORY | considered 384; ineligible 145; irrelevant 238; selected 1 `fpm-5ae5b777-910` CONFIRMED `DESIGN_FAMILY_PREFERENCE` ARCHITECTURE/SPACING. No MM→OA / TASK_SPECIFIC selected. |
+| C2 GEOMETRY | kernel pass; overlaps 0; OOB 0; page-fit true. Page height 1123; `page-accent-rail` top 40 height 891 (bottom 931; **192px short of page bottom**). |
+| ROLE / GATES | Role `ROLE_MATCH` UI Designer. Coverage `all_addressed=true`. Final acceptance overall `PASS`. Preview `preview.png` 395279 bytes. |
+| ARTIFACT TRUTH | Prior and revised `canvas.json` are identical (SHA identity). Education text still only `B.A. in Graphic Design, Arcadia University, 2018`. Line not extended. Historical 5d933072 / 76a04a21 not mutated. |
+| ARCHITECTURAL GAP | C1 classified a real layout mutation as already-satisfied and a real content add as deterministic-layout-owned. Coverage/acceptance agreed with that IR and returned READY on an empty plan. Inverse of 5d933072 (empty plan used to fail completeness; now empty plan READY). Not a regex patch in this run. |
+| C5 RESULT | **FAIL**. Pipeline READY is not C5 PASS. `READY_FOR_C6=NO`. Do not Approve. Do not retry. Immutable regression evidence only. |
+
+#### C1/C4 semantic fulfillment correction *(offline 2026-09-30; not C6; not another live proof)*
+
+| Field | Content |
+|---|---|
+| C5 ROOT CAUSE | Item 1 desired-state English fell through to `GENERAL_ACCEPTANCE` / `VERIFICATION_ACCEPTANCE` and compiled as `ALREADY_SATISFIED` without canvas proof (rail bottom 931 vs page 1123). Item 2 mutation intent was recognized but clause classification missed natural content-add, so education became `DETERMINISTIC_LAYOUT_OWNED`. Coverage/acceptance certified the wrong IR. C4 missed it because cases used schema-like sentences and asserted pipeline state more than requested-state fulfillment. |
+| CORRECTED C1 CONTRACT | Still **one** public semantic owner: `compileFounderFeedbackIR`. Schema `founder-feedback-ir-1.1.0`. Compilation from English **never** emits `ALREADY_SATISFIED`. Desired-state geometry (`should`/`till`/`reach` + visual object + bound) is `LAYOUT_MUTATION`. Natural content-add (`can add` / `more content` + section) stays `CONTENT_MUTATION` with `content_addition_sections`. Layout reflow does not erase content ownership. |
+| ALREADY_SATISFIED | Only after `applyAlreadySatisfiedProof(IR, canvas)` proves required predicates on the current canvas. Short/unsatisfied extent stays `LAYOUT_MUTATION`. |
+| DESIRED-STATE MODEL | Reach/extend/till/should-be + bound compile to `GEOMETRY_EXTENT`. Mere mention of top/bottom as a problem location does not. |
+| CONTENT-ADD MODEL | Additive language keeps `CONTENT_ADD` predicates and education (or named section) in mutation/addition scope, not completeness-as-replace unless the line is a replacement. Embedded examples after `for example:` are illustrative for add; listed examples after remove/such-as are absence targets. |
+| TARGET BINDING | Execution-time `bindTargetDescriptor` uses orientation/side/shape/color-family from the Founder line. No canvas IDs, no `page-accent-rail` special case, no UI Designer / green-rail phrase dictionary. |
+| FULFILLMENT | IR stores predicates. Coverage evaluates them on before/after canvas and must not re-parse Founder English. Unsatisfied mutation predicates cannot be coverage PASS. Empty mutation plans fail closed (plan schema or coverage), not READY. |
+| PROVIDER | Existing bounded planner path unchanged. Limits not increased. Skip-for-cost not added: mutation packets still require the planner unless every item is verification/preservation. |
+| C4 STRENGTHENED | Harness now asserts actual canvas fulfillment for C5 sentences and a generalized natural-language matrix (add/remove/rewrite/preserve, move/extend/resize, spacing/alignment/preserve, desired-state, imperative, should-be, can-add, mixed, true/false already-satisfied, negation, embedded examples). |
+| C5 OFFLINE REGRESSION | Exact two C5 sentences are permanent offline fixtures. Short rail is not `ALREADY_SATISFIED`. Education keeps `CONTENT_ADD`. Unchanged canvas cannot be declared successful. Historical live task not mutated. |
+| GENERALIZED REGRESSION | Alternate natural formulations in C1/C4 matrix prove classes of intent, not memorized C5 wording. |
+| KNOWN LIMITATIONS | Empty mutation plans fail at plan-schema (`operations must be a non-empty array`) before coverage; that is fail-closed, not a false PASS. Move/resize/spacing/alignment without a reach-bound have no `GEOMETRY_EXTENT` predicate and still use the existing layout-ownership/coverage path. Provider is not skipped. C2/C3 not redesigned (schema prefix compatibility only). |
+| OFFLINE RESULT | C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6J PASS (6I 28/28). No production OpenAI, no new live revision, no Approve. |
+| NEXT | Founder reviews this correction. If accepted: **one new** live Request Changes proof. `READY_FOR_C6=NO`. |
 
 #### C6 — Closure audit (schedule remains later)
 
@@ -758,7 +776,7 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 
 **Combinable:** C1 + small Telegram `failure_code` honesty. **Not combinable with C1:** C2 generation gate, C3 memory, C5 live proof.
 
-**Total implementation phases: 6.** C1–C4 shipped offline. Next: **C5**.
+**Total implementation phases: 6.** C1–C4 shipped offline and C1/C4 fulfillment corrected 2026-09-30. C5 live proof remains historical **FAIL**. Do not start **C6**.
 
 ### Proof strategy (department)
 
@@ -770,7 +788,7 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 | Content-only / mixed / already-satisfied / malformed plan | Department harness | C4 |
 | Approval → memory taxonomy | Harness + C3 selector | C3–C4 |
 | Staging eligibility | Existing staging checks in harness | C4 |
-| Live Request Changes | New Founder decision only | C5 |
+| Live Request Changes | New Founder decision only | C5 **FAIL** — READY with unchanged canvas / C1 IR misclassification |
 
 ### Migration
 
@@ -813,10 +831,10 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | revision_task_counts | READY 18 / FAILED_COVERAGE 9 / FAILED 7 / FAILED_GATE 15 / PENDING 0 |
 | Timers | morning last 2026-09-29 03:20 UTC; evening last 2026-09-28 12:20 UTC; next morning 2026-09-30 03:20 UTC; generation **service** disabled; publication nightly last 2026-09-29 02:00 UTC |
 | Dashboard | active, PID 4063798, started 2026-09-23 07:36:41 UTC; NRestarts=0 |
-| Last revision of note | `revtask-5d933072-daf` FAILED_GATE 2026-09-23T12:13:55Z — still latest; no new live revision since |
-| Candidate dirs on VPS | 80 (WAITING_FOUNDER files 46 ≠ projection waiting 20) |
-| P0 | C5 one authorized live Request Changes (C1–C4 shipped offline) |
-| P1 | Live Founder proof (C5); closure audit remains C6 |
+| Last revision of note | `revtask-863f67a5-790` READY_FOR_FOUNDER_REVIEW 2026-09-29T11:41:10Z — C5 proof FAIL (unchanged canvas). Historical `revtask-5d933072-daf` still FAILED_SECTION_COMPLETENESS |
+| Candidate dirs on VPS | Child `…-revfb-f81691` materialized; do not Approve |
+| P0 | Founder reviews C1/C4 semantic fulfillment correction; then one new live proof if authorized. Do not retry C5. Do not start C6. |
+| P1 | Closure audit remains C6 and is **not** authorized |
 | P2 | READY_FOR_FOUNDER_REVIEW success Telegram; overlay vs capacity honesty |
 
 ---
@@ -834,6 +852,8 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | 2026-09-29T15:56:26+05:30 | C2 shared geometry admission is the sole Founder Review geometry oracle | Generation could enter Review on critic scores while revision already fail-closed on overlap/OOB/page-fit | C2 verifier PASS; C1 + 5W + 6L + 6P PASS; historical good fixture accepted; 5W-class overlap rejected | Second generation checker; turning critic scores into hard geometry; starting C3; enabling LIVE | SharedGeometryAdmission + generation cycle + CriticGate + revision pipeline | Yes until C3 ships |
 | 2026-09-29T16:20:00+05:30 | C3 memory selection is read-side learning-class discipline; JSONL is not rewritten | Active/provisional MM→OA title rules were retrieved as layout law; 990 provisionals outnumbered 19 confirmed | C3 verifier PASS; 6B/6C/6F + C1 + C2 PASS; 5d933072-class MM→OA not selected | Deleting provisionals; confirming all rows; a second memory store; starting C4; enabling LIVE | FounderMemoryLearningClass + Consumption + Maturation + RevisionPromptBuilder IR handoff | Yes until C4 ships |
 | 2026-09-29T16:52:35+05:30 | C4 is one department harness calling production functions, not a second fake department | Isolated phase tests created false confidence; 6L covers revision only | C4 verifier PASS; C1 + C2 + C3 + 6L PASS | Wrapping 6L only; running live generation; adding CYCLE_LOG hook in this phase; starting C5 | department-parity harness | Yes until C5 |
+| 2026-09-29T17:15:30+05:30 | C5 live proof is FAIL; record C1 IR semantic-ownership gap; do not patch or start C6 | Founder asked line-to-bottom + add education content; IR treated those as already-satisfied + layout-owned; empty plan READY; canvases identical | `fd-ef2226ce-0da`; `revtask-863f67a5-790` evidence; prior/rev canvas SHA identity; rail 931 vs page 1123 | Approving READY; retrying; regex-patching C1; starting C6 | Docs/state only | Yes |
+| 2026-09-30T15:23:42+05:30 | Correct the one C1 semantic owner and strengthen C4 fulfillment assertions; do not retry C5; do not start C6 | C5 FAIL root cause: English-only already-satisfied + content-add falling to layout ownership; C4 asserted labels not canvas state | Offline C1/C2/C3/C4/6J PASS; C5 sentences as fixtures; generalized matrix | Phrase dictionary for “till the bottom”/education/green rail; second English parser; retry `revtask-863f67a5-790`; C6 | FounderFeedbackIR 1.1.0 + FounderFeedbackFulfillment + coverage + C4 harness | Yes until next live proof |
 
 ---
 
@@ -946,14 +966,46 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** Founder might open the OA failure-chain template instead
 - **NEXT STEP:** Founder submits ONE Request Changes on the selected UI Designer
 
+### 2026-09-29T17:15:30+05:30 — C5 LIVE REQUEST CHANGES PROOF FAIL
+
+- **PHASE/TASK:** C5 one authorized live Request Changes
+- **PURPOSE:** Prove C1–C4 on one new Founder decision
+- **BEFORE STATE:** Preflight waiting; selected UI Designer `cand-creative-ui-designer-20260915T122023Z-79af7d`
+- **CHANGE:** Observation only. Decision `fd-ef2226ce-0da` created task `revtask-863f67a5-790`. Production reached `READY_FOR_FOUNDER_REVIEW`. Artifact truth: identical canvas; C1 IR misclassified both Founder items. No Approve. No retry. No production patch.
+- **FILES MODIFIED:** this file; project master; project-state; `AGENTS.md`
+- **TESTS:** Production evidence inspect (SSH); no offline verifier rerun required
+- **COMMIT:** not created in this run (docs/state update only)
+- **DEPLOY:** none; no service restart
+- **LIVE PROOF:** YES — FAIL
+- **RESULT:** C5 FAIL; READY_FOR_C6=NO
+- **NEW RISKS:** Dashboard READY can hide C1 IR empty-plan acceptance
+- **NEXT STEP:** Founder reviews C5 failure; do not start C6
+
+### 2026-09-30T15:23:42+05:30 — C1/C4 SEMANTIC FULFILLMENT CORRECTION
+
+- **PHASE/TASK:** Post-C5 offline correction (not C6; not another live proof)
+- **PURPOSE:** Stop natural Founder language from being falsely already-satisfied or converted from content-add into layout-only ownership
+- **BEFORE STATE:** C5 FAIL; IR 1.0.0; desired-state → VERIFICATION_ACCEPTANCE; `can add` education → DETERMINISTIC_LAYOUT_OWNED; C4 asserted IR labels / READY
+- **CHANGE:** IR 1.1.0 + fulfillment predicates; canvas-proven already-satisfied; desired-state extent; content-add ownership; visual target bind; coverage evaluates predicates; C4 asserts canvas fulfillment; C5 sentences are offline fixtures
+- **FILES MODIFIED:** `FounderFeedbackIR.ts`, `FounderFeedbackFulfillment.ts` (new), `FeedbackCoverage.ts`, `FounderRevisionPipeline.ts`, classification/intent-scope/prompt-builder, C1/C2/C3/C4 verifiers; this file; project master; project-state; `AGENTS.md`
+- **TESTS:** C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6J PASS
+- **COMMIT:** *(this implementation commit)*
+- **DEPLOY:** FF origin + VPS after this commit; restart dashboard if code deploys
+- **LIVE PROOF:** None. Historical C5 task not mutated.
+- **RESULT:** Generalized offline correction PASS. `READY_FOR_C6=NO`.
+- **NEW RISKS:** Next live packet may still expose unmodeled Founder phrasing; empty mutation plans fail at plan-schema (fail-closed).
+- **NEXT STEP:** Founder reviews this correction; then one new live Request Changes proof if authorized
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**C5 — Founder submits ONE Request Changes, then Agent observes**
+**Founder reviews the C1/C4 semantic fulfillment correction**
 
-Selected Resume Template ID: `cand-creative-ui-designer-20260915T122023Z-79af7d`.  
-Do not retry `revtask-5d933072-daf` or `revtask-76a04a21-6ff`.  
+If accepted, the next proof is **one new** live Request Changes task — not a retry of `revtask-863f67a5-790`.  
+Do not Approve `revtask-863f67a5-790`.  
+Do not retry `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
+Do not start C6.  
 Do not enable `SOS_AIOS_LIVE`.

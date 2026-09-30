@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PROJECT-WIDE / RESUME — C4 DEPARTMENT PRODUCTION-PARITY HARNESS IMPLEMENTED 2026-09-29. Canonical docs: SOS/STUDIOSISLAB_PROJECT_MASTER.md + SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md. Status remains CONSOLIDATION_REQUIRED. Next implementation is C5 One authorized live Request Changes after Founder reviews C4. Do not retry revtask-5d933072-daf or revtask-76a04a21-6ff. Do not treat OPERATIONALLY_COMPLETE as live truth. Website Department remains the next major product department and is not activated.",
+    "PROJECT-WIDE / RESUME — C1/C4 SEMANTIC FULFILLMENT CORRECTION 2026-09-30. Offline after C5 FAIL. IR founder-feedback-ir-1.1.0; already-satisfied requires canvas proof; desired-state and can-add keep mutation ownership; C4 asserts actual fulfillment. Historical revtask-863f67a5-790 / fd-ef2226ce-0da immutable. Do not Approve that child. Do not retry revtask-863f67a5-790, revtask-5d933072-daf, or revtask-76a04a21-6ff. Do not start C6. Next: Founder reviews this correction, then one new live Request Changes proof if authorized. Status remains CONSOLIDATION_REQUIRED. Website Department remains the next major product department and is not activated.",
     "NEXT DEPARTMENT — Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B — Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B — Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,16 @@
     "3 release(s) rolled back — snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-09-30T09:53:42.000Z",
+      "type": "consolidation_c1_c4_fulfillment",
+      "summary": "C1/C4 semantic fulfillment correction after C5 FAIL. Local wall=2026-09-30T15:23:42+05:30. UTC=2026-09-30T09:53:42.000Z. IR schema founder-feedback-ir-1.1.0; one public semantic owner. Compilation never emits ALREADY_SATISFIED; applyAlreadySatisfiedProof requires canvas. Desired-state extent and content-add ownership retained. Coverage evaluates IR predicates. C4 asserts canvas fulfillment including exact C5 sentences and generalized matrix. Offline: C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6J PASS. Historical revtask-863f67a5-790 / 5d933072 / 76a04a21 not mutated. No production OpenAI, generation, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY changes. READY_FOR_C6=NO. Next: Founder reviews correction, then one new live proof if authorized."
+    },
+    {
+      "at": "2026-09-29T11:45:30.000Z",
+      "type": "consolidation_c5",
+      "summary": "C5 live Request Changes proof FAIL. Local wall=2026-09-29T17:15:30+05:30. UTC=2026-09-29T11:45:30.000Z. Founder decision fd-ef2226ce-0da CHANGES_REQUESTED on cand-creative-ui-designer-20260915T122023Z-79af7d. Task revtask-863f67a5-790 READY_FOR_FOUNDER_REVIEW. Child cand-creative-ui-designer-20260915T122023Z-79af7d-revfb-f81691 preview exists. C1 IR 2 items ALREADY_SATISFIED + LAYOUT_MUTATION/DETERMINISTIC_LAYOUT_OWNED; completeness_sections=[]. Provider openai gpt-4.1-mini-2025-04-14 1 call operations=[]. C3 selected 1 CONFIRMED DESIGN_FAMILY_PREFERENCE fpm-5ae5b777-910; no TASK_SPECIFIC. C2 geometry pass overlaps=0 OOB=0 page-fit. Role ROLE_MATCH UI Designer. Coverage/final-acceptance pipeline PASS. Artifact truth: canvases identical; page-accent-rail bottom 931 vs page 1123; education text unchanged. Historical 5d933072/76a04a21 not mutated. No Approve, no retry, no production patch, no C6. READY_FOR_C6=NO."
+    },
     {
       "at": "2026-09-29T11:22:35.000Z",
       "type": "consolidation_c4",
@@ -3410,7 +3420,7 @@
     "operationally_complete_currently_asserted": false,
     "revision_engineering_status": "CONSOLIDATION_REQUIRED",
     "next_major_department": "Website Analysis / QA / Development",
-    "next_authorized_step": "C5 One authorized live Request Changes (after Founder reviews C4)",
+    "next_authorized_step": "Founder reviews C1/C4 semantic fulfillment correction; then one new live proof if authorized (do not retry C5; do not start C6)",
     "consolidation_plan": {
       "recorded_at_ist": "2026-09-29T15:22:52+05:30",
       "recorded_at_utc": "2026-09-29T09:52:52.100Z",
@@ -3430,24 +3440,37 @@
       "c4_status": "IMPLEMENTED_OFFLINE",
       "c4_at_ist": "2026-09-29T16:52:35+05:30",
       "c4_at_utc": "2026-09-29T11:22:35.000Z",
+      "c5_status": "LIVE_PROOF_FAIL",
+      "c5_at_ist": "2026-09-29T17:15:30+05:30",
+      "c5_at_utc": "2026-09-29T11:45:30.000Z",
+      "c5_decision_id": "fd-ef2226ce-0da",
+      "c5_task_id": "revtask-863f67a5-790",
+      "c5_result": "FAIL",
+      "c1_c4_fulfillment_correction_status": "IMPLEMENTED_OFFLINE",
+      "c1_c4_fulfillment_correction_at_ist": "2026-09-30T15:23:42+05:30",
+      "c1_c4_fulfillment_correction_at_utc": "2026-09-30T09:53:42.000Z",
+      "ir_schema_after": "founder-feedback-ir-1.1.0",
+      "ready_for_c6": false,
+      "ready_for_new_live_proof": true,
       "do_not_retry_live_tasks": true
     },
     "do_not_retry_tasks": [
       "revtask-5d933072-daf",
-      "revtask-76a04a21-6ff"
+      "revtask-76a04a21-6ff",
+      "revtask-863f67a5-790"
     ],
-    "snapshot_ist": "2026-09-29T17:01:13+05:30",
-    "snapshot_utc": "2026-09-29T11:31:13.000Z",
+    "snapshot_ist": "2026-09-30T15:23:42+05:30",
+    "snapshot_utc": "2026-09-30T09:53:42.000Z",
     "heads": {
-      "local": "0d5590b705abdaeaa845b80eafb6e15e3073a896",
-      "origin": "0d5590b705abdaeaa845b80eafb6e15e3073a896",
-      "vps": "0d5590b705abdaeaa845b80eafb6e15e3073a896"
+      "local": "e58ef3fc2e0b14539454fd04376d2fb1dc565370",
+      "origin": "e58ef3fc2e0b14539454fd04376d2fb1dc565370",
+      "vps": "e58ef3fc2e0b14539454fd04376d2fb1dc565370"
     }
   },
   "studiosislab_project": {
     "master_doc": "SOS/STUDIOSISLAB_PROJECT_MASTER.md",
     "resume_template_department_master_doc": "SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md",
-    "current_priority": "Resume Template consolidation phase C5 One authorized live Request Changes (after Founder reviews C4)",
+    "current_priority": "Resume Template consolidation — Founder review of C1/C4 semantic fulfillment correction",
     "resume_template_department_current_status": "CONSOLIDATION_REQUIRED",
     "core_resume_template_factory_goal_met": true,
     "operationally_complete_currently_asserted": false,
@@ -3459,12 +3482,12 @@
       "Revenue / Monetization",
       "AIOS System Audit / Optimization"
     ],
-    "snapshot_ist": "2026-09-29T17:01:13+05:30",
-    "snapshot_utc": "2026-09-29T11:31:13.000Z",
+    "snapshot_ist": "2026-09-30T15:23:42+05:30",
+    "snapshot_utc": "2026-09-30T09:53:42.000Z",
     "heads": {
-      "local": "0d5590b705abdaeaa845b80eafb6e15e3073a896",
-      "origin": "0d5590b705abdaeaa845b80eafb6e15e3073a896",
-      "vps": "0d5590b705abdaeaa845b80eafb6e15e3073a896"
+      "local": "e58ef3fc2e0b14539454fd04376d2fb1dc565370",
+      "origin": "e58ef3fc2e0b14539454fd04376d2fb1dc565370",
+      "vps": "e58ef3fc2e0b14539454fd04376d2fb1dc565370"
     }
   }
 

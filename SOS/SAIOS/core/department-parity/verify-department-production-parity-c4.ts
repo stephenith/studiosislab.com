@@ -29,7 +29,10 @@ import {
   evaluateSharedGeometryAdmission,
 } from "../geometry-admission/SharedGeometryAdmission.js";
 import { compileFounderFeedbackIR } from "../founder-revision/FounderFeedbackIR.js";
-import { evaluateItemFulfillment } from "../founder-revision/FounderFeedbackFulfillment.js";
+import {
+  applyPresentationMutations,
+  evaluateItemFulfillment,
+} from "../founder-revision/FounderFeedbackFulfillment.js";
 import {
   CANONICAL_COLLISION_BOUNDS_QA,
   CANONICAL_CONTENT_PRESERVATION,
@@ -1088,6 +1091,19 @@ async function main(): Promise<void> {
     ],
     [CANONICAL_COLLISION_BOUNDS_QA, "VERIFICATION", "true_already_satisfied"],
     [C5_LINE, "LAYOUT_MUTATION", "false_already_satisfied"],
+    [
+      "In skill section display the mentioned skills in pointers like one below another, not one after another.",
+      "PRESENTATION_MUTATION",
+      "presentation_c5_reproof",
+    ],
+    ["Show the certifications one below another", "PRESENTATION_MUTATION", "presentation_vertical"],
+    ["Show the skills inline", "PRESENTATION_MUTATION", "presentation_inline"],
+    ["Display the tools as bullet points", "PRESENTATION_MUTATION", "presentation_bullets"],
+    ["Put each project on a separate line", "PRESENTATION_MUTATION", "presentation_lines"],
+    ["Stack the language items", "PRESENTATION_MUTATION", "presentation_stacked"],
+    ["Show the contact items side by side", "PRESENTATION_MUTATION", "presentation_side_by_side"],
+    ["Arrange the sidebar items in two columns", "PRESENTATION_MUTATION", "presentation_columns"],
+    ["Keep these skills inline", "PRESENTATION_PRESERVATION", "presentation_preserve"],
     ["Do not add more education content", "CONTENT_PRESERVATION", "negation"],
     [
       "Expand the projects section, for example: case studies, outcomes, metrics etc.",
@@ -1262,6 +1278,70 @@ async function main(): Promise<void> {
       afterCanvas: probeBefore,
     }).pass,
     "c4_fulfill_true_already_satisfied_verification",
+  );
+
+  const C5_PRESENT =
+    "In skill section display the mentioned skills in pointers like one below another, not one after another.";
+  const presentSkills = page([
+    text("c4-skills-h", "SKILLS", 700, { section: "skills" }),
+    text(
+      "c4-skills-body",
+      "Figma  ·  Adobe XD  ·  Sketch  ·  User Interface Design",
+      730,
+      { section: "skills", width: 400, height: 47 },
+    ),
+  ]);
+  const presentItem = compileFounderFeedbackIR([C5_PRESENT]).items[0]!;
+  const presentUnchanged = evaluateItemFulfillment({
+    item: presentItem,
+    beforeCanvas: presentSkills,
+    afterCanvas: presentSkills,
+  });
+  const presentApplied = applyPresentationMutations(
+    presentSkills,
+    compileFounderFeedbackIR([C5_PRESENT]),
+  );
+  const presentFulfilled = evaluateItemFulfillment({
+    item: presentItem,
+    beforeCanvas: presentSkills,
+    afterCanvas: presentApplied,
+  });
+  assert(
+    presentItem.action === "PRESENTATION_MUTATION" &&
+      presentItem.classification !== "VERIFICATION_ACCEPTANCE",
+    "c4_presentation_category_added",
+    presentItem.action,
+  );
+  assert(
+    presentUnchanged.pass === false,
+    "c4_presentation_unchanged_inline_blocked",
+    presentUnchanged.notes,
+  );
+  assert(
+    presentFulfilled.pass === true,
+    "c4_actual_presentation_fulfillment",
+    presentFulfilled.notes,
+  );
+  const sideReq = compileFounderFeedbackIR(["Show the skills side by side"]).items[0]!;
+  const sideCanvas = page([
+    text("c4-side-a", "Figma  ·  Adobe XD", 730, { section: "skills", left: 80 }),
+    text("c4-side-b", "Sketch  ·  User Interface Design", 732, {
+      section: "skills",
+      left: 240,
+    }),
+  ]);
+  assert(
+    evaluateItemFulfillment({
+      item: sideReq,
+      beforeCanvas: presentSkills,
+      afterCanvas: presentSkills,
+    }).pass === false &&
+      evaluateItemFulfillment({
+        item: sideReq,
+        beforeCanvas: presentSkills,
+        afterCanvas: sideCanvas,
+      }).pass === true,
+    "c4_presentation_side_by_side_fulfillment",
   );
 
   const failed = checks.filter((c) => !c.pass);

@@ -19,6 +19,8 @@
  *   3. durable clause-scoped intent resolution (resolveRequestedChangeIntent)
  */
 
+import { hasPresentationIntent } from "./PresentationIntent.js";
+
 export type RequestedChangeClass =
   | "MUTATION_REQUIRED"
   | "VERIFICATION_ACCEPTANCE"
@@ -930,6 +932,10 @@ export function clauseHasDesiredStateGeometryIntent(
   );
 }
 
+export function hasPresentationMutationIntent(requestedChange: string): boolean {
+  return hasPresentationIntent(requestedChange);
+}
+
 export function hasContentAdditionIntent(requestedChange: string): boolean {
   const normalized = normalizeForClassification(requestedChange);
   if (!normalized) return false;
@@ -1032,6 +1038,9 @@ export function resolveRequestedChangeIntent(
   if (clauses.length === 0) return verificationResult(["GENERAL_ACCEPTANCE"]);
 
   if (clauses.some((c) => clauseHasConcreteMutationIntent(c))) {
+    return mutationResult();
+  }
+  if (hasPresentationMutationIntent(normalized)) {
     return mutationResult();
   }
 

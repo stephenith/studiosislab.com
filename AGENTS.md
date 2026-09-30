@@ -29,7 +29,9 @@
 - Canonical department master: `SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md`.
 - Current live status is `CONSOLIDATION_REQUIRED`. Historical `CORE_RESUME_TEMPLATE_FACTORY_GOAL_MET` remains true.
 - C5 live Request Changes proof completed **FAIL** on `revtask-863f67a5-790`. That historical task remains immutable. Do not Approve it. Do not retry `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`. Do not start C6.
-- C1/C4 semantic fulfillment was corrected offline (`founder-feedback-ir-1.1.0`). Next authorized Resume step is Founder review of that correction, then **one new** live Request Changes proof on a different task if the Founder authorizes it. `READY_FOR_C6=NO` until that new live proof passes.
+- C1/C4 semantic fulfillment was corrected offline (`founder-feedback-ir-1.2.0` after the second C5 offline correction; one public semantic owner remains `compileFounderFeedbackIR`).
+- C5 live re-proof **FAIL** (`fd-87ecc16c-f45` / `revtask-4a0c006c-507`): the new Request Changes ran on historical C5 child `…-revfb-f81691`, not the authorized Motion Designer `…-bed721`. Do not retry `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`. Do not Approve. Do not start C6. `READY_FOR_C6=NO`.
+- Historical technical `READY_FOR_FOUNDER_REVIEW` is not current Founder Review actionability. Authorized audit-invalid results are current-state overlay records (`SOS/SAIOS/core/founder-review/actionability-overlay.json`), not task rewrites and not a candidate-ID blacklist.
 - Do not redesign or reopen Resume Template production systems except to execute the recorded C1–C6 plan after Founder-authorized implementation.
 - In user-facing text, always use “Resume Template” and “Resume Template ID”.
 - Existing `candidate`, `candidate_id` and `candidates/` names are legacy internal identifiers and may remain for compatibility.

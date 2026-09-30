@@ -45,7 +45,7 @@ export type FeedbackCoverageMode =
   | "VALIDATION_ONLY"
   | "DETERMINISTIC_LAYOUT_OWNED";
 
-export const FOUNDER_FEEDBACK_IR_SCHEMA = "founder-feedback-ir-1.1.0" as const;
+export const FOUNDER_FEEDBACK_IR_SCHEMA = "founder-feedback-ir-1.2.0" as const;
 
 /** Public semantic interpretation paths after C1. */
 export const NUMBER_OF_SEMANTIC_INTERPRETATION_PATHS = 1;
@@ -56,6 +56,8 @@ export type FounderFeedbackAction =
   | "LAYOUT_MUTATION"
   | "CONTENT_PRESERVATION"
   | "LAYOUT_PRESERVATION"
+  | "PRESENTATION_MUTATION"
+  | "PRESENTATION_PRESERVATION"
   | "VERIFICATION"
   | "ALREADY_SATISFIED";
 
@@ -106,6 +108,10 @@ function actionFromIntentClass(
       return "CONTENT_PRESERVATION";
     case "LAYOUT_PRESERVATION":
       return "LAYOUT_PRESERVATION";
+    case "PRESENTATION_MUTATION":
+      return "PRESENTATION_MUTATION";
+    case "PRESENTATION_PRESERVATION":
+      return "PRESENTATION_PRESERVATION";
     case "VERIFICATION":
       return "VERIFICATION";
   }
@@ -120,6 +126,12 @@ function dominantAction(
   );
   if (clause_actions.includes("CONTENT_REMOVAL")) return "CONTENT_REMOVAL";
   if (clause_actions.includes("CONTENT_MUTATION")) return "CONTENT_MUTATION";
+  if (clause_actions.includes("PRESENTATION_MUTATION")) {
+    return "PRESENTATION_MUTATION";
+  }
+  if (clause_actions.includes("PRESENTATION_PRESERVATION")) {
+    return "PRESENTATION_PRESERVATION";
+  }
   if (clause_actions.includes("CONTENT_PRESERVATION")) {
     return "CONTENT_PRESERVATION";
   }
@@ -147,6 +159,21 @@ function coverageModeForLine(
     clause_actions.includes("CONTENT_MUTATION")
   ) {
     return "MUTATION_REQUIRED";
+  }
+  if (clause_actions.includes("PRESENTATION_MUTATION")) {
+    return "DETERMINISTIC_LAYOUT_OWNED";
+  }
+  if (clause_actions.includes("PRESENTATION_PRESERVATION")) {
+    return "PRESERVATION_CONSTRAINT";
+  }
+  if (
+    classification === "MUTATION_REQUIRED" &&
+    clause_actions.includes("LAYOUT_MUTATION") &&
+    clause_actions.includes("CONTENT_PRESERVATION") &&
+    !clause_actions.includes("CONTENT_MUTATION") &&
+    !clause_actions.includes("CONTENT_REMOVAL")
+  ) {
+    return "DETERMINISTIC_LAYOUT_OWNED";
   }
   if (classification === "MUTATION_REQUIRED") {
     if (layoutOwnership().isValidationOnlyRequestedChange(line)) {

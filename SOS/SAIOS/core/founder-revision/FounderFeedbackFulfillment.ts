@@ -11,6 +11,16 @@ import type {
   FounderFeedbackIRItem,
 } from "./FounderFeedbackIR.js";
 import type { ContentSectionKey } from "./RevisionIntentScope.js";
+import {
+  compilePresentationSpec,
+  inferPresentationFromTexts,
+  presentationSatisfied,
+  renderPresentation,
+  sectionKeysFromLine,
+  splitInlineItems,
+  tokenizeSectionContent,
+  type PresentationStructure,
+} from "./PresentationIntent.js";
 
 export const FOUNDER_FEEDBACK_FULFILLMENT_SCHEMA =
   "founder-feedback-fulfillment-1.0.0" as const;
@@ -46,6 +56,7 @@ export type FulfillmentKind =
   | "CONTENT_REWRITE"
   | "GEOMETRY_EXTENT"
   | "PRESERVATION"
+  | "PRESENTATION"
   | "VERIFICATION_CHECK";
 
 export type FulfillmentPredicate = {
@@ -58,6 +69,8 @@ export type FulfillmentPredicate = {
   present_phrases?: string[];
   /** Compiled banned / removed phrases. */
   absent_phrases?: string[];
+  presentation?: PresentationStructure;
+  forbidden_presentation?: PresentationStructure[];
 };
 
 export type FulfillmentEvaluation = {
@@ -112,7 +125,12 @@ export function compileExtentBound(text: string): ExtentBound | undefined {
       n,
     ) ||
     (/\bshould be\b/.test(n) && /\b(?:till|until|to the|to)\b/.test(n));
-  const downward = /\b(?:down(?:ward)?|taller|full height)\b/.test(n);
+  const bidirectionalReflow =
+    /\bdown(?:ward)?\s+or\s+up(?:ward)?\b/.test(n) ||
+    /\bup(?:ward)?\s+or\s+down(?:ward)?\b/.test(n);
+  const downward =
+    !bidirectionalReflow &&
+    /\b(?:down(?:ward)?|taller|full height)\b/.test(n);
   if (/\b(?:move|shift|reposition)\b/.test(n) && !reach) return undefined;
   if (!reach && !downward) return undefined;
   if (
@@ -235,6 +253,27 @@ export function predicatesForItem(
   }
   if (action === "VERIFICATION") {
     out.push({ kind: "VERIFICATION_CHECK", required: true });
+  }
+  if (
+    action === "PRESENTATION_MUTATION" ||
+    action === "PRESENTATION_PRESERVATION" ||
+    clauseActions.includes("PRESENTATION_MUTATION") ||
+    clauseActions.includes("PRESENTATION_PRESERVATION")
+  ) {
+    const spec = compilePresentationSpec(line);
+    const sections =
+      contentSections.length > 0
+        ? contentSections
+        : sectionKeysFromLine(line);
+    for (const section of sections.length ? sections : [undefined]) {
+      out.push({
+        kind: "PRESENTATION",
+        required: true,
+        section,
+        presentation: spec?.desired,
+        forbidden_presentation: spec?.forbidden,
+      });
+    }
   }
   return out;
 }
@@ -468,6 +507,34 @@ function evaluatePredicate(
         : `content rewrite unsatisfied ${predicate.section ?? "packet"}`,
     };
   }
+  if (predicate.kind === "PRESENTATION") {
+    const beforeBodies = presentationBodies(before, predicate.section);
+    const afterBodies = presentationBodies(after, predicate.section);
+    const actual = inferPresentationFromTexts(
+      afterBodies.texts,
+      afterBodies.boxes,
+    );
+    const spec = {
+      desired: predicate.presentation ?? "vertical",
+      forbidden: predicate.forbidden_presentation ?? [],
+      preserve: false,
+    };
+    const structureOk = presentationSatisfied(actual, spec);
+    const beforeTokens = new Set(beforeBodies.texts.flatMap(tokenizeSectionContent));
+    const afterTokens = new Set(afterBodies.texts.flatMap(tokenizeSectionContent));
+    const overlap = [...beforeTokens].filter((t) => afterTokens.has(t)).length;
+    const contentOk =
+      beforeTokens.size === 0 ||
+      overlap / Math.max(beforeTokens.size, 1) >= 0.7;
+    const pass = structureOk && contentOk;
+    return {
+      pass,
+      ids: [],
+      notes: pass
+        ? `presentation ${predicate.section ?? "packet"} ${actual}`
+        : `presentation unsatisfied ${predicate.section ?? "packet"} actual=${actual} desired=${spec.desired}`,
+    };
+  }
   if (predicate.kind === "PRESERVATION") {
     const a = sectionCorpus(after, predicate.section);
     const b = sectionCorpus(before, predicate.section);
@@ -596,6 +663,54 @@ export function itemRequiresMutationFulfillment(item: FounderFeedbackIRItem): bo
       (p.kind === "CONTENT_ADD" ||
         p.kind === "CONTENT_REMOVE" ||
         p.kind === "CONTENT_REWRITE" ||
-        p.kind === "GEOMETRY_EXTENT"),
+        p.kind === "GEOMETRY_EXTENT" ||
+        p.kind === "PRESENTATION"),
   );
+}
+
+function isSectionHeadingText(text: string): boolean {
+  return /^(skills?|education|experience|summary|projects?|certifications?)$/i.test(
+    text.trim(),
+  );
+}
+
+function presentationBodies(
+  canvas: FabricCanvasDoc,
+  section?: ContentSectionKey,
+): { texts: string[]; boxes: Array<{ left: number; top: number }> } {
+  const texts: string[] = [];
+  const boxes: Array<{ left: number; top: number }> = [];
+  for (const o of objectsOf(canvas)) {
+    if (!objectMatchesSection(o, section)) continue;
+    const t = objText(o);
+    if (!t || isSectionHeadingText(t)) continue;
+    texts.push(t);
+    boxes.push({ left: Number(o.left ?? 0), top: Number(o.top ?? 0) });
+  }
+  return { texts, boxes };
+}
+
+export function applyPresentationMutations(
+  canvas: FabricCanvasDoc,
+  ir: FounderFeedbackIR,
+): FabricCanvasDoc {
+  const clone = JSON.parse(JSON.stringify(canvas)) as FabricCanvasDoc;
+  for (const item of ir.items) {
+    for (const predicate of item.fulfillment ?? []) {
+      if (predicate.kind !== "PRESENTATION" || !predicate.presentation) continue;
+      if (
+        predicate.presentation === "side_by_side" ||
+        predicate.presentation === "columns"
+      ) {
+        continue;
+      }
+      for (const o of objectsOf(clone)) {
+        if (!objectMatchesSection(o, predicate.section)) continue;
+        const t = objText(o);
+        if (!t || isSectionHeadingText(t)) continue;
+        o.text = renderPresentation(splitInlineItems(t), predicate.presentation);
+      }
+    }
+  }
+  return clone;
 }

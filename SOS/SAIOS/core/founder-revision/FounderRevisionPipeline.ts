@@ -70,7 +70,10 @@ import {
   type RevisionFinalAcceptance,
 } from "./RevisionFinalAcceptance.js";
 import { compileFounderFeedbackIR } from "./FounderFeedbackIR.js";
-import { applyAlreadySatisfiedProof } from "./FounderFeedbackFulfillment.js";
+import {
+  applyAlreadySatisfiedProof,
+  applyPresentationMutations,
+} from "./FounderFeedbackFulfillment.js";
 import { PRODUCTION_REQUEST_CHANGES_ENTRY_POINT } from "./RevisionPipelineClassification.js";
 import type { CanonicalLayoutIntentEvidence } from "./CanonicalFinalStateLayoutProof.js";
 import type { RevisionRoleTargetIntegrityResult } from "../role-integrity/RevisionRoleTargetIntegrity.js";
@@ -719,6 +722,9 @@ export async function runFounderFeedbackRevision(
     operations: activePlan.operations,
   });
   writeJson(join(evidenceDir, "operation-log.json"), executed.log);
+  if (executed.ok) {
+    executed.canvas = applyPresentationMutations(executed.canvas, feedbackIR);
+  }
 
   if (!executed.ok) {
     writeJson(join(evidenceDir, "execution-failure.json"), {

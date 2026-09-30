@@ -1,0 +1,16 @@
+{
+  "schema_version": "founder-review-actionability-1.0.0",
+  "records": [
+    {
+      "review_id": "founder-review-cand-creative-ui-designer-20260915T122023Z-79af7d-revfb-f81691",
+      "candidate_id": "cand-creative-ui-designer-20260915T122023Z-79af7d-revfb-f81691",
+      "validity": "AUDIT_INVALID",
+      "actionability": "NOT_DECISIONABLE",
+      "historical_task_id": "revtask-863f67a5-790",
+      "historical_task_status_unchanged": "READY_FOR_FOUNDER_REVIEW",
+      "reason": "Authorized C5 audit: requested Founder outcomes were not fulfilled. Historical task remains READY_FOR_FOUNDER_REVIEW. Current Founder Review actionability is audit-invalid.",
+      "recorded_at": "2026-09-30T11:20:00.000Z",
+      "source": "authorized_audit"
+    }
+  ]
+}

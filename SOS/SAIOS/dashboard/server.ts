@@ -1124,16 +1124,55 @@ async function main() {
         }
 
         const gateRuntime = createFounderGateRuntime();
+        const reviewCatalog = loadReviewQueueForRepo(REPO);
+        const { resolveFounderDecisionIdentity, loadActionabilityOverlay, isAuditInvalidReview, decisionAllowedForValidity } =
+          await import("../core/founder-review/FounderReviewActionability.js");
+        const identityResolution = resolveFounderDecisionIdentity({
+          submitted: {
+            review_id: body.review_id,
+            candidate_id: String(body.candidate_id ?? ""),
+            task_id: body.task_id,
+            cycle_id: body.cycle_id,
+          },
+          catalog: reviewCatalog.map((c) => ({
+            review_id: c.review_id,
+            candidate_id: c.candidate_id,
+            task_id: c.task_id,
+            cycle_id: c.cycle_id,
+          })),
+        });
+        if (!identityResolution.ok) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({
+              error: identityResolution.error,
+              publication_allowed: false,
+            }),
+          );
+          return;
+        }
+        const overlay = loadActionabilityOverlay(REPO);
+        if (
+          isAuditInvalidReview(overlay, identityResolution.identity) &&
+          !decisionAllowedForValidity("audit_invalid", body.decision)
+        ) {
+          res.writeHead(403, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({
+              error:
+                "This Resume Template is audit-invalid and is not actionable for Approve or Request Changes.",
+              publication_allowed: false,
+            }),
+          );
+          return;
+        }
         const waiting =
           gateRuntime.listWaiting(false).find(
-            (c) =>
-              c.cycle_id === body.cycle_id ||
-              c.review_id === body.review_id ||
-              c.task_id === body.task_id,
+            (c) => c.review_id === identityResolution.identity.review_id,
           ) ?? null;
-        const resolvedCycleId = waiting?.cycle_id ?? body.cycle_id;
-        const resolvedReviewId = waiting?.review_id ?? body.review_id;
-        const resolvedTaskId = waiting?.task_id ?? body.task_id;
+        const resolvedCycleId = identityResolution.identity.cycle_id ?? body.cycle_id;
+        const resolvedReviewId = identityResolution.identity.review_id;
+        const resolvedTaskId = identityResolution.identity.task_id ?? body.task_id;
         const recoverableFailed = canRecoverFailedRevision(
           REPO,
           resolvedReviewId,

@@ -210,7 +210,10 @@ export type FounderReviewQueueItem = {
     | "approved"
     | "rejected"
     | "changes_requested"
-    | "revision_failed";
+    | "revision_failed"
+    | "audit_invalid";
+  validity?: "valid" | "audit_invalid";
+  actionable?: boolean;
   ready: boolean;
   badge: "ready" | "blocked" | "waiting";
   created_at: string;

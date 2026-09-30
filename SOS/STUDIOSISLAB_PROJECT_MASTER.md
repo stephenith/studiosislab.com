@@ -49,24 +49,24 @@ Code and VPS evidence override this file when they disagree. Historical evidence
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-29T17:15:30+05:30** / **2026-09-29T11:45:30.000Z**.
+Snapshot taken **2026-09-30T16:58:00+05:30** / **2026-09-30T11:28:00.000Z**.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `e58ef3fc2e0b14539454fd04376d2fb1dc565370` (`main`) |
-| ORIGIN HEAD | `e58ef3fc2e0b14539454fd04376d2fb1dc565370` |
-| VPS HEAD | `e58ef3fc2e0b14539454fd04376d2fb1dc565370` |
+| LOCAL HEAD | `63d5278afbc590e78536618547915b9d443f1a4f` (`main`) before this correction commit |
+| ORIGIN HEAD | `63d5278afbc590e78536618547915b9d443f1a4f` |
+| VPS HEAD | `63d5278afbc590e78536618547915b9d443f1a4f` |
 | PUBLIC PRODUCT | Next.js SaaS at `studiosislab.com` (Vercel) |
 | AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` |
-| CURRENT PROJECT PRIORITY | **Resume Template consolidation — Founder review of C1/C4 semantic fulfillment correction** |
+| CURRENT PROJECT PRIORITY | **Resume Template consolidation — second C5 offline correction proven; one fresh live proof only if Founder authorizes** |
 | CURRENTLY ACTIVE DEPARTMENT | Resume Template Department (`CONSOLIDATION_REQUIRED`) |
 | NEXT MAJOR PRODUCT DEPARTMENT | Website Analysis / QA / Development (not authorized as current work) |
 | CORE FACTORY HISTORICAL GOAL | **MET** — do not erase |
 | LIVE `OPERATIONALLY_COMPLETE` | **NOT ASSERTED** |
 | PUBLICATION | Manual; `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` |
 | LIVE GENERATION | Guarded; `SOS_AIOS_LIVE=0` |
-| PRIMARY BLOCKERS | C5 historical FAIL remains immutable; offline C1/C4 correction awaits Founder review before one new live proof; live 5d933072 remains historical; Website still disabled |
-| NEXT AUTHORIZED STEP | **Founder reviews C1/C4 correction**, then one new live Request Changes proof if authorized (do not retry C5; do not start C6; no Website activation) |
+| PRIMARY BLOCKERS | Both C5 live proofs remain immutable FAIL history; no new live proof after Owner A/B correction; live 5d933072 remains historical; Website still disabled |
+| NEXT AUTHORIZED STEP | **One fresh controlled live proof if Founder authorizes** (do not retry historical C5 tasks; do not start C6; no Website activation) |
 
 ---
 
@@ -325,9 +325,9 @@ Preserve all of these. Do not delete, merge, or rewrite to make the hierarchy lo
 
 **Exactly one authorized next major action:**
 
-**Founder reviews the C1/C4 semantic fulfillment correction.**
+**One fresh controlled live proof, if and only if the Founder authorizes it.**
 
-C5 on `fd-ef2226ce-0da` / `revtask-863f67a5-790` remains historical FAIL and must not be Approved or retried. Offline correction shipped. If the Founder accepts it, the next proof is **one new** live Request Changes task. Do not start C6. Not Website activation. Not another Operations Analyst retry.
+Both C5 live proofs remain immutable FAIL history. Owner A now separates current Founder Review actionability from historical READY. Owner B compiles content-preserving presentation mutations. Do not retry historical C5 tasks. Do not Approve the audit-invalid C5 child. Do not start C6. Not Website activation.
 
 Deep phases: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MASTER.md) §29–§34.
 
@@ -346,6 +346,8 @@ Deep phases: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MA
 | 2026-09-29T16:52:35+05:30 | Resume next step = C5 after C4 department harness ships; Website still not current | C4 offline proven; one harness calls production functions | C4 verifier + C1 + C2 + C3 + 6L | Starting C5 in this run; jumping to Website; enabling LIVE | Project priority | Yes |
 | 2026-09-29T17:15:30+05:30 | C5 live proof FAIL; do not start C6; Website still not current | New Founder decision executed; canvas unchanged; C1 IR misclassified content+line requests | VPS task/IR/plan/coverage/canvas SHA identity | Approving the READY card; retrying the task; patching C1 in this run; starting C6 | Project priority | Yes |
 | 2026-09-30T15:23:42+05:30 | Resume next step = Founder review of C1/C4 fulfillment correction, then one new live proof; Website still not current | C5 FAIL root cause corrected offline; historical C5 task immutable | C1+C2+C3+C4+6J PASS | Retrying C5; starting C6; jumping to Website; enabling LIVE | Project priority | Yes |
+| 2026-09-30T15:48:31+05:30 | C5 live re-proof FAIL; do not retry; Website still not current | Decision hit historical C5 child; skills-stack not fulfilled; coverage fail-closed | VPS `fd-87ecc16c-f45` / `revtask-4a0c006c-507` | Retrying; patching IR; starting C6 | Project priority | Yes |
+| 2026-09-30T16:58:00+05:30 | Second C5 offline correction; next is one fresh live proof if authorized; Website still not current | Audit-invalid READY stayed actionable; presentation compiled as verification | Overlay + IR 1.2.0 presentation; C1/C2/C3/C4/6O/actionability PASS | Candidate blacklist; retrying historical C5; C6 | Project priority + Resume architecture | Yes |
 
 ---
 
@@ -362,7 +364,9 @@ Append-only. Do not overwrite historical entries.
 | 2026-09-29T16:20:00+05:30 | C3 Memory selection discipline | Retrieve only scoped reusable Founder learning | Active/provisional task-specific rows injected as layout law | Read-side learning class; no JSONL rewrite; shared selector for generation/revision | Founder memory classifier/consumption/maturation; revision IR handoff; this file; Resume master; project-state; `AGENTS.md` | C3 + 6B/6C/6F + C1 + C2 | `baf3fe4` | FF + dashboard restart `20260929T105255Z` | None | C3 offline PASS | Over-filter of lookalike CONFIRMED text; parallel stores unused by selector | C4 Department production-parity harness |
 | 2026-09-29T16:52:35+05:30 | C4 Department production-parity harness | One offline department workflow proof | Isolated verifiers; 6L revision-only | New harness calling production admission/revision/memory/staging functions | C4 harness; package.json; this file; Resume master; project-state; `AGENTS.md` | C4 + C1 + C2 + C3 + 6L | `5068ce3` | FF tests/docs; no restart | None | C4 offline PASS | Full generation persist not relocatable | C5 live Request Changes |
 | 2026-09-29T17:15:30+05:30 | C5 One authorized live Request Changes | Prove C1–C4 on one new Founder decision | C5 preflight waiting; no new decision | Observed `fd-ef2226ce-0da` / `revtask-863f67a5-790` to READY; artifacts show unchanged canvas and C1 IR misclassification | This file; Resume master; project-state; `AGENTS.md` | Production evidence inspect only | docs dirty on `e58ef3f` | Docs only; no restart; no Approve | YES — FAIL | C5 FAIL; READY_FOR_C6=NO | C1 IR can send empty-plan READY | Founder reviews C5 failure |
-| 2026-09-30T15:23:42+05:30 | C1/C4 semantic fulfillment correction | Stop false already-satisfied and content-add→layout ownership | C5 FAIL; IR 1.0.0 | IR 1.1.0 + canvas fulfillment predicates + strengthened C4 | Resume IR/fulfillment/coverage/pipeline; C4 harness; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6J | *(this commit)* | FF + dashboard restart if code deploys | None | Offline correction PASS; READY_FOR_C6=NO | Unmodeled Founder phrasing on next live packet | Founder reviews correction; then one new live proof |
+| 2026-09-30T15:23:42+05:30 | C1/C4 semantic fulfillment correction | Stop false already-satisfied and content-add→layout ownership | C5 FAIL; IR 1.0.0 | IR 1.1.0 + canvas fulfillment predicates + strengthened C4 | Resume IR/fulfillment/coverage/pipeline; C4 harness; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6J | `63d5278` | FF + dashboard restart | None | Offline correction PASS; READY_FOR_C6=NO | Unmodeled Founder phrasing on next live packet | Founder reviews correction; then one new live proof |
+| 2026-09-30T15:48:31+05:30 | C5 live re-proof | Prove corrected IR on one new Founder decision | Correction deployed; Motion Designer preflight selected | Observed `fd-87ecc16c-f45` on historical C5 child, not Motion Designer; task FAILED_COVERAGE | This file; Resume master; project-state; `AGENTS.md` | Production evidence inspect | *(docs)* | FF docs; no restart; no Approve | YES — FAIL | C5 re-proof FAIL; READY_FOR_C6=NO | Skills-as-pointers still VERIFICATION; wrong review card | Founder reviews FAIL |
+| 2026-09-30T16:58:00+05:30 | Second C5 bounded offline correction | Owner A actionability/identity + Owner B presentation semantics | Second C5 FAIL; IR 1.1.0; no audit-invalid overlay | IR 1.2.0 + overlay + identity bind + C4 presentation category | Resume review/revision files; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6O+actionability | *(filled after commit)* | FF + dashboard restart if proofs pass | NO | Offline correction PASS; READY_FOR_C6=NO | side_by_side/columns not auto-applied | One fresh live proof if authorized |
 
 ---
 

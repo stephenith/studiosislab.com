@@ -8,7 +8,8 @@ export type FounderReviewProjectionStatus =
   | "approved"
   | "rejected"
   | "changes_requested"
-  | "revision_failed";
+  | "revision_failed"
+  | "audit_invalid";
 
 export type FounderReviewCriticScores = {
   overall: number;
@@ -39,6 +40,10 @@ export type FounderReviewProjectionItem = {
   department: string;
   provider: string;
   status: FounderReviewProjectionStatus;
+  /** Current validity overlay. Distinct from historical task status. */
+  validity?: "valid" | "audit_invalid";
+  /** Whether Approve / Request Changes may be submitted. */
+  actionable?: boolean;
   ready: boolean;
   badge: "ready" | "blocked" | "waiting";
   created_at: string;
@@ -86,6 +91,7 @@ export type FounderReviewProjectionSummary = {
   rejected: number;
   changes_requested: number;
   revision_failed: number;
+  audit_invalid: number;
   /** All projected resume-template records visible in the review model. */
   total_visible: number;
   /** Waiting count keyed by production_target.category. */

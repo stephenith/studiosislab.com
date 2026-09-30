@@ -25,6 +25,7 @@ import {
 } from "./FounderFeedbackIR.js";
 import {
   applyAlreadySatisfiedProof,
+  applyPresentationMutations,
   evaluateItemFulfillment,
 } from "./FounderFeedbackFulfillment.js";
 import { resolveRevisionIntentScope } from "./RevisionIntentScope.js";
@@ -70,6 +71,8 @@ const HISTORICAL = [
   "revtask-04b14b3d-243",
   "revtask-76a04a21-6ff",
   "revtask-5d933072-daf",
+  "revtask-863f67a5-790",
+  "revtask-4a0c006c-507",
 ];
 
 type Check = { name: string; pass: boolean; detail: string };
@@ -659,6 +662,301 @@ async function main(): Promise<void> {
       `${line} => ${ir.items[0]?.action ?? "none"}`,
     );
   }
+  const C5_PRESENT =
+    "In skill section display the mentioned skills in pointers like one below another, not one after another.";
+  const presentIr = compileFounderFeedbackIR([C5_PRESENT]);
+  assert(
+    presentIr.items[0]?.action === "PRESENTATION_MUTATION" &&
+      presentIr.items[0]?.classification !== "VERIFICATION_ACCEPTANCE" &&
+      presentIr.items[0]?.coverage_mode === "DETERMINISTIC_LAYOUT_OWNED" &&
+      presentIr.items[0]?.fulfillment.some((p) => p.kind === "PRESENTATION"),
+    "c5_reproof_presentation_not_verification",
+    JSON.stringify({
+      action: presentIr.items[0]?.action,
+      class: presentIr.items[0]?.classification,
+      fulfillment: presentIr.items[0]?.fulfillment,
+    }),
+  );
+  const skillsInline: FabricCanvasDoc = {
+    version: "5.3.0",
+    width: 794,
+    height: 1123,
+    objects: [
+      {
+        type: "textbox",
+        id: "block-skills-4-t1",
+        section: "skills",
+        text: "SKILLS",
+        left: 80,
+        top: 720,
+      },
+      {
+        type: "textbox",
+        id: "block-skills-4-t2",
+        section: "skills",
+        text: "Figma  ·  Adobe XD  ·  Sketch  ·  User Interface Design",
+        left: 80,
+        top: 750,
+        width: 400,
+        height: 47,
+      },
+    ],
+  } as FabricCanvasDoc;
+  const inlineFail = evaluateItemFulfillment({
+    item: presentIr.items[0]!,
+    beforeCanvas: skillsInline,
+    afterCanvas: skillsInline,
+  });
+  assert(
+    inlineFail.pass === false,
+    "c5_reproof_unchanged_inline_false_pass_blocked",
+    inlineFail.notes,
+  );
+  const stacked = applyPresentationMutations(skillsInline, presentIr);
+  const stackedPass = evaluateItemFulfillment({
+    item: presentIr.items[0]!,
+    beforeCanvas: skillsInline,
+    afterCanvas: stacked,
+  });
+  assert(
+    stackedPass.pass === true,
+    "c5_reproof_valid_presentation_fulfillment",
+    stackedPass.notes,
+  );
+  const presentationMatrix: Array<[string, string]> = [
+    ["Show the certifications one below another", "PRESENTATION_MUTATION"],
+    ["Keep these skills inline", "PRESENTATION_PRESERVATION"],
+    ["Put each project on a separate line", "PRESENTATION_MUTATION"],
+    ["Stack the language items", "PRESENTATION_MUTATION"],
+    ["Display the tools as bullet points", "PRESENTATION_MUTATION"],
+    ["Show the contact items side by side", "PRESENTATION_MUTATION"],
+    ["Arrange the sidebar items in two columns", "PRESENTATION_MUTATION"],
+  ];
+  for (const [line, action] of presentationMatrix) {
+    const ir = compileFounderFeedbackIR([line]);
+    assert(
+      ir.items[0]?.action === action,
+      `presentation_${action.toLowerCase()}_${line.slice(0, 24).replace(/\s+/g, "_")}`,
+      `${line} => ${ir.items[0]?.action ?? "none"}`,
+    );
+  }
+
+  function presentEval(line: string, before: FabricCanvasDoc, after: FabricCanvasDoc) {
+    return evaluateItemFulfillment({
+      item: compileFounderFeedbackIR([line]).items[0]!,
+      beforeCanvas: before,
+      afterCanvas: after,
+    });
+  }
+  const verticalLine = "Show the skills one below another";
+  const verticalApplied = applyPresentationMutations(
+    skillsInline,
+    compileFounderFeedbackIR([verticalLine]),
+  );
+  assert(
+    presentEval(verticalLine, skillsInline, skillsInline).pass === false &&
+      presentEval(verticalLine, skillsInline, verticalApplied).pass === true,
+    "presentation_inline_to_vertical",
+    presentEval(verticalLine, skillsInline, verticalApplied).notes,
+  );
+  const inlineReq = "Show the skills inline";
+  assert(
+    presentEval(inlineReq, verticalApplied, verticalApplied).pass === false &&
+      presentEval(inlineReq, verticalApplied, skillsInline).pass === true,
+    "presentation_vertical_to_inline",
+    presentEval(inlineReq, verticalApplied, skillsInline).notes,
+  );
+  const bulletLine = "Display the skills as bullet points";
+  const bulletApplied = applyPresentationMutations(
+    skillsInline,
+    compileFounderFeedbackIR([bulletLine]),
+  );
+  assert(
+    presentEval(bulletLine, skillsInline, skillsInline).pass === false &&
+      presentEval(bulletLine, skillsInline, bulletApplied).pass === true,
+    "presentation_list_or_bullet",
+    presentEval(bulletLine, skillsInline, bulletApplied).notes,
+  );
+  const linesReq = "Put each skill on a separate line";
+  assert(
+    presentEval(linesReq, skillsInline, skillsInline).pass === false &&
+      presentEval(linesReq, skillsInline, verticalApplied).pass === true,
+    "presentation_separate_lines",
+    presentEval(linesReq, skillsInline, verticalApplied).notes,
+  );
+  const stackReq = "Stack the skills";
+  assert(
+    presentEval(stackReq, skillsInline, skillsInline).pass === false &&
+      presentEval(stackReq, skillsInline, verticalApplied).pass === true,
+    "presentation_stacked",
+    presentEval(stackReq, skillsInline, verticalApplied).notes,
+  );
+  const sideBySide: FabricCanvasDoc = {
+    version: "5.3.0",
+    width: 794,
+    height: 1123,
+    objects: [
+      {
+        type: "textbox",
+        id: "block-skills-4-t1",
+        section: "skills",
+        text: "SKILLS",
+        left: 80,
+        top: 720,
+      },
+      {
+        type: "textbox",
+        id: "block-skills-4-t2",
+        section: "skills",
+        text: "Figma  ·  Adobe XD",
+        left: 80,
+        top: 750,
+      },
+      {
+        type: "textbox",
+        id: "block-skills-4-t3",
+        section: "skills",
+        text: "Sketch  ·  User Interface Design",
+        left: 220,
+        top: 752,
+      },
+    ],
+  } as FabricCanvasDoc;
+  const sideReq = "Show the skills side by side";
+  assert(
+    presentEval(sideReq, skillsInline, skillsInline).pass === false &&
+      presentEval(sideReq, skillsInline, sideBySide).pass === true,
+    "presentation_side_by_side",
+    presentEval(sideReq, skillsInline, sideBySide).notes,
+  );
+  const columns: FabricCanvasDoc = {
+    version: "5.3.0",
+    width: 794,
+    height: 1123,
+    objects: [
+      {
+        type: "textbox",
+        id: "block-skills-4-t2",
+        section: "skills",
+        text: "Figma  ·  Adobe XD",
+        left: 80,
+        top: 750,
+      },
+      {
+        type: "textbox",
+        id: "block-skills-4-t3",
+        section: "skills",
+        text: "Sketch  ·  User Interface Design",
+        left: 280,
+        top: 820,
+      },
+    ],
+  } as FabricCanvasDoc;
+  const colReq = "Arrange the skills in two columns";
+  assert(
+    presentEval(colReq, skillsInline, skillsInline).pass === false &&
+      presentEval(colReq, skillsInline, columns).pass === true,
+    "presentation_columns",
+    presentEval(colReq, skillsInline, columns).notes,
+  );
+  const keepInline = "Keep these skills inline";
+  assert(
+    presentEval(keepInline, skillsInline, skillsInline).pass === true &&
+      presentEval(keepInline, skillsInline, verticalApplied).pass === false,
+    "presentation_preservation",
+    presentEval(keepInline, skillsInline, skillsInline).notes,
+  );
+  const negateLine =
+    "Display the skills one below another, not one after another";
+  assert(
+    presentEval(negateLine, skillsInline, skillsInline).pass === false &&
+      presentEval(negateLine, skillsInline, verticalApplied).pass === true,
+    "presentation_negation",
+    presentEval(negateLine, skillsInline, verticalApplied).notes,
+  );
+  assert(
+    allRequestedChangesAllowEmptyPlan([C5_PRESENT]) === true,
+    "presentation_empty_ai_plan_allowed_when_deterministic",
+  );
+  {
+    const tmp = mkdtempSync(join(tmpdir(), "aios-c1-present-"));
+    const candRoot = join(tmp, "candidates");
+    const outRoot = join(tmp, "founder-revision");
+    const tasksDir = join(outRoot, "tasks");
+    mkdirSync(tasksDir, { recursive: true });
+    const task = readJson<{
+      prior_candidate_id: string;
+      founder_reason: string;
+      role: string;
+    }>(join(FIX, "revtask-a0009171-849.json"));
+    cpSync(join(FIX, "prior"), join(candRoot, task.prior_candidate_id), {
+      recursive: true,
+    });
+    const priorCanvasPath = join(
+      candRoot,
+      task.prior_candidate_id,
+      "canvas.json",
+    );
+    const priorCanvas = readJson<FabricCanvasDoc>(priorCanvasPath);
+    for (const o of priorCanvas.objects ?? []) {
+      const rec = o as {
+        section?: string;
+        text?: string;
+        data?: { section?: string };
+      };
+      const section = String(rec.section ?? rec.data?.section ?? "").toLowerCase();
+      if (
+        section === "skills" &&
+        typeof rec.text === "string" &&
+        !/^(skills?)$/i.test(rec.text.trim())
+      ) {
+        rec.text = "Figma  ·  Adobe XD  ·  Sketch  ·  User Interface Design";
+      }
+    }
+    writeFileSync(priorCanvasPath, `${JSON.stringify(priorCanvas, null, 2)}\n`);
+    setRevisionTasksDirForTests(tasksDir);
+    setRevisionPipelineRootsForTests({ candRoot, outRoot });
+    try {
+      const created = createRevisionTask({
+        decision_id: `fd-c1-present-${Date.now().toString(36)}`,
+        review_id: "founder-review-c1-present",
+        prior_candidate_id: task.prior_candidate_id,
+        prior_canvas_path: join(candRoot, task.prior_candidate_id, "canvas.json"),
+        founder_reason: "presentation mutation without applicable ops",
+        requested_changes: ["Show the skills side by side"],
+        role: task.role,
+        design_family: "professional_sidebar",
+        architecture: "narrow_ats_sidebar",
+      });
+      const run = await runFounderFeedbackRevision({
+        task_id: created.task.task_id,
+        skip_preview: true,
+        critiqueOverride: passingCritic,
+        executePlanner: async () => ({
+          status: "COMPLETED",
+          structured_output: emptyPlan() as unknown as Record<string, unknown>,
+          provider_request_id: "c1-present-zero-op",
+          model_identifier_internal: "fixture",
+          input_tokens: 1,
+          output_tokens: 1,
+        }),
+      });
+      assert(
+        run.ok === false && run.task.status !== "READY_FOR_FOUNDER_REVIEW",
+        "zero_op_unsatisfied_presentation_fails_closed",
+        `${run.task.status} ${run.error ?? ""}`,
+      );
+    } finally {
+      setRevisionPipelineRootsForTests(null);
+      setRevisionTasksDirForTests(null);
+      try {
+        rmSync(tmp, { recursive: true, force: true });
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
   const mixedC1 = compileFounderFeedbackIR([
     "Add more education details and the left vertical line should reach the bottom",
   ]);

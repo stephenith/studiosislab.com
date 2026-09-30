@@ -11,9 +11,11 @@ import {
   classifyRequestedChange,
   hasContentAdditionIntent,
   hasDesiredStateGeometryIntent,
+  hasPresentationMutationIntent,
   resolveIntentClauses,
   type RequestedChangeClass,
 } from "./RequestedChangeClassification.js";
+import { compilePresentationSpec } from "./PresentationIntent.js";
 export type ContentSectionKey =
   | "job_title"
   | "summary"
@@ -30,6 +32,8 @@ export type RevisionIntentClass =
   | "LAYOUT_MUTATION"
   | "CONTENT_PRESERVATION"
   | "LAYOUT_PRESERVATION"
+  | "PRESENTATION_MUTATION"
+  | "PRESENTATION_PRESERVATION"
   | "VERIFICATION";
 
 export type RevisionIntentClause = {
@@ -160,6 +164,9 @@ function classifyClause(
   lineClass: RequestedChangeClass,
 ): RevisionIntentClass {
   if (!positive || PRESERVATION_RE.test(text)) {
+    if (hasPresentationMutationIntent(text) || compilePresentationSpec(text)) {
+      return "PRESENTATION_PRESERVATION";
+    }
     if (
       isLayoutObjectClause(text) &&
       !CONTENT_REWRITE_VERB.test(text) &&
@@ -180,6 +187,11 @@ function classifyClause(
   if (isContentRemovalClause(text)) return "CONTENT_REMOVAL";
   if (isContentAdditionClause(text)) return "CONTENT_ADDITION";
   if (isContentReplacementClause(text)) return "CONTENT_REPLACEMENT";
+  if (hasPresentationMutationIntent(text) || compilePresentationSpec(text)) {
+    const spec = compilePresentationSpec(text);
+    if (spec?.preserve || !positive) return "PRESENTATION_PRESERVATION";
+    return "PRESENTATION_MUTATION";
+  }
   if (hasDesiredStateGeometryIntent(text)) return "LAYOUT_MUTATION";
   if (isLayoutObjectClause(text) || LAYOUT_MUTATION_RE.test(text)) {
     return "LAYOUT_MUTATION";
@@ -219,7 +231,12 @@ export function resolveRevisionIntentForChange(
       intent_class === "CONTENT_REMOVAL"
         ? sections
         : [];
-    const layout_scope = intent_class === "LAYOUT_MUTATION" ? sections : [];
+    const layout_scope =
+      intent_class === "LAYOUT_MUTATION" ||
+      intent_class === "PRESENTATION_MUTATION" ||
+      intent_class === "PRESENTATION_PRESERVATION"
+        ? sections
+        : [];
     const preservation_scope =
       intent_class === "CONTENT_PRESERVATION" || intent_class === "LAYOUT_PRESERVATION"
         ? sections

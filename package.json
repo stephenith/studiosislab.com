@@ -111,6 +111,7 @@
     "aios:intake:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-intake.ts",
     "aios:budget:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-budget.ts",
     "aios:founder-review-projection:verify": "npx --yes tsx SOS/SAIOS/core/founder-review/verify-founder-review-projection.ts",
+    "aios:founder-review-actionability:verify": "npx --yes tsx SOS/SAIOS/core/founder-review/verify-founder-review-actionability.ts",
     "aios:dashboard:run": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/run-dashboard.ts",
     "aios:dashboard:verify": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/verify-dashboard.ts",
     "aios:schedule:run": "npx --yes tsx SOS/SAIOS/core/first-production-cycle/run-schedule.ts",

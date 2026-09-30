@@ -76,11 +76,17 @@ function isRevisionFailed(status: string | undefined | null): boolean {
   return normalizeStatus(status) === "revision_failed";
 }
 
+function isAuditInvalid(status: string | undefined | null): boolean {
+  return normalizeStatus(status) === "audit_invalid";
+}
+
 function canRequestOrReject(status: string | undefined | null): boolean {
+  if (isAuditInvalid(status)) return false;
   return isWaitingFounder(status) || isRevisionFailed(status);
 }
 
 function canApprove(status: string | undefined | null): boolean {
+  if (isAuditInvalid(status)) return false;
   return isWaitingFounder(status);
 }
 
@@ -116,6 +122,7 @@ function statusLabel(status: string): string {
   if (n === "rejected") return "Rejected";
   if (n === "changes_requested") return "Changes Requested";
   if (n === "revision_failed") return "Revision Failed";
+  if (n === "audit_invalid") return "Audit invalid — not actionable";
   if (n === "staging_requested") return "Staging Requested";
   if (n === "staging") return "Staging";
   if (n === "staged") return "Staged";
@@ -198,6 +205,7 @@ function badgeTone(item: FounderReviewQueueItem): BadgeTone {
   if (n === "rejected") return "rejected";
   if (n === "changes_requested") return "processing";
   if (n === "revision_failed") return "blocked";
+  if (n === "audit_invalid") return "blocked";
   return "neutral";
 }
 
@@ -761,6 +769,12 @@ export function FounderReviewView({ snapshot, onDecided }: Props) {
     if (decision === "APPROVED" && !canApprove(selected.status)) {
       setError(
         `Cannot approve — this review is "${selected.status}". After a failed revision, submit new changes or reject.`,
+      );
+      return;
+    }
+    if (isAuditInvalid(selected.status) || selected.validity === "audit_invalid") {
+      setError(
+        "This Resume Template is audit-invalid and is not actionable for Approve or Request Changes.",
       );
       return;
     }
@@ -1808,6 +1822,11 @@ export function FounderReviewView({ snapshot, onDecided }: Props) {
             <div className="fr-v3-action-form">
               {message ? <p className="ok fr-v3-feedback">{message}</p> : null}
               {error ? <p className="fail fr-v3-feedback">{error}</p> : null}
+              <p className="fr-v3-identity" data-review-id={selected.review_id} data-candidate-id={selected.candidate_id}>
+                Acting on <strong>{selected.title}</strong>
+                <br />
+                Resume Template ID: <code>{selected.candidate_id}</code>
+              </p>
               <label>
                 {modeAction === "approve"
                   ? "Optional observation"

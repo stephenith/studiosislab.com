@@ -18,6 +18,10 @@ import type {
   FounderReviewProjectionSummary,
 } from "./FounderReviewProjectionTypes.js";
 import { projectionStatusForChangesRequested } from "../founder-revision/FailedRevisionRecovery.js";
+import {
+  actionabilityRecordFor,
+  loadActionabilityOverlay,
+} from "./FounderReviewActionability.js";
 
 export const CYCLE_LOG_REL = "SOS/07_LOGS/saios/first-production-cycle";
 
@@ -484,7 +488,7 @@ export function loadFounderReviewProjection(
         });
       }
     }
-    return [...byId.values()].sort(
+    return applyActionabilityOverlay(repoRoot, [...byId.values()]).sort(
       (a, b) => parseIso(b.created_at) - parseIso(a.created_at),
     );
   }
@@ -630,9 +634,38 @@ export function loadFounderReviewProjection(
 
   void readJson(`${CYCLE_LOG_REL}/latest-candidate.json`);
 
-  return [...byId.values()].sort(
+  return applyActionabilityOverlay(repoRoot, [...byId.values()]).sort(
     (a, b) => parseIso(b.created_at) - parseIso(a.created_at),
   );
+}
+
+function applyActionabilityOverlay(
+  repoRoot: string,
+  items: FounderReviewProjectionItem[],
+): FounderReviewProjectionItem[] {
+  const overlay = loadActionabilityOverlay(repoRoot);
+  return items.map((item) => {
+    const record = actionabilityRecordFor(overlay, {
+      review_id: item.review_id,
+      candidate_id: item.candidate_id,
+    });
+    if (!record) {
+      return {
+        ...item,
+        validity: item.validity ?? "valid",
+        actionable: item.actionable ?? item.status === "waiting_founder",
+      };
+    }
+    return {
+      ...item,
+      status: "audit_invalid" as const,
+      validity: "audit_invalid" as const,
+      actionable: false,
+      badge: "blocked" as const,
+      ready: false,
+      learning_impact: record.reason,
+    };
+  });
 }
 
 /** Summarize the canonical Founder Review projection. */
@@ -645,6 +678,7 @@ export function summarizeFounderReviewProjection(
   let rejected = 0;
   let changes_requested = 0;
   let revision_failed = 0;
+  let audit_invalid = 0;
   const waiting_by_category: Record<string, number> = {};
 
   for (const item of items) {
@@ -662,6 +696,8 @@ export function summarizeFounderReviewProjection(
       changes_requested += 1;
     } else if (item.status === "revision_failed") {
       revision_failed += 1;
+    } else if (item.status === "audit_invalid") {
+      audit_invalid += 1;
     }
   }
 
@@ -671,6 +707,7 @@ export function summarizeFounderReviewProjection(
     rejected,
     changes_requested,
     revision_failed,
+    audit_invalid,
     total_visible: items.length,
     waiting_by_category,
     items,

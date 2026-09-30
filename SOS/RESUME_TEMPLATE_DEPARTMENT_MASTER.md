@@ -60,25 +60,25 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-30T15:23:42+05:30** / **2026-09-30T09:53:42.000Z**. C1/C4 semantic fulfillment corrected offline after C5 FAIL.
+Snapshot taken **2026-09-30T16:58:00+05:30** / **2026-09-30T11:28:00.000Z**. Second C5 bounded offline correction implemented.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `e58ef3fc2e0b14539454fd04376d2fb1dc565370` (`main`) before this commit |
-| ORIGIN HEAD | `e58ef3fc2e0b14539454fd04376d2fb1dc565370` before this commit |
-| VPS HEAD | `e58ef3fc2e0b14539454fd04376d2fb1dc565370` before this commit |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; only C1/C4 correction + docs staged |
-| VPS STATUS | Awaiting FF of this correction; no live revision |
-| ACTIVE RUNTIME | `aios-founder-dashboard.service` (restart only if this correction deploys) |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline corrected; C5 historical FAIL immutable |
+| LOCAL HEAD | `63d5278afbc590e78536618547915b9d443f1a4f` (`main`) before this correction commit |
+| ORIGIN HEAD | `63d5278afbc590e78536618547915b9d443f1a4f` |
+| VPS HEAD | `63d5278afbc590e78536618547915b9d443f1a4f` |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is dual-owner offline correction |
+| VPS STATUS | Pre-deploy: second C5 FAIL evidence immutable; no new live revision |
+| ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
+| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; both C5 live proofs FAIL and immutable; Owner A/B offline correction proven |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
-| REVISION STATUS | Historical `revtask-863f67a5-790` unchanged READY; `revtask-5d933072-daf` / `revtask-76a04a21-6ff` unchanged |
+| REVISION STATUS | Historical `revtask-863f67a5-790` READY unchanged; `revtask-4a0c006c-507` FAILED_COVERAGE unchanged; `5d933072` / `76a04a21` unchanged |
 | GENERATION STATUS | Unchanged; `SOS_AIOS_LIVE=0` |
-| FOUNDER REVIEW STATUS | Child `…-revfb-f81691` must not be Approved; do not retry that task |
-| MEMORY STATUS | Unchanged this run (C3 not redesigned) |
+| FOUNDER REVIEW STATUS | Audit-invalid overlay marks historical C5 child not currently decisionable. Motion Designer `…-bed721` remains a normal `waiting_founder` item. Identity bind: selected card = payload. Do not Approve historical C5. |
+| MEMORY STATUS | C3 unchanged |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
-| CURRENT PRIMARY BLOCKERS | Founder must review this offline correction before any new live proof; live 5d933072 remains historical |
-| NEXT AUTHORIZED STEP | **Founder reviews C1/C4 semantic fulfillment correction**, then one **new** live Request Changes proof if authorized. Do not retry C5. Do not start C6. |
+| CURRENT PRIMARY BLOCKERS | Both C5 live proofs remain FAIL history; no new live proof has been run after this correction |
+| NEXT AUTHORIZED STEP | **One fresh controlled live proof** if Founder authorizes. Do not retry historical C5 tasks. Do not start C6. |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -760,6 +760,45 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 | OFFLINE RESULT | C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6J PASS (6I 28/28). No production OpenAI, no new live revision, no Approve. |
 | NEXT | Founder reviews this correction. If accepted: **one new** live Request Changes proof. `READY_FOR_C6=NO`. |
 
+#### Second C5 failure investigation *(read-only; 2026-09-30)*
+
+| Field | Content |
+|---|---|
+| OWNERS | Two independent owners. A = Founder Review actionability/identity for later audit-invalid READY results. B = content-preserving presentation semantics. Telegram was not an owner. |
+| OWNER A FINDING | No proven dashboard stale-selection bug. No proven backend rematch. Historical Founder click remains UNKNOWN. Persisted IDs belonged to `…-revfb-f81691`. That child had been technically READY, later C5-audit invalid, still newer/waiting/actionable. No audit-invalid vs historical READY distinction existed. |
+| OWNER B FINDING | Item 2 compiled `VERIFICATION` / `GENERAL_ACCEPTANCE` because there was no CONTENT-PRESERVED + PRESENTATION-MUTATED class. Skills stayed inline. Coverage and final acceptance fail-closed correctly. No child/preview. |
+| WORKING CONTRACTS KEPT | Education content-add; C2; C3; coverage/acceptance fail-closed; no bad materialization; Telegram failure report; historical immutability. |
+
+#### Second C5 bounded offline correction *(2026-09-30)*
+
+| Field | Content |
+|---|---|
+| OWNER A | External actionability overlay + identity resolver. Historical task status is not rewritten. Overlay data at `SOS/SAIOS/core/founder-review/actionability-overlay.json` marks the audit-invalid C5 child `NOT_DECISIONABLE` for Approve/Request Changes. Projection applies overlay on both registry-only and full paths. Dashboard confirm strip shows title + Resume Template ID; POST payload is bound to the selected card; server rejects rematch/mismatch and audit-invalid Approve/Request Changes. |
+| OWNER B | IR `founder-feedback-ir-1.2.0`. One public owner remains `compileFounderFeedbackIR`. New actions `PRESENTATION_MUTATION` / `PRESENTATION_PRESERVATION` with measurable `PRESENTATION` predicates (inline / vertical / bullets / stacked / side_by_side / columns). Desired + prohibited presentation compile together. Deterministic apply for inline↔vertical/bullets; side_by_side/columns are measurable, not auto-applied. Unchanged inline cannot PASS a vertical/list request. Zero applicable ops + unsatisfied presentation cannot READY. |
+| C4 | Generalized CONTENT-PRESERVING PRESENTATION category added; actual canvas fulfillment asserted; exact second-C5 sentence is a fixture, not the architecture. |
+| OFFLINE RESULT | C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6O PASS; Founder Review actionability PASS; projection PASS. |
+| IMMUTABLE | `fd-ef2226ce-0da` / `revtask-863f67a5-790`; `fd-87ecc16c-f45` / `revtask-4a0c006c-507`. No candidate-ID blacklist in code. No Skills-only or UI Designer special case. |
+| NOT DONE | No live revision. No Founder decision. No C6. Telegram code unchanged. |
+
+#### C5 live re-proof after correction *(executed 2026-09-30; FAIL)*
+
+| Field | Content |
+|---|---|
+| AUTHORIZED SOURCE | Preflight selected `cand-creative-motion-designer-20260903T032047Z-bed721`. That review still has **no** Founder decision. |
+| ACTUAL LIVE DECISION | `fd-87ecc16c-f45` CHANGES_REQUESTED `2026-09-30T10:16:09.357Z` on `founder-review-cand-creative-ui-designer-20260915T122023Z-79af7d-revfb-f81691`. Newer than `fd-ef2226ce-0da`. **Not** Motion Designer. Uses historical C5 result child. |
+| ACTUAL LIVE TASK | `revtask-4a0c006c-507` created `2026-09-30T10:16:09.443Z`; terminal `FAILED_COVERAGE` `2026-09-30T10:17:10.483Z`; owner `feedback_coverage`; code `FAILED_FEEDBACK_COVERAGE`; stage `FEEDBACK_COVERAGE`. No child materialized. |
+| SOURCE RESUME TEMPLATE | `cand-creative-ui-designer-20260915T122023Z-79af7d-revfb-f81691` (historical C5 child; role UI Designer). Authorized Motion Designer `…-bed721` still `WAITING_FOUNDER` with zero decisions. |
+| RESULT RESUME TEMPLATE | None. Materialization blocked. Preview not created. |
+| FOUNDER ITEMS | (1) “Add more content in Education section.” (2) “In skill section display the mentioned skills in pointers like one below another, not one after another.” |
+| C1 IR | `founder-feedback-ir-1.1.0`. Item1 `CONTENT_MUTATION` / `CONTENT_ADD` education. Item2 `VERIFICATION` / `VERIFICATION_ACCEPTANCE` / `VERIFICATION_CHECK` (skills display request). `content_addition_sections=["education"]`. Completeness empty. One public owner. |
+| FULFILLMENT | Item1: education body `57→162` chars — added honors/coursework. Item2: skills still one inline middot line; unchanged. Coverage item1 addressed / item2 not_addressed. |
+| PROVIDER | openai `gpt-4.1-mini-2025-04-14`; 1 request `resp_0663202ec6bf508c006abce1a1b2cc87d2846c5bb4826839ca`; 1 `update_text` on `block-education-3-t2`; 0 ops for item2 (planner treated it as verification). |
+| C3 MEMORY | considered 386; ineligible 147; irrelevant 238; selected 1 `fpm-5ae5b777-910` CONFIRMED `DESIGN_FAMILY_PREFERENCE` ARCHITECTURE. No TASK_SPECIFIC / PROVISIONAL selected. |
+| C2 GEOMETRY | pass; overlaps 0; OOB 0; page-fit true. |
+| ROLE / GATES | ROLE_MATCH UI Designer. Preservation/completeness PASS. Coverage FAIL. Final acceptance FAIL; `may_return_to_founder_review=false`. |
+| C4 / LIVE PARITY | Same `compileFounderFeedbackIR` + fulfillment coverage path as C4. No second English parser. Skills-stacking sentence was not in the C4 matrix and compiled as verification. |
+| C5 RE-PROOF RESULT | **FAIL**. Wrong source vs authorized Motion Designer. Item2 semantic ownership wrong (display/layout → VERIFICATION). Requested stacked skills absent. Fail-closed (no READY). `READY_FOR_C6=NO`. Do not retry. Do not patch. Do not Approve. |
+
 #### C6 — Closure audit (schedule remains later)
 
 | Field | Content |
@@ -831,9 +870,9 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | revision_task_counts | READY 18 / FAILED_COVERAGE 9 / FAILED 7 / FAILED_GATE 15 / PENDING 0 |
 | Timers | morning last 2026-09-29 03:20 UTC; evening last 2026-09-28 12:20 UTC; next morning 2026-09-30 03:20 UTC; generation **service** disabled; publication nightly last 2026-09-29 02:00 UTC |
 | Dashboard | active, PID 4063798, started 2026-09-23 07:36:41 UTC; NRestarts=0 |
-| Last revision of note | `revtask-863f67a5-790` READY_FOR_FOUNDER_REVIEW 2026-09-29T11:41:10Z — C5 proof FAIL (unchanged canvas). Historical `revtask-5d933072-daf` still FAILED_SECTION_COMPLETENESS |
+| Last revision of note | `revtask-4a0c006c-507` FAILED_COVERAGE 2026-09-30T10:17:10Z on historical C5 child (not Motion Designer). Historical `revtask-863f67a5-790` still READY. `revtask-5d933072-daf` still FAILED_SECTION_COMPLETENESS |
 | Candidate dirs on VPS | Child `…-revfb-f81691` materialized; do not Approve |
-| P0 | Founder reviews C1/C4 semantic fulfillment correction; then one new live proof if authorized. Do not retry C5. Do not start C6. |
+| P0 | One fresh controlled live proof if Founder authorizes (not a retry of historical C5 tasks; not C6) |
 | P1 | Closure audit remains C6 and is **not** authorized |
 | P2 | READY_FOR_FOUNDER_REVIEW success Telegram; overlay vs capacity honesty |
 
@@ -854,6 +893,8 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | 2026-09-29T16:52:35+05:30 | C4 is one department harness calling production functions, not a second fake department | Isolated phase tests created false confidence; 6L covers revision only | C4 verifier PASS; C1 + C2 + C3 + 6L PASS | Wrapping 6L only; running live generation; adding CYCLE_LOG hook in this phase; starting C5 | department-parity harness | Yes until C5 |
 | 2026-09-29T17:15:30+05:30 | C5 live proof is FAIL; record C1 IR semantic-ownership gap; do not patch or start C6 | Founder asked line-to-bottom + add education content; IR treated those as already-satisfied + layout-owned; empty plan READY; canvases identical | `fd-ef2226ce-0da`; `revtask-863f67a5-790` evidence; prior/rev canvas SHA identity; rail 931 vs page 1123 | Approving READY; retrying; regex-patching C1; starting C6 | Docs/state only | Yes |
 | 2026-09-30T15:23:42+05:30 | Correct the one C1 semantic owner and strengthen C4 fulfillment assertions; do not retry C5; do not start C6 | C5 FAIL root cause: English-only already-satisfied + content-add falling to layout ownership; C4 asserted labels not canvas state | Offline C1/C2/C3/C4/6J PASS; C5 sentences as fixtures; generalized matrix | Phrase dictionary for “till the bottom”/education/green rail; second English parser; retry `revtask-863f67a5-790`; C6 | FounderFeedbackIR 1.1.0 + FounderFeedbackFulfillment + coverage + C4 harness | Yes until next live proof |
+| 2026-09-30T15:48:31+05:30 | C5 live re-proof is FAIL; do not retry; do not patch; do not start C6 | New decision ran on historical C5 child not Motion Designer; skills-stack request compiled as VERIFICATION and was not fulfilled | `fd-87ecc16c-f45`; `revtask-4a0c006c-507` FAILED_COVERAGE; IR 1.1.0; education 57→162; skills unchanged | Approving; retrying 4a0c/863f; starting another correction; C6 | Docs/state only | Yes |
+| 2026-09-30T16:58:00+05:30 | Correct Owner A actionability/identity and Owner B presentation semantics offline; do not run another live proof; do not start C6 | Second C5 FAIL: audit-invalid READY child stayed actionable; presentation request compiled as verification | Overlay + identity bind; IR 1.2.0 PRESENTATION predicates; C4 presentation category; C1/C2/C3/C4/6O/actionability PASS | Candidate blacklist; Skills-only regex; rewriting historical READY; C2/C3/Telegram redesign; C6 | Actionability overlay, Founder Review projection/dashboard/server, IR 1.2.0, fulfillment, C4 | Yes until next live proof |
 
 ---
 
@@ -996,16 +1037,46 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** Next live packet may still expose unmodeled Founder phrasing; empty mutation plans fail at plan-schema (fail-closed).
 - **NEXT STEP:** Founder reviews this correction; then one new live Request Changes proof if authorized
 
+### 2026-09-30T15:48:31+05:30 — C5 LIVE RE-PROOF FAIL
+
+- **PHASE/TASK:** C5 live re-proof after C1/C4 correction
+- **PURPOSE:** Prove corrected IR/fulfillment on one new Founder Request Changes
+- **BEFORE STATE:** Correction deployed at `63d5278`; Motion Designer preflight selected; historical C5 immutable
+- **CHANGE:** Observation only. Actual decision `fd-87ecc16c-f45` targeted `…-revfb-f81691`, not `…-bed721`. Task `revtask-4a0c006c-507` FAILED_COVERAGE. Item1 education add fulfilled. Item2 skills stack compiled as VERIFICATION and unchanged. No child. No Approve. No retry. No patch.
+- **FILES MODIFIED:** this file; project master; project-state; `AGENTS.md`
+- **TESTS:** Production evidence inspect (SSH)
+- **COMMIT:** *(docs checkpoint)*
+- **DEPLOY:** FF docs if committed; no service restart
+- **LIVE PROOF:** YES — FAIL
+- **RESULT:** C5_REPROOF_RESULT=FAIL; READY_FOR_C6=NO
+- **NEW RISKS:** Dashboard may present the historical C5 child as the next review card; skills-as-pointers language still falls to VERIFICATION
+- **NEXT STEP:** Founder reviews this FAIL; do not retry; do not start C6
+
+### 2026-09-30T16:58:00+05:30 — SECOND C5 BOUNDED OFFLINE CORRECTION
+
+- **PHASE/TASK:** Owner A actionability/identity + Owner B presentation semantics
+- **PURPOSE:** Stop audit-invalid READY results from remaining ordinary Founder Review actions; compile content-preserving presentation mutations with measurable fulfillment
+- **BEFORE STATE:** Second C5 FAIL recorded; no audit-invalid overlay; IR 1.1.0 had no presentation class
+- **CHANGE:** Overlay + identity enforcement; IR 1.2.0 presentation actions/predicates; deterministic apply for list/vertical/inline; C4 presentation category; historical tasks/decisions not mutated
+- **FILES MODIFIED:** Founder Review actionability/projection/dashboard/server; FounderFeedbackIR 1.2.0; PresentationIntent; fulfillment; pipeline; C1/C4/actionability verifiers; this file; project master; project-state; `AGENTS.md`
+- **TESTS:** C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6O PASS; actionability PASS; projection PASS
+- **COMMIT:** *(filled after commit)*
+- **DEPLOY:** FF-only if proofs pass; restart only affected dashboard
+- **LIVE PROOF:** NO
+- **RESULT:** Offline correction PASS. `READY_FOR_C6=NO`. `READY_FOR_NEW_LIVE_PROOF=YES` after deploy.
+- **NEW RISKS:** side_by_side/columns are measurable but not auto-applied; next live packet may still expose unmodeled phrasing
+- **NEXT STEP:** One fresh controlled live proof if Founder authorizes. Do not retry historical C5 tasks. Do not start C6.
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**Founder reviews the C1/C4 semantic fulfillment correction**
+**One fresh controlled live proof, if and only if the Founder authorizes it.**
 
-If accepted, the next proof is **one new** live Request Changes task — not a retry of `revtask-863f67a5-790`.  
-Do not Approve `revtask-863f67a5-790`.  
-Do not retry `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
+Do not Approve `revtask-863f67a5-790` or any child of it.  
+Do not retry `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
 Do not start C6.  
-Do not enable `SOS_AIOS_LIVE`.
+Do not enable `SOS_AIOS_LIVE`.  
+Do not submit a Founder decision in the correction run.

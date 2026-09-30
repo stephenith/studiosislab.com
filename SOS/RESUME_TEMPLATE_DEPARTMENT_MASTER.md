@@ -60,25 +60,25 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-30T17:42:00+05:30** / **2026-09-30T12:12:00.000Z**. Audit-invalid REJECT server enforcement corrected.
+Snapshot taken **2026-09-30T18:27:00+05:30** / **2026-09-30T12:57:00.000Z**. Third C5 live proof FAIL recorded.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `fb6875fefc2849138a97f79e57f6f01070afab53` (`main`) before this enforcement correction |
-| ORIGIN HEAD | `fb6875fefc2849138a97f79e57f6f01070afab53` |
-| VPS HEAD | `fb6875fefc2849138a97f79e57f6f01070afab53` |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is audit-invalid REJECT enforcement only |
-| VPS STATUS | Pre-deploy: second C5 FAIL evidence immutable; no new live revision |
+| LOCAL HEAD | `afc47be48da9d35c7a1c0d7851945b42a07e2ec1` (`main`) |
+| ORIGIN HEAD | `afc47be48da9d35c7a1c0d7851945b42a07e2ec1` |
+| VPS HEAD | `afc47be48da9d35c7a1c0d7851945b42a07e2ec1` |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is observation + docs only |
+| VPS STATUS | Third C5 FAIL evidence written; historical C5 tasks unchanged |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; both C5 live proofs FAIL and immutable; Owner A/B proven; REJECT server hole closed |
+| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; three C5 live proofs FAIL and immutable |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
-| REVISION STATUS | Historical `revtask-863f67a5-790` READY unchanged; `revtask-4a0c006c-507` FAILED_COVERAGE unchanged; `5d933072` / `76a04a21` unchanged |
+| REVISION STATUS | `revtask-863f67a5-790` READY unchanged; `revtask-4a0c006c-507` FAILED_COVERAGE unchanged; `revtask-3f5b2339-73e` FAILED_COVERAGE; `5d933072` / `76a04a21` unchanged |
 | GENERATION STATUS | Unchanged; `SOS_AIOS_LIVE=0` |
-| FOUNDER REVIEW STATUS | Audit-invalid overlay remains current-state metadata. Historical C5 child is NOT_DECISIONABLE. Server and UI now block Approve, Request Changes, and Reject. Motion Designer `…-bed721` remains a normal `waiting_founder` item. Do not Approve or Reject historical C5. |
-| MEMORY STATUS | C3 unchanged |
+| FOUNDER REVIEW STATUS | Motion Designer `…-bed721` now `revision_failed` after `fd-4e2c7c6a-eaa`. Historical UI Designer child remains `audit_invalid` / NOT_DECISIONABLE. Do not Approve or Reject. |
+| MEMORY STATUS | C3: this packet selected 0 memories |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
-| CURRENT PRIMARY BLOCKERS | Both C5 live proofs remain FAIL history; third-C5 preflight PASS was invalid; live proof not yet executed after REJECT enforcement |
-| NEXT AUTHORIZED STEP | **One fresh controlled live Request Changes on Motion Designer** if Founder authorizes after this deploy. Do not retry historical C5 tasks. Do not start C6. |
+| CURRENT PRIMARY BLOCKERS | Third C5 FAIL: IR compiled body left-align as page-bottom extent; 32 alignment ops dropped; no child |
+| NEXT AUTHORIZED STEP | **Read-only failure architecture investigation.** Do not retry `revtask-3f5b2339-73e` or earlier C5 tasks. Do not start C6. |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -808,7 +808,27 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 | DEFECT | `decisionAllowedForValidity("audit_invalid", "REJECTED")` returned true. `/api/founder-decision` would persist a crafted REJECT through `FounderDecisionManager`. UI already blocked Reject. No separate administrative invalidation operation exists. |
 | CORRECTION | Generalized: current `audit_invalid` / NOT_DECISIONABLE blocks all ordinary Founder decisions. Shared `evaluateFounderDecisionActionability` is the server gate. UI copy aligned. No candidate-ID blacklist. Historical READY not rewritten. IR 1.2.0 / C2 / C3 / Telegram unchanged. |
 | OFFLINE RESULT | Valid waiting Approve/Request Changes/Reject allowed. Audit-invalid Approve/Request Changes/Reject blocked. UI/server agreement PASS. Crafted identity cannot bypass. Motion Designer unaffected. Actionability + identity + C1/C2/C3/C4 PASS. |
-| LIVE PROOF | Not executed. |
+| LIVE PROOF | Executed afterward and FAIL. See next subsection. |
+
+#### Third C5 live proof *(executed 2026-09-30; FAIL)*
+
+| Field | Content |
+|---|---|
+| AUTHORIZED SOURCE | `cand-creative-motion-designer-20260903T032047Z-bed721` / review `founder-review-cycle-creative-motion-designer-20260903T032047Z-bed721`. Owner A identity held. |
+| ACTUAL LIVE DECISION | `fd-4e2c7c6a-eaa` CHANGES_REQUESTED `2026-09-30T12:26:58.669Z`. Reason: `Alignment to be redone`. `structured_feedback.candidate_id` = Motion Designer. |
+| ACTUAL LIVE TASK | `revtask-3f5b2339-73e` created `2026-09-30T12:26:58.710Z`; terminal `FAILED_COVERAGE` `2026-09-30T12:28:04.598Z`; owner `feedback_coverage`; code `FAILED_FEEDBACK_COVERAGE`; stage `FEEDBACK_COVERAGE`. |
+| FOUNDER ITEM (verbatim) | `the below section which includes sections from "Summary" and below till the bottom that whole body I think we should align it to the left as the top name section.` |
+| C1 IR | `founder-feedback-ir-1.2.0`. One public owner. Item compiled `LAYOUT_MUTATION` / `MUTATION_REQUIRED` / `GEOMETRY_EXTENT` `side=left` `extent=page_bottom` with `layout_sections=["summary"]` only. Natural meaning was left-align the whole body from Summary down to match name `left=72`. **IR not faithful.** |
+| PROVIDER | openai `gpt-4.1-mini-2025-04-14`; 1 call `resp_0d4dcf61f4efc2e9006abd001d2bb887d2b1dc0ee080e909d3`; 32 `set_position` ops toward `left=72`; all dropped by `dropUnsafeGeometryOps`; executed ops=0. |
+| BEFORE / AFTER | Name objects `left=72`. Body sections `left=96` / headings `104`. Post-normalization canvas identical. Changed object count=0. |
+| C3 MEMORY | considered 387; selected 0; ineligible 141; irrelevant 245; ambiguous 1. No task-specific reusable selection. |
+| C2 GEOMETRY | pass; overlaps 0; OOB 0; page-fit true. |
+| ROLE | ROLE_MATCH Motion Designer. |
+| COVERAGE | not_addressed: `extent page_bottom unsatisfied` on `block-header-0-t0/t1/t2`. Binary fail matches actual unfulfilled alignment; predicate is the miscompiled extent. |
+| FINAL ACCEPTANCE | Ran; overall FAIL; `may_return_to_founder_review=false`; failed_owner `feedback_coverage`. |
+| MATERIALIZATION | No child. Preview/thumbnail not created. Source now projects `revision_failed`. |
+| TELEGRAM | Event `2ae5c15e-3c88-4be5-80d7-3fab53772676` at `2026-09-30T12:28:04.613Z`; message_id 195; delivery sent; body matches task owner/code/stage. |
+| C5 THIRD RESULT | **FAIL**. Fail-closed architecture YES. `READY_FOR_C6=NO`. Do not retry. Do not patch. Do not Approve. |
 
 #### C6 — Closure audit (schedule remains later)
 
@@ -826,7 +846,7 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 
 **Combinable:** C1 + small Telegram `failure_code` honesty. **Not combinable with C1:** C2 generation gate, C3 memory, C5 live proof.
 
-**Total implementation phases: 6.** C1–C4 shipped offline and C1/C4 fulfillment corrected 2026-09-30. C5 live proof remains historical **FAIL**. Do not start **C6**.
+**Total implementation phases: 6.** C1–C4 shipped offline. Three C5 live proofs are historical **FAIL**. Do not start **C6**.
 
 ### Proof strategy (department)
 
@@ -907,6 +927,7 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | 2026-09-30T15:48:31+05:30 | C5 live re-proof is FAIL; do not retry; do not patch; do not start C6 | New decision ran on historical C5 child not Motion Designer; skills-stack request compiled as VERIFICATION and was not fulfilled | `fd-87ecc16c-f45`; `revtask-4a0c006c-507` FAILED_COVERAGE; IR 1.1.0; education 57→162; skills unchanged | Approving; retrying 4a0c/863f; starting another correction; C6 | Docs/state only | Yes |
 | 2026-09-30T16:58:00+05:30 | Correct Owner A actionability/identity and Owner B presentation semantics offline; do not run another live proof; do not start C6 | Second C5 FAIL: audit-invalid READY child stayed actionable; presentation request compiled as verification | Overlay + identity bind; IR 1.2.0 PRESENTATION predicates; C4 presentation category; C1/C2/C3/C4/6O/actionability PASS | Candidate blacklist; Skills-only regex; rewriting historical READY; C2/C3/Telegram redesign; C6 | Actionability overlay, Founder Review projection/dashboard/server, IR 1.2.0, fulfillment, C4 | Yes until next live proof |
 | 2026-09-30T17:42:00+05:30 | Close audit-invalid REJECT server hole; do not execute third C5; do not start C6 | Third-C5 preflight found UI blocked Reject while server allowed crafted REJECT | `decisionAllowedForValidity` + `evaluateFounderDecisionActionability`; actionability/identity/C1–C4 PASS | Inventing admin-reject; candidate blacklist; rewriting historical READY; IR/C2/C3/Telegram change | Founder Review actionability + dashboard server/UI | Yes until next live proof |
+| 2026-09-30T18:27:00+05:30 | Third C5 live proof is FAIL; do not retry; do not patch; do not start C6 | IR 1.2 compiled body left-align as page-bottom extent; all provider alignment ops dropped; coverage fail-closed; no child | `fd-4e2c7c6a-eaa`; `revtask-3f5b2339-73e`; prior/post canvas lefts unchanged; Telegram event `2ae5c15e-3c88-4be5-80d7-3fab53772676` | Approving; retrying 3f5b/4a0c/863f; starting a correction; C6 | Docs/state only | Yes |
 
 ---
 
@@ -1094,16 +1115,31 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** None in the Founder Review POST path if the shared evaluator is used
 - **NEXT STEP:** After deploy, return to Motion Designer `…-bed721` for exactly one Founder-authorized live Request Changes. Do not execute it in this run.
 
+### 2026-09-30T18:27:00+05:30 — THIRD C5 LIVE PROOF FAIL
+
+- **PHASE/TASK:** Third C5 live Request Changes observation
+- **PURPOSE:** Prove IR 1.2 + actionability on one natural Motion Designer decision
+- **BEFORE STATE:** Enforcement deployed at `afc47be`; Motion Designer waiting_founder; historical C5 child audit-invalid
+- **CHANGE:** Observation only. Decision `fd-4e2c7c6a-eaa` on Motion Designer. Task `revtask-3f5b2339-73e` FAILED_COVERAGE. IR compiled left-align body as `GEOMETRY_EXTENT page_bottom`. Provider 32 `set_position` ops dropped. Canvas unchanged. No child. Telegram event `2ae5c15e-3c88-4be5-80d7-3fab53772676` accurate. No Approve. No retry. No patch.
+- **FILES MODIFIED:** this file; project master; project-state; `AGENTS.md`
+- **TESTS:** Production evidence inspect (SSH)
+- **COMMIT:** *(docs checkpoint)*
+- **DEPLOY:** FF docs if committed; no service restart
+- **LIVE PROOF:** YES — FAIL
+- **RESULT:** C5_THIRD_LIVE_PROOF_RESULT=FAIL; FAIL_CLOSED=YES; READY_FOR_C6=NO
+- **NEW RISKS:** “till the bottom / align left” compiles as page-bottom extent; `dropUnsafeGeometryOps` can discard a full horizontal alignment plan
+- **NEXT STEP:** Read-only failure architecture investigation. Do not implement a correction until reviewed.
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**One fresh controlled live Request Changes on Motion Designer `cand-creative-motion-designer-20260903T032047Z-bed721`, if and only if the Founder authorizes it after this enforcement deploy.**
+**Read-only architecture investigation of the third C5 FAIL. Do not implement a correction until that investigation is reviewed.**
 
-Do not Approve or Reject `revtask-863f67a5-790` or any child of it.  
-Do not retry `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
+Do not Approve or Reject `revtask-863f67a5-790`, `revtask-4a0c006c-507`, or `revtask-3f5b2339-73e`.  
+Do not retry `revtask-3f5b2339-73e`, `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
 Do not start C6.  
 Do not enable `SOS_AIOS_LIVE`.  
-Do not submit a Founder decision in the enforcement run.
+Do not submit another Founder decision.

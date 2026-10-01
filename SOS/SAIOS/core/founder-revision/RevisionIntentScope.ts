@@ -23,7 +23,8 @@ export type ContentSectionKey =
   | "skills"
   | "projects"
   | "certifications"
-  | "education";
+  | "education"
+  | "languages";
 
 export type RevisionIntentClass =
   | "CONTENT_REPLACEMENT"
@@ -76,6 +77,7 @@ const SECTION_NOUNS: ReadonlyArray<readonly [ContentSectionKey, RegExp]> = [
   ["projects", /\bprojects?\b/i],
   ["certifications", /\b(certifications?|credentials?)\b/i],
   ["education", /\b(education|qualifications?)\b/i],
+  ["languages", /\blanguages?\b/i],
 ];
 
 const CONTENT_REWRITE_VERB =
@@ -86,7 +88,7 @@ const CONTENT_REMOVE_VERB = /\b(remove|delete|drop|strip)\b/i;
 const LAYOUT_OBJECT_RE =
   /\b(blank|whitespace|white space|gap|gaps|area|space|spacing|overlap|overlapp|collid|collision|margin|padding|position|reposition|rhythm|geometry|overflow|clip|wrap|alignment|bounds)\b/i;
 const LAYOUT_MUTATION_RE =
-  /\b(move|shift|reposition|rebalance|separate|separat(?:e|ion)|increase|reduce|close|tighten|normalize|standardize|reflow|fix the visible overlap|fix the overlap)\b/i;
+  /\b(move|shift|reposition|rebalance|align(?:ing|ed)?|separate|separat(?:e|ion)|increase|reduce|close|tighten|normalize|standardize|reflow|fix the visible overlap|fix the overlap)\b/i;
 const PRESERVATION_RE =
   /\b(preserv(?:e|ing|ation)?|retain(?:ing)?|keep(?:ing)?|maintain(?:ing)?|unchanged|untouched|intact|as-is|as is|do not (?:rewrite|replace|change|alter|modify|invent))\b/i;
 const NAMED_PROFESSIONAL_IDENTITY_RE =
@@ -95,12 +97,20 @@ const SPECIFIC_CONTENT_ITEM_RE =
   /\b(?:google analytics|abm(?:\s+project)?|[\"“][^\"”]{2,}[\"”])\b/i;
 
 function mentionedSections(text: string): ContentSectionKey[] {
-  const out: ContentSectionKey[] = [];
+  return sectionNounHits(text).map((hit) => hit.key);
+}
+
+/** First occurrence index of each named resume section noun. */
+export function sectionNounHits(
+  text: string,
+): Array<{ key: ContentSectionKey; index: number }> {
   const n = text.toLowerCase();
+  const out: Array<{ key: ContentSectionKey; index: number }> = [];
   for (const [key, re] of SECTION_NOUNS) {
-    if (re.test(n)) out.push(key);
+    const m = re.exec(n);
+    if (m) out.push({ key, index: m.index });
   }
-  return out;
+  return out.sort((a, b) => a.index - b.index);
 }
 
 function uniqueSections(values: ContentSectionKey[]): ContentSectionKey[] {

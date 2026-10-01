@@ -45,7 +45,7 @@ export type FeedbackCoverageMode =
   | "VALIDATION_ONLY"
   | "DETERMINISTIC_LAYOUT_OWNED";
 
-export const FOUNDER_FEEDBACK_IR_SCHEMA = "founder-feedback-ir-1.2.0" as const;
+export const FOUNDER_FEEDBACK_IR_SCHEMA = "founder-feedback-ir-1.3.0" as const;
 
 /** Public semantic interpretation paths after C1. */
 export const NUMBER_OF_SEMANTIC_INTERPRETATION_PATHS = 1;
@@ -153,6 +153,7 @@ function coverageModeForLine(
   layout_owned: boolean,
   clause_actions: FounderFeedbackAction[],
   hasExtentPredicate: boolean,
+  hasRelationalPredicate: boolean,
 ): FeedbackCoverageMode {
   if (
     clause_actions.includes("CONTENT_REMOVAL") ||
@@ -161,6 +162,9 @@ function coverageModeForLine(
     return "MUTATION_REQUIRED";
   }
   if (clause_actions.includes("PRESENTATION_MUTATION")) {
+    return "DETERMINISTIC_LAYOUT_OWNED";
+  }
+  if (hasRelationalPredicate) {
     return "DETERMINISTIC_LAYOUT_OWNED";
   }
   if (clause_actions.includes("PRESENTATION_PRESERVATION")) {
@@ -243,6 +247,9 @@ export function compileFounderFeedbackIR(
       intent.founder_feedback_item,
     );
     const hasExtent = fulfillment.some((p) => p.kind === "GEOMETRY_EXTENT");
+    const hasRelational = fulfillment.some(
+      (p) => p.kind === "RELATIONAL_ALIGNMENT",
+    );
     return {
       founder_feedback_item: intent.founder_feedback_item,
       action,
@@ -253,8 +260,12 @@ export function compileFounderFeedbackIR(
         layout_owned,
         clause_actions,
         hasExtent,
+        hasRelational,
       ),
-      layout_owned: layout_owned && !hasExtent && action !== "CONTENT_MUTATION",
+      layout_owned:
+        (layout_owned || hasRelational) &&
+        !hasExtent &&
+        action !== "CONTENT_MUTATION",
       classification: classified.classification,
       check_types: classified.check_types ?? [],
       content_sections,

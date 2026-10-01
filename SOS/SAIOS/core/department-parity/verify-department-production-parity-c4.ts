@@ -31,8 +31,13 @@ import {
 import { compileFounderFeedbackIR } from "../founder-revision/FounderFeedbackIR.js";
 import {
   applyPresentationMutations,
+  applyRelationalAlignment,
+  bindRangeTargetIds,
+  bindReferenceIds,
+  dropProviderGeometryWhenRelationalOwned,
   evaluateItemFulfillment,
 } from "../founder-revision/FounderFeedbackFulfillment.js";
+import { dropUnsafeGeometryOps } from "../founder-revision/PostContentReflow.js";
 import {
   CANONICAL_COLLISION_BOUNDS_QA,
   CANONICAL_CONTENT_PRESERVATION,
@@ -1110,6 +1115,26 @@ async function main(): Promise<void> {
       "CONTENT_MUTATION",
       "embedded_examples",
     ],
+    [
+      'the below section which includes sections from "Summary" and below till the bottom that whole body I think we should align it to the left as the top name section.',
+      "LAYOUT_MUTATION",
+      "c5_third_relational_range",
+    ],
+    [
+      "From Experience downward align that body to the left as the header",
+      "LAYOUT_MUTATION",
+      "range_from_x_downward",
+    ],
+    [
+      "Align everything below the header to the left as the top name section",
+      "LAYOUT_MUTATION",
+      "range_below_header",
+    ],
+    [
+      "Align Experience through Skills to the left as the summary",
+      "LAYOUT_MUTATION",
+      "range_x_through_y",
+    ],
   ];
   for (const [line, action, name] of natural) {
     const got = compileFounderFeedbackIR([line]).items[0]?.action;
@@ -1344,6 +1369,169 @@ async function main(): Promise<void> {
     "c4_presentation_side_by_side_fulfillment",
   );
 
+  const C5_THIRD =
+    'the below section which includes sections from "Summary" and below till the bottom that whole body I think we should align it to the left as the top name section.';
+  const thirdIr = compileFounderFeedbackIR([C5_THIRD]);
+  const thirdPred = thirdIr.items[0]?.fulfillment.find(
+    (p) => p.kind === "RELATIONAL_ALIGNMENT",
+  );
+  assert(
+    thirdIr.items[0]?.action === "LAYOUT_MUTATION" &&
+      thirdIr.items[0]?.coverage_mode === "DETERMINISTIC_LAYOUT_OWNED" &&
+      Boolean(thirdPred) &&
+      !thirdIr.items[0]?.fulfillment.some((p) => p.kind === "GEOMETRY_EXTENT") &&
+      thirdPred?.reference?.kind === "header_name" &&
+      thirdPred.range?.start.kind === "section" &&
+      thirdPred.range.start.section === "summary",
+    "c4_third_c5_ir_relational_not_extent",
+    JSON.stringify(thirdIr.items[0]?.fulfillment),
+  );
+  const relCanvas = page([
+    text("block-header-0-t0", "Name", 48, { section: "header", left: 72, width: 200, height: 20 }),
+    text("block-header-0-t1", "UI Designer", 80, { section: "header", left: 72, width: 200, height: 16, role: "professional_title" }),
+    {
+      type: "rect",
+      id: "block-summary-1-r0",
+      section: "summary",
+      left: 96,
+      top: 160,
+      width: 400,
+      height: 18,
+    },
+    text("block-summary-1-t1", "SUMMARY", 162, { section: "summary", left: 104, width: 380, height: 14 }),
+    text("block-summary-1-t2", "Body summary", 184, { section: "summary", left: 96, width: 400, height: 20 }),
+    {
+      type: "rect",
+      id: "block-experience-2-r0",
+      section: "experience",
+      left: 96,
+      top: 220,
+      width: 400,
+      height: 18,
+    },
+    text("block-experience-2-t1", "EXPERIENCE", 222, { section: "experience", left: 104, width: 380, height: 14 }),
+    text("block-experience-2-t2", "Job one", 244, { section: "experience", left: 96, width: 400, height: 20 }),
+    {
+      type: "rect",
+      id: "block-languages-6-r0",
+      section: "languages",
+      left: 96,
+      top: 900,
+      width: 400,
+      height: 18,
+    },
+    text("block-languages-6-t1", "LANGUAGES", 902, { section: "languages", left: 104, width: 380, height: 14 }),
+    text("block-languages-6-t2", "English", 924, { section: "languages", left: 96, width: 400, height: 16 }),
+  ]);
+  const thirdTargets = bindRangeTargetIds(relCanvas, thirdPred?.range, thirdPred?.reference);
+  const thirdRefs = bindReferenceIds(relCanvas, thirdPred?.reference);
+  assert(
+    thirdTargets.includes("block-summary-1-t2") &&
+      thirdTargets.includes("block-languages-6-t2") &&
+      !thirdTargets.includes("block-header-0-t0") &&
+      thirdRefs.includes("block-header-0-t0"),
+    "c4_target_reference_binding",
+    JSON.stringify({ thirdTargets, thirdRefs }),
+  );
+  const thirdUnchanged = evaluateItemFulfillment({
+    item: thirdIr.items[0]!,
+    beforeCanvas: relCanvas,
+    afterCanvas: relCanvas,
+  });
+  const thirdApplied = applyRelationalAlignment(relCanvas, thirdIr);
+  const thirdFulfilled = evaluateItemFulfillment({
+    item: thirdIr.items[0]!,
+    beforeCanvas: relCanvas,
+    afterCanvas: thirdApplied,
+  });
+  const afterMap = new Map(
+    (thirdApplied.objects ?? []).map((o) => [String((o as { id?: string }).id), o]),
+  );
+  assert(
+    thirdUnchanged.pass === false &&
+      thirdFulfilled.pass === true &&
+      Number((afterMap.get("block-header-0-t0") as { left?: number })?.left) === 72 &&
+      Number((afterMap.get("block-summary-1-t2") as { left?: number })?.left) === 72 &&
+      Number((afterMap.get("block-summary-1-t1") as { left?: number })?.left) === 80,
+    "c4_relational_fulfillment_and_offsets",
+    `${thirdUnchanged.notes} | ${thirdFulfilled.notes}`,
+  );
+  const throughIr = compileFounderFeedbackIR([
+    "Align Experience through Skills to the left as the summary",
+  ]);
+  assert(
+    throughIr.items[0]?.fulfillment.some(
+      (p) =>
+        p.kind === "RELATIONAL_ALIGNMENT" &&
+        p.range?.start.kind === "section" &&
+        p.range.start.section === "experience" &&
+        p.range.end.kind === "section" &&
+        p.range.end.section === "skills" &&
+        p.reference?.kind === "section" &&
+        p.reference.section === "summary",
+    ),
+    "c4_bounded_range_and_section_reference",
+    JSON.stringify(throughIr.items[0]?.fulfillment),
+  );
+  const safeKeep = dropUnsafeGeometryOps({
+    canvas: relCanvas,
+    plan: {
+      schema_version: "founder-canvas-revision-plan-1.0.0",
+      operations: [
+        {
+          op: "set_position",
+          target_id: "block-summary-1-t2",
+          values: { left: 72 },
+          founder_feedback_item: C5_THIRD,
+          intended_change: "shift body",
+          before_summary: "summary body",
+          confidence: 0.9,
+        },
+      ],
+    },
+  });
+  const oobDrop = dropUnsafeGeometryOps({
+    canvas: relCanvas,
+    plan: {
+      schema_version: "founder-canvas-revision-plan-1.0.0",
+      operations: [
+        {
+          op: "set_position",
+          target_id: "block-summary-1-t2",
+          values: { left: 72, top: 1300 },
+          founder_feedback_item: C5_THIRD,
+          intended_change: "oob",
+          before_summary: "summary body",
+          confidence: 0.9,
+        },
+      ],
+    },
+  });
+  assert(
+    safeKeep.dropped.length === 0 && oobDrop.dropped.length === 1,
+    "c4_geometry_baseline_safe_kept_oob_blocked",
+    `kept=${safeKeep.dropped.length} oob=${oobDrop.dropped.length}`,
+  );
+  assert(
+    dropProviderGeometryWhenRelationalOwned({
+      ir: thirdIr,
+      plan: safeKeep.plan,
+    }).dropped.length === 1,
+    "c4_provider_relational_scope_cannot_override_ir",
+  );
+  const thirdEmpty = await runRevision({
+    priorId: "cand-c4-third-rel",
+    canvas: relCanvas,
+    role: "UI Designer",
+    requested_changes: [C5_THIRD],
+    plan: emptyPlan(),
+  });
+  assert(
+    thirdEmpty.ok && thirdEmpty.status === "READY_FOR_FOUNDER_REVIEW",
+    "c4_third_c5_empty_plan_deterministic_ready",
+    `${thirdEmpty.status} ${thirdEmpty.owner ?? ""} ${thirdEmpty.error ?? ""}`,
+  );
+
   const failed = checks.filter((c) => !c.pass);
   mkdirSync(join(OUT, ".."), { recursive: true });
   writeFileSync(
@@ -1381,7 +1569,7 @@ async function main(): Promise<void> {
     )}\n`,
   );
 
-  for (const dir of [layoutRun.tmp, contentRun.tmp, mixedRun.tmp, satisfiedRun.tmp, malformed.tmp, badGeomRun.tmp, badRoleRun.tmp, memRoot, stageTmp]) {
+  for (const dir of [layoutRun.tmp, contentRun.tmp, mixedRun.tmp, satisfiedRun.tmp, malformed.tmp, badGeomRun.tmp, badRoleRun.tmp, memRoot, stageTmp, thirdEmpty.tmp]) {
     try {
       rmSync(dir, { recursive: true, force: true });
     } catch {

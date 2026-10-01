@@ -422,13 +422,16 @@ export function dropUnsafeGeometryOps(input: {
   if (geomOps.length === 0) {
     return { plan: input.plan, dropped: [] };
   }
-  const contentExec = executeCanvasOperations({
-    canvas: input.canvas,
-    operations: contentOps,
-  });
-  let current = contentExec.ok
-    ? applyPostContentReflow({ canvas: contentExec.canvas }).canvas
-    : input.canvas;
+  let current = input.canvas;
+  if (contentOps.length > 0) {
+    const contentExec = executeCanvasOperations({
+      canvas: input.canvas,
+      operations: contentOps,
+    });
+    current = contentExec.ok
+      ? applyPostContentReflow({ canvas: contentExec.canvas }).canvas
+      : input.canvas;
+  }
   const kept: CanvasOperation[] = [];
   const dropped: CanvasOperation[] = [];
   for (const op of geomOps) {

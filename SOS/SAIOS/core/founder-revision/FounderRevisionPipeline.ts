@@ -73,6 +73,8 @@ import { compileFounderFeedbackIR } from "./FounderFeedbackIR.js";
 import {
   applyAlreadySatisfiedProof,
   applyPresentationMutations,
+  applyRelationalAlignment,
+  dropProviderGeometryWhenRelationalOwned,
 } from "./FounderFeedbackFulfillment.js";
 import { PRODUCTION_REQUEST_CHANGES_ENTRY_POINT } from "./RevisionPipelineClassification.js";
 import type { CanonicalLayoutIntentEvidence } from "./CanonicalFinalStateLayoutProof.js";
@@ -463,6 +465,18 @@ export async function runFounderFeedbackRevision(
     });
     writeJson(join(evidenceDir, "revision-plan.json"), activePlan);
   }
+  const relationalOwned = dropProviderGeometryWhenRelationalOwned({
+    plan: activePlan,
+    ir: feedbackIR,
+  });
+  if (relationalOwned.dropped.length > 0) {
+    activePlan = relationalOwned.plan as RevisionPlan;
+    writeJson(join(evidenceDir, "relational-owned-geometry-ops-dropped.json"), {
+      dropped: relationalOwned.dropped,
+      remaining_operations: activePlan.operations.length,
+    });
+    writeJson(join(evidenceDir, "revision-plan.json"), activePlan);
+  }
 
   // Spacing/rhythm-heavy or header-identity Founder packets: prefer deterministic
   // normalizer geometry over unsafe AI absolute set_position chains.
@@ -724,6 +738,7 @@ export async function runFounderFeedbackRevision(
   writeJson(join(evidenceDir, "operation-log.json"), executed.log);
   if (executed.ok) {
     executed.canvas = applyPresentationMutations(executed.canvas, feedbackIR);
+    executed.canvas = applyRelationalAlignment(executed.canvas, feedbackIR);
   }
 
   if (!executed.ok) {

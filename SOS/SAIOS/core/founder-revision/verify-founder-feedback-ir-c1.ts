@@ -26,8 +26,13 @@ import {
 import {
   applyAlreadySatisfiedProof,
   applyPresentationMutations,
+  applyRelationalAlignment,
+  bindRangeTargetIds,
+  bindReferenceIds,
+  dropProviderGeometryWhenRelationalOwned,
   evaluateItemFulfillment,
 } from "./FounderFeedbackFulfillment.js";
+import { dropUnsafeGeometryOps } from "./PostContentReflow.js";
 import { resolveRevisionIntentScope } from "./RevisionIntentScope.js";
 import {
   evaluateSectionReplacementCompleteness,
@@ -35,6 +40,7 @@ import {
 } from "./SectionReplacementCompleteness.js";
 import {
   allRequestedChangesAllowEmptyPlan,
+  buildFounderItemCoverageLedger,
   resolveItemCoverageMode,
 } from "./RevisionPromptBuilder.js";
 import {
@@ -73,6 +79,7 @@ const HISTORICAL = [
   "revtask-5d933072-daf",
   "revtask-863f67a5-790",
   "revtask-4a0c006c-507",
+  "revtask-3f5b2339-73e",
 ];
 
 type Check = { name: string; pass: boolean; detail: string };
@@ -965,6 +972,252 @@ async function main(): Promise<void> {
       mixedC1.items[0]?.fulfillment.some((p) => p.kind === "GEOMETRY_EXTENT"),
     "matrix_mixed_retains_content_and_extent",
     JSON.stringify(mixedC1.items[0]?.fulfillment),
+  );
+
+  const C5_THIRD =
+    'the below section which includes sections from "Summary" and below till the bottom that whole body I think we should align it to the left as the top name section.';
+  const thirdIr = compileFounderFeedbackIR([C5_THIRD]);
+  const thirdPred = thirdIr.items[0]?.fulfillment.find(
+    (p) => p.kind === "RELATIONAL_ALIGNMENT",
+  );
+  assert(
+    thirdIr.schema_version === FOUNDER_FEEDBACK_IR_SCHEMA &&
+      thirdIr.items[0]?.action === "LAYOUT_MUTATION" &&
+      thirdIr.items[0]?.coverage_mode === "DETERMINISTIC_LAYOUT_OWNED" &&
+      Boolean(thirdPred) &&
+      !thirdIr.items[0]?.fulfillment.some((p) => p.kind === "GEOMETRY_EXTENT") &&
+      thirdPred?.range?.start.kind === "section" &&
+      thirdPred.range.start.section === "summary" &&
+      thirdPred.range.start.inclusive === true &&
+      thirdPred.range.end.kind === "document_end" &&
+      thirdPred.reference?.kind === "header_name" &&
+      thirdPred.alignment?.edge === "left",
+    "c5_third_compiles_relational_range_not_extent",
+    JSON.stringify(thirdIr.items[0]?.fulfillment),
+  );
+  const rangeLines: Array<[string, string, string, boolean]> = [
+    [
+      "Align everything below the header to the left as the top name section",
+      "header",
+      "document_end",
+      false,
+    ],
+    [
+      "From Experience downward align that body to the left as the header",
+      "experience",
+      "document_end",
+      true,
+    ],
+    [
+      "Align Experience through Skills to the left as the summary",
+      "experience",
+      "skills",
+      true,
+    ],
+    [
+      "Align the sections between Education and Languages to the left as the header",
+      "education",
+      "languages",
+      false,
+    ],
+  ];
+  for (const [line, start, end, inclusive] of rangeLines) {
+    const pred = compileFounderFeedbackIR([line]).items[0]?.fulfillment.find(
+      (p) => p.kind === "RELATIONAL_ALIGNMENT",
+    );
+    const startOk =
+      start === "header"
+        ? pred?.range?.start.kind === "header" &&
+          pred.range.start.inclusive === inclusive
+        : pred?.range?.start.kind === "section" &&
+          pred.range.start.section === start &&
+          pred.range.start.inclusive === inclusive;
+    const endOk =
+      end === "document_end"
+        ? pred?.range?.end.kind === "document_end"
+        : pred?.range?.end.kind === "section" && pred.range.end.section === end;
+    assert(Boolean(pred) && startOk && endOk, `range_scope_${start}_${end}`, JSON.stringify(pred?.range));
+  }
+  assert(
+    compileFounderFeedbackIR([C5_LINE]).items[0]?.fulfillment.some(
+      (p) => p.kind === "GEOMETRY_EXTENT" && p.extent === "page_bottom",
+    ),
+    "first_c5_extent_still_page_bottom",
+  );
+  const ledger = buildFounderItemCoverageLedger([C5_THIRD]);
+  assert(
+    ledger.includes("CANONICAL SEMANTIC CONTRACT") &&
+      ledger.includes("RELATIONAL_ALIGNMENT") &&
+      ledger.includes("reference=header_name") &&
+      !ledger.includes("GEOMETRY_EXTENT") &&
+      ledger.includes("emit ZERO operations"),
+    "provider_prompt_ir_authoritative",
+    ledger.slice(0, 400),
+  );
+
+  function relationalPage(): FabricCanvasDoc {
+    return {
+      version: "5.3.0",
+      width: 794,
+      height: 1123,
+      objects: [
+        { type: "textbox", id: "block-header-0-t0", section: "header", text: "Name", left: 72, top: 48, width: 200, height: 20 },
+        { type: "textbox", id: "block-header-0-t1", section: "header", text: "Role", left: 72, top: 80, width: 200, height: 16 },
+        { type: "rect", id: "block-summary-1-r0", section: "summary", left: 96, top: 160, width: 400, height: 18 },
+        { type: "textbox", id: "block-summary-1-t1", section: "summary", text: "SUMMARY", left: 104, top: 162, width: 380, height: 14 },
+        { type: "textbox", id: "block-summary-1-t2", section: "summary", text: "Body summary", left: 96, top: 184, width: 400, height: 20 },
+        { type: "rect", id: "block-experience-2-r0", section: "experience", left: 96, top: 220, width: 400, height: 18 },
+        { type: "textbox", id: "block-experience-2-t1", section: "experience", text: "EXPERIENCE", left: 104, top: 222, width: 380, height: 14 },
+        { type: "textbox", id: "block-experience-2-t2", section: "experience", text: "Job one", left: 96, top: 244, width: 400, height: 20 },
+        { type: "rect", id: "block-languages-6-r0", section: "languages", left: 96, top: 900, width: 400, height: 18 },
+        { type: "textbox", id: "block-languages-6-t1", section: "languages", text: "LANGUAGES", left: 104, top: 902, width: 380, height: 14 },
+        { type: "textbox", id: "block-languages-6-t2", section: "languages", text: "English", left: 96, top: 924, width: 400, height: 16 },
+      ],
+    } as FabricCanvasDoc;
+  }
+  const relBefore = relationalPage();
+  const targetIds = bindRangeTargetIds(relBefore, thirdPred!.range, thirdPred!.reference);
+  const refIds = bindReferenceIds(relBefore, thirdPred!.reference);
+  assert(
+    targetIds.includes("block-summary-1-t2") &&
+      targetIds.includes("block-experience-2-t2") &&
+      targetIds.includes("block-languages-6-t2") &&
+      !targetIds.includes("block-header-0-t0") &&
+      refIds.includes("block-header-0-t0") &&
+      !refIds.includes("block-summary-1-t2"),
+    "c5_third_target_reference_binding",
+    JSON.stringify({ targetIds, refIds }),
+  );
+  const unchangedRel = evaluateItemFulfillment({
+    item: thirdIr.items[0]!,
+    beforeCanvas: relBefore,
+    afterCanvas: relBefore,
+  });
+  assert(unchangedRel.pass === false, "unchanged_relational_fails", unchangedRel.notes);
+  const appliedRel = applyRelationalAlignment(relBefore, thirdIr);
+  const appliedEval = evaluateItemFulfillment({
+    item: thirdIr.items[0]!,
+    beforeCanvas: relBefore,
+    afterCanvas: appliedRel,
+  });
+  const afterBy = new Map(
+    (appliedRel.objects ?? []).map((o) => [String((o as { id?: string }).id), o] as const),
+  );
+  const headingLeft = Number((afterBy.get("block-summary-1-t1") as { left?: number })?.left);
+  const bodyLeft = Number((afterBy.get("block-summary-1-t2") as { left?: number })?.left);
+  const headerLeft = Number((afterBy.get("block-header-0-t0") as { left?: number })?.left);
+  assert(
+    appliedEval.pass === true &&
+      headerLeft === 72 &&
+      bodyLeft === 72 &&
+      headingLeft === 80,
+    "applied_relational_preserves_offsets",
+    JSON.stringify({ notes: appliedEval.notes, headingLeft, bodyLeft, headerLeft }),
+  );
+  const flattened = JSON.parse(JSON.stringify(relBefore)) as FabricCanvasDoc;
+  for (const o of flattened.objects ?? []) {
+    const rec = o as { id?: string; left?: number };
+    if (String(rec.id).startsWith("block-header")) continue;
+    rec.left = 72;
+  }
+  const flatEval = evaluateItemFulfillment({
+    item: thirdIr.items[0]!,
+    beforeCanvas: relBefore,
+    afterCanvas: flattened,
+  });
+  assert(flatEval.pass === false, "flatten_internal_offsets_rejected", flatEval.notes);
+  const wrongRef = JSON.parse(JSON.stringify(relBefore)) as FabricCanvasDoc;
+  for (const o of wrongRef.objects ?? []) {
+    const rec = o as { id?: string; section?: string; left?: number };
+    if (rec.section === "header") continue;
+    rec.left = Number(rec.left) + 10;
+  }
+  const wrongEval = evaluateItemFulfillment({
+    item: thirdIr.items[0]!,
+    beforeCanvas: relBefore,
+    afterCanvas: wrongRef,
+  });
+  assert(wrongEval.pass === false, "wrong_reference_fail_closed", wrongEval.notes);
+
+  const safeGeom = dropUnsafeGeometryOps({
+    canvas: relBefore,
+    plan: {
+      schema_version: "founder-canvas-revision-plan-1.0.0",
+      operations: [
+        {
+          op: "set_position",
+          target_id: "block-summary-1-t2",
+          values: { left: 72 },
+          founder_feedback_item: C5_THIRD,
+          intended_change: "shift body left",
+          before_summary: "summary body",
+          confidence: 0.9,
+        },
+      ],
+    },
+  });
+  assert(
+    safeGeom.dropped.length === 0 && safeGeom.plan.operations.length === 1,
+    "layout_only_safe_geom_survives_filter",
+    String(safeGeom.dropped.length),
+  );
+  const overlapGeom = dropUnsafeGeometryOps({
+    canvas: relBefore,
+    plan: {
+      schema_version: "founder-canvas-revision-plan-1.0.0",
+      operations: [
+        {
+          op: "set_position",
+          target_id: "block-summary-1-t2",
+          values: { left: 72, top: 80 },
+          founder_feedback_item: C5_THIRD,
+          intended_change: "overlap header",
+          before_summary: "summary body",
+          confidence: 0.9,
+        },
+      ],
+    },
+  });
+  assert(overlapGeom.dropped.length === 1, "unsafe_overlap_still_blocked", String(overlapGeom.dropped.length));
+  const oobGeom = dropUnsafeGeometryOps({
+    canvas: relBefore,
+    plan: {
+      schema_version: "founder-canvas-revision-plan-1.0.0",
+      operations: [
+        {
+          op: "set_position",
+          target_id: "block-summary-1-t2",
+          values: { left: 72, top: 1200 },
+          founder_feedback_item: C5_THIRD,
+          intended_change: "move off page",
+          before_summary: "summary body",
+          confidence: 0.9,
+        },
+      ],
+    },
+  });
+  assert(oobGeom.dropped.length === 1, "unsafe_oob_still_blocked", String(oobGeom.dropped.length));
+  const providerDrop = dropProviderGeometryWhenRelationalOwned({
+    ir: thirdIr,
+    plan: {
+      schema_version: "founder-canvas-revision-plan-1.0.0",
+      operations: [
+        {
+          op: "set_position",
+          target_id: "block-summary-1-t2",
+          values: { left: 72 },
+          founder_feedback_item: C5_THIRD,
+          intended_change: "flatten",
+          before_summary: "x",
+          confidence: 0.9,
+        },
+      ],
+    },
+  });
+  assert(
+    providerDrop.dropped.length === 1 && providerDrop.plan.operations.length === 0,
+    "provider_cannot_broaden_relational_scope",
+    String(providerDrop.dropped.length),
   );
 
   for (const id of HISTORICAL) {

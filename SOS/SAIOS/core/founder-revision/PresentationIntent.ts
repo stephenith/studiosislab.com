@@ -179,5 +179,6 @@ export function sectionKeysFromLine(text: string): ContentSectionKey[] {
   if (/\bexperience\b/i.test(text)) out.push("experience");
   if (/\bprojects?\b/i.test(text)) out.push("projects");
   if (/\bcertifications?\b/i.test(text)) out.push("certifications");
+  if (/\blanguages?\b/i.test(text)) out.push("languages");
   return [...new Set(out)];
 }

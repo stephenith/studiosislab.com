@@ -60,25 +60,25 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-09-30T18:27:00+05:30** / **2026-09-30T12:57:00.000Z**. Third C5 live proof FAIL recorded.
+Snapshot taken **2026-10-01T15:06:31+05:30** / **2026-10-01T09:36:31.000Z**. Post-third-C5 offline correction implemented. Fourth live proof not run.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `afc47be48da9d35c7a1c0d7851945b42a07e2ec1` (`main`) |
-| ORIGIN HEAD | `afc47be48da9d35c7a1c0d7851945b42a07e2ec1` |
-| VPS HEAD | `afc47be48da9d35c7a1c0d7851945b42a07e2ec1` |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is observation + docs only |
-| VPS STATUS | Third C5 FAIL evidence written; historical C5 tasks unchanged |
+| LOCAL HEAD | `46a237a05fcacd7799b42098bad5050b2e12469f` before this correction commit (`main`) |
+| ORIGIN HEAD | `46a237a05fcacd7799b42098bad5050b2e12469f` before this correction commit |
+| VPS HEAD | `46a237a05fcacd7799b42098bad5050b2e12469f` before this correction commit |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is the authorized offline correction |
+| VPS STATUS | Third C5 FAIL evidence remains immutable; correction not live until FF deploy |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; three C5 live proofs FAIL and immutable |
+| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; three C5 live proofs FAIL and immutable; post-third-C5 correction offline PASS |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
 | REVISION STATUS | `revtask-863f67a5-790` READY unchanged; `revtask-4a0c006c-507` FAILED_COVERAGE unchanged; `revtask-3f5b2339-73e` FAILED_COVERAGE; `5d933072` / `76a04a21` unchanged |
 | GENERATION STATUS | Unchanged; `SOS_AIOS_LIVE=0` |
-| FOUNDER REVIEW STATUS | Motion Designer `…-bed721` now `revision_failed` after `fd-4e2c7c6a-eaa`. Historical UI Designer child remains `audit_invalid` / NOT_DECISIONABLE. Do not Approve or Reject. |
-| MEMORY STATUS | C3: this packet selected 0 memories |
+| FOUNDER REVIEW STATUS | Motion Designer `…-bed721` remains `revision_failed` after `fd-4e2c7c6a-eaa`. Historical UI Designer child remains `audit_invalid` / NOT_DECISIONABLE. Do not Approve or Reject. |
+| MEMORY STATUS | Unchanged |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
-| CURRENT PRIMARY BLOCKERS | Third C5 FAIL: IR compiled body left-align as page-bottom extent; 32 alignment ops dropped; no child |
-| NEXT AUTHORIZED STEP | **Read-only failure architecture investigation.** Do not retry `revtask-3f5b2339-73e` or earlier C5 tasks. Do not start C6. |
+| CURRENT PRIMARY BLOCKERS | Fourth C5 live proof not yet run; three historical C5 FAILs remain immutable |
+| NEXT AUTHORIZED STEP | **Read-only preflight for exactly one NEW fourth-C5 live proof if Founder authorizes.** Do not retry historical C5 tasks. Do not start C6. |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -928,6 +928,7 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | 2026-09-30T16:58:00+05:30 | Correct Owner A actionability/identity and Owner B presentation semantics offline; do not run another live proof; do not start C6 | Second C5 FAIL: audit-invalid READY child stayed actionable; presentation request compiled as verification | Overlay + identity bind; IR 1.2.0 PRESENTATION predicates; C4 presentation category; C1/C2/C3/C4/6O/actionability PASS | Candidate blacklist; Skills-only regex; rewriting historical READY; C2/C3/Telegram redesign; C6 | Actionability overlay, Founder Review projection/dashboard/server, IR 1.2.0, fulfillment, C4 | Yes until next live proof |
 | 2026-09-30T17:42:00+05:30 | Close audit-invalid REJECT server hole; do not execute third C5; do not start C6 | Third-C5 preflight found UI blocked Reject while server allowed crafted REJECT | `decisionAllowedForValidity` + `evaluateFounderDecisionActionability`; actionability/identity/C1–C4 PASS | Inventing admin-reject; candidate blacklist; rewriting historical READY; IR/C2/C3/Telegram change | Founder Review actionability + dashboard server/UI | Yes until next live proof |
 | 2026-09-30T18:27:00+05:30 | Third C5 live proof is FAIL; do not retry; do not patch; do not start C6 | IR 1.2 compiled body left-align as page-bottom extent; all provider alignment ops dropped; coverage fail-closed; no child | `fd-4e2c7c6a-eaa`; `revtask-3f5b2339-73e`; prior/post canvas lefts unchanged; Telegram event `2ae5c15e-3c88-4be5-80d7-3fab53772676` | Approving; retrying 3f5b/4a0c/863f; starting a correction; C6 | Docs/state only | Yes |
+| 2026-10-01T15:06:31+05:30 | Implement two proven post-third-C5 owners offline; do not run a fourth live proof; do not start C6 | Range-scoped relational alignment had no IR/fulfillment; layout-only dropUnsafe used a fabricated reflow baseline | IR 1.3.0 RELATIONAL_ALIGNMENT + deterministic group translation; provider contract is compiled IR; no-content reflow skipped; C1/C2/C3/C4/6H/6O PASS | Motion Designer/Summary/left=72 special cases; weakening overlap/OOB; second English parser; retrying historical C5 | FounderFeedbackIR 1.3.0, fulfillment, intent-scope, prompt, pipeline, C1/C4 | Yes |
 
 ---
 
@@ -1130,13 +1131,28 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** “till the bottom / align left” compiles as page-bottom extent; `dropUnsafeGeometryOps` can discard a full horizontal alignment plan
 - **NEXT STEP:** Read-only failure architecture investigation. Do not implement a correction until reviewed.
 
+### 2026-10-01T15:06:31+05:30 — POST-THIRD-C5 BOUNDED OFFLINE CORRECTION
+
+- **PHASE/TASK:** Owner 1 range/group relational alignment + Owner 2 geometry trial baseline
+- **PURPOSE:** Represent range-scoped target/reference alignment in the one public semantic owner; stop layout-only safety trials from running post-content reflow
+- **BEFORE STATE:** Third C5 FAIL immutable; IR 1.2.0 compiled body left-align as `GEOMETRY_EXTENT page_bottom`; dropUnsafe reflowed even with zero content ops
+- **CHANGE:** IR 1.3.0 `RELATIONAL_ALIGNMENT` with range/reference/edge; `compileExtentBound` stays for visual rails; deterministic group translation preserves heading/body offsets; provider ledger prints canonical IR and geometry ops are dropped when relational IR owns the mutation; `dropUnsafeGeometryOps` skips reflow when there are no content ops. `languages` added to section taxonomy. Historical C5 tasks not mutated.
+- **FILES MODIFIED:** FounderFeedbackIR 1.3.0; FounderFeedbackFulfillment; RevisionIntentScope; RevisionPromptBuilder; FounderRevisionPipeline; PostContentReflow; PresentationIntent; C1/C4 verifiers; this file; project master; project-state; `AGENTS.md`
+- **TESTS:** C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6H PASS; 6O PASS
+- **COMMIT:** *(this implementation commit)*
+- **DEPLOY:** FF-only if proofs pass; restart only affected dashboard
+- **LIVE PROOF:** NO. Fourth C5 not executed.
+- **RESULT:** Offline correction PASS. Third C5 remains FAIL. `READY_FOR_C6=NO`. `READY_FOR_FOURTH_C5_LIVE_PROOF=YES` after healthy deploy.
+- **NEW RISKS:** Horizontal-only group translation; unmodeled relational phrasing still fail-closed
+- **NEXT STEP:** Read-only preflight for one NEW fourth-C5 live proof if Founder authorizes. Do not retry historical C5 tasks. Do not start C6.
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**Read-only architecture investigation of the third C5 FAIL. Do not implement a correction until that investigation is reviewed.**
+**Read-only preflight for exactly one NEW fourth-C5 live proof if the Founder authorizes it. Do not execute that live proof in this run.**
 
 Do not Approve or Reject `revtask-863f67a5-790`, `revtask-4a0c006c-507`, or `revtask-3f5b2339-73e`.  
 Do not retry `revtask-3f5b2339-73e`, `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  

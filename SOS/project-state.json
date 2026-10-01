@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PROJECT-WIDE / RESUME \u2014 THIRD C5 LIVE PROOF FAIL 2026-09-30. Decision fd-4e2c7c6a-eaa CHANGES_REQUESTED on cand-creative-motion-designer-20260903T032047Z-bed721. Task revtask-3f5b2339-73e FAILED_COVERAGE owner=feedback_coverage code=FAILED_FEEDBACK_COVERAGE. IR founder-feedback-ir-1.2.0 compiled body left-align as GEOMETRY_EXTENT page_bottom on summary only. Provider 1 call 32 set_position ops all dropped; canvas unchanged; no child. Owner A identity held. Historical C5 tasks unchanged. Telegram event 2ae5c15e-3c88-4be5-80d7-3fab53772676 accurate. Do not retry revtask-3f5b2339-73e, revtask-4a0c006c-507, revtask-863f67a5-790, revtask-5d933072-daf, or revtask-76a04a21-6ff. Do not Approve. Do not start C6. READY_FOR_C6=NO. Next: read-only failure architecture investigation. Website Department remains the next major product department and is not activated.",
+    "PROJECT-WIDE / RESUME \u2014 POST-THIRD-C5 OFFLINE CORRECTION 2026-10-01. Two owners. IR founder-feedback-ir-1.3.0 RELATIONAL_ALIGNMENT range/group + reference; deterministic group translation preserves internal offsets; first-C5 GEOMETRY_EXTENT preserved. dropUnsafeGeometryOps no longer applies post-content reflow when there are zero content ops; overlap/OOB remain fail-closed. Offline: C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6H PASS; 6O PASS. Historical fd-4e2c7c6a-eaa / revtask-3f5b2339-73e and earlier C5 tasks not mutated. No production OpenAI, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY changes. READY_FOR_C6=NO. Fourth live proof NOT RUN. Next: read-only preflight for one NEW fourth-C5 live proof if Founder authorizes. Website Department remains the next major product department and is not activated.",
     "NEXT DEPARTMENT \u2014 Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B \u2014 Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B \u2014 Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back \u2014 snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-10-01T09:36:31.000Z",
+      "type": "consolidation_c5_third_offline_correction",
+      "summary": "Post-third-C5 bounded offline correction. Local wall=2026-10-01T15:06:31+05:30. UTC=2026-10-01T09:36:31.000Z. Two owners. 1: IR 1.3.0 RELATIONAL_ALIGNMENT with range/reference/edge and deterministic group translation; provider sees compiled IR as authoritative and cannot broaden relational geometry. 2: dropUnsafeGeometryOps skips post-content reflow when there are no content mutations. First-C5 rail extent and second-C5 presentation remain PASS. Offline: C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6H PASS; 6O PASS. Historical fd-ef2226ce-0da / revtask-863f67a5-790, fd-87ecc16c-f45 / revtask-4a0c006c-507, and fd-4e2c7c6a-eaa / revtask-3f5b2339-73e not mutated. generated_at envelope left at 2026-07-11T23:31:33.456Z (original factory snapshot, not current checkpoint). No production OpenAI, generation, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY changes. READY_FOR_C6=NO. Fourth live proof NOT RUN."
+    },
     {
       "at": "2026-09-30T12:57:00.000Z",
       "type": "consolidation_c5_third_live_proof",
@@ -3440,7 +3445,7 @@
     "operationally_complete_currently_asserted": false,
     "revision_engineering_status": "CONSOLIDATION_REQUIRED",
     "next_major_department": "Website Analysis / QA / Development",
-    "next_authorized_step": "Read-only third-C5 failure architecture investigation (do not retry revtask-3f5b2339-73e or earlier C5 tasks; do not start C6)",
+    "next_authorized_step": "Read-only preflight for one NEW fourth-C5 live proof if Founder authorizes (do not retry revtask-3f5b2339-73e or earlier C5 tasks; do not start C6)",
     "consolidation_plan": {
       "recorded_at_ist": "2026-09-29T15:22:52+05:30",
       "recorded_at_utc": "2026-09-29T09:52:52.100Z",
@@ -3476,9 +3481,13 @@
       "c1_c4_fulfillment_correction_status": "IMPLEMENTED_OFFLINE",
       "c1_c4_fulfillment_correction_at_ist": "2026-09-30T15:23:42+05:30",
       "c1_c4_fulfillment_correction_at_utc": "2026-09-30T09:53:42.000Z",
-      "ir_schema_after": "founder-feedback-ir-1.2.0",
+      "ir_schema_after": "founder-feedback-ir-1.3.0",
       "ready_for_c6": false,
-      "ready_for_new_live_proof": false,
+      "ready_for_new_live_proof": true,
+      "ready_for_fourth_c5_live_proof": true,
+      "third_c5_offline_correction_status": "IMPLEMENTED_OFFLINE",
+      "third_c5_offline_correction_at_ist": "2026-10-01T15:06:31+05:30",
+      "third_c5_offline_correction_at_utc": "2026-10-01T09:36:31.000Z",
       "do_not_retry_live_tasks": true,
       "second_c5_offline_correction_status": "IMPLEMENTED_OFFLINE",
       "second_c5_offline_correction_at_ist": "2026-09-30T16:58:00+05:30",
@@ -3509,18 +3518,18 @@
       "revtask-4a0c006c-507",
       "revtask-3f5b2339-73e"
     ],
-    "snapshot_ist": "2026-09-30T18:27:00+05:30",
-    "snapshot_utc": "2026-09-30T12:57:00.000Z",
+    "snapshot_ist": "2026-10-01T15:06:31+05:30",
+    "snapshot_utc": "2026-10-01T09:36:31.000Z",
     "heads": {
-      "local": "afc47be48da9d35c7a1c0d7851945b42a07e2ec1",
-      "origin": "afc47be48da9d35c7a1c0d7851945b42a07e2ec1",
-      "vps": "afc47be48da9d35c7a1c0d7851945b42a07e2ec1"
+      "local": "46a237a05fcacd7799b42098bad5050b2e12469f",
+      "origin": "46a237a05fcacd7799b42098bad5050b2e12469f",
+      "vps": "46a237a05fcacd7799b42098bad5050b2e12469f"
     }
   },
   "studiosislab_project": {
     "master_doc": "SOS/STUDIOSISLAB_PROJECT_MASTER.md",
     "resume_template_department_master_doc": "SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md",
-    "current_priority": "Resume Template consolidation \u2014 third C5 live proof FAIL; read-only failure investigation only",
+    "current_priority": "Resume Template consolidation \u2014 third C5 FAIL immutable; post-third-C5 offline correction implemented; fourth live proof not run",
     "resume_template_department_current_status": "CONSOLIDATION_REQUIRED",
     "core_resume_template_factory_goal_met": true,
     "operationally_complete_currently_asserted": false,
@@ -3532,12 +3541,12 @@
       "Revenue / Monetization",
       "AIOS System Audit / Optimization"
     ],
-    "snapshot_ist": "2026-09-30T18:27:00+05:30",
-    "snapshot_utc": "2026-09-30T12:57:00.000Z",
+    "snapshot_ist": "2026-10-01T15:06:31+05:30",
+    "snapshot_utc": "2026-10-01T09:36:31.000Z",
     "heads": {
-      "local": "afc47be48da9d35c7a1c0d7851945b42a07e2ec1",
-      "origin": "afc47be48da9d35c7a1c0d7851945b42a07e2ec1",
-      "vps": "afc47be48da9d35c7a1c0d7851945b42a07e2ec1"
+      "local": "46a237a05fcacd7799b42098bad5050b2e12469f",
+      "origin": "46a237a05fcacd7799b42098bad5050b2e12469f",
+      "vps": "46a237a05fcacd7799b42098bad5050b2e12469f"
     }
   }
 }

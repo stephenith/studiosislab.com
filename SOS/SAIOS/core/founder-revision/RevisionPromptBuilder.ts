@@ -420,7 +420,7 @@ export function buildFounderItemCoverageLedger(
         break;
       case "DETERMINISTIC_LAYOUT_OWNED":
         lines.push(
-          `Requirement: DETERMINISTIC_LAYOUT_OWNED — emit ZERO operations for this spacing/rhythm item. RevisionLayoutNormalizer owns this geometry and its own evidence provides the coverage. Do not invent identity position ops, and do not attach this text to an unrelated operation.`,
+          `Requirement: DETERMINISTIC_LAYOUT_OWNED — emit ZERO operations. Canonical IR owns this geometry (spacing/rhythm or relational alignment). Do not invent position ops, do not reinterpret Founder English against the compiled contract, and do not attach this text to an unrelated operation.`,
         );
         break;
       case "MUTATION_REQUIRED":
@@ -431,7 +431,57 @@ export function buildFounderItemCoverageLedger(
     }
     lines.push("");
   }
+  lines.push("CANONICAL SEMANTIC CONTRACT (authoritative — do not override by re-parsing Founder English):");
+  for (let i = 0; i < ir.items.length; i++) {
+    const irItem = ir.items[i]!;
+    lines.push(
+      `Item ${i + 1}: action=${irItem.action} coverage=${irItem.coverage_mode}`,
+    );
+    for (const predicate of irItem.fulfillment) {
+      if (predicate.kind === "RELATIONAL_ALIGNMENT") {
+        lines.push(
+          `  RELATIONAL_ALIGNMENT axis=${predicate.alignment?.axis ?? "horizontal"} edge=${predicate.alignment?.edge ?? "left"} tolerance_px=${predicate.alignment?.tolerance_px ?? 2}`,
+        );
+        if (predicate.range) {
+          lines.push(
+            `  range start=${formatRangeAnchor(predicate.range.start)} end=${formatRangeAnchor(predicate.range.end)}`,
+          );
+        }
+        if (predicate.reference) {
+          lines.push(
+            `  reference=${predicate.reference.kind === "section" ? `section:${predicate.reference.section}` : predicate.reference.kind}`,
+          );
+        }
+        lines.push(
+          "  authorized mutation: deterministic group translation of the compiled target range only; reference objects are not mutation targets.",
+        );
+      } else if (predicate.kind === "GEOMETRY_EXTENT") {
+        lines.push(
+          `  GEOMETRY_EXTENT side=${predicate.target?.side ?? "any"} extent=${predicate.extent ?? "unspecified"}`,
+        );
+        lines.push(
+          "  authorized mutation: the compiled visual-extent target only; do not expand to unrelated sections.",
+        );
+      } else {
+        lines.push(`  ${predicate.kind}${predicate.section ? ` section=${predicate.section}` : ""}`);
+      }
+    }
+  }
   return lines.join("\n").trimEnd();
+}
+
+function formatRangeAnchor(anchor: {
+  kind: string;
+  section?: string;
+  inclusive?: boolean;
+}): string {
+  if (anchor.kind === "section") {
+    return `section:${anchor.section}${anchor.inclusive ? ":inclusive" : ":exclusive"}`;
+  }
+  if (anchor.kind === "header") {
+    return `header${anchor.inclusive ? ":inclusive" : ":exclusive"}`;
+  }
+  return anchor.kind;
 }
 
 /** Explicit per-item coverage mode (Phase 6G). Drives prompt and exemptions. */

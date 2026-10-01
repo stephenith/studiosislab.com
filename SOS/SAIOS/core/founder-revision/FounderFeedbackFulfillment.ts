@@ -10,7 +10,10 @@ import type {
   FounderFeedbackIR,
   FounderFeedbackIRItem,
 } from "./FounderFeedbackIR.js";
-import type { ContentSectionKey } from "./RevisionIntentScope.js";
+import {
+  sectionNounHits,
+  type ContentSectionKey,
+} from "./RevisionIntentScope.js";
 import {
   compilePresentationSpec,
   inferPresentationFromTexts,
@@ -21,6 +24,8 @@ import {
   tokenizeSectionContent,
   type PresentationStructure,
 } from "./PresentationIntent.js";
+import { inspectRevisionSectionGroups } from "./RevisionLayoutNormalizer.js";
+import type { CanvasOperation } from "./revision-task-types.js";
 
 export const FOUNDER_FEEDBACK_FULFILLMENT_SCHEMA =
   "founder-feedback-fulfillment-1.0.0" as const;
@@ -50,11 +55,34 @@ export type ExtentBound =
   | "page_left"
   | "page_right";
 
+export type RangeAnchor =
+  | { kind: "section"; section: ContentSectionKey; inclusive: boolean }
+  | { kind: "header"; inclusive: boolean }
+  | { kind: "document_end" };
+
+export type SectionRangeSpec = {
+  start: RangeAnchor;
+  end: RangeAnchor;
+};
+
+export type ReferenceSpec =
+  | { kind: "header_name" }
+  | { kind: "section"; section: ContentSectionKey };
+
+export type RelationalAlignmentSpec = {
+  axis: "horizontal" | "vertical";
+  edge: "left" | "right" | "center";
+  tolerance_px: number;
+};
+
+export const RELATIONAL_ALIGNMENT_TOLERANCE_PX = 2;
+
 export type FulfillmentKind =
   | "CONTENT_ADD"
   | "CONTENT_REMOVE"
   | "CONTENT_REWRITE"
   | "GEOMETRY_EXTENT"
+  | "RELATIONAL_ALIGNMENT"
   | "PRESERVATION"
   | "PRESENTATION"
   | "VERIFICATION_CHECK";
@@ -65,6 +93,9 @@ export type FulfillmentPredicate = {
   section?: ContentSectionKey;
   target?: TargetDescriptor;
   extent?: ExtentBound;
+  range?: SectionRangeSpec;
+  reference?: ReferenceSpec;
+  alignment?: RelationalAlignmentSpec;
   /** Compiled desired phrases. Downstream measures these; it does not re-parse English. */
   present_phrases?: string[];
   /** Compiled banned / removed phrases. */
@@ -114,11 +145,136 @@ export function compileTargetDescriptor(text: string): TargetDescriptor {
   return target;
 }
 
+function hasVisualExtentObject(text: string): boolean {
+  return /\b(?:lines?|rails?|bars?|rules?|strokes?|dividers?)\b/i.test(text);
+}
+
+export function compileSectionRange(text: string): SectionRangeSpec | undefined {
+  const n = text.toLowerCase();
+  const hits = sectionNounHits(n);
+  const headerCue = /\b(?:header|name section|top name)\b/.test(n);
+  if (/\bthrough\b/.test(n) && hits.length >= 2) {
+    return {
+      start: { kind: "section", section: hits[0]!.key, inclusive: true },
+      end: { kind: "section", section: hits[1]!.key, inclusive: true },
+    };
+  }
+  if (/\bbetween\b/.test(n) && hits.length >= 2) {
+    return {
+      start: { kind: "section", section: hits[0]!.key, inclusive: false },
+      end: { kind: "section", section: hits[1]!.key, inclusive: false },
+    };
+  }
+  if (/\b(?:everything\s+)?below\b/.test(n) && !/\bfrom\b/.test(n)) {
+    if (headerCue && hits.length === 0) {
+      return {
+        start: { kind: "header", inclusive: false },
+        end: { kind: "document_end" },
+      };
+    }
+    if (hits[0]) {
+      return {
+        start: { kind: "section", section: hits[0].key, inclusive: false },
+        end: { kind: "document_end" },
+      };
+    }
+  }
+  if (
+    hits[0] &&
+    (/\bsections from\b/.test(n) ||
+      (/\bfrom\b/.test(n) &&
+        /\b(?:down(?:ward)?|below|till|until|through)\b/.test(n)))
+  ) {
+    return {
+      start: { kind: "section", section: hits[0].key, inclusive: true },
+      end: { kind: "document_end" },
+    };
+  }
+  if (/\b(?:whole\s+body|(?:that|the)\s+body)\b/.test(n)) {
+    if (hits[0]) {
+      return {
+        start: { kind: "section", section: hits[0].key, inclusive: true },
+        end: { kind: "document_end" },
+      };
+    }
+    if (headerCue) {
+      return {
+        start: { kind: "header", inclusive: false },
+        end: { kind: "document_end" },
+      };
+    }
+  }
+  return undefined;
+}
+
+export function compileReferenceSpec(text: string): ReferenceSpec | undefined {
+  const n = text.toLowerCase();
+  if (
+    /\b(?:as|like|match(?:ing)?|with)\b/.test(n) &&
+    /\b(?:top\s+name|name\s+section|header|heading at the top)\b/.test(n)
+  ) {
+    return { kind: "header_name" };
+  }
+  const asIdx = n.search(/\b(?:as|like|to match|matching)\b/);
+  if (asIdx < 0) return undefined;
+  const after = sectionNounHits(n).filter((h) => h.index >= asIdx);
+  if (after[0]) return { kind: "section", section: after[0].key };
+  return undefined;
+}
+
+function inferredSingletonRange(
+  text: string,
+  reference: ReferenceSpec,
+): SectionRangeSpec | undefined {
+  const hits = sectionNounHits(text).filter(
+    (h) => !(reference.kind === "section" && h.key === reference.section),
+  );
+  if (!hits[0]) return undefined;
+  return {
+    start: { kind: "section", section: hits[0].key, inclusive: true },
+    end: { kind: "section", section: hits[0].key, inclusive: true },
+  };
+}
+
+export function compileRelationalAlignment(
+  text: string,
+):
+  | { alignment: RelationalAlignmentSpec; reference: ReferenceSpec }
+  | undefined {
+  if (
+    !/\balign(?:ing|ed)?\b/i.test(text) &&
+    !/\b(?:left|right)-align/i.test(text)
+  ) {
+    return undefined;
+  }
+  const reference = compileReferenceSpec(text);
+  if (!reference) return undefined;
+  const n = text.toLowerCase();
+  let edge: RelationalAlignmentSpec["edge"] = "left";
+  if (/\bcent(?:er|re)(?:ed|ing)?\b/.test(n)) edge = "center";
+  else if (/\bright(?:-align)?\b/.test(n) && !/\bleft\b/.test(n)) edge = "right";
+  else if (/\bleft(?:-align)?\b/.test(n)) edge = "left";
+  return {
+    alignment: {
+      axis: "horizontal",
+      edge,
+      tolerance_px: RELATIONAL_ALIGNMENT_TOLERANCE_PX,
+    },
+    reference,
+  };
+}
+
 /**
  * Extent is a desired-state / imperative reach request, not any mention of
  * top/bottom as a problem location ("compressed near the top").
  */
 export function compileExtentBound(text: string): ExtentBound | undefined {
+  if (
+    !hasVisualExtentObject(text) &&
+    (compileRelationalAlignment(text) || compileSectionRange(text))
+  ) {
+    return undefined;
+  }
   const n = text.toLowerCase();
   const reach =
     /\b(?:till|until|reach(?:es|ing)?|extend(?:s|ed|ing)?|stretch(?:ed|ing)?|flush)\b/.test(
@@ -244,6 +400,18 @@ export function predicatesForItem(
       required: true,
       target: compileTargetDescriptor(line),
       extent,
+    });
+  }
+  const relational = compileRelationalAlignment(line);
+  if (relational) {
+    out.push({
+      kind: "RELATIONAL_ALIGNMENT",
+      required: true,
+      range:
+        compileSectionRange(line) ??
+        inferredSingletonRange(line, relational.reference),
+      reference: relational.reference,
+      alignment: relational.alignment,
     });
   }
   if (action === "CONTENT_PRESERVATION" || action === "LAYOUT_PRESERVATION") {
@@ -420,6 +588,160 @@ export function bindTargetDescriptor(
   return scored.slice(0, 3).map((s) => s.id);
 }
 
+function isLockedSystemObject(o: CanvasObj): boolean {
+  const role = objRole(o);
+  if (role === "pagebackground" || role === "page-background") return true;
+  const data =
+    o.data && typeof o.data === "object" && !Array.isArray(o.data)
+      ? (o.data as { system?: unknown; kind?: unknown })
+      : {};
+  return data.system === true || data.kind === "page-bg";
+}
+
+function canvasSectionOrder(canvas: FabricCanvasDoc): string[] {
+  const firstTop = new Map<string, number>();
+  objectsOf(canvas).forEach((o) => {
+    if (isLockedSystemObject(o)) return;
+    const sec = objSection(o);
+    if (!sec) return;
+    const top = Number(o.top ?? 0);
+    firstTop.set(sec, Math.min(firstTop.get(sec) ?? Number.POSITIVE_INFINITY, top));
+  });
+  return [...firstTop.entries()]
+    .sort((a, b) => a[1] - b[1])
+    .map(([sec]) => sec);
+}
+
+function rangeStartIndex(order: string[], start: RangeAnchor): number {
+  if (start.kind === "document_end") return order.length;
+  if (start.kind === "header") {
+    const i = order.indexOf("header");
+    if (i < 0) return start.inclusive ? 0 : 0;
+    return start.inclusive ? i : i + 1;
+  }
+  const i = order.indexOf(start.section);
+  if (i < 0) return -1;
+  return start.inclusive ? i : i + 1;
+}
+
+function rangeEndIndex(order: string[], end: RangeAnchor): number {
+  if (end.kind === "document_end") return order.length - 1;
+  if (end.kind === "header") {
+    const i = order.indexOf("header");
+    return end.inclusive ? i : i - 1;
+  }
+  const i = order.indexOf(end.section);
+  if (i < 0) return -1;
+  return end.inclusive ? i : i - 1;
+}
+
+export function bindRangeTargetIds(
+  canvas: FabricCanvasDoc,
+  range: SectionRangeSpec | undefined,
+  reference?: ReferenceSpec,
+): string[] {
+  const order = canvasSectionOrder(canvas);
+  const allowed = new Set<string>();
+  if (!range) return [];
+  const start = rangeStartIndex(order, range.start);
+  const end = rangeEndIndex(order, range.end);
+  if (start < 0 || end < 0 || start > end) return [];
+  for (let i = start; i <= end; i++) {
+    const sec = order[i]!;
+    if (sec === "header" && range.start.kind !== "header") continue;
+    allowed.add(sec);
+  }
+  if (reference?.kind === "header_name") allowed.delete("header");
+  if (reference?.kind === "section") allowed.delete(reference.section);
+  const ids: string[] = [];
+  objectsOf(canvas).forEach((o, i) => {
+    if (isLockedSystemObject(o)) return;
+    const sec = objSection(o);
+    if (!allowed.has(sec)) return;
+    ids.push(objId(o, i));
+  });
+  return ids;
+}
+
+export function bindReferenceIds(
+  canvas: FabricCanvasDoc,
+  reference: ReferenceSpec | undefined,
+): string[] {
+  if (!reference) return [];
+  const ids: string[] = [];
+  objectsOf(canvas).forEach((o, i) => {
+    if (isLockedSystemObject(o)) return;
+    const sec = objSection(o);
+    const role = objRole(o);
+    if (reference.kind === "header_name") {
+      if (
+        sec === "header" ||
+        /\b(?:professional_title|job_title|name)\b/.test(role)
+      ) {
+        ids.push(objId(o, i));
+      }
+      return;
+    }
+    if (sec === reference.section) ids.push(objId(o, i));
+  });
+  return ids;
+}
+
+function objectLeft(o: CanvasObj): number {
+  return Number(o.left ?? 0);
+}
+
+function objectTop(o: CanvasObj): number {
+  return Number(o.top ?? 0);
+}
+
+function edgeValue(
+  objects: CanvasObj[],
+  edge: RelationalAlignmentSpec["edge"],
+): number | null {
+  if (objects.length === 0) return null;
+  const lefts = objects.map(objectLeft);
+  const widths = objects.map((o) => Number(o.width ?? 0) * Number(o.scaleX ?? 1));
+  if (edge === "left") return Math.min(...lefts);
+  if (edge === "right") {
+    return Math.max(...lefts.map((l, i) => l + (widths[i] ?? 0)));
+  }
+  const centers = lefts.map((l, i) => l + (widths[i] ?? 0) / 2);
+  return centers.reduce((a, b) => a + b, 0) / centers.length;
+}
+
+function targetBaselineObjects(
+  canvas: FabricCanvasDoc,
+  targetIds: string[],
+): CanvasObj[] {
+  const byId = new Map(objectsOf(canvas).map((o, i) => [objId(o, i), o] as const));
+  const heading = new Set<string>();
+  for (const g of inspectRevisionSectionGroups(canvas)) {
+    if (g.heading_text_id) heading.add(g.heading_text_id);
+  }
+  const baseline = targetIds
+    .map((id) => byId.get(id))
+    .filter((o): o is CanvasObj => Boolean(o) && !heading.has(String(o.id ?? "")));
+  if (baseline.length > 0) return baseline;
+  return targetIds
+    .map((id) => byId.get(id))
+    .filter((o): o is CanvasObj => Boolean(o));
+}
+
+function relativeLeftSignature(
+  canvas: FabricCanvasDoc,
+  ids: string[],
+): number[] {
+  const byId = new Map(objectsOf(canvas).map((o, i) => [objId(o, i), o] as const));
+  const lefts = ids
+    .map((id) => byId.get(id))
+    .filter((o): o is CanvasObj => Boolean(o))
+    .map(objectLeft);
+  if (lefts.length === 0) return [];
+  const origin = Math.min(...lefts);
+  return lefts.map((l) => Number((l - origin).toFixed(2)));
+}
+
 function sectionCorpus(canvas: FabricCanvasDoc, section?: ContentSectionKey): { count: number; length: number; texts: string[] } {
   const texts: string[] = [];
   for (const o of objectsOf(canvas)) {
@@ -584,6 +906,93 @@ function evaluatePredicate(
         : `extent ${predicate.extent} unsatisfied (bound=${bound}, ids=${ids.join(",") || "unbound"})`,
     };
   }
+  if (predicate.kind === "RELATIONAL_ALIGNMENT") {
+    const alignment = predicate.alignment;
+    if (!alignment || !predicate.reference) {
+      return { pass: false, ids: [], notes: "relational alignment unbound" };
+    }
+    const targetIds = bindRangeTargetIds(after, predicate.range, predicate.reference);
+    const referenceIds = bindReferenceIds(after, predicate.reference);
+    if (targetIds.length === 0 || referenceIds.length === 0) {
+      return {
+        pass: false,
+        ids: [...targetIds, ...referenceIds],
+        notes: `relational alignment unbound (targets=${targetIds.length} refs=${referenceIds.length})`,
+      };
+    }
+    const beforeBy = new Map(
+      objectsOf(before).map((o, i) => [objId(o, i), o] as const),
+    );
+    const afterBy = new Map(
+      objectsOf(after).map((o, i) => [objId(o, i), o] as const),
+    );
+    const referenceMoved = referenceIds.some((id) => {
+      const a = afterBy.get(id);
+      const b = beforeBy.get(id);
+      if (!a || !b) return true;
+      return objectLeft(a) !== objectLeft(b) || objectTop(a) !== objectTop(b);
+    });
+    if (referenceMoved) {
+      return {
+        pass: false,
+        ids: referenceIds,
+        notes: "relational alignment mutated reference",
+      };
+    }
+    const contentChanged = targetIds.some((id) => {
+      const a = afterBy.get(id);
+      const b = beforeBy.get(id);
+      return !a || !b || objText(a) !== objText(b);
+    });
+    if (contentChanged) {
+      return {
+        pass: false,
+        ids: targetIds,
+        notes: "relational alignment changed target content",
+      };
+    }
+    const topsChanged = targetIds.some((id) => {
+      const a = afterBy.get(id);
+      const b = beforeBy.get(id);
+      return !a || !b || objectTop(a) !== objectTop(b);
+    });
+    if (alignment.axis === "horizontal" && topsChanged) {
+      return {
+        pass: false,
+        ids: targetIds,
+        notes: "relational alignment changed vertical structure",
+      };
+    }
+    const beforeSig = relativeLeftSignature(before, targetIds);
+    const afterSig = relativeLeftSignature(after, targetIds);
+    const offsetsPreserved =
+      beforeSig.length === afterSig.length &&
+      beforeSig.every((v, i) => Math.abs(v - (afterSig[i] ?? 99)) <= 0.51);
+    if (!offsetsPreserved) {
+      return {
+        pass: false,
+        ids: targetIds,
+        notes: "relational alignment flattened internal offsets",
+      };
+    }
+    const targetObjs = targetBaselineObjects(after, targetIds);
+    const refObjs = referenceIds
+      .map((id) => afterBy.get(id))
+      .filter((o): o is CanvasObj => Boolean(o));
+    const targetEdge = edgeValue(targetObjs, alignment.edge);
+    const refEdge = edgeValue(refObjs, alignment.edge);
+    if (targetEdge == null || refEdge == null) {
+      return { pass: false, ids: targetIds, notes: "relational alignment edges unbound" };
+    }
+    const pass = Math.abs(targetEdge - refEdge) <= alignment.tolerance_px;
+    return {
+      pass,
+      ids: targetIds,
+      notes: pass
+        ? `relational ${alignment.edge} aligned target=${targetEdge} ref=${refEdge}`
+        : `relational ${alignment.edge} unsatisfied target=${targetEdge} ref=${refEdge}`,
+    };
+  }
   return { pass: true, ids: [], notes: "verification check deferred to acceptance" };
 }
 
@@ -664,6 +1073,7 @@ export function itemRequiresMutationFulfillment(item: FounderFeedbackIRItem): bo
         p.kind === "CONTENT_REMOVE" ||
         p.kind === "CONTENT_REWRITE" ||
         p.kind === "GEOMETRY_EXTENT" ||
+        p.kind === "RELATIONAL_ALIGNMENT" ||
         p.kind === "PRESENTATION"),
   );
 }
@@ -688,6 +1098,96 @@ function presentationBodies(
     boxes.push({ left: Number(o.left ?? 0), top: Number(o.top ?? 0) });
   }
   return { texts, boxes };
+}
+
+export function applyRelationalAlignment(
+  canvas: FabricCanvasDoc,
+  ir: FounderFeedbackIR,
+): FabricCanvasDoc {
+  const clone = JSON.parse(JSON.stringify(canvas)) as FabricCanvasDoc;
+  for (const item of ir.items) {
+    for (const predicate of item.fulfillment ?? []) {
+      if (predicate.kind !== "RELATIONAL_ALIGNMENT") continue;
+      const alignment = predicate.alignment;
+      if (!alignment || alignment.axis !== "horizontal" || !predicate.reference) {
+        continue;
+      }
+      const targetIds = bindRangeTargetIds(
+        clone,
+        predicate.range,
+        predicate.reference,
+      );
+      const referenceIds = bindReferenceIds(clone, predicate.reference);
+      const byId = new Map(
+        objectsOf(clone).map((o, i) => [objId(o, i), o] as const),
+      );
+      const targetEdge = edgeValue(
+        targetBaselineObjects(clone, targetIds),
+        alignment.edge,
+      );
+      const refEdge = edgeValue(
+        referenceIds
+          .map((id) => byId.get(id))
+          .filter((o): o is CanvasObj => Boolean(o)),
+        alignment.edge,
+      );
+      if (targetEdge == null || refEdge == null) continue;
+      const delta = Number((refEdge - targetEdge).toFixed(2));
+      if (Math.abs(delta) < 0.01) continue;
+      for (const id of targetIds) {
+        const obj = byId.get(id);
+        if (!obj) continue;
+        obj.left = Number((objectLeft(obj) + delta).toFixed(2));
+      }
+    }
+  }
+  return clone;
+}
+
+export function dropProviderGeometryWhenRelationalOwned(input: {
+  plan: {
+    schema_version: string;
+    summary?: string;
+    operations: CanvasOperation[];
+    notes?: string[];
+  };
+  ir: FounderFeedbackIR;
+}): {
+  plan: {
+    schema_version: string;
+    summary?: string;
+    operations: CanvasOperation[];
+    notes?: string[];
+  };
+  dropped: CanvasOperation[];
+} {
+  const relational = input.ir.items.some((item) =>
+    (item.fulfillment ?? []).some((p) => p.kind === "RELATIONAL_ALIGNMENT"),
+  );
+  if (!relational) return { plan: input.plan, dropped: [] };
+  const dropped = input.plan.operations.filter((op) => {
+    switch (op.op) {
+      case "set_position":
+      case "move_object":
+      case "align_objects":
+      case "adjust_spacing":
+        return true;
+      default:
+        return false;
+    }
+  });
+  if (dropped.length === 0) return { plan: input.plan, dropped: [] };
+  return {
+    plan: {
+      ...input.plan,
+      operations: input.plan.operations.filter((op) => !dropped.includes(op)),
+      notes: [
+        ...(input.plan.notes ?? []),
+        `dropped_provider_geometry_relational_owned=${dropped.length}`,
+      ],
+    },
+    dropped,
+  };
 }
 
 export function applyPresentationMutations(

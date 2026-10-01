@@ -14,18 +14,34 @@ import {
   sectionNounHits,
   type ContentSectionKey,
 } from "./RevisionIntentScope.js";
+import { createRequire } from "node:module";
 import {
   compilePresentationSpec,
   inferPresentationFromTexts,
-  presentationSatisfied,
+  presentationContractSatisfied,
   renderPresentation,
+  renderRowGroups,
   sectionKeysFromLine,
-  splitInlineItems,
-  tokenizeSectionContent,
+  splitLogicalItems,
+  type PresentationSpec,
   type PresentationStructure,
 } from "./PresentationIntent.js";
 import { inspectRevisionSectionGroups } from "./RevisionLayoutNormalizer.js";
 import type { CanvasOperation } from "./revision-task-types.js";
+
+const require = createRequire(import.meta.url);
+
+function intraBoxOverflow(canvas: FabricCanvasDoc) {
+  return (
+    require("./RevisionAcceptanceChecks.js") as typeof import("./RevisionAcceptanceChecks.js")
+  ).findIntraBoxTextOverflowFindings(canvas);
+}
+
+function syncPresentationTextHeights(canvas: FabricCanvasDoc): void {
+  (
+    require("./PostContentReflow.js") as typeof import("./PostContentReflow.js")
+  ).syncStoredTextHeightsToVisual(canvas);
+}
 
 export const FOUNDER_FEEDBACK_FULFILLMENT_SCHEMA =
   "founder-feedback-fulfillment-1.0.0" as const;
@@ -102,6 +118,7 @@ export type FulfillmentPredicate = {
   absent_phrases?: string[];
   presentation?: PresentationStructure;
   forbidden_presentation?: PresentationStructure[];
+  presentation_spec?: PresentationSpec;
 };
 
 export type FulfillmentEvaluation = {
@@ -440,6 +457,7 @@ export function predicatesForItem(
         section,
         presentation: spec?.desired,
         forbidden_presentation: spec?.forbidden,
+        presentation_spec: spec ?? undefined,
       });
     }
   }
@@ -836,25 +854,39 @@ function evaluatePredicate(
       afterBodies.texts,
       afterBodies.boxes,
     );
-    const spec = {
+    const spec: PresentationSpec = predicate.presentation_spec ?? {
       desired: predicate.presentation ?? "vertical",
       forbidden: predicate.forbidden_presentation ?? [],
+      forbidden_arrangements: [],
+      forbidden_markers: [],
       preserve: false,
+      executable: true,
     };
-    const structureOk = presentationSatisfied(actual, spec);
-    const beforeTokens = new Set(beforeBodies.texts.flatMap(tokenizeSectionContent));
-    const afterTokens = new Set(afterBodies.texts.flatMap(tokenizeSectionContent));
-    const overlap = [...beforeTokens].filter((t) => afterTokens.has(t)).length;
-    const contentOk =
-      beforeTokens.size === 0 ||
-      overlap / Math.max(beforeTokens.size, 1) >= 0.7;
-    const pass = structureOk && contentOk;
+    const structureOk = presentationContractSatisfied({
+      actual,
+      texts: afterBodies.texts,
+      boxes: afterBodies.boxes,
+      spec,
+    });
+    const beforeItems = logicalItemsFromTexts(beforeBodies.texts);
+    const afterItems = logicalItemsFromTexts(afterBodies.texts);
+    const itemsOk =
+      beforeItems.length === afterItems.length &&
+      beforeItems.every(
+        (item, i) => normalizeLogicalItem(item) === normalizeLogicalItem(afterItems[i] ?? ""),
+      );
+    const clipFindings = intraBoxOverflow(after).filter((f) => {
+      const stored = Number(f.metrics?.stored_height ?? 0);
+      return stored > 1;
+    });
+    const clipOk = clipFindings.length === 0;
+    const pass = structureOk && itemsOk && clipOk;
     return {
       pass,
       ids: [],
       notes: pass
-        ? `presentation ${predicate.section ?? "packet"} ${actual}`
-        : `presentation unsatisfied ${predicate.section ?? "packet"} actual=${actual} desired=${spec.desired}`,
+        ? `presentation ${predicate.section ?? "packet"} ${actual} items=${afterItems.length}`
+        : `presentation unsatisfied ${predicate.section ?? "packet"} actual=${actual} desired=${spec.desired} structure=${structureOk} items=${itemsOk} clip=${clipOk} executable=${spec.executable}`,
     };
   }
   if (predicate.kind === "PRESERVATION") {
@@ -1084,6 +1116,43 @@ function isSectionHeadingText(text: string): boolean {
   );
 }
 
+function normalizeLogicalItem(text: string): string {
+  return text.replace(/^[•·\-–—*]\s+/, "").replace(/\s+/g, " ").trim();
+}
+
+function logicalItemsFromTexts(texts: string[]): string[] {
+  return texts.flatMap((t) => splitLogicalItems(t)).map(normalizeLogicalItem).filter(Boolean);
+}
+
+function partitionItems<T>(items: T[], parts: number): T[][] {
+  const n = Math.max(1, parts);
+  const per = Math.ceil(items.length / n);
+  const out: T[][] = [];
+  for (let i = 0; i < n; i++) {
+    const chunk = items.slice(i * per, (i + 1) * per);
+    if (chunk.length) out.push(chunk);
+  }
+  return out;
+}
+
+function removeSectionBodies(
+  canvas: FabricCanvasDoc,
+  keep: CanvasObj[],
+  section?: ContentSectionKey,
+): void {
+  const keepSet = new Set(keep);
+  canvas.objects = objectsOf(canvas).filter((o) => {
+    if (!objectMatchesSection(o, section)) return true;
+    const t = objText(o);
+    if (!t || isSectionHeadingText(t)) return true;
+    return keepSet.has(o);
+  });
+}
+
+function cloneBody(source: CanvasObj, id: string): CanvasObj {
+  return { ...JSON.parse(JSON.stringify(source)), id } as CanvasObj;
+}
+
 function presentationBodies(
   canvas: FabricCanvasDoc,
   section?: ContentSectionKey,
@@ -1197,20 +1266,83 @@ export function applyPresentationMutations(
   const clone = JSON.parse(JSON.stringify(canvas)) as FabricCanvasDoc;
   for (const item of ir.items) {
     for (const predicate of item.fulfillment ?? []) {
-      if (predicate.kind !== "PRESENTATION" || !predicate.presentation) continue;
-      if (
-        predicate.presentation === "side_by_side" ||
-        predicate.presentation === "columns"
-      ) {
-        continue;
-      }
-      for (const o of objectsOf(clone)) {
-        if (!objectMatchesSection(o, predicate.section)) continue;
+      if (predicate.kind !== "PRESENTATION") continue;
+      const spec = predicate.presentation_spec;
+      if (!spec || spec.preserve || !spec.executable) continue;
+      const bodies = objectsOf(clone).filter((o) => {
+        if (!objectMatchesSection(o, predicate.section)) return false;
         const t = objText(o);
-        if (!t || isSectionHeadingText(t)) continue;
-        o.text = renderPresentation(splitInlineItems(t), predicate.presentation);
+        return Boolean(t) && !isSectionHeadingText(t);
+      });
+      if (bodies.length === 0) continue;
+      const items = logicalItemsFromTexts(bodies.map((o) => objText(o)));
+      if (items.length === 0) continue;
+      const primary = bodies[0]!;
+      const grouping = spec.grouping;
+      if (spec.arrangement === "side_by_side") {
+        const cols = partitionItems(items, 2);
+        const gap = 16;
+        const totalW = Math.max(80, Number(primary.width ?? 400));
+        const colW = Math.max(60, (totalW - gap) / Math.max(1, cols.length));
+        const next: CanvasObj[] = [];
+        for (let i = 0; i < cols.length; i++) {
+          const box = i === 0 ? primary : cloneBody(primary, `${objId(primary, 0)}-col${i + 1}`);
+          box.width = colW;
+          box.left = Number(primary.left ?? 0) + i * (colW + gap);
+          box.top = Number(primary.top ?? 0);
+          box.text = renderPresentation(cols[i]!, "inline", spec.markers);
+          next.push(box);
+          if (i > 0) objectsOf(clone).push(box);
+        }
+        removeSectionBodies(clone, next, predicate.section);
+      } else if (
+        spec.arrangement === "columns" ||
+        (grouping?.executable &&
+          grouping.axis === "column" &&
+          (grouping.column_count ?? 0) >= 2)
+      ) {
+        const colCount = grouping?.column_count ?? 2;
+        const cols = partitionItems(items, colCount);
+        const gap = 16;
+        const totalW = Math.max(80, Number(primary.width ?? 400));
+        const colW = Math.max(60, (totalW - gap * (cols.length - 1)) / cols.length);
+        const next: CanvasObj[] = [];
+        for (let i = 0; i < cols.length; i++) {
+          const box = i === 0 ? primary : cloneBody(primary, `${objId(primary, 0)}-col${i + 1}`);
+          box.width = colW;
+          box.left = Number(primary.left ?? 0) + i * (colW + gap);
+          box.top = Number(primary.top ?? 0);
+          box.text = renderPresentation(
+            cols[i]!,
+            spec.markers === "bullets" ? "bullets" : "vertical",
+            spec.markers,
+          );
+          next.push(box);
+          if (i > 0) objectsOf(clone).push(box);
+        }
+        removeSectionBodies(clone, next, predicate.section);
+      } else if (
+        grouping?.executable &&
+        grouping.strength === "required" &&
+        grouping.axis === "row" &&
+        grouping.items_per_group
+      ) {
+        primary.text = renderRowGroups(
+          items,
+          grouping.items_per_group,
+          spec.markers,
+        );
+        removeSectionBodies(clone, [primary], predicate.section);
+      } else {
+        primary.text = renderPresentation(
+          items,
+          spec.desired,
+          spec.markers,
+        );
+        removeSectionBodies(clone, [primary], predicate.section);
       }
     }
   }
+  syncPresentationTextHeights(clone);
   return clone;
 }

@@ -33,6 +33,11 @@ import {
   evaluateItemFulfillment,
 } from "./FounderFeedbackFulfillment.js";
 import { dropUnsafeGeometryOps } from "./PostContentReflow.js";
+import { findIntraBoxTextOverflowFindings } from "./RevisionAcceptanceChecks.js";
+import {
+  compilePresentationSpec,
+  splitLogicalItems,
+} from "./PresentationIntent.js";
 import { resolveRevisionIntentScope } from "./RevisionIntentScope.js";
 import {
   evaluateSectionReplacementCompleteness,
@@ -80,6 +85,7 @@ const HISTORICAL = [
   "revtask-863f67a5-790",
   "revtask-4a0c006c-507",
   "revtask-3f5b2339-73e",
+  "revtask-0d58e039-326",
 ];
 
 type Check = { name: string; pass: boolean; detail: string };
@@ -930,7 +936,9 @@ async function main(): Promise<void> {
         prior_candidate_id: task.prior_candidate_id,
         prior_canvas_path: join(candRoot, task.prior_candidate_id, "canvas.json"),
         founder_reason: "presentation mutation without applicable ops",
-        requested_changes: ["Show the skills side by side"],
+        requested_changes: [
+          "maybe put 3 skills in a row and continue the rest beside",
+        ],
         role: task.role,
         design_family: "professional_sidebar",
         architecture: "narrow_ats_sidebar",
@@ -1218,6 +1226,237 @@ async function main(): Promise<void> {
     providerDrop.dropped.length === 1 && providerDrop.plan.operations.length === 0,
     "provider_cannot_broaden_relational_scope",
     String(providerDrop.dropped.length),
+  );
+
+  const C5_FOURTH =
+    "In the skill section, currently the skills are been displayed as horizontal pointers, but I want it to be displayed vertically so that the bottom of the resume template looks empty for this reason we can do vertical pointers, may be 3 pointers in a row and rest 3 we can continue it beside it and so on.";
+  const fourthSpec = compilePresentationSpec(C5_FOURTH);
+  const fourthIr = compileFounderFeedbackIR([C5_FOURTH]);
+  const fourthPred = fourthIr.items[0]?.fulfillment.find((p) => p.kind === "PRESENTATION");
+  assert(
+    fourthIr.schema_version === FOUNDER_FEEDBACK_IR_SCHEMA &&
+      fourthIr.items[0]?.action === "PRESENTATION_MUTATION" &&
+      fourthSpec != null &&
+      fourthSpec.arrangement === "vertical" &&
+      fourthSpec.markers === "bullets" &&
+      fourthSpec.desired !== undefined &&
+      fourthSpec.grouping?.strength === "approximate" &&
+      fourthSpec.grouping.executable === false &&
+      fourthSpec.compactness?.strength === "context" &&
+      fourthSpec.executable === true &&
+      fourthPred?.presentation_spec?.arrangement === "vertical" &&
+      fourthPred.presentation_spec?.markers === "bullets",
+    "c5_fourth_structured_presentation_not_bullets_only",
+    JSON.stringify({
+      spec: fourthSpec,
+      pred: fourthPred?.presentation_spec,
+    }),
+  );
+  const compoundSkills: FabricCanvasDoc = {
+    version: "5.3.0",
+    width: 794,
+    height: 1123,
+    objects: [
+      {
+        type: "textbox",
+        id: "block-skills-4-t1",
+        section: "skills",
+        text: "SKILLS",
+        left: 80,
+        top: 780,
+      },
+      {
+        type: "textbox",
+        id: "block-skills-4-t2",
+        section: "skills",
+        text: "Research  ·  Literature Review  ·  Python (Pandas, NumPy)  ·  R  ·  SPSS  ·  Academic Writing  ·  Citation Management",
+        left: 80,
+        top: 807,
+        width: 650,
+        height: 47,
+        fontSize: 11,
+        lineHeight: 1.4,
+      },
+      {
+        type: "textbox",
+        id: "block-edu-5-t2",
+        section: "education",
+        text: "B.A. Research Methods",
+        left: 80,
+        top: 870,
+        width: 650,
+        height: 24,
+        fontSize: 11,
+        lineHeight: 1.4,
+      },
+    ],
+  } as FabricCanvasDoc;
+  const beforeItems = splitLogicalItems(
+    "Research  ·  Literature Review  ·  Python (Pandas, NumPy)  ·  R  ·  SPSS  ·  Academic Writing  ·  Citation Management",
+  );
+  assert(
+    beforeItems.length === 7 &&
+      beforeItems.includes("Python (Pandas, NumPy)") &&
+      !beforeItems.includes("NumPy)"),
+    "c5_fourth_compound_item_atomic",
+    JSON.stringify(beforeItems),
+  );
+  const fourthUnchanged = evaluateItemFulfillment({
+    item: fourthIr.items[0]!,
+    beforeCanvas: compoundSkills,
+    afterCanvas: compoundSkills,
+  });
+  assert(
+    fourthUnchanged.pass === false,
+    "c5_fourth_unchanged_fails",
+    fourthUnchanged.notes,
+  );
+  const fourthApplied = applyPresentationMutations(compoundSkills, fourthIr);
+  const appliedBody = (fourthApplied.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "block-skills-4-t2",
+  ) as {
+    text?: string;
+    height?: number;
+    fontSize?: number;
+    lineHeight?: number;
+  };
+  const appliedItems = splitLogicalItems(String(appliedBody?.text ?? ""));
+  const fourthFulfilled = evaluateItemFulfillment({
+    item: fourthIr.items[0]!,
+    beforeCanvas: compoundSkills,
+    afterCanvas: fourthApplied,
+  });
+  const afterClip = findIntraBoxTextOverflowFindings(fourthApplied).filter(
+    (f) => Number(f.metrics?.stored_height ?? 0) > 1,
+  );
+  assert(
+    appliedItems.length === 7 &&
+      appliedItems.includes("Python (Pandas, NumPy)") &&
+      Number(appliedBody?.height ?? 0) > 47 &&
+      afterClip.length === 0 &&
+      fourthFulfilled.pass === true,
+    "c5_fourth_correct_state_passes",
+    JSON.stringify({
+      items: appliedItems,
+      height: appliedBody?.height,
+      clip: afterClip.length,
+      notes: fourthFulfilled.notes,
+    }),
+  );
+  const bulletOnlyClipped = JSON.parse(
+    JSON.stringify(fourthApplied),
+  ) as FabricCanvasDoc;
+  const clippedBody = (bulletOnlyClipped.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "block-skills-4-t2",
+  ) as { height?: number };
+  if (clippedBody) clippedBody.height = 47;
+  const clippedEval = evaluateItemFulfillment({
+    item: fourthIr.items[0]!,
+    beforeCanvas: compoundSkills,
+    afterCanvas: bulletOnlyClipped,
+  });
+  assert(
+    clippedEval.pass === false,
+    "c5_fourth_clipped_fails_closed",
+    clippedEval.notes,
+  );
+  const splitBad = JSON.parse(JSON.stringify(fourthApplied)) as FabricCanvasDoc;
+  const splitBody = (splitBad.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "block-skills-4-t2",
+  ) as { text?: string };
+  if (splitBody) {
+    splitBody.text = "• Research\n• Literature Review\n• Python (Pandas\n• NumPy)\n• R\n• SPSS\n• Academic Writing\n• Citation Management";
+  }
+  const splitEval = evaluateItemFulfillment({
+    item: fourthIr.items[0]!,
+    beforeCanvas: compoundSkills,
+    afterCanvas: splitBad,
+  });
+  assert(
+    splitEval.pass === false,
+    "c5_fourth_item_corruption_fails_closed",
+    splitEval.notes,
+  );
+  const parenComma = splitLogicalItems("Research, Python (Pandas, NumPy), SQL");
+  assert(
+    parenComma.length === 3 && parenComma[1] === "Python (Pandas, NumPy)",
+    "compound_comma_and_parentheses_remain_one_item",
+    JSON.stringify(parenComma),
+  );
+  const exactRow = "Display the skills as exactly 3 items per row";
+  const exactIr = compileFounderFeedbackIR([exactRow]);
+  const exactSpec = compilePresentationSpec(exactRow);
+  const exactApplied = applyPresentationMutations(compoundSkills, exactIr);
+  const exactText = String(
+    ((exactApplied.objects ?? []).find(
+      (o) => (o as { id?: string }).id === "block-skills-4-t2",
+    ) as { text?: string } | undefined)?.text ?? "",
+  );
+  const exactLines = exactText.split("\n").filter(Boolean);
+  const exactPass = evaluateItemFulfillment({
+    item: exactIr.items[0]!,
+    beforeCanvas: compoundSkills,
+    afterCanvas: exactApplied,
+  });
+  const wrongGroup = JSON.parse(JSON.stringify(exactApplied)) as FabricCanvasDoc;
+  const wrongBody = (wrongGroup.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "block-skills-4-t2",
+  ) as { text?: string };
+  if (wrongBody) {
+    wrongBody.text = renderWrongGroup();
+  }
+  function renderWrongGroup(): string {
+    return "Research  ·  Literature Review  ·  Python (Pandas, NumPy)  ·  R  ·  SPSS  ·  Academic Writing  ·  Citation Management";
+  }
+  const wrongGroupEval = evaluateItemFulfillment({
+    item: exactIr.items[0]!,
+    beforeCanvas: compoundSkills,
+    afterCanvas: wrongGroup,
+  });
+  assert(
+    exactSpec?.grouping?.strength === "required" &&
+      exactSpec.grouping.axis === "row" &&
+      exactSpec.grouping.items_per_group === 3 &&
+      exactSpec.grouping.executable === true &&
+      exactLines.length >= 2 &&
+      splitLogicalItems(exactLines[0] ?? "").length === 3 &&
+      exactPass.pass === true &&
+      wrongGroupEval.pass === false,
+    "explicit_cardinality_grouping_required",
+    JSON.stringify({
+      spec: exactSpec?.grouping,
+      lines: exactLines,
+      exact: exactPass.notes,
+      wrong: wrongGroupEval.notes,
+    }),
+  );
+  const ambiguous = compilePresentationSpec(
+    "maybe put 3 skills in a row and continue the rest beside",
+  );
+  assert(
+    ambiguous != null &&
+      ambiguous.executable === false &&
+      evaluateItemFulfillment({
+        item: compileFounderFeedbackIR([
+          "maybe put 3 skills in a row and continue the rest beside",
+        ]).items[0]!,
+        beforeCanvas: compoundSkills,
+        afterCanvas: fourthApplied,
+      }).pass === false,
+    "ambiguous_structured_presentation_fails_closed",
+    JSON.stringify(ambiguous),
+  );
+  const twoCol = applyPresentationMutations(
+    skillsInline,
+    compileFounderFeedbackIR(["Arrange the skills in two columns"]),
+  );
+  assert(
+    presentEval("Arrange the skills in two columns", skillsInline, skillsInline)
+      .pass === false &&
+      presentEval("Arrange the skills in two columns", skillsInline, twoCol)
+        .pass === true,
+    "presentation_two_columns_executed",
+    presentEval("Arrange the skills in two columns", skillsInline, twoCol).notes,
   );
 
   for (const id of HISTORICAL) {

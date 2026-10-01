@@ -38,6 +38,11 @@ import {
   evaluateItemFulfillment,
 } from "../founder-revision/FounderFeedbackFulfillment.js";
 import { dropUnsafeGeometryOps } from "../founder-revision/PostContentReflow.js";
+import { findIntraBoxTextOverflowFindings } from "../founder-revision/RevisionAcceptanceChecks.js";
+import {
+  compilePresentationSpec,
+  splitLogicalItems,
+} from "../founder-revision/PresentationIntent.js";
 import {
   CANONICAL_COLLISION_BOUNDS_QA,
   CANONICAL_CONTENT_PRESERVATION,
@@ -1101,6 +1106,21 @@ async function main(): Promise<void> {
       "PRESENTATION_MUTATION",
       "presentation_c5_reproof",
     ],
+    [
+      "In the skill section, currently the skills are been displayed as horizontal pointers, but I want it to be displayed vertically so that the bottom of the resume template looks empty for this reason we can do vertical pointers, may be 3 pointers in a row and rest 3 we can continue it beside it and so on.",
+      "PRESENTATION_MUTATION",
+      "presentation_c5_fourth",
+    ],
+    [
+      "Display the skills as exactly 3 items per row",
+      "PRESENTATION_MUTATION",
+      "presentation_explicit_cardinality",
+    ],
+    [
+      "maybe put 3 skills in a row and continue the rest beside",
+      "PRESENTATION_MUTATION",
+      "presentation_ambiguous_grouping",
+    ],
     ["Show the certifications one below another", "PRESENTATION_MUTATION", "presentation_vertical"],
     ["Show the skills inline", "PRESENTATION_MUTATION", "presentation_inline"],
     ["Display the tools as bullet points", "PRESENTATION_MUTATION", "presentation_bullets"],
@@ -1367,6 +1387,146 @@ async function main(): Promise<void> {
         afterCanvas: sideCanvas,
       }).pass === true,
     "c4_presentation_side_by_side_fulfillment",
+  );
+
+  const C5_FOURTH =
+    "In the skill section, currently the skills are been displayed as horizontal pointers, but I want it to be displayed vertically so that the bottom of the resume template looks empty for this reason we can do vertical pointers, may be 3 pointers in a row and rest 3 we can continue it beside it and so on.";
+  const fourthSpec = compilePresentationSpec(C5_FOURTH);
+  const fourthItem = compileFounderFeedbackIR([C5_FOURTH]).items[0]!;
+  const fourthSkills = page([
+    text("c4-fourth-h", "SKILLS", 700, { section: "skills" }),
+    text(
+      "c4-fourth-body",
+      "Research  ·  Literature Review  ·  Python (Pandas, NumPy)  ·  R  ·  SPSS  ·  Academic Writing  ·  Citation Management",
+      730,
+      { section: "skills", width: 650, height: 47, fontSize: 11, lineHeight: 1.4 },
+    ),
+    text("c4-fourth-edu", "B.A. Research Methods", 870, {
+      section: "education",
+      width: 650,
+      height: 24,
+    }),
+  ]);
+  const fourthApplied = applyPresentationMutations(
+    fourthSkills,
+    compileFounderFeedbackIR([C5_FOURTH]),
+  );
+  const fourthBody = (fourthApplied.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "c4-fourth-body",
+  ) as { text?: string; height?: number };
+  const fourthItems = splitLogicalItems(String(fourthBody?.text ?? ""));
+  const fourthUnchanged = evaluateItemFulfillment({
+    item: fourthItem,
+    beforeCanvas: fourthSkills,
+    afterCanvas: fourthSkills,
+  });
+  const fourthOk = evaluateItemFulfillment({
+    item: fourthItem,
+    beforeCanvas: fourthSkills,
+    afterCanvas: fourthApplied,
+  });
+  const fourthClipped = JSON.parse(JSON.stringify(fourthApplied)) as FabricCanvasDoc;
+  const clipped = (fourthClipped.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "c4-fourth-body",
+  ) as { height?: number };
+  if (clipped) clipped.height = 47;
+  const fourthClipEval = evaluateItemFulfillment({
+    item: fourthItem,
+    beforeCanvas: fourthSkills,
+    afterCanvas: fourthClipped,
+  });
+  const fourthSplit = JSON.parse(JSON.stringify(fourthApplied)) as FabricCanvasDoc;
+  const split = (fourthSplit.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "c4-fourth-body",
+  ) as { text?: string };
+  if (split) {
+    split.text =
+      "• Research\n• Literature Review\n• Python (Pandas\n• NumPy)\n• R\n• SPSS\n• Academic Writing\n• Citation Management";
+  }
+  const fourthSplitEval = evaluateItemFulfillment({
+    item: fourthItem,
+    beforeCanvas: fourthSkills,
+    afterCanvas: fourthSplit,
+  });
+  assert(
+    fourthSpec?.arrangement === "vertical" &&
+      fourthSpec.markers === "bullets" &&
+      fourthSpec.grouping?.strength === "approximate" &&
+      fourthSpec.grouping.executable === false &&
+      fourthSpec.compactness?.strength === "context" &&
+      fourthSpec.executable === true,
+    "c4_structured_presentation_multi_constraint",
+    JSON.stringify(fourthSpec),
+  );
+  assert(
+    fourthItems.length === 7 && fourthItems.includes("Python (Pandas, NumPy)"),
+    "c4_atomic_item_coverage",
+    JSON.stringify(fourthItems),
+  );
+  assert(
+    Number(fourthBody?.height ?? 0) > 47 &&
+      findIntraBoxTextOverflowFindings(fourthApplied).filter(
+        (f) => Number(f.metrics?.stored_height ?? 0) > 1,
+      ).length === 0,
+    "c4_textbox_measurement_coverage",
+    String(fourthBody?.height),
+  );
+  assert(fourthUnchanged.pass === false, "c4_fourth_unchanged_blocked", fourthUnchanged.notes);
+  assert(fourthOk.pass === true, "c4_fourth_correct_fulfillment", fourthOk.notes);
+  assert(fourthClipEval.pass === false, "c4_clipping_coverage", fourthClipEval.notes);
+  assert(
+    fourthSplitEval.pass === false,
+    "c4_item_corruption_fail_closed",
+    fourthSplitEval.notes,
+  );
+  const exactRowLine = "Display the skills as exactly 3 items per row";
+  const exactSpec = compilePresentationSpec(exactRowLine);
+  const exactApplied = applyPresentationMutations(
+    fourthSkills,
+    compileFounderFeedbackIR([exactRowLine]),
+  );
+  const exactText = String(
+    ((exactApplied.objects ?? []).find(
+      (o) => (o as { id?: string }).id === "c4-fourth-body",
+    ) as { text?: string } | undefined)?.text ?? "",
+  );
+  const exactEval = evaluateItemFulfillment({
+    item: compileFounderFeedbackIR([exactRowLine]).items[0]!,
+    beforeCanvas: fourthSkills,
+    afterCanvas: exactApplied,
+  });
+  const exactWrong = evaluateItemFulfillment({
+    item: compileFounderFeedbackIR([exactRowLine]).items[0]!,
+    beforeCanvas: fourthSkills,
+    afterCanvas: fourthApplied,
+  });
+  assert(
+    exactSpec?.grouping?.executable === true &&
+      exactSpec.grouping.items_per_group === 3 &&
+      splitLogicalItems(exactText.split("\n")[0] ?? "").length === 3 &&
+      exactEval.pass === true &&
+      exactWrong.pass === false,
+    "c4_cardinality_grouping_coverage",
+    JSON.stringify({
+      grouping: exactSpec?.grouping,
+      exact: exactEval.notes,
+      wrong: exactWrong.notes,
+    }),
+  );
+  const ambiguousSpec = compilePresentationSpec(
+    "maybe put 3 skills in a row and continue the rest beside",
+  );
+  assert(
+    ambiguousSpec?.executable === false &&
+      evaluateItemFulfillment({
+        item: compileFounderFeedbackIR([
+          "maybe put 3 skills in a row and continue the rest beside",
+        ]).items[0]!,
+        beforeCanvas: fourthSkills,
+        afterCanvas: fourthApplied,
+      }).pass === false,
+    "c4_ambiguity_coverage",
+    JSON.stringify(ambiguousSpec),
   );
 
   const C5_THIRD =

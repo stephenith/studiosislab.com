@@ -49,24 +49,24 @@ Code and VPS evidence override this file when they disagree. Historical evidence
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-01T15:06:31+05:30** / **2026-10-01T09:36:31.000Z**.
+Snapshot taken **2026-10-01T16:46:19+05:30** / **2026-10-01T11:16:19.000Z**.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `46a237a05fcacd7799b42098bad5050b2e12469f` before this correction commit (`main`) |
-| ORIGIN HEAD | `46a237a05fcacd7799b42098bad5050b2e12469f` before this correction commit |
-| VPS HEAD | `46a237a05fcacd7799b42098bad5050b2e12469f` before this correction commit |
+| LOCAL HEAD | `a0d6ad8554b0f9149dce6b5f948d77ba08da682d` before this correction commit (`main`) |
+| ORIGIN HEAD | `a0d6ad8554b0f9149dce6b5f948d77ba08da682d` before this correction commit |
+| VPS HEAD | `a0d6ad8554b0f9149dce6b5f948d77ba08da682d` before this correction commit |
 | PUBLIC PRODUCT | Next.js SaaS at `studiosislab.com` (Vercel) |
 | AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` |
-| CURRENT PROJECT PRIORITY | **Resume Template consolidation — third C5 FAIL remains immutable; post-third-C5 offline correction implemented; fourth live proof NOT YET RUN** |
+| CURRENT PROJECT PRIORITY | **Resume Template consolidation — fourth C5 FAIL / false-positive READY remains immutable; post-fourth-C5 offline correction implemented; fifth live proof NOT YET RUN** |
 | CURRENTLY ACTIVE DEPARTMENT | Resume Template Department (`CONSOLIDATION_REQUIRED`) |
 | NEXT MAJOR PRODUCT DEPARTMENT | Website Analysis / QA / Development (not authorized as current work) |
 | CORE FACTORY HISTORICAL GOAL | **MET** — do not erase |
 | LIVE `OPERATIONALLY_COMPLETE` | **NOT ASSERTED** |
 | PUBLICATION | Manual; `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` |
 | LIVE GENERATION | Guarded; `SOS_AIOS_LIVE=0` |
-| PRIMARY BLOCKERS | Three C5 live proofs remain immutable FAIL history; fourth live proof not run; Website still disabled |
-| NEXT AUTHORIZED STEP | **Read-only preflight for exactly one NEW fourth-C5 live proof if Founder authorizes. Do not execute it in this run. Do not start C6.** |
+| PRIMARY BLOCKERS | Four C5 live proofs remain immutable FAIL history; fifth live proof not run; Website still disabled |
+| NEXT AUTHORIZED STEP | **Read-only preflight for exactly one NEW fifth-C5 live proof if Founder authorizes. Do not execute it in this run. Do not start C6.** |
 
 ---
 
@@ -325,9 +325,9 @@ Preserve all of these. Do not delete, merge, or rewrite to make the hierarchy lo
 
 **Exactly one authorized next major action:**
 
-**Read-only preflight for exactly one NEW fourth-C5 live proof if the Founder authorizes it. Do not execute that live proof in this run.**
+**Read-only preflight for exactly one NEW fifth-C5 live proof if the Founder authorizes it. Do not execute that live proof in this run.**
 
-Three C5 live proofs remain immutable FAIL history. Post-third-C5 offline correction implemented two owners: (1) IR `founder-feedback-ir-1.3.0` range/group relational alignment with measurable fulfillment and deterministic group translation; (2) layout-only geometry-trial baseline no longer runs post-content reflow. First-C5 `GEOMETRY_EXTENT` and second-C5 presentation remain. Do not retry `revtask-3f5b2339-73e` or earlier C5 tasks. Do not Approve or Reject. Do not start C6. Not Website activation.
+Four C5 live proofs remain immutable FAIL history. Fourth C5 (`fd-eaa0beaa-6fc` / `revtask-0d58e039-326`) technically reached READY — that was a false-positive READY. Post-fourth-C5 offline correction implemented two owners: (1) IR `founder-feedback-ir-1.4.0` multi-constraint structured presentation with fail-closed approximate/ambiguous grouping; (2) atomic logical items, text-box height sync, and intra-box overflow on the presentation path. Existing overlay marks child `…-194bdf-revfb-71bd11` AUDIT_INVALID / NOT_DECISIONABLE. Motion Designer UI Request Changes exposure remains unresolved closure debt. Do not retry historical C5 tasks. Do not Approve or Reject. Do not start C6. Not Website activation.
 
 Deep phases: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MASTER.md) §29–§34.
 
@@ -351,6 +351,7 @@ Deep phases: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MA
 | 2026-09-30T17:42:00+05:30 | Third-C5 preflight not sufficient; close audit-invalid REJECT server hole; Website still not current | Server `decisionAllowedForValidity` still allowed crafted REJECT on NOT_DECISIONABLE | Generalized fail-closed ordinary decisions; actionability/identity/C1–C4 PASS | Admin-reject invention; candidate blacklist; rewriting historical READY; C6 | Founder Review actionability + dashboard server/UI | Yes |
 | 2026-09-30T18:27:00+05:30 | Third C5 live proof FAIL; do not retry; Website still not current | Motion Designer Request Changes compiled as page-bottom extent; 32 alignment ops dropped; coverage fail-closed | VPS `fd-4e2c7c6a-eaa` / `revtask-3f5b2339-73e` | Retrying; patching IR; Approving; C6 | Project priority | Yes |
 | 2026-10-01T15:06:31+05:30 | Post-third-C5 offline correction; fourth live proof not executed; Website still not current | IR could not represent range-scoped relational alignment; layout-only safety trials ran a false post-content-reflow baseline | IR 1.3.0 RELATIONAL_ALIGNMENT + group translation; dropUnsafe no-content baseline; C1/C2/C3/C4/6H/6O PASS | Phrase regex; Motion Designer special case; weakening overlap/OOB; provider-as-owner; C6 | Resume IR/fulfillment/pipeline/C4 | Yes |
+| 2026-10-01T16:46:19+05:30 | Post-fourth-C5 offline correction; fifth live proof not executed; Website still not current | Categorical presentation IR + comma split + unsynced box + intra-box bypass produced false-positive READY | IR 1.4.0 structured presentation; atomic items; height sync; intra-box fulfillment; overlay on false-READY child; C1/C2/C3/C4/actionability PASS | Skills/Python/3 special cases; invented 3×N grid; rewriting historical READY; C6 | Resume IR/fulfillment/C4/overlay | Yes |
 
 ---
 
@@ -372,7 +373,8 @@ Append-only. Do not overwrite historical entries.
 | 2026-09-30T16:58:00+05:30 | Second C5 bounded offline correction | Owner A actionability/identity + Owner B presentation semantics | Second C5 FAIL; IR 1.1.0; no audit-invalid overlay | IR 1.2.0 + overlay + identity bind + C4 presentation category | Resume review/revision files; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6O+actionability | `fb6875f` | FF + dashboard restart | NO | Offline correction PASS; READY_FOR_C6=NO | side_by_side/columns not auto-applied; REJECT still server-allowed | One fresh live proof if authorized |
 | 2026-09-30T17:42:00+05:30 | Audit-invalid server REJECT enforcement | Make UI and server agree: NOT_DECISIONABLE blocks all ordinary Founder decisions | Third-C5 preflight found crafted REJECT still allowed | `decisionAllowedForValidity` fail-closes all decisions; shared `evaluateFounderDecisionActionability`; UI copy aligned | Actionability module; dashboard server/UI; verifier; this file; Resume master; project-state; `AGENTS.md` | Actionability + identity + C1+C2+C3+C4 | `afc47be` | FF + dashboard restart | NO | Offline enforcement PASS; READY_FOR_C6=NO | Crafted POSTs to other non-review APIs | Motion Designer live Request Changes if authorized |
 | 2026-09-30T18:27:00+05:30 | Third C5 live Request Changes | Prove IR 1.2 + actionability on one natural Motion Designer decision | Enforcement deployed at `afc47be`; Motion Designer waiting | Observed `fd-4e2c7c6a-eaa` / `revtask-3f5b2339-73e` FAILED_COVERAGE; canvas unchanged | This file; Resume master; project-state; `AGENTS.md` | Production evidence inspect | `46a237a` | FF docs; no restart; no Approve | YES — FAIL | Third C5 FAIL; READY_FOR_C6=NO | IR maps “till the bottom / align left” to page-bottom extent; `dropUnsafeGeometryOps` can zero an alignment plan | Read-only failure investigation |
-| 2026-10-01T15:06:31+05:30 | Post-third-C5 bounded offline correction | Generalized range/group relational alignment + layout-only geometry trial baseline | Third C5 FAIL recorded; IR 1.2.0; heads snapshot still listed `afc47be` | IR 1.3.0 RELATIONAL_ALIGNMENT; deterministic group translation; provider IR contract; no-content reflow skipped in dropUnsafe; C4 extended | Resume IR/fulfillment/intent-scope/prompt/pipeline/C1/C4; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6H+6O | *(this implementation commit)* | FF + dashboard restart if proofs pass | NO | Offline correction PASS; fourth live proof NOT RUN; READY_FOR_C6=NO | Unmodeled relational phrasing; group translation is horizontal-only | Read-only fourth-C5 preflight if Founder authorizes |
+| 2026-10-01T15:06:31+05:30 | Post-third-C5 bounded offline correction | Generalized range/group relational alignment + layout-only geometry trial baseline | Third C5 FAIL recorded; IR 1.2.0; heads snapshot still listed `afc47be` | IR 1.3.0 RELATIONAL_ALIGNMENT; deterministic group translation; provider IR contract; no-content reflow skipped in dropUnsafe; C4 extended | Resume IR/fulfillment/intent-scope/prompt/pipeline/C1/C4; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6H+6O | `a0d6ad8` | FF + dashboard restart | NO | Offline correction PASS; fourth live proof NOT RUN; READY_FOR_C6=NO | Unmodeled relational phrasing; group translation is horizontal-only | Read-only fourth-C5 preflight if Founder authorizes |
+| 2026-10-01T16:46:19+05:30 | Post-fourth-C5 bounded offline correction | Structured presentation contract + atomic items + measured text-box / intra-box usability | Fourth C5 FAIL / false-positive READY; IR 1.3.0 categorical presentation | IR 1.4.0 multi-constraint presentation; nest-aware items; height sync; intra-box fulfillment; overlay on `…-revfb-71bd11`; C4 extended | Resume presentation/IR/fulfillment/C1/C4/overlay; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+actionability | *(this implementation commit)* | FF + dashboard restart if proofs pass | NO | Offline correction PASS; fifth live proof NOT RUN; READY_FOR_C6=NO | Axis-ambiguous grouping fail-closed; Motion Designer UI debt unresolved | Read-only fifth-C5 preflight if Founder authorizes |
 
 ---
 

@@ -11,6 +11,17 @@
       "reason": "Authorized C5 audit: requested Founder outcomes were not fulfilled. Historical task remains READY_FOR_FOUNDER_REVIEW. Current Founder Review actionability is audit-invalid.",
       "recorded_at": "2026-09-30T11:20:00.000Z",
       "source": "authorized_audit"
+    },
+    {
+      "review_id": "founder-review-cand-student-research-assistant-20261001T032029Z-194bdf-revfb-71bd11",
+      "candidate_id": "cand-student-research-assistant-20261001T032029Z-194bdf-revfb-71bd11",
+      "validity": "AUDIT_INVALID",
+      "actionability": "NOT_DECISIONABLE",
+      "historical_task_id": "revtask-0d58e039-326",
+      "historical_task_status_unchanged": "READY_FOR_FOUNDER_REVIEW",
+      "reason": "Authorized fourth-C5 audit: requested structured presentation was not fulfilled. Historical task remains READY_FOR_FOUNDER_REVIEW. Current Founder Review actionability is audit-invalid.",
+      "recorded_at": "2026-10-01T11:16:19.000Z",
+      "source": "authorized_audit"
     }
   ]
 }

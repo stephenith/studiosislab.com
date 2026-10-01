@@ -39,6 +39,10 @@ const HISTORICAL_TASKS = [
   "revtask-4a0c006c-507",
 ];
 const HISTORICAL_DECISIONS = ["fd-ef2226ce-0da", "fd-87ecc16c-f45"];
+const RESEARCH_ASSISTANT_PARENT =
+  "cand-student-research-assistant-20261001T032029Z-194bdf";
+const RESEARCH_ASSISTANT_CHILD =
+  "cand-student-research-assistant-20261001T032029Z-194bdf-revfb-71bd11";
 const UI_DESIGNER =
   "cand-creative-ui-designer-20260915T122023Z-79af7d-revfb-f81691";
 const MOTION_DESIGNER =
@@ -210,6 +214,14 @@ function main(): void {
       title: "UI Designer",
       created_at: "2026-09-15T12:20:23.000Z",
     });
+    writeManifest(fixture, RESEARCH_ASSISTANT_PARENT, "READY_FOR_FOUNDER_REVIEW", {
+      title: "Research Assistant parent",
+      created_at: "2026-10-01T03:20:29.000Z",
+    });
+    writeManifest(fixture, RESEARCH_ASSISTANT_CHILD, "READY_FOR_FOUNDER_REVIEW", {
+      title: "Research Assistant child",
+      created_at: "2026-10-01T10:07:44.000Z",
+    });
     mkdirSync(join(fixture, "SOS/SAIOS/core/founder-review"), {
       recursive: true,
     });
@@ -228,6 +240,17 @@ function main(): void {
               historical_task_status_unchanged: "READY_FOR_FOUNDER_REVIEW",
               reason: "Authorized C5 audit fixture",
               recorded_at: "2026-09-30T11:20:00.000Z",
+              source: "authorized_audit",
+            },
+            {
+              review_id: `founder-review-${RESEARCH_ASSISTANT_CHILD}`,
+              candidate_id: RESEARCH_ASSISTANT_CHILD,
+              validity: "AUDIT_INVALID",
+              actionability: "NOT_DECISIONABLE",
+              historical_task_id: "revtask-0d58e039-326",
+              historical_task_status_unchanged: "READY_FOR_FOUNDER_REVIEW",
+              reason: "Authorized fourth-C5 false-READY audit fixture",
+              recorded_at: "2026-10-01T11:30:00.000Z",
               source: "authorized_audit",
             },
           ],
@@ -385,11 +408,76 @@ function main(): void {
         actionable: motion?.actionable,
       }),
     );
+    const raChild = items.find((i) => i.candidate_id === RESEARCH_ASSISTANT_CHILD);
+    const raParent = items.find((i) => i.candidate_id === RESEARCH_ASSISTANT_PARENT);
+    const raIdentity = {
+      review_id: `founder-review-${RESEARCH_ASSISTANT_CHILD}`,
+      candidate_id: RESEARCH_ASSISTANT_CHILD,
+    };
+    assert(
+      raChild?.status === "audit_invalid" &&
+        raChild.validity === "audit_invalid" &&
+        raChild.actionable === false,
+      "false_ready_child_audit_invalid_not_decisionable",
+      JSON.stringify({
+        status: raChild?.status,
+        validity: raChild?.validity,
+        actionable: raChild?.actionable,
+      }),
+    );
+    assert(
+      evaluateFounderDecisionActionability({
+        overlay: fixtureOverlay,
+        identity: raIdentity,
+        projectedValidity: "audit_invalid",
+        decision: "APPROVED",
+      }).allowed === false &&
+        evaluateFounderDecisionActionability({
+          overlay: fixtureOverlay,
+          identity: raIdentity,
+          projectedValidity: "audit_invalid",
+          decision: "CHANGES_REQUESTED",
+        }).allowed === false &&
+        evaluateFounderDecisionActionability({
+          overlay: fixtureOverlay,
+          identity: raIdentity,
+          projectedValidity: "audit_invalid",
+          decision: "REJECTED",
+        }).allowed === false,
+      "false_ready_child_ordinary_decisions_blocked",
+    );
+    assert(
+      raParent?.validity !== "audit_invalid" &&
+        raParent?.actionable !== false &&
+        !fixtureOverlay.records.some((r) => r.candidate_id === RESEARCH_ASSISTANT_PARENT) &&
+        evaluateFounderDecisionActionability({
+          overlay: fixtureOverlay,
+          identity: {
+            review_id: `founder-review-${RESEARCH_ASSISTANT_PARENT}`,
+            candidate_id: RESEARCH_ASSISTANT_PARENT,
+          },
+          projectedValidity: "valid",
+          decision: "CHANGES_REQUESTED",
+        }).allowed === true,
+      "false_ready_parent_unchanged",
+      JSON.stringify({
+        status: raParent?.status,
+        validity: raParent?.validity,
+        actionable: raParent?.actionable,
+      }),
+    );
   } finally {
     rmSync(fixture, { recursive: true, force: true });
   }
 
   const overlay = loadActionabilityOverlay(REPO);
+  assert(
+    overlay.records.some((r) => r.candidate_id === RESEARCH_ASSISTANT_CHILD) &&
+      !overlay.records.some((r) => r.candidate_id === RESEARCH_ASSISTANT_PARENT) &&
+      overlay.records.find((r) => r.candidate_id === RESEARCH_ASSISTANT_CHILD)
+        ?.historical_task_status_unchanged === "READY_FOR_FOUNDER_REVIEW",
+    "false_ready_production_overlay_child_only",
+  );
   assert(
     overlay.records.some((r) => r.candidate_id === UI_DESIGNER) &&
       !overlay.records.some((r) => r.candidate_id === MOTION_DESIGNER) &&

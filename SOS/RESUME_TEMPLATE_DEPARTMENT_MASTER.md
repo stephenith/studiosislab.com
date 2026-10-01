@@ -60,25 +60,25 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-01T15:06:31+05:30** / **2026-10-01T09:36:31.000Z**. Post-third-C5 offline correction implemented. Fourth live proof not run.
+Snapshot taken **2026-10-01T16:46:19+05:30** / **2026-10-01T11:16:19.000Z**. Post-fourth-C5 offline correction implemented. Fifth live proof not run.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `46a237a05fcacd7799b42098bad5050b2e12469f` before this correction commit (`main`) |
-| ORIGIN HEAD | `46a237a05fcacd7799b42098bad5050b2e12469f` before this correction commit |
-| VPS HEAD | `46a237a05fcacd7799b42098bad5050b2e12469f` before this correction commit |
+| LOCAL HEAD | `a0d6ad8554b0f9149dce6b5f948d77ba08da682d` before this correction commit (`main`) |
+| ORIGIN HEAD | `a0d6ad8554b0f9149dce6b5f948d77ba08da682d` before this correction commit |
+| VPS HEAD | `a0d6ad8554b0f9149dce6b5f948d77ba08da682d` before this correction commit |
 | LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is the authorized offline correction |
-| VPS STATUS | Third C5 FAIL evidence remains immutable; correction not live until FF deploy |
+| VPS STATUS | Four C5 FAIL evidence remains immutable; correction not live until FF deploy |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; three C5 live proofs FAIL and immutable; post-third-C5 correction offline PASS |
+| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; four C5 live proofs FAIL and immutable; post-fourth-C5 correction offline PASS |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
-| REVISION STATUS | `revtask-863f67a5-790` READY unchanged; `revtask-4a0c006c-507` FAILED_COVERAGE unchanged; `revtask-3f5b2339-73e` FAILED_COVERAGE; `5d933072` / `76a04a21` unchanged |
+| REVISION STATUS | `revtask-863f67a5-790` READY unchanged; `revtask-4a0c006c-507` FAILED_COVERAGE unchanged; `revtask-3f5b2339-73e` FAILED_COVERAGE; `revtask-0d58e039-326` READY unchanged (false-positive READY); `5d933072` / `76a04a21` unchanged |
 | GENERATION STATUS | Unchanged; `SOS_AIOS_LIVE=0` |
-| FOUNDER REVIEW STATUS | Motion Designer `…-bed721` remains `revision_failed` after `fd-4e2c7c6a-eaa`. Historical UI Designer child remains `audit_invalid` / NOT_DECISIONABLE. Do not Approve or Reject. |
+| FOUNDER REVIEW STATUS | Fourth-C5 child `…-194bdf-revfb-71bd11` is `audit_invalid` / NOT_DECISIONABLE. Historical UI Designer child remains `audit_invalid`. Motion Designer `…-bed721` remains `revision_failed` after `fd-4e2c7c6a-eaa` (UI Request Changes exposure remains unresolved closure debt). Do not Approve or Reject. |
 | MEMORY STATUS | Unchanged |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
-| CURRENT PRIMARY BLOCKERS | Fourth C5 live proof not yet run; three historical C5 FAILs remain immutable |
-| NEXT AUTHORIZED STEP | **Read-only preflight for exactly one NEW fourth-C5 live proof if Founder authorizes.** Do not retry historical C5 tasks. Do not start C6. |
+| CURRENT PRIMARY BLOCKERS | Fifth C5 live proof not yet run; four historical C5 FAILs remain immutable |
+| NEXT AUTHORIZED STEP | **Read-only preflight for exactly one NEW fifth-C5 live proof if Founder authorizes.** Do not retry historical C5 tasks. Do not start C6. |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -830,6 +830,29 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 | TELEGRAM | Event `2ae5c15e-3c88-4be5-80d7-3fab53772676` at `2026-09-30T12:28:04.613Z`; message_id 195; delivery sent; body matches task owner/code/stage. |
 | C5 THIRD RESULT | **FAIL**. Fail-closed architecture YES. `READY_FOR_C6=NO`. Do not retry. Do not patch. Do not Approve. |
 
+#### Fourth C5 live proof *(executed 2026-10-01; FAIL / false-positive READY)*
+
+| Field | Content |
+|---|---|
+| AUTHORIZED SOURCE | `cand-student-research-assistant-20261001T032029Z-194bdf` / review `founder-review-cycle-student-research-assistant-20261001T032029Z-194bdf`. |
+| ACTUAL LIVE DECISION | `fd-eaa0beaa-6fc` CHANGES_REQUESTED `2026-10-01T10:06:45.105Z`. |
+| ACTUAL LIVE TASK | `revtask-0d58e039-326` created then terminal `READY_FOR_FOUNDER_REVIEW` `2026-10-01T10:07:44.884Z`. Child `cand-student-research-assistant-20261001T032029Z-194bdf-revfb-71bd11`. |
+| FOUNDER ITEM (verbatim) | `In the skill section, currently the skills are been displayed as horizontal pointers, but I want it to be displayed vertically so that the bottom of the resume template looks empty for this reason we can do vertical pointers, may be 3  pointers in a row and rest 3 we can continue it beside it and so on.` |
+| C1 IR | `founder-feedback-ir-1.3.0`. One public owner. Collapsed to categorical `PRESENTATION` `desired=bullets` / `DETERMINISTIC_LAYOUT_OWNED`. Vertical, grouping, beside, and compactness were not retained as simultaneous constraints. |
+| EXECUTION | Deterministic presentation rewrite. `Python (Pandas, NumPy)` split on comma. Skills box stored height remained ~47px while rendered ink required ~123px. Intra-box validator existed but was not invoked on this path. |
+| C5 FOURTH RESULT | **FAIL observationally**. Task technically reached `READY_FOR_FOUNDER_REVIEW` — this was a **false-positive READY**. Historical technical READY remains immutable. Do not Approve. Do not retry. Do not start C6. |
+
+#### Post-fourth-C5 bounded offline correction *(2026-10-01)*
+
+| Field | Content |
+|---|---|
+| OWNER 1 | Canonical presentation IR generalized to a multi-constraint structured contract (`founder-feedback-ir-1.4.0`). Compatible constraints survive together. Approximate cardinality and axis-ambiguous grouping are represented and fail closed rather than inventing a unique 3×N grid. Compactness purpose/context is not a hard metric. One public semantic owner remains `compileFounderFeedbackIR`. |
+| OWNER 2 | Logical items split on true list delimiters with nest-aware internal punctuation. Deterministic executor can apply vertical/inline/bullets and unambiguous columns/row-groups. Presentation path reuses `syncStoredTextHeightsToVisual`. Intra-box overflow from `findIntraBoxTextOverflowFindings` blocks presentation fulfillment. C2 overlap/OOB/page-fit architecture unchanged. |
+| OVERLAY | Existing actionability overlay marks child `…-194bdf-revfb-71bd11` `AUDIT_INVALID` / `NOT_DECISIONABLE`. Historical task `revtask-0d58e039-326` stays READY. Parent/source not blacklisted. |
+| MOTION DESIGNER UI DEBT | Unchanged and unresolved: projection `revision_failed` / `actionable=false` while UI may still expose Request Changes. Did not cause fourth C5. |
+| OFFLINE | C1 PASS; C2 PASS; C3 PASS; C4 PASS; actionability PASS. First-C5 extent, second-C5 presentation, third-C5 relational remain PASS. |
+| LIVE PROOF | Fifth C5 **not run**. `READY_FOR_C6=NO`. |
+
 #### C6 — Closure audit (schedule remains later)
 
 | Field | Content |
@@ -846,7 +869,7 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 
 **Combinable:** C1 + small Telegram `failure_code` honesty. **Not combinable with C1:** C2 generation gate, C3 memory, C5 live proof.
 
-**Total implementation phases: 6.** C1–C4 shipped offline. Three C5 live proofs are historical **FAIL**. Do not start **C6**.
+**Total implementation phases: 6.** C1–C4 shipped offline. Four C5 live proofs are historical **FAIL**. Do not start **C6**.
 
 ### Proof strategy (department)
 
@@ -901,9 +924,9 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | revision_task_counts | READY 18 / FAILED_COVERAGE 9 / FAILED 7 / FAILED_GATE 15 / PENDING 0 |
 | Timers | morning last 2026-09-29 03:20 UTC; evening last 2026-09-28 12:20 UTC; next morning 2026-09-30 03:20 UTC; generation **service** disabled; publication nightly last 2026-09-29 02:00 UTC |
 | Dashboard | active, PID 4063798, started 2026-09-23 07:36:41 UTC; NRestarts=0 |
-| Last revision of note | `revtask-4a0c006c-507` FAILED_COVERAGE 2026-09-30T10:17:10Z on historical C5 child (not Motion Designer). Historical `revtask-863f67a5-790` still READY. `revtask-5d933072-daf` still FAILED_SECTION_COMPLETENESS |
-| Candidate dirs on VPS | Child `…-revfb-f81691` materialized; do not Approve |
-| P0 | One fresh controlled live proof if Founder authorizes (not a retry of historical C5 tasks; not C6) |
+| Last revision of note | `revtask-0d58e039-326` READY 2026-10-01T10:07:44Z on Research Assistant — observational C5 FAIL / false-positive READY. Historical `revtask-863f67a5-790` still READY. `revtask-4a0c006c-507` / `revtask-3f5b2339-73e` still FAILED_COVERAGE. `revtask-5d933072-daf` still FAILED_SECTION_COMPLETENESS |
+| Candidate dirs on VPS | Child `…-revfb-71bd11` materialized and now overlay-blocked; historical `…-revfb-f81691` remains overlay-blocked. Do not Approve |
+| P0 | One fresh controlled fifth-C5 live proof if Founder authorizes after read-only preflight (not a retry of historical C5 tasks; not C6) |
 | P1 | Closure audit remains C6 and is **not** authorized |
 | P2 | READY_FOR_FOUNDER_REVIEW success Telegram; overlay vs capacity honesty |
 
@@ -929,6 +952,7 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | 2026-09-30T17:42:00+05:30 | Close audit-invalid REJECT server hole; do not execute third C5; do not start C6 | Third-C5 preflight found UI blocked Reject while server allowed crafted REJECT | `decisionAllowedForValidity` + `evaluateFounderDecisionActionability`; actionability/identity/C1–C4 PASS | Inventing admin-reject; candidate blacklist; rewriting historical READY; IR/C2/C3/Telegram change | Founder Review actionability + dashboard server/UI | Yes until next live proof |
 | 2026-09-30T18:27:00+05:30 | Third C5 live proof is FAIL; do not retry; do not patch; do not start C6 | IR 1.2 compiled body left-align as page-bottom extent; all provider alignment ops dropped; coverage fail-closed; no child | `fd-4e2c7c6a-eaa`; `revtask-3f5b2339-73e`; prior/post canvas lefts unchanged; Telegram event `2ae5c15e-3c88-4be5-80d7-3fab53772676` | Approving; retrying 3f5b/4a0c/863f; starting a correction; C6 | Docs/state only | Yes |
 | 2026-10-01T15:06:31+05:30 | Implement two proven post-third-C5 owners offline; do not run a fourth live proof; do not start C6 | Range-scoped relational alignment had no IR/fulfillment; layout-only dropUnsafe used a fabricated reflow baseline | IR 1.3.0 RELATIONAL_ALIGNMENT + deterministic group translation; provider contract is compiled IR; no-content reflow skipped; C1/C2/C3/C4/6H/6O PASS | Motion Designer/Summary/left=72 special cases; weakening overlap/OOB; second English parser; retrying historical C5 | FounderFeedbackIR 1.3.0, fulfillment, intent-scope, prompt, pipeline, C1/C4 | Yes |
+| 2026-10-01T16:46:19+05:30 | Implement two proven post-fourth-C5 owners offline; do not run a fifth live proof; do not start C6 | Categorical PresentationSpec + comma split + unsynced 47px box + intra-box bypass produced false-positive READY | IR 1.4.0 multi-constraint presentation; nest-aware atomic items; height sync + intra-box on presentation path; overlay on false-READY child; C1/C2/C3/C4/actionability PASS | Research Assistant/Skills/Python/3 special cases; invented 3×N grid; second English parser; rewriting historical READY; C6 | PresentationIntent, FounderFeedbackIR 1.4.0, fulfillment, C1/C4, overlay | Yes |
 
 ---
 
@@ -1146,16 +1170,31 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** Horizontal-only group translation; unmodeled relational phrasing still fail-closed
 - **NEXT STEP:** Read-only preflight for one NEW fourth-C5 live proof if Founder authorizes. Do not retry historical C5 tasks. Do not start C6.
 
+### 2026-10-01T16:46:19+05:30 — POST-FOURTH-C5 BOUNDED OFFLINE CORRECTION
+
+- **PHASE/TASK:** Owner 1 structured presentation contract + Owner 2 atomic/measured presentation execution
+- **PURPOSE:** Stop false-positive READY on multi-constraint presentation requests; preserve logical items; sync text-box geometry; fail-close intra-box clipping
+- **BEFORE STATE:** Fourth C5 FAIL / false-positive READY on `revtask-0d58e039-326`; IR 1.3.0 categorical PresentationSpec; comma split; height 47px unsynced; intra-box bypassed
+- **CHANGE:** IR 1.4.0 multi-constraint PresentationSpec; nest-aware logical items; deterministic columns/row-groups when unambiguous; approximate/ambiguous grouping fail-closed; `syncStoredTextHeightsToVisual` on presentation path; intra-box overflow blocks presentation fulfillment; existing overlay marks child `…-revfb-71bd11` AUDIT_INVALID / NOT_DECISIONABLE. Historical fourth-C5 task not rewritten.
+- **FILES MODIFIED:** PresentationIntent; FounderFeedbackIR 1.4.0; FounderFeedbackFulfillment; C1/C4/actionability verifiers; actionability-overlay.json; this file; project master; project-state; `AGENTS.md`
+- **TESTS:** C1 PASS; C2 PASS; C3 PASS; C4 PASS; actionability PASS
+- **COMMIT:** *(this implementation commit)*
+- **DEPLOY:** FF-only if proofs pass; restart only affected dashboard
+- **LIVE PROOF:** NO. Fifth C5 not executed.
+- **RESULT:** Offline correction PASS. Fourth C5 remains FAIL / false-positive READY. `READY_FOR_C6=NO`. `READY_FOR_FIFTH_C5_LIVE_PROOF=NO`. `READY_FOR_FIFTH_C5_PREFLIGHT=YES` after healthy deploy.
+- **NEW RISKS:** Axis-ambiguous grouping remains fail-closed; Motion Designer UI Request Changes exposure remains unresolved
+- **NEXT STEP:** Read-only preflight for one NEW fifth-C5 live proof if Founder authorizes. Do not retry historical C5 tasks. Do not start C6.
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**Read-only preflight for exactly one NEW fourth-C5 live proof if the Founder authorizes it. Do not execute that live proof in this run.**
+**Read-only preflight for exactly one NEW fifth-C5 live proof if the Founder authorizes it. Do not execute that live proof in this run.**
 
-Do not Approve or Reject `revtask-863f67a5-790`, `revtask-4a0c006c-507`, or `revtask-3f5b2339-73e`.  
-Do not retry `revtask-3f5b2339-73e`, `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
+Do not Approve or Reject `revtask-863f67a5-790`, `revtask-4a0c006c-507`, `revtask-3f5b2339-73e`, or `revtask-0d58e039-326`.  
+Do not retry `revtask-0d58e039-326`, `revtask-3f5b2339-73e`, `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
 Do not start C6.  
 Do not enable `SOS_AIOS_LIVE`.  
 Do not submit another Founder decision.

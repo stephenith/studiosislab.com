@@ -332,6 +332,7 @@ export function runRevisionPlanGateCircuit(input: {
   const planGeometryGate = validatePlanGeometrySafety({
     canvas: input.priorCanvas,
     plan: activePlan,
+    requested_changes: input.requested_changes,
   });
   if (!planGeometryGate.ok) {
     stages.GEOMETRY = "FAIL";

@@ -196,12 +196,12 @@ function classifyClause(
   }
   if (isContentRemovalClause(text)) return "CONTENT_REMOVAL";
   if (isContentAdditionClause(text)) return "CONTENT_ADDITION";
-  if (isContentReplacementClause(text)) return "CONTENT_REPLACEMENT";
   if (hasPresentationMutationIntent(text) || compilePresentationSpec(text)) {
     const spec = compilePresentationSpec(text);
     if (spec?.preserve || !positive) return "PRESENTATION_PRESERVATION";
     return "PRESENTATION_MUTATION";
   }
+  if (isContentReplacementClause(text)) return "CONTENT_REPLACEMENT";
   if (hasDesiredStateGeometryIntent(text)) return "LAYOUT_MUTATION";
   if (isLayoutObjectClause(text) || LAYOUT_MUTATION_RE.test(text)) {
     return "LAYOUT_MUTATION";

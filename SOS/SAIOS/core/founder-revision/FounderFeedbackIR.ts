@@ -45,7 +45,7 @@ export type FeedbackCoverageMode =
   | "VALIDATION_ONLY"
   | "DETERMINISTIC_LAYOUT_OWNED";
 
-export const FOUNDER_FEEDBACK_IR_SCHEMA = "founder-feedback-ir-1.4.1" as const;
+export const FOUNDER_FEEDBACK_IR_SCHEMA = "founder-feedback-ir-1.4.2" as const;
 
 /** Public semantic interpretation paths after C1. */
 export const NUMBER_OF_SEMANTIC_INTERPRETATION_PATHS = 1;
@@ -131,6 +131,13 @@ function dominantAction(
   }
   if (clause_actions.includes("PRESENTATION_PRESERVATION")) {
     return "PRESENTATION_PRESERVATION";
+  }
+  if (
+    clause_actions.includes("LAYOUT_MUTATION") &&
+    (clause_actions.includes("CONTENT_PRESERVATION") ||
+      clause_actions.includes("LAYOUT_PRESERVATION"))
+  ) {
+    return "LAYOUT_MUTATION";
   }
   if (clause_actions.includes("CONTENT_PRESERVATION")) {
     return "CONTENT_PRESERVATION";

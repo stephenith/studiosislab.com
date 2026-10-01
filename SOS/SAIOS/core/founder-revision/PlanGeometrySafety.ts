@@ -2,19 +2,25 @@
  * Pre-execution plan geometry safety.
  *
  * Simulates a revision plan on an isolated canvas clone using the same
- * executor semantics as production, then checks wrap-aware text overlaps
- * involving plan-touched objects and obvious page-bound violations BEFORE
- * executeCanvasOperations mutates the working pipeline canvas.
+ * executor semantics as production. Content/text growth then receives the
+ * same deterministic height-sync / post-content reflow / layout-normalizer
+ * owners the production pipeline applies after execute — so transient
+ * pre-reflow wrap overlaps are not a false blocker. Geometry-only plans
+ * are still judged on the unreflowed simulation (equal-delta collisions
+ * remain fail-closed).
  *
- * Pre-existing overlaps among completely untouched objects are left to the
- * normalizer / final acceptance — this gate answers whether the proposed
- * mutations themselves are geometrically capable (e.g. reject equal-delta
- * moves that preserve an effective collision).
- *
- * Does NOT replace final RevisionAcceptanceChecks / FeedbackCoverage.
+ * A plan that remains overlapping, OOB, or page-overflowing after those
+ * applicable owners still fail-closes. Does NOT replace C2 shared
+ * geometry admission or FeedbackCoverage.
  */
 import type { FabricCanvasDoc } from "./CanvasInventory.js";
 import { executeCanvasOperations } from "./CanvasOperationExecutor.js";
+import { evaluateSharedGeometryAdmission } from "../geometry-admission/SharedGeometryAdmission.js";
+import {
+  applyPostContentReflow,
+  isContentMutationOp,
+} from "./PostContentReflow.js";
+import { normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
 import {
   findOutOfBoundsObjects,
   findTextOverlapFindings,
@@ -26,20 +32,27 @@ import {
 import type { CanvasOperation, RevisionPlan } from "./revision-task-types.js";
 
 export type PlanGeometryCollisionFinding = {
-  code: "PLAN_TEXT_OVERLAP" | "PLAN_PAGE_OOB" | "PLAN_EXEC_SIM_FAILED";
+  code:
+    | "PLAN_TEXT_OVERLAP"
+    | "PLAN_PAGE_OOB"
+    | "PLAN_PAGE_OVERFLOW"
+    | "PLAN_EXEC_SIM_FAILED"
+    | "PLAN_LAYOUT_FAILED";
   message: string;
   object_ids: string[];
   metrics: Record<string, number | string | null>;
 };
 
 export type PlanGeometrySafetyReport = {
-  schema_version: "founder-plan-geometry-safety-1.0.0";
+  schema_version: "founder-plan-geometry-safety-1.1.0";
   at: string;
   ok: boolean;
   error: string | null;
   simulation_ok: boolean;
+  layout_applied: boolean;
   text_overlaps: number;
   page_oob: number;
+  page_overflow: number;
   findings: PlanGeometryCollisionFinding[];
   mutated_object_ids: string[];
   proposed_positions: Array<{
@@ -105,6 +118,10 @@ function proposedPositions(
   return out;
 }
 
+function planHasContentMutation(plan: RevisionPlan): boolean {
+  return plan.operations.some((op) => isContentMutationOp(op));
+}
+
 /**
  * Deterministic pre-execution geometry gate.
  * Mutates nothing in the caller's canvas (executor clones internally).
@@ -112,6 +129,7 @@ function proposedPositions(
 export function validatePlanGeometrySafety(input: {
   canvas: FabricCanvasDoc;
   plan: RevisionPlan;
+  requested_changes?: string[];
 }): PlanGeometrySafetyReport {
   const at = new Date().toISOString();
   const findings: PlanGeometryCollisionFinding[] = [];
@@ -130,26 +148,68 @@ export function validatePlanGeometrySafety(input: {
       metrics: {},
     });
     return {
-      schema_version: "founder-plan-geometry-safety-1.0.0",
+      schema_version: "founder-plan-geometry-safety-1.1.0",
       at,
       ok: false,
       error: `plan geometry simulation failed: ${simulated.error ?? "unknown"}`,
       simulation_ok: false,
+      layout_applied: false,
       text_overlaps: 0,
       page_oob: 0,
+      page_overflow: 0,
       findings,
       mutated_object_ids: [...mutated],
       proposed_positions: [],
     };
   }
 
-  const overlapFindings = findTextOverlapFindings(simulated.canvas);
+  let evalCanvas = simulated.canvas;
+  let layoutApplied = false;
+  if (planHasContentMutation(input.plan)) {
+    const reflowed = applyPostContentReflow({ canvas: evalCanvas });
+    const normalized = normalizeRevisionLayout({
+      canvas: reflowed.canvas,
+      requested_changes: input.requested_changes ?? [],
+      prior_canvas: input.canvas,
+    });
+    evalCanvas = normalized.canvas;
+    layoutApplied = true;
+    if (!normalized.report.ok) {
+      findings.push({
+        code: "PLAN_LAYOUT_FAILED",
+        message: normalized.report.error ?? "deterministic layout failed",
+        object_ids: [...mutated],
+        metrics: {},
+      });
+    }
+    if (normalized.report.page_overflow) {
+      findings.push({
+        code: "PLAN_PAGE_OVERFLOW",
+        message: "plan geometry safety failed: page overflow after layout",
+        object_ids: [...mutated],
+        metrics: {
+          page_overflow_bottom: normalized.report.page_overflow_bottom,
+        },
+      });
+    }
+    const admission = evaluateSharedGeometryAdmission(evalCanvas);
+    if (!admission.page_fit_pass && !normalized.report.page_overflow) {
+      findings.push({
+        code: "PLAN_PAGE_OVERFLOW",
+        message: `plan geometry safety failed: page_fit=${admission.page_fit_pass}`,
+        object_ids: [...mutated],
+        metrics: { page_overflow_px: admission.page_overflow_px },
+      });
+    }
+  }
+
+  const overlapFindings = findTextOverlapFindings(evalCanvas);
   for (const f of overlapFindings) {
     const involvesMutated =
       mutated.size === 0
         ? false
         : f.object_ids.some((id) => mutated.has(id));
-    if (!involvesMutated) continue;
+    if (!layoutApplied && !involvesMutated) continue;
     findings.push({
       code: "PLAN_TEXT_OVERLAP",
       message: f.message,
@@ -162,9 +222,7 @@ export function validatePlanGeometrySafety(input: {
     });
   }
 
-  // Page OOB: only fail when a mutated object (or any object if plan is empty
-  // and somehow creates OOB — empty plan cannot) is out of bounds after sim.
-  const oob = findOutOfBoundsObjects(simulated.canvas).filter(
+  const oob = findOutOfBoundsObjects(evalCanvas).filter(
     (f) => f.code !== "ACC_BOUNDS_UNEVALUABLE",
   );
   for (const f of oob) {
@@ -172,7 +230,7 @@ export function validatePlanGeometrySafety(input: {
       mutated.size === 0
         ? false
         : f.object_ids.some((id) => mutated.has(id));
-    if (!involvesMutated) continue;
+    if (!layoutApplied && !involvesMutated) continue;
     findings.push({
       code: "PLAN_PAGE_OOB",
       message: f.message,
@@ -184,21 +242,27 @@ export function validatePlanGeometrySafety(input: {
   const textOverlaps = findings.filter((f) => f.code === "PLAN_TEXT_OVERLAP")
     .length;
   const pageOob = findings.filter((f) => f.code === "PLAN_PAGE_OOB").length;
+  const pageOverflow = findings.filter((f) => f.code === "PLAN_PAGE_OVERFLOW")
+    .length;
   const ok = findings.length === 0;
   return {
-    schema_version: "founder-plan-geometry-safety-1.0.0",
+    schema_version: "founder-plan-geometry-safety-1.1.0",
     at,
     ok,
     error: ok
       ? null
-      : `plan geometry safety failed: text_overlaps=${textOverlaps} page_oob=${pageOob}`,
+      : `plan geometry safety failed: text_overlaps=${textOverlaps} page_oob=${pageOob}${
+          pageOverflow ? ` page_overflow=${pageOverflow}` : ""
+        }`,
     simulation_ok: true,
+    layout_applied: layoutApplied,
     text_overlaps: textOverlaps,
     page_oob: pageOob,
+    page_overflow: pageOverflow,
     findings,
     mutated_object_ids: [...mutated],
     proposed_positions: proposedPositions(
-      simulated.canvas,
+      evalCanvas,
       mutated.size > 0 ? mutated : undefined,
     ),
   };

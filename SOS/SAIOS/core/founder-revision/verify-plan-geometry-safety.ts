@@ -11,6 +11,8 @@ import {
   type FabricCanvasDoc,
 } from "./CanvasInventory.js";
 import { validatePlanGeometrySafety } from "./PlanGeometrySafety.js";
+import { applyPostContentReflow } from "./PostContentReflow.js";
+import { executeCanvasOperations } from "./CanvasOperationExecutor.js";
 import { buildRevisionPlannerPrompt } from "./RevisionPromptBuilder.js";
 import {
   isFounderInternalContentRhythmRequest,
@@ -539,6 +541,235 @@ async function main(): Promise<void> {
       ),
     );
   }
+
+  function stackedGrowthCanvas(): FabricCanvasDoc {
+    return pageCanvas([
+      {
+        type: "textbox",
+        id: "edu-upper",
+        left: 48,
+        top: 200,
+        width: 400,
+        height: 16,
+        text: "B.A. Communication",
+        fontSize: 12,
+        lineHeight: 1.3,
+        data: { section: "education", role: "body", id: "edu-upper" },
+      },
+      {
+        type: "textbox",
+        id: "edu-lower",
+        left: 48,
+        top: 220,
+        width: 400,
+        height: 16,
+        text: "Coursework",
+        fontSize: 12,
+        lineHeight: 1.3,
+        data: { section: "education", role: "body", id: "edu-lower" },
+      },
+      {
+        type: "textbox",
+        id: "skills-body",
+        left: 48,
+        top: 280,
+        width: 400,
+        height: 20,
+        text: "Speaking · Events · Media",
+        fontSize: 12,
+        lineHeight: 1.3,
+        data: { section: "skills", role: "body", id: "skills-body" },
+      },
+      {
+        type: "textbox",
+        id: "certs-head",
+        left: 48,
+        top: 310,
+        width: 200,
+        height: 16,
+        text: "CERTIFICATIONS",
+        data: { section: "certifications", role: "heading", id: "certs-head" },
+      },
+      {
+        type: "textbox",
+        id: "certs-body",
+        left: 48,
+        top: 330,
+        width: 400,
+        height: 16,
+        text: "First Aid",
+        data: { section: "certifications", role: "body", id: "certs-body" },
+      },
+    ]);
+  }
+
+  const stacked = stackedGrowthCanvas();
+  const sourceHash = JSON.stringify(stacked);
+  const growthOps = planOps([
+    {
+      op: "update_text",
+      target_id: "edu-upper",
+      intended_change: "grow education",
+      values: {
+        text: "Lincoln High School 2016-2020. B.A. Communication, State University 2020-2024. Coursework in media, research methods, and public relations.",
+      },
+      founder_feedback_item: "Add more content to the Education section",
+      confidence: 0.9,
+    },
+    {
+      op: "update_text",
+      target_id: "skills-body",
+      intended_change: "grow skills",
+      values: {
+        text: "Public Speaking\nEvent Coordination\nSocial Media\nLeadership\nOutreach\nResearch",
+      },
+      founder_feedback_item: "Change the Skills section to vertical pointers",
+      confidence: 0.9,
+    },
+  ]);
+  const rawGrowth = executeCanvasOperations({
+    canvas: stacked,
+    operations: growthOps.operations,
+  });
+  const transientOverlaps = rawGrowth.ok
+    ? findTextOverlapFindings(rawGrowth.canvas).length
+    : 0;
+  checks.push(
+    assert(
+      transientOverlaps >= 1,
+      "text_growth_creates_transient_overlap",
+      `n=${transientOverlaps}`,
+    ),
+  );
+  const reflowedGrowth = applyPostContentReflow({ canvas: rawGrowth.canvas });
+  const normGrowth = normalizeRevisionLayout({
+    canvas: reflowedGrowth.canvas,
+    requested_changes: [
+      "Add more content to the Education section",
+      "Change the Skills section to vertical pointers",
+    ],
+    prior_canvas: stacked,
+  });
+  const resolvedOverlaps = findTextOverlapFindings(normGrowth.canvas).length;
+  checks.push(
+    assert(
+      resolvedOverlaps === 0,
+      "canonical_reflow_resolves_transient_overlap",
+      `n=${resolvedOverlaps}`,
+    ),
+  );
+  const admitted = validatePlanGeometrySafety({
+    canvas: stacked,
+    plan: growthOps,
+    requested_changes: [
+      "Add more content to the Education section",
+      "Change the Skills section to vertical pointers",
+    ],
+  });
+  checks.push(
+    assert(
+      admitted.layout_applied === true &&
+        admitted.ok === true &&
+        admitted.text_overlaps === 0,
+      "plan_admission_does_not_false_reject_resolved_growth",
+      `ok=${admitted.ok} overlaps=${admitted.text_overlaps} layout=${admitted.layout_applied} err=${admitted.error}`,
+    ),
+  );
+  checks.push(
+    assert(
+      JSON.stringify(stacked) === sourceHash,
+      "production_equivalent_simulation_side_effect_free",
+      "source canvas mutated",
+    ),
+  );
+
+  const siblingOverlap = pageCanvas([
+    {
+      type: "textbox",
+      id: "same-a",
+      left: 48,
+      top: 200,
+      width: 180,
+      height: 40,
+      text: "Alpha item one two three four five six seven eight nine ten",
+      fontSize: 14,
+      lineHeight: 1.3,
+      data: { section: "skills", role: "body", id: "same-a" },
+    },
+    {
+      type: "textbox",
+      id: "same-b",
+      left: 80,
+      top: 200,
+      width: 180,
+      height: 40,
+      text: "Beta item one two three four five six seven eight nine ten",
+      fontSize: 14,
+      lineHeight: 1.3,
+      data: { section: "skills", role: "body", id: "same-b" },
+    },
+  ]);
+  const unsafeGrowth = validatePlanGeometrySafety({
+    canvas: siblingOverlap,
+    plan: planOps([
+      {
+        op: "update_text",
+        target_id: "same-a",
+        intended_change: "grow overlapping sibling",
+        values: {
+          text: "Alpha item one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen",
+        },
+        founder_feedback_item: "Add more content to the Skills section",
+        confidence: 0.9,
+      },
+    ]),
+    requested_changes: ["Add more content to the Skills section"],
+  });
+  checks.push(
+    assert(
+      unsafeGrowth.ok === false && unsafeGrowth.text_overlaps >= 1,
+      "post_layout_unsafe_overlap_still_fail_closed",
+      `ok=${unsafeGrowth.ok} overlaps=${unsafeGrowth.text_overlaps}`,
+    ),
+  );
+
+  const overflowCanvas = pageCanvas([
+    {
+      type: "textbox",
+      id: "near-foot",
+      left: 48,
+      top: 980,
+      width: 400,
+      height: 40,
+      text: "Short",
+      fontSize: 18,
+      lineHeight: 1.4,
+      data: { section: "education", role: "body", id: "near-foot" },
+    },
+  ]);
+  const overflowGate = validatePlanGeometrySafety({
+    canvas: overflowCanvas,
+    plan: planOps([
+      {
+        op: "update_text",
+        target_id: "near-foot",
+        intended_change: "overflow page",
+        values: {
+          text: "Line one\nLine two\nLine three\nLine four\nLine five\nLine six\nLine seven\nLine eight\nLine nine\nLine ten\nLine eleven\nLine twelve",
+        },
+        founder_feedback_item: "Add more content to the Education section",
+        confidence: 0.9,
+      },
+    ]),
+    requested_changes: ["Add more content to the Education section"],
+  });
+  checks.push(
+    assert(
+      overflowGate.ok === false && overflowGate.page_overflow >= 1,
+      "page_overflow_fail_closed_after_layout",
+      `ok=${overflowGate.ok} overflow=${overflowGate.page_overflow} err=${overflowGate.error}`,
+    ),
+  );
 
   const failed = checks.filter((c) => !c.pass);
   const report = {

@@ -63,6 +63,9 @@ export type TargetDescriptor = {
   side?: "left" | "right";
   shape?: "line" | "rect" | "text";
   color_family?: ColorFamily;
+  quoted_text?: string;
+  role?: string;
+  section?: ContentSectionKey | "header";
 };
 
 export type ExtentBound =
@@ -83,11 +86,14 @@ export type SectionRangeSpec = {
 
 export type ReferenceSpec =
   | { kind: "header_name" }
-  | { kind: "section"; section: ContentSectionKey };
+  | { kind: "header_name_only" }
+  | { kind: "section"; section: ContentSectionKey }
+  | { kind: "visual"; descriptor: TargetDescriptor };
 
 export type RelationalAlignmentSpec = {
   axis: "horizontal" | "vertical";
-  edge: "left" | "right" | "center";
+  edge: "left" | "right" | "center" | "top" | "bottom";
+  relation?: "align" | "below" | "above" | "beside";
   tolerance_px: number;
 };
 
@@ -119,6 +125,7 @@ export type FulfillmentPredicate = {
   presentation?: PresentationStructure;
   forbidden_presentation?: PresentationStructure[];
   presentation_spec?: PresentationSpec;
+  preserve?: ReferenceSpec;
 };
 
 export type FulfillmentEvaluation = {
@@ -144,9 +151,19 @@ const COLOR_WORD: ReadonlyArray<readonly [ColorFamily, RegExp]> = [
 export function compileTargetDescriptor(text: string): TargetDescriptor {
   const n = text.toLowerCase();
   const target: TargetDescriptor = {};
+  const quoted = text.match(/["“]([^"”]{1,80})["”]/);
+  if (quoted?.[1]) {
+    target.quoted_text = quoted[1].trim();
+    target.shape = "text";
+  }
+  if (/\b(?:professional title|job title|position)\b/.test(n)) {
+    target.role = "professional_title";
+    target.shape = target.shape ?? "text";
+  }
+  if (/\bheader\b/.test(n)) target.section = "header";
   if (/\b(?:vertical|upright)\b/.test(n) || /\b(?:line|rail|rule|divider)\b/.test(n)) {
     target.orientation = "vertical";
-  } else if (/\bhorizontal\b/.test(n)) {
+  } else if (/\bhorizontal\b/.test(n) && !/\bfrom the current horizontal\b/.test(n)) {
     target.orientation = "horizontal";
   }
   if (/\bleft\b/.test(n)) target.side = "left";
@@ -275,9 +292,67 @@ export function compileRelationalAlignment(
     alignment: {
       axis: "horizontal",
       edge,
+      relation: "align",
       tolerance_px: RELATIONAL_ALIGNMENT_TOLERANCE_PX,
     },
     reference,
+  };
+}
+
+function isPresentationBesideLanguage(text: string): boolean {
+  return (
+    /\b(?:column|pointers?|vertical(?:ly)?|horizontal(?:ly)?|inline|list)\b/i.test(
+      text,
+    ) && !/\b(?:rectangle|rect|box|bar|band|header|shape)\b/i.test(text)
+  );
+}
+
+export function compileRelativePlacement(text: string):
+  | {
+      alignment: RelationalAlignmentSpec;
+      reference: ReferenceSpec;
+      target: TargetDescriptor;
+      preserve?: ReferenceSpec;
+    }
+  | undefined {
+  const n = text.toLowerCase();
+  if (!/\b(?:move|place|put|position|shift|reposition)\b/.test(n)) return undefined;
+  if (/\bone below another\b/.test(n) && !/\bbelow the\b/.test(n)) return undefined;
+  if (isPresentationBesideLanguage(text) && !/\bbelow the\b/.test(n) && !/\babove the\b/.test(n)) {
+    return undefined;
+  }
+  const below = /\b(?:completely\s+)?below\b/.test(n);
+  const above = /\b(?:completely\s+)?above\b/.test(n) && !/\bbelow\b/.test(n);
+  const beside =
+    /\bbeside\b/.test(n) &&
+    !/\bcontinue(?: it)? beside\b/.test(n) &&
+    !/\bnext column\b/.test(n);
+  if (!below && !above && !beside) return undefined;
+  const targetSpan = text.split(/\b(?:below|above|beside)\b/i)[0] ?? text;
+  const target = compileTargetDescriptor(targetSpan);
+  const refSpan = text.split(/\b(?:below|above|beside)\b/i).slice(1).join(" ");
+  const refDesc = compileTargetDescriptor(refSpan || text);
+  const hasVisualRef =
+    Boolean(refDesc.shape) ||
+    Boolean(refDesc.color_family) ||
+    Boolean(refDesc.section) ||
+    Boolean(refDesc.quoted_text);
+  if (!hasVisualRef && !refDesc.role) return undefined;
+  const preserve =
+    /\b(?:keep(?:ing)?|preserv(?:e|ing)|retain(?:ing)?)\b/.test(n) &&
+    /\b(?:name|placement)\b/.test(n)
+      ? ({ kind: "header_name_only" } as const)
+      : undefined;
+  return {
+    target,
+    reference: { kind: "visual", descriptor: refDesc },
+    preserve,
+    alignment: {
+      axis: below || above ? "vertical" : "horizontal",
+      edge: below ? "bottom" : above ? "top" : "right",
+      relation: below ? "below" : above ? "above" : "beside",
+      tolerance_px: RELATIONAL_ALIGNMENT_TOLERANCE_PX,
+    },
   };
 }
 
@@ -419,16 +494,20 @@ export function predicatesForItem(
       extent,
     });
   }
-  const relational = compileRelationalAlignment(line);
+  const relative = compileRelativePlacement(line);
+  const relational = relative ?? compileRelationalAlignment(line);
   if (relational) {
     out.push({
       kind: "RELATIONAL_ALIGNMENT",
       required: true,
-      range:
-        compileSectionRange(line) ??
-        inferredSingletonRange(line, relational.reference),
+      target: "target" in relational ? relational.target : undefined,
+      range: relative
+        ? undefined
+        : compileSectionRange(line) ??
+          inferredSingletonRange(line, relational.reference),
       reference: relational.reference,
       alignment: relational.alignment,
+      preserve: "preserve" in relational ? relational.preserve : undefined,
     });
   }
   if (action === "CONTENT_PRESERVATION" || action === "LAYOUT_PRESERVATION") {
@@ -482,7 +561,14 @@ function hueFamily(rgb: number[]): ColorFamily | null {
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   if (max < 40) return "dark";
-  if (min > 210) return "light";
+    if (min > 210) {
+      const dLight = max - min;
+      if (dLight >= 8) {
+        /* pastel: fall through to hue */
+      } else {
+        return "light";
+      }
+    }
   const d = max - min;
   if (d < 18) return "dark";
   let hue = 0;
@@ -583,6 +669,40 @@ export function bindTargetDescriptor(
     const left = Number(o.left ?? 0);
     const type = String(o.type ?? "").toLowerCase();
     let score = 0;
+    if (target.quoted_text) {
+      const t = objText(o).toLowerCase();
+      if (t && t.includes(target.quoted_text.toLowerCase())) score += 6;
+      else return;
+    }
+    if (target.shape === "rect" && !type.includes("rect") && !type.includes("polygon")) {
+      return;
+    }
+    if (target.shape === "line" && !(type.includes("line") || (type.includes("rect") && w <= 16))) {
+      return;
+    }
+    if (target.shape === "text" && !type.includes("text")) {
+      return;
+    }
+    if (
+      target.color_family &&
+      target.color_family !== "any" &&
+      !colorMatches(
+        target.color_family,
+        typeof o.fill === "string" ? o.fill : null,
+        typeof o.stroke === "string" ? o.stroke : null,
+      )
+    ) {
+      return;
+    }
+    if (target.role) {
+      const want = target.role.toLowerCase();
+      const aliases =
+        want === "professional_title"
+          ? ["professional_title", "job_title", "role"]
+          : [want];
+      if (aliases.includes(role)) score += 4;
+    }
+    if (target.section && objSection(o) === target.section) score += 2;
     if (target.orientation === "vertical" && w <= 16 && h >= 80) score += 3;
     if (target.orientation === "horizontal" && h <= 16 && w >= 80) score += 3;
     if (target.side === "left" && left < pageW / 3) score += 2;
@@ -686,6 +806,9 @@ export function bindReferenceIds(
   reference: ReferenceSpec | undefined,
 ): string[] {
   if (!reference) return [];
+  if (reference.kind === "visual") {
+    return bindTargetDescriptor(canvas, reference.descriptor);
+  }
   const ids: string[] = [];
   objectsOf(canvas).forEach((o, i) => {
     if (isLockedSystemObject(o)) return;
@@ -700,9 +823,36 @@ export function bindReferenceIds(
       }
       return;
     }
+    if (reference.kind === "header_name_only") {
+      if (
+        sec === "header" &&
+        String(o.type ?? "").toLowerCase().includes("text") &&
+        !/\b(?:professional_title|job_title)\b/.test(role)
+      ) {
+        const t = objText(o);
+        if (/@|\d{3}|linkedin|\.com|http/i.test(t)) return;
+        ids.push(objId(o, i));
+      }
+      return;
+    }
     if (sec === reference.section) ids.push(objId(o, i));
   });
   return ids;
+}
+
+function bindRelativeTargetIds(
+  canvas: FabricCanvasDoc,
+  predicate: FulfillmentPredicate,
+): string[] {
+  if (
+    predicate.target &&
+    (predicate.target.quoted_text ||
+      predicate.target.role ||
+      predicate.target.shape === "text")
+  ) {
+    return bindTargetDescriptor(canvas, predicate.target);
+  }
+  return bindRangeTargetIds(canvas, predicate.range, predicate.reference);
 }
 
 function objectLeft(o: CanvasObj): number {
@@ -718,6 +868,8 @@ function edgeValue(
   edge: RelationalAlignmentSpec["edge"],
 ): number | null {
   if (objects.length === 0) return null;
+  if (edge === "top") return Math.min(...objects.map(objectTop));
+  if (edge === "bottom") return Math.max(...objects.map(objBottom));
   const lefts = objects.map(objectLeft);
   const widths = objects.map((o) => Number(o.width ?? 0) * Number(o.scaleX ?? 1));
   if (edge === "left") return Math.min(...lefts);
@@ -943,8 +1095,11 @@ function evaluatePredicate(
     if (!alignment || !predicate.reference) {
       return { pass: false, ids: [], notes: "relational alignment unbound" };
     }
-    const targetIds = bindRangeTargetIds(after, predicate.range, predicate.reference);
+    const targetIds = bindRelativeTargetIds(after, predicate);
     const referenceIds = bindReferenceIds(after, predicate.reference);
+    const preserveIds = (
+      predicate.preserve ? bindReferenceIds(after, predicate.preserve) : []
+    ).filter((id) => !targetIds.includes(id));
     if (targetIds.length === 0 || referenceIds.length === 0) {
       return {
         pass: false,
@@ -971,6 +1126,19 @@ function evaluatePredicate(
         notes: "relational alignment mutated reference",
       };
     }
+    const preserveMoved = preserveIds.some((id) => {
+      const a = afterBy.get(id);
+      const b = beforeBy.get(id);
+      if (!a || !b) return true;
+      return objectLeft(a) !== objectLeft(b) || objectTop(a) !== objectTop(b);
+    });
+    if (preserveMoved) {
+      return {
+        pass: false,
+        ids: preserveIds,
+        notes: "relational placement moved preserved object",
+      };
+    }
     const contentChanged = targetIds.some((id) => {
       const a = afterBy.get(id);
       const b = beforeBy.get(id);
@@ -981,6 +1149,55 @@ function evaluatePredicate(
         pass: false,
         ids: targetIds,
         notes: "relational alignment changed target content",
+      };
+    }
+    const relation = alignment.relation ?? "align";
+    if (relation === "below" || relation === "above" || relation === "beside") {
+      const targetObjs = targetIds
+        .map((id) => afterBy.get(id))
+        .filter((o): o is CanvasObj => Boolean(o));
+      const refObjs = referenceIds
+        .map((id) => afterBy.get(id))
+        .filter((o): o is CanvasObj => Boolean(o));
+      if (targetObjs.length === 0 || refObjs.length === 0) {
+        return { pass: false, ids: targetIds, notes: "relative placement unbound" };
+      }
+      let pass = false;
+      if (relation === "below") {
+        const targetTop = Math.min(...targetObjs.map(objectTop));
+        const refBottom = Math.max(...refObjs.map(objBottom));
+        pass = targetTop >= refBottom - 0.51;
+        return {
+          pass,
+          ids: targetIds,
+          notes: pass
+            ? `relative below satisfied targetTop=${targetTop} refBottom=${refBottom}`
+            : `relative below unsatisfied targetTop=${targetTop} refBottom=${refBottom}`,
+        };
+      }
+      if (relation === "above") {
+        const targetBottom = Math.max(...targetObjs.map(objBottom));
+        const refTop = Math.min(...refObjs.map(objectTop));
+        pass = targetBottom <= refTop + 0.51;
+        return {
+          pass,
+          ids: targetIds,
+          notes: pass
+            ? `relative above satisfied targetBottom=${targetBottom} refTop=${refTop}`
+            : `relative above unsatisfied targetBottom=${targetBottom} refTop=${refTop}`,
+        };
+      }
+      const targetLeft = Math.min(...targetObjs.map(objectLeft));
+      const refRight = Math.max(
+        ...refObjs.map((o) => objectLeft(o) + Number(o.width ?? 0)),
+      );
+      pass = targetLeft >= refRight - 0.51;
+      return {
+        pass,
+        ids: targetIds,
+        notes: pass
+          ? `relative beside satisfied targetLeft=${targetLeft} refRight=${refRight}`
+          : `relative beside unsatisfied targetLeft=${targetLeft} refRight=${refRight}`,
       };
     }
     const topsChanged = targetIds.some((id) => {
@@ -1178,32 +1395,75 @@ export function applyRelationalAlignment(
     for (const predicate of item.fulfillment ?? []) {
       if (predicate.kind !== "RELATIONAL_ALIGNMENT") continue;
       const alignment = predicate.alignment;
-      if (!alignment || alignment.axis !== "horizontal" || !predicate.reference) {
-        continue;
-      }
-      const targetIds = bindRangeTargetIds(
-        clone,
-        predicate.range,
-        predicate.reference,
-      );
+      if (!alignment || !predicate.reference) continue;
+      const targetIds = bindRelativeTargetIds(clone, predicate);
       const referenceIds = bindReferenceIds(clone, predicate.reference);
+      const preserveIds = new Set(
+        (predicate.preserve ? bindReferenceIds(clone, predicate.preserve) : []).filter(
+          (id) => !targetIds.includes(id),
+        ),
+      );
       const byId = new Map(
         objectsOf(clone).map((o, i) => [objId(o, i), o] as const),
       );
+      const movable = targetIds.filter((id) => !preserveIds.has(id));
+      if (movable.length === 0 || referenceIds.length === 0) continue;
+      const relation = alignment.relation ?? "align";
+      const targetObjs = movable
+        .map((id) => byId.get(id))
+        .filter((o): o is CanvasObj => Boolean(o));
+      const refObjs = referenceIds
+        .map((id) => byId.get(id))
+        .filter((o): o is CanvasObj => Boolean(o));
+      if (targetObjs.length === 0 || refObjs.length === 0) continue;
+      if (relation === "below") {
+        const targetTop = Math.min(...targetObjs.map(objectTop));
+        const refBottom = Math.max(...refObjs.map(objBottom));
+        const delta = Number((refBottom - targetTop).toFixed(2));
+        if (delta <= 0.01) continue;
+        for (const id of movable) {
+          const obj = byId.get(id);
+          if (!obj) continue;
+          obj.top = Number((objectTop(obj) + delta).toFixed(2));
+        }
+        continue;
+      }
+      if (relation === "above") {
+        const targetBottom = Math.max(...targetObjs.map(objBottom));
+        const refTop = Math.min(...refObjs.map(objectTop));
+        const delta = Number((refTop - targetBottom).toFixed(2));
+        if (delta >= -0.01) continue;
+        for (const id of movable) {
+          const obj = byId.get(id);
+          if (!obj) continue;
+          obj.top = Number((objectTop(obj) + delta).toFixed(2));
+        }
+        continue;
+      }
+      if (relation === "beside") {
+        const targetLeft = Math.min(...targetObjs.map(objectLeft));
+        const refRight = Math.max(
+          ...refObjs.map((o) => objectLeft(o) + Number(o.width ?? 0)),
+        );
+        const delta = Number((refRight - targetLeft).toFixed(2));
+        if (delta <= 0.01) continue;
+        for (const id of movable) {
+          const obj = byId.get(id);
+          if (!obj) continue;
+          obj.left = Number((objectLeft(obj) + delta).toFixed(2));
+        }
+        continue;
+      }
+      if (alignment.axis !== "horizontal") continue;
       const targetEdge = edgeValue(
         targetBaselineObjects(clone, targetIds),
         alignment.edge,
       );
-      const refEdge = edgeValue(
-        referenceIds
-          .map((id) => byId.get(id))
-          .filter((o): o is CanvasObj => Boolean(o)),
-        alignment.edge,
-      );
+      const refEdge = edgeValue(refObjs, alignment.edge);
       if (targetEdge == null || refEdge == null) continue;
       const delta = Number((refEdge - targetEdge).toFixed(2));
       if (Math.abs(delta) < 0.01) continue;
-      for (const id of targetIds) {
+      for (const id of movable) {
         const obj = byId.get(id);
         if (!obj) continue;
         obj.left = Number((objectLeft(obj) + delta).toFixed(2));

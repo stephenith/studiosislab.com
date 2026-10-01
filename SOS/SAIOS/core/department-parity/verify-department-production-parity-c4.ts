@@ -38,6 +38,11 @@ import {
   evaluateItemFulfillment,
 } from "../founder-revision/FounderFeedbackFulfillment.js";
 import { dropUnsafeGeometryOps } from "../founder-revision/PostContentReflow.js";
+import { validatePlanGeometrySafety } from "../founder-revision/PlanGeometrySafety.js";
+import { executeCanvasOperations } from "../founder-revision/CanvasOperationExecutor.js";
+import { applyPostContentReflow } from "../founder-revision/PostContentReflow.js";
+import { normalizeRevisionLayout } from "../founder-revision/RevisionLayoutNormalizer.js";
+import { findTextOverlapFindings } from "../founder-revision/RevisionAcceptanceChecks.js";
 import { findIntraBoxTextOverflowFindings } from "../founder-revision/RevisionAcceptanceChecks.js";
 import {
   compilePresentationSpec,
@@ -1730,6 +1735,218 @@ async function main(): Promise<void> {
     thirdEmpty.ok && thirdEmpty.status === "READY_FOR_FOUNDER_REVIEW",
     "c4_third_c5_empty_plan_deterministic_ready",
     `${thirdEmpty.status} ${thirdEmpty.owner ?? ""} ${thirdEmpty.error ?? ""}`,
+  );
+
+  const C5_FIFTH_HEADER =
+    "Move the “Campus Ambassador” position completely below the blue header rectangle so that it does not overlap the rectangle, while keeping the name placement as it is.";
+  const C5_FIFTH_SKILLS =
+    "Change the Skills section from the current horizontal layout to vertical pointers. Keep around three skills stacked vertically in one column, then continue the remaining skills vertically in the next column beside it.";
+  const relativeIr = compileFounderFeedbackIR([
+    "Move the “Research Fellow” position completely below the blue header rectangle, keeping the name placement as it is.",
+  ]);
+  const relativePred = relativeIr.items[0]?.fulfillment.find(
+    (p) => p.kind === "RELATIONAL_ALIGNMENT",
+  );
+  assert(
+    relativeIr.items[0]?.action === "LAYOUT_MUTATION" &&
+      relativePred?.alignment?.relation === "below" &&
+      relativePred.preserve?.kind === "header_name_only",
+    "c4_relative_object_placement_compiled",
+    JSON.stringify(relativePred),
+  );
+  const presChangeIr = compileFounderFeedbackIR([
+    "Change the Projects section from the current horizontal layout to vertical pointers in two columns beside each other",
+  ]);
+  const rewriteIr = compileFounderFeedbackIR([
+    "Change the professional title from Marketing Manager to Operations Analyst",
+  ]);
+  assert(
+    presChangeIr.items[0]?.action === "PRESENTATION_MUTATION" &&
+      rewriteIr.items[0]?.action === "CONTENT_MUTATION",
+    "c4_presentation_precedence_vs_content_rewrite",
+    `${presChangeIr.items[0]?.action}|${rewriteIr.items[0]?.action}`,
+  );
+  const fifthSkillsIr = compileFounderFeedbackIR([C5_FIFTH_SKILLS]);
+  const fifthSkillsSpec = compilePresentationSpec(C5_FIFTH_SKILLS);
+  assert(
+    fifthSkillsIr.items[0]?.action === "PRESENTATION_MUTATION" &&
+      fifthSkillsSpec?.arrangement === "columns" &&
+      fifthSkillsSpec.grouping?.executable === true &&
+      fifthSkillsSpec.grouping?.cardinality_strength === "approximate",
+    "c4_fifth_c5_skills_class_without_template_ids",
+    JSON.stringify(fifthSkillsSpec),
+  );
+  const fifthHeaderIr = compileFounderFeedbackIR([C5_FIFTH_HEADER]);
+  assert(
+    fifthHeaderIr.items[0]?.action === "LAYOUT_MUTATION" &&
+      fifthHeaderIr.items[0]?.fulfillment.some(
+        (p) => p.kind === "RELATIONAL_ALIGNMENT" && p.alignment?.relation === "below",
+      ),
+    "c4_fifth_c5_header_class_without_template_ids",
+    JSON.stringify(fifthHeaderIr.items[0]?.fulfillment),
+  );
+
+  const stacked: FabricCanvasDoc = {
+    version: "5.3.0",
+    width: 794,
+    height: 1123,
+    objects: [
+      {
+        type: "textbox",
+        id: "edu-a",
+        left: 48,
+        top: 200,
+        width: 420,
+        height: 16,
+        text: "B.A. Communication",
+        fontSize: 12,
+        lineHeight: 1.3,
+        data: { section: "education", role: "body" },
+      },
+      {
+        type: "textbox",
+        id: "edu-b",
+        left: 48,
+        top: 220,
+        width: 420,
+        height: 16,
+        text: "Coursework",
+        fontSize: 12,
+        lineHeight: 1.3,
+        data: { section: "education", role: "body" },
+      },
+      {
+        type: "textbox",
+        id: "sk-a",
+        left: 48,
+        top: 280,
+        width: 420,
+        height: 20,
+        text: "Speaking · Events · Media",
+        fontSize: 12,
+        lineHeight: 1.3,
+        data: { section: "skills", role: "body" },
+      },
+      {
+        type: "textbox",
+        id: "cert-a",
+        left: 48,
+        top: 310,
+        width: 220,
+        height: 16,
+        text: "CERTIFICATIONS",
+        data: { section: "certifications", role: "heading" },
+      },
+    ],
+  };
+  const growthPlan: RevisionPlan = {
+    schema_version: "founder-canvas-revision-plan-1.0.0",
+    summary: "c4 growth",
+    operations: [
+      {
+        op: "update_text",
+        target_id: "edu-a",
+        values: {
+          text: "Lincoln High School. B.A. Communication, State University. Coursework in media, research, and public relations.",
+        },
+        founder_feedback_item: "Add more content to the Education section",
+        intended_change: "grow education",
+        confidence: 0.9,
+      },
+      {
+        op: "update_text",
+        target_id: "sk-a",
+        values: {
+          text: "Public Speaking\nEvent Coordination\nSocial Media\nLeadership",
+        },
+        founder_feedback_item: "Change the Skills section to vertical pointers",
+        intended_change: "grow skills",
+        confidence: 0.9,
+      },
+    ],
+  };
+  const raw = executeCanvasOperations({
+    canvas: stacked,
+    operations: growthPlan.operations,
+  });
+  const transient = raw.ok ? findTextOverlapFindings(raw.canvas).length : 0;
+  const laid = normalizeRevisionLayout({
+    canvas: applyPostContentReflow({ canvas: raw.canvas }).canvas,
+    requested_changes: [
+      "Add more content to the Education section",
+      "Change the Skills section to vertical pointers",
+    ],
+    prior_canvas: stacked,
+  });
+  const resolved = findTextOverlapFindings(laid.canvas).length;
+  const planGate = validatePlanGeometrySafety({
+    canvas: stacked,
+    plan: growthPlan,
+    requested_changes: [
+      "Add more content to the Education section",
+      "Change the Skills section to vertical pointers",
+    ],
+  });
+  assert(
+    transient >= 1 &&
+      resolved === 0 &&
+      planGate.ok === true &&
+      planGate.layout_applied === true,
+    "c4_transient_growth_resolved_by_production_layout",
+    `transient=${transient} resolved=${resolved} ok=${planGate.ok}`,
+  );
+  const sibling: FabricCanvasDoc = {
+    version: "5.3.0",
+    width: 794,
+    height: 1123,
+    objects: [
+      {
+        type: "textbox",
+        id: "left-a",
+        left: 48,
+        top: 200,
+        width: 180,
+        height: 36,
+        text: "Alpha one two three four five six seven eight",
+        fontSize: 14,
+        data: { section: "skills", role: "body" },
+      },
+      {
+        type: "textbox",
+        id: "left-b",
+        left: 90,
+        top: 200,
+        width: 180,
+        height: 36,
+        text: "Beta one two three four five six seven eight",
+        fontSize: 14,
+        data: { section: "skills", role: "body" },
+      },
+    ],
+  };
+  const unsafeGate = validatePlanGeometrySafety({
+    canvas: sibling,
+    plan: {
+      schema_version: "founder-canvas-revision-plan-1.0.0",
+      operations: [
+        {
+          op: "update_text",
+          target_id: "left-a",
+          values: {
+            text: "Alpha one two three four five six seven eight nine ten eleven twelve",
+          },
+          founder_feedback_item: "Add more content to the Skills section",
+          intended_change: "unsafe grow",
+          confidence: 0.9,
+        },
+      ],
+    },
+    requested_changes: ["Add more content to the Skills section"],
+  });
+  assert(
+    unsafeGate.ok === false && unsafeGate.text_overlaps >= 1,
+    "c4_unsafe_post_layout_geometry_blocked",
+    `ok=${unsafeGate.ok} overlaps=${unsafeGate.text_overlaps}`,
   );
 
   const failed = checks.filter((c) => !c.pass);

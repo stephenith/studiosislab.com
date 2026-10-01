@@ -89,14 +89,16 @@ export function hasPresentationIntent(text: string): boolean {
     return false;
   }
   if (
-    /\b(?:replac(?:e|ing)|rewrit(?:e|ing)|reword|from\s+.+\s+to\s+)\b/i.test(
-      text,
-    )
+    /\b(?:replac(?:e|ing)|rewrit(?:e|ing)|reword)\b/i.test(text) &&
+    !hasPresentationStructureLanguage(text)
   ) {
     return false;
   }
   return (
     PRESENTATION_ARRANGE_RE.test(text) ||
+    (/\bchange\b/i.test(text) &&
+      /\bfrom\b.+\bto\b/i.test(text) &&
+      hasPresentationStructureLanguage(text)) ||
     /\b(?:one below another|one after another|separate lines?|side by side|stack(?:ed|ing)?|pointers?|in a row|per row|per column|beside(?: it)?)\b/i.test(
       text,
     )
@@ -111,8 +113,10 @@ function collectArrangements(text: string): PresentationArrangement[] {
   const out: PresentationArrangement[] = [];
   if (/\b(?:side by side|side-by-side)\b/i.test(text)) out.push("side_by_side");
   if (
-    /\b(?:two columns?|columns?)\b/i.test(text) &&
-    !/\b(?:one column)\b/i.test(text)
+    /\b(?:two columns?|in two columns?|next column|another column|second column)\b/i.test(
+      text,
+    ) ||
+    (/\bcolumns\b/i.test(text) && !/\bone column\b/i.test(text))
   ) {
     out.push("columns");
   }
@@ -138,15 +142,19 @@ function collectMarkers(text: string): PresentationMarkers[] {
 }
 
 function leaveStateSpan(line: string): string {
-  const m = line.match(
+  const current = line.match(
     /\b(?:currently|right now|as of now).{0,160}?(?=\bbut\b|\bwant\b|\.|$)/i,
   );
-  return m?.[0] ?? "";
+  const from = line.match(
+    /\bfrom(?: the(?: current)?)?\s+[^.;]{3,80}?(?=\s+to\b)/i,
+  );
+  return [current?.[0] ?? "", from?.[0] ?? ""].filter(Boolean).join(" ");
 }
 
 function stripNegationAndLeave(line: string): string {
   return line
     .replace(/\b(?:currently|right now|as of now).{0,160}?(?=\bbut\b|\bwant\b|\.|$)/gi, " ")
+    .replace(/\bfrom(?: the(?: current)?)?\s+[^.;]{3,80}?(?=\s+to\b)/gi, " ")
     .replace(/\b(?:not|do not|don't|never)\s+[^.;]+/gi, " ");
 }
 
@@ -159,23 +167,31 @@ function compileGrouping(line: string): PresentationGroupingSpec | undefined {
   const twoCols = /\b(?:two columns?|in two columns?)\b/i.test(line);
   const nMatch =
     line.match(
-      /\b(?:may be|maybe|exactly|precisely|around|about|roughly|approximately)?\s*(\d+)\s+(?:pointers?|items?|skills?|entries|bullets?)?\s*(?:in a row|per row|per column|per (?:group|line))\b/i,
+      /\b(?:may be|maybe|exactly|precisely|around|about|roughly|approximately)?\s*(\d+)\s+(?:pointers?|items?|skills?|entries|bullets?)?\s*(?:in a row|per row|per column|per (?:group|line)|in one column|stacked vertically in one column)\b/i,
     ) ??
     line.match(
       /\b(\d+)\s+(?:pointers?|items?|skills?|entries|bullets?)\s+in a row\b/i,
     ) ??
+    line.match(
+      /\b(?:around|about|roughly|approximately)\s+(\d+)\s+(?:pointers?|items?|skills?|entries|bullets?)\b/i,
+    ) ??
     line.match(/\b(\d+)\s+per\s+(?:row|column|group|line)\b/i);
   const inRow = /\b(?:in a row|per row)\b/i.test(line);
   const perCol = /\bper column\b/i.test(line);
+  const oneThenNextColumn =
+    /\bone column\b/i.test(line) &&
+    /\b(?:next column|another column|second column)\b/i.test(line);
   const beside =
     /\bbeside(?: it)?\b/i.test(line) ||
     /\bcontinue(?: it)? beside\b/i.test(line) ||
     /\bnext to\b/i.test(line);
-  if (!nMatch && !beside && !inRow && !perCol && !twoCols) return undefined;
+  if (!nMatch && !beside && !inRow && !perCol && !twoCols && !oneThenNextColumn) {
+    return undefined;
+  }
 
   const n = nMatch ? Number(nMatch[1]) : undefined;
   let axis: PresentationGroupingAxis | undefined;
-  if (twoCols && !inRow) axis = "column";
+  if ((twoCols || oneThenNextColumn) && !inRow) axis = "column";
   else if (perCol && !inRow) axis = "column";
   else if (inRow && !beside && !perCol) axis = "row";
   else if (beside && !inRow) axis = "column";
@@ -186,15 +202,22 @@ function compileGrouping(line: string): PresentationGroupingSpec | undefined {
       ? "required"
       : "approximate";
   const structure_material = Boolean(
-    beside || twoCols || perCol || (inRow && typeof n === "number" && !illustrative),
+    beside ||
+      twoCols ||
+      oneThenNextColumn ||
+      perCol ||
+      (inRow && typeof n === "number" && !illustrative),
   );
-  const column_count = twoCols ? 2 : undefined;
+  const column_count = twoCols || oneThenNextColumn ? 2 : undefined;
   const executable =
     !illustrative &&
     (axis === "row" && typeof n === "number"
       ? true
       : axis === "column" &&
-          (typeof n === "number" || column_count === 2 || (beside && !inRow)));
+          (typeof n === "number" ||
+            column_count === 2 ||
+            oneThenNextColumn ||
+            (beside && !inRow)));
   let ambiguity: string | undefined;
   if (!executable) {
     if (axis == null && inRow && beside) ambiguity = "row_and_beside_axis_unresolved";
@@ -269,8 +292,12 @@ export function compilePresentationSpec(line: string): PresentationSpec | null {
   const grouping = compileGrouping(desiredSpan);
   const compactness = compileCompactness(line);
   const preserve =
-    /\b(?:keep|preserve|retain|maintain)\b/i.test(line) &&
-    !/\b(?:display|show|arrange|format|put each|make|want)\b/i.test(line);
+    /\b(?:keep|preserve|retain|maintain)(?:ing)?\s+(?:the current|these|them|it)\b/i.test(
+      line,
+    ) &&
+    !/\b(?:display|show|arrange|format|put each|make|want|change|from the current)\b/i.test(
+      line,
+    );
 
   let arrangement: PresentationArrangement | undefined;
   let ambiguity: string | undefined;

@@ -60,25 +60,25 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-01T18:30:42+05:30** / **2026-10-01T13:00:42.000Z**. IR 1.4.1 material-constraint correction implemented. Fifth live proof not run.
+Snapshot taken **2026-10-01T19:21:59+05:30** / **2026-10-01T13:51:59.000Z**. IR 1.4.2 post-fifth-C5 correction implemented offline. Fifth live proof already FAIL and immutable.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `b8cf8823f007076c5992cfb8711ee020265e38dc` before this correction commit (`main`) |
-| ORIGIN HEAD | `b8cf8823f007076c5992cfb8711ee020265e38dc` before this correction commit |
-| VPS HEAD | `b8cf8823f007076c5992cfb8711ee020265e38dc` before this correction commit |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is the authorized offline semantic correction |
-| VPS STATUS | Four C5 FAIL evidence remains immutable; 1.4.1 correction not live until FF deploy |
+| LOCAL HEAD | `2b922437a6af17f1317ebcd5655cb29be4636bca` before this correction commit (`main`) |
+| ORIGIN HEAD | `2b922437a6af17f1317ebcd5655cb29be4636bca` before this correction commit |
+| VPS HEAD | `2b922437a6af17f1317ebcd5655cb29be4636bca` before this correction commit |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is the authorized post-fifth-C5 offline correction |
+| VPS STATUS | Five C5 FAIL evidence remains immutable; 1.4.2 correction not live until FF deploy |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; four C5 live proofs FAIL and immutable; IR 1.4.0 deployed then post-deploy gap found; IR 1.4.1 offline PASS |
+| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; five C5 live proofs FAIL and immutable; IR 1.4.2 offline PASS |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
-| REVISION STATUS | `revtask-863f67a5-790` READY unchanged; `revtask-4a0c006c-507` FAILED_COVERAGE unchanged; `revtask-3f5b2339-73e` FAILED_COVERAGE; `revtask-0d58e039-326` READY unchanged (false-positive READY); `5d933072` / `76a04a21` unchanged |
+| REVISION STATUS | `revtask-863f67a5-790` READY unchanged; `revtask-4a0c006c-507` FAILED_COVERAGE unchanged; `revtask-3f5b2339-73e` FAILED_COVERAGE; `revtask-0d58e039-326` READY unchanged (false-positive READY); `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY unchanged; `5d933072` / `76a04a21` unchanged |
 | GENERATION STATUS | Unchanged; `SOS_AIOS_LIVE=0` |
-| FOUNDER REVIEW STATUS | Fourth-C5 child `…-194bdf-revfb-71bd11` is `audit_invalid` / NOT_DECISIONABLE. Historical UI Designer child remains `audit_invalid`. Motion Designer `…-bed721` remains `revision_failed` after `fd-4e2c7c6a-eaa` (UI Request Changes exposure remains unresolved closure debt). Do not Approve or Reject. |
+| FOUNDER REVIEW STATUS | Fourth-C5 child `…-194bdf-revfb-71bd11` is `audit_invalid` / NOT_DECISIONABLE. Historical UI Designer child remains `audit_invalid`. Motion Designer `…-bed721` and Campus Ambassador `…-047495` remain `revision_failed` / `actionable=false` while UI may still expose Request Changes (unresolved closure debt; not fixed). Do not Approve or Reject. |
 | MEMORY STATUS | Unchanged |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
-| CURRENT PRIMARY BLOCKERS | Fifth C5 live proof not yet run; four historical C5 FAILs remain immutable; Motion Designer UI debt remains |
-| NEXT AUTHORIZED STEP | **Read-only preflight for exactly one NEW fifth-C5 live proof if Founder authorizes.** `READY_FOR_FIFTH_C5_PREFLIGHT=YES`. `READY_FOR_FIFTH_C5_LIVE_PROOF=NO`. Do not retry historical C5 tasks. Do not start C6. |
+| CURRENT PRIMARY BLOCKERS | Sixth C5 unauthorized until fresh read-only preflight; five historical C5 FAILs remain immutable; revision_failed UI debt remains |
+| NEXT AUTHORIZED STEP | **Fresh STRICT READ-ONLY sixth-C5 production preflight.** `READY_FOR_SIXTH_C5_PREFLIGHT=YES` after healthy deploy. `READY_FOR_SIXTH_C5_LIVE_PROOF=NO`. `READY_FOR_C6=NO`. Do not retry historical C5 tasks. Do not start C6. |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -860,7 +860,33 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 | GAP | IR 1.4 verification: `"may be 3"` marked the entire grouping approximate, so `"continue it beside it"` was not an independent material obligation. `grouping.executable=false` / `row_and_beside_axis_unresolved` still allowed overall Founder-item PASS from vertical bullets + markers + atomicity + no clipping. |
 | FIX | `founder-feedback-ir-1.4.1` distinguishes approximate/soft cardinality from material structural grouping. Illustrative/example language stays non-blocking. Unresolved material structure is recorded on the canonical spec and blocks overall fulfillment. Execution still does not invent a unique 3×N grid. One public semantic owner remains `compileFounderFeedbackIR`. Provider/FeedbackCoverage/FinalAcceptance unchanged as consumers. |
 | REAL PARENT PROOF | Read-only copy of `cand-student-research-assistant-20261001T032029Z-194bdf`. Skills: SPSS; Python (Pandas, NumPy); Microsoft Excel; Participant Recruitment; Survey Design; Data Cleaning and Analysis; Research Protocol Development. STATE A original FAIL. STATE B vertical bullets only FAIL (unresolved material). STATE C not fabricated. STATE D `…-revfb-71bd11` FAIL (corruption + clipping). |
-| LIVE PROOF | Fifth C5 **not run**. `READY_FOR_FIFTH_C5_PREFLIGHT=YES` after healthy deploy. `READY_FOR_FIFTH_C5_LIVE_PROOF=NO`. `READY_FOR_C6=NO`. |
+| LIVE PROOF | Fifth C5 **not run in that correction**. It later executed and FAILED. `READY_FOR_C6=NO`. |
+
+#### Fifth C5 live proof *(executed 2026-10-01; FAIL)*
+
+| Field | Content |
+|---|---|
+| AUTHORIZED SOURCE | `cand-student-campus-ambassador-20261001T122020Z-047495` / review `founder-review-cycle-student-campus-ambassador-20261001T122020Z-047495`. |
+| ACTUAL LIVE DECISION | `fd-b951abe2-e84` CHANGES_REQUESTED. |
+| ACTUAL LIVE TASK | `revtask-68a5d250-b24` terminal `FAILED_GATE` `2026-10-01T13:22:14.321Z`. Owner persisted `final_geometry`. Code `FAILED_GEOMETRY`. Stage `GEOMETRY`. Error `plan geometry safety failed: text_overlaps=3 page_oob=0`. |
+| FIRST BLOCKING GATE | Pre-execution `plan_geometry_safety`. Source canvas had zero overlaps. Simulated `update_text` created three transient overlaps (Education t2 vs t3; Skills vs Certifications heading; Skills vs Certifications body) before height-sync / post-content reflow / `normalizeRevisionLayout`. |
+| C2 | **NOT_REACHED**. `executeCanvasOperations` NOT_REACHED. No child. No false READY. |
+| HEADER IR | Actual intent: move one object completely below a referenced shape while preserving another object's placement. IR 1.4.1: CONTENT_PRESERVATION with no fulfillment relation. Semantic agreement NO. |
+| SKILLS IR | Actual intent: content-preserving horizontal → vertical pointer/column/beside presentation with approximate grouping. IR 1.4.1: CONTENT_MUTATION / CONTENT_REWRITE. No PresentationSpec. Semantic agreement NO. |
+| EDUCATION IR | CONTENT_ADD compiled correctly. |
+| PROVIDER | `gpt-4.1-mini-2025-04-14` followed the IR it received. 1 call. 0 executed ops. |
+| TELEGRAM | Event `40589778-3d4a-47ac-a866-755c5c58c2ce` truthful. |
+| C5 FIFTH RESULT | **FAIL**. Historical task immutable. Do not retry. Do not Approve. Do not start C6. |
+
+#### Post-fifth-C5 bounded offline correction *(2026-10-01)*
+
+| Field | Content |
+|---|---|
+| OWNER 1 | `validatePlanGeometrySafety` 1.1.0 reuses `applyPostContentReflow` + `normalizeRevisionLayout` for content-mutation plans, then still fail-closes remaining overlap / OOB / page overflow. Geometry-only plans stay unreflowed. Future pipeline failures persist owner `plan_geometry` (code still `FAILED_GEOMETRY`). Historical fifth-C5 evidence not rewritten. C2 unchanged. |
+| OWNER 2 | IR `founder-feedback-ir-1.4.2`. One public owner `compileFounderFeedbackIR`. Relative placement `below` / `above` / `beside` with visual reference + measurable preserve. Presentation compiles before content-replacement; `change … from … to …` with structure language is PresentationSpec, not CONTENT_REWRITE. Approximate cardinality remains independent of material column/beside structure. |
+| UI DEBT | Unchanged and unresolved: Motion Designer `…-bed721` and Campus Ambassador `…-047495` project `revision_failed` / `actionable=false` while UI may still expose Request Changes. Not fixed. |
+| OFFLINE | C1 PASS; C2 PASS; C3 PASS; C4 PASS; plan-geometry PASS; 6H PASS; 6O PASS; 6P PASS; actionability PASS. First–fourth C5 contracts preserved. Fifth-C5 offline replay: header relation+preserve; Education CONTENT_ADD; Skills PresentationSpec 6 items / columns / approximate / no unresolved material; growth geometry truthful after layout (`text_overlaps=0`, `page_oob=0`, page-fit PASS on the fixture). |
+| LIVE PROOF | Sixth C5 **not run**. `READY_FOR_SIXTH_C5_LIVE_PROOF=NO`. `READY_FOR_C6=NO`. |
 
 #### C6 — Closure audit (schedule remains later)
 
@@ -933,9 +959,9 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | revision_task_counts | READY 18 / FAILED_COVERAGE 9 / FAILED 7 / FAILED_GATE 15 / PENDING 0 |
 | Timers | morning last 2026-09-29 03:20 UTC; evening last 2026-09-28 12:20 UTC; next morning 2026-09-30 03:20 UTC; generation **service** disabled; publication nightly last 2026-09-29 02:00 UTC |
 | Dashboard | active, PID 4063798, started 2026-09-23 07:36:41 UTC; NRestarts=0 |
-| Last revision of note | `revtask-0d58e039-326` READY 2026-10-01T10:07:44Z on Research Assistant — observational C5 FAIL / false-positive READY. Historical `revtask-863f67a5-790` still READY. `revtask-4a0c006c-507` / `revtask-3f5b2339-73e` still FAILED_COVERAGE. `revtask-5d933072-daf` still FAILED_SECTION_COMPLETENESS |
-| Candidate dirs on VPS | Child `…-revfb-71bd11` materialized and now overlay-blocked; historical `…-revfb-f81691` remains overlay-blocked. Do not Approve |
-| P0 | One fresh controlled fifth-C5 live proof if Founder authorizes after read-only preflight (not a retry of historical C5 tasks; not C6) |
+| Last revision of note | `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY 2026-10-01T13:22:14.321Z on Campus Ambassador — fifth C5 FAIL; first blocker plan_geometry_safety; C2 NOT_REACHED. Historical `revtask-0d58e039-326` still READY (false-positive). `revtask-863f67a5-790` still READY. `revtask-4a0c006c-507` / `revtask-3f5b2339-73e` still FAILED_COVERAGE. `revtask-5d933072-daf` still FAILED_SECTION_COMPLETENESS |
+| Candidate dirs on VPS | No fifth-C5 child. Overlay still blocks `…-revfb-71bd11` and `…-revfb-f81691`. Do not Approve |
+| P0 | Fresh STRICT READ-ONLY sixth-C5 production preflight (not a retry of historical C5 tasks; not C6; live proof unauthorized) |
 | P1 | Closure audit remains C6 and is **not** authorized |
 | P2 | READY_FOR_FOUNDER_REVIEW success Telegram; overlay vs capacity honesty |
 
@@ -963,6 +989,7 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | 2026-10-01T15:06:31+05:30 | Implement two proven post-third-C5 owners offline; do not run a fourth live proof; do not start C6 | Range-scoped relational alignment had no IR/fulfillment; layout-only dropUnsafe used a fabricated reflow baseline | IR 1.3.0 RELATIONAL_ALIGNMENT + deterministic group translation; provider contract is compiled IR; no-content reflow skipped; C1/C2/C3/C4/6H/6O PASS | Motion Designer/Summary/left=72 special cases; weakening overlap/OOB; second English parser; retrying historical C5 | FounderFeedbackIR 1.3.0, fulfillment, intent-scope, prompt, pipeline, C1/C4 | Yes |
 | 2026-10-01T16:46:19+05:30 | Implement two proven post-fourth-C5 owners offline; do not run a fifth live proof; do not start C6 | Categorical PresentationSpec + comma split + unsynced 47px box + intra-box bypass produced false-positive READY | IR 1.4.0 multi-constraint presentation; nest-aware atomic items; height sync + intra-box on presentation path; overlay on false-READY child; C1/C2/C3/C4/actionability PASS | Research Assistant/Skills/Python/3 special cases; invented 3×N grid; second English parser; rewriting historical READY; C6 | PresentationIntent, FounderFeedbackIR 1.4.0, fulfillment, C1/C4, overlay | Yes |
 | 2026-10-01T18:30:42+05:30 | Distinguish approximate cardinality from unresolved material structure; do not invent a grid; do not run fifth C5; do not start C6 | IR 1.4 post-deploy verification: `may be 3` weakened continue-beside; vertical bullets could still PASS | IR 1.4.1 cardinality vs `structure_material`; `unresolved_material` fail-closes overall fulfillment; real fourth-C5 parent replay; C1/C2/C3/C4/actionability PASS | Invented 3×N grid; fourth-C5 phrase special cases; second English parser; rewriting historical READY; C6 | PresentationIntent, FounderFeedbackIR 1.4.1, fulfillment, C1/C4, real-parent fixtures | Yes |
+| 2026-10-01T19:21:59+05:30 | Implement two proven post-fifth-C5 owners offline; do not run a sixth live proof; do not start C6 | Plan-geometry rejected transient pre-reflow overlaps; header/Skills IR missed relation and presentation | IR 1.4.2; production-parity plan-geometry; future owner `plan_geometry`; relative placement + presentation precedence; C1/C2/C3/C4/6H/6O/6P/actionability PASS | Weakening C2; Skills/Campus Ambassador special cases; retrying `revtask-68a5d250-b24`; second English parser; C6 | PlanGeometrySafety 1.1.0, FounderFeedbackIR 1.4.2, fulfillment, PresentationIntent, C1/C4 | Yes |
 
 ---
 
@@ -1210,16 +1237,31 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** Axis-ambiguous material grouping remains unresolved/fail-closed; Motion Designer UI Request Changes exposure remains unresolved
 - **NEXT STEP:** Read-only preflight for one NEW fifth-C5 live proof if Founder authorizes. Do not retry historical C5 tasks. Do not start C6.
 
+### 2026-10-01T19:21:59+05:30 — POST-FIFTH-C5 BOUNDED OFFLINE CORRECTION
+
+- **PHASE/TASK:** Owner 1 plan-geometry production parity + Owner 2 generalized relative/presentation IR
+- **PURPOSE:** Stop false pre-execution rejection of content growth that production layout owners resolve; encode target/reference/preserve and content-preserving presentation
+- **BEFORE STATE:** Fifth C5 FAIL `revtask-68a5d250-b24`; IR 1.4.1; plan-geometry simulated raw `update_text`; owner persisted `final_geometry` though C2 never ran
+- **CHANGE:** Plan-geometry 1.1.0 applies post-content reflow + normalize for content-mutation plans; future owner `plan_geometry`; IR 1.4.2 relative placement + presentation precedence; C4 extended. Historical fifth-C5 task not rewritten. revision_failed UI debt recorded, not fixed.
+- **FILES MODIFIED:** PlanGeometrySafety; FounderRevisionPipeline; RevisionPlanGateCircuit; FounderFeedbackIR 1.4.2; FounderFeedbackFulfillment; PresentationIntent; RevisionIntentScope; C1/C4/plan-geometry verifiers; this file; project master; project-state; `AGENTS.md`
+- **TESTS:** C1 PASS; C2 PASS; C3 PASS; C4 PASS; plan-geometry PASS; 6H PASS; 6O PASS; 6P PASS; actionability PASS
+- **COMMIT:** *(this implementation commit)*
+- **DEPLOY:** FF-only if proofs pass; restart only affected dashboard
+- **LIVE PROOF:** NO. Sixth C5 not executed.
+- **RESULT:** Offline correction PASS. Fifth C5 remains FAIL. `READY_FOR_SIXTH_C5_LIVE_PROOF=NO`. `READY_FOR_C6=NO`.
+- **NEW RISKS:** Combined packets may still fail-closed after truthful layout; revision_failed UI debt unresolved
+- **NEXT STEP:** Fresh STRICT READ-ONLY sixth-C5 production preflight. Do not retry historical C5 tasks. Do not start C6.
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**Read-only preflight for exactly one NEW fifth-C5 live proof if the Founder authorizes it. Do not execute that live proof in this run.**
+**Fresh STRICT READ-ONLY sixth-C5 production preflight. Do not execute another live Request Changes in this run.**
 
-Do not Approve or Reject `revtask-863f67a5-790`, `revtask-4a0c006c-507`, `revtask-3f5b2339-73e`, or `revtask-0d58e039-326`.  
-Do not retry `revtask-0d58e039-326`, `revtask-3f5b2339-73e`, `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
+Do not Approve or Reject `revtask-863f67a5-790`, `revtask-4a0c006c-507`, `revtask-3f5b2339-73e`, `revtask-0d58e039-326`, or `revtask-68a5d250-b24`.  
+Do not retry `revtask-68a5d250-b24`, `revtask-0d58e039-326`, `revtask-3f5b2339-73e`, `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
 Do not start C6.  
 Do not enable `SOS_AIOS_LIVE`.  
 Do not submit another Founder decision.

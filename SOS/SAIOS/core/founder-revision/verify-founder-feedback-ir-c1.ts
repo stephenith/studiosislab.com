@@ -29,12 +29,19 @@ import {
   applyRelationalAlignment,
   bindRangeTargetIds,
   bindReferenceIds,
+  bindTargetDescriptor,
+  compileRelativePlacement,
   dropProviderGeometryWhenRelationalOwned,
   evaluateItemFulfillment,
 } from "./FounderFeedbackFulfillment.js";
+import { validatePlanGeometrySafety } from "./PlanGeometrySafety.js";
+import { executeCanvasOperations } from "./CanvasOperationExecutor.js";
+import { applyPostContentReflow } from "./PostContentReflow.js";
+import { evaluateSharedGeometryAdmission } from "../geometry-admission/SharedGeometryAdmission.js";
 import { dropUnsafeGeometryOps } from "./PostContentReflow.js";
 import {
   findIntraBoxTextOverflowFindings,
+  findTextOverlapFindings,
   runCollisionBoundsCheck,
 } from "./RevisionAcceptanceChecks.js";
 import { normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
@@ -90,6 +97,7 @@ const HISTORICAL = [
   "revtask-4a0c006c-507",
   "revtask-3f5b2339-73e",
   "revtask-0d58e039-326",
+  "revtask-68a5d250-b24",
 ];
 
 type Check = { name: string; pass: boolean; detail: string };
@@ -1692,6 +1700,488 @@ async function main(): Promise<void> {
       (childItems.includes("Python (Pandas") || childItems.includes("NumPy)")),
     "fourth_c5_state_d_bad_child_fails",
     JSON.stringify({ notes: stateD.notes, items: childItems }),
+  );
+
+  const C5_FIFTH_HEADER =
+    "Move the “Campus Ambassador” position completely below the blue header rectangle so that it does not overlap the rectangle, while keeping the name placement as it is.";
+  const C5_FIFTH_EDU =
+    "Add more content to the Education section to show a more complete education history, such as school, high school, college and degree details where appropriate.";
+  const C5_FIFTH_SKILLS =
+    "Change the Skills section from the current horizontal layout to vertical pointers. Keep around three skills stacked vertically in one column, then continue the remaining skills vertically in the next column beside it.";
+  const fifthHeaderIr = compileFounderFeedbackIR([C5_FIFTH_HEADER]);
+  const fifthEduIr = compileFounderFeedbackIR([C5_FIFTH_EDU]);
+  const fifthSkillsIr = compileFounderFeedbackIR([C5_FIFTH_SKILLS]);
+  const fifthHeaderPred = fifthHeaderIr.items[0]?.fulfillment.find(
+    (p) => p.kind === "RELATIONAL_ALIGNMENT",
+  );
+  const fifthSkillsPred = fifthSkillsIr.items[0]?.fulfillment.find(
+    (p) => p.kind === "PRESENTATION",
+  );
+  const fifthHeaderRel = compileRelativePlacement(C5_FIFTH_HEADER);
+  assert(
+    fifthHeaderIr.schema_version === FOUNDER_FEEDBACK_IR_SCHEMA &&
+      fifthHeaderIr.items[0]?.action === "LAYOUT_MUTATION" &&
+      fifthHeaderRel?.alignment.relation === "below" &&
+      fifthHeaderRel.preserve?.kind === "header_name_only" &&
+      fifthHeaderPred?.alignment?.relation === "below" &&
+      fifthHeaderPred.preserve?.kind === "header_name_only" &&
+      fifthHeaderPred.target?.quoted_text === "Campus Ambassador",
+    "fifth_c5_header_relative_below_compiled",
+    JSON.stringify({
+      action: fifthHeaderIr.items[0]?.action,
+      pred: fifthHeaderPred,
+      rel: fifthHeaderRel,
+    }),
+  );
+  assert(
+    fifthEduIr.items[0]?.action === "CONTENT_MUTATION" &&
+      fifthEduIr.items[0]?.fulfillment.some((p) => p.kind === "CONTENT_ADD") &&
+      fifthEduIr.content_addition_sections.includes("education"),
+    "fifth_c5_education_content_add",
+    JSON.stringify(fifthEduIr.items[0]),
+  );
+  const fifthSkillsSpec = compilePresentationSpec(C5_FIFTH_SKILLS);
+  assert(
+    fifthSkillsIr.items[0]?.action === "PRESENTATION_MUTATION" &&
+      fifthSkillsPred?.kind === "PRESENTATION" &&
+      fifthSkillsSpec != null &&
+      fifthSkillsSpec.arrangement === "columns" &&
+      fifthSkillsSpec.markers === "bullets" &&
+      fifthSkillsSpec.grouping?.axis === "column" &&
+      fifthSkillsSpec.grouping.column_count === 2 &&
+      fifthSkillsSpec.grouping.continue_beside === true &&
+      fifthSkillsSpec.grouping.cardinality_strength === "approximate" &&
+      fifthSkillsSpec.grouping.structure_material === true &&
+      fifthSkillsSpec.grouping.executable === true &&
+      (fifthSkillsSpec.unresolved_material ?? []).length === 0 &&
+      !fifthSkillsIr.items[0]?.fulfillment.some((p) => p.kind === "CONTENT_REWRITE"),
+    "fifth_c5_skills_presentation_not_rewrite",
+    JSON.stringify({
+      action: fifthSkillsIr.items[0]?.action,
+      spec: fifthSkillsSpec,
+      pred: fifthSkillsPred?.presentation_spec,
+    }),
+  );
+
+  const changeToVertical = compileFounderFeedbackIR([
+    "Change the Projects section from the current horizontal layout to a vertical list",
+  ]);
+  const genuineRewrite = compileFounderFeedbackIR([
+    "Change the professional title from Marketing Manager to Operations Analyst",
+  ]);
+  assert(
+    changeToVertical.items[0]?.action === "PRESENTATION_MUTATION" &&
+      genuineRewrite.items[0]?.action === "CONTENT_MUTATION" &&
+      genuineRewrite.items[0]?.fulfillment.some((p) => p.kind === "CONTENT_REWRITE"),
+    "change_from_to_presentation_vs_content_rewrite",
+    JSON.stringify({
+      pres: changeToVertical.items[0]?.action,
+      rewrite: genuineRewrite.items[0]?.action,
+    }),
+  );
+
+  function headerPlacementCanvas(opts?: {
+    titleTop?: number;
+    titleText?: string;
+  }): FabricCanvasDoc {
+    return {
+      version: "5.3.0",
+      width: 794,
+      height: 1123,
+      objects: [
+        {
+          type: "rect",
+          id: "page-root",
+          left: 0,
+          top: 0,
+          width: 794,
+          height: 1123,
+          fill: "#ffffff",
+          data: { role: "pageBackground", system: true, kind: "page-bg" },
+        },
+        {
+          type: "rect",
+          id: "block-header-0-r0",
+          left: 48,
+          top: 48,
+          width: 698,
+          height: 54,
+          fill: "#dbeafe",
+          data: { section: "header", role: "band" },
+        },
+        {
+          type: "textbox",
+          id: "block-header-0-t1",
+          left: 60,
+          top: 58,
+          width: 400,
+          height: 22,
+          text: "Alex Rivera",
+          data: { section: "header", role: "name" },
+        },
+        {
+          type: "textbox",
+          id: "block-header-0-t2",
+          left: 60,
+          top: opts?.titleTop ?? 97,
+          width: 400,
+          height: 16,
+          text: opts?.titleText ?? "Campus Ambassador",
+          data: { section: "header", role: "professional_title" },
+        },
+        {
+          type: "textbox",
+          id: "block-header-0-t3",
+          left: 60,
+          top: 118,
+          width: 500,
+          height: 14,
+          text: "alex@example.com",
+          data: { section: "header", role: "contact" },
+        },
+      ],
+    } as FabricCanvasDoc;
+  }
+
+  const headerBefore = headerPlacementCanvas();
+  const headerUnchanged = evaluateItemFulfillment({
+    item: fifthHeaderIr.items[0]!,
+    beforeCanvas: headerBefore,
+    afterCanvas: headerBefore,
+  });
+  const headerWrong = evaluateItemFulfillment({
+    item: fifthHeaderIr.items[0]!,
+    beforeCanvas: headerBefore,
+    afterCanvas: headerPlacementCanvas({ titleTop: 70 }),
+  });
+  const headerNameMoved = JSON.parse(JSON.stringify(headerBefore)) as FabricCanvasDoc;
+  const nameObj = (headerNameMoved.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "block-header-0-t1",
+  ) as { top?: number };
+  if (nameObj) nameObj.top = 80;
+  const headerPreserveFail = evaluateItemFulfillment({
+    item: fifthHeaderIr.items[0]!,
+    beforeCanvas: headerBefore,
+    afterCanvas: headerNameMoved,
+  });
+  const headerApplied = applyRelationalAlignment(headerBefore, fifthHeaderIr);
+  const headerPass = evaluateItemFulfillment({
+    item: fifthHeaderIr.items[0]!,
+    beforeCanvas: headerBefore,
+    afterCanvas: headerApplied,
+  });
+  const appliedTitle = (headerApplied.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "block-header-0-t2",
+  ) as { top?: number };
+  const appliedName = (headerApplied.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "block-header-0-t1",
+  ) as { top?: number };
+  const boundTitle = bindTargetDescriptor(headerBefore, fifthHeaderPred?.target);
+  const boundRect = bindReferenceIds(headerBefore, fifthHeaderPred?.reference);
+  assert(
+    headerUnchanged.pass === false &&
+      headerWrong.pass === false &&
+      headerPreserveFail.pass === false &&
+      headerPass.pass === true &&
+      Number(appliedTitle?.top ?? 0) >= 102 &&
+      Number(appliedName?.top ?? 0) === 58 &&
+      boundTitle.includes("block-header-0-t2") &&
+      boundRect.includes("block-header-0-r0"),
+    "fifth_c5_header_state_based_fulfillment",
+    JSON.stringify({
+      unchanged: headerUnchanged.notes,
+      wrong: headerWrong.notes,
+      preserve: headerPreserveFail.notes,
+      pass: headerPass.notes,
+      titleTop: appliedTitle?.top,
+      nameTop: appliedName?.top,
+      boundTitle,
+      boundRect,
+    }),
+  );
+
+  const aboveIr = compileFounderFeedbackIR([
+    "Move the “Campus Ambassador” position completely above the blue header rectangle, keeping the name placement",
+  ]);
+  const besideIr = compileFounderFeedbackIR([
+    "Place the “Campus Ambassador” position beside the blue header rectangle, keeping the name placement",
+  ]);
+  assert(
+    compileRelativePlacement(
+      "Move the title completely above the blue header rectangle",
+    )?.alignment.relation === "above" &&
+      compileRelativePlacement(
+        "Place the title beside the blue header rectangle",
+      )?.alignment.relation === "beside" &&
+      aboveIr.items[0]?.fulfillment.some(
+        (p) => p.kind === "RELATIONAL_ALIGNMENT" && p.alignment?.relation === "above",
+      ) &&
+      besideIr.items[0]?.fulfillment.some(
+        (p) => p.kind === "RELATIONAL_ALIGNMENT" && p.alignment?.relation === "beside",
+      ) &&
+      evaluateItemFulfillment({
+        item: aboveIr.items[0]!,
+        beforeCanvas: headerBefore,
+        afterCanvas: headerApplied,
+      }).pass === false,
+    "relative_above_beside_and_wrong_relation_fail",
+    JSON.stringify({
+      above: aboveIr.items[0]?.fulfillment,
+      beside: besideIr.items[0]?.fulfillment,
+    }),
+  );
+  const ambiguousRel = compileFounderFeedbackIR([
+    "Move the heading completely below the blue header rectangle",
+  ]);
+  const ambiguousEval = evaluateItemFulfillment({
+    item: ambiguousRel.items[0]!,
+    beforeCanvas: headerBefore,
+    afterCanvas: headerApplied,
+  });
+  assert(
+    ambiguousRel.items[0]?.fulfillment.some((p) => p.kind === "RELATIONAL_ALIGNMENT") &&
+      ambiguousEval.pass === false,
+    "ambiguous_relative_target_fails_closed",
+    ambiguousEval.notes,
+  );
+
+  const inlineSkills: FabricCanvasDoc = {
+    version: "5.3.0",
+    width: 794,
+    height: 1123,
+    objects: [
+      {
+        type: "textbox",
+        id: "block-skills-5-t1",
+        section: "skills",
+        text: "SKILLS",
+        left: 48,
+        top: 720,
+        width: 200,
+        height: 16,
+      },
+      {
+        type: "textbox",
+        id: "block-skills-5-t2",
+        section: "skills",
+        text: "Public Speaking  ·  Event Coordination  ·  Social Media  ·  Leadership  ·  Outreach  ·  Research",
+        left: 48,
+        top: 752,
+        width: 698,
+        height: 20,
+      },
+    ],
+  } as FabricCanvasDoc;
+  const fifthSkillsApplied = applyPresentationMutations(inlineSkills, fifthSkillsIr);
+  const fifthSkillsEval = evaluateItemFulfillment({
+    item: fifthSkillsIr.items[0]!,
+    beforeCanvas: inlineSkills,
+    afterCanvas: fifthSkillsApplied,
+  });
+  const fifthSkillTexts = (fifthSkillsApplied.objects ?? [])
+    .filter((o) => {
+      const sec = String(
+        (o as { section?: string }).section ??
+          ((o as { data?: { section?: string } }).data?.section ?? ""),
+      ).toLowerCase();
+      const t = String((o as { text?: string }).text ?? "");
+      return sec === "skills" && t && !/^skills?$/i.test(t.trim());
+    })
+    .map((o) => String((o as { text?: string }).text ?? ""));
+  const fifthSkillItems = fifthSkillTexts.flatMap((t) => splitLogicalItems(t));
+  const fifthSkillBoxes = (fifthSkillsApplied.objects ?? []).filter((o) => {
+    const sec = String(
+      (o as { section?: string }).section ??
+        ((o as { data?: { section?: string } }).data?.section ?? ""),
+    ).toLowerCase();
+    const t = String((o as { text?: string }).text ?? "");
+    return sec === "skills" && t && !/^skills?$/i.test(t.trim());
+  }) as Array<{ height?: number; width?: number }>;
+  const fifthClip = findIntraBoxTextOverflowFindings(fifthSkillsApplied);
+  const fifthUnchangedPres = evaluateItemFulfillment({
+    item: fifthSkillsIr.items[0]!,
+    beforeCanvas: inlineSkills,
+    afterCanvas: inlineSkills,
+  });
+  assert(
+    fifthSkillItems.length === 6 &&
+      fifthSkillItems[0] === "Public Speaking" &&
+      fifthSkillItems[5] === "Research" &&
+      fifthSkillBoxes.length >= 2 &&
+      fifthSkillsEval.pass === true &&
+      fifthUnchangedPres.pass === false &&
+      fifthClip.length === 0 &&
+      fifthSkillBoxes.every((b) => Number(b.height ?? 0) > 20),
+    "fifth_c5_skills_offline_fulfillment",
+    JSON.stringify({
+      items: fifthSkillItems,
+      boxes: fifthSkillBoxes.length,
+      eval: fifthSkillsEval.notes,
+      clip: fifthClip.length,
+    }),
+  );
+
+  function growthPatternCanvas(): FabricCanvasDoc {
+    return {
+      version: "5.3.0",
+      width: 794,
+      height: 1123,
+      objects: [
+        {
+          type: "rect",
+          id: "page-root",
+          left: 0,
+          top: 0,
+          width: 794,
+          height: 1123,
+          fill: "#ffffff",
+          data: { role: "pageBackground", system: true, kind: "page-bg" },
+        },
+        {
+          type: "textbox",
+          id: "block-education-3-t2",
+          left: 48,
+          top: 664,
+          width: 698,
+          height: 16,
+          text: "B.A. Communication, State University, 2024",
+          fontSize: 11,
+          lineHeight: 1.35,
+          data: { section: "education", role: "body" },
+        },
+        {
+          type: "textbox",
+          id: "block-education-3-t3",
+          left: 48,
+          top: 683,
+          width: 698,
+          height: 16,
+          text: "Relevant coursework: Media Studies",
+          fontSize: 11,
+          lineHeight: 1.35,
+          data: { section: "education", role: "body" },
+        },
+        {
+          type: "textbox",
+          id: "block-skills-4-t1",
+          left: 48,
+          top: 730,
+          width: 200,
+          height: 16,
+          text: "SKILLS",
+          data: { section: "skills", role: "heading" },
+        },
+        {
+          type: "textbox",
+          id: "block-skills-4-t2",
+          left: 48,
+          top: 752,
+          width: 698,
+          height: 20,
+          text: "Public Speaking  ·  Event Coordination  ·  Social Media  ·  Leadership  ·  Outreach  ·  Research",
+          fontSize: 11,
+          lineHeight: 1.35,
+          data: { section: "skills", role: "body" },
+        },
+        {
+          type: "textbox",
+          id: "block-certifications-5-t1",
+          left: 48,
+          top: 790,
+          width: 240,
+          height: 16,
+          text: "CERTIFICATIONS",
+          data: { section: "certifications", role: "heading" },
+        },
+        {
+          type: "textbox",
+          id: "block-certifications-5-t2",
+          left: 48,
+          top: 810,
+          width: 698,
+          height: 16,
+          text: "First Aid Certification",
+          data: { section: "certifications", role: "body" },
+        },
+      ],
+    } as FabricCanvasDoc;
+  }
+  const growthCanvas = growthPatternCanvas();
+  const growthPlan = {
+    schema_version: "founder-canvas-revision-plan-1.0.0",
+    summary: "content growth",
+    operations: [
+      {
+        op: "update_text" as const,
+        target_id: "block-education-3-t2",
+        values: {
+          text: "Lincoln High School, 2016–2020. B.A. Communication, State University, 2020–2024. Coursework: Media Studies, Public Relations, Research Methods.",
+        },
+        founder_feedback_item: C5_FIFTH_EDU,
+        intended_change: "expand education",
+        confidence: 0.9,
+      },
+      {
+        op: "update_text" as const,
+        target_id: "block-skills-4-t2",
+        values: {
+          text: "Public Speaking\nEvent Coordination\nSocial Media\nLeadership\nOutreach\nResearch",
+        },
+        founder_feedback_item: C5_FIFTH_SKILLS,
+        intended_change: "vertical skills",
+        confidence: 0.9,
+      },
+    ],
+    notes: [],
+  };
+  const sourceSnap = JSON.stringify(growthCanvas);
+  const executedGrowth = executeCanvasOperations({
+    canvas: growthCanvas,
+    operations: growthPlan.operations,
+  });
+  const reflowedGrowth = applyPostContentReflow({
+    canvas: executedGrowth.canvas,
+  });
+  const normGrowth = normalizeRevisionLayout({
+    canvas: reflowedGrowth.canvas,
+    requested_changes: [C5_FIFTH_EDU, C5_FIFTH_SKILLS],
+    prior_canvas: growthCanvas,
+  });
+  const postLayoutOverlaps = findTextOverlapFindings(normGrowth.canvas).length;
+  const postLayoutAdmit = evaluateSharedGeometryAdmission(normGrowth.canvas);
+  const expectedSafe =
+    postLayoutOverlaps === 0 &&
+    postLayoutAdmit.page_oob_count === 0 &&
+    !normGrowth.report.page_overflow &&
+    postLayoutAdmit.page_fit_pass;
+  const fifthGeo = validatePlanGeometrySafety({
+    canvas: growthCanvas,
+    plan: growthPlan,
+    requested_changes: [C5_FIFTH_EDU, C5_FIFTH_SKILLS],
+  });
+  assert(
+    JSON.stringify(growthCanvas) === sourceSnap,
+    "plan_geometry_side_effect_free_source",
+    "source canvas mutated",
+  );
+  assert(
+    fifthGeo.layout_applied === true &&
+      fifthGeo.simulation_ok === true &&
+      fifthGeo.ok === expectedSafe &&
+      (expectedSafe
+        ? fifthGeo.text_overlaps === 0 && fifthGeo.page_oob === 0
+        : fifthGeo.ok === false),
+    "fifth_c5_growth_plan_geometry_truthful",
+    JSON.stringify({
+      ok: fifthGeo.ok,
+      expectedSafe,
+      overlaps: fifthGeo.text_overlaps,
+      postLayoutOverlaps,
+      oob: fifthGeo.page_oob,
+      overflow: fifthGeo.page_overflow,
+      fit: postLayoutAdmit.page_fit_pass,
+      err: fifthGeo.error,
+    }),
   );
 
   for (const id of HISTORICAL) {

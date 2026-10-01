@@ -648,6 +648,7 @@ export async function runFounderFeedbackRevision(
   const planGeometryGate = validatePlanGeometrySafety({
     canvas: priorCanvas,
     plan: activePlan,
+    requested_changes: task.requested_changes,
   });
   writeJson(join(evidenceDir, "plan-geometry-safety.json"), planGeometryGate);
   if (!planGeometryGate.ok) {
@@ -661,7 +662,7 @@ export async function runFounderFeedbackRevision(
     task = persistRevisionFailure(
       task.task_id,
       "FAILED_GATE",
-      "final_geometry",
+      "plan_geometry",
       "FAILED_GEOMETRY",
       "GEOMETRY",
       err,

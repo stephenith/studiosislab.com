@@ -49,24 +49,24 @@ Code and VPS evidence override this file when they disagree. Historical evidence
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-01T18:30:42+05:30** / **2026-10-01T13:00:42.000Z**.
+Snapshot taken **2026-10-01T19:21:59+05:30** / **2026-10-01T13:51:59.000Z**.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `b8cf8823f007076c5992cfb8711ee020265e38dc` before this correction commit (`main`) |
-| ORIGIN HEAD | `b8cf8823f007076c5992cfb8711ee020265e38dc` before this correction commit |
-| VPS HEAD | `b8cf8823f007076c5992cfb8711ee020265e38dc` before this correction commit |
+| LOCAL HEAD | `2b922437a6af17f1317ebcd5655cb29be4636bca` before this correction commit (`main`) |
+| ORIGIN HEAD | `2b922437a6af17f1317ebcd5655cb29be4636bca` before this correction commit |
+| VPS HEAD | `2b922437a6af17f1317ebcd5655cb29be4636bca` before this correction commit |
 | PUBLIC PRODUCT | Next.js SaaS at `studiosislab.com` (Vercel) |
 | AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` |
-| CURRENT PROJECT PRIORITY | **Resume Template consolidation — fourth C5 FAIL / false-positive READY remains immutable; IR 1.4.0 deployed then post-deploy material-constraint gap found; IR 1.4.1 offline correction implemented; fifth live proof NOT YET RUN** |
+| CURRENT PROJECT PRIORITY | **Resume Template consolidation — five C5 live proofs remain immutable FAIL; IR 1.4.2 plan-geometry production parity + generalized semantic IR correction implemented offline** |
 | CURRENTLY ACTIVE DEPARTMENT | Resume Template Department (`CONSOLIDATION_REQUIRED`) |
 | NEXT MAJOR PRODUCT DEPARTMENT | Website Analysis / QA / Development (not authorized as current work) |
 | CORE FACTORY HISTORICAL GOAL | **MET** — do not erase |
 | LIVE `OPERATIONALLY_COMPLETE` | **NOT ASSERTED** |
 | PUBLICATION | Manual; `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` |
 | LIVE GENERATION | Guarded; `SOS_AIOS_LIVE=0` |
-| PRIMARY BLOCKERS | Four C5 live proofs remain immutable FAIL history; fifth live proof not run; Website still disabled |
-| NEXT AUTHORIZED STEP | **Read-only preflight for exactly one NEW fifth-C5 live proof if Founder authorizes. Do not execute it in this run. Do not start C6.** |
+| PRIMARY BLOCKERS | Five C5 live proofs remain immutable FAIL history; sixth live proof unauthorized until fresh read-only preflight; Website still disabled |
+| NEXT AUTHORIZED STEP | **Fresh STRICT READ-ONLY sixth-C5 production preflight. Do not execute another live Request Changes in this run. Do not start C6.** |
 
 ---
 
@@ -325,9 +325,9 @@ Preserve all of these. Do not delete, merge, or rewrite to make the hierarchy lo
 
 **Exactly one authorized next major action:**
 
-**Read-only preflight for exactly one NEW fifth-C5 live proof if the Founder authorizes it. Do not execute that live proof in this run.**
+**Fresh STRICT READ-ONLY sixth-C5 production preflight. Do not execute another live Request Changes in this run.**
 
-Four C5 live proofs remain immutable FAIL history. Fourth C5 (`fd-eaa0beaa-6fc` / `revtask-0d58e039-326`) technically reached READY — that was a false-positive READY. IR 1.4.0 (`b8cf882`) fixed atomic items, height sync, intra-box clipping, and production reachability. Post-deploy verification then found that approximate cardinality still weakened material continue-beside/grouping, and that C1/C4 used a synthetic skill list rather than the real Research Assistant parent. IR 1.4.1 now fail-closes unresolved material structure without inventing a grid. Overlay still marks child `…-194bdf-revfb-71bd11` AUDIT_INVALID / NOT_DECISIONABLE. Motion Designer UI Request Changes exposure remains unresolved closure debt. Do not retry historical C5 tasks. Do not Approve or Reject. Do not start C6. Not Website activation.
+Five C5 live proofs remain immutable FAIL history. Fifth C5 (`fd-b951abe2-e84` / `revtask-68a5d250-b24`) is `FAILED_GATE` / `FAILED_GEOMETRY`. The persisted owner was `final_geometry`, but C2 shared geometry was NOT_REACHED: the first blocker was pre-execution `plan_geometry_safety` on three transient Education/Skills growth overlaps. Header IR missed target/reference/preserve; Skills IR compiled CONTENT_REWRITE instead of PresentationSpec. No child. No false READY. Telegram truthful. IR 1.4.2 now evaluates content-growth plan geometry after production-equivalent reflow/normalize, attributes future plan-geometry failures as `plan_geometry`, and compiles relative placement plus content-preserving presentation. Overlay still marks `…-revfb-f81691` and `…-194bdf-revfb-71bd11` AUDIT_INVALID / NOT_DECISIONABLE. Motion Designer and Campus Ambassador `revision_failed` / `actionable=false` while UI may still expose Request Changes remains unresolved closure debt (not fixed). Do not retry historical C5 tasks. Do not Approve or Reject. Do not start C6. Not Website activation.
 
 Deep phases: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MASTER.md) §29–§34.
 
@@ -353,6 +353,7 @@ Deep phases: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MA
 | 2026-10-01T15:06:31+05:30 | Post-third-C5 offline correction; fourth live proof not executed; Website still not current | IR could not represent range-scoped relational alignment; layout-only safety trials ran a false post-content-reflow baseline | IR 1.3.0 RELATIONAL_ALIGNMENT + group translation; dropUnsafe no-content baseline; C1/C2/C3/C4/6H/6O PASS | Phrase regex; Motion Designer special case; weakening overlap/OOB; provider-as-owner; C6 | Resume IR/fulfillment/pipeline/C4 | Yes |
 | 2026-10-01T16:46:19+05:30 | Post-fourth-C5 offline correction; fifth live proof not executed; Website still not current | Categorical presentation IR + comma split + unsynced box + intra-box bypass produced false-positive READY | IR 1.4.0 structured presentation; atomic items; height sync; intra-box fulfillment; overlay on false-READY child; C1/C2/C3/C4/actionability PASS | Skills/Python/3 special cases; invented 3×N grid; rewriting historical READY; C6 | Resume IR/fulfillment/C4/overlay | Yes |
 | 2026-10-01T18:30:42+05:30 | IR 1.4.1 material-constraint correction; fifth live proof not executed; Website still not current | IR 1.4 post-deploy: approximate cardinality made material beside/grouping optional; vertical bullets could still PASS | IR 1.4.1 cardinality vs material structure; unresolved material fail-closes overall fulfillment; real fourth-C5 parent replay; C1/C2/C3/C4/actionability PASS | Invented 3×N grid; phrase special cases; rewriting historical READY; C6 | Resume presentation/IR/fulfillment/C1/C4 | Yes |
+| 2026-10-01T19:21:59+05:30 | Post-fifth-C5 bounded offline correction; sixth live proof not executed; Website still not current | Fifth C5 failed at pre-execution plan geometry on transient growth overlaps; header/Skills IR missed relation and presentation | IR 1.4.2 production-parity plan-geometry + relative placement + presentation precedence; C1/C2/C3/C4/6H/6O/6P/actionability PASS | Weakening C2; moving the gate later blindly; Skills/Campus Ambassador special cases; retrying fifth C5; C6 | Resume plan-geometry/IR/fulfillment/C1/C4 | Yes |
 
 ---
 
@@ -376,7 +377,8 @@ Append-only. Do not overwrite historical entries.
 | 2026-09-30T18:27:00+05:30 | Third C5 live Request Changes | Prove IR 1.2 + actionability on one natural Motion Designer decision | Enforcement deployed at `afc47be`; Motion Designer waiting | Observed `fd-4e2c7c6a-eaa` / `revtask-3f5b2339-73e` FAILED_COVERAGE; canvas unchanged | This file; Resume master; project-state; `AGENTS.md` | Production evidence inspect | `46a237a` | FF docs; no restart; no Approve | YES — FAIL | Third C5 FAIL; READY_FOR_C6=NO | IR maps “till the bottom / align left” to page-bottom extent; `dropUnsafeGeometryOps` can zero an alignment plan | Read-only failure investigation |
 | 2026-10-01T15:06:31+05:30 | Post-third-C5 bounded offline correction | Generalized range/group relational alignment + layout-only geometry trial baseline | Third C5 FAIL recorded; IR 1.2.0; heads snapshot still listed `afc47be` | IR 1.3.0 RELATIONAL_ALIGNMENT; deterministic group translation; provider IR contract; no-content reflow skipped in dropUnsafe; C4 extended | Resume IR/fulfillment/intent-scope/prompt/pipeline/C1/C4; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6H+6O | `a0d6ad8` | FF + dashboard restart | NO | Offline correction PASS; fourth live proof NOT RUN; READY_FOR_C6=NO | Unmodeled relational phrasing; group translation is horizontal-only | Read-only fourth-C5 preflight if Founder authorizes |
 | 2026-10-01T16:46:19+05:30 | Post-fourth-C5 bounded offline correction | Structured presentation contract + atomic items + measured text-box / intra-box usability | Fourth C5 FAIL / false-positive READY; IR 1.3.0 categorical presentation | IR 1.4.0 multi-constraint presentation; nest-aware items; height sync; intra-box fulfillment; overlay on `…-revfb-71bd11`; C4 extended | Resume presentation/IR/fulfillment/C1/C4/overlay; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+actionability | `b8cf882` | FF + dashboard restart | NO | Offline Owners 1–2 PASS; IR 1.4 did not itself pass the later material-constraint gate; fifth live proof NOT RUN; READY_FOR_C6=NO | Approximate cardinality still weakened material grouping | IR 1.4.1 material-constraint correction |
-| 2026-10-01T18:30:42+05:30 | IR 1.4.1 material presentation constraint | Approximate cardinality must not make material structure optional | IR 1.4.0 at `b8cf882`; post-deploy gap + synthetic-fixture discrepancy | IR 1.4.1 `structure_material` / `unresolved_material`; real-parent STATE A/B/D; no invented grid | Resume presentation/IR/fulfillment/C1/C4/fixtures; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+actionability | *(this implementation commit)* | FF + dashboard restart if proofs pass | NO | Offline correction PASS; fifth live proof NOT RUN; READY_FOR_C6=NO | Axis-ambiguous material grouping remains fail-closed; Motion Designer UI debt unresolved | Read-only fifth-C5 preflight if Founder authorizes |
+| 2026-10-01T18:30:42+05:30 | IR 1.4.1 material presentation constraint | Approximate cardinality must not make material structure optional | IR 1.4.0 at `b8cf882`; post-deploy gap + synthetic-fixture discrepancy | IR 1.4.1 `structure_material` / `unresolved_material`; real-parent STATE A/B/D; no invented grid | Resume presentation/IR/fulfillment/C1/C4/fixtures; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+actionability | `2b92243` | FF + dashboard restart | NO | Offline correction PASS; fifth live proof later FAIL; READY_FOR_C6=NO | Axis-ambiguous material grouping remains fail-closed; Motion Designer UI debt unresolved | Read-only fifth-C5 preflight if Founder authorizes |
+| 2026-10-01T19:21:59+05:30 | Post-fifth-C5 bounded offline correction | Production-parity plan geometry + generalized relative/presentation IR | Fifth C5 FAIL at `2b92243`; transient plan-sim overlaps; header/Skills semantic miss | IR 1.4.2; plan-geometry reuses post-content reflow + normalize; future owner `plan_geometry`; relative below/above/beside + preserve; change-from-to presentation precedence | Resume plan-geometry/IR/fulfillment/presentation/C1/C4; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6H+6O+6P+plan-geometry+actionability | *(this implementation commit)* | FF + dashboard restart if proofs pass | NO | Offline correction PASS; fifth C5 remains FAIL; READY_FOR_SIXTH_C5_LIVE_PROOF=NO; READY_FOR_C6=NO | Combined Founder packets may still fail-closed after truthful layout; revision_failed UI debt unresolved | Fresh STRICT READ-ONLY sixth-C5 preflight |
 
 ---
 

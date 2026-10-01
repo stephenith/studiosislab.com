@@ -60,25 +60,25 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-01T16:46:19+05:30** / **2026-10-01T11:16:19.000Z**. Post-fourth-C5 offline correction implemented. Fifth live proof not run.
+Snapshot taken **2026-10-01T18:30:42+05:30** / **2026-10-01T13:00:42.000Z**. IR 1.4.1 material-constraint correction implemented. Fifth live proof not run.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `a0d6ad8554b0f9149dce6b5f948d77ba08da682d` before this correction commit (`main`) |
-| ORIGIN HEAD | `a0d6ad8554b0f9149dce6b5f948d77ba08da682d` before this correction commit |
-| VPS HEAD | `a0d6ad8554b0f9149dce6b5f948d77ba08da682d` before this correction commit |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is the authorized offline correction |
-| VPS STATUS | Four C5 FAIL evidence remains immutable; correction not live until FF deploy |
+| LOCAL HEAD | `b8cf8823f007076c5992cfb8711ee020265e38dc` before this correction commit (`main`) |
+| ORIGIN HEAD | `b8cf8823f007076c5992cfb8711ee020265e38dc` before this correction commit |
+| VPS HEAD | `b8cf8823f007076c5992cfb8711ee020265e38dc` before this correction commit |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is the authorized offline semantic correction |
+| VPS STATUS | Four C5 FAIL evidence remains immutable; 1.4.1 correction not live until FF deploy |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; four C5 live proofs FAIL and immutable; post-fourth-C5 correction offline PASS |
+| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; four C5 live proofs FAIL and immutable; IR 1.4.0 deployed then post-deploy gap found; IR 1.4.1 offline PASS |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
 | REVISION STATUS | `revtask-863f67a5-790` READY unchanged; `revtask-4a0c006c-507` FAILED_COVERAGE unchanged; `revtask-3f5b2339-73e` FAILED_COVERAGE; `revtask-0d58e039-326` READY unchanged (false-positive READY); `5d933072` / `76a04a21` unchanged |
 | GENERATION STATUS | Unchanged; `SOS_AIOS_LIVE=0` |
 | FOUNDER REVIEW STATUS | Fourth-C5 child `…-194bdf-revfb-71bd11` is `audit_invalid` / NOT_DECISIONABLE. Historical UI Designer child remains `audit_invalid`. Motion Designer `…-bed721` remains `revision_failed` after `fd-4e2c7c6a-eaa` (UI Request Changes exposure remains unresolved closure debt). Do not Approve or Reject. |
 | MEMORY STATUS | Unchanged |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
-| CURRENT PRIMARY BLOCKERS | Fifth C5 live proof not yet run; four historical C5 FAILs remain immutable |
-| NEXT AUTHORIZED STEP | **Read-only preflight for exactly one NEW fifth-C5 live proof if Founder authorizes.** Do not retry historical C5 tasks. Do not start C6. |
+| CURRENT PRIMARY BLOCKERS | Fifth C5 live proof not yet run; four historical C5 FAILs remain immutable; Motion Designer UI debt remains |
+| NEXT AUTHORIZED STEP | **Read-only preflight for exactly one NEW fifth-C5 live proof if Founder authorizes.** `READY_FOR_FIFTH_C5_PREFLIGHT=YES`. `READY_FOR_FIFTH_C5_LIVE_PROOF=NO`. Do not retry historical C5 tasks. Do not start C6. |
 
 `OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
 
@@ -846,12 +846,21 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 
 | Field | Content |
 |---|---|
-| OWNER 1 | Canonical presentation IR generalized to a multi-constraint structured contract (`founder-feedback-ir-1.4.0`). Compatible constraints survive together. Approximate cardinality and axis-ambiguous grouping are represented and fail closed rather than inventing a unique 3×N grid. Compactness purpose/context is not a hard metric. One public semantic owner remains `compileFounderFeedbackIR`. |
-| OWNER 2 | Logical items split on true list delimiters with nest-aware internal punctuation. Deterministic executor can apply vertical/inline/bullets and unambiguous columns/row-groups. Presentation path reuses `syncStoredTextHeightsToVisual`. Intra-box overflow from `findIntraBoxTextOverflowFindings` blocks presentation fulfillment. C2 overlap/OOB/page-fit architecture unchanged. |
+| OWNER 1 | Canonical presentation IR generalized to a multi-constraint structured contract (`founder-feedback-ir-1.4.0`). Compatible constraints survive together. Compactness purpose/context is not a hard metric. One public semantic owner remains `compileFounderFeedbackIR`. IR 1.4 itself did **not** pass the later material-constraint gate: post-deploy verification found that approximate cardinality still shared one grouping-strength with material structure, so vertical bullets could still PASS while continue-beside stayed unresolved. |
+| OWNER 2 | Logical items split on true list delimiters with nest-aware internal punctuation. Deterministic executor can apply vertical/inline/bullets and unambiguous columns/row-groups. Presentation path reuses `syncStoredTextHeightsToVisual`. Intra-box overflow from `findIntraBoxTextOverflowFindings` blocks presentation fulfillment. C2 overlap/OOB/page-fit architecture unchanged. Real fourth-C5 parent replay (not the synthetic C1/C4 Research/Literature list) proved atomicity, height 47→107.8, clipping, and normalize geometry. |
 | OVERLAY | Existing actionability overlay marks child `…-194bdf-revfb-71bd11` `AUDIT_INVALID` / `NOT_DECISIONABLE`. Historical task `revtask-0d58e039-326` stays READY. Parent/source not blacklisted. |
-| MOTION DESIGNER UI DEBT | Unchanged and unresolved: projection `revision_failed` / `actionable=false` while UI may still expose Request Changes. Did not cause fourth C5. |
+| MOTION DESIGNER UI DEBT | Unchanged and unresolved: projection `revision_failed` / `actionable=false` while UI may still expose Request Changes. Did not cause fourth C5. Not fixed in IR 1.4.1. |
 | OFFLINE | C1 PASS; C2 PASS; C3 PASS; C4 PASS; actionability PASS. First-C5 extent, second-C5 presentation, third-C5 relational remain PASS. |
 | LIVE PROOF | Fifth C5 **not run**. `READY_FOR_C6=NO`. |
+
+#### IR 1.4.1 material presentation constraint correction *(2026-10-01)*
+
+| Field | Content |
+|---|---|
+| GAP | IR 1.4 verification: `"may be 3"` marked the entire grouping approximate, so `"continue it beside it"` was not an independent material obligation. `grouping.executable=false` / `row_and_beside_axis_unresolved` still allowed overall Founder-item PASS from vertical bullets + markers + atomicity + no clipping. |
+| FIX | `founder-feedback-ir-1.4.1` distinguishes approximate/soft cardinality from material structural grouping. Illustrative/example language stays non-blocking. Unresolved material structure is recorded on the canonical spec and blocks overall fulfillment. Execution still does not invent a unique 3×N grid. One public semantic owner remains `compileFounderFeedbackIR`. Provider/FeedbackCoverage/FinalAcceptance unchanged as consumers. |
+| REAL PARENT PROOF | Read-only copy of `cand-student-research-assistant-20261001T032029Z-194bdf`. Skills: SPSS; Python (Pandas, NumPy); Microsoft Excel; Participant Recruitment; Survey Design; Data Cleaning and Analysis; Research Protocol Development. STATE A original FAIL. STATE B vertical bullets only FAIL (unresolved material). STATE C not fabricated. STATE D `…-revfb-71bd11` FAIL (corruption + clipping). |
+| LIVE PROOF | Fifth C5 **not run**. `READY_FOR_FIFTH_C5_PREFLIGHT=YES` after healthy deploy. `READY_FOR_FIFTH_C5_LIVE_PROOF=NO`. `READY_FOR_C6=NO`. |
 
 #### C6 — Closure audit (schedule remains later)
 
@@ -953,6 +962,7 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | 2026-09-30T18:27:00+05:30 | Third C5 live proof is FAIL; do not retry; do not patch; do not start C6 | IR 1.2 compiled body left-align as page-bottom extent; all provider alignment ops dropped; coverage fail-closed; no child | `fd-4e2c7c6a-eaa`; `revtask-3f5b2339-73e`; prior/post canvas lefts unchanged; Telegram event `2ae5c15e-3c88-4be5-80d7-3fab53772676` | Approving; retrying 3f5b/4a0c/863f; starting a correction; C6 | Docs/state only | Yes |
 | 2026-10-01T15:06:31+05:30 | Implement two proven post-third-C5 owners offline; do not run a fourth live proof; do not start C6 | Range-scoped relational alignment had no IR/fulfillment; layout-only dropUnsafe used a fabricated reflow baseline | IR 1.3.0 RELATIONAL_ALIGNMENT + deterministic group translation; provider contract is compiled IR; no-content reflow skipped; C1/C2/C3/C4/6H/6O PASS | Motion Designer/Summary/left=72 special cases; weakening overlap/OOB; second English parser; retrying historical C5 | FounderFeedbackIR 1.3.0, fulfillment, intent-scope, prompt, pipeline, C1/C4 | Yes |
 | 2026-10-01T16:46:19+05:30 | Implement two proven post-fourth-C5 owners offline; do not run a fifth live proof; do not start C6 | Categorical PresentationSpec + comma split + unsynced 47px box + intra-box bypass produced false-positive READY | IR 1.4.0 multi-constraint presentation; nest-aware atomic items; height sync + intra-box on presentation path; overlay on false-READY child; C1/C2/C3/C4/actionability PASS | Research Assistant/Skills/Python/3 special cases; invented 3×N grid; second English parser; rewriting historical READY; C6 | PresentationIntent, FounderFeedbackIR 1.4.0, fulfillment, C1/C4, overlay | Yes |
+| 2026-10-01T18:30:42+05:30 | Distinguish approximate cardinality from unresolved material structure; do not invent a grid; do not run fifth C5; do not start C6 | IR 1.4 post-deploy verification: `may be 3` weakened continue-beside; vertical bullets could still PASS | IR 1.4.1 cardinality vs `structure_material`; `unresolved_material` fail-closes overall fulfillment; real fourth-C5 parent replay; C1/C2/C3/C4/actionability PASS | Invented 3×N grid; fourth-C5 phrase special cases; second English parser; rewriting historical READY; C6 | PresentationIntent, FounderFeedbackIR 1.4.1, fulfillment, C1/C4, real-parent fixtures | Yes |
 
 ---
 
@@ -1178,11 +1188,26 @@ Append-only. Do not overwrite.
 - **CHANGE:** IR 1.4.0 multi-constraint PresentationSpec; nest-aware logical items; deterministic columns/row-groups when unambiguous; approximate/ambiguous grouping fail-closed; `syncStoredTextHeightsToVisual` on presentation path; intra-box overflow blocks presentation fulfillment; existing overlay marks child `…-revfb-71bd11` AUDIT_INVALID / NOT_DECISIONABLE. Historical fourth-C5 task not rewritten.
 - **FILES MODIFIED:** PresentationIntent; FounderFeedbackIR 1.4.0; FounderFeedbackFulfillment; C1/C4/actionability verifiers; actionability-overlay.json; this file; project master; project-state; `AGENTS.md`
 - **TESTS:** C1 PASS; C2 PASS; C3 PASS; C4 PASS; actionability PASS
+- **COMMIT:** `b8cf882`
+- **DEPLOY:** FF + dashboard restart
+- **LIVE PROOF:** NO. Fifth C5 not executed.
+- **RESULT:** Offline correction PASS for Owners 1–2 as scoped. IR 1.4 post-deploy verification later found the unresolved-material grouping gap and a synthetic-fixture provenance discrepancy. Fourth C5 remains FAIL / false-positive READY. `READY_FOR_C6=NO`.
+- **NEW RISKS:** Approximate cardinality still shared grouping strength with material beside/grouping — corrected in 1.4.1, not by IR 1.4 itself
+- **NEXT STEP:** IR 1.4.1 material-constraint correction (this later authorized run)
+
+### 2026-10-01T18:30:42+05:30 — IR 1.4.1 MATERIAL PRESENTATION CONSTRAINT CORRECTION
+
+- **PHASE/TASK:** Bounded offline semantic correction: approximate cardinality ≠ optional structural intent
+- **PURPOSE:** Keep unresolved material structure from silently disappearing from overall Founder-item fulfillment
+- **BEFORE STATE:** IR 1.4.0 deployed at `b8cf882`. Post-deploy verification: one grouping strength; `may be 3` approximated the whole grouping; continue-beside recorded but not independently required; vertical bullets could PASS. Synthetic C1/C4 list is not the real Research Assistant parent.
+- **CHANGE:** IR 1.4.1 splits cardinality strength from `structure_material`. Illustrative examples stay non-blocking. `unresolved_material` blocks `presentationContractSatisfied` / overall fulfillment. Hard vertical+bullets still execute. No invented grid. Real-parent STATE A/B/D proved offline. Overlay unchanged. Historical fourth-C5 task not rewritten.
+- **FILES MODIFIED:** PresentationIntent; FounderFeedbackIR 1.4.1; FounderFeedbackFulfillment apply/grouping gate; C1/C4; real-parent fixtures; this file; project master; project-state; `AGENTS.md`
+- **TESTS:** C1 PASS; C2 PASS; C3 PASS; C4 PASS; actionability PASS
 - **COMMIT:** *(this implementation commit)*
 - **DEPLOY:** FF-only if proofs pass; restart only affected dashboard
 - **LIVE PROOF:** NO. Fifth C5 not executed.
 - **RESULT:** Offline correction PASS. Fourth C5 remains FAIL / false-positive READY. `READY_FOR_C6=NO`. `READY_FOR_FIFTH_C5_LIVE_PROOF=NO`. `READY_FOR_FIFTH_C5_PREFLIGHT=YES` after healthy deploy.
-- **NEW RISKS:** Axis-ambiguous grouping remains fail-closed; Motion Designer UI Request Changes exposure remains unresolved
+- **NEW RISKS:** Axis-ambiguous material grouping remains unresolved/fail-closed; Motion Designer UI Request Changes exposure remains unresolved
 - **NEXT STEP:** Read-only preflight for one NEW fifth-C5 live proof if Founder authorizes. Do not retry historical C5 tasks. Do not start C6.
 
 ---

@@ -3,8 +3,9 @@
  * Not a second public semantic owner — compileFounderFeedbackIR remains public.
  *
  * PresentationSpec is a multi-constraint contract. Compatible constraints
- * survive together. Approximate or axis-ambiguous grouping is represented
- * but is not silently promoted into a unique invented grid.
+ * survive together. Approximate cardinality is independent of material
+ * structural grouping. Axis-ambiguous material structure is recorded as
+ * unresolved and cannot silently yield overall fulfillment.
  */
 import type { ContentSectionKey } from "./RevisionIntentScope.js";
 
@@ -36,6 +37,11 @@ export type PresentationGroupingSpec = {
   column_count?: number;
   axis?: PresentationGroupingAxis;
   continue_beside?: boolean;
+  /** Cardinality / group-size only. Does not weaken structural materiality. */
+  cardinality_strength?: PresentationConstraintStrength;
+  /** True when a structural grouping/beside/column relation is requested. */
+  structure_material: boolean;
+  /** Legacy projection of cardinality_strength for existing consumers. */
   strength: PresentationConstraintStrength;
   executable: boolean;
   ambiguity?: string;
@@ -50,6 +56,8 @@ export type PresentationSpec = {
   markers?: PresentationMarkers;
   grouping?: PresentationGroupingSpec;
   compactness?: PresentationCompactnessSpec;
+  /** Material constraints that cannot be safely executed. Blocks overall fulfillment. */
+  unresolved_material?: string[];
   forbidden_arrangements: PresentationArrangement[];
   forbidden_markers: PresentationMarkers[];
   preserve: boolean;
@@ -146,6 +154,7 @@ function compileGrouping(line: string): PresentationGroupingSpec | undefined {
   const approx = /\b(?:may be|maybe|perhaps|around|about|roughly|approximately)\b/i.test(
     line,
   );
+  const illustrative = /\b(?:for example|e\.g\.|eg\.)\b/i.test(line);
   const exact = /\b(?:exactly|precisely)\b/i.test(line);
   const twoCols = /\b(?:two columns?|in two columns?)\b/i.test(line);
   const nMatch =
@@ -160,7 +169,8 @@ function compileGrouping(line: string): PresentationGroupingSpec | undefined {
   const perCol = /\bper column\b/i.test(line);
   const beside =
     /\bbeside(?: it)?\b/i.test(line) ||
-    /\bcontinue(?: it)? beside\b/i.test(line);
+    /\bcontinue(?: it)? beside\b/i.test(line) ||
+    /\bnext to\b/i.test(line);
   if (!nMatch && !beside && !inRow && !perCol && !twoCols) return undefined;
 
   const n = nMatch ? Number(nMatch[1]) : undefined;
@@ -171,28 +181,35 @@ function compileGrouping(line: string): PresentationGroupingSpec | undefined {
   else if (beside && !inRow) axis = "column";
   else if (inRow && beside) axis = undefined;
 
-  const strength: PresentationConstraintStrength =
-    exact || (twoCols && !approx) || (typeof n === "number" && !approx && axis != null)
+  const cardinality_strength: PresentationConstraintStrength =
+    exact || (typeof n === "number" && !approx && !illustrative && axis != null)
       ? "required"
       : "approximate";
-
+  const structure_material = Boolean(
+    beside || twoCols || perCol || (inRow && typeof n === "number" && !illustrative),
+  );
   const column_count = twoCols ? 2 : undefined;
   const executable =
-    strength === "required" &&
-    ((axis === "row" && typeof n === "number") ||
-      (axis === "column" && (typeof n === "number" || column_count === 2)));
+    !illustrative &&
+    (axis === "row" && typeof n === "number"
+      ? true
+      : axis === "column" &&
+          (typeof n === "number" || column_count === 2 || (beside && !inRow)));
   let ambiguity: string | undefined;
   if (!executable) {
     if (axis == null && inRow && beside) ambiguity = "row_and_beside_axis_unresolved";
-    else if (strength === "approximate") ambiguity = "cardinality_approximate";
-    else ambiguity = "grouping_underspecified";
+    else if (!structure_material && cardinality_strength === "approximate") {
+      ambiguity = "cardinality_approximate";
+    } else ambiguity = "grouping_underspecified";
   }
   return {
     items_per_group: n,
     column_count,
     axis,
     continue_beside: beside || twoCols,
-    strength,
+    cardinality_strength,
+    structure_material,
+    strength: cardinality_strength,
     executable,
     ambiguity,
   };
@@ -267,12 +284,14 @@ export function compilePresentationSpec(line: string): PresentationSpec | null {
 
   const marker = markers.includes("bullets") ? "bullets" : undefined;
   const hardLayout = Boolean(arrangement || marker);
-  const groupingBlocks =
-    grouping != null &&
-    grouping.strength === "required" &&
-    grouping.executable === false;
+  const unresolved_material: string[] = [];
+  if (ambiguity === "arrangement_conflict") {
+    unresolved_material.push("arrangement_conflict");
+  }
+  if (grouping?.structure_material && !grouping.executable) {
+    unresolved_material.push(grouping.ambiguity ?? "grouping_structure");
+  }
   const executable =
-    !groupingBlocks &&
     ambiguity !== "arrangement_conflict" &&
     (hardLayout || Boolean(grouping?.executable) || preserve);
 
@@ -299,6 +318,7 @@ export function compilePresentationSpec(line: string): PresentationSpec | null {
     markers: marker,
     grouping,
     compactness,
+    unresolved_material: unresolved_material.length ? unique(unresolved_material) : undefined,
     forbidden_arrangements: unique(forbidden_arrangements),
     forbidden_markers: unique(forbidden_markers),
     preserve,
@@ -484,6 +504,7 @@ export function presentationContractSatisfied(input: {
   spec: PresentationSpec;
 }): boolean {
   const spec = input.spec;
+  if ((spec.unresolved_material ?? []).length > 0) return false;
   if (!spec.executable && !spec.preserve) return false;
   if (spec.forbidden.includes(input.actual)) return false;
   if (spec.forbidden_arrangements.includes(input.actual as PresentationArrangement)) {
@@ -494,15 +515,22 @@ export function presentationContractSatisfied(input: {
     return false;
   }
   const grouping = spec.grouping;
-  if (grouping?.executable && grouping.strength === "required") {
+  if (grouping?.executable) {
     if (grouping.axis === "row" && grouping.items_per_group) {
       const counts = countItemsOnLines(input.texts);
       if (counts.length === 0) return false;
       const n = grouping.items_per_group;
-      const head = counts.slice(0, -1);
-      const last = counts[counts.length - 1]!;
-      if (head.some((c) => c !== n)) return false;
-      if (last > n) return false;
+      const requiredN =
+        grouping.cardinality_strength === "required" ||
+        grouping.strength === "required";
+      if (requiredN) {
+        const head = counts.slice(0, -1);
+        const last = counts[counts.length - 1]!;
+        if (head.some((c) => c !== n)) return false;
+        if (last > n) return false;
+      } else if (counts.length < 2) {
+        return false;
+      }
     }
     if (
       (grouping.axis === "column" || spec.arrangement === "columns") &&

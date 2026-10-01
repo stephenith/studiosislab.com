@@ -33,7 +33,11 @@ import {
   evaluateItemFulfillment,
 } from "./FounderFeedbackFulfillment.js";
 import { dropUnsafeGeometryOps } from "./PostContentReflow.js";
-import { findIntraBoxTextOverflowFindings } from "./RevisionAcceptanceChecks.js";
+import {
+  findIntraBoxTextOverflowFindings,
+  runCollisionBoundsCheck,
+} from "./RevisionAcceptanceChecks.js";
+import { normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
 import {
   compilePresentationSpec,
   splitLogicalItems,
@@ -1229,7 +1233,7 @@ async function main(): Promise<void> {
   );
 
   const C5_FOURTH =
-    "In the skill section, currently the skills are been displayed as horizontal pointers, but I want it to be displayed vertically so that the bottom of the resume template looks empty for this reason we can do vertical pointers, may be 3 pointers in a row and rest 3 we can continue it beside it and so on.";
+    "In the skill section, currently the skills are been displayed as horizontal pointers, but I want it to be displayed vertically so that the bottom of the resume template looks empty for this reason we can do vertical pointers, may be 3  pointers in a row and rest 3 we can continue it beside it and so on.";
   const fourthSpec = compilePresentationSpec(C5_FOURTH);
   const fourthIr = compileFounderFeedbackIR([C5_FOURTH]);
   const fourthPred = fourthIr.items[0]?.fulfillment.find((p) => p.kind === "PRESENTATION");
@@ -1240,12 +1244,22 @@ async function main(): Promise<void> {
       fourthSpec.arrangement === "vertical" &&
       fourthSpec.markers === "bullets" &&
       fourthSpec.desired !== undefined &&
-      fourthSpec.grouping?.strength === "approximate" &&
+      fourthSpec.grouping?.cardinality_strength === "approximate" &&
+      fourthSpec.grouping.strength === "approximate" &&
+      fourthSpec.grouping.structure_material === true &&
+      fourthSpec.grouping.continue_beside === true &&
       fourthSpec.grouping.executable === false &&
+      fourthSpec.grouping.ambiguity === "row_and_beside_axis_unresolved" &&
+      (fourthSpec.unresolved_material ?? []).includes(
+        "row_and_beside_axis_unresolved",
+      ) &&
       fourthSpec.compactness?.strength === "context" &&
       fourthSpec.executable === true &&
       fourthPred?.presentation_spec?.arrangement === "vertical" &&
-      fourthPred.presentation_spec?.markers === "bullets",
+      fourthPred.presentation_spec?.markers === "bullets" &&
+      (fourthPred.presentation_spec?.unresolved_material ?? []).includes(
+        "row_and_beside_axis_unresolved",
+      ),
     "c5_fourth_structured_presentation_not_bullets_only",
     JSON.stringify({
       spec: fourthSpec,
@@ -1333,15 +1347,18 @@ async function main(): Promise<void> {
     appliedItems.length === 7 &&
       appliedItems.includes("Python (Pandas, NumPy)") &&
       Number(appliedBody?.height ?? 0) > 47 &&
-      afterClip.length === 0 &&
-      fourthFulfilled.pass === true,
-    "c5_fourth_correct_state_passes",
+      afterClip.length === 0,
+    "c5_fourth_vertical_execution_preserves_atomicity",
     JSON.stringify({
       items: appliedItems,
       height: appliedBody?.height,
       clip: afterClip.length,
-      notes: fourthFulfilled.notes,
     }),
+  );
+  assert(
+    fourthFulfilled.pass === false,
+    "c5_fourth_vertical_bullets_only_not_overall_pass",
+    fourthFulfilled.notes,
   );
   const bulletOnlyClipped = JSON.parse(
     JSON.stringify(fourthApplied),
@@ -1457,6 +1474,224 @@ async function main(): Promise<void> {
         .pass === true,
     "presentation_two_columns_executed",
     presentEval("Arrange the skills in two columns", skillsInline, twoCol).notes,
+  );
+
+  const approxRow = "Display the skills as maybe 3 items per row";
+  const approxRowSpec = compilePresentationSpec(approxRow);
+  const approxRowIr = compileFounderFeedbackIR([approxRow]);
+  const approxRowApplied = applyPresentationMutations(compoundSkills, approxRowIr);
+  const approxRowEval = evaluateItemFulfillment({
+    item: approxRowIr.items[0]!,
+    beforeCanvas: compoundSkills,
+    afterCanvas: approxRowApplied,
+  });
+  assert(
+    approxRowSpec?.grouping?.cardinality_strength === "approximate" &&
+      approxRowSpec.grouping.structure_material === true &&
+      approxRowSpec.grouping.executable === true &&
+      (approxRowSpec.unresolved_material ?? []).length === 0 &&
+      approxRowEval.pass === true,
+    "approximate_cardinality_plus_executable_grouping_passes",
+    JSON.stringify({ spec: approxRowSpec, notes: approxRowEval.notes }),
+  );
+
+  const approxOnly = "Display the skills as vertical pointers, maybe 3 per group";
+  const approxOnlySpec = compilePresentationSpec(approxOnly);
+  const approxOnlyIr = compileFounderFeedbackIR([approxOnly]);
+  const approxOnlyApplied = applyPresentationMutations(compoundSkills, approxOnlyIr);
+  const approxOnlyEval = evaluateItemFulfillment({
+    item: approxOnlyIr.items[0]!,
+    beforeCanvas: compoundSkills,
+    afterCanvas: approxOnlyApplied,
+  });
+  assert(
+    approxOnlySpec?.arrangement === "vertical" &&
+      approxOnlySpec.markers === "bullets" &&
+      approxOnlySpec.grouping?.cardinality_strength === "approximate" &&
+      approxOnlySpec.grouping.structure_material === false &&
+      approxOnlySpec.grouping.executable === false &&
+      (approxOnlySpec.unresolved_material ?? []).length === 0 &&
+      approxOnlyEval.pass === true,
+    "approximate_cardinality_without_material_grouping_nonblocking",
+    JSON.stringify({ spec: approxOnlySpec, notes: approxOnlyEval.notes }),
+  );
+
+  const exampleRow =
+    "Display the skills as vertical pointers, for example 3 items per row";
+  const exampleSpec = compilePresentationSpec(exampleRow);
+  const exampleIr = compileFounderFeedbackIR([exampleRow]);
+  const exampleApplied = applyPresentationMutations(compoundSkills, exampleIr);
+  const exampleEval = evaluateItemFulfillment({
+    item: exampleIr.items[0]!,
+    beforeCanvas: compoundSkills,
+    afterCanvas: exampleApplied,
+  });
+  assert(
+    exampleSpec?.grouping?.cardinality_strength === "approximate" &&
+      exampleSpec.grouping.structure_material === false &&
+      exampleSpec.grouping.executable === false &&
+      (exampleSpec.unresolved_material ?? []).length === 0 &&
+      exampleEval.pass === true,
+    "illustrative_example_language_nonblocking",
+    JSON.stringify({ spec: exampleSpec, notes: exampleEval.notes }),
+  );
+
+  const contextOnly =
+    "Display the skills as vertical pointers so that the bottom of the resume template looks empty";
+  const contextSpec = compilePresentationSpec(contextOnly);
+  const contextIr = compileFounderFeedbackIR([contextOnly]);
+  const contextApplied = applyPresentationMutations(compoundSkills, contextIr);
+  const contextEval = evaluateItemFulfillment({
+    item: contextIr.items[0]!,
+    beforeCanvas: compoundSkills,
+    afterCanvas: contextApplied,
+  });
+  assert(
+    contextSpec?.compactness?.strength === "context" &&
+      (contextSpec.unresolved_material ?? []).length === 0 &&
+      contextEval.pass === true,
+    "context_only_explanation_nonblocking",
+    JSON.stringify({ spec: contextSpec, notes: contextEval.notes }),
+  );
+
+  const hardPlusSoft =
+    "Display the skills as vertical pointers, around 3 items if possible";
+  const hardSoftSpec = compilePresentationSpec(hardPlusSoft);
+  const hardSoftIr = compileFounderFeedbackIR([hardPlusSoft]);
+  const hardSoftApplied = applyPresentationMutations(compoundSkills, hardSoftIr);
+  const hardSoftEval = evaluateItemFulfillment({
+    item: hardSoftIr.items[0]!,
+    beforeCanvas: compoundSkills,
+    afterCanvas: hardSoftApplied,
+  });
+  assert(
+    hardSoftSpec?.arrangement === "vertical" &&
+      hardSoftSpec.markers === "bullets" &&
+      (hardSoftSpec.unresolved_material ?? []).length === 0 &&
+      hardSoftEval.pass === true,
+    "hard_constraint_plus_soft_preference_passes",
+    JSON.stringify({ spec: hardSoftSpec, notes: hardSoftEval.notes }),
+  );
+
+  const hardPlusUnresolved =
+    "Display the skills as vertical pointers and continue the remaining items next to the first group in a row";
+  const hardUnresolvedSpec = compilePresentationSpec(hardPlusUnresolved);
+  const hardUnresolvedIr = compileFounderFeedbackIR([hardPlusUnresolved]);
+  const hardUnresolvedApplied = applyPresentationMutations(
+    compoundSkills,
+    hardUnresolvedIr,
+  );
+  const hardUnresolvedEval = evaluateItemFulfillment({
+    item: hardUnresolvedIr.items[0]!,
+    beforeCanvas: compoundSkills,
+    afterCanvas: hardUnresolvedApplied,
+  });
+  assert(
+    hardUnresolvedSpec?.grouping?.structure_material === true &&
+      hardUnresolvedSpec.grouping.executable === false &&
+      (hardUnresolvedSpec.unresolved_material ?? []).length > 0 &&
+      hardUnresolvedEval.pass === false,
+    "hard_constraint_plus_unresolved_material_fails_closed",
+    JSON.stringify({
+      spec: hardUnresolvedSpec,
+      notes: hardUnresolvedEval.notes,
+    }),
+  );
+
+  const parentPath = join(
+    REPO,
+    "SOS/SAIOS/core/founder-revision/fixtures/fourth-c5-research-assistant-parent-canvas.json",
+  );
+  const childPath = join(
+    REPO,
+    "SOS/SAIOS/core/founder-revision/fixtures/fourth-c5-research-assistant-child-canvas.json",
+  );
+  const realParent = JSON.parse(readFileSync(parentPath, "utf8")) as FabricCanvasDoc;
+  const realChild = JSON.parse(readFileSync(childPath, "utf8")) as FabricCanvasDoc;
+  const parentSkillsText = String(
+    ((realParent.objects ?? []).find(
+      (o) => (o as { id?: string }).id === "block-skills-4-t2",
+    ) as { text?: string } | undefined)?.text ?? "",
+  );
+  const parentItems = splitLogicalItems(parentSkillsText);
+  const realParentIr = compileFounderFeedbackIR([C5_FOURTH]);
+  const stateA = evaluateItemFulfillment({
+    item: realParentIr.items[0]!,
+    beforeCanvas: realParent,
+    afterCanvas: realParent,
+  });
+  const stateBCanvas = applyPresentationMutations(realParent, realParentIr);
+  const stateBBody = (stateBCanvas.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "block-skills-4-t2",
+  ) as { text?: string; height?: number };
+  const stateBItems = splitLogicalItems(String(stateBBody?.text ?? ""));
+  const stateBClip = findIntraBoxTextOverflowFindings(stateBCanvas).filter(
+    (f) => Number(f.metrics?.stored_height ?? 0) > 1,
+  );
+  const stateB = evaluateItemFulfillment({
+    item: realParentIr.items[0]!,
+    beforeCanvas: realParent,
+    afterCanvas: stateBCanvas,
+  });
+  const stateBNorm = normalizeRevisionLayout({
+    canvas: stateBCanvas,
+    prior_canvas: realParent,
+    requested_changes: [C5_FOURTH],
+  });
+  const stateBGeom = runCollisionBoundsCheck(stateBNorm.canvas, C5_FOURTH);
+  const stateD = evaluateItemFulfillment({
+    item: realParentIr.items[0]!,
+    beforeCanvas: realParent,
+    afterCanvas: realChild,
+  });
+  const childItems = splitLogicalItems(
+    String(
+      ((realChild.objects ?? []).find(
+        (o) => (o as { id?: string }).id === "block-skills-4-t2",
+      ) as { text?: string } | undefined)?.text ?? "",
+    ),
+  );
+  assert(
+    parentItems.length === 7 &&
+      parentItems[0] === "SPSS" &&
+      parentItems[1] === "Python (Pandas, NumPy)" &&
+      parentItems[6] === "Research Protocol Development",
+    "fourth_c5_real_parent_skill_items",
+    JSON.stringify(parentItems),
+  );
+  assert(stateA.pass === false, "fourth_c5_state_a_original_fails", stateA.notes);
+  assert(
+    stateBItems.length === 7 &&
+      stateBItems[1] === "Python (Pandas, NumPy)" &&
+      stateBItems.every((item, i) => item === parentItems[i]) &&
+      Number(stateBBody?.height ?? 0) > 47 &&
+      stateBClip.length === 0 &&
+      stateB.pass === false,
+    "fourth_c5_state_b_vertical_only_not_overall_pass",
+    JSON.stringify({
+      items: stateBItems,
+      height: stateBBody?.height,
+      clip: stateBClip.length,
+      notes: stateB.notes,
+    }),
+  );
+  assert(
+    stateBNorm.report.page_fit?.fit_pass === true &&
+      stateBNorm.report.page_overflow === false &&
+      stateBGeom.pass === true,
+    "fourth_c5_real_parent_geometry_after_normalize",
+    JSON.stringify({
+      fit: stateBNorm.report.page_fit,
+      overflow: stateBNorm.report.page_overflow,
+      geom: stateBGeom.reason,
+      findings: stateBGeom.findings.map((f) => f.code),
+    }),
+  );
+  assert(
+    stateD.pass === false &&
+      (childItems.includes("Python (Pandas") || childItems.includes("NumPy)")),
+    "fourth_c5_state_d_bad_child_fails",
+    JSON.stringify({ notes: stateD.notes, items: childItems }),
   );
 
   for (const id of HISTORICAL) {

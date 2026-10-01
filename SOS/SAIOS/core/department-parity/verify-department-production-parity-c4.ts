@@ -1390,7 +1390,7 @@ async function main(): Promise<void> {
   );
 
   const C5_FOURTH =
-    "In the skill section, currently the skills are been displayed as horizontal pointers, but I want it to be displayed vertically so that the bottom of the resume template looks empty for this reason we can do vertical pointers, may be 3 pointers in a row and rest 3 we can continue it beside it and so on.";
+    "In the skill section, currently the skills are been displayed as horizontal pointers, but I want it to be displayed vertically so that the bottom of the resume template looks empty for this reason we can do vertical pointers, may be 3  pointers in a row and rest 3 we can continue it beside it and so on.";
   const fourthSpec = compilePresentationSpec(C5_FOURTH);
   const fourthItem = compileFounderFeedbackIR([C5_FOURTH]).items[0]!;
   const fourthSkills = page([
@@ -1452,7 +1452,11 @@ async function main(): Promise<void> {
     fourthSpec?.arrangement === "vertical" &&
       fourthSpec.markers === "bullets" &&
       fourthSpec.grouping?.strength === "approximate" &&
+      fourthSpec.grouping.structure_material === true &&
       fourthSpec.grouping.executable === false &&
+      (fourthSpec.unresolved_material ?? []).includes(
+        "row_and_beside_axis_unresolved",
+      ) &&
       fourthSpec.compactness?.strength === "context" &&
       fourthSpec.executable === true,
     "c4_structured_presentation_multi_constraint",
@@ -1472,7 +1476,11 @@ async function main(): Promise<void> {
     String(fourthBody?.height),
   );
   assert(fourthUnchanged.pass === false, "c4_fourth_unchanged_blocked", fourthUnchanged.notes);
-  assert(fourthOk.pass === true, "c4_fourth_correct_fulfillment", fourthOk.notes);
+  assert(
+    fourthOk.pass === false,
+    "c4_fourth_vertical_only_unresolved_material_blocked",
+    fourthOk.notes,
+  );
   assert(fourthClipEval.pass === false, "c4_clipping_coverage", fourthClipEval.notes);
   assert(
     fourthSplitEval.pass === false,
@@ -1527,6 +1535,38 @@ async function main(): Promise<void> {
       }).pass === false,
     "c4_ambiguity_coverage",
     JSON.stringify(ambiguousSpec),
+  );
+  const approxOnlyLine =
+    "Display the skills as vertical pointers, maybe 3 per group";
+  const approxOnlySpec = compilePresentationSpec(approxOnlyLine);
+  const approxOnlyApplied = applyPresentationMutations(
+    fourthSkills,
+    compileFounderFeedbackIR([approxOnlyLine]),
+  );
+  assert(
+    approxOnlySpec?.grouping?.structure_material === false &&
+      (approxOnlySpec.unresolved_material ?? []).length === 0 &&
+      evaluateItemFulfillment({
+        item: compileFounderFeedbackIR([approxOnlyLine]).items[0]!,
+        beforeCanvas: fourthSkills,
+        afterCanvas: approxOnlyApplied,
+      }).pass === true,
+    "c4_approximate_cardinality_nonblocking",
+    JSON.stringify(approxOnlySpec),
+  );
+  const unresolvedLine =
+    "Display the skills as vertical pointers and continue the remaining items next to the first group in a row";
+  const unresolvedSpec = compilePresentationSpec(unresolvedLine);
+  assert(
+    unresolvedSpec?.grouping?.structure_material === true &&
+      (unresolvedSpec.unresolved_material ?? []).length > 0 &&
+      evaluateItemFulfillment({
+        item: compileFounderFeedbackIR([unresolvedLine]).items[0]!,
+        beforeCanvas: fourthSkills,
+        afterCanvas: fourthApplied,
+      }).pass === false,
+    "c4_unresolved_material_fails_closed",
+    JSON.stringify(unresolvedSpec),
   );
 
   const C5_THIRD =

@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PROJECT-WIDE / RESUME \u2014 POST-FOURTH-C5 OFFLINE CORRECTION 2026-10-01. Two owners. IR founder-feedback-ir-1.4.0 multi-constraint structured presentation; approximate/ambiguous grouping fail-closed; compactness purpose remains context. Deterministic presentation preserves nest-aware logical items, syncs text-box height, and fails intra-box overflow. Existing overlay marks cand-student-research-assistant-20261001T032029Z-194bdf-revfb-71bd11 AUDIT_INVALID / NOT_DECISIONABLE; historical revtask-0d58e039-326 READY unchanged. Offline: C1 PASS; C2 PASS; C3 PASS; C4 PASS; actionability PASS. Historical first/second/third/fourth C5 tasks not mutated. No production OpenAI, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY changes. READY_FOR_C6=NO. Fifth live proof NOT RUN. Next: read-only preflight for one NEW fifth-C5 live proof if Founder authorizes. Website Department remains the next major product department and is not activated.",
+    "PROJECT-WIDE / RESUME \u2014 IR 1.4.1 MATERIAL PRESENTATION CONSTRAINT CORRECTION 2026-10-01. IR 1.4.0 at b8cf882 fixed atomicity/height/clipping but post-deploy verification found approximate cardinality still weakened material continue-beside/grouping; synthetic C1/C4 skill list is not the real fourth-C5 parent. IR 1.4.1 distinguishes cardinality_strength from structure_material; unresolved_material blocks overall Founder-item fulfillment; no invented grid. Real parent cand-student-research-assistant-20261001T032029Z-194bdf replayed offline. Overlay still marks cand-student-research-assistant-20261001T032029Z-194bdf-revfb-71bd11 AUDIT_INVALID / NOT_DECISIONABLE; historical revtask-0d58e039-326 READY unchanged. Offline: C1 PASS; C2 PASS; C3 PASS; C4 PASS; actionability PASS. Historical first/second/third/fourth C5 tasks not mutated. No production OpenAI, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY changes. READY_FOR_C6=NO. READY_FOR_FIFTH_C5_LIVE_PROOF=NO. Fifth live proof NOT RUN. Next: read-only preflight for one NEW fifth-C5 live proof if Founder authorizes. Website Department remains the next major product department and is not activated.",
     "NEXT DEPARTMENT \u2014 Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B \u2014 Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B \u2014 Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back \u2014 snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-10-01T13:00:42.000Z",
+      "type": "consolidation_ir_1_4_1_material_constraint",
+      "summary": "IR 1.4.1 material presentation constraint correction. Local wall=2026-10-01T18:30:42+05:30. UTC=2026-10-01T13:00:42.000Z. IR 1.4.0 at b8cf882 did not itself pass this gate: approximate cardinality shared grouping strength with material structure, so vertical bullets could PASS while continue-beside stayed unresolved. Synthetic C1/C4 Research/Literature list is not the real parent. 1.4.1 splits cardinality from structure_material; unresolved_material fail-closes overall fulfillment; real parent SPSS / Python (Pandas, NumPy) / Microsoft Excel / Participant Recruitment / Survey Design / Data Cleaning and Analysis / Research Protocol Development replayed. Overlay on ...-194bdf-revfb-71bd11 unchanged. Offline: C1 PASS; C2 PASS; C3 PASS; C4 PASS; actionability PASS. Historical fd-eaa0beaa-6fc / revtask-0d58e039-326 and earlier C5 tasks not mutated. generated_at envelope left at 2026-07-11T23:31:33.456Z. No production OpenAI, generation, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY changes. READY_FOR_C6=NO. Fifth live proof NOT RUN."
+    },
     {
       "at": "2026-10-01T11:16:19.000Z",
       "type": "consolidation_c5_fourth_offline_correction",
@@ -3450,7 +3455,7 @@
     "operationally_complete_currently_asserted": false,
     "revision_engineering_status": "CONSOLIDATION_REQUIRED",
     "next_major_department": "Website Analysis / QA / Development",
-    "next_authorized_step": "Read-only preflight for one NEW fourth-C5 live proof if Founder authorizes (do not retry revtask-3f5b2339-73e or earlier C5 tasks; do not start C6)",
+    "next_authorized_step": "Read-only preflight for one NEW fifth-C5 live proof if Founder authorizes (do not retry revtask-0d58e039-326 or earlier C5 tasks; do not start C6; READY_FOR_FIFTH_C5_LIVE_PROOF=NO)",
     "consolidation_plan": {
       "recorded_at_ist": "2026-09-29T15:22:52+05:30",
       "recorded_at_utc": "2026-09-29T09:52:52.100Z",
@@ -3486,10 +3491,20 @@
       "c1_c4_fulfillment_correction_status": "IMPLEMENTED_OFFLINE",
       "c1_c4_fulfillment_correction_at_ist": "2026-09-30T15:23:42+05:30",
       "c1_c4_fulfillment_correction_at_utc": "2026-09-30T09:53:42.000Z",
-      "ir_schema_after": "founder-feedback-ir-1.3.0",
+      "ir_schema_after": "founder-feedback-ir-1.4.1",
       "ready_for_c6": false,
-      "ready_for_new_live_proof": true,
-      "ready_for_fourth_c5_live_proof": true,
+      "ready_for_new_live_proof": false,
+      "ready_for_fourth_c5_live_proof": false,
+      "ready_for_fifth_c5_preflight": true,
+      "ready_for_fifth_c5_live_proof": false,
+      "c5_fourth_status": "LIVE_PROOF_FAIL_FALSE_POSITIVE_READY",
+      "c5_fourth_decision_id": "fd-eaa0beaa-6fc",
+      "c5_fourth_task_id": "revtask-0d58e039-326",
+      "c5_fourth_result": "FAIL",
+      "ir_1_4_0_status": "DEPLOYED_THEN_POST_DEPLOY_GAP_FOUND",
+      "ir_1_4_1_status": "IMPLEMENTED_OFFLINE",
+      "ir_1_4_1_at_ist": "2026-10-01T18:30:42+05:30",
+      "ir_1_4_1_at_utc": "2026-10-01T13:00:42.000Z",
       "third_c5_offline_correction_status": "IMPLEMENTED_OFFLINE",
       "third_c5_offline_correction_at_ist": "2026-10-01T15:06:31+05:30",
       "third_c5_offline_correction_at_utc": "2026-10-01T09:36:31.000Z",
@@ -3521,20 +3536,21 @@
       "revtask-76a04a21-6ff",
       "revtask-863f67a5-790",
       "revtask-4a0c006c-507",
-      "revtask-3f5b2339-73e"
+      "revtask-3f5b2339-73e",
+      "revtask-0d58e039-326"
     ],
-    "snapshot_ist": "2026-10-01T15:06:31+05:30",
-    "snapshot_utc": "2026-10-01T09:36:31.000Z",
+    "snapshot_ist": "2026-10-01T18:30:42+05:30",
+    "snapshot_utc": "2026-10-01T13:00:42.000Z",
     "heads": {
-      "local": "46a237a05fcacd7799b42098bad5050b2e12469f",
-      "origin": "46a237a05fcacd7799b42098bad5050b2e12469f",
-      "vps": "46a237a05fcacd7799b42098bad5050b2e12469f"
+      "local": "b8cf8823f007076c5992cfb8711ee020265e38dc",
+      "origin": "b8cf8823f007076c5992cfb8711ee020265e38dc",
+      "vps": "b8cf8823f007076c5992cfb8711ee020265e38dc"
     }
   },
   "studiosislab_project": {
     "master_doc": "SOS/STUDIOSISLAB_PROJECT_MASTER.md",
     "resume_template_department_master_doc": "SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md",
-    "current_priority": "Resume Template consolidation \u2014 third C5 FAIL immutable; post-third-C5 offline correction implemented; fourth live proof not run",
+    "current_priority": "Resume Template consolidation \u2014 fourth C5 FAIL / false-positive READY immutable; IR 1.4.1 material-constraint correction implemented; fifth live proof not run",
     "resume_template_department_current_status": "CONSOLIDATION_REQUIRED",
     "core_resume_template_factory_goal_met": true,
     "operationally_complete_currently_asserted": false,
@@ -3546,12 +3562,12 @@
       "Revenue / Monetization",
       "AIOS System Audit / Optimization"
     ],
-    "snapshot_ist": "2026-10-01T15:06:31+05:30",
-    "snapshot_utc": "2026-10-01T09:36:31.000Z",
+    "snapshot_ist": "2026-10-01T18:30:42+05:30",
+    "snapshot_utc": "2026-10-01T13:00:42.000Z",
     "heads": {
-      "local": "46a237a05fcacd7799b42098bad5050b2e12469f",
-      "origin": "46a237a05fcacd7799b42098bad5050b2e12469f",
-      "vps": "46a237a05fcacd7799b42098bad5050b2e12469f"
+      "local": "b8cf8823f007076c5992cfb8711ee020265e38dc",
+      "origin": "b8cf8823f007076c5992cfb8711ee020265e38dc",
+      "vps": "b8cf8823f007076c5992cfb8711ee020265e38dc"
     }
   }
 }

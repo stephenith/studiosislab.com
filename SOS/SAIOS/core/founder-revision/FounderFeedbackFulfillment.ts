@@ -1323,7 +1323,6 @@ export function applyPresentationMutations(
         removeSectionBodies(clone, next, predicate.section);
       } else if (
         grouping?.executable &&
-        grouping.strength === "required" &&
         grouping.axis === "row" &&
         grouping.items_per_group
       ) {

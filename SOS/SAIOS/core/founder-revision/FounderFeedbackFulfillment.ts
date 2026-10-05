@@ -88,6 +88,7 @@ export type ReferenceSpec =
   | { kind: "header_name" }
   | { kind: "header_name_only" }
   | { kind: "section"; section: ContentSectionKey }
+  | { kind: "body_content" }
   | { kind: "visual"; descriptor: TargetDescriptor };
 
 export type RelationalAlignmentSpec = {
@@ -118,6 +119,8 @@ export type FulfillmentPredicate = {
   range?: SectionRangeSpec;
   reference?: ReferenceSpec;
   alignment?: RelationalAlignmentSpec;
+  /** Multiple related targets for one relational contract (name + title + contact). */
+  targets?: TargetDescriptor[];
   /** Compiled desired phrases. Downstream measures these; it does not re-parse English. */
   present_phrases?: string[];
   /** Compiled banned / removed phrases. */
@@ -244,16 +247,118 @@ export function compileSectionRange(text: string): SectionRangeSpec | undefined 
 export function compileReferenceSpec(text: string): ReferenceSpec | undefined {
   const n = text.toLowerCase();
   if (
+    /\b(?:as|like|match(?:ing)?|with)\b[\s\S]{0,96}?\b(?:main\s+)?(?:resume\s+)?body(?:\s+content)?\b/.test(
+      n,
+    ) ||
+    /\b(?:as|like|match(?:ing)?|with)\b[\s\S]{0,96}?\b(?:main|body)\s+content\b/.test(
+      n,
+    )
+  ) {
+    return { kind: "body_content" };
+  }
+  if (
     /\b(?:as|like|match(?:ing)?|with)\b/.test(n) &&
-    /\b(?:top\s+name|name\s+section|header|heading at the top)\b/.test(n)
+    /\b(?:top\s+name|name\s+section|heading at the top)\b/.test(n)
   ) {
     return { kind: "header_name" };
   }
-  const asIdx = n.search(/\b(?:as|like|to match|matching)\b/);
+  const asIdx = n.search(/\b(?:as|like|to match|matching|with)\b/);
   if (asIdx < 0) return undefined;
+  const afterText = n.slice(asIdx);
+  if (/\bheader\b/.test(afterText) && !/\bheader content\b/.test(afterText)) {
+    return { kind: "header_name" };
+  }
   const after = sectionNounHits(n).filter((h) => h.index >= asIdx);
   if (after[0]) return { kind: "section", section: after[0].key };
   return undefined;
+}
+
+function compileProtectedVisual(text: string): ReferenceSpec | undefined {
+  const n = text.toLowerCase();
+  if (!/\b(?:keep(?:ing)?|preserv(?:e|ing)|retain(?:ing)?)\b/.test(n)) {
+    return undefined;
+  }
+  if (/\b(?:vertical\s+)?(?:line|rail|rule|divider)\b/.test(n)) {
+    return {
+      kind: "visual",
+      descriptor: { shape: "line", orientation: "vertical" },
+    };
+  }
+  return undefined;
+}
+
+function compileAlignmentTargets(text: string): TargetDescriptor[] {
+  const n = text.toLowerCase();
+  const out: TargetDescriptor[] = [];
+  const nameIsReferenceOnly =
+    /\b(?:name section|name placement|top name)\b/.test(n) &&
+    !/\bthe name\b/.test(n) &&
+    !/\bname,/.test(n);
+  if (
+    !nameIsReferenceOnly &&
+    (/\bthe name\b/.test(n) ||
+      /\bname,/.test(n) ||
+      (/\bname\b/.test(n) &&
+        /\b(?:job title|contact|header content)\b/.test(n)))
+  ) {
+    out.push({ role: "name", shape: "text", section: "header" });
+  }
+  if (/\b(?:job title|professional title|position title|role title)\b/.test(n)) {
+    out.push({ role: "professional_title", shape: "text" });
+  }
+  if (/\bcontact\b/.test(n)) {
+    out.push({ role: "contact", shape: "text", section: "header" });
+  }
+  if (out.length === 0 && /\bheader content\b/.test(n)) {
+    out.push(
+      { role: "name", shape: "text", section: "header" },
+      { role: "professional_title", shape: "text" },
+      { role: "contact", shape: "text", section: "header" },
+    );
+  }
+  return out;
+}
+
+/**
+ * Group move / align-to-reference / keep-protected-object.
+ * Does not own below/above/beside visual placement.
+ */
+export function compileGroupAlignment(text: string):
+  | {
+      alignment: RelationalAlignmentSpec;
+      reference: ReferenceSpec;
+      targets: TargetDescriptor[];
+      preserve?: ReferenceSpec;
+    }
+  | undefined {
+  if (compileRelativePlacement(text)) return undefined;
+  const n = text.toLowerCase();
+  const hasMove = /\b(?:move|place|put|position|shift|reposition)\b/.test(n);
+  const hasAlign = /\balign(?:s|ing|ed)?\b/.test(n);
+  if (
+    !hasAlign &&
+    !(hasMove && /\b(?:to the right|to the left|rightward|leftward)\b/.test(n))
+  ) {
+    return undefined;
+  }
+  const targets = compileAlignmentTargets(text);
+  if (targets.length === 0) return undefined;
+  const reference = compileReferenceSpec(text);
+  if (!reference) return undefined;
+  let edge: RelationalAlignmentSpec["edge"] = "left";
+  if (/\bright(?:-align)?\b/.test(n) && !/\bleft\b/.test(n)) edge = "right";
+  else if (/\bleft\b/.test(n)) edge = "left";
+  return {
+    targets,
+    reference,
+    preserve: compileProtectedVisual(text),
+    alignment: {
+      axis: "horizontal",
+      edge,
+      relation: "align",
+      tolerance_px: RELATIONAL_ALIGNMENT_TOLERANCE_PX,
+    },
+  };
 }
 
 function inferredSingletonRange(
@@ -495,16 +600,19 @@ export function predicatesForItem(
     });
   }
   const relative = compileRelativePlacement(line);
-  const relational = relative ?? compileRelationalAlignment(line);
+  const group = compileGroupAlignment(line);
+  const relational = relative ?? group ?? compileRelationalAlignment(line);
   if (relational) {
     out.push({
       kind: "RELATIONAL_ALIGNMENT",
       required: true,
       target: "target" in relational ? relational.target : undefined,
-      range: relative
-        ? undefined
-        : compileSectionRange(line) ??
-          inferredSingletonRange(line, relational.reference),
+      targets: "targets" in relational ? relational.targets : undefined,
+      range:
+        relative || group
+          ? undefined
+          : compileSectionRange(line) ??
+            inferredSingletonRange(line, relational.reference),
       reference: relational.reference,
       alignment: relational.alignment,
       preserve: "preserve" in relational ? relational.preserve : undefined,
@@ -650,11 +758,61 @@ function objBottom(o: CanvasObj): number {
   return Number(o.top ?? 0) + Number(o.height ?? 0);
 }
 
+function isContactText(text: string): boolean {
+  return /@|\d{3}[-.\s]?\d{3}|linkedin|\.com|https?:/i.test(text);
+}
+
+function bindHeaderGroupRole(
+  canvas: FabricCanvasDoc,
+  role: "name" | "contact" | "professional_title",
+): string[] {
+  const rows: Array<{ id: string; top: number; text: string; role: string }> =
+    [];
+  objectsOf(canvas).forEach((o, i) => {
+    if (isLockedSystemObject(o)) return;
+    const type = String(o.type ?? "").toLowerCase();
+    if (!type.includes("text")) return;
+    const sec = objSection(o);
+    if (sec && sec !== "header") return;
+    if (!sec && objectTop(o) > 200) return;
+    const text = objText(o);
+    if (!text) return;
+    rows.push({
+      id: objId(o, i),
+      top: objectTop(o),
+      text,
+      role: objRole(o),
+    });
+  });
+  rows.sort((a, b) => a.top - b.top);
+  const contacts = rows.filter(
+    (r) => r.role === "contact" || isContactText(r.text),
+  );
+  const rest = rows.filter((r) => !contacts.includes(r));
+  if (role === "contact") return contacts.map((r) => r.id);
+  if (role === "name") {
+    const named = rest.find((r) => r.role === "name");
+    return named ? [named.id] : rest[0] ? [rest[0].id] : [];
+  }
+  const titled = rest.find((r) =>
+    /\b(?:professional_title|job_title)\b/.test(r.role),
+  );
+  if (titled) return [titled.id];
+  return rest[1] ? [rest[1].id] : [];
+}
+
 export function bindTargetDescriptor(
   canvas: FabricCanvasDoc,
   target: TargetDescriptor | undefined,
 ): string[] {
   if (!target) return [];
+  if (
+    target.role === "name" ||
+    target.role === "contact" ||
+    target.role === "professional_title"
+  ) {
+    return bindHeaderGroupRole(canvas, target.role);
+  }
   const pageW = Number(canvas.width ?? 794);
   const scored: Array<{ id: string; score: number }> = [];
   objectsOf(canvas).forEach((o, i) => {
@@ -809,6 +967,18 @@ export function bindReferenceIds(
   if (reference.kind === "visual") {
     return bindTargetDescriptor(canvas, reference.descriptor);
   }
+  if (reference.kind === "body_content") {
+    const ids: string[] = [];
+    objectsOf(canvas).forEach((o, i) => {
+      if (isLockedSystemObject(o)) return;
+      const type = String(o.type ?? "").toLowerCase();
+      if (!type.includes("text")) return;
+      const sec = objSection(o);
+      if (!sec || sec === "header") return;
+      ids.push(objId(o, i));
+    });
+    return ids;
+  }
   const ids: string[] = [];
   objectsOf(canvas).forEach((o, i) => {
     if (isLockedSystemObject(o)) return;
@@ -844,6 +1014,11 @@ function bindRelativeTargetIds(
   canvas: FabricCanvasDoc,
   predicate: FulfillmentPredicate,
 ): string[] {
+  if (predicate.targets && predicate.targets.length > 0) {
+    const groups = predicate.targets.map((t) => bindTargetDescriptor(canvas, t));
+    if (groups.some((g) => g.length === 0)) return [];
+    return [...new Set(groups.flat())];
+  }
   if (
     predicate.target &&
     (predicate.target.quoted_text ||
@@ -1113,12 +1288,33 @@ function evaluatePredicate(
     const afterBy = new Map(
       objectsOf(after).map((o, i) => [objId(o, i), o] as const),
     );
-    const referenceMoved = referenceIds.some((id) => {
-      const a = afterBy.get(id);
-      const b = beforeBy.get(id);
-      if (!a || !b) return true;
-      return objectLeft(a) !== objectLeft(b) || objectTop(a) !== objectTop(b);
-    });
+    const referenceMoved =
+      predicate.reference.kind === "body_content"
+        ? (() => {
+            const beforeRefs = bindReferenceIds(before, predicate.reference)
+              .map((id) => beforeBy.get(id))
+              .filter((o): o is CanvasObj => Boolean(o));
+            const afterRefs = referenceIds
+              .map((id) => afterBy.get(id))
+              .filter((o): o is CanvasObj => Boolean(o));
+            const beforeEdge = edgeValue(beforeRefs, alignment.edge);
+            const afterEdge = edgeValue(afterRefs, alignment.edge);
+            return (
+              beforeEdge != null &&
+              afterEdge != null &&
+              Math.abs(beforeEdge - afterEdge) > 0.51
+            );
+          })()
+        : referenceIds
+            .filter((id) => beforeBy.has(id))
+            .some((id) => {
+              const a = afterBy.get(id);
+              const b = beforeBy.get(id);
+              if (!a || !b) return true;
+              return (
+                objectLeft(a) !== objectLeft(b) || objectTop(a) !== objectTop(b)
+              );
+            });
     if (referenceMoved) {
       return {
         pass: false,
@@ -1212,25 +1408,45 @@ function evaluatePredicate(
         notes: "relational alignment changed vertical structure",
       };
     }
-    const beforeSig = relativeLeftSignature(before, targetIds);
-    const afterSig = relativeLeftSignature(after, targetIds);
-    const offsetsPreserved =
-      beforeSig.length === afterSig.length &&
-      beforeSig.every((v, i) => Math.abs(v - (afterSig[i] ?? 99)) <= 0.51);
-    if (!offsetsPreserved) {
-      return {
-        pass: false,
-        ids: targetIds,
-        notes: "relational alignment flattened internal offsets",
-      };
+    const grouped = Boolean(predicate.targets && predicate.targets.length > 0);
+    if (!grouped) {
+      const beforeSig = relativeLeftSignature(before, targetIds);
+      const afterSig = relativeLeftSignature(after, targetIds);
+      const offsetsPreserved =
+        beforeSig.length === afterSig.length &&
+        beforeSig.every((v, i) => Math.abs(v - (afterSig[i] ?? 99)) <= 0.51);
+      if (!offsetsPreserved) {
+        return {
+          pass: false,
+          ids: targetIds,
+          notes: "relational alignment flattened internal offsets",
+        };
+      }
     }
     const targetObjs = targetBaselineObjects(after, targetIds);
     const refObjs = referenceIds
       .map((id) => afterBy.get(id))
       .filter((o): o is CanvasObj => Boolean(o));
-    const targetEdge = edgeValue(targetObjs, alignment.edge);
     const refEdge = edgeValue(refObjs, alignment.edge);
-    if (targetEdge == null || refEdge == null) {
+    if (refEdge == null) {
+      return { pass: false, ids: targetIds, notes: "relational alignment edges unbound" };
+    }
+    if (grouped) {
+      const misses = targetObjs.filter((o) => {
+        const edge = edgeValue([o], alignment.edge);
+        return edge == null || Math.abs(edge - refEdge) > alignment.tolerance_px;
+      });
+      const pass = targetObjs.length === targetIds.length && misses.length === 0;
+      return {
+        pass,
+        ids: targetIds,
+        notes: pass
+          ? `relational ${alignment.edge} group aligned ref=${refEdge}`
+          : `relational ${alignment.edge} group unsatisfied misses=${misses.length} ref=${refEdge}`,
+      };
+    }
+    const targetEdge = edgeValue(targetObjs, alignment.edge);
+    if (targetEdge == null) {
       return { pass: false, ids: targetIds, notes: "relational alignment edges unbound" };
     }
     const pass = Math.abs(targetEdge - refEdge) <= alignment.tolerance_px;
@@ -1455,12 +1671,25 @@ export function applyRelationalAlignment(
         continue;
       }
       if (alignment.axis !== "horizontal") continue;
+      const refEdge = edgeValue(refObjs, alignment.edge);
+      if (refEdge == null) continue;
+      if (predicate.targets && predicate.targets.length > 0) {
+        for (const id of movable) {
+          const obj = byId.get(id);
+          if (!obj) continue;
+          const objEdge = edgeValue([obj], alignment.edge);
+          if (objEdge == null) continue;
+          const delta = Number((refEdge - objEdge).toFixed(2));
+          if (Math.abs(delta) < 0.01) continue;
+          obj.left = Number((objectLeft(obj) + delta).toFixed(2));
+        }
+        continue;
+      }
       const targetEdge = edgeValue(
         targetBaselineObjects(clone, targetIds),
         alignment.edge,
       );
-      const refEdge = edgeValue(refObjs, alignment.edge);
-      if (targetEdge == null || refEdge == null) continue;
+      if (targetEdge == null) continue;
       const delta = Number((refEdge - targetEdge).toFixed(2));
       if (Math.abs(delta) < 0.01) continue;
       for (const id of movable) {

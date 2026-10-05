@@ -30,10 +30,14 @@ import {
   bindRangeTargetIds,
   bindReferenceIds,
   bindTargetDescriptor,
+  compileGroupAlignment,
   compileRelativePlacement,
   dropProviderGeometryWhenRelationalOwned,
   evaluateItemFulfillment,
 } from "./FounderFeedbackFulfillment.js";
+import { buildFeedbackCoverage } from "./FeedbackCoverage.js";
+import { evaluateRevisionFinalAcceptance } from "./RevisionFinalAcceptance.js";
+import { evaluateCanonicalFinalStateLayoutProof } from "./CanonicalFinalStateLayoutProof.js";
 import { validatePlanGeometrySafety } from "./PlanGeometrySafety.js";
 import { executeCanvasOperations } from "./CanvasOperationExecutor.js";
 import { applyPostContentReflow } from "./PostContentReflow.js";
@@ -98,6 +102,7 @@ const HISTORICAL = [
   "revtask-3f5b2339-73e",
   "revtask-0d58e039-326",
   "revtask-68a5d250-b24",
+  "revtask-3a9bcae2-16c",
 ];
 
 type Check = { name: string; pass: boolean; detail: string };
@@ -2181,6 +2186,403 @@ async function main(): Promise<void> {
       overflow: fifthGeo.page_overflow,
       fit: postLayoutAdmit.page_fit_pass,
       err: fifthGeo.error,
+    }),
+  );
+
+  const C5_SIXTH_HEADER =
+    "Move the name, “Physical Therapist” job title and contact details slightly to the right so that the header content aligns with the left alignment of the main resume body, while keeping the vertical line in its current position.";
+  const C5_SIXTH_HEADER_PARA =
+    "Move the name, job title and contact details slightly to the right so the header content aligns with the left alignment of the main resume body, while keeping the vertical line in its current position.";
+  const C5_SIXTH_SKILLS =
+    "Change the Skills section from the current horizontal layout to vertical pointers. Keep the skills stacked vertically in two columns beside each other.";
+  const sixthHeaderIr = compileFounderFeedbackIR([C5_SIXTH_HEADER]);
+  const sixthHeaderParaIr = compileFounderFeedbackIR([C5_SIXTH_HEADER_PARA]);
+  const sixthSkillsIr = compileFounderFeedbackIR([C5_SIXTH_SKILLS]);
+  const sixthHeaderPred = sixthHeaderIr.items[0]?.fulfillment.find(
+    (p) => p.kind === "RELATIONAL_ALIGNMENT",
+  );
+  const sixthGroup = compileGroupAlignment(C5_SIXTH_HEADER);
+  const sixthParaGroup = compileGroupAlignment(C5_SIXTH_HEADER_PARA);
+  assert(
+    sixthHeaderIr.schema_version === FOUNDER_FEEDBACK_IR_SCHEMA &&
+      sixthHeaderIr.items[0]?.action === "LAYOUT_MUTATION" &&
+      sixthHeaderPred?.kind === "RELATIONAL_ALIGNMENT" &&
+      sixthHeaderPred.alignment?.relation === "align" &&
+      sixthHeaderPred.alignment?.edge === "left" &&
+      sixthHeaderPred.reference?.kind === "body_content" &&
+      sixthHeaderPred.preserve?.kind === "visual" &&
+      (sixthHeaderPred.targets?.length ?? 0) === 3 &&
+      sixthHeaderPred.targets?.some((t) => t.role === "name") &&
+      sixthHeaderPred.targets?.some((t) => t.role === "professional_title") &&
+      sixthHeaderPred.targets?.some((t) => t.role === "contact") &&
+      sixthGroup?.reference.kind === "body_content" &&
+      sixthParaGroup?.targets.length === 3 &&
+      compileRelativePlacement(C5_SIXTH_HEADER) == null,
+    "sixth_c5_header_group_alignment_compiled",
+    JSON.stringify({
+      action: sixthHeaderIr.items[0]?.action,
+      pred: sixthHeaderPred,
+      group: sixthGroup,
+    }),
+  );
+  assert(
+    sixthSkillsIr.items[0]?.action === "PRESENTATION_MUTATION" &&
+      sixthSkillsIr.items[0]?.fulfillment.some((p) => p.kind === "PRESENTATION") &&
+      !sixthSkillsIr.items[0]?.fulfillment.some((p) => p.kind === "CONTENT_REWRITE"),
+    "sixth_c5_skills_presentation_preserved",
+    JSON.stringify(sixthSkillsIr.items[0]),
+  );
+
+  function headerGroupCanvas(opts?: {
+    nameLeft?: number;
+    titleLeft?: number;
+    contactLeft?: number;
+    bodyLeft?: number;
+    railLeft?: number;
+    omitContact?: boolean;
+  }): FabricCanvasDoc {
+    const bodyLeft = opts?.bodyLeft ?? 80;
+    const objects: Array<Record<string, unknown>> = [
+      {
+        type: "rect",
+        id: "page-root",
+        left: 0,
+        top: 0,
+        width: 794,
+        height: 1123,
+        fill: "#ffffff",
+        data: { role: "pageBackground", system: true, kind: "page-bg" },
+      },
+      {
+        type: "rect",
+        id: "rail-v",
+        left: opts?.railLeft ?? 50,
+        top: 40,
+        width: 4,
+        height: 980,
+        fill: "#111827",
+        data: { role: "rail", shape: "line" },
+      },
+      {
+        type: "textbox",
+        id: "hdr-name",
+        left: opts?.nameLeft ?? 64,
+        top: 48,
+        width: 360,
+        height: 22,
+        text: "Alex Rivera",
+        data: { section: "header", role: "name" },
+      },
+      {
+        type: "textbox",
+        id: "hdr-title",
+        left: opts?.titleLeft ?? 64,
+        top: 74,
+        width: 360,
+        height: 16,
+        text: "Clinical Specialist",
+        data: { section: "header", role: "professional_title" },
+      },
+    ];
+    if (!opts?.omitContact) {
+      objects.push({
+        type: "textbox",
+        id: "hdr-contact",
+        left: opts?.contactLeft ?? 64,
+        top: 96,
+        width: 420,
+        height: 14,
+        text: "alex@example.com · 555-0100",
+        data: { section: "header", role: "contact" },
+      });
+    }
+    objects.push(
+      {
+        type: "textbox",
+        id: "sum-h",
+        left: bodyLeft,
+        top: 160,
+        width: 200,
+        height: 16,
+        text: "SUMMARY",
+        data: { section: "summary", role: "heading" },
+      },
+      {
+        type: "textbox",
+        id: "sum-b",
+        left: bodyLeft,
+        top: 184,
+        width: 520,
+        height: 36,
+        text: "Licensed clinician focused on mobility and recovery.",
+        data: { section: "summary", role: "body" },
+      },
+      {
+        type: "textbox",
+        id: "exp-h",
+        left: bodyLeft,
+        top: 240,
+        width: 200,
+        height: 16,
+        text: "EXPERIENCE",
+        data: { section: "experience", role: "heading" },
+      },
+      {
+        type: "textbox",
+        id: "exp-b",
+        left: bodyLeft,
+        top: 264,
+        width: 520,
+        height: 36,
+        text: "Treated patients across outpatient clinics.",
+        data: { section: "experience", role: "body" },
+      },
+      {
+        type: "textbox",
+        id: "sk-h",
+        left: bodyLeft,
+        top: 720,
+        width: 200,
+        height: 16,
+        text: "SKILLS",
+        data: { section: "skills", role: "heading" },
+      },
+      {
+        type: "textbox",
+        id: "sk-b",
+        left: bodyLeft,
+        top: 744,
+        width: 520,
+        height: 20,
+        text: "Manual Therapy · Gait Training · Assessment · Documentation · Education · Planning · Coordination · Recovery",
+        data: { section: "skills", role: "body" },
+      },
+    );
+    return {
+      version: "5.3.0",
+      width: 794,
+      height: 1123,
+      objects,
+    } as FabricCanvasDoc;
+  }
+
+  const sixthBefore = headerGroupCanvas();
+  const sixthUnchanged = evaluateItemFulfillment({
+    item: sixthHeaderIr.items[0]!,
+    beforeCanvas: sixthBefore,
+    afterCanvas: sixthBefore,
+  });
+  const sixthPartial = evaluateItemFulfillment({
+    item: sixthHeaderIr.items[0]!,
+    beforeCanvas: sixthBefore,
+    afterCanvas: headerGroupCanvas({ nameLeft: 80 }),
+  });
+  const sixthWrong = evaluateItemFulfillment({
+    item: sixthHeaderIr.items[0]!,
+    beforeCanvas: sixthBefore,
+    afterCanvas: headerGroupCanvas({
+      nameLeft: 110,
+      titleLeft: 110,
+      contactLeft: 110,
+    }),
+  });
+  const sixthRailMoved = evaluateItemFulfillment({
+    item: sixthHeaderIr.items[0]!,
+    beforeCanvas: sixthBefore,
+    afterCanvas: headerGroupCanvas({
+      nameLeft: 80,
+      titleLeft: 80,
+      contactLeft: 80,
+      railLeft: 80,
+    }),
+  });
+  const sixthApplied = applyRelationalAlignment(sixthBefore, sixthHeaderIr);
+  const sixthPass = evaluateItemFulfillment({
+    item: sixthHeaderIr.items[0]!,
+    beforeCanvas: sixthBefore,
+    afterCanvas: sixthApplied,
+  });
+  const sixthAppliedLefts = (sixthApplied.objects ?? [])
+    .filter((o) =>
+      ["hdr-name", "hdr-title", "hdr-contact"].includes(
+        String((o as { id?: string }).id ?? ""),
+      ),
+    )
+    .map((o) => Number((o as { left?: number }).left ?? 0));
+  const sixthRail = (sixthApplied.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "rail-v",
+  ) as { left?: number } | undefined;
+  const sixthBody = (sixthApplied.objects ?? []).find(
+    (o) => (o as { id?: string }).id === "sum-b",
+  ) as { left?: number } | undefined;
+  const sixthAmbiguous = evaluateItemFulfillment({
+    item: sixthHeaderIr.items[0]!,
+    beforeCanvas: headerGroupCanvas({ omitContact: true }),
+    afterCanvas: headerGroupCanvas({ omitContact: true, nameLeft: 80, titleLeft: 80 }),
+  });
+  const oneTargetIr = compileFounderFeedbackIR([
+    "Move the name slightly to the right so that it aligns with the left alignment of the main resume body, while keeping the vertical line in its current position.",
+  ]);
+  const oneTargetApplied = applyRelationalAlignment(sixthBefore, oneTargetIr);
+  const oneTargetPass = evaluateItemFulfillment({
+    item: oneTargetIr.items[0]!,
+    beforeCanvas: sixthBefore,
+    afterCanvas: oneTargetApplied,
+  });
+  const oneTargetUnchanged = evaluateItemFulfillment({
+    item: oneTargetIr.items[0]!,
+    beforeCanvas: sixthBefore,
+    afterCanvas: sixthBefore,
+  });
+  assert(
+    sixthUnchanged.pass === false &&
+      sixthPartial.pass === false &&
+      sixthWrong.pass === false &&
+      sixthRailMoved.pass === false &&
+      sixthPass.pass === true &&
+      sixthAppliedLefts.every((left) => left === 80) &&
+      Number(sixthRail?.left ?? 0) === 50 &&
+      Number(sixthBody?.left ?? 0) === 80 &&
+      sixthAmbiguous.pass === false &&
+      oneTargetUnchanged.pass === false &&
+      oneTargetPass.pass === true,
+    "sixth_c5_header_state_true_fulfillment",
+    JSON.stringify({
+      unchanged: sixthUnchanged.notes,
+      partial: sixthPartial.notes,
+      wrong: sixthWrong.notes,
+      rail: sixthRailMoved.notes,
+      pass: sixthPass.notes,
+      lefts: sixthAppliedLefts,
+      railLeft: sixthRail?.left,
+      ambiguous: sixthAmbiguous.notes,
+      one: oneTargetPass.notes,
+    }),
+  );
+
+  const sixthSkillsApplied = applyPresentationMutations(sixthBefore, sixthSkillsIr);
+  const sixthSkillsEval = evaluateItemFulfillment({
+    item: sixthSkillsIr.items[0]!,
+    beforeCanvas: sixthBefore,
+    afterCanvas: sixthSkillsApplied,
+  });
+  const sixthSkillTexts = (sixthSkillsApplied.objects ?? [])
+    .filter((o) => {
+      const sec = String(
+        (o as { section?: string }).section ??
+          ((o as { data?: { section?: string } }).data?.section ?? ""),
+      ).toLowerCase();
+      const t = String((o as { text?: string }).text ?? "");
+      return sec === "skills" && t && !/^skills?$/i.test(t.trim());
+    })
+    .map((o) => String((o as { text?: string }).text ?? ""));
+  const sixthSkillItems = sixthSkillTexts.flatMap((t) => splitLogicalItems(t));
+  const sixthSkillBoxes = (sixthSkillsApplied.objects ?? []).filter((o) => {
+    const sec = String(
+      (o as { section?: string }).section ??
+        ((o as { data?: { section?: string } }).data?.section ?? ""),
+    ).toLowerCase();
+    const t = String((o as { text?: string }).text ?? "");
+    return sec === "skills" && t && !/^skills?$/i.test(t.trim());
+  }) as Array<{ left?: number; top?: number }>;
+  const sixthSkillClip = findIntraBoxTextOverflowFindings(sixthSkillsApplied);
+  const sixthSkillGeom = evaluateSharedGeometryAdmission(sixthSkillsApplied);
+  assert(
+    sixthSkillItems.length === 8 &&
+      sixthSkillItems[0] === "Manual Therapy" &&
+      sixthSkillItems[7] === "Recovery" &&
+      sixthSkillBoxes.length >= 2 &&
+      new Set(sixthSkillBoxes.map((b) => Number(b.left ?? 0))).size >= 2 &&
+      sixthSkillsEval.pass === true &&
+      sixthSkillClip.length === 0 &&
+      sixthSkillGeom.pass === true,
+    "sixth_c5_skills_offline_fulfillment",
+    JSON.stringify({
+      items: sixthSkillItems,
+      boxes: sixthSkillBoxes.length,
+      eval: sixthSkillsEval.notes,
+      clip: sixthSkillClip.length,
+      geom: sixthSkillGeom.reason,
+    }),
+  );
+
+  const sixthEmptyPlan = {
+    schema_version: "founder-canvas-revision-plan-1.0.0",
+    operations: [] as RevisionPlan["operations"],
+  };
+  const falseReadyAfter = applyPresentationMutations(sixthBefore, sixthSkillsIr);
+  const falseReadyCoverage = buildFeedbackCoverage({
+    requested_changes: [C5_SIXTH_HEADER, C5_SIXTH_SKILLS],
+    plan: sixthEmptyPlan,
+    log: [],
+    beforeCanvas: sixthBefore,
+    afterCanvas: falseReadyAfter,
+  });
+  const rhythmOnUnchanged = evaluateCanonicalFinalStateLayoutProof({
+    requestedChange: C5_SIXTH_HEADER,
+    beforeCanvas: sixthBefore,
+    afterCanvas: sixthBefore,
+  });
+  const headerCoverage = falseReadyCoverage.items.find(
+    (i) => i.founder_feedback_item === C5_SIXTH_HEADER,
+  );
+  const skillsCoverage = falseReadyCoverage.items.find(
+    (i) => i.founder_feedback_item === C5_SIXTH_SKILLS,
+  );
+  const falseReadyAcceptance = evaluateRevisionFinalAcceptance({
+    plan_ok: true,
+    authorization_ok: true,
+    section_replacement: { ok: true, error: null },
+    content_execution_ok: true,
+    content_preservation_ok: true,
+    canonical_layout_ok: true,
+    text_overlap_count: 0,
+    page_oob_count: 0,
+    page_fit_ok: true,
+    revision_role: { pass: true, evaluable: true, match: true, reason: "ok" },
+    coverage: falseReadyCoverage,
+  });
+  const correctAfter = applyPresentationMutations(sixthApplied, sixthSkillsIr);
+  const correctCoverage = buildFeedbackCoverage({
+    requested_changes: [C5_SIXTH_HEADER, C5_SIXTH_SKILLS],
+    plan: sixthEmptyPlan,
+    log: [],
+    beforeCanvas: sixthBefore,
+    afterCanvas: correctAfter,
+  });
+  const correctAcceptance = evaluateRevisionFinalAcceptance({
+    plan_ok: true,
+    authorization_ok: true,
+    section_replacement: { ok: true, error: null },
+    content_execution_ok: true,
+    content_preservation_ok: true,
+    canonical_layout_ok: true,
+    text_overlap_count: 0,
+    page_oob_count: 0,
+    page_fit_ok: true,
+    revision_role: { pass: true, evaluable: true, match: true, reason: "ok" },
+    coverage: correctCoverage,
+  });
+  assert(
+    headerCoverage?.status === "not_addressed" &&
+      skillsCoverage?.status === "addressed" &&
+      falseReadyCoverage.gate_pass === false &&
+      !String(headerCoverage?.evidence?.notes ?? "").includes("LAYOUT_RHYTHM_SATISFIED") &&
+      falseReadyAcceptance.may_return_to_founder_review === false &&
+      falseReadyAcceptance.failed_owner === "feedback_coverage" &&
+      correctCoverage.gate_pass === true &&
+      correctCoverage.items.every((i) => i.status === "addressed") &&
+      correctAcceptance.may_return_to_founder_review === true &&
+      (rhythmOnUnchanged.reason === "LAYOUT_RHYTHM_SATISFIED"
+        ? headerCoverage?.status === "not_addressed"
+        : true),
+    "sixth_c5_false_ready_coverage_and_acceptance",
+    JSON.stringify({
+      header: headerCoverage,
+      skills: skillsCoverage?.status,
+      falseReady: falseReadyAcceptance.failed_owner,
+      correct: correctAcceptance.overall,
+      rhythm: rhythmOnUnchanged.reason,
     }),
   );
 

@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PROJECT-WIDE / RESUME \u2014 POST-FIFTH-C5 BOUNDED OFFLINE CORRECTION 2026-10-01. Fifth C5 fd-b951abe2-e84 / revtask-68a5d250-b24 FAILED_GATE FAILED_GEOMETRY; first blocker plan_geometry_safety (3 transient Education/Skills overlaps); C2 NOT_REACHED; no child; Telegram truthful. IR 1.4.2: plan-geometry production parity + relative placement + presentation precedence. Future plan-geometry owner=plan_geometry. Historical fifth C5 not mutated. Offline: C1 PASS; C2 PASS; C3 PASS; C4 PASS; plan-geometry PASS; 6H PASS; 6O PASS; 6P PASS; actionability PASS. No production OpenAI, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY changes. READY_FOR_C6=NO. READY_FOR_SIXTH_C5_LIVE_PROOF=NO. Next: fresh STRICT READ-ONLY sixth-C5 production preflight. Website Department remains the next major product department and is not activated.",
+    "PROJECT-WIDE / RESUME \u2014 FINAL C5 OFFLINE SAFETY CLOSURE 2026-10-05. Deployed baseline before this correction 3cc75cdc849af4278b302539322c9fe2f2410828 / IR 1.4.2. Sixth C5 fd-d679f3f8-f03 / revtask-3a9bcae2-16c / child \u2026-revfb-fcfc81 historical READY is FALSE READY: Skills 8-item columns succeeded; header group stayed L64 vs body L80; rail L50. IR 1.4.2 compiled empty fulfillment; coverage used LAYOUT_RHYTHM_SATISFIED. Overlay AUDIT_INVALID / NOT_DECISIONABLE on the child; historical task not rewritten. IR 1.4.3: group align+preserve + state-true coverage. Offline: C1 PASS; C2 PASS; C3 PASS; C4 PASS; plan-geometry PASS; 6H PASS; 6O PASS; 6P PASS; actionability PASS. No production OpenAI, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY changes. READY_FOR_SEVENTH_C5_LIVE_PROOF=NO. READY_FOR_C6_CLOSURE_AUDIT=YES. READY_FOR_C6=NO. Department not closed. Next: C6 closure audit. Website Department remains the next major product department and is not activated.",
     "NEXT DEPARTMENT \u2014 Website Analysis / QA / Development (handoff recorded; inspect broken pages/links, UI/UX/mobile, runtime/API/editor defects, performance, actionable development work). Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "WEBSITE DEPT PHASE 2B \u2014 Implement Playwright runner and initial signed-out, non-destructive browser journeys (department remains disabled until Founder enablement).",
     "WEBSITE DEPT PHASE 2B \u2014 Connect browser observations/evidence to the Website finding ledger (evaluated_checks + fail observations).",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back \u2014 snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-10-05T09:43:32.000Z",
+      "type": "consolidation_c5_final_offline_safety_closure",
+      "summary": "Final C5 offline safety closure after sixth false READY. Local wall=2026-10-05T15:13:32+05:30. UTC=2026-10-05T09:43:32.000Z. Deployed baseline before this correction 3cc75cdc849af4278b302539322c9fe2f2410828 / IR 1.4.2. Sixth C5 fd-d679f3f8-f03 / revtask-3a9bcae2-16c READY is false READY; child ...-revfb-fcfc81 overlay AUDIT_INVALID / NOT_DECISIONABLE; historical READY unchanged. Skills 8-item columns succeeded. Header L64 vs body L80 unfulfilled; generic rhythm false-pass. Two owners. 1: IR 1.4.3 group align-to-reference + explicit preserve + state-true fulfillment. 2: FeedbackCoverage consumes IR fulfillment before LAYOUT_RHYTHM_SATISFIED. One public semantic owner compileFounderFeedbackIR. Offline: C1 PASS; C2 PASS; C3 PASS; C4 PASS; plan-geometry PASS; 6H PASS; 6O PASS; 6P PASS; actionability PASS. generated_at envelope left at 2026-07-11T23:31:33.456Z. No production OpenAI, generation, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY changes. READY_FOR_SEVENTH_C5_LIVE_PROOF=NO. READY_FOR_C6_CLOSURE_AUDIT=YES. READY_FOR_C6=NO. Department not closed."
+    },
     {
       "at": "2026-10-01T13:51:59.000Z",
       "type": "consolidation_c5_fifth_offline_correction",
@@ -3460,7 +3465,7 @@
     "operationally_complete_currently_asserted": false,
     "revision_engineering_status": "CONSOLIDATION_REQUIRED",
     "next_major_department": "Website Analysis / QA / Development",
-    "next_authorized_step": "Fresh STRICT READ-ONLY sixth-C5 production preflight (do not retry revtask-68a5d250-b24 or earlier C5 tasks; do not start C6; READY_FOR_SIXTH_C5_LIVE_PROOF=NO)",
+    "next_authorized_step": "C6 Resume Template Department closure audit (do not execute a seventh C5 live proof; do not retry revtask-3a9bcae2-16c or earlier C5 tasks; READY_FOR_SEVENTH_C5_LIVE_PROOF=NO; READY_FOR_C6_CLOSURE_AUDIT=YES; department not closed)",
     "consolidation_plan": {
       "recorded_at_ist": "2026-09-29T15:22:52+05:30",
       "recorded_at_utc": "2026-09-29T09:52:52.100Z",
@@ -3496,14 +3501,16 @@
       "c1_c4_fulfillment_correction_status": "IMPLEMENTED_OFFLINE",
       "c1_c4_fulfillment_correction_at_ist": "2026-09-30T15:23:42+05:30",
       "c1_c4_fulfillment_correction_at_utc": "2026-09-30T09:53:42.000Z",
-      "ir_schema_after": "founder-feedback-ir-1.4.2",
+      "ir_schema_after": "founder-feedback-ir-1.4.3",
       "ready_for_c6": false,
+      "ready_for_c6_closure_audit": true,
       "ready_for_new_live_proof": false,
       "ready_for_fourth_c5_live_proof": false,
       "ready_for_fifth_c5_preflight": false,
       "ready_for_fifth_c5_live_proof": false,
-      "ready_for_sixth_c5_preflight": true,
+      "ready_for_sixth_c5_preflight": false,
       "ready_for_sixth_c5_live_proof": false,
+      "ready_for_seventh_c5_live_proof": false,
       "c5_fourth_status": "LIVE_PROOF_FAIL_FALSE_POSITIVE_READY",
       "c5_fourth_decision_id": "fd-eaa0beaa-6fc",
       "c5_fourth_task_id": "revtask-0d58e039-326",
@@ -3518,9 +3525,19 @@
       "ir_1_4_1_status": "DEPLOYED_THEN_FIFTH_C5_FAIL",
       "ir_1_4_1_at_ist": "2026-10-01T18:30:42+05:30",
       "ir_1_4_1_at_utc": "2026-10-01T13:00:42.000Z",
-      "ir_1_4_2_status": "IMPLEMENTED_OFFLINE",
+      "ir_1_4_2_status": "DEPLOYED_THEN_SIXTH_C5_FALSE_READY",
       "ir_1_4_2_at_ist": "2026-10-01T19:21:59+05:30",
       "ir_1_4_2_at_utc": "2026-10-01T13:51:59.000Z",
+      "ir_1_4_3_status": "IMPLEMENTED_OFFLINE",
+      "ir_1_4_3_at_ist": "2026-10-05T15:13:32+05:30",
+      "ir_1_4_3_at_utc": "2026-10-05T09:43:32.000Z",
+      "c5_sixth_status": "LIVE_PROOF_FALSE_READY",
+      "c5_sixth_decision_id": "fd-d679f3f8-f03",
+      "c5_sixth_task_id": "revtask-3a9bcae2-16c",
+      "c5_sixth_child_id": "cand-healthcare-physical-therapist-20261002T032111Z-0a635d-revfb-fcfc81",
+      "c5_sixth_result": "FALSE_READY",
+      "c5_sixth_header_fulfilled": false,
+      "c5_sixth_skills_fulfilled": true,
       "third_c5_offline_correction_status": "IMPLEMENTED_OFFLINE",
       "third_c5_offline_correction_at_ist": "2026-10-01T15:06:31+05:30",
       "third_c5_offline_correction_at_utc": "2026-10-01T09:36:31.000Z",
@@ -3553,20 +3570,22 @@
       "revtask-863f67a5-790",
       "revtask-4a0c006c-507",
       "revtask-3f5b2339-73e",
-      "revtask-0d58e039-326"
+      "revtask-0d58e039-326",
+      "revtask-68a5d250-b24",
+      "revtask-3a9bcae2-16c"
     ],
-    "snapshot_ist": "2026-10-01T18:30:42+05:30",
-    "snapshot_utc": "2026-10-01T13:00:42.000Z",
+    "snapshot_ist": "2026-10-05T15:13:32+05:30",
+    "snapshot_utc": "2026-10-05T09:43:32.000Z",
     "heads": {
-      "local": "b8cf8823f007076c5992cfb8711ee020265e38dc",
-      "origin": "b8cf8823f007076c5992cfb8711ee020265e38dc",
-      "vps": "b8cf8823f007076c5992cfb8711ee020265e38dc"
+      "local": "3cc75cdc849af4278b302539322c9fe2f2410828",
+      "origin": "3cc75cdc849af4278b302539322c9fe2f2410828",
+      "vps": "3cc75cdc849af4278b302539322c9fe2f2410828"
     }
   },
   "studiosislab_project": {
     "master_doc": "SOS/STUDIOSISLAB_PROJECT_MASTER.md",
     "resume_template_department_master_doc": "SOS/RESUME_TEMPLATE_DEPARTMENT_MASTER.md",
-    "current_priority": "Resume Template consolidation \u2014 five C5 live proofs immutable FAIL; IR 1.4.2 plan-geometry + semantic correction implemented; sixth live proof unauthorized",
+    "current_priority": "Resume Template consolidation \u2014 six immutable C5 live proofs; sixth was false READY; IR 1.4.3 offline safety closure; next is C6 closure audit",
     "resume_template_department_current_status": "CONSOLIDATION_REQUIRED",
     "core_resume_template_factory_goal_met": true,
     "operationally_complete_currently_asserted": false,

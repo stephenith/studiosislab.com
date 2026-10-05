@@ -2760,6 +2760,22 @@ export function buildFeedbackCoverage(input: {
      * REDUCE_GAP / structuralHints for the same item.
      */
     if (irItem.coverage_mode === "DETERMINISTIC_LAYOUT_OWNED") {
+      if (itemRequiresMutationFulfillment(irItem)) {
+        const proof = evaluateItemFulfillment({
+          item: irItem,
+          beforeCanvas: input.beforeCanvas,
+          afterCanvas: input.afterCanvas,
+        });
+        items.push({
+          founder_feedback_item: change,
+          status: proof.pass ? "addressed" : "not_addressed",
+          evidence: {
+            affected_object_ids: proof.bound_object_ids,
+            notes: proof.notes,
+          },
+        });
+        continue;
+      }
       const proof = evaluateCanonicalFinalStateLayoutProof({
         requestedChange: change,
         beforeCanvas: input.beforeCanvas,

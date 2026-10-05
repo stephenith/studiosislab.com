@@ -45,7 +45,7 @@ export type FeedbackCoverageMode =
   | "VALIDATION_ONLY"
   | "DETERMINISTIC_LAYOUT_OWNED";
 
-export const FOUNDER_FEEDBACK_IR_SCHEMA = "founder-feedback-ir-1.4.2" as const;
+export const FOUNDER_FEEDBACK_IR_SCHEMA = "founder-feedback-ir-1.4.3" as const;
 
 /** Public semantic interpretation paths after C1. */
 export const NUMBER_OF_SEMANTIC_INTERPRETATION_PATHS = 1;

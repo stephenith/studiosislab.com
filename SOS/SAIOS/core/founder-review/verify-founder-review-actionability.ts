@@ -47,6 +47,10 @@ const UI_DESIGNER =
   "cand-creative-ui-designer-20260915T122023Z-79af7d-revfb-f81691";
 const MOTION_DESIGNER =
   "cand-creative-motion-designer-20260903T032047Z-bed721";
+const PHYSICAL_THERAPIST_PARENT =
+  "cand-healthcare-physical-therapist-20261002T032111Z-0a635d";
+const PHYSICAL_THERAPIST_CHILD =
+  "cand-healthcare-physical-therapist-20261002T032111Z-0a635d-revfb-fcfc81";
 
 type Check = { name: string; pass: boolean; detail: string };
 const checks: Check[] = [];
@@ -477,6 +481,46 @@ function main(): void {
       overlay.records.find((r) => r.candidate_id === RESEARCH_ASSISTANT_CHILD)
         ?.historical_task_status_unchanged === "READY_FOR_FOUNDER_REVIEW",
     "false_ready_production_overlay_child_only",
+  );
+  const sixthOverlay = overlay.records.find(
+    (r) => r.candidate_id === PHYSICAL_THERAPIST_CHILD,
+  );
+  assert(
+    sixthOverlay?.actionability === "NOT_DECISIONABLE" &&
+      sixthOverlay.validity === "AUDIT_INVALID" &&
+      sixthOverlay.historical_task_id === "revtask-3a9bcae2-16c" &&
+      sixthOverlay.historical_task_status_unchanged ===
+        "READY_FOR_FOUNDER_REVIEW" &&
+      !overlay.records.some((r) => r.candidate_id === PHYSICAL_THERAPIST_PARENT) &&
+      evaluateFounderDecisionActionability({
+        overlay,
+        identity: {
+          review_id: `founder-review-${PHYSICAL_THERAPIST_CHILD}`,
+          candidate_id: PHYSICAL_THERAPIST_CHILD,
+        },
+        projectedValidity: "valid",
+        decision: "APPROVED",
+      }).allowed === false &&
+      evaluateFounderDecisionActionability({
+        overlay,
+        identity: {
+          review_id: `founder-review-${PHYSICAL_THERAPIST_CHILD}`,
+          candidate_id: PHYSICAL_THERAPIST_CHILD,
+        },
+        projectedValidity: "valid",
+        decision: "CHANGES_REQUESTED",
+      }).allowed === false &&
+      evaluateFounderDecisionActionability({
+        overlay,
+        identity: {
+          review_id: `founder-review-${PHYSICAL_THERAPIST_CHILD}`,
+          candidate_id: PHYSICAL_THERAPIST_CHILD,
+        },
+        projectedValidity: "valid",
+        decision: "REJECTED",
+      }).allowed === false,
+    "sixth_false_ready_child_overlay_not_decisionable",
+    JSON.stringify(sixthOverlay),
   );
   assert(
     overlay.records.some((r) => r.candidate_id === UI_DESIGNER) &&

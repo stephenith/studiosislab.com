@@ -22,6 +22,17 @@
       "reason": "Authorized fourth-C5 audit: requested structured presentation was not fulfilled. Historical task remains READY_FOR_FOUNDER_REVIEW. Current Founder Review actionability is audit-invalid.",
       "recorded_at": "2026-10-01T11:16:19.000Z",
       "source": "authorized_audit"
+    },
+    {
+      "review_id": "founder-review-cand-healthcare-physical-therapist-20261002T032111Z-0a635d-revfb-fcfc81",
+      "candidate_id": "cand-healthcare-physical-therapist-20261002T032111Z-0a635d-revfb-fcfc81",
+      "validity": "AUDIT_INVALID",
+      "actionability": "NOT_DECISIONABLE",
+      "historical_task_id": "revtask-3a9bcae2-16c",
+      "historical_task_status_unchanged": "READY_FOR_FOUNDER_REVIEW",
+      "reason": "Authorized sixth-C5 audit: header-group alignment with body left was not fulfilled. Historical task remains READY_FOR_FOUNDER_REVIEW. Current Founder Review actionability is audit-invalid.",
+      "recorded_at": "2026-10-05T09:45:00.000Z",
+      "source": "authorized_audit"
     }
   ]
 }

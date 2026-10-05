@@ -2077,7 +2077,7 @@ async function main(): Promise<void> {
         height: 36,
         text: "Alpha one two three four five six seven eight",
         fontSize: 14,
-        data: { section: "skills", role: "body" },
+        data: { role: "body" },
       },
       {
         type: "textbox",
@@ -2088,7 +2088,7 @@ async function main(): Promise<void> {
         height: 36,
         text: "Beta one two three four five six seven eight",
         fontSize: 14,
-        data: { section: "skills", role: "body" },
+        data: { role: "body" },
       },
     ],
   };

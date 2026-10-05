@@ -60,26 +60,26 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-05T15:36:00+05:30** / **2026-10-05T10:06:00.000Z**. Pre-closure deployed baseline: `37af692e0353878fd02e2bdabe0b948f58f3daf2` / IR `founder-feedback-ir-1.4.3`. C6 closure audit PASS.
+Snapshot taken **2026-10-05T17:42:00+05:30** / **2026-10-05T12:12:00.000Z**. C6 closed at `9e8073664cde87cff6fd0e71cb3d1b5a26223290` / IR 1.4.3. Local bounded maintenance is IR `founder-feedback-ir-1.4.4` after Teaching Assistant production `FAILED_GATE`.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `37af692e0353878fd02e2bdabe0b948f58f3daf2` before this administrative closure commit (`main`) |
-| ORIGIN HEAD | `37af692e0353878fd02e2bdabe0b948f58f3daf2` before this administrative closure commit |
-| VPS HEAD | `37af692e0353878fd02e2bdabe0b948f58f3daf2` before this administrative closure commit |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is administrative SoT closure only |
-| VPS STATUS | Six C5 live proofs immutable; IR 1.4.3 deployed; false-READY children overlay-blocked; no seventh C5 |
+| LOCAL HEAD | `9e8073664cde87cff6fd0e71cb3d1b5a26223290` plus uncommitted IR 1.4.4 maintenance (`main`) |
+| ORIGIN HEAD | `9e8073664cde87cff6fd0e71cb3d1b5a26223290` |
+| VPS HEAD | `9e8073664cde87cff6fd0e71cb3d1b5a26223290` (IR 1.4.3 still deployed) |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is Resume revision maintenance + SoT only |
+| VPS STATUS | Six C5 live proofs immutable; Teaching Assistant `revtask-232a10da-349` immutable `FAILED_GATE`; IR 1.4.3 deployed; false-READY children overlay-blocked; no seventh C5; no TA live retry |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
-| DEPARTMENT STATUS | **`OPERATIONALLY_COMPLETE`** — C1–C4 PASS; C5 complete as immutable consolidation evidence; C6 PASS |
+| DEPARTMENT STATUS | **`OPERATIONALLY_COMPLETE`** — C1–C4 PASS; C5 complete as immutable consolidation evidence; C6 PASS; post-C6 maintenance does not reopen C5–C6 |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
 | REVISION ENGINEERING | **`MAINTENANCE_REGRESSION_ONLY`** |
-| REVISION STATUS | Historical tasks unchanged: `revtask-863f67a5-790` READY (C5#1 FAIL); `revtask-4a0c006c-507` FAILED_COVERAGE (C5#2 FAIL); `revtask-3f5b2339-73e` FAILED_COVERAGE (C5#3 FAIL); `revtask-0d58e039-326` READY (C5#4 FALSE READY); `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY (C5#5 FAIL); `revtask-3a9bcae2-16c` READY (C5#6 FALSE READY); `5d933072` / `76a04a21` unchanged |
+| REVISION STATUS | Historical tasks unchanged: `revtask-863f67a5-790` READY (C5#1 FAIL); `revtask-4a0c006c-507` FAILED_COVERAGE (C5#2 FAIL); `revtask-3f5b2339-73e` FAILED_COVERAGE (C5#3 FAIL); `revtask-0d58e039-326` READY (C5#4 FALSE READY); `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY (C5#5 FAIL); `revtask-3a9bcae2-16c` READY (C5#6 FALSE READY); `revtask-232a10da-349` FAILED_GATE (TA post-C6; no child); `5d933072` / `76a04a21` unchanged |
 | GENERATION STATUS | Unchanged; `SOS_AIOS_LIVE=0` |
-| FOUNDER REVIEW STATUS | Sixth child `…-revfb-fcfc81`, fourth-C5 child `…-194bdf-revfb-71bd11`, and UI Designer child `…-revfb-f81691` remain overlay `audit_invalid` / NOT_DECISIONABLE. Motion Designer `…-bed721` and Campus Ambassador `…-047495` remain `revision_failed` / `actionable=false` while UI may still expose Request Changes (P1 maintenance; not a P0). Do not Approve the false-READY children. |
+| FOUNDER REVIEW STATUS | Sixth child `…-revfb-fcfc81`, fourth-C5 child `…-194bdf-revfb-71bd11`, and UI Designer child `…-revfb-f81691` remain overlay `audit_invalid` / NOT_DECISIONABLE. Motion Designer `…-bed721`, Campus Ambassador `…-047495`, and Teaching Assistant remain `revision_failed` / `actionable=false` while UI may still expose Request Changes (P1 maintenance; not a P0). Do not Approve the false-READY children. Do not retry TA. |
 | MEMORY STATUS | Unchanged |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
 | CURRENT PRIMARY BLOCKERS | **NONE** |
-| NEXT AUTHORIZED STEP | Project priority is **Website Analysis / QA / Development** (inspect existing state first). Do not reopen Resume revision engineering unless a new real production failure occurs. `READY_FOR_SEVENTH_C5_LIVE_PROOF=NO`. C6 = PASS / COMPLETE. |
+| NEXT AUTHORIZED STEP | **Resume Founder-to-public E2E business acceptance remains pending.** `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. `READY_FOR_SEVENTH_C5_LIVE_PROOF=NO`. C6 = PASS / COMPLETE. Founder-directed successor after E2E is SEO, not Website Department automation — not activated yet. |
 
 `OPERATIONALLY_COMPLETE` is the current live operational status. Historical C5 FAIL / FALSE READY outcomes are not rewritten.
 
@@ -927,6 +927,18 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 
 **Total implementation phases: 6.** C1–C4 PASS. C5 complete as immutable consolidation evidence. C6 PASS / CLOSED. Do not execute a seventh live proof.
 
+#### Post-C6 Teaching Assistant maintenance *(offline 2026-10-05; not C5; not C6 rewrite)*
+
+| Field | Content |
+|---|---|
+| TRIGGER | Real production Request Changes `fd-3eb58dc7-d08` / `revtask-232a10da-349` on Teaching Assistant. Terminal `FAILED_GATE` / C2 `TEXT_OVERLAP` after relational `below` moved title onto contact. Historical task immutable. No child. |
+| GAP | Bold never compiled. Named experience pair executed via 6P with empty IR fulfillment. Plan-geometry skipped the post-execute IR world on geometry-only ops. Normalizer had no intra-section sibling cascade. |
+| FIX | IR `founder-feedback-ir-1.4.4`: additive `STYLE` + named `SPACING_PAIR`. `applyStyleMutations`. `normalizeRevisionLayout` collision-only cascade of later non-preserved same-section siblings. One `applyPostExecutionLayoutWorld` used by the pipeline and PlanGeometrySafety. Coverage consumes STYLE/SPACING_PAIR; generic `LAYOUT_RHYTHM_SATISFIED` cannot address those predicates. |
+| OWNERS | Public semantic owners: **1** (`compileFounderFeedbackIR`). Post-mutation layout owners: **1** (`normalizeRevisionLayout`). Final geometry: **1** (C2). |
+| OFFLINE | TA full-intent positive + negatives PASS. C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6H PASS; 6K PASS; 6O PASS; 6P PASS; plan-geometry PASS; role PASS; preservation PASS; actionability PASS. Historical C5/TA outcomes not rewritten. |
+| LIVE PROOF | **NO.** `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. Do not retry `revtask-232a10da-349`. |
+| STATUS | Department remains `OPERATIONALLY_COMPLETE` / `MAINTENANCE_REGRESSION_ONLY`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. |
+
 ### Proof strategy (department)
 
 | Workflow | How proven | When |
@@ -980,7 +992,7 @@ C6 audit snapshot **2026-10-05T09:57:16.789Z** (`/api/ops-24-7`) plus administra
 | revision_task_counts | READY 21 / FAILED_COVERAGE 11 / FAILED 7 / FAILED_GATE 16 / PENDING 0 |
 | Timers | morning last 2026-10-05 03:20 UTC (queue-full no-op); evening next 2026-10-05 12:20 UTC; generation **service** oneshot/disabled between timers; publication nightly last 2026-10-05 02:00 UTC plan/verify only |
 | Dashboard | active, started 2026-10-05 09:46:24 UTC after IR 1.4.3 deploy; NRestarts=0 |
-| Last revision of note | `revtask-3a9bcae2-16c` READY (sixth false READY) on Physical Therapist; child `…-revfb-fcfc81` overlay-blocked. Historical `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY. `revtask-0d58e039-326` still READY (false-positive). `revtask-863f67a5-790` still READY. `revtask-4a0c006c-507` / `revtask-3f5b2339-73e` still FAILED_COVERAGE. `revtask-5d933072-daf` still FAILED_SECTION_COMPLETENESS |
+| Last revision of note | `revtask-232a10da-349` FAILED_GATE (Teaching Assistant post-C6; no child; do not retry). Prior: `revtask-3a9bcae2-16c` READY (sixth false READY) on Physical Therapist; child `…-revfb-fcfc81` overlay-blocked. Historical `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY. `revtask-0d58e039-326` still READY (false-positive). `revtask-863f67a5-790` still READY. `revtask-4a0c006c-507` / `revtask-3f5b2339-73e` still FAILED_COVERAGE. `revtask-5d933072-daf` still FAILED_SECTION_COMPLETENESS |
 | Candidate dirs on VPS | Sixth child exists and is overlay `audit_invalid`. Overlay also blocks `…-revfb-71bd11` and `…-revfb-f81691`. Do not Approve |
 | P0 | **NONE** — department `OPERATIONALLY_COMPLETE` |
 | P1 maintenance | revision_failed Request Changes UI; publication controlled-apply proof (AUTO_APPLY off); role-integrity long-tail spend |
@@ -1306,18 +1318,33 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** Agents may still read stale historical `CONSOLIDATION_REQUIRED` rows
 - **NEXT STEP:** Inspect existing Website Analysis / QA / Development state. Do not implement Website work in this run.
 
+### 2026-10-05T17:42:00+05:30 — TA POST-C6 BOUNDED REVISION MAINTENANCE
+
+- **PHASE/TASK:** Teaching Assistant production `FAILED_GATE` offline correction (IR 1.4.4 + shared layout world)
+- **PURPOSE:** Fulfill every material Founder clause (title below rect + bold + preserve + contact cascade; named experience pair; Skills 8-item columns) without weakening C2
+- **BEFORE STATE:** C6 closed; IR 1.4.3 at `9e80736`; `revtask-232a10da-349` FAILED_GATE; title top 111 = contact top 111
+- **CHANGE:** IR 1.4.4 STYLE + SPACING_PAIR; applyStyleMutations; intra-section cascade in normalizeRevisionLayout; applyPostExecutionLayoutWorld for pipeline + plan-geometry; TA fixture + full-intent verifier. Historical TA/C5 tasks not rewritten.
+- **FILES MODIFIED:** FounderFeedbackIR; FounderFeedbackFulfillment; FounderSpacingRelation; RevisionLayoutNormalizer; FounderRevisionPipeline; RevisionPlanGateCircuit; PlanGeometrySafety; C1 + plan-geometry + TA verifiers; this file; project master; project-state; `AGENTS.md`
+- **TESTS:** TA full-intent PASS; C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6H PASS; 6K PASS; 6O PASS; 6P PASS; plan-geometry PASS; role PASS; preservation PASS; actionability PASS
+- **COMMIT:** *(this maintenance; uncommitted)*
+- **DEPLOY:** None in this run
+- **LIVE PROOF:** NO. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`
+- **RESULT:** Offline full-intent PASS. Historical TA remains FAILED_GATE. Department remains OPERATIONALLY_COMPLETE. C6 not rewritten.
+- **NEW RISKS:** Unmodeled style/spacing phrasing remains fail-closed; VPS still serves IR 1.4.3 until Founder deploys
+- **NEXT STEP:** Inspect existing Website Analysis / QA / Development state. Do not retry TA. Do not start a seventh C5.
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**Inspect the existing Website Analysis / QA / Development state, repository-first and evidence-first.**
+**Continue Resume Founder-to-public E2E business acceptance.** Do not retry Teaching Assistant. Do not start Website automation or SEO in this stream.
 
-Resume Template Department is `OPERATIONALLY_COMPLETE`. C6 = PASS / COMPLETE. Seventh C5 is not required.
+Resume Template Department is `OPERATIONALLY_COMPLETE`. C6 = PASS / COMPLETE. Seventh C5 is not required. Teaching Assistant live retry is not required. Founder-directed successor after E2E is SEO (recorded, not activated).
 
-Do not Approve or Reject `revtask-863f67a5-790`, `revtask-4a0c006c-507`, `revtask-3f5b2339-73e`, `revtask-0d58e039-326`, `revtask-68a5d250-b24`, or `revtask-3a9bcae2-16c`.  
-Do not retry `revtask-3a9bcae2-16c`, `revtask-68a5d250-b24`, `revtask-0d58e039-326`, `revtask-3f5b2339-73e`, `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
+Do not Approve or Reject `revtask-863f67a5-790`, `revtask-4a0c006c-507`, `revtask-3f5b2339-73e`, `revtask-0d58e039-326`, `revtask-68a5d250-b24`, `revtask-3a9bcae2-16c`, or `revtask-232a10da-349`.  
+Do not retry `revtask-232a10da-349`, `revtask-3a9bcae2-16c`, `revtask-68a5d250-b24`, `revtask-0d58e039-326`, `revtask-3f5b2339-73e`, `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
 Do not reopen Resume revision engineering unless a new real production failure occurs.  
 Do not enable `SOS_AIOS_LIVE`.  
-Do not implement Website architecture or enable Website automation in the same step as this closure.
+Do not implement Website architecture or enable Website automation in the same step as this maintenance.

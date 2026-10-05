@@ -1,0 +1,626 @@
+{
+  "schema_version": "founder-feedback-ir-1.4.3",
+  "items": [
+    {
+      "founder_feedback_item": "Move the “Teaching Assistant” job title completely below the light-blue rectangle so that it does not touch or overlap the rectangle, and make the job title bold so that it becomes the secondary visual highlight below the name. Keep “Evelyn Harper” and the light-blue rectangle in their current positions, and move the contact-details row downward only if needed to maintain clean spacing below the job title.",
+      "action": "LAYOUT_MUTATION",
+      "clause_actions": [
+        "LAYOUT_MUTATION",
+        "LAYOUT_MUTATION",
+        "LAYOUT_MUTATION",
+        "LAYOUT_MUTATION",
+        "LAYOUT_MUTATION",
+        "LAYOUT_PRESERVATION",
+        "LAYOUT_MUTATION",
+        "CONTENT_PRESERVATION"
+      ],
+      "coverage_mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "layout_owned": true,
+      "classification": "MUTATION_REQUIRED",
+      "check_types": [],
+      "content_sections": [],
+      "layout_sections": [
+        "job_title"
+      ],
+      "preservation_sections": [
+        "job_title"
+      ],
+      "completeness_required": false,
+      "fulfillment": [
+        {
+          "kind": "RELATIONAL_ALIGNMENT",
+          "required": true,
+          "target": {
+            "quoted_text": "Teaching Assistant",
+            "shape": "text",
+            "role": "professional_title"
+          },
+          "reference": {
+            "kind": "visual",
+            "descriptor": {
+              "quoted_text": "Evelyn Harper",
+              "shape": "rect",
+              "role": "professional_title",
+              "color_family": "blue"
+            }
+          },
+          "alignment": {
+            "axis": "vertical",
+            "edge": "bottom",
+            "relation": "below",
+            "tolerance_px": 2
+          },
+          "preserve": {
+            "kind": "header_name_only"
+          }
+        }
+      ],
+      "intent": {
+        "founder_feedback_item": "Move the “Teaching Assistant” job title completely below the light-blue rectangle so that it does not touch or overlap the rectangle, and make the job title bold so that it becomes the secondary visual highlight below the name. Keep “Evelyn Harper” and the light-blue rectangle in their current positions, and move the contact-details row downward only if needed to maintain clean spacing below the job title.",
+        "classification": "MUTATION_REQUIRED",
+        "clauses": [
+          {
+            "text": "move the “teaching assistant” job title completely below the light-blue rectangle",
+            "positive": true,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [
+              "job_title"
+            ],
+            "content_scope": [],
+            "layout_scope": [
+              "job_title"
+            ],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "it",
+            "positive": true,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "touch or overlap the rectangle, and make the job title bold",
+            "positive": false,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [
+              "job_title"
+            ],
+            "content_scope": [],
+            "layout_scope": [
+              "job_title"
+            ],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "it does not touch or overlap the rectangle, and make the job title bold",
+            "positive": false,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [
+              "job_title"
+            ],
+            "content_scope": [],
+            "layout_scope": [
+              "job_title"
+            ],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "it becomes the secondary visual highlight below the name",
+            "positive": true,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "keep “evelyn harper” and the light-blue rectangle in their current positions, and move the contact-details row downward",
+            "positive": true,
+            "intent_class": "LAYOUT_PRESERVATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "needed to maintain clean spacing below the job title",
+            "positive": false,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [
+              "job_title"
+            ],
+            "content_scope": [],
+            "layout_scope": [
+              "job_title"
+            ],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "move the “teaching assistant” job title completely below the light-blue rectangle so that it does not touch or overlap the rectangle, and make the job title bold so that it becomes the secondary visual highlight below the name. keep “evelyn harper” and the light-blue rectangle in their current positions, and move the contact-details row downward only if needed to maintain clean spacing below the job title.",
+            "positive": false,
+            "intent_class": "CONTENT_PRESERVATION",
+            "target_sections": [
+              "job_title"
+            ],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [
+              "job_title"
+            ],
+            "verification_scope": []
+          }
+        ]
+      }
+    },
+    {
+      "founder_feedback_item": "Remove the excessive vertical gap in the first Teaching Assistant experience entry between the bullet ending with “increased student participation rates by 18%” and the following “Assisted in developing supplemental materials” bullet. Keep all existing experience text unchanged and make the spacing between those bullets consistent with the other bullet points in that same experience entry.",
+      "action": "LAYOUT_MUTATION",
+      "clause_actions": [
+        "LAYOUT_MUTATION",
+        "LAYOUT_PRESERVATION"
+      ],
+      "coverage_mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "layout_owned": true,
+      "classification": "MUTATION_REQUIRED",
+      "check_types": [],
+      "content_sections": [],
+      "layout_sections": [
+        "experience"
+      ],
+      "preservation_sections": [
+        "experience"
+      ],
+      "completeness_required": false,
+      "fulfillment": [],
+      "intent": {
+        "founder_feedback_item": "Remove the excessive vertical gap in the first Teaching Assistant experience entry between the bullet ending with “increased student participation rates by 18%” and the following “Assisted in developing supplemental materials” bullet. Keep all existing experience text unchanged and make the spacing between those bullets consistent with the other bullet points in that same experience entry.",
+        "classification": "MUTATION_REQUIRED",
+        "clauses": [
+          {
+            "text": "remove the excessive vertical gap in the first teaching assistant experience entry between the bullet ending with “increased student participation rates by 18%” and the following “assisted in developing supplemental materials” bullet",
+            "positive": true,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [
+              "experience"
+            ],
+            "content_scope": [],
+            "layout_scope": [
+              "experience"
+            ],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "keep all existing experience text unchanged and make the spacing between those bullets consistent with the other bullet points in that same experience entry",
+            "positive": true,
+            "intent_class": "LAYOUT_PRESERVATION",
+            "target_sections": [
+              "experience"
+            ],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [
+              "experience"
+            ],
+            "verification_scope": []
+          }
+        ]
+      }
+    },
+    {
+      "founder_feedback_item": "Change the Skills section from the current horizontal sentence-style layout to vertical bullet pointers arranged in two columns. Keep all eight existing skills unchanged and in the same order: place Student Engagement, Classroom Support, Assignment Grading, and Instructional Material Development vertically in the first column, then place Peer Mentoring, Communication, Microsoft Office, and Zoom & Canvas LMS vertically in the second column beside it. Use the available lower-page space while keeping the following sections on the same page without overlap or clipping.",
+      "action": "PRESENTATION_MUTATION",
+      "clause_actions": [
+        "PRESENTATION_MUTATION",
+        "CONTENT_PRESERVATION",
+        "PRESENTATION_MUTATION",
+        "LAYOUT_MUTATION",
+        "CONTENT_PRESERVATION",
+        "LAYOUT_MUTATION",
+        "LAYOUT_MUTATION"
+      ],
+      "coverage_mode": "DETERMINISTIC_LAYOUT_OWNED",
+      "layout_owned": true,
+      "classification": "MUTATION_REQUIRED",
+      "check_types": [],
+      "content_sections": [],
+      "layout_sections": [
+        "skills"
+      ],
+      "preservation_sections": [
+        "skills"
+      ],
+      "completeness_required": false,
+      "fulfillment": [
+        {
+          "kind": "PRESENTATION",
+          "required": true,
+          "section": "skills",
+          "presentation": "columns",
+          "forbidden_presentation": [
+            "inline"
+          ],
+          "presentation_spec": {
+            "arrangement": "columns",
+            "markers": "bullets",
+            "grouping": {
+              "column_count": 2,
+              "axis": "column",
+              "continue_beside": true,
+              "cardinality_strength": "approximate",
+              "structure_material": true,
+              "strength": "approximate",
+              "executable": true
+            },
+            "forbidden_arrangements": [
+              "inline"
+            ],
+            "forbidden_markers": [],
+            "preserve": false,
+            "executable": true,
+            "desired": "columns",
+            "forbidden": [
+              "inline"
+            ]
+          }
+        }
+      ],
+      "intent": {
+        "founder_feedback_item": "Change the Skills section from the current horizontal sentence-style layout to vertical bullet pointers arranged in two columns. Keep all eight existing skills unchanged and in the same order: place Student Engagement, Classroom Support, Assignment Grading, and Instructional Material Development vertically in the first column, then place Peer Mentoring, Communication, Microsoft Office, and Zoom & Canvas LMS vertically in the second column beside it. Use the available lower-page space while keeping the following sections on the same page without overlap or clipping.",
+        "classification": "MUTATION_REQUIRED",
+        "clauses": [
+          {
+            "text": "change the skills section from the current horizontal sentence-style layout to vertical bullet pointers arranged in two columns",
+            "positive": true,
+            "intent_class": "PRESENTATION_MUTATION",
+            "target_sections": [
+              "skills"
+            ],
+            "content_scope": [],
+            "layout_scope": [
+              "skills"
+            ],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "keep all eight existing skills unchanged and in the same order",
+            "positive": true,
+            "intent_class": "CONTENT_PRESERVATION",
+            "target_sections": [
+              "skills"
+            ],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [
+              "skills"
+            ],
+            "verification_scope": []
+          },
+          {
+            "text": "place student engagement, classroom support, assignment grading, and instructional material development vertically in the first column, then place peer mentoring, communication, microsoft office, and zoom & canvas lms vertically in the second column beside it",
+            "positive": true,
+            "intent_class": "PRESENTATION_MUTATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "use the available lower-page space",
+            "positive": true,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "keeping the following sections on the same page",
+            "positive": true,
+            "intent_class": "CONTENT_PRESERVATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "overlap or clipping",
+            "positive": false,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "keeping the following sections on the same page without overlap or clipping",
+            "positive": false,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          }
+        ]
+      }
+    }
+  ],
+  "content_mutation_sections": [],
+  "content_replacement_sections": [],
+  "content_addition_sections": [],
+  "content_removal_sections": [],
+  "layout_mutation_sections": [
+    "job_title",
+    "experience",
+    "skills"
+  ],
+  "content_preservation_sections": [
+    "job_title",
+    "skills"
+  ],
+  "layout_preservation_sections": [
+    "experience"
+  ],
+  "completeness_sections": [],
+  "intent_scope": {
+    "schema_version": "revision-intent-scope-1.0.0",
+    "items": [
+      {
+        "founder_feedback_item": "Move the “Teaching Assistant” job title completely below the light-blue rectangle so that it does not touch or overlap the rectangle, and make the job title bold so that it becomes the secondary visual highlight below the name. Keep “Evelyn Harper” and the light-blue rectangle in their current positions, and move the contact-details row downward only if needed to maintain clean spacing below the job title.",
+        "classification": "MUTATION_REQUIRED",
+        "clauses": [
+          {
+            "text": "move the “teaching assistant” job title completely below the light-blue rectangle",
+            "positive": true,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [
+              "job_title"
+            ],
+            "content_scope": [],
+            "layout_scope": [
+              "job_title"
+            ],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "it",
+            "positive": true,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "touch or overlap the rectangle, and make the job title bold",
+            "positive": false,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [
+              "job_title"
+            ],
+            "content_scope": [],
+            "layout_scope": [
+              "job_title"
+            ],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "it does not touch or overlap the rectangle, and make the job title bold",
+            "positive": false,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [
+              "job_title"
+            ],
+            "content_scope": [],
+            "layout_scope": [
+              "job_title"
+            ],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "it becomes the secondary visual highlight below the name",
+            "positive": true,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "keep “evelyn harper” and the light-blue rectangle in their current positions, and move the contact-details row downward",
+            "positive": true,
+            "intent_class": "LAYOUT_PRESERVATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "needed to maintain clean spacing below the job title",
+            "positive": false,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [
+              "job_title"
+            ],
+            "content_scope": [],
+            "layout_scope": [
+              "job_title"
+            ],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "move the “teaching assistant” job title completely below the light-blue rectangle so that it does not touch or overlap the rectangle, and make the job title bold so that it becomes the secondary visual highlight below the name. keep “evelyn harper” and the light-blue rectangle in their current positions, and move the contact-details row downward only if needed to maintain clean spacing below the job title.",
+            "positive": false,
+            "intent_class": "CONTENT_PRESERVATION",
+            "target_sections": [
+              "job_title"
+            ],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [
+              "job_title"
+            ],
+            "verification_scope": []
+          }
+        ]
+      },
+      {
+        "founder_feedback_item": "Remove the excessive vertical gap in the first Teaching Assistant experience entry between the bullet ending with “increased student participation rates by 18%” and the following “Assisted in developing supplemental materials” bullet. Keep all existing experience text unchanged and make the spacing between those bullets consistent with the other bullet points in that same experience entry.",
+        "classification": "MUTATION_REQUIRED",
+        "clauses": [
+          {
+            "text": "remove the excessive vertical gap in the first teaching assistant experience entry between the bullet ending with “increased student participation rates by 18%” and the following “assisted in developing supplemental materials” bullet",
+            "positive": true,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [
+              "experience"
+            ],
+            "content_scope": [],
+            "layout_scope": [
+              "experience"
+            ],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "keep all existing experience text unchanged and make the spacing between those bullets consistent with the other bullet points in that same experience entry",
+            "positive": true,
+            "intent_class": "LAYOUT_PRESERVATION",
+            "target_sections": [
+              "experience"
+            ],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [
+              "experience"
+            ],
+            "verification_scope": []
+          }
+        ]
+      },
+      {
+        "founder_feedback_item": "Change the Skills section from the current horizontal sentence-style layout to vertical bullet pointers arranged in two columns. Keep all eight existing skills unchanged and in the same order: place Student Engagement, Classroom Support, Assignment Grading, and Instructional Material Development vertically in the first column, then place Peer Mentoring, Communication, Microsoft Office, and Zoom & Canvas LMS vertically in the second column beside it. Use the available lower-page space while keeping the following sections on the same page without overlap or clipping.",
+        "classification": "MUTATION_REQUIRED",
+        "clauses": [
+          {
+            "text": "change the skills section from the current horizontal sentence-style layout to vertical bullet pointers arranged in two columns",
+            "positive": true,
+            "intent_class": "PRESENTATION_MUTATION",
+            "target_sections": [
+              "skills"
+            ],
+            "content_scope": [],
+            "layout_scope": [
+              "skills"
+            ],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "keep all eight existing skills unchanged and in the same order",
+            "positive": true,
+            "intent_class": "CONTENT_PRESERVATION",
+            "target_sections": [
+              "skills"
+            ],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [
+              "skills"
+            ],
+            "verification_scope": []
+          },
+          {
+            "text": "place student engagement, classroom support, assignment grading, and instructional material development vertically in the first column, then place peer mentoring, communication, microsoft office, and zoom & canvas lms vertically in the second column beside it",
+            "positive": true,
+            "intent_class": "PRESENTATION_MUTATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "use the available lower-page space",
+            "positive": true,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "keeping the following sections on the same page",
+            "positive": true,
+            "intent_class": "CONTENT_PRESERVATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "overlap or clipping",
+            "positive": false,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          },
+          {
+            "text": "keeping the following sections on the same page without overlap or clipping",
+            "positive": false,
+            "intent_class": "LAYOUT_MUTATION",
+            "target_sections": [],
+            "content_scope": [],
+            "layout_scope": [],
+            "preservation_scope": [],
+            "verification_scope": []
+          }
+        ]
+      }
+    ],
+    "content_replacement_sections": [],
+    "content_addition_sections": [],
+    "content_removal_sections": [],
+    "content_mutation_sections": [],
+    "layout_sections": [
+      "job_title",
+      "experience",
+      "skills"
+    ],
+    "content_preservation_sections": [
+      "job_title",
+      "skills"
+    ],
+    "layout_preservation_sections": [
+      "experience"
+    ]
+  }
+}

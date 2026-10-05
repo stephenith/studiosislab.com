@@ -24,13 +24,13 @@ import { validatePlanGeometrySafety } from "./PlanGeometrySafety.js";
 import { validatePlanVerticalDirections } from "./PositionOpCanonicalization.js";
 import { runRevisionAcceptanceChecks } from "./RevisionAcceptanceChecks.js";
 import { evaluateSharedGeometryAdmission } from "../geometry-admission/SharedGeometryAdmission.js";
-import { normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
+import { compileFounderFeedbackIR } from "./FounderFeedbackIR.js";
+import { applyPostExecutionLayoutWorld } from "./FounderFeedbackFulfillment.js";
 import {
   allRequestedChangesAllowEmptyPlan,
   validateRevisionPlan,
 } from "./RevisionPromptBuilder.js";
 import { validateRevisionPlanSelectors } from "./SelectorResolution.js";
-import { applySectionUnitVerticalSafety } from "./SectionUnitVerticalSafety.js";
 import { validateRevisionPlanAgainstInventory } from "./StructuralAlignmentSafety.js";
 import type { RevisionPlan } from "./revision-task-types.js";
 
@@ -370,11 +370,13 @@ export function runRevisionPlanGateCircuit(input: {
   }
   stages.EXECUTION_SIMULATION = "PASS";
 
-  const verticalSafety = applySectionUnitVerticalSafety({
-    priorCanvas: input.priorCanvas,
-    afterCanvas: executed.canvas,
+  const world = applyPostExecutionLayoutWorld({
+    canvas: executed.canvas,
+    ir: compileFounderFeedbackIR(input.requested_changes),
     requested_changes: input.requested_changes,
+    prior_canvas: input.priorCanvas,
   });
+  const verticalSafety = world.vertical;
   if (!verticalSafety.report.ok) {
     stages.SECTION_VERTICAL_SAFETY = "FAIL";
     return {
@@ -392,11 +394,7 @@ export function runRevisionPlanGateCircuit(input: {
   }
   stages.SECTION_VERTICAL_SAFETY = "PASS";
 
-  const normalized = normalizeRevisionLayout({
-    canvas: verticalSafety.canvas,
-    requested_changes: input.requested_changes,
-    prior_canvas: input.priorCanvas,
-  });
+  const normalized = world.normalized;
   if (!normalized.report.ok) {
     stages.LAYOUT_NORMALIZATION = "FAIL";
     return {

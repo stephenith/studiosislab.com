@@ -1,0 +1,27 @@
+{
+  "schema_version": "founder-revision-task-1.0.0",
+  "task_id": "revtask-232a10da-349",
+  "decision_id": "fd-3eb58dc7-d08",
+  "review_id": "founder-review-cycle-student-teaching-assistant-20260930T122029Z-8c0912",
+  "prior_candidate_id": "cand-student-teaching-assistant-20260930T122029Z-8c0912",
+  "prior_canvas_path": "SOS/07_LOGS/saios/first-production-cycle/candidates/cand-student-teaching-assistant-20260930T122029Z-8c0912/canvas.json",
+  "founder_reason": "The header job title is positioned too close to the bottom edge of the blue name rectangle and does not have enough visual emphasis. In the first Teaching Assistant experience entry, there is also an unusually large vertical gap between the bullet ending with “increased student participation rates by 18%” and the following “Assisted in developing supplemental materials” bullet, making the bullet spacing inconsistent. The Skills section is currently displayed horizontally like a sentence, which makes the individual skills harder to scan even though there is enough vertical space available on the page.",
+  "requested_changes": [
+    "Move the “Teaching Assistant” job title completely below the light-blue rectangle so that it does not touch or overlap the rectangle, and make the job title bold so that it becomes the secondary visual highlight below the name. Keep “Evelyn Harper” and the light-blue rectangle in their current positions, and move the contact-details row downward only if needed to maintain clean spacing below the job title.",
+    "Remove the excessive vertical gap in the first Teaching Assistant experience entry between the bullet ending with “increased student participation rates by 18%” and the following “Assisted in developing supplemental materials” bullet. Keep all existing experience text unchanged and make the spacing between those bullets consistent with the other bullet points in that same experience entry.",
+    "Change the Skills section from the current horizontal sentence-style layout to vertical bullet pointers arranged in two columns. Keep all eight existing skills unchanged and in the same order: place Student Engagement, Classroom Support, Assignment Grading, and Instructional Material Development vertically in the first column, then place Peer Mentoring, Communication, Microsoft Office, and Zoom & Canvas LMS vertically in the second column beside it. Use the available lower-page space while keeping the following sections on the same page without overlap or clipping."
+  ],
+  "role": "Teaching Assistant",
+  "design_family": "corporate",
+  "architecture": "compact_corporate",
+  "status": "FAILED_GATE",
+  "created_at": "2026-10-05T11:06:39.622Z",
+  "updated_at": "2026-10-05T11:07:34.412Z",
+  "revised_candidate_id": null,
+  "revised_review_id": null,
+  "revision_number": 1,
+  "error": "final rendered geometry failed: TEXT_OVERLAP text_overlaps=1 page_oob=0 page_overflow_px=0",
+  "openai_execution_path": "SOS/07_LOGS/saios/founder-revision/evidence/revtask-232a10da-349/openai-execution.json",
+  "publication_allowed": false,
+  "live": false
+}

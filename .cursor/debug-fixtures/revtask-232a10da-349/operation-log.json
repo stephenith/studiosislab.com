@@ -1,0 +1,70 @@
+[
+  {
+    "index": 0,
+    "op": "set_dimensions",
+    "target_id": "block-experience-2-t6",
+    "founder_feedback_item": "Remove the excessive vertical gap in the first Teaching Assistant experience entry between the bullet ending with “increased student participation rates by 18%” and the following “Assisted in developing supplemental materials” bullet. Keep all existing experience text unchanged and make the spacing between those bullets consistent with the other bullet points in that same experience entry.",
+    "ok": true,
+    "before": {
+      "id": "block-experience-2-t6",
+      "type": "Textbox",
+      "left": 48,
+      "top": 395.66666666666663,
+      "width": 698,
+      "height": 31,
+      "fill": "#0a0a0a",
+      "stroke": null,
+      "text": "• Coordinated peer study groups and facilitated discussion forums that increased student participation rates by 18%.",
+      "fontSize": 10.5,
+      "lineHeight": 1.45
+    },
+    "after": {
+      "id": "block-experience-2-t6",
+      "type": "Textbox",
+      "left": 48,
+      "top": 395.67,
+      "width": 698,
+      "height": 16,
+      "fill": "#0a0a0a",
+      "stroke": null,
+      "text": "• Coordinated peer study groups and facilitated discussion forums that increased student participation rates by 18%.",
+      "fontSize": 10.5,
+      "lineHeight": 1.45
+    },
+    "error": null
+  },
+  {
+    "index": 1,
+    "op": "set_position",
+    "target_id": "block-experience-2-t7",
+    "founder_feedback_item": "Remove the excessive vertical gap in the first Teaching Assistant experience entry between the bullet ending with “increased student participation rates by 18%” and the following “Assisted in developing supplemental materials” bullet. Keep all existing experience text unchanged and make the spacing between those bullets consistent with the other bullet points in that same experience entry.",
+    "ok": true,
+    "before": {
+      "id": "block-experience-2-t7",
+      "type": "Textbox",
+      "left": 48,
+      "top": 429.99999999999994,
+      "width": 698,
+      "height": 31,
+      "fill": "#0a0a0a",
+      "stroke": null,
+      "text": "• Assisted in developing supplemental materials including quizzes and lecture summaries adopted by department for future",
+      "fontSize": 10.5,
+      "lineHeight": 1.45
+    },
+    "after": {
+      "id": "block-experience-2-t7",
+      "type": "Textbox",
+      "left": 48,
+      "top": 414.77,
+      "width": 698,
+      "height": 31,
+      "fill": "#0a0a0a",
+      "stroke": null,
+      "text": "• Assisted in developing supplemental materials including quizzes and lecture summaries adopted by department for future",
+      "fontSize": 10.5,
+      "lineHeight": 1.45
+    },
+    "error": null
+  }
+]

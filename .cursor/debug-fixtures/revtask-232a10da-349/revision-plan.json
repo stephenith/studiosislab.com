@@ -1,0 +1,37 @@
+{
+  "schema_version": "founder-canvas-revision-plan-1.0.0",
+  "summary": "No geometry or presentation mutations needed; all requested layout and presentation changes are owned by deterministic layout normalization. No operations emitted to preserve canonical layout control and respect founder instructions.",
+  "operations": [
+    {
+      "op": "set_dimensions",
+      "target_id": "block-experience-2-t6",
+      "before_summary": "block-experience-2-t6 oversized height 31 vs visual 15.225",
+      "intended_change": "Shrink textbox height to visual content for named spacing relation",
+      "values": {
+        "height": 16
+      },
+      "founder_feedback_item": "Remove the excessive vertical gap in the first Teaching Assistant experience entry between the bullet ending with “increased student participation rates by 18%” and the following “Assisted in developing supplemental materials” bullet. Keep all existing experience text unchanged and make the spacing between those bullets consistent with the other bullet points in that same experience entry.",
+      "confidence": 1
+    },
+    {
+      "op": "set_position",
+      "target_id": "block-experience-2-t7",
+      "before_summary": "block-experience-2-t7 at top=429.99999999999994 after block-experience-2-t6 visual_bottom=410.89166666666665",
+      "intended_change": "Compact named spacing pair block-experience-2-t6→block-experience-2-t7 to peer visual rhythm",
+      "values": {
+        "top": 414.77
+      },
+      "founder_feedback_item": "Remove the excessive vertical gap in the first Teaching Assistant experience entry between the bullet ending with “increased student participation rates by 18%” and the following “Assisted in developing supplemental materials” bullet. Keep all existing experience text unchanged and make the spacing between those bullets consistent with the other bullet points in that same experience entry.",
+      "confidence": 1
+    }
+  ],
+  "notes": [
+    "Item 1 requires moving the job title below the blue rectangle and making it bold, but this is deterministic layout owned and no direct mutation is allowed.",
+    "Item 2 requires removing excessive vertical gap between bullets in the first Teaching Assistant experience entry, but this is deterministic layout owned and no direct mutation is allowed.",
+    "Item 3 requires changing Skills section layout from horizontal sentence to vertical two-column bullet arrangement, but this is deterministic layout owned and no direct mutation is allowed.",
+    "deterministic_spacing_ownership",
+    "named_pair_only",
+    "shifted_objects=2",
+    "named_relation_ops=2"
+  ]
+}

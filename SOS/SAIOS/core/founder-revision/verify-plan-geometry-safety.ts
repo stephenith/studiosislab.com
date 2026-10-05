@@ -694,7 +694,7 @@ async function main(): Promise<void> {
       text: "Alpha item one two three four five six seven eight nine ten",
       fontSize: 14,
       lineHeight: 1.3,
-      data: { section: "skills", role: "body", id: "same-a" },
+      data: { role: "body", id: "same-a" },
     },
     {
       type: "textbox",
@@ -706,7 +706,7 @@ async function main(): Promise<void> {
       text: "Beta item one two three four five six seven eight nine ten",
       fontSize: 14,
       lineHeight: 1.3,
-      data: { section: "skills", role: "body", id: "same-b" },
+      data: { role: "body", id: "same-b" },
     },
   ]);
   const unsafeGrowth = validatePlanGeometrySafety({

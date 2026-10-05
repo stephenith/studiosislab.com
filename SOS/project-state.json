@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PROJECT-WIDE / RESUME \u2014 C6 ADMINISTRATIVE CLOSURE 2026-10-05. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. CORE_RESUME_TEMPLATE_FACTORY_GOAL_MET=YES. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. CURRENT_P0_BLOCKERS=NONE. C1=PASS; C2=PASS; C3=PASS; C4=PASS. C5=COMPLETE IMMUTABLE CONSOLIDATION EVIDENCE (6 live proofs: #1 FAIL, #2 FAIL, #3 FAIL, #4 FALSE READY, #5 FAIL, #6 FALSE READY). C6=PASS/COMPLETE. SEVENTH_C5_REQUIRED=NO. FOUNDER_FEEDBACK_IR=founder-feedback-ir-1.4.3 deployed at pre-closure HEAD 37af692e0353878fd02e2bdabe0b948f58f3daf2. False-READY children remain AUDIT_INVALID / NOT_DECISIONABLE. Known current silent safety bypass=NONE. No production OpenAI, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY, overlay, or historical-task changes in this administrative run. Next project priority: Website Analysis / QA / Development \u2014 inspect existing state first. Do NOT reopen Resume revision engineering unless a new real production failure occurs.",
+    "PROJECT-WIDE / RESUME \u2014 TA POST-C6 BOUNDED MAINTENANCE 2026-10-05. Production fd-3eb58dc7-d08 / revtask-232a10da-349 FAILED_GATE remains immutable. IR founder-feedback-ir-1.4.4 local offline PASS (STYLE + SPACING_PAIR + intra-section cascade + shared post-execute layout world). LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO. FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. CURRENT_P0_BLOCKERS=NONE. C6=PASS/COMPLETE. SEVENTH_C5_REQUIRED=NO. Immediate objective remains Resume Founder-to-public E2E. Founder-directed successor after E2E is SEO (not activated). Do NOT retry revtask-232a10da-349 or historical C5 tasks. Do not start Website automation or SEO in this stream.",
     "NEXT DEPARTMENT \u2014 Website Analysis / QA / Development is now the active project priority. Inspect existing repository/runtime/evidence first. Do not invent Website architecture. Do not enable Website automation. Do not implement Website work in the C6 administrative closure run. Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "RESUME MAINTENANCE P1 \u2014 revision_failed Request Changes UI/actionability presentation (Motion Designer \u2026-bed721; Campus Ambassador \u2026-047495). Not a P0. Does not reactivate the department.",
     "RESUME MAINTENANCE P1 \u2014 publication controlled-apply proof for staged packages while AUTO_APPLY remains OFF.",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back \u2014 snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-10-05T12:12:00.000Z",
+      "type": "resume_ta_post_c6_bounded_maintenance",
+      "summary": "Teaching Assistant post-C6 bounded revision maintenance. Local wall=2026-10-05T17:42:00+05:30. UTC=2026-10-05T12:12:00.000Z. Production fd-3eb58dc7-d08 / revtask-232a10da-349 FAILED_GATE / C2 TEXT_OVERLAP remains immutable; no child; no live retry. IR founder-feedback-ir-1.4.4 STYLE + named SPACING_PAIR; applyStyleMutations; intra-section cascade in normalizeRevisionLayout; applyPostExecutionLayoutWorld shared with PlanGeometrySafety. Offline: TA full-intent PASS; C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6H PASS; 6K PASS; 6O PASS; 6P PASS; plan-geometry PASS; role PASS; preservation PASS; actionability PASS. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. C6=PASS not rewritten. SEVENTH_C5_REQUIRED=NO. LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO. FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF. Deployed VPS/origin remain 9e8073664cde87cff6fd0e71cb3d1b5a26223290 / IR 1.4.3. generated_at envelope left at 2026-07-11T23:31:33.456Z. No production OpenAI, generation, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY, overlay, or historical-evidence changes. ACTIVE_PROJECT_PRIORITY=Website Analysis / QA / Development."
+    },
     {
       "at": "2026-10-05T10:06:00.000Z",
       "type": "consolidation_c6_administrative_closure",
@@ -3471,7 +3476,7 @@
     "revision_engineering_status": "MAINTENANCE_REGRESSION_ONLY",
     "current_p0_blockers": [],
     "next_major_department": "Website Analysis / QA / Development",
-    "next_authorized_step": "Inspect existing Website Analysis / QA / Development state repository-first and evidence-first (do not invent architecture; do not enable Website automation; do not retry historical C5 tasks; READY_FOR_SEVENTH_C5_LIVE_PROOF=NO; C6=PASS)",
+    "next_authorized_step": "Resume Founder-to-public E2E business acceptance remains pending (do not retry revtask-232a10da-349 or historical C5 tasks; LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO; READY_FOR_SEVENTH_C5_LIVE_PROOF=NO; C6=PASS; SEO is Founder-directed successor after E2E and is not activated)",
     "consolidation_plan": {
       "recorded_at_ist": "2026-09-29T15:22:52+05:30",
       "recorded_at_utc": "2026-09-29T09:52:52.100Z",
@@ -3507,7 +3512,7 @@
       "c1_c4_fulfillment_correction_status": "IMPLEMENTED_OFFLINE",
       "c1_c4_fulfillment_correction_at_ist": "2026-09-30T15:23:42+05:30",
       "c1_c4_fulfillment_correction_at_utc": "2026-09-30T09:53:42.000Z",
-      "ir_schema_after": "founder-feedback-ir-1.4.3",
+      "ir_schema_after": "founder-feedback-ir-1.4.4",
       "ready_for_c6": true,
       "ready_for_c6_closure_audit": true,
       "c6_status": "PASS",
@@ -3543,6 +3548,14 @@
       "ir_1_4_3_status": "DEPLOYED",
       "ir_1_4_3_at_ist": "2026-10-05T15:13:32+05:30",
       "ir_1_4_3_at_utc": "2026-10-05T09:43:32.000Z",
+      "ir_1_4_4_status": "IMPLEMENTED_OFFLINE_NOT_DEPLOYED",
+      "ir_1_4_4_at_ist": "2026-10-05T17:42:00+05:30",
+      "ir_1_4_4_at_utc": "2026-10-05T12:12:00.000Z",
+      "ta_production_failure_decision_id": "fd-3eb58dc7-d08",
+      "ta_production_failure_task_id": "revtask-232a10da-349",
+      "ta_production_failure_result": "FAILED_GATE",
+      "live_retry_required_after_offline_pass": false,
+      "founder_e2e_business_acceptance_status": "PENDING_LIVE_E2E_PROOF",
       "c5_sixth_status": "LIVE_PROOF_FALSE_READY",
       "c5_sixth_decision_id": "fd-d679f3f8-f03",
       "c5_sixth_task_id": "revtask-3a9bcae2-16c",
@@ -3584,14 +3597,15 @@
       "revtask-3f5b2339-73e",
       "revtask-0d58e039-326",
       "revtask-68a5d250-b24",
-      "revtask-3a9bcae2-16c"
+      "revtask-3a9bcae2-16c",
+      "revtask-232a10da-349"
     ],
-    "snapshot_ist": "2026-10-05T15:36:00+05:30",
-    "snapshot_utc": "2026-10-05T10:06:00.000Z",
+    "snapshot_ist": "2026-10-05T17:42:00+05:30",
+    "snapshot_utc": "2026-10-05T12:12:00.000Z",
     "heads": {
-      "local": "37af692e0353878fd02e2bdabe0b948f58f3daf2",
-      "origin": "37af692e0353878fd02e2bdabe0b948f58f3daf2",
-      "vps": "37af692e0353878fd02e2bdabe0b948f58f3daf2"
+      "local": "9e8073664cde87cff6fd0e71cb3d1b5a26223290",
+      "origin": "9e8073664cde87cff6fd0e71cb3d1b5a26223290",
+      "vps": "9e8073664cde87cff6fd0e71cb3d1b5a26223290"
     }
   },
   "studiosislab_project": {
@@ -3605,7 +3619,8 @@
     "current_p0_blockers": [],
     "c6_status": "PASS",
     "seventh_c5_required": false,
-    "current_founder_feedback_ir": "founder-feedback-ir-1.4.3",
+    "current_founder_feedback_ir": "founder-feedback-ir-1.4.4",
+    "founder_e2e_business_acceptance_status": "PENDING_LIVE_E2E_PROOF",
     "next_major_department": "Website Analysis / QA / Development",
     "planned_departments_not_activated": [
       "Website Analysis / QA / Development",
@@ -3614,12 +3629,12 @@
       "Revenue / Monetization",
       "AIOS System Audit / Optimization"
     ],
-    "snapshot_ist": "2026-10-05T15:36:00+05:30",
-    "snapshot_utc": "2026-10-05T10:06:00.000Z",
+    "snapshot_ist": "2026-10-05T17:42:00+05:30",
+    "snapshot_utc": "2026-10-05T12:12:00.000Z",
     "heads": {
-      "local": "37af692e0353878fd02e2bdabe0b948f58f3daf2",
-      "origin": "37af692e0353878fd02e2bdabe0b948f58f3daf2",
-      "vps": "37af692e0353878fd02e2bdabe0b948f58f3daf2"
+      "local": "9e8073664cde87cff6fd0e71cb3d1b5a26223290",
+      "origin": "9e8073664cde87cff6fd0e71cb3d1b5a26223290",
+      "vps": "9e8073664cde87cff6fd0e71cb3d1b5a26223290"
     }
   }
 }

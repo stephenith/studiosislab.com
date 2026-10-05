@@ -27,6 +27,7 @@ import {
   applyAlreadySatisfiedProof,
   applyPresentationMutations,
   applyRelationalAlignment,
+  compileStyleMutation,
   bindRangeTargetIds,
   bindReferenceIds,
   bindTargetDescriptor,
@@ -2586,6 +2587,37 @@ async function main(): Promise<void> {
     }),
   );
 
+  const TA_HEADER =
+    "Move the “Teaching Assistant” job title completely below the light-blue rectangle so that it does not touch or overlap the rectangle, and make the job title bold so that it becomes the secondary visual highlight below the name. Keep “Evelyn Harper” and the light-blue rectangle in their current positions, and move the contact-details row downward only if needed to maintain clean spacing below the job title.";
+  const TA_EXPERIENCE =
+    "Remove the excessive vertical gap in the first Teaching Assistant experience entry between the bullet ending with “increased student participation rates by 18%” and the following “Assisted in developing supplemental materials” bullet. Keep all existing experience text unchanged and make the spacing between those bullets consistent with the other bullet points in that same experience entry.";
+  const TA_SKILLS =
+    "Change the Skills section from the current horizontal sentence-style layout to vertical bullet pointers arranged in two columns. Keep all eight existing skills unchanged and in the same order: place Student Engagement, Classroom Support, Assignment Grading, and Instructional Material Development vertically in the first column, then place Peer Mentoring, Communication, Microsoft Office, and Zoom & Canvas LMS vertically in the second column beside it. Use the available lower-page space while keeping the following sections on the same page without overlap or clipping.";
+  const taIr = compileFounderFeedbackIR([TA_HEADER, TA_EXPERIENCE, TA_SKILLS]);
+  const taHeader = taIr.items[0];
+  const taExp = taIr.items[1];
+  const taSkills = taIr.items[2];
+  const taStyle = compileStyleMutation(TA_HEADER);
+  assert(
+    taIr.schema_version === FOUNDER_FEEDBACK_IR_SCHEMA &&
+      FOUNDER_FEEDBACK_IR_SCHEMA === "founder-feedback-ir-1.4.4" &&
+      taHeader?.fulfillment.some((p) => p.kind === "RELATIONAL_ALIGNMENT") &&
+      taHeader?.fulfillment.some((p) => p.kind === "STYLE") &&
+      taStyle?.fontWeight === "bold" &&
+      taStyle.target.role === "professional_title" &&
+      taExp?.fulfillment.some((p) => p.kind === "SPACING_PAIR") &&
+      taSkills?.fulfillment.some((p) => p.kind === "PRESENTATION") &&
+      !taHeader?.fulfillment.some((p) => p.kind === "SPACING_PAIR") &&
+      !taSkills?.fulfillment.some((p) => p.kind === "SPACING_PAIR"),
+    "ta_packet_compiles_style_spacing_presentation",
+    JSON.stringify({
+      schema: taIr.schema_version,
+      header: taHeader?.fulfillment.map((p) => p.kind),
+      exp: taExp?.fulfillment.map((p) => p.kind),
+      skills: taSkills?.fulfillment.map((p) => p.kind),
+      style: taStyle,
+    }),
+  );
   for (const id of HISTORICAL) {
     const p = join(REPO, "SOS/07_LOGS/saios/founder-revision/tasks", `${id}.json`);
     if (!existsSync(p)) {

@@ -1,0 +1,27 @@
+{
+  "schema_version": "shared-geometry-admission-1.0.0",
+  "evaluated_at": "2026-10-05T11:07:34.411Z",
+  "pass": false,
+  "unevaluable": false,
+  "text_overlap_count": 1,
+  "page_oob_count": 0,
+  "page_overflow_px": 0,
+  "page_fit_pass": true,
+  "fail_codes": [
+    "TEXT_OVERLAP"
+  ],
+  "findings": [
+    {
+      "code": "ACC_TEXT_OVERLAP",
+      "message": "Overlapping text gap=-14",
+      "object_ids": [
+        "block-header-0-t2",
+        "block-header-0-t3"
+      ],
+      "metrics": {
+        "gap": -14,
+        "overlapX": 674
+      }
+    }
+  ]
+}

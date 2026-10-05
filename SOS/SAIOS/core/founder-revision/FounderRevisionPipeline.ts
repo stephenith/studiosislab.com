@@ -34,7 +34,6 @@ import {
   formatSectionReplacementIncompleteError,
 } from "./SectionReplacementCompleteness.js";
 import { evaluateRevisionRoleTargetIntegrity } from "../role-integrity/RevisionRoleTargetIntegrity.js";
-import { normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
 import { planFounderCanvasRevision } from "./RevisionPlanner.js";
 import {
   buildPlanWithDeterministicSpacingOwnership,
@@ -50,7 +49,6 @@ import {
 import { validateRevisionPlanSelectors } from "./SelectorResolution.js";
 import { validateRevisionPlanAgainstInventory } from "./StructuralAlignmentSafety.js";
 import { validatePlanGeometrySafety } from "./PlanGeometrySafety.js";
-import { applySectionUnitVerticalSafety } from "./SectionUnitVerticalSafety.js";
 import {
   loadRevisionTask,
   updateRevisionTask,
@@ -72,8 +70,7 @@ import {
 import { compileFounderFeedbackIR } from "./FounderFeedbackIR.js";
 import {
   applyAlreadySatisfiedProof,
-  applyPresentationMutations,
-  applyRelationalAlignment,
+  applyPostExecutionLayoutWorld,
   dropProviderGeometryWhenRelationalOwned,
 } from "./FounderFeedbackFulfillment.js";
 import { PRODUCTION_REQUEST_CHANGES_ENTRY_POINT } from "./RevisionPipelineClassification.js";
@@ -737,11 +734,6 @@ export async function runFounderFeedbackRevision(
     operations: activePlan.operations,
   });
   writeJson(join(evidenceDir, "operation-log.json"), executed.log);
-  if (executed.ok) {
-    executed.canvas = applyPresentationMutations(executed.canvas, feedbackIR);
-    executed.canvas = applyRelationalAlignment(executed.canvas, feedbackIR);
-  }
-
   if (!executed.ok) {
     writeJson(join(evidenceDir, "execution-failure.json"), {
       error: executed.error,
@@ -760,15 +752,17 @@ export async function runFounderFeedbackRevision(
     };
   }
 
+  const world = applyPostExecutionLayoutWorld({
+    canvas: executed.canvas,
+    ir: feedbackIR,
+    requested_changes: task.requested_changes,
+    prior_canvas: priorCanvas,
+  });
+  executed.canvas = world.canvas;
+
   task = updateRevisionTask(task.task_id, { status: "VALIDATING" });
 
-  // Marker↔heading Y coherence AFTER ops, BEFORE layout normalization.
-  // Restores prior/reference Y-delta when known; fail closed otherwise.
-  const verticalSafety = applySectionUnitVerticalSafety({
-    priorCanvas,
-    afterCanvas: executed.canvas,
-    requested_changes: task.requested_changes,
-  });
+  const verticalSafety = world.vertical;
   writeJson(
     join(evidenceDir, "section-unit-vertical-safety.json"),
     verticalSafety.report,
@@ -790,13 +784,7 @@ export async function runFounderFeedbackRevision(
     };
   }
 
-  // Deterministic layout normalization AFTER OpenAI ops, BEFORE acceptance.
-  // Never mutates priorCanvas; works on a clone of the executed canvas.
-  const normalized = normalizeRevisionLayout({
-    canvas: verticalSafety.canvas,
-    requested_changes: task.requested_changes,
-    prior_canvas: priorCanvas,
-  });
+  const normalized = world.normalized;
   writeJson(
     join(evidenceDir, "revision-layout-normalization.json"),
     normalized.report,

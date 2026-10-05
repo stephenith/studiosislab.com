@@ -20,7 +20,8 @@ import {
   applyPostContentReflow,
   isContentMutationOp,
 } from "./PostContentReflow.js";
-import { normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
+import { compileFounderFeedbackIR } from "./FounderFeedbackIR.js";
+import { applyPostExecutionLayoutWorld } from "./FounderFeedbackFulfillment.js";
 import {
   findOutOfBoundsObjects,
   findTextOverlapFindings,
@@ -165,15 +166,42 @@ export function validatePlanGeometrySafety(input: {
 
   let evalCanvas = simulated.canvas;
   let layoutApplied = false;
-  if (planHasContentMutation(input.plan)) {
-    const reflowed = applyPostContentReflow({ canvas: evalCanvas });
-    const normalized = normalizeRevisionLayout({
-      canvas: reflowed.canvas,
-      requested_changes: input.requested_changes ?? [],
+  const requested = input.requested_changes ?? [];
+  const ir = compileFounderFeedbackIR(requested);
+  const hasIrLayout = ir.items.some((item) =>
+    (item.fulfillment ?? []).some(
+      (p) =>
+        p.kind === "PRESENTATION" ||
+        p.kind === "RELATIONAL_ALIGNMENT" ||
+        p.kind === "STYLE",
+    ),
+  );
+  const needsWorld = planHasContentMutation(input.plan) || hasIrLayout;
+  const needsContentReflow = input.plan.operations.some((op) => {
+    switch (op.op) {
+      case "update_text":
+      case "add_object":
+      case "adjust_font_size":
+      case "adjust_line_height":
+        return true;
+      default:
+        return false;
+    }
+  });
+  if (needsWorld) {
+    if (needsContentReflow) {
+      const reflowed = applyPostContentReflow({ canvas: evalCanvas });
+      evalCanvas = reflowed.canvas;
+    }
+    const world = applyPostExecutionLayoutWorld({
+      canvas: evalCanvas,
+      ir,
+      requested_changes: requested,
       prior_canvas: input.canvas,
     });
-    evalCanvas = normalized.canvas;
+    evalCanvas = world.canvas;
     layoutApplied = true;
+    const normalized = world.normalized;
     if (!normalized.report.ok) {
       findings.push({
         code: "PLAN_LAYOUT_FAILED",

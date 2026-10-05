@@ -24,6 +24,7 @@
  * Never shrinks fonts, lineHeight, or scales the canvas.
  */
 
+import { createRequire } from "node:module";
 import type { FabricCanvasDoc } from "./CanvasInventory.js";
 import {
   applyHeaderIdentityBlockLayout,
@@ -39,6 +40,8 @@ import {
   isCollisionOrReadableGapLayoutRequest,
   isExcessiveSectionGapLayoutRequest,
 } from "./RevisionIntentScope.js";
+
+const require = createRequire(import.meta.url);
 
 /** Readable same-section sequential gap when Founder asked to separate colliding lines. */
 export const READABLE_SEQUENTIAL_GAP_PX = 6;
@@ -2389,6 +2392,122 @@ function enforceFounderSectionSystemSectionGapRhythm(
  * collision-free, and consistent, that proven relationship is restored
  * instead of inventing a new gap.
  */
+function bboxChanged(prior: FabricObj | undefined, current: FabricObj): boolean {
+  if (!prior) return true;
+  const a = bbox(prior);
+  const b = bbox(current);
+  return (
+    Math.abs(a.top - b.top) > 0.51 ||
+    Math.abs(a.left - b.left) > 0.51 ||
+    Math.abs(a.width - b.width) > 0.51 ||
+    Math.abs(a.height - b.height) > 0.51
+  );
+}
+
+function sameColumnOverlap(a: FabricObj, b: FabricObj): boolean {
+  const ab = bbox(a);
+  const bb = bbox(b);
+  return Math.min(ab.right, bb.right) - Math.max(ab.left, bb.left) >= 1;
+}
+
+function collectPreserveIds(
+  objects: FabricObj[],
+  requested_changes: string[],
+): Set<string> {
+  const ids = new Set<string>();
+  if (requested_changes.length === 0) return ids;
+  try {
+    const { compileFounderFeedbackIR } =
+      require("./FounderFeedbackIR.js") as typeof import("./FounderFeedbackIR.js");
+    const { bindReferenceIds } =
+      require("./FounderFeedbackFulfillment.js") as typeof import("./FounderFeedbackFulfillment.js");
+    const ir = compileFounderFeedbackIR(requested_changes);
+    const canvas = { objects } as FabricCanvasDoc;
+    for (const item of ir.items) {
+      for (const predicate of item.fulfillment ?? []) {
+        if (predicate.kind !== "RELATIONAL_ALIGNMENT") continue;
+        if (predicate.preserve) {
+          for (const id of bindReferenceIds(canvas, predicate.preserve)) {
+            ids.add(id);
+          }
+        }
+        if (predicate.reference) {
+          for (const id of bindReferenceIds(canvas, predicate.reference)) {
+            ids.add(id);
+          }
+        }
+      }
+    }
+  } catch {
+    /* preserve set empty — cascade still skips nothing extra */
+  }
+  return ids;
+}
+
+function cascadeAffectedSectionSiblings(
+  objects: FabricObj[],
+  priorCanvas: FabricCanvasDoc | undefined,
+  requested_changes: string[],
+  report: LayoutNormalizationReport,
+): void {
+  if (!priorCanvas) return;
+  const preserveIds = collectPreserveIds(objects, requested_changes);
+  const priorById = new Map<string, FabricObj>();
+  const priorObjs = (priorCanvas?.objects ?? []) as FabricObj[];
+  for (let i = 0; i < priorObjs.length; i++) {
+    priorById.set(objectId(priorObjs[i]!, i), priorObjs[i]!);
+  }
+  const minGap = READABLE_SEQUENTIAL_GAP_PX;
+
+  for (let pass = 0; pass < 6; pass++) {
+    let moved = false;
+    const bySection = new Map<string, Array<{ o: FabricObj; id: string }>>();
+    for (let i = 0; i < objects.length; i++) {
+      const o = objects[i]!;
+      if (isSystemBg(o) || isDecorativeNonSection(o)) continue;
+      const sec = sectionOf(o);
+      if (!sec) continue;
+      if (!bySection.has(sec)) bySection.set(sec, []);
+      bySection.get(sec)!.push({ o, id: objectId(o, i) });
+    }
+    for (const [section, members] of bySection) {
+      members.sort(
+        (a, b) =>
+          Number(a.o.top ?? 0) - Number(b.o.top ?? 0) || a.id.localeCompare(b.id),
+      );
+      for (let i = 0; i < members.length; i++) {
+        const source = members[i]!;
+        if (preserveIds.has(source.id)) continue;
+        if (isRect(source.o) && !isText(source.o)) continue;
+        if (isSectionMarkerRole(source.o)) continue;
+        const sourceChanged = bboxChanged(priorById.get(source.id), source.o);
+        if (!sourceChanged) continue;
+        let cursorBottom = bbox(source.o).bottom;
+        for (let j = i + 1; j < members.length; j++) {
+          const sib = members[j]!;
+          if (preserveIds.has(sib.id)) continue;
+          if (!sameColumnOverlap(source.o, sib.o)) continue;
+          const sb = bbox(sib.o);
+          if (sb.top + 1e-9 >= cursorBottom) {
+            cursorBottom = Math.max(cursorBottom, sb.bottom);
+            continue;
+          }
+          const needed = cursorBottom + minGap;
+          const delta = Number((needed - sb.top).toFixed(2));
+          if (Math.abs(delta) < 0.01) continue;
+          sib.o.top = Number((Number(sib.o.top ?? 0) + delta).toFixed(2));
+          report.collision_resolutions.push(
+            `intra_section_cascade ${section} ${source.id}→${sib.id} +${delta}`,
+          );
+          cursorBottom = bbox(sib.o).bottom;
+          moved = true;
+        }
+      }
+    }
+    if (!moved) break;
+  }
+}
+
 export function normalizeRevisionLayout(input: {
   canvas: FabricCanvasDoc;
   requested_changes?: string[];
@@ -2573,6 +2692,18 @@ export function normalizeRevisionLayout(input: {
   );
   enforceSectionStack(lanes, report);
   enforceHeaderContactToSummaryGap(groups, lanes, report);
+
+  const cascadeBefore = report.collision_resolutions.length;
+  cascadeAffectedSectionSiblings(
+    objects,
+    input.prior_canvas,
+    input.requested_changes ?? [],
+    report,
+  );
+  if (report.collision_resolutions.length > cascadeBefore) {
+    enforceSectionStack(lanes, report);
+    enforceHeaderContactToSummaryGap(groups, lanes, report);
+  }
 
   // 5) Lane-aware page-fit compaction
   const headerGroup = groups.find((g) => g.section === "header") ?? null;

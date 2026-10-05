@@ -1,0 +1,22 @@
+{
+  "schema_version": "teaching-assistant-revision-fixture-1.0.0",
+  "fixture_origin": "Immutable offline copy of production evidence for revtask-232a10da-349. Production task, decision, overlay, and VPS originals must not be mutated.",
+  "task_id": "revtask-232a10da-349",
+  "decision_id": "fd-3eb58dc7-d08",
+  "prior_candidate_id": "cand-student-teaching-assistant-20260930T122029Z-8c0912",
+  "role": "Teaching Assistant",
+  "design_family": "corporate",
+  "architecture": "compact_corporate",
+  "task_status": "FAILED_GATE",
+  "failure_code": "TEXT_OVERLAP",
+  "requested_changes": [
+    "Move the \u201cTeaching Assistant\u201d job title completely below the light-blue rectangle so that it does not touch or overlap the rectangle, and make the job title bold so that it becomes the secondary visual highlight below the name. Keep \u201cEvelyn Harper\u201d and the light-blue rectangle in their current positions, and move the contact-details row downward only if needed to maintain clean spacing below the job title.",
+    "Remove the excessive vertical gap in the first Teaching Assistant experience entry between the bullet ending with \u201cincreased student participation rates by 18%\u201d and the following \u201cAssisted in developing supplemental materials\u201d bullet. Keep all existing experience text unchanged and make the spacing between those bullets consistent with the other bullet points in that same experience entry.",
+    "Change the Skills section from the current horizontal sentence-style layout to vertical bullet pointers arranged in two columns. Keep all eight existing skills unchanged and in the same order: place Student Engagement, Classroom Support, Assignment Grading, and Instructional Material Development vertically in the first column, then place Peer Mentoring, Communication, Microsoft Office, and Zoom & Canvas LMS vertically in the second column beside it. Use the available lower-page space while keeping the following sections on the same page without overlap or clipping."
+  ],
+  "notes": [
+    "Historical production task remains FAILED_GATE.",
+    "Do not retry revtask-232a10da-349.",
+    "Offline full-intent proof only."
+  ]
+}

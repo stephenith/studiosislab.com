@@ -1,0 +1,529 @@
+{
+  "schema_version": "founder-revision-layout-normalization-1.4.0",
+  "at": "2026-10-05T11:07:34.406Z",
+  "ok": true,
+  "canvas_source": "after_openai_operations_deterministic_layout_and_gap_compaction",
+  "constants": {
+    "min_section_gap_px": 12,
+    "min_heading_body_gap_px": 8,
+    "content_grid_left_tolerance_px": 2,
+    "lane_horizontal_overlap_px": 24,
+    "lane_anchor_join_px": 72
+  },
+  "sections_detected": [
+    "header",
+    "summary",
+    "experience",
+    "education",
+    "skills",
+    "certifications",
+    "languages"
+  ],
+  "section_order": [
+    "header",
+    "summary",
+    "experience",
+    "education",
+    "skills",
+    "certifications",
+    "languages"
+  ],
+  "lanes": [
+    {
+      "lane_id": "lane-0",
+      "anchor_left": 58,
+      "bounds_left": 48,
+      "bounds_right": 746,
+      "section_order": [
+        "summary",
+        "experience",
+        "education",
+        "skills",
+        "certifications",
+        "languages"
+      ]
+    }
+  ],
+  "before_bounds": [
+    {
+      "section": "header",
+      "object_ids": [
+        "block-header-0-r0",
+        "block-header-0-t1",
+        "block-header-0-t2",
+        "block-header-0-t3"
+      ],
+      "top": 48,
+      "bottom": 125,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": null,
+      "heading_text_id": null,
+      "body_ids": [
+        "block-header-0-r0",
+        "block-header-0-t1",
+        "block-header-0-t2",
+        "block-header-0-t3"
+      ],
+      "lane_id": null
+    },
+    {
+      "section": "summary",
+      "object_ids": [
+        "block-summary-1-r0",
+        "block-summary-1-t1",
+        "block-summary-1-t2"
+      ],
+      "top": 149,
+      "bottom": 240,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": "block-summary-1-r0",
+      "heading_text_id": "block-summary-1-t1",
+      "body_ids": [
+        "block-summary-1-t2"
+      ],
+      "lane_id": "lane-0"
+    },
+    {
+      "section": "experience",
+      "object_ids": [
+        "block-experience-2-r0",
+        "block-experience-2-t1",
+        "block-experience-2-t2",
+        "block-experience-2-t3",
+        "block-experience-2-t4",
+        "block-experience-2-t5",
+        "block-experience-2-t6",
+        "block-experience-2-t7",
+        "block-experience-2-t8",
+        "block-experience-2-t9",
+        "block-experience-2-t10",
+        "block-experience-2-t11",
+        "block-experience-2-t12"
+      ],
+      "top": 260,
+      "bottom": 611,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": "block-experience-2-r0",
+      "heading_text_id": "block-experience-2-t1",
+      "body_ids": [
+        "block-experience-2-t2",
+        "block-experience-2-t3",
+        "block-experience-2-t4",
+        "block-experience-2-t5",
+        "block-experience-2-t6",
+        "block-experience-2-t7",
+        "block-experience-2-t8",
+        "block-experience-2-t9",
+        "block-experience-2-t10",
+        "block-experience-2-t11",
+        "block-experience-2-t12"
+      ],
+      "lane_id": "lane-0"
+    },
+    {
+      "section": "education",
+      "object_ids": [
+        "block-education-3-r0",
+        "block-education-3-t1",
+        "block-education-3-t2",
+        "block-education-3-t3",
+        "block-education-3-t4",
+        "block-education-3-t5"
+      ],
+      "top": 634.3333333333334,
+      "bottom": 737.3333333333334,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": "block-education-3-r0",
+      "heading_text_id": "block-education-3-t1",
+      "body_ids": [
+        "block-education-3-t2",
+        "block-education-3-t3",
+        "block-education-3-t4",
+        "block-education-3-t5"
+      ],
+      "lane_id": "lane-0"
+    },
+    {
+      "section": "skills",
+      "object_ids": [
+        "block-skills-4-r0",
+        "block-skills-4-t1",
+        "block-skills-4-t2",
+        "block-skills-4-t2-col2"
+      ],
+      "top": 760.3333333333334,
+      "bottom": 851.2333333333333,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": "block-skills-4-r0",
+      "heading_text_id": "block-skills-4-t1",
+      "body_ids": [
+        "block-skills-4-t2",
+        "block-skills-4-t2-col2"
+      ],
+      "lane_id": "lane-0"
+    },
+    {
+      "section": "certifications",
+      "object_ids": [
+        "block-certifications-5-r0",
+        "block-certifications-5-t1",
+        "block-certifications-5-t2",
+        "block-certifications-5-t3"
+      ],
+      "top": 856.3333333333334,
+      "bottom": 921.6666666666667,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": "block-certifications-5-r0",
+      "heading_text_id": "block-certifications-5-t1",
+      "body_ids": [
+        "block-certifications-5-t2",
+        "block-certifications-5-t3"
+      ],
+      "lane_id": "lane-0"
+    },
+    {
+      "section": "languages",
+      "object_ids": [
+        "block-languages-6-r0",
+        "block-languages-6-t1",
+        "block-languages-6-t2"
+      ],
+      "top": 945.0000000000001,
+      "bottom": 991.0000000000001,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": "block-languages-6-r0",
+      "heading_text_id": "block-languages-6-t1",
+      "body_ids": [
+        "block-languages-6-t2"
+      ],
+      "lane_id": "lane-0"
+    }
+  ],
+  "after_bounds": [
+    {
+      "section": "header",
+      "object_ids": [
+        "block-header-0-r0",
+        "block-header-0-t1",
+        "block-header-0-t2",
+        "block-header-0-t3"
+      ],
+      "top": 48,
+      "bottom": 125,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": null,
+      "heading_text_id": null,
+      "body_ids": [
+        "block-header-0-r0",
+        "block-header-0-t1",
+        "block-header-0-t2",
+        "block-header-0-t3"
+      ],
+      "lane_id": null
+    },
+    {
+      "section": "summary",
+      "object_ids": [
+        "block-summary-1-r0",
+        "block-summary-1-t1",
+        "block-summary-1-t2"
+      ],
+      "top": 149,
+      "bottom": 242,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": "block-summary-1-r0",
+      "heading_text_id": "block-summary-1-t1",
+      "body_ids": [
+        "block-summary-1-t2"
+      ],
+      "lane_id": "lane-0"
+    },
+    {
+      "section": "experience",
+      "object_ids": [
+        "block-experience-2-r0",
+        "block-experience-2-t1",
+        "block-experience-2-t2",
+        "block-experience-2-t3",
+        "block-experience-2-t4",
+        "block-experience-2-t5",
+        "block-experience-2-t6",
+        "block-experience-2-t7",
+        "block-experience-2-t8",
+        "block-experience-2-t9",
+        "block-experience-2-t10",
+        "block-experience-2-t11",
+        "block-experience-2-t12"
+      ],
+      "top": 260,
+      "bottom": 613,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": "block-experience-2-r0",
+      "heading_text_id": "block-experience-2-t1",
+      "body_ids": [
+        "block-experience-2-t2",
+        "block-experience-2-t3",
+        "block-experience-2-t4",
+        "block-experience-2-t5",
+        "block-experience-2-t6",
+        "block-experience-2-t7",
+        "block-experience-2-t8",
+        "block-experience-2-t9",
+        "block-experience-2-t10",
+        "block-experience-2-t11",
+        "block-experience-2-t12"
+      ],
+      "lane_id": "lane-0"
+    },
+    {
+      "section": "education",
+      "object_ids": [
+        "block-education-3-r0",
+        "block-education-3-t1",
+        "block-education-3-t2",
+        "block-education-3-t3",
+        "block-education-3-t4",
+        "block-education-3-t5"
+      ],
+      "top": 634.3333333333334,
+      "bottom": 739.33,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": "block-education-3-r0",
+      "heading_text_id": "block-education-3-t1",
+      "body_ids": [
+        "block-education-3-t2",
+        "block-education-3-t3",
+        "block-education-3-t4",
+        "block-education-3-t5"
+      ],
+      "lane_id": "lane-0"
+    },
+    {
+      "section": "skills",
+      "object_ids": [
+        "block-skills-4-r0",
+        "block-skills-4-t1",
+        "block-skills-4-t2",
+        "block-skills-4-t2-col2"
+      ],
+      "top": 760.3333333333334,
+      "bottom": 853.23,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": "block-skills-4-r0",
+      "heading_text_id": "block-skills-4-t1",
+      "body_ids": [
+        "block-skills-4-t2",
+        "block-skills-4-t2-col2"
+      ],
+      "lane_id": "lane-0"
+    },
+    {
+      "section": "certifications",
+      "object_ids": [
+        "block-certifications-5-r0",
+        "block-certifications-5-t1",
+        "block-certifications-5-t2",
+        "block-certifications-5-t3"
+      ],
+      "top": 865.23,
+      "bottom": 932.57,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": "block-certifications-5-r0",
+      "heading_text_id": "block-certifications-5-t1",
+      "body_ids": [
+        "block-certifications-5-t2",
+        "block-certifications-5-t3"
+      ],
+      "lane_id": "lane-0"
+    },
+    {
+      "section": "languages",
+      "object_ids": [
+        "block-languages-6-r0",
+        "block-languages-6-t1",
+        "block-languages-6-t2"
+      ],
+      "top": 953.9,
+      "bottom": 1001.9,
+      "left": 48,
+      "right": 746,
+      "heading_rect_id": "block-languages-6-r0",
+      "heading_text_id": "block-languages-6-t1",
+      "body_ids": [
+        "block-languages-6-t2"
+      ],
+      "lane_id": "lane-0"
+    }
+  ],
+  "shifts_applied": [
+    {
+      "section": "languages",
+      "lane_id": "lane-0",
+      "delta_top": 8.896666666666647,
+      "object_ids": [
+        "block-languages-6-r0",
+        "block-languages-6-t1",
+        "block-languages-6-t2"
+      ],
+      "reason": "downstream flow after certifications reflow (lane-0)"
+    },
+    {
+      "section": "certifications",
+      "lane_id": "lane-0",
+      "delta_top": 8.896666666666647,
+      "object_ids": [
+        "block-certifications-5-r0",
+        "block-certifications-5-t1",
+        "block-certifications-5-t2",
+        "block-certifications-5-t3"
+      ],
+      "reason": "section stack (lane-0): gap 3.1px < min 12px after skills"
+    }
+  ],
+  "heading_body_gap_repairs": [
+    {
+      "section": "summary",
+      "delta_top": 2,
+      "object_ids": [
+        "block-summary-1-t2"
+      ],
+      "before_gap": 6,
+      "after_gap": 8
+    },
+    {
+      "section": "experience",
+      "delta_top": 2,
+      "object_ids": [
+        "block-experience-2-t2",
+        "block-experience-2-t3",
+        "block-experience-2-t4",
+        "block-experience-2-t5",
+        "block-experience-2-t6",
+        "block-experience-2-t7",
+        "block-experience-2-t8",
+        "block-experience-2-t9",
+        "block-experience-2-t10",
+        "block-experience-2-t11",
+        "block-experience-2-t12"
+      ],
+      "before_gap": 6,
+      "after_gap": 8
+    },
+    {
+      "section": "education",
+      "delta_top": 2,
+      "object_ids": [
+        "block-education-3-t2",
+        "block-education-3-t3",
+        "block-education-3-t4",
+        "block-education-3-t5"
+      ],
+      "before_gap": 6,
+      "after_gap": 7.99666666666667
+    },
+    {
+      "section": "skills",
+      "delta_top": 2,
+      "object_ids": [
+        "block-skills-4-t2",
+        "block-skills-4-t2-col2"
+      ],
+      "before_gap": 6,
+      "after_gap": 7.99666666666667
+    },
+    {
+      "section": "certifications",
+      "delta_top": 2,
+      "object_ids": [
+        "block-certifications-5-t2",
+        "block-certifications-5-t3"
+      ],
+      "before_gap": 6,
+      "after_gap": 7.99666666666667
+    },
+    {
+      "section": "languages",
+      "delta_top": 2,
+      "object_ids": [
+        "block-languages-6-t2"
+      ],
+      "before_gap": 6,
+      "after_gap": 7.999999999999886
+    },
+    {
+      "section": "education",
+      "delta_top": 0.0033333333333303017,
+      "object_ids": [],
+      "before_gap": 7.99666666666667,
+      "after_gap": 7.99666666666667
+    },
+    {
+      "section": "skills",
+      "delta_top": 0.0033333333333303017,
+      "object_ids": [],
+      "before_gap": 7.99666666666667,
+      "after_gap": 7.99666666666667
+    },
+    {
+      "section": "education",
+      "delta_top": 0.0033333333333303017,
+      "object_ids": [],
+      "before_gap": 7.99666666666667,
+      "after_gap": 7.99666666666667
+    },
+    {
+      "section": "skills",
+      "delta_top": 0.0033333333333303017,
+      "object_ids": [],
+      "before_gap": 7.99666666666667,
+      "after_gap": 7.99666666666667
+    }
+  ],
+  "heading_style_changes": [],
+  "content_grid_changes": [],
+  "compaction_actions": [],
+  "section_system_rhythm_actions": [],
+  "section_gap_rhythm_actions": [],
+  "internal_content_rhythm_actions": [],
+  "page_fit": {
+    "page_height": 1123,
+    "content_bottom_before_compaction": 1001.9,
+    "overflow_before": 0,
+    "total_reclaimable_slack": 45.67,
+    "pixels_reclaimed": 0,
+    "content_bottom_after_compaction": 1001.9,
+    "overflow_after": 0,
+    "fit_pass": true
+  },
+  "collision_resolutions": [
+    "heading→body gap repaired in summary: 6.0→8.0",
+    "heading→body gap repaired in experience: 6.0→8.0",
+    "heading→body gap repaired in education: 6.0→8.0",
+    "heading→body gap repaired in skills: 6.0→8.0",
+    "heading→body gap repaired in certifications: 6.0→8.0",
+    "heading→body gap repaired in languages: 6.0→8.0",
+    "certifications pushed +8.9px below skills in lane-0",
+    "heading→body gap repaired in education: 8.0→8.0",
+    "heading→body gap repaired in skills: 8.0→8.0",
+    "heading→body gap repaired in education: 8.0→8.0",
+    "heading→body gap repaired in skills: 8.0→8.0"
+  ],
+  "page_overflow": false,
+  "page_overflow_bottom": 1001.9,
+  "page_height": 1123,
+  "warnings": [],
+  "error": null
+}

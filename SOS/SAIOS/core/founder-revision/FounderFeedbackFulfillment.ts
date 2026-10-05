@@ -26,8 +26,14 @@ import {
   type PresentationSpec,
   type PresentationStructure,
 } from "./PresentationIntent.js";
-import { inspectRevisionSectionGroups } from "./RevisionLayoutNormalizer.js";
+import { inspectRevisionSectionGroups, normalizeRevisionLayout } from "./RevisionLayoutNormalizer.js";
 import type { CanvasOperation } from "./revision-task-types.js";
+import { isFounderMeasurableSpacingIntent } from "./FounderSpacingIntent.js";
+import {
+  isNamedSpacingPairRequest,
+  resolveFounderSpacingRelation,
+} from "./FounderSpacingRelation.js";
+import { evaluateCanonicalFinalStateLayoutProof } from "./CanonicalFinalStateLayoutProof.js";
 
 const require = createRequire(import.meta.url);
 
@@ -108,7 +114,14 @@ export type FulfillmentKind =
   | "RELATIONAL_ALIGNMENT"
   | "PRESERVATION"
   | "PRESENTATION"
+  | "STYLE"
+  | "SPACING_PAIR"
   | "VERIFICATION_CHECK";
+
+export type StyleMutationSpec = {
+  target: TargetDescriptor;
+  fontWeight: "bold";
+};
 
 export type FulfillmentPredicate = {
   kind: FulfillmentKind;
@@ -129,6 +142,7 @@ export type FulfillmentPredicate = {
   forbidden_presentation?: PresentationStructure[];
   presentation_spec?: PresentationSpec;
   preserve?: ReferenceSpec;
+  style?: StyleMutationSpec;
 };
 
 export type FulfillmentEvaluation = {
@@ -172,11 +186,15 @@ export function compileTargetDescriptor(text: string): TargetDescriptor {
   if (/\bleft\b/.test(n)) target.side = "left";
   else if (/\bright\b/.test(n)) target.side = "right";
   if (/\b(?:line|rail|rule|stroke|divider)\b/.test(n)) target.shape = "line";
-  else if (/\b(?:box|rectangle|rect|bar|band)\b/.test(n)) target.shape = "rect";
-  for (const [family, re] of COLOR_WORD) {
-    if (re.test(n)) {
-      target.color_family = family;
-      break;
+  else   if (/\b(?:box|rectangle|rect|bar|band)\b/.test(n)) target.shape = "rect";
+  if (/\blight[-\s]?blue\b/.test(n) || /\bdark[-\s]?blue\b/.test(n)) {
+    target.color_family = "blue";
+  } else {
+    for (const [family, re] of COLOR_WORD) {
+      if (re.test(n)) {
+        target.color_family = family;
+        break;
+      }
     }
   }
   return target;
@@ -435,8 +453,18 @@ export function compileRelativePlacement(text: string):
   if (!below && !above && !beside) return undefined;
   const targetSpan = text.split(/\b(?:below|above|beside)\b/i)[0] ?? text;
   const target = compileTargetDescriptor(targetSpan);
-  const refSpan = text.split(/\b(?:below|above|beside)\b/i).slice(1).join(" ");
+  const afterRel = text.split(/\b(?:below|above|beside)\b/i)[1] ?? "";
+  const refSpan =
+    afterRel.split(
+      /\b(?:so that|such that|and make|and then|while|keep|keeping|, and)\b/i,
+    )[0] ?? afterRel;
   const refDesc = compileTargetDescriptor(refSpan || text);
+  if (
+    (target.role === "professional_title" || target.section === "header") &&
+    !refDesc.section
+  ) {
+    refDesc.section = "header";
+  }
   const hasVisualRef =
     Boolean(refDesc.shape) ||
     Boolean(refDesc.color_family) ||
@@ -540,6 +568,29 @@ export function extractRemovalPhrases(text: string): string[] {
       ? splitListedPhrases(lead[1])
       : [];
   return raw.filter((p) => !isSectionNounPhrase(p));
+}
+
+export function compileStyleMutation(text: string): StyleMutationSpec | undefined {
+  const makeBold = text.match(
+    /\b(?:make|set|render)\s+((?:the\s+)?(?:job\s+|professional\s+)?title|["“][^"”]{1,80}["”])\s+bold\b/i,
+  );
+  if (!makeBold) return undefined;
+  const span = makeBold[1]!.trim();
+  const target = compileTargetDescriptor(span);
+  if (/\b(?:job\s+title|professional\s+title|title)\b/i.test(span)) {
+    target.role = "professional_title";
+    target.shape = target.shape ?? "text";
+    target.section = target.section ?? "header";
+  }
+  return { target, fontWeight: "bold" };
+}
+
+function isFontWeightBold(value: unknown): boolean {
+  if (value == null) return false;
+  const n = Number(value);
+  if (Number.isFinite(n) && n >= 700) return true;
+  const s = String(value).trim().toLowerCase();
+  return s === "bold" || s === "700" || s === "800" || s === "900";
 }
 
 export function extractRewritePair(
@@ -647,6 +698,27 @@ export function predicatesForItem(
         presentation_spec: spec ?? undefined,
       });
     }
+  }
+  const style = compileStyleMutation(line);
+  if (style) {
+    out.push({
+      kind: "STYLE",
+      required: true,
+      target: style.target,
+      style,
+    });
+  }
+  const hasPresentation = out.some((p) => p.kind === "PRESENTATION");
+  if (
+    isFounderMeasurableSpacingIntent(line) &&
+    isNamedSpacingPairRequest(line) &&
+    !hasPresentation
+  ) {
+    out.push({
+      kind: "SPACING_PAIR",
+      required: true,
+      section: contentSections[0],
+    });
   }
   return out;
 }
@@ -881,7 +953,8 @@ export function bindTargetDescriptor(
     if (score >= 1) scored.push({ id: objId(o, i), score });
   });
   scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, 3).map((s) => s.id);
+  const best = scored[0]?.score ?? 0;
+  return scored.filter((s) => s.score === best).map((s) => s.id);
 }
 
 function isLockedSystemObject(o: CanvasObj): boolean {
@@ -1110,6 +1183,7 @@ function evaluatePredicate(
   predicate: FulfillmentPredicate,
   before: FabricCanvasDoc,
   after: FabricCanvasDoc,
+  line = "",
 ): { pass: boolean; ids: string[]; notes: string } {
   if (predicate.kind === "CONTENT_ADD") {
     const a = sectionCorpus(after, predicate.section);
@@ -1458,6 +1532,54 @@ function evaluatePredicate(
         : `relational ${alignment.edge} unsatisfied target=${targetEdge} ref=${refEdge}`,
     };
   }
+  if (predicate.kind === "STYLE") {
+    const ids = bindTargetDescriptor(after, predicate.target ?? predicate.style?.target);
+    if (ids.length === 0) {
+      return { pass: false, ids: [], notes: "style target unbound" };
+    }
+    const byId = new Map(objectsOf(after).map((o, i) => [objId(o, i), o] as const));
+    const wantBold = (predicate.style?.fontWeight ?? "bold") === "bold";
+    const misses = ids.filter((id) => {
+      const o = byId.get(id);
+      if (!o) return true;
+      return wantBold ? !isFontWeightBold(o.fontWeight) : isFontWeightBold(o.fontWeight);
+    });
+    const pass = misses.length === 0;
+    return {
+      pass,
+      ids,
+      notes: pass
+        ? `style bold satisfied on ${ids.join(",")}`
+        : `style bold unsatisfied ids=${ids.join(",")}`,
+    };
+  }
+  if (predicate.kind === "SPACING_PAIR") {
+    if (!line.trim()) {
+      return { pass: false, ids: [], notes: "spacing pair missing source item" };
+    }
+    const resolved = resolveFounderSpacingRelation({
+      requestedChange: line,
+      canvas: after,
+    });
+    if (resolved.kind !== "NAMED_PAIR" || !resolved.upper_id || !resolved.lower_id) {
+      return {
+        pass: false,
+        ids: [resolved.upper_id, resolved.lower_id].filter(Boolean),
+        notes: `spacing pair unbound kind=${resolved.kind} ${resolved.notes}`,
+      };
+    }
+    const proof = evaluateCanonicalFinalStateLayoutProof({
+      requestedChange: line,
+      beforeCanvas: before,
+      afterCanvas: after,
+      resolved_relation: resolved,
+    });
+    return {
+      pass: proof.pass,
+      ids: [resolved.upper_id, resolved.lower_id],
+      notes: `canonical_final_state_layout_proof spacing intent ${proof.reason}: ${proof.final_condition}`,
+    };
+  }
   return { pass: true, ids: [], notes: "verification check deferred to acceptance" };
 }
 
@@ -1480,7 +1602,12 @@ export function evaluateItemFulfillment(input: {
   const ids: string[] = [];
   let pass = true;
   for (const predicate of required) {
-    const ev = evaluatePredicate(predicate, input.beforeCanvas, input.afterCanvas);
+    const ev = evaluatePredicate(
+      predicate,
+      input.beforeCanvas,
+      input.afterCanvas,
+      input.item.founder_feedback_item,
+    );
     notes.push(ev.notes);
     ids.push(...ev.ids);
     if (!ev.pass) pass = false;
@@ -1505,7 +1632,12 @@ function evaluateItemFulfillmentOnCanvas(
     if (predicate.kind === "CONTENT_ADD" || predicate.kind === "CONTENT_REWRITE") {
       return false;
     }
-    return evaluatePredicate(predicate, canvas, canvas).pass;
+    return evaluatePredicate(
+      predicate,
+      canvas,
+      canvas,
+      item.founder_feedback_item,
+    ).pass;
   });
 }
 
@@ -1539,7 +1671,9 @@ export function itemRequiresMutationFulfillment(item: FounderFeedbackIRItem): bo
         p.kind === "CONTENT_REWRITE" ||
         p.kind === "GEOMETRY_EXTENT" ||
         p.kind === "RELATIONAL_ALIGNMENT" ||
-        p.kind === "PRESENTATION"),
+        p.kind === "PRESENTATION" ||
+        p.kind === "STYLE" ||
+        p.kind === "SPACING_PAIR"),
   );
 }
 
@@ -1833,4 +1967,62 @@ export function applyPresentationMutations(
   }
   syncPresentationTextHeights(clone);
   return clone;
+}
+
+export function applyStyleMutations(
+  canvas: FabricCanvasDoc,
+  ir: FounderFeedbackIR,
+): FabricCanvasDoc {
+  const clone = JSON.parse(JSON.stringify(canvas)) as FabricCanvasDoc;
+  for (const item of ir.items) {
+    for (const predicate of item.fulfillment ?? []) {
+      if (predicate.kind !== "STYLE") continue;
+      const spec = predicate.style;
+      if (!spec || spec.fontWeight !== "bold") continue;
+      const ids = bindTargetDescriptor(clone, spec.target ?? predicate.target);
+      const byId = new Map(
+        objectsOf(clone).map((o, i) => [objId(o, i), o] as const),
+      );
+      for (const id of ids) {
+        const obj = byId.get(id);
+        if (!obj) continue;
+        obj.fontWeight = "700";
+      }
+    }
+  }
+  return clone;
+}
+
+export function applyPostExecutionLayoutWorld(input: {
+  canvas: FabricCanvasDoc;
+  ir: FounderFeedbackIR;
+  requested_changes?: string[];
+  prior_canvas?: FabricCanvasDoc;
+}): {
+  canvas: FabricCanvasDoc;
+  vertical: {
+    canvas: FabricCanvasDoc;
+    report: {
+      ok: boolean;
+      error: string | null;
+      skipped?: boolean;
+    };
+  };
+  normalized: ReturnType<typeof normalizeRevisionLayout>;
+} {
+  let canvas = applyPresentationMutations(input.canvas, input.ir);
+  canvas = applyRelationalAlignment(canvas, input.ir);
+  canvas = applyStyleMutations(canvas, input.ir);
+  const verticalMod = require("./SectionUnitVerticalSafety.js") as typeof import("./SectionUnitVerticalSafety.js");
+  const vertical = verticalMod.applySectionUnitVerticalSafety({
+    priorCanvas: input.prior_canvas ?? input.canvas,
+    afterCanvas: canvas,
+    requested_changes: input.requested_changes ?? [],
+  });
+  const normalized = normalizeRevisionLayout({
+    canvas: vertical.canvas,
+    requested_changes: input.requested_changes ?? [],
+    prior_canvas: input.prior_canvas,
+  });
+  return { canvas: normalized.canvas, vertical, normalized };
 }

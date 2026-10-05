@@ -49,24 +49,24 @@ Code and VPS evidence override this file when they disagree. Historical evidence
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-05T15:36:00+05:30** / **2026-10-05T10:06:00.000Z**.
+Snapshot taken **2026-10-05T17:42:00+05:30** / **2026-10-05T12:12:00.000Z**.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `37af692e0353878fd02e2bdabe0b948f58f3daf2` before this administrative closure commit (`main`) |
-| ORIGIN HEAD | `37af692e0353878fd02e2bdabe0b948f58f3daf2` before this administrative closure commit |
-| VPS HEAD | `37af692e0353878fd02e2bdabe0b948f58f3daf2` before this administrative closure commit (deployed IR 1.4.3) |
+| LOCAL HEAD | `9e8073664cde87cff6fd0e71cb3d1b5a26223290` plus uncommitted IR 1.4.4 Teaching Assistant maintenance (`main`) |
+| ORIGIN HEAD | `9e8073664cde87cff6fd0e71cb3d1b5a26223290` (deployed IR 1.4.3 until Founder deploys this maintenance) |
+| VPS HEAD | `9e8073664cde87cff6fd0e71cb3d1b5a26223290` (deployed IR 1.4.3 until Founder deploys this maintenance) |
 | PUBLIC PRODUCT | Next.js SaaS at `studiosislab.com` (Vercel) |
 | AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` |
 | CURRENT PROJECT PRIORITY | **Website Analysis / QA / Development** — inspect existing repository/runtime state first |
 | CURRENTLY ACTIVE DEPARTMENT | Website Analysis / QA / Development (priority only; runtime remains disabled / detect-only) |
-| NEXT MAJOR PRODUCT DEPARTMENT | Website Analysis / QA / Development (current priority; not implemented in this administrative run) |
+| NEXT MAJOR PRODUCT DEPARTMENT | Website Analysis / QA / Development (current priority; not implemented in this maintenance run) |
 | CORE FACTORY HISTORICAL GOAL | **MET** — do not erase |
-| RESUME TEMPLATE STATUS | **`OPERATIONALLY_COMPLETE`** — C6 PASS; revision engineering `MAINTENANCE_REGRESSION_ONLY` |
+| RESUME TEMPLATE STATUS | **`OPERATIONALLY_COMPLETE`** — C6 PASS; revision engineering `MAINTENANCE_REGRESSION_ONLY`; IR 1.4.4 bounded maintenance offline PASS |
 | PUBLICATION | Manual; `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` |
 | LIVE GENERATION | Guarded; `SOS_AIOS_LIVE=0` |
-| PRIMARY BLOCKERS | **NONE** (Resume P0). Remaining Resume items are P1/P2 maintenance and do not reactivate the department. |
-| NEXT AUTHORIZED STEP | **Inspect existing Website Analysis / QA / Development state repository-first and evidence-first. Do not invent Website architecture. Do not enable Website automation. Do not reopen Resume revision engineering unless a new real production failure occurs.** |
+| PRIMARY BLOCKERS | **NONE** (Resume P0). Teaching Assistant `revtask-232a10da-349` remains immutable `FAILED_GATE`. Remaining Resume items are P1/P2 maintenance and do not reactivate the department. |
+| NEXT AUTHORIZED STEP | **Resume Founder-to-public E2E business acceptance remains pending.** Do not retry `revtask-232a10da-349` or historical C5 tasks. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. Founder-directed successor after that E2E is SEO, not Website Department automation — do not start SEO or Website work in this stream. |
 
 ---
 
@@ -382,7 +382,8 @@ Append-only. Do not overwrite historical entries.
 | 2026-10-01T18:30:42+05:30 | IR 1.4.1 material presentation constraint | Approximate cardinality must not make material structure optional | IR 1.4.0 at `b8cf882`; post-deploy gap + synthetic-fixture discrepancy | IR 1.4.1 `structure_material` / `unresolved_material`; real-parent STATE A/B/D; no invented grid | Resume presentation/IR/fulfillment/C1/C4/fixtures; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+actionability | `2b92243` | FF + dashboard restart | NO | Offline correction PASS; fifth live proof later FAIL; READY_FOR_C6=NO | Axis-ambiguous material grouping remains fail-closed; Motion Designer UI debt unresolved | Read-only fifth-C5 preflight if Founder authorizes |
 | 2026-10-01T19:21:59+05:30 | Post-fifth-C5 bounded offline correction | Production-parity plan geometry + generalized relative/presentation IR | Fifth C5 FAIL at `2b92243`; transient plan-sim overlaps; header/Skills semantic miss | IR 1.4.2; plan-geometry reuses post-content reflow + normalize; future owner `plan_geometry`; relative below/above/beside + preserve; change-from-to presentation precedence | Resume plan-geometry/IR/fulfillment/presentation/C1/C4; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6H+6O+6P+plan-geometry+actionability | `3cc75cd` | FF + dashboard restart | NO | Offline correction PASS; fifth C5 remains FAIL; sixth C5 later ran and was false READY | Combined Founder packets may still fail-closed after truthful layout; revision_failed UI debt unresolved | Sixth C5 later executed |
 | 2026-10-05T15:13:32+05:30 | Final C5 offline safety closure | Header-group semantics + state-true coverage after sixth false READY | Deployed baseline `3cc75cd` / IR 1.4.2; sixth task READY; header L64 vs body L80 | Overlay on `…-revfb-fcfc81`; IR 1.4.3 group align+preserve; coverage consumes IR fulfillment before generic rhythm | Resume IR/fulfillment/coverage/C1/C4/overlay; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6H+6O+6P+plan-geometry+actionability | `37af692` | FF + dashboard restart | NO seventh | Offline correction PASS; sixth remains false READY immutable; READY_FOR_SEVENTH_C5_LIVE_PROOF=NO; READY_FOR_C6_CLOSURE_AUDIT=YES; department not closed | Unmodeled group phrasing; revision_failed UI debt unresolved | C6 closure audit |
-| 2026-10-05T15:36:00+05:30 | C6 administrative closure | Record C6 PASS and move project priority to Website | Resume `CONSOLIDATION_REQUIRED`; SoT HEADs still showed `3cc75cd`; IR 1.4.3 labelled offline; C6 pending | Status `OPERATIONALLY_COMPLETE`; revision `MAINTENANCE_REGRESSION_ONLY`; P0 none; Website is current priority; maintenance debt recorded not implemented | This file; Resume master; project-state; `AGENTS.md` | Docs/state only | *(this administrative commit)* | FF docs; no service restart | NO | C6 PASS recorded; department closed; Website inspect is next | Agents may still read stale historical `CONSOLIDATION_REQUIRED` rows — those remain historical | Website Department existing-state inspect |
+| 2026-10-05T15:36:00+05:30 | C6 administrative closure | Record C6 PASS and move project priority to Website | Resume `CONSOLIDATION_REQUIRED`; SoT HEADs still showed `3cc75cd`; IR 1.4.3 labelled offline; C6 pending | Status `OPERATIONALLY_COMPLETE`; revision `MAINTENANCE_REGRESSION_ONLY`; P0 none; Website is current priority; maintenance debt recorded not implemented | This file; Resume master; project-state; `AGENTS.md` | Docs/state only | `9e80736` | FF docs; no service restart | NO | C6 PASS recorded; department closed; Website inspect is next | Agents may still read stale historical `CONSOLIDATION_REQUIRED` rows — those remain historical | Website Department existing-state inspect |
+| 2026-10-05T17:42:00+05:30 | TA post-C6 bounded revision maintenance | Full Founder-intent IR + shared post-execute layout world after Teaching Assistant `FAILED_GATE` | Production `fd-3eb58dc7-d08` / `revtask-232a10da-349` overlapped title onto contact after relational `below`; bold and named-pair IR fulfillment missing; plan-geometry skipped IR world | IR 1.4.4 `STYLE` + `SPACING_PAIR`; `applyStyleMutations`; intra-section cascade in `normalizeRevisionLayout`; `applyPostExecutionLayoutWorld` shared with plan-geometry | Resume IR/fulfillment/normalizer/pipeline/plan-geometry/C1/TA fixture+verifier; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6H+6K+6O+6P+plan-geometry+role+preservation+actionability+TA full-intent | *(this maintenance; uncommitted)* | No deploy; no LIVE/AUTO_APPLY/publication change | NO live retry | Offline full-intent PASS; historical TA remains `FAILED_GATE`; C6 not rewritten; Website remains priority | Unmodeled style/spacing phrasing remains fail-closed; revision_failed UI debt unresolved | Website Department existing-state inspect |
 
 ---
 

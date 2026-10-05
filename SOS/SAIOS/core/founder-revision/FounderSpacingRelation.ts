@@ -149,6 +149,10 @@ function requestsInterRole(text: string): boolean {
   );
 }
 
+export function isNamedSpacingPairRequest(requestedChange: string): boolean {
+  return extractNamedNeedles(requestedChange).length >= 2;
+}
+
 function extractNamedNeedles(text: string): string[] {
   const out: string[] = [];
   const seen = new Set<string>();

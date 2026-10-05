@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PROJECT-WIDE / RESUME \u2014 TA POST-C6 BOUNDED MAINTENANCE 2026-10-05. Production fd-3eb58dc7-d08 / revtask-232a10da-349 FAILED_GATE remains immutable. IR founder-feedback-ir-1.4.4 local offline PASS (STYLE + SPACING_PAIR + intra-section cascade + shared post-execute layout world). LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO. FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. CURRENT_P0_BLOCKERS=NONE. C6=PASS/COMPLETE. SEVENTH_C5_REQUIRED=NO. Immediate objective remains Resume Founder-to-public E2E. Founder-directed successor after E2E is SEO (not activated). Do NOT retry revtask-232a10da-349 or historical C5 tasks. Do not start Website automation or SEO in this stream.",
+    "PROJECT-WIDE / RESUME \u2014 TA POST-C6 BOUNDED MAINTENANCE DEPLOYED 2026-10-05. Runtime commit 6400a20acee650c03a4432324bb710787363ba5c / IR founder-feedback-ir-1.4.4. Production fd-3eb58dc7-d08 / revtask-232a10da-349 FAILED_GATE remains immutable. LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO. FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. CURRENT_P0_BLOCKERS=NONE. C6=PASS/COMPLETE. SEVENTH_C5_REQUIRED=NO. Immediate objective remains Resume Founder-to-public E2E. Founder-directed successor after E2E is SEO (not activated). Do NOT retry revtask-232a10da-349 or historical C5 tasks. Do not start Website automation or SEO in this stream.",
     "NEXT DEPARTMENT \u2014 Website Analysis / QA / Development is now the active project priority. Inspect existing repository/runtime/evidence first. Do not invent Website architecture. Do not enable Website automation. Do not implement Website work in the C6 administrative closure run. Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "RESUME MAINTENANCE P1 \u2014 revision_failed Request Changes UI/actionability presentation (Motion Designer \u2026-bed721; Campus Ambassador \u2026-047495). Not a P0. Does not reactivate the department.",
     "RESUME MAINTENANCE P1 \u2014 publication controlled-apply proof for staged packages while AUTO_APPLY remains OFF.",
@@ -3548,7 +3548,7 @@
       "ir_1_4_3_status": "DEPLOYED",
       "ir_1_4_3_at_ist": "2026-10-05T15:13:32+05:30",
       "ir_1_4_3_at_utc": "2026-10-05T09:43:32.000Z",
-      "ir_1_4_4_status": "IMPLEMENTED_OFFLINE_NOT_DEPLOYED",
+      "ir_1_4_4_status": "DEPLOYED",
       "ir_1_4_4_at_ist": "2026-10-05T17:42:00+05:30",
       "ir_1_4_4_at_utc": "2026-10-05T12:12:00.000Z",
       "ta_production_failure_decision_id": "fd-3eb58dc7-d08",
@@ -3600,12 +3600,12 @@
       "revtask-3a9bcae2-16c",
       "revtask-232a10da-349"
     ],
-    "snapshot_ist": "2026-10-05T17:42:00+05:30",
-    "snapshot_utc": "2026-10-05T12:12:00.000Z",
+    "snapshot_ist": "2026-10-05T18:07:00+05:30",
+    "snapshot_utc": "2026-10-05T12:37:00.000Z",
     "heads": {
-      "local": "9e8073664cde87cff6fd0e71cb3d1b5a26223290",
-      "origin": "9e8073664cde87cff6fd0e71cb3d1b5a26223290",
-      "vps": "9e8073664cde87cff6fd0e71cb3d1b5a26223290"
+      "local": "6400a20acee650c03a4432324bb710787363ba5c",
+      "origin": "6400a20acee650c03a4432324bb710787363ba5c",
+      "vps": "6400a20acee650c03a4432324bb710787363ba5c"
     }
   },
   "studiosislab_project": {
@@ -3629,12 +3629,12 @@
       "Revenue / Monetization",
       "AIOS System Audit / Optimization"
     ],
-    "snapshot_ist": "2026-10-05T17:42:00+05:30",
-    "snapshot_utc": "2026-10-05T12:12:00.000Z",
+    "snapshot_ist": "2026-10-05T18:07:00+05:30",
+    "snapshot_utc": "2026-10-05T12:37:00.000Z",
     "heads": {
-      "local": "9e8073664cde87cff6fd0e71cb3d1b5a26223290",
-      "origin": "9e8073664cde87cff6fd0e71cb3d1b5a26223290",
-      "vps": "9e8073664cde87cff6fd0e71cb3d1b5a26223290"
+      "local": "6400a20acee650c03a4432324bb710787363ba5c",
+      "origin": "6400a20acee650c03a4432324bb710787363ba5c",
+      "vps": "6400a20acee650c03a4432324bb710787363ba5c"
     }
   }
 }

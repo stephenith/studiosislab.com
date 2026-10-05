@@ -60,15 +60,15 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-05T17:42:00+05:30** / **2026-10-05T12:12:00.000Z**. C6 closed at `9e8073664cde87cff6fd0e71cb3d1b5a26223290` / IR 1.4.3. Local bounded maintenance is IR `founder-feedback-ir-1.4.4` after Teaching Assistant production `FAILED_GATE`.
+Snapshot taken **2026-10-05T18:07:00+05:30** / **2026-10-05T12:37:00.000Z**. IR `founder-feedback-ir-1.4.4` deployed at `6400a20acee650c03a4432324bb710787363ba5c` after Teaching Assistant production `FAILED_GATE`.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `9e8073664cde87cff6fd0e71cb3d1b5a26223290` plus uncommitted IR 1.4.4 maintenance (`main`) |
-| ORIGIN HEAD | `9e8073664cde87cff6fd0e71cb3d1b5a26223290` |
-| VPS HEAD | `9e8073664cde87cff6fd0e71cb3d1b5a26223290` (IR 1.4.3 still deployed) |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is Resume revision maintenance + SoT only |
-| VPS STATUS | Six C5 live proofs immutable; Teaching Assistant `revtask-232a10da-349` immutable `FAILED_GATE`; IR 1.4.3 deployed; false-READY children overlay-blocked; no seventh C5; no TA live retry |
+| LOCAL HEAD | `6400a20acee650c03a4432324bb710787363ba5c` (`main`) |
+| ORIGIN HEAD | `6400a20acee650c03a4432324bb710787363ba5c` |
+| VPS HEAD | `6400a20acee650c03a4432324bb710787363ba5c` (IR 1.4.4 deployed) |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; IR 1.4.4 maintenance committed and deployed |
+| VPS STATUS | Six C5 live proofs immutable; Teaching Assistant `revtask-232a10da-349` immutable `FAILED_GATE`; IR 1.4.4 deployed; false-READY children overlay-blocked; no seventh C5; no TA live retry |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
 | DEPARTMENT STATUS | **`OPERATIONALLY_COMPLETE`** — C1–C4 PASS; C5 complete as immutable consolidation evidence; C6 PASS; post-C6 maintenance does not reopen C5–C6 |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |

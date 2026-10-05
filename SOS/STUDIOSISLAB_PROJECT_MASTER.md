@@ -49,13 +49,13 @@ Code and VPS evidence override this file when they disagree. Historical evidence
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-05T17:42:00+05:30** / **2026-10-05T12:12:00.000Z**.
+Snapshot taken **2026-10-05T18:07:00+05:30** / **2026-10-05T12:37:00.000Z**.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `9e8073664cde87cff6fd0e71cb3d1b5a26223290` plus uncommitted IR 1.4.4 Teaching Assistant maintenance (`main`) |
-| ORIGIN HEAD | `9e8073664cde87cff6fd0e71cb3d1b5a26223290` (deployed IR 1.4.3 until Founder deploys this maintenance) |
-| VPS HEAD | `9e8073664cde87cff6fd0e71cb3d1b5a26223290` (deployed IR 1.4.3 until Founder deploys this maintenance) |
+| LOCAL HEAD | `6400a20acee650c03a4432324bb710787363ba5c` (`main`) |
+| ORIGIN HEAD | `6400a20acee650c03a4432324bb710787363ba5c` |
+| VPS HEAD | `6400a20acee650c03a4432324bb710787363ba5c` (IR 1.4.4 deployed) |
 | PUBLIC PRODUCT | Next.js SaaS at `studiosislab.com` (Vercel) |
 | AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` |
 | CURRENT PROJECT PRIORITY | **Website Analysis / QA / Development** — inspect existing repository/runtime state first |

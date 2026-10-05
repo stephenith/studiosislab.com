@@ -60,15 +60,15 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-05T19:08:35+05:30** / **2026-10-05T13:38:35.000Z**. Worktree IR `founder-feedback-ir-1.4.5` is offline-proven and **uncommitted**. Deployed HEAD remains `4eba44defa450c39a02046895b9ed66212e7730a` / IR `founder-feedback-ir-1.4.4`.
+Snapshot taken **2026-10-05T19:27:22+05:30** / **2026-10-05T13:57:22.000Z**. IR `founder-feedback-ir-1.4.5` deployed at `3fe6a52d7ecbde88d7ca941517886981e3c4f391`.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `4eba44defa450c39a02046895b9ed66212e7730a` (`main`; worktree has uncommitted IR 1.4.5) |
-| ORIGIN HEAD | `4eba44defa450c39a02046895b9ed66212e7730a` |
-| VPS HEAD | `4eba44defa450c39a02046895b9ed66212e7730a` (IR 1.4.4 still deployed) |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; IR 1.4.5 target-binding offline PASS; no commit/deploy in this run |
-| VPS STATUS | Six C5 live proofs immutable; Teaching Assistant `revtask-232a10da-349` immutable `FAILED_GATE`; Dental Hygienist `revtask-f67ce2e4-bb0` immutable `FAILED_COVERAGE`; IR 1.4.4 deployed; false-READY children overlay-blocked; no seventh C5; no Dental/TA live retry |
+| LOCAL HEAD | `3fe6a52d7ecbde88d7ca941517886981e3c4f391` (`main`) |
+| ORIGIN HEAD | `3fe6a52d7ecbde88d7ca941517886981e3c4f391` |
+| VPS HEAD | `3fe6a52d7ecbde88d7ca941517886981e3c4f391` (IR 1.4.5 deployed) |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; IR 1.4.5 committed and deployed |
+| VPS STATUS | Six C5 live proofs immutable; Teaching Assistant `revtask-232a10da-349` immutable `FAILED_GATE`; Dental Hygienist `revtask-f67ce2e4-bb0` immutable `FAILED_COVERAGE`; IR 1.4.5 deployed; false-READY children overlay-blocked; no seventh C5; no Dental/TA live retry |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
 | DEPARTMENT STATUS | **`OPERATIONALLY_COMPLETE`** — C1–C4 PASS; C5 complete as immutable consolidation evidence; C6 PASS; post-C6 maintenance does not reopen C5–C6 |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
@@ -79,7 +79,7 @@ Snapshot taken **2026-10-05T19:08:35+05:30** / **2026-10-05T13:38:35.000Z**. Wor
 | MEMORY STATUS | Unchanged |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
 | CURRENT PRIMARY BLOCKERS | **NONE** |
-| NEXT AUTHORIZED STEP | **Pre-deploy audit of uncommitted IR 1.4.5, then Resume Founder-to-public E2E.** Do not retry Dental or Teaching Assistant. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. `READY_FOR_SEVENTH_C5_LIVE_PROOF=NO`. C6 = PASS / COMPLETE. |
+| NEXT AUTHORIZED STEP | **Resume Founder-to-public E2E business acceptance remains pending.** Do not retry Dental or Teaching Assistant. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. `READY_FOR_SEVENTH_C5_LIVE_PROOF=NO`. C6 = PASS / COMPLETE. |
 
 `OPERATIONALLY_COMPLETE` is the current live operational status. Historical C5 FAIL / FALSE READY outcomes are not rewritten.
 
@@ -939,7 +939,7 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 | LIVE PROOF | **NO.** `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. Do not retry `revtask-232a10da-349`. |
 | STATUS | Department remains `OPERATIONALLY_COMPLETE` / `MAINTENANCE_REGRESSION_ONLY`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. |
 
-#### Post-Dental target-binding maintenance *(offline 2026-10-05; not C5; not C6 rewrite; not deployed)*
+#### Post-Dental target-binding maintenance *(offline 2026-10-05; deployed `3fe6a52`; not C5; not C6 rewrite)*
 
 | Field | Content |
 |---|---|
@@ -949,7 +949,7 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 | OWNERS | Public semantic owners: **1** (`compileFounderFeedbackIR`). Target binding: **1** (`compileTargetDescriptor` / `bindTargetDescriptor`). Spacing execution: **1** (`buildSafeNamedSpacingRelationOps`). Final geometry: **1** (C2). |
 | OFFLINE | Dental full-intent positive + 11 negatives PASS. TA full-intent PASS. C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6H PASS; 6K PASS; 6O PASS; 6P PASS; plan-geometry PASS; role PASS; preservation PASS; actionability PASS. `NEW_REGRESSION_COUNT=0`. Historical Dental/TA/C5 outcomes not rewritten. |
 | LIVE PROOF | **NO.** `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. Do not retry `revtask-f67ce2e4-bb0` or `revtask-232a10da-349`. |
-| STATUS | Department remains `OPERATIONALLY_COMPLETE` / `MAINTENANCE_REGRESSION_ONLY`. Implementation uncommitted. Ready for pre-deploy audit. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. |
+| STATUS | Department remains `OPERATIONALLY_COMPLETE` / `MAINTENANCE_REGRESSION_ONLY`. IR 1.4.5 deployed at `3fe6a52`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. |
 
 ### Proof strategy (department)
 
@@ -1350,15 +1350,30 @@ Append-only. Do not overwrite.
 - **PHASE/TASK:** Dental Hygienist production `FAILED_COVERAGE` offline correction (IR 1.4.5 target-binding + multi-pair cardinality)
 - **PURPOSE:** Bind ordinary contact-row / header-band / explicit-preserve language and represent N named spacing pairs in one Founder item without weakening C2 or TA 1.4.4
 - **BEFORE STATE:** Deployed `4eba44d` / IR 1.4.4; `revtask-f67ce2e4-bb0` FAILED_COVERAGE; contact unbound as rail; Experience one AMBIGUOUS pair
-- **CHANGE:** IR 1.4.5 contact-row vs graphical line; luminance header-band; keep-clause-scoped explicit preserve; N SPACING_PAIR + 6P needle resolve. Sanitized Dental fixture + full-intent verifier. Historical Dental/TA/C5 tasks not rewritten. No commit/deploy.
+- **CHANGE:** IR 1.4.5 contact-row vs graphical line; luminance header-band; keep-clause-scoped explicit preserve; N SPACING_PAIR + 6P needle resolve. Sanitized Dental fixture + full-intent verifier. Historical Dental/TA/C5 tasks not rewritten. Runtime commit `3fe6a52` deployed.
 - **FILES MODIFIED:** FounderFeedbackIR; FounderFeedbackFulfillment; FounderSpacingRelation; C1 + TA + Dental verifiers; Dental fixture; this file; project master; project-state; `AGENTS.md`
 - **TESTS:** Dental full-intent PASS; negatives PASS; TA PASS; C1–C4 PASS; 6H/6K/6O/6P PASS; plan-geometry PASS; role PASS; preservation PASS; actionability PASS. `NEW_REGRESSION_COUNT=0`
-- **COMMIT:** NO
-- **DEPLOY:** NO
+- **COMMIT:** `3fe6a52d7ecbde88d7ca941517886981e3c4f391`
+- **DEPLOY:** FF + `aios-founder-dashboard.service` restart; VPS backup `/root/aios-backups/daily/20261005T135610Z.tar.gz`
 - **LIVE PROOF:** NO. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`
-- **RESULT:** Offline full-intent PASS. Historical Dental remains FAILED_COVERAGE. Historical TA remains FAILED_GATE. Department remains OPERATIONALLY_COMPLETE. C6 not rewritten.
+- **RESULT:** Offline full-intent PASS then deployed. Historical Dental remains FAILED_COVERAGE. Historical TA remains FAILED_GATE. Department remains OPERATIONALLY_COMPLETE. C6 not rewritten.
 - **NEW RISKS:** Education add still shares one textbox for two entries (material request satisfied; not redesigned). Unmodeled binding phrasing remains fail-closed.
-- **NEXT STEP:** Founder pre-deploy audit of uncommitted IR 1.4.5. Do not retry Dental or TA. Do not start a seventh C5.
+- **NEXT STEP:** Resume Founder-to-public E2E business acceptance. Do not retry Dental or TA. Do not start a seventh C5.
+
+### 2026-10-05T19:27:22+05:30 — IR 1.4.5 CONTROLLED PRODUCTION DEPLOY RECORD
+
+- **PHASE/TASK:** Documentation-only SoT record after IR 1.4.5 runtime deploy
+- **PURPOSE:** Replace pre-deploy uncommitted / `4eba44d` placeholders with the live runtime SHA
+- **BEFORE STATE:** Runtime already at `3fe6a52` / IR 1.4.5; SoT still described worktree uncommitted / deployed 1.4.4
+- **CHANGE:** Heads, IR status, and next-step prose updated to deployed. No architecture change.
+- **FILES MODIFIED:** This file; project master; project-state; `AGENTS.md`
+- **TESTS:** Read/import deployed IR 1.4.5; dashboard `{ok:true,live:false}`; Dental FAILED_COVERAGE no child; TA FAILED_GATE no child; overlay 3 AUDIT_INVALID
+- **COMMIT:** *(this documentation record)*
+- **DEPLOY:** FF docs; no extra service restart
+- **LIVE PROOF:** NO
+- **RESULT:** SoT matches deployed IR 1.4.5. Historical tasks unchanged.
+- **NEW RISKS:** None added by documentation.
+- **NEXT STEP:** Resume Founder-to-public E2E business acceptance. Do not retry Dental or TA. Do not start a seventh C5.
 
 ---
 
@@ -1366,7 +1381,7 @@ Append-only. Do not overwrite.
 
 **Exactly one authorized next major action:**
 
-**Pre-deploy audit of uncommitted IR 1.4.5.** Then continue Resume Founder-to-public E2E business acceptance. Do not retry Dental Hygienist or Teaching Assistant. Do not start Website automation or SEO in this stream.
+**Resume Founder-to-public E2E business acceptance remains pending.** Do not retry Dental Hygienist or Teaching Assistant. Do not start Website automation or SEO in this stream.
 
 Resume Template Department is `OPERATIONALLY_COMPLETE`. C6 = PASS / COMPLETE. Seventh C5 is not required. Dental and Teaching Assistant live retries are not required. Founder-directed successor after E2E is SEO (recorded, not activated).
 

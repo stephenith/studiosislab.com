@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PROJECT-WIDE / RESUME \u2014 DENTAL TARGET-BINDING IR 1.4.5 OFFLINE 2026-10-05. Worktree IR founder-feedback-ir-1.4.5 uncommitted. Deployed local/origin/VPS remain 4eba44defa450c39a02046895b9ed66212e7730a / IR founder-feedback-ir-1.4.4. Production fd-637ad355-ed7 / revtask-f67ce2e4-bb0 FAILED_COVERAGE and fd-3eb58dc7-d08 / revtask-232a10da-349 FAILED_GATE remain immutable. No child. No live retry. LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO. FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. CURRENT_P0_BLOCKERS=NONE. C6=PASS/COMPLETE. SEVENTH_C5_REQUIRED=NO. READY_FOR_PREDEPLOY_AUDIT=YES. Immediate objective remains Resume Founder-to-public E2E after pre-deploy audit. Do NOT retry revtask-f67ce2e4-bb0, revtask-232a10da-349, or historical C5 tasks. Do not start Website automation or SEO in this stream.",
+    "PROJECT-WIDE / RESUME \u2014 IR 1.4.5 DEPLOYED 2026-10-05. Runtime commit 3fe6a52d7ecbde88d7ca941517886981e3c4f391 / IR founder-feedback-ir-1.4.5. Production fd-637ad355-ed7 / revtask-f67ce2e4-bb0 FAILED_COVERAGE and fd-3eb58dc7-d08 / revtask-232a10da-349 FAILED_GATE remain immutable. No child. No live retry. LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO. FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. CURRENT_P0_BLOCKERS=NONE. C6=PASS/COMPLETE. SEVENTH_C5_REQUIRED=NO. Immediate objective remains Resume Founder-to-public E2E. Do NOT retry revtask-f67ce2e4-bb0, revtask-232a10da-349, or historical C5 tasks. Do not start Website automation or SEO in this stream.",
     "NEXT DEPARTMENT \u2014 Website Analysis / QA / Development is now the active project priority. Inspect existing repository/runtime/evidence first. Do not invent Website architecture. Do not enable Website automation. Do not implement Website work in the C6 administrative closure run. Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "RESUME MAINTENANCE P1 \u2014 revision_failed Request Changes UI/actionability presentation (Motion Designer \u2026-bed721; Campus Ambassador \u2026-047495). Not a P0. Does not reactivate the department.",
     "RESUME MAINTENANCE P1 \u2014 publication controlled-apply proof for staged packages while AUTO_APPLY remains OFF.",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back \u2014 snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-10-05T13:57:22.000Z",
+      "type": "resume_ir_1_4_5_controlled_deploy",
+      "summary": "IR 1.4.5 controlled production deploy record. Local wall=2026-10-05T19:27:22+05:30. UTC=2026-10-05T13:57:22.000Z. Runtime commit 3fe6a52d7ecbde88d7ca941517886981e3c4f391 / IR founder-feedback-ir-1.4.5. VPS backup /root/aios-backups/daily/20261005T135610Z.tar.gz. Dashboard restarted; LIVE=0 AUTO_APPLY=0 PUBLICATION_APPLY=0. Production fd-637ad355-ed7 / revtask-f67ce2e4-bb0 FAILED_COVERAGE remains immutable; no child; no live retry. Teaching Assistant fd-3eb58dc7-d08 / revtask-232a10da-349 FAILED_GATE remains immutable. Overlay 3 AUDIT_INVALID / NOT_DECISIONABLE unchanged. NEW_FOUNDER_DECISIONS=0. PRODUCTION_REVISIONS_EXECUTED=0. PUBLICATION_EXECUTED=0. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. C6=PASS not rewritten. SEVENTH_C5_REQUIRED=NO. LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO. FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF. generated_at envelope left at 2026-07-11T23:31:33.456Z. ACTIVE_PROJECT_PRIORITY=Website Analysis / QA / Development."
+    },
     {
       "at": "2026-10-05T13:38:35.000Z",
       "type": "resume_dental_target_binding_offline",
@@ -3556,9 +3561,10 @@
       "ir_1_4_4_status": "DEPLOYED",
       "ir_1_4_4_at_ist": "2026-10-05T17:42:00+05:30",
       "ir_1_4_4_at_utc": "2026-10-05T12:12:00.000Z",
-      "ir_1_4_5_status": "OFFLINE_UNCOMMITTED",
-      "ir_1_4_5_at_ist": "2026-10-05T19:08:35+05:30",
-      "ir_1_4_5_at_utc": "2026-10-05T13:38:35.000Z",
+      "ir_1_4_5_status": "DEPLOYED",
+      "ir_1_4_5_at_ist": "2026-10-05T19:27:22+05:30",
+      "ir_1_4_5_at_utc": "2026-10-05T13:57:22.000Z",
+      "ir_1_4_5_runtime_commit": "3fe6a52d7ecbde88d7ca941517886981e3c4f391",
       "ta_production_failure_decision_id": "fd-3eb58dc7-d08",
       "ta_production_failure_task_id": "revtask-232a10da-349",
       "ta_production_failure_result": "FAILED_GATE",
@@ -3612,12 +3618,12 @@
       "revtask-232a10da-349",
       "revtask-f67ce2e4-bb0"
     ],
-    "snapshot_ist": "2026-10-05T19:08:35+05:30",
-    "snapshot_utc": "2026-10-05T13:38:35.000Z",
+    "snapshot_ist": "2026-10-05T19:27:22+05:30",
+    "snapshot_utc": "2026-10-05T13:57:22.000Z",
     "heads": {
-      "local": "4eba44defa450c39a02046895b9ed66212e7730a",
-      "origin": "4eba44defa450c39a02046895b9ed66212e7730a",
-      "vps": "4eba44defa450c39a02046895b9ed66212e7730a"
+      "local": "3fe6a52d7ecbde88d7ca941517886981e3c4f391",
+      "origin": "3fe6a52d7ecbde88d7ca941517886981e3c4f391",
+      "vps": "3fe6a52d7ecbde88d7ca941517886981e3c4f391"
     }
   },
   "studiosislab_project": {
@@ -3641,12 +3647,12 @@
       "Revenue / Monetization",
       "AIOS System Audit / Optimization"
     ],
-    "snapshot_ist": "2026-10-05T19:08:35+05:30",
-    "snapshot_utc": "2026-10-05T13:38:35.000Z",
+    "snapshot_ist": "2026-10-05T19:27:22+05:30",
+    "snapshot_utc": "2026-10-05T13:57:22.000Z",
     "heads": {
-      "local": "4eba44defa450c39a02046895b9ed66212e7730a",
-      "origin": "4eba44defa450c39a02046895b9ed66212e7730a",
-      "vps": "4eba44defa450c39a02046895b9ed66212e7730a"
+      "local": "3fe6a52d7ecbde88d7ca941517886981e3c4f391",
+      "origin": "3fe6a52d7ecbde88d7ca941517886981e3c4f391",
+      "vps": "3fe6a52d7ecbde88d7ca941517886981e3c4f391"
     }
   }
 }

@@ -49,24 +49,24 @@ Code and VPS evidence override this file when they disagree. Historical evidence
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-05T15:13:32+05:30** / **2026-10-05T09:43:32.000Z**.
+Snapshot taken **2026-10-05T15:36:00+05:30** / **2026-10-05T10:06:00.000Z**.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `3cc75cdc849af4278b302539322c9fe2f2410828` before this correction commit (`main`) |
-| ORIGIN HEAD | `3cc75cdc849af4278b302539322c9fe2f2410828` before this correction commit |
-| VPS HEAD | `3cc75cdc849af4278b302539322c9fe2f2410828` before this correction commit (deployed IR 1.4.2 baseline) |
+| LOCAL HEAD | `37af692e0353878fd02e2bdabe0b948f58f3daf2` before this administrative closure commit (`main`) |
+| ORIGIN HEAD | `37af692e0353878fd02e2bdabe0b948f58f3daf2` before this administrative closure commit |
+| VPS HEAD | `37af692e0353878fd02e2bdabe0b948f58f3daf2` before this administrative closure commit (deployed IR 1.4.3) |
 | PUBLIC PRODUCT | Next.js SaaS at `studiosislab.com` (Vercel) |
 | AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` |
-| CURRENT PROJECT PRIORITY | **Resume Template consolidation — six immutable C5 live proofs; sixth was false READY; IR 1.4.3 header-group + state-true coverage implemented offline** |
-| CURRENTLY ACTIVE DEPARTMENT | Resume Template Department (`CONSOLIDATION_REQUIRED`) |
-| NEXT MAJOR PRODUCT DEPARTMENT | Website Analysis / QA / Development (not authorized as current work) |
+| CURRENT PROJECT PRIORITY | **Website Analysis / QA / Development** — inspect existing repository/runtime state first |
+| CURRENTLY ACTIVE DEPARTMENT | Website Analysis / QA / Development (priority only; runtime remains disabled / detect-only) |
+| NEXT MAJOR PRODUCT DEPARTMENT | Website Analysis / QA / Development (current priority; not implemented in this administrative run) |
 | CORE FACTORY HISTORICAL GOAL | **MET** — do not erase |
-| LIVE `OPERATIONALLY_COMPLETE` | **NOT ASSERTED** |
+| RESUME TEMPLATE STATUS | **`OPERATIONALLY_COMPLETE`** — C6 PASS; revision engineering `MAINTENANCE_REGRESSION_ONLY` |
 | PUBLICATION | Manual; `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` |
 | LIVE GENERATION | Guarded; `SOS_AIOS_LIVE=0` |
-| PRIMARY BLOCKERS | Six C5 live proofs remain immutable history; sixth child is overlay NOT_DECISIONABLE; department not closed until C6 decides |
-| NEXT AUTHORIZED STEP | **C6 Resume Template Department closure audit. Do not execute a seventh C5 live proof. Do not start C6 inside the 1.4.3 correction run. Do not declare the department closed.** |
+| PRIMARY BLOCKERS | **NONE** (Resume P0). Remaining Resume items are P1/P2 maintenance and do not reactivate the department. |
+| NEXT AUTHORIZED STEP | **Inspect existing Website Analysis / QA / Development state repository-first and evidence-first. Do not invent Website architecture. Do not enable Website automation. Do not reopen Resume revision engineering unless a new real production failure occurs.** |
 
 ---
 
@@ -166,8 +166,8 @@ Derived from `AGENTS.md`, `SOS/project-state.json`, `SOS/SAIOS/infra/department-
 
 | Department | Status | Active now? | Canonical master | Primary locations | Notes |
 |---|---|---|---|---|---|
-| Resume Template | **CONSOLIDATION_REQUIRED** | **YES** | [RESUME_TEMPLATE_DEPARTMENT_MASTER.md](./RESUME_TEMPLATE_DEPARTMENT_MASTER.md) | `SOS/SAIOS/core/first-production-cycle`, `founder-revision`, `founder-memory`, `founder-review`, `resume-renderer`, `resume-critic`, `role-integrity`, `staging`, publication | Historical core factory goal **met**. Live complete **not** asserted. |
-| Website Analysis / QA / Development | **DISABLED / PARTIAL** | No | None — do not create yet | `SOS/SAIOS/runtime/website-department`; public app `src/` | Phase 1 + 2A `LOCAL_VERIFIED` 2026-09-03. Phase 2B code present. `enabled=false`. Next major product department after Resume consolidation. |
+| Resume Template | **OPERATIONALLY_COMPLETE** | No — maintenance/regression only | [RESUME_TEMPLATE_DEPARTMENT_MASTER.md](./RESUME_TEMPLATE_DEPARTMENT_MASTER.md) | `SOS/SAIOS/core/first-production-cycle`, `founder-revision`, `founder-memory`, `founder-review`, `resume-renderer`, `resume-critic`, `role-integrity`, `staging`, publication | Historical core factory goal **met**. C6 PASS. Do not reopen except for Founder-authorized maintenance after a real production failure. |
+| Website Analysis / QA / Development | **DISABLED / PARTIAL** | **YES as project priority** (runtime still disabled) | None — do not create yet | `SOS/SAIOS/runtime/website-department`; public app `src/` | Phase 1 + 2A `LOCAL_VERIFIED` 2026-09-03. Phase 2B code present. `enabled=false`. Current authorized priority: inspect existing state first. |
 | SEO | **PLANNED** | No | None | Product: `src/data/templateSeoContent.ts`, `src/lib/templateSeo.ts`, `/resume/[slug]`; Website checker `SEOHealthChecker.ts` | Not a department runtime. |
 | Paid Ads / Traffic | **PLANNED** | No | None | No department directory | Roadmap item 4 only. |
 | Revenue / Monetization | **PLANNED** | No | None | `src/components/AdSenseSlot.tsx`; `SOS/01_KNOWLEDGE/Revenue_Model.md` is TODO | Do not click live ads or invent impressions. |
@@ -191,17 +191,17 @@ Derived from `AGENTS.md`, `SOS/project-state.json`, `SOS/SAIOS/infra/department-
 
 Founder-locked order (do not jump unless Founder changes priority):
 
-1. **Resume Template Department** — historically factory-capable; **current work is consolidation**. Not live `OPERATIONALLY_COMPLETE`.
-2. **Website Analysis / QA / Development** — next major product department; detect-only until Founder enables.
+1. **Resume Template Department** — historically factory-capable; **now `OPERATIONALLY_COMPLETE`**. Revision engineering is `MAINTENANCE_REGRESSION_ONLY`.
+2. **Website Analysis / QA / Development** — current authorized project priority; detect-only until Founder enables. Inspect existing state before any continuation plan.
 3. **SEO**
 4. **Paid acquisition / campaigns**
 5. **Ad placement and monetization**
 
 Deferred parallel track (not in the numbered sequence above): **AIOS System Audit / Optimization**.
 
-Current authorized position: **item 1, consolidation phase C3 (Memory selection discipline) after Founder reviews C2**. Website Phase 2B remains recorded but is not the current authorized step.
+Current authorized position: **item 2**. Resume C1–C6 are complete. Website Phase 2B remains recorded; the next task is a repository-first / evidence-first inspect of the existing Website Department, not new architecture.
 
-Department may be marked live `OPERATIONALLY_COMPLETE` only when that department’s own closure criteria are actually satisfied. Isolated verifier PASS is not enough. Resume closure criteria live in the Resume master, section 30.
+Resume was marked live `OPERATIONALLY_COMPLETE` only after C6 judged section 30 plus live/offline evidence sufficient. Isolated verifier PASS was not enough. Historical C5 FAIL / FALSE READY outcomes remain immutable.
 
 ---
 
@@ -325,11 +325,11 @@ Preserve all of these. Do not delete, merge, or rewrite to make the hierarchy lo
 
 **Exactly one authorized next major action:**
 
-**C6 Resume Template Department closure audit. Do not execute a seventh C5 live Request Changes.**
+**Inspect the existing Website Analysis / QA / Development state, repository-first and evidence-first, before deciding its continuation plan.**
 
-Six C5 live proofs are immutable. Sixth C5 (`fd-d679f3f8-f03` / `revtask-3a9bcae2-16c` / child `…-revfb-fcfc81`) reached historical `READY_FOR_FOUNDER_REVIEW` as a **false READY**: Skills presentation succeeded (8 items, columns, beside, C2 PASS); header group stayed at left=64 vs body left=80 with rail left=50 unchanged. IR 1.4.2 compiled LAYOUT_MUTATION / job-title-only / empty fulfillment; coverage addressed the item via generic `LAYOUT_RHYTHM_SATISFIED`. IR 1.4.3 now compiles multi-object group alignment + reference + explicit preserve, measures final-state fulfillment, and blocks generic rhythm from covering a specific IR predicate. Overlay marks `…-revfb-fcfc81`, `…-revfb-f81691`, and `…-194bdf-revfb-71bd11` AUDIT_INVALID / NOT_DECISIONABLE. Historical sixth task READY is not rewritten. Do not retry historical C5 tasks. Do not Approve the false-READY child. Do not start C6 inside this correction. Do not predeclare the department closed. Not Website activation.
+Resume Template Department is `OPERATIONALLY_COMPLETE` (C6 PASS, 2026-10-05). C1–C4 PASS. C5 remains six immutable live proofs: #1 FAIL, #2 FAIL, #3 FAIL, #4 FALSE READY, #5 FAIL, #6 FALSE READY. IR `founder-feedback-ir-1.4.3` is deployed at pre-closure HEAD `37af692e0353878fd02e2bdabe0b948f58f3daf2`. False-READY children stay overlay `AUDIT_INVALID` / `NOT_DECISIONABLE`. Seventh C5 is not required. Do not reopen Resume revision engineering unless a new real production failure occurs. Remaining Resume P1/P2 items are maintenance backlog and do not reactivate the department. This administrative run does not implement Website work, create a Website master, enable Website automation, or disturb dirty Website/e-sign files.
 
-Deep phases: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MASTER.md) §29–§34.
+Deep record: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MASTER.md) §29–§34.
 
 ---
 
@@ -355,6 +355,7 @@ Deep phases: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MA
 | 2026-10-01T18:30:42+05:30 | IR 1.4.1 material-constraint correction; fifth live proof not executed; Website still not current | IR 1.4 post-deploy: approximate cardinality made material beside/grouping optional; vertical bullets could still PASS | IR 1.4.1 cardinality vs material structure; unresolved material fail-closes overall fulfillment; real fourth-C5 parent replay; C1/C2/C3/C4/actionability PASS | Invented 3×N grid; phrase special cases; rewriting historical READY; C6 | Resume presentation/IR/fulfillment/C1/C4 | Yes |
 | 2026-10-01T19:21:59+05:30 | Post-fifth-C5 bounded offline correction; sixth live proof not executed; Website still not current | Fifth C5 failed at pre-execution plan geometry on transient growth overlaps; header/Skills IR missed relation and presentation | IR 1.4.2 production-parity plan-geometry + relative placement + presentation precedence; C1/C2/C3/C4/6H/6O/6P/actionability PASS | Weakening C2; moving the gate later blindly; Skills/Campus Ambassador special cases; retrying fifth C5; C6 | Resume plan-geometry/IR/fulfillment/C1/C4 | Yes |
 | 2026-10-05T15:13:32+05:30 | Final C5 offline safety closure after sixth false READY; no seventh live proof; Website still not current | Sixth C5 READY was false: header group/reference/preserve unfulfilled; generic rhythm addressed the item | Overlay on `…-revfb-fcfc81`; IR 1.4.3 group align+preserve + state-true coverage; C1/C2/C3/C4/6H/6O/6P/plan-geometry/actionability PASS | Seventh live proof; PT-ID/left=64 special cases; second English parser; rewriting historical READY; starting C6 in this run | Resume IR/fulfillment/coverage/C1/C4/overlay | Yes |
+| 2026-10-05T15:36:00+05:30 | C6 Resume Template Department closure — mark `OPERATIONALLY_COMPLETE`; move project priority to Website | C6 audit found no true closure blocker; known silent safety bypass none; seventh C5 not required | C6 read-only audit vs production HEAD `37af692`; C1–C4 PASS; overlay containment; historical MM revision `revtask-94df0103-5c3` | Declaring closed without audit; seventh live proof; implementing Website or maintenance debt in this run; rewriting C5 history | Project priority + Resume status | Yes — remain closed unless a new real production failure reopens Resume |
 
 ---
 
@@ -380,7 +381,8 @@ Append-only. Do not overwrite historical entries.
 | 2026-10-01T16:46:19+05:30 | Post-fourth-C5 bounded offline correction | Structured presentation contract + atomic items + measured text-box / intra-box usability | Fourth C5 FAIL / false-positive READY; IR 1.3.0 categorical presentation | IR 1.4.0 multi-constraint presentation; nest-aware items; height sync; intra-box fulfillment; overlay on `…-revfb-71bd11`; C4 extended | Resume presentation/IR/fulfillment/C1/C4/overlay; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+actionability | `b8cf882` | FF + dashboard restart | NO | Offline Owners 1–2 PASS; IR 1.4 did not itself pass the later material-constraint gate; fifth live proof NOT RUN; READY_FOR_C6=NO | Approximate cardinality still weakened material grouping | IR 1.4.1 material-constraint correction |
 | 2026-10-01T18:30:42+05:30 | IR 1.4.1 material presentation constraint | Approximate cardinality must not make material structure optional | IR 1.4.0 at `b8cf882`; post-deploy gap + synthetic-fixture discrepancy | IR 1.4.1 `structure_material` / `unresolved_material`; real-parent STATE A/B/D; no invented grid | Resume presentation/IR/fulfillment/C1/C4/fixtures; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+actionability | `2b92243` | FF + dashboard restart | NO | Offline correction PASS; fifth live proof later FAIL; READY_FOR_C6=NO | Axis-ambiguous material grouping remains fail-closed; Motion Designer UI debt unresolved | Read-only fifth-C5 preflight if Founder authorizes |
 | 2026-10-01T19:21:59+05:30 | Post-fifth-C5 bounded offline correction | Production-parity plan geometry + generalized relative/presentation IR | Fifth C5 FAIL at `2b92243`; transient plan-sim overlaps; header/Skills semantic miss | IR 1.4.2; plan-geometry reuses post-content reflow + normalize; future owner `plan_geometry`; relative below/above/beside + preserve; change-from-to presentation precedence | Resume plan-geometry/IR/fulfillment/presentation/C1/C4; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6H+6O+6P+plan-geometry+actionability | `3cc75cd` | FF + dashboard restart | NO | Offline correction PASS; fifth C5 remains FAIL; sixth C5 later ran and was false READY | Combined Founder packets may still fail-closed after truthful layout; revision_failed UI debt unresolved | Sixth C5 later executed |
-| 2026-10-05T15:13:32+05:30 | Final C5 offline safety closure | Header-group semantics + state-true coverage after sixth false READY | Deployed baseline `3cc75cd` / IR 1.4.2; sixth task READY; header L64 vs body L80 | Overlay on `…-revfb-fcfc81`; IR 1.4.3 group align+preserve; coverage consumes IR fulfillment before generic rhythm | Resume IR/fulfillment/coverage/C1/C4/overlay; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6H+6O+6P+plan-geometry+actionability | *(this implementation commit)* | FF + dashboard restart if proofs pass | NO seventh | Offline correction PASS; sixth remains false READY immutable; READY_FOR_SEVENTH_C5_LIVE_PROOF=NO; READY_FOR_C6_CLOSURE_AUDIT=YES; department not closed | Unmodeled group phrasing; revision_failed UI debt unresolved | C6 closure audit |
+| 2026-10-05T15:13:32+05:30 | Final C5 offline safety closure | Header-group semantics + state-true coverage after sixth false READY | Deployed baseline `3cc75cd` / IR 1.4.2; sixth task READY; header L64 vs body L80 | Overlay on `…-revfb-fcfc81`; IR 1.4.3 group align+preserve; coverage consumes IR fulfillment before generic rhythm | Resume IR/fulfillment/coverage/C1/C4/overlay; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6H+6O+6P+plan-geometry+actionability | `37af692` | FF + dashboard restart | NO seventh | Offline correction PASS; sixth remains false READY immutable; READY_FOR_SEVENTH_C5_LIVE_PROOF=NO; READY_FOR_C6_CLOSURE_AUDIT=YES; department not closed | Unmodeled group phrasing; revision_failed UI debt unresolved | C6 closure audit |
+| 2026-10-05T15:36:00+05:30 | C6 administrative closure | Record C6 PASS and move project priority to Website | Resume `CONSOLIDATION_REQUIRED`; SoT HEADs still showed `3cc75cd`; IR 1.4.3 labelled offline; C6 pending | Status `OPERATIONALLY_COMPLETE`; revision `MAINTENANCE_REGRESSION_ONLY`; P0 none; Website is current priority; maintenance debt recorded not implemented | This file; Resume master; project-state; `AGENTS.md` | Docs/state only | *(this administrative commit)* | FF docs; no service restart | NO | C6 PASS recorded; department closed; Website inspect is next | Agents may still read stale historical `CONSOLIDATION_REQUIRED` rows — those remain historical | Website Department existing-state inspect |
 
 ---
 

@@ -60,27 +60,28 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-05T15:13:32+05:30** / **2026-10-05T09:43:32.000Z**. Deployed baseline before this correction: `3cc75cdc849af4278b302539322c9fe2f2410828` / IR 1.4.2. Sixth C5 ran and was false READY. IR 1.4.3 implemented offline.
+Snapshot taken **2026-10-05T15:36:00+05:30** / **2026-10-05T10:06:00.000Z**. Pre-closure deployed baseline: `37af692e0353878fd02e2bdabe0b948f58f3daf2` / IR `founder-feedback-ir-1.4.3`. C6 closure audit PASS.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `3cc75cdc849af4278b302539322c9fe2f2410828` before this correction commit (`main`) |
-| ORIGIN HEAD | `3cc75cdc849af4278b302539322c9fe2f2410828` before this correction commit |
-| VPS HEAD | `3cc75cdc849af4278b302539322c9fe2f2410828` before this correction commit |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is the authorized final C5 offline safety closure |
-| VPS STATUS | Six C5 live proofs immutable; sixth child overlay-blocked after this deploy; 1.4.3 not live until FF deploy |
+| LOCAL HEAD | `37af692e0353878fd02e2bdabe0b948f58f3daf2` before this administrative closure commit (`main`) |
+| ORIGIN HEAD | `37af692e0353878fd02e2bdabe0b948f58f3daf2` before this administrative closure commit |
+| VPS HEAD | `37af692e0353878fd02e2bdabe0b948f58f3daf2` before this administrative closure commit |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; this run is administrative SoT closure only |
+| VPS STATUS | Six C5 live proofs immutable; IR 1.4.3 deployed; false-READY children overlay-blocked; no seventh C5 |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
-| DEPARTMENT STATUS | **CONSOLIDATION_REQUIRED** — C1–C4 offline; six C5 live proofs immutable; sixth was false READY; IR 1.4.3 offline PASS; not closed until C6 |
+| DEPARTMENT STATUS | **`OPERATIONALLY_COMPLETE`** — C1–C4 PASS; C5 complete as immutable consolidation evidence; C6 PASS |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
-| REVISION STATUS | `revtask-863f67a5-790` READY unchanged; `revtask-4a0c006c-507` FAILED_COVERAGE; `revtask-3f5b2339-73e` FAILED_COVERAGE; `revtask-0d58e039-326` READY unchanged (false-positive READY); `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY; `revtask-3a9bcae2-16c` READY unchanged (sixth false READY); `5d933072` / `76a04a21` unchanged |
+| REVISION ENGINEERING | **`MAINTENANCE_REGRESSION_ONLY`** |
+| REVISION STATUS | Historical tasks unchanged: `revtask-863f67a5-790` READY (C5#1 FAIL); `revtask-4a0c006c-507` FAILED_COVERAGE (C5#2 FAIL); `revtask-3f5b2339-73e` FAILED_COVERAGE (C5#3 FAIL); `revtask-0d58e039-326` READY (C5#4 FALSE READY); `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY (C5#5 FAIL); `revtask-3a9bcae2-16c` READY (C5#6 FALSE READY); `5d933072` / `76a04a21` unchanged |
 | GENERATION STATUS | Unchanged; `SOS_AIOS_LIVE=0` |
-| FOUNDER REVIEW STATUS | Sixth child `…-revfb-fcfc81`, fourth-C5 child `…-194bdf-revfb-71bd11`, and UI Designer child `…-revfb-f81691` are overlay `audit_invalid` / NOT_DECISIONABLE. Motion Designer `…-bed721` and Campus Ambassador `…-047495` remain `revision_failed` / `actionable=false` while UI may still expose Request Changes (unresolved closure debt; not fixed). Do not Approve the false-READY children. |
+| FOUNDER REVIEW STATUS | Sixth child `…-revfb-fcfc81`, fourth-C5 child `…-194bdf-revfb-71bd11`, and UI Designer child `…-revfb-f81691` remain overlay `audit_invalid` / NOT_DECISIONABLE. Motion Designer `…-bed721` and Campus Ambassador `…-047495` remain `revision_failed` / `actionable=false` while UI may still expose Request Changes (P1 maintenance; not a P0). Do not Approve the false-READY children. |
 | MEMORY STATUS | Unchanged |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
-| CURRENT PRIMARY BLOCKERS | Department not declared closed; C6 must assess accumulated live + offline evidence; revision_failed UI debt remains |
-| NEXT AUTHORIZED STEP | **C6 Resume Template Department closure audit.** `READY_FOR_SEVENTH_C5_LIVE_PROOF=NO`. `READY_FOR_C6_CLOSURE_AUDIT=YES`. `READY_FOR_C6` as department-closed assertion = NO. Do not retry historical C5 tasks. Do not start C6 inside this correction. |
+| CURRENT PRIMARY BLOCKERS | **NONE** |
+| NEXT AUTHORIZED STEP | Project priority is **Website Analysis / QA / Development** (inspect existing state first). Do not reopen Resume revision engineering unless a new real production failure occurs. `READY_FOR_SEVENTH_C5_LIVE_PROOF=NO`. C6 = PASS / COMPLETE. |
 
-`OPERATIONALLY_COMPLETE` is **not** currently asserted as live operational truth.
+`OPERATIONALLY_COMPLETE` is the current live operational status. Historical C5 FAIL / FALSE READY outcomes are not rewritten.
 
 ---
 
@@ -910,23 +911,21 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 | OFFLINE | C1 PASS; C2 PASS; C3 PASS; C4 PASS; plan-geometry PASS; 6H PASS; 6O PASS; 6P PASS; actionability PASS. First–fifth C5 contracts preserved. Sixth Skills presentation preserved. Sixth header replay: IR group+body+rail; unchanged FAIL; partial FAIL; correct PASS; false-READY coverage FAIL; correct-state coverage/acceptance PASS. |
 | LIVE PROOF | Seventh C5 **not authorized**. `READY_FOR_SEVENTH_C5_LIVE_PROOF=NO`. `READY_FOR_C6_CLOSURE_AUDIT=YES`. Department **not** declared closed. |
 
-#### C6 — Closure audit (next authorized step; not started in this run)
+#### C6 — Closure audit (PASS / COMPLETE 2026-10-05)
 
 | Field | Content |
 |---|---|
 | BUSINESS PURPOSE | Mark `OPERATIONALLY_COMPLETE` only if section 30 is true in production **and** C6 judges six live proofs + corrected offline production-parity evidence sufficient. |
-| ARCHITECTURAL OUTCOME | Status change in this master + project-state; Website remains next major department. |
-| DEPENDENCIES | Six immutable C5 live proofs + IR 1.4.3 offline/deployed correction. C6 decides sufficiency. Do not predeclare closed. |
-| DATA / MEMORY IMPACT | Docs/state only |
-| RISKS | Premature completeness label (the 6G–6P failure mode) |
-| OFFLINE / LIVE | Audit checklist vs section 30 |
-| ROLLBACK | Remain `CONSOLIDATION_REQUIRED` |
-| LIVE FOUNDER PROOF | Founder accepts the audit |
-| BEFORE ENABLING `SOS_AIOS_LIVE` | Section 30 generation bullets + truthful queue + READY Telegram — **separate Founder approval** |
+| RESULT | **PASS.** `RESUME_TEMPLATE_DEPARTMENT_STATUS = OPERATIONALLY_COMPLETE`. `REVISION_ENGINEERING_STATUS = MAINTENANCE_REGRESSION_ONLY`. `CURRENT_P0_BLOCKERS = NONE`. `KNOWN_CURRENT_SILENT_SAFETY_BYPASS = NO`. `SEVENTH_C5_REQUIRED = NO`. |
+| ARCHITECTURAL OUTCOME | Status change in this master + project master + project-state + `AGENTS.md`. Project priority moves to Website Analysis / QA / Development. |
+| DEPENDENCIES | Six immutable C5 live proofs + deployed IR 1.4.3 at `37af692e0353878fd02e2bdabe0b948f58f3daf2`. |
+| DATA / MEMORY IMPACT | Docs/state only. No overlays, tasks, decisions, or artifacts mutated. |
+| EVIDENCE | C6 read-only audit: HEADs matched `37af692`; dashboard `{ok:true,live:false}`; C1–C4 + actionability re-verified PASS; false-READY children overlay-blocked; historical MM revision `revtask-94df0103-5c3` READY then Founder-approved/staged. |
+| C5 HISTORY PRESERVED | #1 FAIL; #2 FAIL; #3 FAIL; #4 FALSE READY; #5 FAIL; #6 FALSE READY. Corrections and containment remain the reason the current system is considered safe. |
+| ROLLBACK | Reopen only if a new real production failure appears. Do not retry historical C5 tasks. |
+| BEFORE ENABLING `SOS_AIOS_LIVE` | Separate Founder approval. Not part of C6 closure. |
 
-**Combinable:** C1 + small Telegram `failure_code` honesty. **Not combinable with C1:** C2 generation gate, C3 memory, C5 live proof.
-
-**Total implementation phases: 6.** C1–C4 shipped offline. Six C5 live proofs are historical. Do not start **C6** inside the 1.4.3 correction. Do not execute a seventh live proof.
+**Total implementation phases: 6.** C1–C4 PASS. C5 complete as immutable consolidation evidence. C6 PASS / CLOSED. Do not execute a seventh live proof.
 
 ### Proof strategy (department)
 
@@ -966,7 +965,7 @@ The department may be marked **OPERATIONALLY_COMPLETE** only when **all** of the
 
 ## 31. Current Operational Snapshot
 
-Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
+C6 audit snapshot **2026-10-05T09:57:16.789Z** (`/api/ops-24-7`) plus administrative closure **2026-10-05T15:36:00+05:30**. Older 2026-09-29 queue rows above this date remain historical.
 
 | Item | Value |
 |---|---|
@@ -974,18 +973,19 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | Notify | `SOS_AIOS_NOTIFY_LIVE=1` |
 | AUTO_APPLY | 0 / false |
 | OpenAI bounded | enabled |
-| Spend | daily $0 / $5; monthly $0.385 / $20 |
-| waiting_founder | 20 |
+| Spend | daily $0.005809 / $5; monthly $0.043897 / $20 |
+| waiting_founder | 19 |
 | queue_max | 20 |
-| review_queue_count | 51 |
-| revision_task_counts | READY 18 / FAILED_COVERAGE 9 / FAILED 7 / FAILED_GATE 15 / PENDING 0 |
-| Timers | morning last 2026-09-29 03:20 UTC; evening last 2026-09-28 12:20 UTC; next morning 2026-09-30 03:20 UTC; generation **service** disabled; publication nightly last 2026-09-29 02:00 UTC |
-| Dashboard | active, PID 4063798, started 2026-09-23 07:36:41 UTC; NRestarts=0 |
+| review_queue_count | 55 |
+| revision_task_counts | READY 21 / FAILED_COVERAGE 11 / FAILED 7 / FAILED_GATE 16 / PENDING 0 |
+| Timers | morning last 2026-10-05 03:20 UTC (queue-full no-op); evening next 2026-10-05 12:20 UTC; generation **service** oneshot/disabled between timers; publication nightly last 2026-10-05 02:00 UTC plan/verify only |
+| Dashboard | active, started 2026-10-05 09:46:24 UTC after IR 1.4.3 deploy; NRestarts=0 |
 | Last revision of note | `revtask-3a9bcae2-16c` READY (sixth false READY) on Physical Therapist; child `…-revfb-fcfc81` overlay-blocked. Historical `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY. `revtask-0d58e039-326` still READY (false-positive). `revtask-863f67a5-790` still READY. `revtask-4a0c006c-507` / `revtask-3f5b2339-73e` still FAILED_COVERAGE. `revtask-5d933072-daf` still FAILED_SECTION_COMPLETENESS |
 | Candidate dirs on VPS | Sixth child exists and is overlay `audit_invalid`. Overlay also blocks `…-revfb-71bd11` and `…-revfb-f81691`. Do not Approve |
-| P0 | C6 Resume Template Department closure audit (not a seventh live proof; not department-closed until C6 decides) |
-| P1 | Do not execute a seventh C5 live proof |
-| P2 | READY_FOR_FOUNDER_REVIEW success Telegram; overlay vs capacity honesty; revision_failed UI debt |
+| P0 | **NONE** — department `OPERATIONALLY_COMPLETE` |
+| P1 maintenance | revision_failed Request Changes UI; publication controlled-apply proof (AUTO_APPLY off); role-integrity long-tail spend |
+| P2 maintenance | READY Telegram success; FAILED_GATE owner honesty; candidate.json approval-status sync; legacy naming; remaining SoT prose cleanup; verifier/README consolidation |
+| Optional | intra-box clipping hard-admission; broader NL Founder-feedback coverage |
 
 ---
 
@@ -1013,6 +1013,7 @@ Fresh **2026-09-29T09:52:52.100Z** (`/api/ops-24-7`) unless noted.
 | 2026-10-01T18:30:42+05:30 | Distinguish approximate cardinality from unresolved material structure; do not invent a grid; do not run fifth C5; do not start C6 | IR 1.4 post-deploy verification: `may be 3` weakened continue-beside; vertical bullets could still PASS | IR 1.4.1 cardinality vs `structure_material`; `unresolved_material` fail-closes overall fulfillment; real fourth-C5 parent replay; C1/C2/C3/C4/actionability PASS | Invented 3×N grid; fourth-C5 phrase special cases; second English parser; rewriting historical READY; C6 | PresentationIntent, FounderFeedbackIR 1.4.1, fulfillment, C1/C4, real-parent fixtures | Yes |
 | 2026-10-01T19:21:59+05:30 | Implement two proven post-fifth-C5 owners offline; do not run a sixth live proof; do not start C6 | Plan-geometry rejected transient pre-reflow overlaps; header/Skills IR missed relation and presentation | IR 1.4.2; production-parity plan-geometry; future owner `plan_geometry`; relative placement + presentation precedence; C1/C2/C3/C4/6H/6O/6P/actionability PASS | Weakening C2; Skills/Campus Ambassador special cases; retrying `revtask-68a5d250-b24`; second English parser; C6 | PlanGeometrySafety 1.1.0, FounderFeedbackIR 1.4.2, fulfillment, PresentationIntent, C1/C4 | Yes |
 | 2026-10-05T15:13:32+05:30 | Contain sixth false READY and implement IR 1.4.3 group-align + state-true coverage offline; no seventh live proof; do not start C6 | Sixth READY accepted unfulfilled header group via generic rhythm | Overlay on `…-revfb-fcfc81`; IR 1.4.3; coverage consumes IR fulfillment; C1/C2/C3/C4/6H/6O/6P/plan-geometry/actionability PASS | Seventh live proof; PT/left=64 special cases; second English parser; rewriting historical READY; declaring department closed | FounderFeedbackIR 1.4.3, fulfillment, FeedbackCoverage, C1/C4, overlay | Yes |
+| 2026-10-05T15:36:00+05:30 | C6 PASS; mark department `OPERATIONALLY_COMPLETE`; revision engineering maintenance-only | C6 audit: no true closure blocker; no current silent safety bypass; seventh C5 not required | C6 read-only audit; HEAD `37af692`; C1–C4 PASS; overlay containment; historical C5 outcomes unchanged | Seventh live proof; rewriting C5 history; implementing maintenance or Website work in this run | Docs/state only | Yes |
 
 ---
 
@@ -1283,12 +1284,27 @@ Append-only. Do not overwrite.
 - **CHANGE:** Overlay on `…-revfb-fcfc81`; compile group targets/reference/preserve; per-target final-state fulfillment; coverage evaluates IR fulfillment before `LAYOUT_RHYTHM_SATISFIED`; C1/C4 regressions. Historical sixth task not rewritten.
 - **FILES MODIFIED:** FounderFeedbackIR 1.4.3; FounderFeedbackFulfillment; FeedbackCoverage; overlay; C1/C4/actionability verifiers; this file; project master; project-state; `AGENTS.md`
 - **TESTS:** C1 PASS; C2 PASS; C3 PASS; C4 PASS; plan-geometry PASS; 6H PASS; 6O PASS; 6P PASS; actionability PASS
-- **COMMIT:** *(this implementation commit)*
-- **DEPLOY:** FF-only if proofs pass; restart only affected dashboard
+- **COMMIT:** `37af692e0353878fd02e2bdabe0b948f58f3daf2`
+- **DEPLOY:** FF + dashboard restart
 - **LIVE PROOF:** NO seventh C5.
 - **RESULT:** Offline correction PASS. Sixth remains false READY. `READY_FOR_SEVENTH_C5_LIVE_PROOF=NO`. `READY_FOR_C6_CLOSURE_AUDIT=YES`. Department not closed.
 - **NEW RISKS:** Unmodeled group phrasing remains fail-closed; revision_failed UI debt unresolved
 - **NEXT STEP:** C6 Resume Template Department closure audit. Do not execute a seventh live proof. Do not start C6 inside this correction.
+
+### 2026-10-05T15:36:00+05:30 — C6 ADMINISTRATIVE CLOSURE
+
+- **PHASE/TASK:** C6 Resume Template Department closure audit recorded
+- **PURPOSE:** Make canonical SoT match the completed C6 decision and deployed IR 1.4.3 baseline
+- **BEFORE STATE:** `CONSOLIDATION_REQUIRED`; SoT HEADs still `3cc75cd`; IR 1.4.3 labelled offline; C6 pending
+- **CHANGE:** Status `OPERATIONALLY_COMPLETE`; revision `MAINTENANCE_REGRESSION_ONLY`; P0 none; C6 PASS; seventh C5 not required; Website is current project priority; P1/P2/optional maintenance recorded not implemented
+- **FILES MODIFIED:** this file; `SOS/STUDIOSISLAB_PROJECT_MASTER.md`; `SOS/project-state.json`; `AGENTS.md`
+- **TESTS:** Docs/state consistency only
+- **COMMIT:** *(this administrative commit)*
+- **DEPLOY:** FF docs; no service restart
+- **LIVE PROOF:** NO
+- **RESULT:** Department closed. Historical C5 FAIL / FALSE READY outcomes unchanged. False-READY children remain overlay-blocked.
+- **NEW RISKS:** Agents may still read stale historical `CONSOLIDATION_REQUIRED` rows
+- **NEXT STEP:** Inspect existing Website Analysis / QA / Development state. Do not implement Website work in this run.
 
 ---
 
@@ -1296,11 +1312,12 @@ Append-only. Do not overwrite.
 
 **Exactly one authorized next major action:**
 
-**C6 Resume Template Department closure audit. Do not execute a seventh C5 live Request Changes.**
+**Inspect the existing Website Analysis / QA / Development state, repository-first and evidence-first.**
+
+Resume Template Department is `OPERATIONALLY_COMPLETE`. C6 = PASS / COMPLETE. Seventh C5 is not required.
 
 Do not Approve or Reject `revtask-863f67a5-790`, `revtask-4a0c006c-507`, `revtask-3f5b2339-73e`, `revtask-0d58e039-326`, `revtask-68a5d250-b24`, or `revtask-3a9bcae2-16c`.  
 Do not retry `revtask-3a9bcae2-16c`, `revtask-68a5d250-b24`, `revtask-0d58e039-326`, `revtask-3f5b2339-73e`, `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
-Do not start C6 inside this correction.  
-Do not declare the department closed until C6 decides.  
+Do not reopen Resume revision engineering unless a new real production failure occurs.  
 Do not enable `SOS_AIOS_LIVE`.  
-Do not submit another Founder decision.
+Do not implement Website architecture or enable Website automation in the same step as this closure.

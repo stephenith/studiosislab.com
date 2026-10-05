@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PROJECT-WIDE / RESUME \u2014 TA POST-C6 BOUNDED MAINTENANCE DEPLOYED 2026-10-05. Runtime commit 6400a20acee650c03a4432324bb710787363ba5c / IR founder-feedback-ir-1.4.4. Production fd-3eb58dc7-d08 / revtask-232a10da-349 FAILED_GATE remains immutable. LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO. FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. CURRENT_P0_BLOCKERS=NONE. C6=PASS/COMPLETE. SEVENTH_C5_REQUIRED=NO. Immediate objective remains Resume Founder-to-public E2E. Founder-directed successor after E2E is SEO (not activated). Do NOT retry revtask-232a10da-349 or historical C5 tasks. Do not start Website automation or SEO in this stream.",
+    "PROJECT-WIDE / RESUME \u2014 DENTAL TARGET-BINDING IR 1.4.5 OFFLINE 2026-10-05. Worktree IR founder-feedback-ir-1.4.5 uncommitted. Deployed local/origin/VPS remain 4eba44defa450c39a02046895b9ed66212e7730a / IR founder-feedback-ir-1.4.4. Production fd-637ad355-ed7 / revtask-f67ce2e4-bb0 FAILED_COVERAGE and fd-3eb58dc7-d08 / revtask-232a10da-349 FAILED_GATE remain immutable. No child. No live retry. LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO. FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. CURRENT_P0_BLOCKERS=NONE. C6=PASS/COMPLETE. SEVENTH_C5_REQUIRED=NO. READY_FOR_PREDEPLOY_AUDIT=YES. Immediate objective remains Resume Founder-to-public E2E after pre-deploy audit. Do NOT retry revtask-f67ce2e4-bb0, revtask-232a10da-349, or historical C5 tasks. Do not start Website automation or SEO in this stream.",
     "NEXT DEPARTMENT \u2014 Website Analysis / QA / Development is now the active project priority. Inspect existing repository/runtime/evidence first. Do not invent Website architecture. Do not enable Website automation. Do not implement Website work in the C6 administrative closure run. Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "RESUME MAINTENANCE P1 \u2014 revision_failed Request Changes UI/actionability presentation (Motion Designer \u2026-bed721; Campus Ambassador \u2026-047495). Not a P0. Does not reactivate the department.",
     "RESUME MAINTENANCE P1 \u2014 publication controlled-apply proof for staged packages while AUTO_APPLY remains OFF.",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back \u2014 snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-10-05T13:38:35.000Z",
+      "type": "resume_dental_target_binding_offline",
+      "summary": "Dental Hygienist post-IR-1.4.4 target-binding contract. Local wall=2026-10-05T19:08:35+05:30. UTC=2026-10-05T13:38:35.000Z. Production fd-637ad355-ed7 / revtask-f67ce2e4-bb0 FAILED_COVERAGE remains immutable; no child; no live retry. Teaching Assistant fd-3eb58dc7-d08 / revtask-232a10da-349 FAILED_GATE remains immutable. IR founder-feedback-ir-1.4.5 contact-row vs graphical-line binding, luminance header-band, keep-clause explicit preserve, N named SPACING_PAIR. Offline: Dental full-intent PASS; negatives PASS; TA PASS; C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6H PASS; 6K PASS; 6O PASS; 6P PASS; plan-geometry PASS; role PASS; preservation PASS; actionability PASS. NEW_REGRESSION_COUNT=0. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. C6=PASS not rewritten. SEVENTH_C5_REQUIRED=NO. LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO. FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF. Deployed local/origin/VPS remain 4eba44defa450c39a02046895b9ed66212e7730a / IR 1.4.4. Worktree IR 1.4.5 uncommitted. READY_FOR_PREDEPLOY_AUDIT=YES. generated_at envelope left at 2026-07-11T23:31:33.456Z. No production OpenAI, generation, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY, overlay, or historical-evidence changes. ACTIVE_PROJECT_PRIORITY=Website Analysis / QA / Development."
+    },
     {
       "at": "2026-10-05T12:12:00.000Z",
       "type": "resume_ta_post_c6_bounded_maintenance",
@@ -3512,7 +3517,7 @@
       "c1_c4_fulfillment_correction_status": "IMPLEMENTED_OFFLINE",
       "c1_c4_fulfillment_correction_at_ist": "2026-09-30T15:23:42+05:30",
       "c1_c4_fulfillment_correction_at_utc": "2026-09-30T09:53:42.000Z",
-      "ir_schema_after": "founder-feedback-ir-1.4.4",
+      "ir_schema_after": "founder-feedback-ir-1.4.5",
       "ready_for_c6": true,
       "ready_for_c6_closure_audit": true,
       "c6_status": "PASS",
@@ -3551,9 +3556,15 @@
       "ir_1_4_4_status": "DEPLOYED",
       "ir_1_4_4_at_ist": "2026-10-05T17:42:00+05:30",
       "ir_1_4_4_at_utc": "2026-10-05T12:12:00.000Z",
+      "ir_1_4_5_status": "OFFLINE_UNCOMMITTED",
+      "ir_1_4_5_at_ist": "2026-10-05T19:08:35+05:30",
+      "ir_1_4_5_at_utc": "2026-10-05T13:38:35.000Z",
       "ta_production_failure_decision_id": "fd-3eb58dc7-d08",
       "ta_production_failure_task_id": "revtask-232a10da-349",
       "ta_production_failure_result": "FAILED_GATE",
+      "dental_production_failure_decision_id": "fd-637ad355-ed7",
+      "dental_production_failure_task_id": "revtask-f67ce2e4-bb0",
+      "dental_production_failure_result": "FAILED_COVERAGE",
       "live_retry_required_after_offline_pass": false,
       "founder_e2e_business_acceptance_status": "PENDING_LIVE_E2E_PROOF",
       "c5_sixth_status": "LIVE_PROOF_FALSE_READY",
@@ -3598,14 +3609,15 @@
       "revtask-0d58e039-326",
       "revtask-68a5d250-b24",
       "revtask-3a9bcae2-16c",
-      "revtask-232a10da-349"
+      "revtask-232a10da-349",
+      "revtask-f67ce2e4-bb0"
     ],
-    "snapshot_ist": "2026-10-05T18:07:00+05:30",
-    "snapshot_utc": "2026-10-05T12:37:00.000Z",
+    "snapshot_ist": "2026-10-05T19:08:35+05:30",
+    "snapshot_utc": "2026-10-05T13:38:35.000Z",
     "heads": {
-      "local": "6400a20acee650c03a4432324bb710787363ba5c",
-      "origin": "6400a20acee650c03a4432324bb710787363ba5c",
-      "vps": "6400a20acee650c03a4432324bb710787363ba5c"
+      "local": "4eba44defa450c39a02046895b9ed66212e7730a",
+      "origin": "4eba44defa450c39a02046895b9ed66212e7730a",
+      "vps": "4eba44defa450c39a02046895b9ed66212e7730a"
     }
   },
   "studiosislab_project": {
@@ -3619,7 +3631,7 @@
     "current_p0_blockers": [],
     "c6_status": "PASS",
     "seventh_c5_required": false,
-    "current_founder_feedback_ir": "founder-feedback-ir-1.4.4",
+    "current_founder_feedback_ir": "founder-feedback-ir-1.4.5",
     "founder_e2e_business_acceptance_status": "PENDING_LIVE_E2E_PROOF",
     "next_major_department": "Website Analysis / QA / Development",
     "planned_departments_not_activated": [
@@ -3629,12 +3641,12 @@
       "Revenue / Monetization",
       "AIOS System Audit / Optimization"
     ],
-    "snapshot_ist": "2026-10-05T18:07:00+05:30",
-    "snapshot_utc": "2026-10-05T12:37:00.000Z",
+    "snapshot_ist": "2026-10-05T19:08:35+05:30",
+    "snapshot_utc": "2026-10-05T13:38:35.000Z",
     "heads": {
-      "local": "6400a20acee650c03a4432324bb710787363ba5c",
-      "origin": "6400a20acee650c03a4432324bb710787363ba5c",
-      "vps": "6400a20acee650c03a4432324bb710787363ba5c"
+      "local": "4eba44defa450c39a02046895b9ed66212e7730a",
+      "origin": "4eba44defa450c39a02046895b9ed66212e7730a",
+      "vps": "4eba44defa450c39a02046895b9ed66212e7730a"
     }
   }
 }

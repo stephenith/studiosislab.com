@@ -33,6 +33,7 @@ import {
   bindTargetDescriptor,
   compileGroupAlignment,
   compileRelativePlacement,
+  compileTargetDescriptor,
   dropProviderGeometryWhenRelationalOwned,
   evaluateItemFulfillment,
 } from "./FounderFeedbackFulfillment.js";
@@ -2600,7 +2601,7 @@ async function main(): Promise<void> {
   const taStyle = compileStyleMutation(TA_HEADER);
   assert(
     taIr.schema_version === FOUNDER_FEEDBACK_IR_SCHEMA &&
-      FOUNDER_FEEDBACK_IR_SCHEMA === "founder-feedback-ir-1.4.4" &&
+      FOUNDER_FEEDBACK_IR_SCHEMA === "founder-feedback-ir-1.4.5" &&
       taHeader?.fulfillment.some((p) => p.kind === "RELATIONAL_ALIGNMENT") &&
       taHeader?.fulfillment.some((p) => p.kind === "STYLE") &&
       taStyle?.fontWeight === "bold" &&
@@ -2617,6 +2618,50 @@ async function main(): Promise<void> {
       skills: taSkills?.fulfillment.map((p) => p.kind),
       style: taStyle,
     }),
+  );
+
+  const CONTACT_ROW =
+    "Move the complete contact-details line containing the email address, phone number and address slightly downward so that it sits clearly below the light background rectangle with a small clean gap. Keep the name “Sample Name,” the “Sample Title” title and the background rectangle in their current positions.";
+  const MULTI_PAIR =
+    "Correct the inconsistent vertical spacing between the bullet points in both Experience entries. In particular, remove the excessive gap before “First named bullet…” and the excessive gap before “Second named bullet…”.";
+  const RAIL =
+    "Extend the vertical line on the left till the bottom of the page.";
+  const contactRel = compileRelativePlacement(CONTACT_ROW);
+  const contactIr = compileFounderFeedbackIR([CONTACT_ROW, MULTI_PAIR, RAIL]);
+  const contactPred = contactIr.items[0]?.fulfillment.find(
+    (p) => p.kind === "RELATIONAL_ALIGNMENT",
+  );
+  const pairPreds = (contactIr.items[1]?.fulfillment ?? []).filter(
+    (p) => p.kind === "SPACING_PAIR",
+  );
+  const railDesc = contactRel;
+  assert(
+    contactPred?.target?.role === "contact" &&
+      contactPred.target.shape === "text" &&
+      contactPred.target.shape !== "line" &&
+      contactPred.reference?.kind === "visual" &&
+      (contactPred.reference.descriptor.role === "header_band" ||
+        contactPred.reference.descriptor.shape === "rect") &&
+      contactPred.preserve?.kind === "explicit_objects" &&
+      (contactPred.preserve.descriptors?.length ?? 0) >= 3 &&
+      pairPreds.length === 2 &&
+      pairPreds.every((p) => (p.present_phrases?.length ?? 0) === 1) &&
+      compileTargetDescriptor(RAIL).shape === "line" &&
+      compileTargetDescriptor(RAIL).role !== "contact",
+    "ordinary_english_target_binding_and_multi_pair",
+    JSON.stringify({
+      target: contactPred?.target,
+      ref: contactPred?.reference,
+      preserve: contactPred?.preserve,
+      pairs: pairPreds.map((p) => p.present_phrases),
+      rail: railDesc,
+    }),
+  );
+  const contactLineDesc = contactRel?.target;
+  assert(
+    contactLineDesc?.role === "contact" && contactLineDesc.shape === "text",
+    "contact_details_line_is_text_row_not_rail",
+    JSON.stringify(contactLineDesc),
   );
   for (const id of HISTORICAL) {
     const p = join(REPO, "SOS/07_LOGS/saios/founder-revision/tasks", `${id}.json`);

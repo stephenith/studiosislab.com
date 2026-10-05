@@ -1,0 +1,14 @@
+{
+  "schema_version": "founder-revision-offline-fixture-1.0.0",
+  "task_id": "revtask-f67ce2e4-bb0",
+  "historical_status": "FAILED_COVERAGE",
+  "immutable": true,
+  "source_candidate_id": "cand-healthcare-dental-hygienist-20261005T122020Z-149428",
+  "requested_changes": [
+    "Move the complete contact-details line containing the email address, phone number and address slightly downward so that it sits clearly below the light background rectangle with a small clean gap. Keep the name “Dana Winslow,” the “Dental Hygienist” title and the background rectangle in their current positions.",
+    "Expand the Education section from the current single entry to a more complete education history appropriate for this sample Dental Hygienist resume. Preserve the existing Associate of Applied Science in Dental Hygiene entry and add one additional relevant education entry with the institution, qualification or field of study, and completion year. Keep the education entries clearly separated and aligned.",
+    "Change the Skills section from the current horizontal sentence-style layout into bullet pointers arranged vertically in columns. Place around three or four skills vertically in the first column and continue the remaining skills vertically in the next column beside it. Preserve every existing skill, preserve their order, and do not remove or rewrite any skill.",
+    "Correct the inconsistent vertical spacing between the bullet points in both Experience entries. In particular, remove the excessive gap before “Conducted patient education seminars on oral health best practices…” and the excessive gap before “Trained and mentored 3 junior hygienists…”. Keep all Experience text unchanged and make the spacing between the bullet points visually consistent."
+  ],
+  "education_added_text": "Dental Assisting Certificate, Riverton Technical Institute, 2014"
+}

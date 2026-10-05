@@ -113,7 +113,7 @@ function main(): void {
   const changes = meta.requested_changes;
   assert(changes.length === 3, "fixture_has_three_requested_changes");
   assert(
-    FOUNDER_FEEDBACK_IR_SCHEMA === "founder-feedback-ir-1.4.4" &&
+    FOUNDER_FEEDBACK_IR_SCHEMA === "founder-feedback-ir-1.4.5" &&
       NUMBER_OF_SEMANTIC_INTERPRETATION_PATHS === 1,
     "ir_schema_1_4_4_single_owner",
     FOUNDER_FEEDBACK_IR_SCHEMA,

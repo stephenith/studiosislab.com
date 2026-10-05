@@ -150,7 +150,22 @@ function requestsInterRole(text: string): boolean {
 }
 
 export function isNamedSpacingPairRequest(requestedChange: string): boolean {
-  return extractNamedNeedles(requestedChange).length >= 2;
+  return (
+    extractNamedNeedles(requestedChange).length >= 2 ||
+    extractIndependentGapBeforeNeedles(requestedChange).length >= 1
+  );
+}
+
+export function extractIndependentGapBeforeNeedles(text: string): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const m of text.matchAll(/\bgap before\s+[“"']([^”"']{6,}?)[”"']/gi)) {
+    const n = stripDecor(m[1] ?? "");
+    if (n.length < 3 || seen.has(n)) continue;
+    seen.add(n);
+    out.push(n);
+  }
+  return out;
 }
 
 function extractNamedNeedles(text: string): string[] {
@@ -294,6 +309,7 @@ function pairGap(upper: TextRow, lower: TextRow): number {
 export function resolveFounderSpacingRelation(input: {
   requestedChange: string;
   canvas: FabricCanvasDoc;
+  needle?: string;
 }): ResolvedSpacingRelation {
   const raw = input.requestedChange;
   const direction = detectSpacingIntentDirection(raw);
@@ -307,7 +323,9 @@ export function resolveFounderSpacingRelation(input: {
     before_gap: 0,
   };
   const rows = collectTextRows(input.canvas);
-  const needles = extractNamedNeedles(raw);
+  const needles = input.needle?.trim()
+    ? [stripDecor(input.needle)]
+    : extractNamedNeedles(raw);
   const measurableDirection =
     direction === "REDUCE_GAP" ||
     direction === "TIGHTEN_RHYTHM" ||
@@ -511,6 +529,19 @@ export function resolveAllFounderSpacingRelations(input: {
   const out: ResolvedSpacingRelation[] = [];
   for (const change of input.requested_changes) {
     if (!isFounderMeasurableSpacingIntent(change)) continue;
+    const gapNeedles = extractIndependentGapBeforeNeedles(change);
+    if (gapNeedles.length >= 2) {
+      for (const needle of gapNeedles) {
+        out.push(
+          resolveFounderSpacingRelation({
+            requestedChange: change,
+            canvas: input.canvas,
+            needle,
+          }),
+        );
+      }
+      continue;
+    }
     out.push(
       resolveFounderSpacingRelation({
         requestedChange: change,
@@ -546,13 +577,15 @@ export function buildSafeNamedSpacingRelationOps(input: {
 }): CanvasOperation[] {
   const ops: CanvasOperation[] = [];
   const rows = collectTextRows(input.canvas);
-  for (const change of input.requested_changes) {
-    if (!isFounderMeasurableSpacingIntent(change)) continue;
-    const resolved = relationForChange(
-      change,
-      input.canvas,
-      input.resolved_relations,
-    );
+  const resolvedList =
+    input.resolved_relations && input.resolved_relations.length > 0
+      ? input.resolved_relations
+      : resolveAllFounderSpacingRelations({
+          requested_changes: input.requested_changes,
+          canvas: input.canvas,
+        });
+  for (const resolved of resolvedList) {
+    const change = resolved.founder_feedback_item;
     if (resolved.kind !== "NAMED_PAIR") continue;
     if (
       resolved.direction !== "REDUCE_GAP" &&
@@ -571,8 +604,17 @@ export function buildSafeNamedSpacingRelationOps(input: {
     const peerRhythm = peers.length > 0 ? median(peers) : 6;
     const desired = Math.max(SPACING_INTENT_MIN_GAP_PX, peerRhythm);
     const newTop = snapCoord(upper.contentBottom + desired);
-    if (!(newTop < lower.top - 0.5)) continue;
-    if (newTop + 1e-9 < upper.contentBottom + SPACING_INTENT_MIN_GAP_PX) {
+    const canMove = newTop < lower.top - 0.5;
+    if (
+      !canMove &&
+      !(upper.storedHeight > upper.visualHeight + 1)
+    ) {
+      continue;
+    }
+    if (
+      canMove &&
+      newTop + 1e-9 < upper.contentBottom + SPACING_INTENT_MIN_GAP_PX
+    ) {
       continue;
     }
 
@@ -592,15 +634,17 @@ export function buildSafeNamedSpacingRelationOps(input: {
       });
     }
 
-    ops.push({
-      op: "set_position",
-      target_id: lower.id,
-      before_summary: `${lower.id} at top=${lower.top} after ${upper.id} visual_bottom=${upper.contentBottom}`,
-      intended_change: `Compact named spacing pair ${upper.id}→${lower.id} to peer visual rhythm`,
-      values: { top: newTop },
-      founder_feedback_item: change,
-      confidence: 1,
-    });
+    if (canMove) {
+      ops.push({
+        op: "set_position",
+        target_id: lower.id,
+        before_summary: `${lower.id} at top=${lower.top} after ${upper.id} visual_bottom=${upper.contentBottom}`,
+        intended_change: `Compact named spacing pair ${upper.id}→${lower.id} to peer visual rhythm`,
+        values: { top: newTop },
+        founder_feedback_item: change,
+        confidence: 1,
+      });
+    }
   }
   return ops;
 }

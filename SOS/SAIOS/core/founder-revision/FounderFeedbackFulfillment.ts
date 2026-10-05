@@ -30,6 +30,7 @@ import { inspectRevisionSectionGroups, normalizeRevisionLayout } from "./Revisio
 import type { CanvasOperation } from "./revision-task-types.js";
 import { isFounderMeasurableSpacingIntent } from "./FounderSpacingIntent.js";
 import {
+  extractIndependentGapBeforeNeedles,
   isNamedSpacingPairRequest,
   resolveFounderSpacingRelation,
 } from "./FounderSpacingRelation.js";
@@ -95,13 +96,16 @@ export type ReferenceSpec =
   | { kind: "header_name_only" }
   | { kind: "section"; section: ContentSectionKey }
   | { kind: "body_content" }
-  | { kind: "visual"; descriptor: TargetDescriptor };
+  | { kind: "visual"; descriptor: TargetDescriptor }
+  | { kind: "explicit_objects"; descriptors: TargetDescriptor[] };
 
 export type RelationalAlignmentSpec = {
   axis: "horizontal" | "vertical";
   edge: "left" | "right" | "center" | "top" | "bottom";
   relation?: "align" | "below" | "above" | "beside";
   tolerance_px: number;
+  /** Extra space beyond flush below/above when Founder asked for a clean gap. */
+  clearance_px?: number;
 };
 
 export const RELATIONAL_ALIGNMENT_TOLERANCE_PX = 2;
@@ -165,30 +169,83 @@ const COLOR_WORD: ReadonlyArray<readonly [ColorFamily, RegExp]> = [
   ["light", /\b(?:light|white|ivory)\b/],
 ];
 
+function cleanQuotedPhrase(raw: string): string {
+  return raw.trim().replace(/[,.;:]+$/g, "").trim();
+}
+
+function isContactRowLanguage(n: string): boolean {
+  if (/\b(?:rail|rule|divider|vertical\s+line|upright\s+line)\b/.test(n)) {
+    return false;
+  }
+  return (
+    /\bcontact(?:[-\s]details?)?\s+(?:line|row)\b/.test(n) ||
+    (/\bcontact(?:[-\s]details?)\b/.test(n) &&
+      /\b(?:line|row)\b/.test(n) &&
+      /\b(?:email|phone|address|containing)\b/.test(n))
+  );
+}
+
+function isHeaderBandLanguage(n: string): boolean {
+  return (
+    (/\b(?:background|header)\b/.test(n) &&
+      /\b(?:rectangle|rect|box|band)\b/.test(n)) ||
+    /\bheader-?band\b/.test(n)
+  );
+}
+
+function isGraphicalLineLanguage(n: string): boolean {
+  if (isContactRowLanguage(n)) return false;
+  return (
+    /\b(?:rail|rule|divider|stroke)\b/.test(n) ||
+    /\b(?:vertical|upright)\s+line\b/.test(n) ||
+    (/\bline\b/.test(n) &&
+      (/\b(?:vertical|upright|left|right|green|blue|teal|navy)\b/.test(n) ||
+        /\b(?:rail|rule|divider)\b/.test(n)))
+  );
+}
+
 export function compileTargetDescriptor(text: string): TargetDescriptor {
   const n = text.toLowerCase();
   const target: TargetDescriptor = {};
   const quoted = text.match(/["“]([^"”]{1,80})["”]/);
   if (quoted?.[1]) {
-    target.quoted_text = quoted[1].trim();
+    target.quoted_text = cleanQuotedPhrase(quoted[1]);
     target.shape = "text";
+  }
+  if (isContactRowLanguage(n)) {
+    target.role = "contact";
+    target.shape = "text";
+    target.section = "header";
   }
   if (/\b(?:professional title|job title|position)\b/.test(n)) {
     target.role = "professional_title";
     target.shape = target.shape ?? "text";
   }
-  if (/\bheader\b/.test(n)) target.section = "header";
-  if (/\b(?:vertical|upright)\b/.test(n) || /\b(?:line|rail|rule|divider)\b/.test(n)) {
+  if (/\bheader\b/.test(n) || isHeaderBandLanguage(n)) target.section = "header";
+  if (isHeaderBandLanguage(n)) {
+    target.shape = "rect";
+    target.role = target.role ?? "header_band";
+    target.section = "header";
+  }
+  if (isGraphicalLineLanguage(n)) {
     target.orientation = "vertical";
+    target.shape = "line";
   } else if (/\bhorizontal\b/.test(n) && !/\bfrom the current horizontal\b/.test(n)) {
     target.orientation = "horizontal";
   }
   if (/\bleft\b/.test(n)) target.side = "left";
   else if (/\bright\b/.test(n)) target.side = "right";
-  if (/\b(?:line|rail|rule|stroke|divider)\b/.test(n)) target.shape = "line";
-  else   if (/\b(?:box|rectangle|rect|bar|band)\b/.test(n)) target.shape = "rect";
+  if (!target.shape && /\b(?:box|rectangle|rect|bar|band)\b/.test(n)) {
+    target.shape = "rect";
+  }
+  const hasHue =
+    /\b(?:blue|navy|azure|green|teal|cyan|red|orange|yellow|purple|violet)\b/.test(
+      n,
+    );
   if (/\blight[-\s]?blue\b/.test(n) || /\bdark[-\s]?blue\b/.test(n)) {
     target.color_family = "blue";
+  } else if (target.role === "header_band" && !hasHue) {
+    /* luminance-only "light background" is not a hue family */
   } else {
     for (const [family, re] of COLOR_WORD) {
       if (re.test(n)) {
@@ -471,10 +528,10 @@ export function compileRelativePlacement(text: string):
     Boolean(refDesc.section) ||
     Boolean(refDesc.quoted_text);
   if (!hasVisualRef && !refDesc.role) return undefined;
-  const preserve =
-    /\b(?:keep(?:ing)?|preserv(?:e|ing)|retain(?:ing)?)\b/.test(n) &&
-    /\b(?:name|placement)\b/.test(n)
-      ? ({ kind: "header_name_only" } as const)
+  const preserve = compileExplicitPreserve(text);
+  const clearance =
+    /\b(?:small clean gap|clean gap|clearly below|clearly above)\b/.test(n)
+      ? 8
       : undefined;
   return {
     target,
@@ -485,8 +542,83 @@ export function compileRelativePlacement(text: string):
       edge: below ? "bottom" : above ? "top" : "right",
       relation: below ? "below" : above ? "above" : "beside",
       tolerance_px: RELATIONAL_ALIGNMENT_TOLERANCE_PX,
+      clearance_px: clearance,
     },
   };
+}
+
+function explicitPreserveSpans(text: string): string {
+  return text
+    .split(/\b(?:keep(?:ing)?|preserv(?:e|ing)|retain(?:ing)?)\b/i)
+    .slice(1)
+    .map((chunk) => {
+      const cut = chunk.split(
+        /\b(?:and\s+(?:then\s+)?move|then\s+move|, and move|only if needed|move the)\b/i,
+      )[0];
+      return (cut ?? chunk).trim();
+    })
+    .filter(Boolean)
+    .join(" ");
+}
+
+export function compileExplicitPreserve(text: string): ReferenceSpec | undefined {
+  const n = text.toLowerCase();
+  if (!/\b(?:keep(?:ing)?|preserv(?:e|ing)|retain(?:ing)?)\b/.test(n)) {
+    return undefined;
+  }
+  const afterKeep = explicitPreserveSpans(text);
+  const descriptors: TargetDescriptor[] = [];
+  const quoted = [...afterKeep.matchAll(/[“"]([^”"]{1,80})[”"]/g)].map((m) =>
+    cleanQuotedPhrase(m[1] ?? ""),
+  );
+  for (const q of quoted) {
+    if (q.length < 2) continue;
+    descriptors.push({ quoted_text: q, shape: "text" });
+  }
+  if (
+    /\b(?:job\s+)?title\b/i.test(afterKeep) &&
+    !/\b(?:below|above|under|beneath)\s+(?:the\s+)?(?:job\s+)?title\b/i.test(
+      afterKeep,
+    ) &&
+    !quoted.some((q) => /title/i.test(q))
+  ) {
+    const titled = descriptors.find((d) => d.quoted_text && d.quoted_text.length > 2);
+    if (titled && descriptors.length > 1) {
+      descriptors[descriptors.length - 1] = {
+        ...descriptors[descriptors.length - 1]!,
+        role: "professional_title",
+      };
+    } else if (!descriptors.some((d) => d.role === "professional_title")) {
+      descriptors.push({
+        role: "professional_title",
+        shape: "text",
+        section: "header",
+      });
+    }
+  }
+  if (/\b(?:rectangle|rect|box|band)\b/i.test(afterKeep)) {
+    const rectDesc = compileTargetDescriptor(afterKeep);
+    if (rectDesc.shape === "rect" || rectDesc.role === "header_band") {
+      descriptors.push({
+        shape: "rect",
+        section: "header",
+        role: rectDesc.role === "header_band" ? "header_band" : rectDesc.role,
+        color_family: rectDesc.color_family,
+      });
+    } else {
+      descriptors.push({ shape: "rect", section: "header", role: "header_band" });
+    }
+  }
+  if (descriptors.length >= 2) {
+    return { kind: "explicit_objects", descriptors };
+  }
+  if (descriptors.length === 1) {
+    return { kind: "visual", descriptor: descriptors[0]! };
+  }
+  if (/\b(?:name|placement)\b/.test(n)) {
+    return { kind: "header_name_only" };
+  }
+  return undefined;
 }
 
 /**
@@ -714,11 +846,23 @@ export function predicatesForItem(
     isNamedSpacingPairRequest(line) &&
     !hasPresentation
   ) {
-    out.push({
-      kind: "SPACING_PAIR",
-      required: true,
-      section: contentSections[0],
-    });
+    const gapNeedles = extractIndependentGapBeforeNeedles(line);
+    if (gapNeedles.length >= 2) {
+      for (const needle of gapNeedles) {
+        out.push({
+          kind: "SPACING_PAIR",
+          required: true,
+          section: contentSections[0],
+          present_phrases: [needle],
+        });
+      }
+    } else {
+      out.push({
+        kind: "SPACING_PAIR",
+        required: true,
+        section: contentSections[0],
+      });
+    }
   }
   return out;
 }
@@ -767,8 +911,24 @@ function hueFamily(rgb: number[]): ColorFamily | null {
   return null;
 }
 
+function isLightFill(fill: string | null | undefined): boolean {
+  const rgb = parseHex(fill);
+  return Boolean(rgb && Math.min(...rgb) > 200);
+}
+
+function isDarkFill(fill: string | null | undefined): boolean {
+  const rgb = parseHex(fill);
+  return Boolean(rgb && Math.max(...rgb) < 40);
+}
+
 function colorMatches(family: ColorFamily | undefined, fill: string | null, stroke: string | null): boolean {
   if (!family || family === "any") return true;
+  if (family === "light") {
+    return isLightFill(fill) || isLightFill(stroke);
+  }
+  if (family === "dark") {
+    return isDarkFill(fill) || isDarkFill(stroke);
+  }
   for (const c of [fill, stroke]) {
     const rgb = parseHex(c);
     if (!rgb) continue;
@@ -873,11 +1033,58 @@ function bindHeaderGroupRole(
   return rest[1] ? [rest[1].id] : [];
 }
 
+function bindHeaderBand(
+  canvas: FabricCanvasDoc,
+  target: TargetDescriptor,
+): string[] {
+  const pageW = Number(canvas.width ?? 794);
+  const scored: Array<{ id: string; score: number }> = [];
+  objectsOf(canvas).forEach((o, i) => {
+    if (isLockedSystemObject(o)) return;
+    const type = String(o.type ?? "").toLowerCase();
+    if (!type.includes("rect") && !type.includes("polygon")) return;
+    const id = objId(o, i);
+    if (id === "page-root" || /^page[-_]?bg/i.test(id)) return;
+    const role = objRole(o).toLowerCase();
+    const w = Number(o.width ?? 0) * Number(o.scaleX ?? 1);
+    const top = Number(o.top ?? 0);
+    let score = 0;
+    if (/\bheader[-_]?band\b/.test(role)) score += 6;
+    if (objSection(o) === "header") score += 3;
+    if (w >= pageW * 0.5) score += 3;
+    if (top < 80) score += 1;
+    if (target.color_family === "light" && isLightFill(typeof o.fill === "string" ? o.fill : null)) {
+      score += 2;
+    } else if (
+      target.color_family &&
+      target.color_family !== "light" &&
+      colorMatches(
+        target.color_family,
+        typeof o.fill === "string" ? o.fill : null,
+        typeof o.stroke === "string" ? o.stroke : null,
+      )
+    ) {
+      score += 2;
+    } else if (!target.color_family && isLightFill(typeof o.fill === "string" ? o.fill : null)) {
+      score += 1;
+    }
+    if (score >= 3) scored.push({ id, score });
+  });
+  scored.sort((a, b) => b.score - a.score);
+  const best = scored[0]?.score ?? 0;
+  const winners = scored.filter((s) => s.score === best).map((s) => s.id);
+  if (winners.length !== 1) return [];
+  return winners;
+}
+
 export function bindTargetDescriptor(
   canvas: FabricCanvasDoc,
   target: TargetDescriptor | undefined,
 ): string[] {
   if (!target) return [];
+  if (target.role === "header_band") {
+    return bindHeaderBand(canvas, target);
+  }
   if (
     target.role === "name" ||
     target.role === "contact" ||
@@ -1040,6 +1247,11 @@ export function bindReferenceIds(
   if (reference.kind === "visual") {
     return bindTargetDescriptor(canvas, reference.descriptor);
   }
+  if (reference.kind === "explicit_objects") {
+    const groups = reference.descriptors.map((d) => bindTargetDescriptor(canvas, d));
+    if (groups.some((g) => g.length === 0)) return [];
+    return [...new Set(groups.flat())];
+  }
   if (reference.kind === "body_content") {
     const ids: string[] = [];
     objectsOf(canvas).forEach((o, i) => {
@@ -1096,7 +1308,9 @@ function bindRelativeTargetIds(
     predicate.target &&
     (predicate.target.quoted_text ||
       predicate.target.role ||
-      predicate.target.shape === "text")
+      predicate.target.shape === "text" ||
+      predicate.target.shape === "line" ||
+      predicate.target.shape === "rect")
   ) {
     return bindTargetDescriptor(canvas, predicate.target);
   }
@@ -1356,6 +1570,18 @@ function evaluatePredicate(
         notes: `relational alignment unbound (targets=${targetIds.length} refs=${referenceIds.length})`,
       };
     }
+    if (
+      predicate.preserve &&
+      (predicate.preserve.kind === "explicit_objects" ||
+        predicate.preserve.kind === "visual") &&
+      preserveIds.length === 0
+    ) {
+      return {
+        pass: false,
+        ids: [],
+        notes: "relational preservation unbound",
+      };
+    }
     const beforeBy = new Map(
       objectsOf(before).map((o, i) => [objId(o, i), o] as const),
     );
@@ -1436,7 +1662,8 @@ function evaluatePredicate(
       if (relation === "below") {
         const targetTop = Math.min(...targetObjs.map(objectTop));
         const refBottom = Math.max(...refObjs.map(objBottom));
-        pass = targetTop >= refBottom - 0.51;
+        const need = refBottom + (alignment.clearance_px ?? 0);
+        pass = targetTop >= need - 0.51;
         return {
           pass,
           ids: targetIds,
@@ -1448,7 +1675,8 @@ function evaluatePredicate(
       if (relation === "above") {
         const targetBottom = Math.max(...targetObjs.map(objBottom));
         const refTop = Math.min(...refObjs.map(objectTop));
-        pass = targetBottom <= refTop + 0.51;
+        const need = refTop - (alignment.clearance_px ?? 0);
+        pass = targetBottom <= need + 0.51;
         return {
           pass,
           ids: targetIds,
@@ -1560,6 +1788,7 @@ function evaluatePredicate(
     const resolved = resolveFounderSpacingRelation({
       requestedChange: line,
       canvas: after,
+      needle: predicate.present_phrases?.[0],
     });
     if (resolved.kind !== "NAMED_PAIR" || !resolved.upper_id || !resolved.lower_id) {
       return {
@@ -1769,7 +1998,9 @@ export function applyRelationalAlignment(
       if (relation === "below") {
         const targetTop = Math.min(...targetObjs.map(objectTop));
         const refBottom = Math.max(...refObjs.map(objBottom));
-        const delta = Number((refBottom - targetTop).toFixed(2));
+        const delta = Number(
+          (refBottom + (alignment.clearance_px ?? 0) - targetTop).toFixed(2),
+        );
         if (delta <= 0.01) continue;
         for (const id of movable) {
           const obj = byId.get(id);
@@ -1781,7 +2012,9 @@ export function applyRelationalAlignment(
       if (relation === "above") {
         const targetBottom = Math.max(...targetObjs.map(objBottom));
         const refTop = Math.min(...refObjs.map(objectTop));
-        const delta = Number((refTop - targetBottom).toFixed(2));
+        const delta = Number(
+          (refTop - (alignment.clearance_px ?? 0) - targetBottom).toFixed(2),
+        );
         if (delta >= -0.01) continue;
         for (const id of movable) {
           const obj = byId.get(id);

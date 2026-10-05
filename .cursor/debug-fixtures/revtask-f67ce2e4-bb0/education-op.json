@@ -1,0 +1,17 @@
+{
+  "schema_version": "founder-canvas-revision-plan-1.0.0",
+  "summary": "Offline replay of the production Education CONTENT_ADD operation only.",
+  "operations": [
+    {
+      "op": "update_text",
+      "target_id": "block-education-3-t2",
+      "before_summary": "Single education entry",
+      "intended_change": "Expand Education while preserving the original entry",
+      "values": {
+        "text": "Associate of Applied Science in Dental Hygiene, Crestview Community College, 2016\nDental Assisting Certificate, Riverton Technical Institute, 2014"
+      },
+      "founder_feedback_item": "Expand the Education section from the current single entry to a more complete education history appropriate for this sample Dental Hygienist resume. Preserve the existing Associate of Applied Science in Dental Hygiene entry and add one additional relevant education entry with the institution, qualification or field of study, and completion year. Keep the education entries clearly separated and aligned.",
+      "confidence": 1
+    }
+  ]
+}

@@ -60,14 +60,14 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-05T22:31:45+05:30** / **2026-10-05T17:01:45.000Z**. IR `founder-feedback-ir-1.4.5` remains the schema (compiler-dispatch consolidation offline, uncommitted). Deployed runtime `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154`.
+Snapshot taken **2026-10-06T13:57:47+05:30** / **2026-10-06T08:27:47.000Z**. IR `founder-feedback-ir-1.4.5` remains the schema. Compiler-dispatch runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` is deployed. Prior baseline `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154`.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154` (`main`; compiler-dispatch worktree uncommitted) |
-| ORIGIN HEAD | `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154` |
-| VPS HEAD | `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154` (IR 1.4.5 deployed; compiler-dispatch not deployed) |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; compiler-dispatch consolidation offline uncommitted |
+| LOCAL HEAD | runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` (`main`; compiler-dispatch deployed) |
+| ORIGIN HEAD | runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` |
+| VPS HEAD | runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` (IR 1.4.5 + compiler-dispatch deployed; prior `c1f253e`) |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; compiler-dispatch deployed |
 | VPS STATUS | Six C5 live proofs immutable; Teaching Assistant `revtask-232a10da-349` immutable `FAILED_GATE`; Dental Hygienist `revtask-f67ce2e4-bb0` immutable `FAILED_COVERAGE`; Healthcare Administrator `revtask-adf420bb-a53` immutable `FAILED_COVERAGE`; IR 1.4.5 deployed; false-READY children overlay-blocked; no seventh C5; no Healthcare/Dental/TA live retry |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
 | DEPARTMENT STATUS | **`OPERATIONALLY_COMPLETE`** — C1–C4 PASS; C5 complete as immutable consolidation evidence; C6 PASS; post-C6 maintenance does not reopen C5–C6 |
@@ -1400,6 +1400,21 @@ Append-only. Do not overwrite.
 - **LIVE PROOF:** NO. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`
 - **RESULT:** Offline full-intent PASS. Historical Healthcare remains FAILED_COVERAGE. Department remains OPERATIONALLY_COMPLETE. C6 not rewritten.
 - **NEW RISKS:** Unmodeled locative/pair phrasing remains fail-closed; VPS still serves pre-dispatch IR 1.4.5 until Founder deploys
+- **NEXT STEP:** Resume Founder-to-public E2E business acceptance. Do not retry Healthcare, Dental, or TA. Do not start a seventh C5.
+
+### 2026-10-06T13:57:47+05:30 — COMPILER-DISPATCH CONTROLLED PRODUCTION DEPLOY RECORD
+
+- **PHASE/TASK:** Documentation-only SoT record after Healthcare compiler-dispatch runtime deploy
+- **PURPOSE:** Replace pre-deploy uncommitted / `c1f253e` placeholders with the live runtime SHA
+- **BEFORE STATE:** Runtime already at `81d2f4a` / IR 1.4.5 + compiler-dispatch; SoT still described worktree uncommitted / deployed `c1f253e`
+- **CHANGE:** Record runtime `81d2f4a`; prior baseline `c1f253e`; IR remains 1.4.5; no live retry; historical Healthcare/Dental/TA/C5 unchanged
+- **FILES MODIFIED:** This file; project master; project-state; `AGENTS.md`
+- **TESTS:** Read/import deployed IR 1.4.5; dashboard `{ok:true,live:false}`; Healthcare FAILED_COVERAGE no child; Dental FAILED_COVERAGE no child; TA FAILED_GATE no child; overlay 3 AUDIT_INVALID
+- **COMMIT:** *(docs-follow)*
+- **DEPLOY:** FF docs; no extra restart. Backup `/root/aios-backups/daily/20261006T082705Z.tar.gz`
+- **LIVE PROOF:** NO. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`
+- **RESULT:** SoT matches deployed compiler-dispatch. Historical tasks unchanged.
+- **NEW RISKS:** None added by documentation.
 - **NEXT STEP:** Resume Founder-to-public E2E business acceptance. Do not retry Healthcare, Dental, or TA. Do not start a seventh C5.
 
 ---

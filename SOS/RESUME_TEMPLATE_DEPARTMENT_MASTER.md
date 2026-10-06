@@ -60,14 +60,14 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-06T15:42:34+05:30** / **2026-10-06T10:12:34.000Z**. IR `founder-feedback-ir-1.4.5` remains the schema. Compiler-dispatch runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` is deployed. Prior baseline `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154`. Worktree has uncommitted Digital Marketing ownership/presentation/multi-pair/offset correction.
+Snapshot taken **2026-10-06T15:59:30+05:30** / **2026-10-06T10:29:30.000Z**. IR `founder-feedback-ir-1.4.5` remains the schema. Runtime implementation `208b1f8765b8b0851cb01990aed5acd0e70401de` is deployed. Prior runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4`. GIT HEAD is the later docs-follow deployment-record commit, not the runtime SHA.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` (`main`; compiler-dispatch deployed). Worktree has uncommitted Digital Marketing ownership correction. |
-| ORIGIN HEAD | runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` |
-| VPS HEAD | runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` (IR 1.4.5 + compiler-dispatch deployed; prior `c1f253e`) |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; Digital Marketing ownership correction uncommitted |
+| GIT HEAD | docs-follow deployment-record commit on `main` after this record (local/origin/VPS converge on that git SHA; do not treat it as the runtime implementation) |
+| RUNTIME IMPLEMENTATION SHA | `208b1f8765b8b0851cb01990aed5acd0e70401de` (Digital Marketing ownership correction deployed) |
+| PRIOR RUNTIME | `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; Digital Marketing ownership correction committed and deployed |
 | VPS STATUS | Six C5 live proofs immutable; Teaching Assistant `revtask-232a10da-349` immutable `FAILED_GATE`; Dental Hygienist `revtask-f67ce2e4-bb0` immutable `FAILED_COVERAGE`; Healthcare Administrator `revtask-adf420bb-a53` immutable `FAILED_COVERAGE`; Digital Marketing Specialist `revtask-a3de0a46-4da` immutable `FAILED_PLAN`; IR 1.4.5 deployed; false-READY children overlay-blocked; no seventh C5; no Digital Marketing/Healthcare/Dental/TA live retry of those historical tasks |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
 | DEPARTMENT STATUS | **`OPERATIONALLY_COMPLETE`** — C1–C4 PASS; C5 complete as immutable consolidation evidence; C6 PASS; post-C6 maintenance does not reopen C5–C6 |
@@ -1437,12 +1437,27 @@ Append-only. Do not overwrite.
 - **CHANGE:** Compile-time ownership invariant; plan-schema/prompt consume `coverage_mode` only; presentation-before-replacement; prefix scope; `from…into` / `arranged`; remainder vs continuation; first-N columns; `extractAllNamedSpacingPairs`; numeric `clearance_px`; inventory truncation mark; sanitized DM fixture + full-intent verifier; C1 negatives 13–18. No schema bump. Historical Digital Marketing/Healthcare/Dental/TA/C5 tasks not rewritten.
 - **FILES MODIFIED:** FounderFeedbackIR; RevisionIntentScope; RequestedChangeClassification; PresentationIntent; FounderFeedbackFulfillment; FounderSpacingRelation; RevisionPromptBuilder; RevisionPlanner; CanvasInventory; HeaderIdentityLayout; C1/DM/6G/6P/plan-schema verifiers; this file; project master; project-state; `AGENTS.md`
 - **TESTS:** DM full-intent PASS; Healthcare PASS; Dental PASS; TA PASS; C1–C4 PASS; actionability PASS; 6H PASS; 6K PASS; 6O PASS; 6P PASS; plan-geometry PASS; role PASS; preservation PASS; plan-schema PASS
-- **COMMIT:** *(this maintenance; uncommitted)*
-- **DEPLOY:** None in this run
+- **COMMIT:** `208b1f8765b8b0851cb01990aed5acd0e70401de`
+- **DEPLOY:** FF + dashboard restart. Backup `/root/aios-backups/daily/20261006T102740Z.tar.gz`
 - **LIVE PROOF:** NO retry of `revtask-a3de0a46-4da`. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=YES` as a **new** Founder action only
-- **RESULT:** Offline full-intent PASS. Historical Digital Marketing remains FAILED_PLAN. Department remains OPERATIONALLY_COMPLETE. C6 not rewritten.
-- **NEW RISKS:** Unmodeled ownership/presentation phrasing remains fail-closed; VPS still serves pre-ownership-correction IR 1.4.5 until Founder deploys
+- **RESULT:** Offline full-intent PASS then deployed. Historical Digital Marketing remains FAILED_PLAN. Department remains OPERATIONALLY_COMPLETE. C6 not rewritten.
+- **NEW RISKS:** Unmodeled ownership/presentation phrasing remains fail-closed
 - **NEXT STEP:** Resume Founder-to-public E2E business acceptance. Do not retry Digital Marketing, Healthcare, Dental, or TA historical tasks. Do not start a seventh C5.
+
+### 2026-10-06T15:59:30+05:30 — DIGITAL MARKETING OWNERSHIP CONTROLLED PRODUCTION DEPLOY RECORD
+
+- **PHASE/TASK:** Documentation-only SoT record after Digital Marketing ownership runtime deploy
+- **PURPOSE:** Replace pre-deploy uncommitted / `81d2f4a` placeholders with the live runtime SHA and distinguish GIT HEAD from RUNTIME IMPLEMENTATION SHA
+- **BEFORE STATE:** Runtime already at `208b1f8` / IR 1.4.5 + ownership correction; SoT still described worktree uncommitted / deployed `81d2f4a`
+- **CHANGE:** Record runtime `208b1f8`; prior runtime `81d2f4a`; IR remains 1.4.5; no live retry of `revtask-a3de0a46-4da`; historical Digital Marketing/Healthcare/Dental/TA/C5 unchanged
+- **FILES MODIFIED:** This file; project master; project-state; `AGENTS.md`
+- **TESTS:** Read/import deployed IR 1.4.5; dashboard `{ok:true,live:false}`; Digital Marketing FAILED_PLAN no child; Healthcare FAILED_COVERAGE no child; Dental FAILED_COVERAGE no child; TA FAILED_GATE no child; overlay 3 AUDIT_INVALID
+- **COMMIT:** *(docs-follow)*
+- **DEPLOY:** FF docs; no extra restart. Backup `/root/aios-backups/daily/20261006T102740Z.tar.gz`
+- **LIVE PROOF:** NO. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=YES` as a **new** Founder action only
+- **RESULT:** SoT matches deployed ownership correction. Historical tasks unchanged.
+- **NEW RISKS:** None added by documentation.
+- **NEXT STEP:** Resume Founder-to-public E2E business acceptance. Do not retry Digital Marketing, Healthcare, Dental, or TA. Do not start a seventh C5.
 
 ---
 

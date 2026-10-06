@@ -104,16 +104,35 @@ export function sectionTokensForSpacingIntent(text: string): string[] {
 /**
  * Detect measurable Founder spacing mutation intents (not VA / preserve-rest).
  */
+function hasMutateSpacingLanguage(n: string): boolean {
+  const mutateVerb =
+    /\b(reduce|close|shrink|remove|eliminate|tighten|compact|compress|collapse)\b/.test(
+      n,
+    );
+  const spaceNoun =
+    /\b(gap|spacing|space|whitespace|white\s+space|clearance)\b/.test(n);
+  const excessiveSpace =
+    /\b(excessive|large|huge|extra|unnecessary|empty)\b/.test(n) && spaceNoun;
+  return (mutateVerb && spaceNoun) || excessiveSpace;
+}
+
+function hasSpacingPreserveObject(n: string): boolean {
+  return (
+    /\b(?:keep(?:ing)?|preserv(?:e|ing)|retain(?:ing)?)\b[\s\S]{0,48}\b(?:current |existing |the )?(?:spacing|gaps?|rhythm|positions?)\b/.test(
+      n,
+    ) ||
+    /\b(?:spacing|gaps?|rhythm|positions?)\b[\s\S]{0,24}\b(?:unchanged|as[- ]is|the same)\b/.test(
+      n,
+    )
+  );
+}
+
 export function detectSpacingIntentDirection(
   requestedChange: string,
 ): SpacingIntentDirection {
   const n = normalize(requestedChange);
   if (!n) return "NONE";
-  if (
-    /\bpreserv(?:e|ing)\b/.test(n) &&
-    /\b(spacing|gap|rhythm|positions?)\b/.test(n) &&
-    !/\b(reduce|tighten|compact|close|increase|expand|separate)\b/.test(n)
-  ) {
+  if (hasSpacingPreserveObject(n) && !hasMutateSpacingLanguage(n)) {
     return "PRESERVE";
   }
   if (
@@ -153,15 +172,15 @@ export function detectSpacingIntentDirection(
   }
   if (
     /\b(reduce|close|shrink|remove|eliminate)\b/.test(n) &&
-    /\b(excessive|large|huge|extra|unnecessary|empty)?\s*(vertical\s+)?(gap|spacing|whitespace|white\s+space)\b/.test(
+    /\b(excessive|large|huge|extra|unnecessary|empty)?\s*(vertical\s+)?(gap|spacing|space|whitespace|white\s+space)\b/.test(
       n,
     )
   ) {
     return "REDUCE_GAP";
   }
   if (
-    /\b(reduce|close)\b/.test(n) &&
-    /\b(gap|spacing)\b/.test(n) &&
+    /\b(reduce|close|remove|eliminate)\b/.test(n) &&
+    /\b(gap|spacing|space)\b/.test(n) &&
     /\b(internal|between|inside|within)\b/.test(n)
   ) {
     return "REDUCE_GAP";
@@ -181,6 +200,9 @@ export function detectSpacingIntentDirection(
     if (/\b(coherent|connected|excessive|detached|tighten|compact)\b/.test(n)) {
       return "TIGHTEN_RHYTHM";
     }
+  }
+  if (hasMutateSpacingLanguage(n) && /\bbetween\b/.test(n)) {
+    return "REDUCE_GAP";
   }
   return "NONE";
 }

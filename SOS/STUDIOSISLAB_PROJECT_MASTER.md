@@ -49,13 +49,13 @@ Code and VPS evidence override this file when they disagree. Historical evidence
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-05T19:27:22+05:30** / **2026-10-05T13:57:22.000Z**.
+Snapshot taken **2026-10-05T22:31:45+05:30** / **2026-10-05T17:01:45.000Z**.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `3fe6a52d7ecbde88d7ca941517886981e3c4f391` (`main`) |
-| ORIGIN HEAD | `3fe6a52d7ecbde88d7ca941517886981e3c4f391` |
-| VPS HEAD | `3fe6a52d7ecbde88d7ca941517886981e3c4f391` (IR 1.4.5 deployed) |
+| LOCAL HEAD | `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154` (`main`; compiler-dispatch worktree uncommitted) |
+| ORIGIN HEAD | `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154` |
+| VPS HEAD | `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154` (IR 1.4.5 deployed; compiler-dispatch not deployed) |
 | PUBLIC PRODUCT | Next.js SaaS at `studiosislab.com` (Vercel) |
 | AIOS CONTROL PLANE | Hetzner VPS `/root/studiosislab.com`; dashboard `127.0.0.1:4310` `{ok:true,live:false}` |
 | CURRENT PROJECT PRIORITY | **Website Analysis / QA / Development** — inspect existing repository/runtime state first |
@@ -65,8 +65,8 @@ Snapshot taken **2026-10-05T19:27:22+05:30** / **2026-10-05T13:57:22.000Z**.
 | RESUME TEMPLATE STATUS | **`OPERATIONALLY_COMPLETE`** — C6 PASS; revision engineering `MAINTENANCE_REGRESSION_ONLY`; IR 1.4.5 deployed |
 | PUBLICATION | Manual; `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` |
 | LIVE GENERATION | Guarded; `SOS_AIOS_LIVE=0` |
-| PRIMARY BLOCKERS | **NONE** (Resume P0). Dental Hygienist `revtask-f67ce2e4-bb0` remains immutable `FAILED_COVERAGE`. Teaching Assistant `revtask-232a10da-349` remains immutable `FAILED_GATE`. Remaining Resume items are P1/P2 maintenance and do not reactivate the department. |
-| NEXT AUTHORIZED STEP | **Resume Founder-to-public E2E business acceptance remains pending.** Do not retry `revtask-f67ce2e4-bb0`, `revtask-232a10da-349`, or historical C5 tasks. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. Founder-directed successor after that E2E is SEO, not Website Department automation — do not start SEO or Website work in this stream. |
+| PRIMARY BLOCKERS | **NONE** (Resume P0). Healthcare Administrator `revtask-adf420bb-a53` remains immutable `FAILED_COVERAGE`. Dental Hygienist `revtask-f67ce2e4-bb0` remains immutable `FAILED_COVERAGE`. Teaching Assistant `revtask-232a10da-349` remains immutable `FAILED_GATE`. Remaining Resume items are P1/P2 maintenance and do not reactivate the department. |
+| NEXT AUTHORIZED STEP | **Resume Founder-to-public E2E business acceptance remains pending.** Do not retry `revtask-adf420bb-a53`, `revtask-f67ce2e4-bb0`, `revtask-232a10da-349`, or historical C5 tasks. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. Founder-directed successor after that E2E is SEO, not Website Department automation — do not start SEO or Website work in this stream. |
 
 ---
 
@@ -325,9 +325,9 @@ Preserve all of these. Do not delete, merge, or rewrite to make the hierarchy lo
 
 **Exactly one authorized next major action:**
 
-**Inspect the existing Website Analysis / QA / Development state, repository-first and evidence-first, before deciding its continuation plan.**
+**Resume Founder-to-public E2E business acceptance remains pending.** Do not retry Healthcare, Dental, Teaching Assistant, or historical C5 tasks. Do not start Website automation or SEO in this stream. Website Analysis / QA / Development remains the recorded project priority after that E2E; inspect existing repository/runtime state first when that stream is authorized.
 
-Resume Template Department is `OPERATIONALLY_COMPLETE` (C6 PASS, 2026-10-05). C1–C4 PASS. C5 remains six immutable live proofs: #1 FAIL, #2 FAIL, #3 FAIL, #4 FALSE READY, #5 FAIL, #6 FALSE READY. IR `founder-feedback-ir-1.4.3` is deployed at pre-closure HEAD `37af692e0353878fd02e2bdabe0b948f58f3daf2`. False-READY children stay overlay `AUDIT_INVALID` / `NOT_DECISIONABLE`. Seventh C5 is not required. Do not reopen Resume revision engineering unless a new real production failure occurs. Remaining Resume P1/P2 items are maintenance backlog and do not reactivate the department. This administrative run does not implement Website work, create a Website master, enable Website automation, or disturb dirty Website/e-sign files.
+Resume Template Department is `OPERATIONALLY_COMPLETE` (C6 PASS, 2026-10-05). C1–C4 PASS. C5 remains six immutable live proofs: #1 FAIL, #2 FAIL, #3 FAIL, #4 FALSE READY, #5 FAIL, #6 FALSE READY. C6 pre-closure baseline was IR `founder-feedback-ir-1.4.3` at `37af692e0353878fd02e2bdabe0b948f58f3daf2` (historical; not the current deploy). **Current deployed HEAD** is `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154` with **deployed IR** `founder-feedback-ir-1.4.5`. **Current uncommitted maintenance:** Healthcare Administrator compiler-dispatch consolidation is offline full-intent PASS, not committed, not pushed, not deployed. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. Healthcare production `revtask-adf420bb-a53` remains immutable `FAILED_COVERAGE` with no child — do not retry. Dental `revtask-f67ce2e4-bb0` remains `FAILED_COVERAGE`. Teaching Assistant `revtask-232a10da-349` remains `FAILED_GATE`. False-READY children stay overlay `AUDIT_INVALID` / `NOT_DECISIONABLE`. Seventh C5 is not required. Remaining Resume P1/P2 items are maintenance backlog and do not reactivate the department. This run does not implement Website work, create a Website master, enable Website automation, or disturb dirty Website/e-sign files.
 
 Deep record: [Resume Template Department Master](./RESUME_TEMPLATE_DEPARTMENT_MASTER.md) §29–§34.
 
@@ -386,6 +386,7 @@ Append-only. Do not overwrite historical entries.
 | 2026-10-05T17:42:00+05:30 | TA post-C6 bounded revision maintenance | Full Founder-intent IR + shared post-execute layout world after Teaching Assistant `FAILED_GATE` | Production `fd-3eb58dc7-d08` / `revtask-232a10da-349` overlapped title onto contact after relational `below`; bold and named-pair IR fulfillment missing; plan-geometry skipped IR world | IR 1.4.4 `STYLE` + `SPACING_PAIR`; `applyStyleMutations`; intra-section cascade in `normalizeRevisionLayout`; `applyPostExecutionLayoutWorld` shared with plan-geometry | Resume IR/fulfillment/normalizer/pipeline/plan-geometry/C1/TA fixture+verifier; this file; Resume master; project-state; `AGENTS.md` | C1+C2+C3+C4+6H+6K+6O+6P+plan-geometry+role+preservation+actionability+TA full-intent | *(this maintenance; uncommitted)* | No deploy; no LIVE/AUTO_APPLY/publication change | NO live retry | Offline full-intent PASS; historical TA remains `FAILED_GATE`; C6 not rewritten; Website remains priority | Unmodeled style/spacing phrasing remains fail-closed; revision_failed UI debt unresolved | Website Department existing-state inspect |
 | 2026-10-05T19:08:35+05:30 | Dental target-binding contract (IR 1.4.5 offline) | Ordinary-English target/reference/preserve binding + N named spacing pairs after Dental `FAILED_COVERAGE` | Production `fd-637ad355-ed7` / `revtask-f67ce2e4-bb0`; contact compiled as rail; Experience two gaps collapsed to one AMBIGUOUS pair | IR 1.4.5 contact-row vs graphical line; luminance header-band; keep-clause explicit preserve; N `SPACING_PAIR` | Resume IR/fulfillment/spacing/C1/TA/Dental fixture+verifier; this file; Resume master; project-state; `AGENTS.md` | Dental full-intent + negatives; TA; C1–C4; 6H/6K/6O/6P; plan-geometry; role; preservation; actionability | `3fe6a52` | FF + dashboard restart | NO live retry | Offline full-intent PASS then deployed; historical Dental remains `FAILED_COVERAGE`; TA remains `FAILED_GATE`; C6 not rewritten | Education two entries still share one textbox; unmodeled binding remains fail-closed | Resume Founder-to-public E2E |
 | 2026-10-05T19:27:22+05:30 | IR 1.4.5 controlled production deploy | Record runtime SHA after FF deploy of target-binding + multi-pair IR | Offline IR 1.4.5 uncommitted; deployed HEAD `4eba44d` / IR 1.4.4 | Commit/push/FF `3fe6a52`; dashboard restart; SoT deploy record | This file; Resume master; project-state; `AGENTS.md` | Read/import deployed IR; dashboard health; historical immutability | docs-follow | FF docs; no extra restart | NO live retry | IR 1.4.5 live; Dental/TA/C5 unchanged; LIVE/AUTO_APPLY/PUBLICATION remain 0 | Unmodeled binding remains fail-closed | Resume Founder-to-public E2E |
+| 2026-10-05T22:31:45+05:30 | Compiler-dispatch consolidation (post-Healthcare, offline) | Locative vs prepositional below; complete header-content-group; mutate-spacing vs content-preserve; pair-endpoint needles | Production `fd-9dc11ca5-443` / `revtask-adf420bb-a53` FAILED_COVERAGE; header compiled as `below`; Experience PRESERVE poisoned `SPACING_PAIR` | Same IR 1.4.5 owner; no schema bump; no second parser | Resume fulfillment/spacing-intent/spacing-relation/IR; Healthcare fixture+verifier; C1 negatives 1–12; this file; Resume master; project-state; `AGENTS.md` | Healthcare full-intent; Dental; TA; C1–C4; actionability; 6H; 6K unique; 6O; 6P; MM replay; plan-geometry; role; preservation | *(this maintenance; uncommitted)* | No deploy; no LIVE/AUTO_APPLY/publication change | NO live retry | Offline full-intent PASS; historical Healthcare/Dental/TA/C5 unchanged; C6 not rewritten | Unmodeled locative/pair phrasing remains fail-closed; worktree IR dispatch not on VPS | Resume Founder-to-public E2E |
 
 ---
 

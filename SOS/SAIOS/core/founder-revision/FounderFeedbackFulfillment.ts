@@ -31,6 +31,7 @@ import type { CanvasOperation } from "./revision-task-types.js";
 import { isFounderMeasurableSpacingIntent } from "./FounderSpacingIntent.js";
 import {
   extractIndependentGapBeforeNeedles,
+  extractPairEndpointNeedles,
   isNamedSpacingPairRequest,
   resolveFounderSpacingRelation,
 } from "./FounderSpacingRelation.js";
@@ -322,22 +323,22 @@ export function compileSectionRange(text: string): SectionRangeSpec | undefined 
 export function compileReferenceSpec(text: string): ReferenceSpec | undefined {
   const n = text.toLowerCase();
   if (
-    /\b(?:as|like|match(?:ing)?|with)\b[\s\S]{0,96}?\b(?:main\s+)?(?:resume\s+)?body(?:\s+content)?\b/.test(
+    /\b(?:as|like|match(?:es|ing)?|with)\b[\s\S]{0,96}?\b(?:main\s+)?(?:resume\s+)?body(?:\s+content)?\b/.test(
       n,
     ) ||
-    /\b(?:as|like|match(?:ing)?|with)\b[\s\S]{0,96}?\b(?:main|body)\s+content\b/.test(
+    /\b(?:as|like|match(?:es|ing)?|with)\b[\s\S]{0,96}?\b(?:main|body)\s+content\b/.test(
       n,
     )
   ) {
     return { kind: "body_content" };
   }
   if (
-    /\b(?:as|like|match(?:ing)?|with)\b/.test(n) &&
+    /\b(?:as|like|match(?:es|ing)?|with)\b/.test(n) &&
     /\b(?:top\s+name|name\s+section|heading at the top)\b/.test(n)
   ) {
     return { kind: "header_name" };
   }
-  const asIdx = n.search(/\b(?:as|like|to match|matching|with)\b/);
+  const asIdx = n.search(/\b(?:as|like|to match|matching|matches|with)\b/);
   if (asIdx < 0) return undefined;
   const afterText = n.slice(asIdx);
   if (/\bheader\b/.test(afterText) && !/\bheader content\b/.test(afterText)) {
@@ -360,6 +361,26 @@ function compileProtectedVisual(text: string): ReferenceSpec | undefined {
     };
   }
   return undefined;
+}
+
+function sectionVisibleOutsideQuotes(
+  line: string,
+  section: ContentSectionKey,
+): boolean {
+  const stripped = line.replace(/[“"'][^”"']*[”"']/g, " ");
+  if (section === "job_title") {
+    return /\b(?:job title|professional title|title)\b/i.test(stripped);
+  }
+  return new RegExp(`\\b${section}\\b`, "i").test(stripped);
+}
+
+function hasHeaderContentGroupLanguage(text: string): boolean {
+  const n = text.toLowerCase();
+  return (
+    /\bheader content(?:\s+group)?\b/.test(n) ||
+    /\bcomplete header\b/.test(n) ||
+    /\bheader group\b/.test(n)
+  );
 }
 
 function compileAlignmentTargets(text: string): TargetDescriptor[] {
@@ -390,6 +411,15 @@ function compileAlignmentTargets(text: string): TargetDescriptor[] {
       { role: "professional_title", shape: "text" },
       { role: "contact", shape: "text", section: "header" },
     );
+  }
+  if (hasHeaderContentGroupLanguage(text)) {
+    const ensure = (role: TargetDescriptor["role"]) => {
+      if (out.some((t) => t.role === role)) return;
+      out.push({ role, shape: "text", section: "header" });
+    };
+    ensure("name");
+    ensure("professional_title");
+    ensure("contact");
   }
   return out;
 }
@@ -487,6 +517,28 @@ function isPresentationBesideLanguage(text: string): boolean {
   );
 }
 
+/**
+ * Locative NP-modifier (“body content below”) is not a placement preposition.
+ * Placement requires `below/above the <object>`.
+ */
+function isLocativeBelowOrAbove(n: string): boolean {
+  const locativeBelow =
+    /\b(?:content|body|sections?)\s+below\b/.test(n) &&
+    !/\b(?:completely\s+)?below\s+(?:the|a|an|this|that)\b/.test(n);
+  const locativeAbove =
+    /\b(?:content|body|sections?)\s+above\b/.test(n) &&
+    !/\b(?:completely\s+)?above\s+(?:the|a|an|this|that)\b/.test(n);
+  return locativeBelow || locativeAbove;
+}
+
+function hasPrepositionalBelow(n: string): boolean {
+  return /\b(?:completely\s+)?below\s+(?:the|a|an|this|that)\b/.test(n);
+}
+
+function hasPrepositionalAbove(n: string): boolean {
+  return /\b(?:completely\s+)?above\s+(?:the|a|an|this|that)\b/.test(n);
+}
+
 export function compileRelativePlacement(text: string):
   | {
       alignment: RelationalAlignmentSpec;
@@ -501,8 +553,11 @@ export function compileRelativePlacement(text: string):
   if (isPresentationBesideLanguage(text) && !/\bbelow the\b/.test(n) && !/\babove the\b/.test(n)) {
     return undefined;
   }
-  const below = /\b(?:completely\s+)?below\b/.test(n);
-  const above = /\b(?:completely\s+)?above\b/.test(n) && !/\bbelow\b/.test(n);
+  if (isLocativeBelowOrAbove(n) && !hasPrepositionalBelow(n) && !hasPrepositionalAbove(n)) {
+    return undefined;
+  }
+  const below = hasPrepositionalBelow(n);
+  const above = hasPrepositionalAbove(n) && !below;
   const beside =
     /\bbeside\b/.test(n) &&
     !/\bcontinue(?: it)? beside\b/.test(n) &&
@@ -742,6 +797,7 @@ export function predicatesForItem(
   clauseActions: FounderFeedbackAction[],
   contentSections: ContentSectionKey[],
   line: string,
+  preservationSections: ContentSectionKey[] = [],
 ): FulfillmentPredicate[] {
   const out: FulfillmentPredicate[] = [];
   const sections = contentSections.length ? contentSections : [undefined];
@@ -801,11 +857,6 @@ export function predicatesForItem(
       preserve: "preserve" in relational ? relational.preserve : undefined,
     });
   }
-  if (action === "CONTENT_PRESERVATION" || action === "LAYOUT_PRESERVATION") {
-    for (const section of contentSections) {
-      out.push({ kind: "PRESERVATION", required: true, section });
-    }
-  }
   if (action === "VERIFICATION") {
     out.push({ kind: "VERIFICATION_CHECK", required: true });
   }
@@ -847,6 +898,7 @@ export function predicatesForItem(
     !hasPresentation
   ) {
     const gapNeedles = extractIndependentGapBeforeNeedles(line);
+    const pairEnds = extractPairEndpointNeedles(line);
     if (gapNeedles.length >= 2) {
       for (const needle of gapNeedles) {
         out.push({
@@ -856,12 +908,54 @@ export function predicatesForItem(
           present_phrases: [needle],
         });
       }
+    } else if (pairEnds.length >= 2) {
+      out.push({
+        kind: "SPACING_PAIR",
+        required: true,
+        section: contentSections[0] ?? sectionKeysFromLine(line)[0],
+        present_phrases: pairEnds.slice(0, 2),
+      });
     } else {
       out.push({
         kind: "SPACING_PAIR",
         required: true,
         section: contentSections[0],
       });
+    }
+  }
+  if (
+    !out.some((p) => p.kind === "PRESENTATION") &&
+    (action === "CONTENT_PRESERVATION" ||
+      action === "LAYOUT_PRESERVATION" ||
+      clauseActions.includes("CONTENT_PRESERVATION") ||
+      clauseActions.includes("LAYOUT_PRESERVATION"))
+  ) {
+    const mutatedContentSecs = new Set(
+      out
+        .filter(
+          (p) =>
+            p.kind === "CONTENT_ADD" ||
+            p.kind === "CONTENT_REWRITE" ||
+            p.kind === "CONTENT_REMOVE",
+        )
+        .map((p) => p.section),
+    );
+    const preserveSecs: Array<ContentSectionKey | undefined> = [
+      ...new Set([...preservationSections, ...contentSections]),
+    ].filter(
+      (section) =>
+        !mutatedContentSecs.has(section) &&
+        (!section || sectionVisibleOutsideQuotes(line, section)),
+    );
+    if (preserveSecs.length === 0 && hasHeaderContentGroupLanguage(line)) {
+      // Header text is not a ContentSectionKey; job_title already matches header corpus.
+      if (!mutatedContentSecs.has("job_title")) preserveSecs.push("job_title");
+    }
+    for (const section of preserveSecs) {
+      if (out.some((p) => p.kind === "PRESERVATION" && p.section === section)) {
+        continue;
+      }
+      out.push({ kind: "PRESERVATION", required: true, section });
     }
   }
   return out;
@@ -1788,7 +1882,13 @@ function evaluatePredicate(
     const resolved = resolveFounderSpacingRelation({
       requestedChange: line,
       canvas: after,
-      needle: predicate.present_phrases?.[0],
+      needles: (predicate.present_phrases?.length ?? 0) >= 2
+        ? predicate.present_phrases
+        : undefined,
+      needle:
+        (predicate.present_phrases?.length ?? 0) === 1
+          ? predicate.present_phrases?.[0]
+          : undefined,
     });
     if (resolved.kind !== "NAMED_PAIR" || !resolved.upper_id || !resolved.lower_id) {
       return {

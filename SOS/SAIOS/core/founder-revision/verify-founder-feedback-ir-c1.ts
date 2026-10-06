@@ -36,7 +36,13 @@ import {
   compileTargetDescriptor,
   dropProviderGeometryWhenRelationalOwned,
   evaluateItemFulfillment,
+  itemRequiresMutationFulfillment,
 } from "./FounderFeedbackFulfillment.js";
+import {
+  detectSpacingIntentDirection,
+  isFounderMeasurableSpacingIntent,
+} from "./FounderSpacingIntent.js";
+import { extractPairEndpointNeedles } from "./FounderSpacingRelation.js";
 import { buildFeedbackCoverage } from "./FeedbackCoverage.js";
 import { evaluateRevisionFinalAcceptance } from "./RevisionFinalAcceptance.js";
 import { evaluateCanonicalFinalStateLayoutProof } from "./CanonicalFinalStateLayoutProof.js";
@@ -2663,6 +2669,149 @@ async function main(): Promise<void> {
     "contact_details_line_is_text_row_not_rail",
     JSON.stringify(contactLineDesc),
   );
+
+  const LOCATIVE_HEADER =
+    "Move the complete header content group — “Elena Griffin”, “Healthcare Administrator”, and the contact-details row — slightly to the right so that its left alignment matches the main resume body content below, while keeping the vertical black line in its current position and preserving the existing header text and order.";
+  const PREPOSITIONAL_BELOW =
+    "Move the “Teaching Assistant” job title completely below the light-blue rectangle so that it does not touch or overlap the rectangle.";
+  const PAIR_AND_PRESERVE_TEXT =
+    "In the “Assistant Healthcare Administrator — Greenfield Community Hospital” Experience entry, remove the excessive vertical space between the second bullet ending with “negotiating savings of $150K annually.” and the following bullet beginning with “Collaborated with clinical directors”. Make the spacing between these Experience bullet points consistent with the other bullet spacing in that entry, while preserving all Experience text and its order.";
+  const KEEP_CURRENT_SPACING =
+    "Keep the current spacing between the Experience bullet points unchanged, preserving the existing gap and rhythm.";
+  const locativeIr = compileFounderFeedbackIR([LOCATIVE_HEADER]);
+  const locativePred = locativeIr.items[0]?.fulfillment.find(
+    (p) => p.kind === "RELATIONAL_ALIGNMENT",
+  );
+  const locativeGroup = compileGroupAlignment(LOCATIVE_HEADER);
+  assert(
+    compileRelativePlacement(LOCATIVE_HEADER) == null,
+    "c1_negative_01_locative_below_is_not_relative_placement",
+    JSON.stringify(compileRelativePlacement(LOCATIVE_HEADER)),
+  );
+  assert(
+    compileRelativePlacement(PREPOSITIONAL_BELOW)?.alignment?.relation === "below",
+    "c1_negative_02_prepositional_below_the_stays_placement",
+    JSON.stringify(compileRelativePlacement(PREPOSITIONAL_BELOW)),
+  );
+  assert(
+    locativePred?.alignment?.relation === "align" &&
+      locativePred.alignment?.axis === "horizontal" &&
+      locativeGroup?.alignment.relation === "align" &&
+      locativePred.reference?.kind === "body_content",
+    "c1_negative_03_locative_header_compiles_group_align",
+    JSON.stringify(locativePred),
+  );
+  assert(
+    (locativePred?.targets?.length ?? 0) === 3 &&
+      locativePred?.targets?.some((t) => t.role === "name") &&
+      locativePred?.targets?.some((t) => t.role === "professional_title") &&
+      locativePred?.targets?.some((t) => t.role === "contact"),
+    "c1_negative_04_header_group_has_three_roles",
+    JSON.stringify(locativePred?.targets),
+  );
+  assert(
+    locativePred?.targets?.every((t) => !t.quoted_text) === true &&
+      locativePred?.targets?.find((t) => t.role === "contact")?.quoted_text == null,
+    "c1_negative_05_quoted_name_does_not_contaminate_contact_role",
+    JSON.stringify(locativePred?.targets),
+  );
+  assert(
+    locativePred?.preserve?.kind === "visual" &&
+      locativeIr.items[0]?.fulfillment.some((p) => p.kind === "PRESERVATION"),
+    "c1_negative_06_rail_preserve_and_header_text_preservation",
+    JSON.stringify({
+      preserve: locativePred?.preserve,
+      kinds: locativeIr.items[0]?.fulfillment.map((p) => p.kind),
+    }),
+  );
+  const locativeBefore = headerGroupCanvas({
+    nameLeft: 64,
+    titleLeft: 64,
+    contactLeft: 64,
+    bodyLeft: 80,
+    railLeft: 50,
+  });
+  const locativeAfter = applyRelationalAlignment(locativeBefore, locativeIr);
+  const locativeBound = evaluateItemFulfillment({
+    item: locativeIr.items[0]!,
+    beforeCanvas: locativeBefore,
+    afterCanvas: locativeAfter,
+  });
+  const locativeById = (id: string, canvas: FabricCanvasDoc) =>
+    ((canvas.objects ?? []) as Array<Record<string, unknown>>).find((o) => o.id === id);
+  assert(
+    locativeBound.pass &&
+      Math.abs(Number(locativeById("hdr-name", locativeAfter)?.left) - 80) <= 2 &&
+      Math.abs(Number(locativeById("hdr-title", locativeAfter)?.left) - 80) <= 2 &&
+      Math.abs(Number(locativeById("hdr-contact", locativeAfter)?.left) - 80) <= 2,
+    "c1_negative_07_header_group_binds_all_three",
+    locativeBound.notes,
+  );
+  assert(
+    Number(locativeById("rail-v", locativeAfter)?.left) === 50 &&
+      Number(locativeById("rail-v", locativeAfter)?.top) ===
+        Number(locativeById("rail-v", locativeBefore)?.top),
+    "c1_negative_08_rail_left_unchanged_after_group_apply",
+    JSON.stringify({
+      afterLeft: locativeById("rail-v", locativeAfter)?.left,
+      afterTop: locativeById("rail-v", locativeAfter)?.top,
+    }),
+  );
+  const pairEnds = extractPairEndpointNeedles(PAIR_AND_PRESERVE_TEXT);
+  const pairIr = compileFounderFeedbackIR([PAIR_AND_PRESERVE_TEXT]);
+  assert(
+    detectSpacingIntentDirection(PAIR_AND_PRESERVE_TEXT) !== "PRESERVE" &&
+      isFounderMeasurableSpacingIntent(PAIR_AND_PRESERVE_TEXT) &&
+      pairIr.items[0]?.fulfillment.some((p) => p.kind === "SPACING_PAIR") &&
+      pairIr.items[0]?.fulfillment.some((p) => p.kind === "PRESERVATION") &&
+      itemRequiresMutationFulfillment(pairIr.items[0]!),
+    "c1_negative_09_mutate_spacing_wins_over_content_preserve",
+    JSON.stringify({
+      direction: detectSpacingIntentDirection(PAIR_AND_PRESERVE_TEXT),
+      kinds: pairIr.items[0]?.fulfillment.map((p) => p.kind),
+    }),
+  );
+  assert(
+    pairEnds.length === 2 &&
+      pairEnds.every((n) => /negotiating savings|collaborated with clinical/i.test(n)) &&
+      !pairEnds.some((n) => /greenfield community hospital/i.test(n)),
+    "c1_negative_10_pair_endpoints_are_bullets_not_entry_title",
+    JSON.stringify(pairEnds),
+  );
+  const keepIr = compileFounderFeedbackIR([KEEP_CURRENT_SPACING]);
+  assert(
+    detectSpacingIntentDirection(KEEP_CURRENT_SPACING) === "PRESERVE" &&
+      !isFounderMeasurableSpacingIntent(KEEP_CURRENT_SPACING) &&
+      !keepIr.items[0]?.fulfillment.some((p) => p.kind === "SPACING_PAIR"),
+    "c1_negative_11_keep_current_spacing_is_preserve_not_pair",
+    JSON.stringify({
+      direction: detectSpacingIntentDirection(KEEP_CURRENT_SPACING),
+      kinds: keepIr.items[0]?.fulfillment.map((p) => p.kind),
+    }),
+  );
+  const rhythmOnPairMiss = evaluateCanonicalFinalStateLayoutProof({
+    requestedChange: PAIR_AND_PRESERVE_TEXT,
+    beforeCanvas: locativeBefore,
+    afterCanvas: locativeBefore,
+  });
+  const rhythmCoverage = buildFeedbackCoverage({
+    requested_changes: [PAIR_AND_PRESERVE_TEXT],
+    plan: emptyPlan(),
+    log: [],
+    beforeCanvas: locativeBefore,
+    afterCanvas: locativeBefore,
+  });
+  assert(
+    itemRequiresMutationFulfillment(pairIr.items[0]!) &&
+      rhythmCoverage.items[0]?.status !== "addressed",
+    "c1_negative_12_generic_rhythm_cannot_address_compiled_pair",
+    JSON.stringify({
+      status: rhythmCoverage.items[0]?.status,
+      notes: rhythmCoverage.items[0]?.evidence?.notes,
+      rhythm: rhythmOnPairMiss.reason,
+    }),
+  );
+
   for (const id of HISTORICAL) {
     const p = join(REPO, "SOS/07_LOGS/saios/founder-revision/tasks", `${id}.json`);
     if (!existsSync(p)) {

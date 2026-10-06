@@ -1,0 +1,13 @@
+{
+  "schema_version": "founder-revision-offline-fixture-1.0.0",
+  "task_id": "revtask-adf420bb-a53",
+  "decision_id": "fd-9dc11ca5-443",
+  "historical_status": "FAILED_COVERAGE",
+  "immutable": true,
+  "source_candidate_id": "cand-healthcare-healthcare-administrator-20261005T122003Z-c811be",
+  "requested_changes": [
+    "Move the complete header content group — “Elena Griffin”, “Healthcare Administrator”, and the contact-details row — slightly to the right so that its left alignment matches the main resume body content below, while keeping the vertical black line in its current position and preserving the existing header text and order.",
+    "In the “Assistant Healthcare Administrator — Greenfield Community Hospital” Experience entry, remove the excessive vertical space between the second bullet ending with “negotiating savings of $150K annually.” and the following bullet beginning with “Collaborated with clinical directors”. Make the spacing between these Experience bullet points consistent with the other bullet spacing in that entry, while preserving all Experience text and its order.",
+    "Change the Skills section from the current horizontal sentence-style layout into vertical bullet pointers arranged in columns. Place around three or four skills vertically in each column depending on the available space, then continue the remaining skills vertically in the next column beside it. Preserve all existing skills and their current order."
+  ]
+}

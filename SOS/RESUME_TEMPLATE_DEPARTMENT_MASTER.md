@@ -60,26 +60,26 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-05T19:27:22+05:30** / **2026-10-05T13:57:22.000Z**. IR `founder-feedback-ir-1.4.5` deployed at `3fe6a52d7ecbde88d7ca941517886981e3c4f391`.
+Snapshot taken **2026-10-05T22:31:45+05:30** / **2026-10-05T17:01:45.000Z**. IR `founder-feedback-ir-1.4.5` remains the schema (compiler-dispatch consolidation offline, uncommitted). Deployed runtime `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154`.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | `3fe6a52d7ecbde88d7ca941517886981e3c4f391` (`main`) |
-| ORIGIN HEAD | `3fe6a52d7ecbde88d7ca941517886981e3c4f391` |
-| VPS HEAD | `3fe6a52d7ecbde88d7ca941517886981e3c4f391` (IR 1.4.5 deployed) |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; IR 1.4.5 committed and deployed |
-| VPS STATUS | Six C5 live proofs immutable; Teaching Assistant `revtask-232a10da-349` immutable `FAILED_GATE`; Dental Hygienist `revtask-f67ce2e4-bb0` immutable `FAILED_COVERAGE`; IR 1.4.5 deployed; false-READY children overlay-blocked; no seventh C5; no Dental/TA live retry |
+| LOCAL HEAD | `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154` (`main`; compiler-dispatch worktree uncommitted) |
+| ORIGIN HEAD | `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154` |
+| VPS HEAD | `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154` (IR 1.4.5 deployed; compiler-dispatch not deployed) |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; compiler-dispatch consolidation offline uncommitted |
+| VPS STATUS | Six C5 live proofs immutable; Teaching Assistant `revtask-232a10da-349` immutable `FAILED_GATE`; Dental Hygienist `revtask-f67ce2e4-bb0` immutable `FAILED_COVERAGE`; Healthcare Administrator `revtask-adf420bb-a53` immutable `FAILED_COVERAGE`; IR 1.4.5 deployed; false-READY children overlay-blocked; no seventh C5; no Healthcare/Dental/TA live retry |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
 | DEPARTMENT STATUS | **`OPERATIONALLY_COMPLETE`** — C1–C4 PASS; C5 complete as immutable consolidation evidence; C6 PASS; post-C6 maintenance does not reopen C5–C6 |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
 | REVISION ENGINEERING | **`MAINTENANCE_REGRESSION_ONLY`** |
-| REVISION STATUS | Historical tasks unchanged: `revtask-863f67a5-790` READY (C5#1 FAIL); `revtask-4a0c006c-507` FAILED_COVERAGE (C5#2 FAIL); `revtask-3f5b2339-73e` FAILED_COVERAGE (C5#3 FAIL); `revtask-0d58e039-326` READY (C5#4 FALSE READY); `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY (C5#5 FAIL); `revtask-3a9bcae2-16c` READY (C5#6 FALSE READY); `revtask-232a10da-349` FAILED_GATE (TA post-C6; no child); `revtask-f67ce2e4-bb0` FAILED_COVERAGE (Dental post-IR-1.4.4; no child); `5d933072` / `76a04a21` unchanged |
+| REVISION STATUS | Historical tasks unchanged: `revtask-863f67a5-790` READY (C5#1 FAIL); `revtask-4a0c006c-507` FAILED_COVERAGE (C5#2 FAIL); `revtask-3f5b2339-73e` FAILED_COVERAGE (C5#3 FAIL); `revtask-0d58e039-326` READY (C5#4 FALSE READY); `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY (C5#5 FAIL); `revtask-3a9bcae2-16c` READY (C5#6 FALSE READY); `revtask-232a10da-349` FAILED_GATE (TA post-C6; no child); `revtask-f67ce2e4-bb0` FAILED_COVERAGE (Dental post-IR-1.4.4; no child); `revtask-adf420bb-a53` FAILED_COVERAGE (Healthcare post-IR-1.4.5; no child); `5d933072` / `76a04a21` unchanged |
 | GENERATION STATUS | Unchanged; `SOS_AIOS_LIVE=0` |
 | FOUNDER REVIEW STATUS | Sixth child `…-revfb-fcfc81`, fourth-C5 child `…-194bdf-revfb-71bd11`, and UI Designer child `…-revfb-f81691` remain overlay `audit_invalid` / NOT_DECISIONABLE. Motion Designer `…-bed721`, Campus Ambassador `…-047495`, and Teaching Assistant remain `revision_failed` / `actionable=false` while UI may still expose Request Changes (P1 maintenance; not a P0). Do not Approve the false-READY children. Do not retry TA. |
 | MEMORY STATUS | Unchanged |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
 | CURRENT PRIMARY BLOCKERS | **NONE** |
-| NEXT AUTHORIZED STEP | **Resume Founder-to-public E2E business acceptance remains pending.** Do not retry Dental or Teaching Assistant. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. `READY_FOR_SEVENTH_C5_LIVE_PROOF=NO`. C6 = PASS / COMPLETE. |
+| NEXT AUTHORIZED STEP | **Resume Founder-to-public E2E business acceptance remains pending.** Do not retry Healthcare, Dental, or Teaching Assistant. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. `READY_FOR_SEVENTH_C5_LIVE_PROOF=NO`. C6 = PASS / COMPLETE. |
 
 `OPERATIONALLY_COMPLETE` is the current live operational status. Historical C5 FAIL / FALSE READY outcomes are not rewritten.
 
@@ -949,7 +949,19 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 | OWNERS | Public semantic owners: **1** (`compileFounderFeedbackIR`). Target binding: **1** (`compileTargetDescriptor` / `bindTargetDescriptor`). Spacing execution: **1** (`buildSafeNamedSpacingRelationOps`). Final geometry: **1** (C2). |
 | OFFLINE | Dental full-intent positive + 11 negatives PASS. TA full-intent PASS. C1 PASS; C2 PASS; C3 PASS; C4 PASS; 6H PASS; 6K PASS; 6O PASS; 6P PASS; plan-geometry PASS; role PASS; preservation PASS; actionability PASS. `NEW_REGRESSION_COUNT=0`. Historical Dental/TA/C5 outcomes not rewritten. |
 | LIVE PROOF | **NO.** `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. Do not retry `revtask-f67ce2e4-bb0` or `revtask-232a10da-349`. |
-| STATUS | Department remains `OPERATIONALLY_COMPLETE` / `MAINTENANCE_REGRESSION_ONLY`. IR 1.4.5 deployed at `3fe6a52`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. |
+| STATUS | Department remains `OPERATIONALLY_COMPLETE` / `MAINTENANCE_REGRESSION_ONLY`. IR 1.4.5 deployed at `c1f253e`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. |
+
+#### Post-Healthcare compiler-dispatch consolidation *(offline 2026-10-05; not C5; not C6 rewrite; no schema bump)*
+
+| Field | Content |
+|---|---|
+| TRIGGER | Real production Request Changes `fd-9dc11ca5-443` / `revtask-adf420bb-a53` on Healthcare Administrator. Terminal `FAILED_COVERAGE`. Historical task immutable. No child. |
+| GAP | Locative “body content below” compiled as relative `below` and stole group left-align. Contact-first targets blocked the 3-role header group. “Preserving … text and order” poisoned `detectSpacingIntentDirection` to `PRESERVE`, so Experience emitted no `SPACING_PAIR`. Skills PRESENTATION already succeeded. |
+| FIX | Same IR `founder-feedback-ir-1.4.5`: prepositional vs locative below/above; complete header-content-group targets; mutate-spacing wins over content-preserve; pair-endpoint needles for between/ending-with. Additive `PRESERVATION` from preservation clauses on layout items. No second parser, binder, spacing engine, coverage bypass, or C2 change. |
+| OWNERS | Public semantic owners: **1** (`compileFounderFeedbackIR`). Target binding: **1** (`bindTargetDescriptor` / `bindReferenceIds`). Spacing execution: **1** (`buildSafeNamedSpacingRelationOps`). Final geometry: **1** (C2). |
+| OFFLINE | Healthcare full-intent PASS. Dental PASS. TA PASS. C1 negatives 1–12 PASS. C2 PASS; C3 PASS; C4 PASS; actionability PASS; 6H PASS; 6K unique checks PASS; 6O PASS; 6P PASS; MM replay 17/17 PASS; plan-geometry PASS; role PASS; preservation PASS. Historical Healthcare/Dental/TA/C5 outcomes not rewritten. |
+| LIVE PROOF | **NO.** `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. Do not retry `revtask-adf420bb-a53`, `revtask-f67ce2e4-bb0`, or `revtask-232a10da-349`. |
+| STATUS | Department remains `OPERATIONALLY_COMPLETE` / `MAINTENANCE_REGRESSION_ONLY`. Schema remains `founder-feedback-ir-1.4.5`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. |
 
 ### Proof strategy (department)
 
@@ -1375,18 +1387,33 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** None added by documentation.
 - **NEXT STEP:** Resume Founder-to-public E2E business acceptance. Do not retry Dental or TA. Do not start a seventh C5.
 
+### 2026-10-05T22:31:45+05:30 — COMPILER-DISPATCH CONSOLIDATION (POST-HEALTHCARE, OFFLINE)
+
+- **PHASE/TASK:** Healthcare Administrator production `FAILED_COVERAGE` offline compiler-dispatch consolidation (still IR 1.4.5)
+- **PURPOSE:** Stop locative below from stealing group left-align, complete the header-content-group, and let mutate-spacing compile `SPACING_PAIR` beside content-preserve
+- **BEFORE STATE:** Deployed `c1f253e` / IR 1.4.5; `revtask-adf420bb-a53` FAILED_COVERAGE; header compiled as `below`; Experience PRESERVE; Skills PRESENTATION PASS
+- **CHANGE:** Locative vs prepositional below/above; header-content-group 3-role targets; mutate-spacing vs content-preserve; pair-endpoint needles; Healthcare fixture + full-intent verifier; C1 negatives 1–12. No schema bump. Historical Healthcare/Dental/TA/C5 tasks not rewritten.
+- **FILES MODIFIED:** FounderFeedbackFulfillment; FounderFeedbackIR; FounderSpacingIntent; FounderSpacingRelation; C1 verifier; Healthcare verifier + fixture; this file; project master; project-state; `AGENTS.md`
+- **TESTS:** Healthcare full-intent PASS; Dental PASS; TA PASS; C1–C4 PASS; actionability PASS; 6H PASS; 6K unique PASS; 6O PASS; 6P PASS; MM 17/17 PASS; plan-geometry PASS; role PASS; preservation PASS
+- **COMMIT:** *(this maintenance; uncommitted)*
+- **DEPLOY:** None in this run
+- **LIVE PROOF:** NO. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`
+- **RESULT:** Offline full-intent PASS. Historical Healthcare remains FAILED_COVERAGE. Department remains OPERATIONALLY_COMPLETE. C6 not rewritten.
+- **NEW RISKS:** Unmodeled locative/pair phrasing remains fail-closed; VPS still serves pre-dispatch IR 1.4.5 until Founder deploys
+- **NEXT STEP:** Resume Founder-to-public E2E business acceptance. Do not retry Healthcare, Dental, or TA. Do not start a seventh C5.
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**Resume Founder-to-public E2E business acceptance remains pending.** Do not retry Dental Hygienist or Teaching Assistant. Do not start Website automation or SEO in this stream.
+**Resume Founder-to-public E2E business acceptance remains pending.** Do not retry Healthcare Administrator, Dental Hygienist, or Teaching Assistant. Do not start Website automation or SEO in this stream.
 
-Resume Template Department is `OPERATIONALLY_COMPLETE`. C6 = PASS / COMPLETE. Seventh C5 is not required. Dental and Teaching Assistant live retries are not required. Founder-directed successor after E2E is SEO (recorded, not activated).
+Resume Template Department is `OPERATIONALLY_COMPLETE`. C6 = PASS / COMPLETE. Seventh C5 is not required. Healthcare, Dental, and Teaching Assistant live retries are not required. Founder-directed successor after E2E is SEO (recorded, not activated).
 
-Do not Approve or Reject `revtask-863f67a5-790`, `revtask-4a0c006c-507`, `revtask-3f5b2339-73e`, `revtask-0d58e039-326`, `revtask-68a5d250-b24`, `revtask-3a9bcae2-16c`, `revtask-232a10da-349`, or `revtask-f67ce2e4-bb0`.  
-Do not retry `revtask-f67ce2e4-bb0`, `revtask-232a10da-349`, `revtask-3a9bcae2-16c`, `revtask-68a5d250-b24`, `revtask-0d58e039-326`, `revtask-3f5b2339-73e`, `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
+Do not Approve or Reject `revtask-863f67a5-790`, `revtask-4a0c006c-507`, `revtask-3f5b2339-73e`, `revtask-0d58e039-326`, `revtask-68a5d250-b24`, `revtask-3a9bcae2-16c`, `revtask-232a10da-349`, `revtask-f67ce2e4-bb0`, or `revtask-adf420bb-a53`.  
+Do not retry `revtask-adf420bb-a53`, `revtask-f67ce2e4-bb0`, `revtask-232a10da-349`, `revtask-3a9bcae2-16c`, `revtask-68a5d250-b24`, `revtask-0d58e039-326`, `revtask-3f5b2339-73e`, `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
 Do not reopen Resume revision engineering unless a new real production failure occurs.  
 Do not enable `SOS_AIOS_LIVE`.  
 Do not implement Website architecture or enable Website automation in the same step as this maintenance.

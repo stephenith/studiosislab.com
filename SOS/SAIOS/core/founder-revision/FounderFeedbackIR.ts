@@ -252,6 +252,7 @@ export function compileFounderFeedbackIR(
       clause_actions,
       content_sections,
       intent.founder_feedback_item,
+      preservation_sections,
     );
     const hasExtent = fulfillment.some((p) => p.kind === "GEOMETRY_EXTENT");
     const hasRelational = fulfillment.some(

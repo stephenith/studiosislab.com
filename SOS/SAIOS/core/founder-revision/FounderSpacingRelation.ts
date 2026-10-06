@@ -151,6 +151,7 @@ function requestsInterRole(text: string): boolean {
 
 export function isNamedSpacingPairRequest(requestedChange: string): boolean {
   return (
+    extractPairEndpointNeedles(requestedChange).length >= 2 ||
     extractNamedNeedles(requestedChange).length >= 2 ||
     extractIndependentGapBeforeNeedles(requestedChange).length >= 1
   );
@@ -166,6 +167,39 @@ export function extractIndependentGapBeforeNeedles(text: string): string[] {
     out.push(n);
   }
   return out;
+}
+
+/**
+ * Pair endpoints from ordinary “between / ending with / beginning with”
+ * language. Does not include an entry-title quote that merely scopes the pair.
+ */
+export function extractPairEndpointNeedles(text: string): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const push = (raw: string) => {
+    const n = stripDecor(raw);
+    if (n.length < 3 || seen.has(n)) return;
+    seen.add(n);
+    out.push(n);
+  };
+  const between = text.match(
+    /\bbetween\s+[\s\S]{0,80}?[“"']([^”"']{6,}?)[”"']\s+and\s+[\s\S]{0,80}?[“"']([^”"']{6,}?)[”"']/i,
+  );
+  if (between?.[1] && between[2]) {
+    push(between[1]);
+    push(between[2]);
+    return out;
+  }
+  const ending = text.match(
+    /\bending with\s+[“"']([^”"']{6,}?)[”"']/i,
+  );
+  const beginning = text.match(
+    /\b(?:beginning with|following)\s+[“"']([^”"']{6,}?)[”"']/i,
+  );
+  if (ending?.[1]) push(ending[1]);
+  if (beginning?.[1]) push(beginning[1]);
+  if (out.length >= 2) return out;
+  return extractIndependentGapBeforeNeedles(text);
 }
 
 function extractNamedNeedles(text: string): string[] {
@@ -310,6 +344,7 @@ export function resolveFounderSpacingRelation(input: {
   requestedChange: string;
   canvas: FabricCanvasDoc;
   needle?: string;
+  needles?: string[];
 }): ResolvedSpacingRelation {
   const raw = input.requestedChange;
   const direction = detectSpacingIntentDirection(raw);
@@ -323,9 +358,14 @@ export function resolveFounderSpacingRelation(input: {
     before_gap: 0,
   };
   const rows = collectTextRows(input.canvas);
-  const needles = input.needle?.trim()
-    ? [stripDecor(input.needle)]
-    : extractNamedNeedles(raw);
+  const pairEnds = extractPairEndpointNeedles(raw);
+  const needles = input.needles?.length
+    ? input.needles.map((n) => stripDecor(n)).filter((n) => n.length >= 3)
+    : input.needle?.trim()
+      ? [stripDecor(input.needle)]
+      : pairEnds.length >= 2
+        ? pairEnds
+        : extractNamedNeedles(raw);
   const measurableDirection =
     direction === "REDUCE_GAP" ||
     direction === "TIGHTEN_RHYTHM" ||
@@ -542,10 +582,12 @@ export function resolveAllFounderSpacingRelations(input: {
       }
       continue;
     }
+    const pairEnds = extractPairEndpointNeedles(change);
     out.push(
       resolveFounderSpacingRelation({
         requestedChange: change,
         canvas: input.canvas,
+        needles: pairEnds.length >= 2 ? pairEnds : undefined,
       }),
     );
   }

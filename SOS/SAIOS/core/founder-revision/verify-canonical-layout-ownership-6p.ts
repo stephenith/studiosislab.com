@@ -342,7 +342,20 @@ async function main(): Promise<void> {
     "ai_geometry_can_be_superseded_by_canonical_layout",
   );
 
-  const primary = readJson<Record<string, unknown>>(join(FIX, "evidence/revision-plan.json"));
+  const historicalPrimary = readJson<Record<string, unknown>>(
+    join(FIX, "evidence/revision-plan.json"),
+  );
+  const primary = {
+    schema_version: "founder-canvas-revision-plan-1.0.0",
+    summary:
+      typeof historicalPrimary.summary === "string"
+        ? historicalPrimary.summary
+        : "Deterministic layout owns all 6P spacing items.",
+    operations: [],
+    notes: [
+      "Historical fixture plan attributed DETERMINISTIC_LAYOUT_OWNED spacing items. coverage_mode is the sole mutation owner and forbids that attribution.",
+    ],
+  };
   const tmp = mkdtempSync(join(tmpdir(), "aios-6p-"));
   const candRoot = join(tmp, "candidates");
   const outRoot = join(tmp, "founder-revision");

@@ -60,26 +60,26 @@ No pre-existing Markdown already contained business goal + generation + revision
 
 ## 1. Executive Current State
 
-Snapshot taken **2026-10-06T13:57:47+05:30** / **2026-10-06T08:27:47.000Z**. IR `founder-feedback-ir-1.4.5` remains the schema. Compiler-dispatch runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` is deployed. Prior baseline `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154`.
+Snapshot taken **2026-10-06T15:42:34+05:30** / **2026-10-06T10:12:34.000Z**. IR `founder-feedback-ir-1.4.5` remains the schema. Compiler-dispatch runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` is deployed. Prior baseline `c1f253e02fb0d6d730e6a55ee6e7c623ce21d154`. Worktree has uncommitted Digital Marketing ownership/presentation/multi-pair/offset correction.
 
 | Field | Fresh value |
 |---|---|
-| LOCAL HEAD | runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` (`main`; compiler-dispatch deployed) |
+| LOCAL HEAD | runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` (`main`; compiler-dispatch deployed). Worktree has uncommitted Digital Marketing ownership correction. |
 | ORIGIN HEAD | runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` |
 | VPS HEAD | runtime `81d2f4ab63e69543424ab0f94f212a1f9dc413c4` (IR 1.4.5 + compiler-dispatch deployed; prior `c1f253e`) |
-| LOCAL STATUS | Dirty Website/src/e-sign files preserved; compiler-dispatch deployed |
-| VPS STATUS | Six C5 live proofs immutable; Teaching Assistant `revtask-232a10da-349` immutable `FAILED_GATE`; Dental Hygienist `revtask-f67ce2e4-bb0` immutable `FAILED_COVERAGE`; Healthcare Administrator `revtask-adf420bb-a53` immutable `FAILED_COVERAGE`; IR 1.4.5 deployed; false-READY children overlay-blocked; no seventh C5; no Healthcare/Dental/TA live retry |
+| LOCAL STATUS | Dirty Website/src/e-sign files preserved; Digital Marketing ownership correction uncommitted |
+| VPS STATUS | Six C5 live proofs immutable; Teaching Assistant `revtask-232a10da-349` immutable `FAILED_GATE`; Dental Hygienist `revtask-f67ce2e4-bb0` immutable `FAILED_COVERAGE`; Healthcare Administrator `revtask-adf420bb-a53` immutable `FAILED_COVERAGE`; Digital Marketing Specialist `revtask-a3de0a46-4da` immutable `FAILED_PLAN`; IR 1.4.5 deployed; false-READY children overlay-blocked; no seventh C5; no Digital Marketing/Healthcare/Dental/TA live retry of those historical tasks |
 | ACTIVE RUNTIME | `aios-founder-dashboard.service` `{ok:true,live:false}` |
 | DEPARTMENT STATUS | **`OPERATIONALLY_COMPLETE`** — C1–C4 PASS; C5 complete as immutable consolidation evidence; C6 PASS; post-C6 maintenance does not reopen C5–C6 |
 | CORE FACTORY STATUS | **HISTORICAL GOAL MET** |
 | REVISION ENGINEERING | **`MAINTENANCE_REGRESSION_ONLY`** |
-| REVISION STATUS | Historical tasks unchanged: `revtask-863f67a5-790` READY (C5#1 FAIL); `revtask-4a0c006c-507` FAILED_COVERAGE (C5#2 FAIL); `revtask-3f5b2339-73e` FAILED_COVERAGE (C5#3 FAIL); `revtask-0d58e039-326` READY (C5#4 FALSE READY); `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY (C5#5 FAIL); `revtask-3a9bcae2-16c` READY (C5#6 FALSE READY); `revtask-232a10da-349` FAILED_GATE (TA post-C6; no child); `revtask-f67ce2e4-bb0` FAILED_COVERAGE (Dental post-IR-1.4.4; no child); `revtask-adf420bb-a53` FAILED_COVERAGE (Healthcare post-IR-1.4.5; no child); `5d933072` / `76a04a21` unchanged |
+| REVISION STATUS | Historical tasks unchanged: `revtask-863f67a5-790` READY (C5#1 FAIL); `revtask-4a0c006c-507` FAILED_COVERAGE (C5#2 FAIL); `revtask-3f5b2339-73e` FAILED_COVERAGE (C5#3 FAIL); `revtask-0d58e039-326` READY (C5#4 FALSE READY); `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY (C5#5 FAIL); `revtask-3a9bcae2-16c` READY (C5#6 FALSE READY); `revtask-232a10da-349` FAILED_GATE (TA post-C6; no child); `revtask-f67ce2e4-bb0` FAILED_COVERAGE (Dental post-IR-1.4.4; no child); `revtask-adf420bb-a53` FAILED_COVERAGE (Healthcare post-IR-1.4.5; no child); `revtask-a3de0a46-4da` FAILED_PLAN (Digital Marketing post-compiler-dispatch; no child); `5d933072` / `76a04a21` unchanged |
 | GENERATION STATUS | Unchanged; `SOS_AIOS_LIVE=0` |
 | FOUNDER REVIEW STATUS | Sixth child `…-revfb-fcfc81`, fourth-C5 child `…-194bdf-revfb-71bd11`, and UI Designer child `…-revfb-f81691` remain overlay `audit_invalid` / NOT_DECISIONABLE. Motion Designer `…-bed721`, Campus Ambassador `…-047495`, and Teaching Assistant remain `revision_failed` / `actionable=false` while UI may still expose Request Changes (P1 maintenance; not a P0). Do not Approve the false-READY children. Do not retry TA. |
 | MEMORY STATUS | Unchanged |
 | PUBLICATION STATUS | `SOS_AIOS_PUBLICATION_AUTO_APPLY=0` unchanged |
 | CURRENT PRIMARY BLOCKERS | **NONE** |
-| NEXT AUTHORIZED STEP | **Resume Founder-to-public E2E business acceptance remains pending.** Do not retry Healthcare, Dental, or Teaching Assistant. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. `READY_FOR_SEVENTH_C5_LIVE_PROOF=NO`. C6 = PASS / COMPLETE. |
+| NEXT AUTHORIZED STEP | **Resume Founder-to-public E2E business acceptance remains pending.** Do not retry Digital Marketing, Healthcare, Dental, or Teaching Assistant historical tasks. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=YES` as a **new** Founder action only. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. `READY_FOR_SEVENTH_C5_LIVE_PROOF=NO`. C6 = PASS / COMPLETE. |
 
 `OPERATIONALLY_COMPLETE` is the current live operational status. Historical C5 FAIL / FALSE READY outcomes are not rewritten.
 
@@ -963,6 +963,18 @@ C2 must not wait for another OA task. It is the generation-side half of one qual
 | LIVE PROOF | **NO.** `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO`. Do not retry `revtask-adf420bb-a53`, `revtask-f67ce2e4-bb0`, or `revtask-232a10da-349`. |
 | STATUS | Department remains `OPERATIONALLY_COMPLETE` / `MAINTENANCE_REGRESSION_ONLY`. Schema remains `founder-feedback-ir-1.4.5`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. |
 
+#### Post-Digital-Marketing ownership + presentation / multi-pair / offset *(offline 2026-10-06; not C5; not C6 rewrite; no schema bump)*
+
+| Field | Content |
+|---|---|
+| TRIGGER | Real production Request Changes `fd-6946bfce-542` / `revtask-a3de0a46-4da` on Digital Marketing Specialist. Terminal `FAILED_PLAN`. Historical task immutable. No child. |
+| GAP | Skills compiled `classification=VERIFICATION_ACCEPTANCE` + `coverage_mode=MUTATION_REQUIRED` (colon prefix + `from…into` + remainder-design). Prompt required Skills attribution; `plan_schema` correctly forbade VA attribution. Canvas has 8 skills including Data Analysis; inventory `slice(0,160)` dropped the 8th. Experience first-pair-only extractor. Header numeric “approximately 2 points below” had no `clearance_px`. |
+| FIX | Same IR `founder-feedback-ir-1.4.5`: `coverage_mode` sole mutation owner; compile-time reject VA+`MUTATION_REQUIRED`; presentation-before-replacement; prefix scope; `from…into` / `arranged`; remainder vs continuation; `items_per_group=4` first-N columns; N named `SPACING_PAIR`; numeric below as `clearance_px=2` on existing below floor + 0.51 epsilon; inventory truncation mark. No second parser, binder, spacing engine, or geometry authority. `plan_schema` not weakened. |
+| OWNERS | Public semantic owners: **1** (`compileFounderFeedbackIR`). Mutation owner: **1** (`coverage_mode`). Spacing execution: **1** (`resolveAllFounderSpacingRelations` / `buildSafeNamedSpacingRelationOps`). Geometry: existing `relation=below` floor. Final geometry: **1** (C2). |
+| OFFLINE | Digital Marketing full-intent PASS. Healthcare PASS. Dental PASS. TA PASS. C1 negatives 13–18 PASS. C2 PASS; C3 PASS; C4 PASS; actionability PASS; 6H PASS; 6K PASS; 6O PASS; 6P PASS; plan-geometry PASS; role PASS; preservation PASS; plan-schema PASS. Historical Digital Marketing/Healthcare/Dental/TA/C5 outcomes not rewritten. |
+| LIVE PROOF | **NO retry of `revtask-a3de0a46-4da`.** `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=YES` as a **new** Founder action only. |
+| STATUS | Department remains `OPERATIONALLY_COMPLETE` / `MAINTENANCE_REGRESSION_ONLY`. Schema remains `founder-feedback-ir-1.4.5`. `FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF`. |
+
 ### Proof strategy (department)
 
 | Workflow | How proven | When |
@@ -1016,7 +1028,7 @@ C6 audit snapshot **2026-10-05T09:57:16.789Z** (`/api/ops-24-7`) plus administra
 | revision_task_counts | READY 21 / FAILED_COVERAGE 11 / FAILED 7 / FAILED_GATE 16 / PENDING 0 |
 | Timers | morning last 2026-10-05 03:20 UTC (queue-full no-op); evening next 2026-10-05 12:20 UTC; generation **service** oneshot/disabled between timers; publication nightly last 2026-10-05 02:00 UTC plan/verify only |
 | Dashboard | active, started 2026-10-05 09:46:24 UTC after IR 1.4.3 deploy; NRestarts=0 |
-| Last revision of note | `revtask-232a10da-349` FAILED_GATE (Teaching Assistant post-C6; no child; do not retry). Prior: `revtask-3a9bcae2-16c` READY (sixth false READY) on Physical Therapist; child `…-revfb-fcfc81` overlay-blocked. Historical `revtask-68a5d250-b24` FAILED_GATE / FAILED_GEOMETRY. `revtask-0d58e039-326` still READY (false-positive). `revtask-863f67a5-790` still READY. `revtask-4a0c006c-507` / `revtask-3f5b2339-73e` still FAILED_COVERAGE. `revtask-5d933072-daf` still FAILED_SECTION_COMPLETENESS |
+| Last revision of note | `revtask-a3de0a46-4da` FAILED_PLAN (Digital Marketing Specialist; no child; do not retry). Prior: `revtask-adf420bb-a53` FAILED_COVERAGE (Healthcare); `revtask-f67ce2e4-bb0` FAILED_COVERAGE (Dental); `revtask-232a10da-349` FAILED_GATE (TA). Historical C5 tasks unchanged. |
 | Candidate dirs on VPS | Sixth child exists and is overlay `audit_invalid`. Overlay also blocks `…-revfb-71bd11` and `…-revfb-f81691`. Do not Approve |
 | P0 | **NONE** — department `OPERATIONALLY_COMPLETE` |
 | P1 maintenance | revision_failed Request Changes UI; publication controlled-apply proof (AUTO_APPLY off); role-integrity long-tail spend |
@@ -1417,18 +1429,33 @@ Append-only. Do not overwrite.
 - **NEW RISKS:** None added by documentation.
 - **NEXT STEP:** Resume Founder-to-public E2E business acceptance. Do not retry Healthcare, Dental, or TA. Do not start a seventh C5.
 
+### 2026-10-06T15:42:34+05:30 — DIGITAL MARKETING OWNERSHIP + PRESENTATION / MULTI-PAIR / OFFSET (OFFLINE)
+
+- **PHASE/TASK:** Digital Marketing Specialist production `FAILED_PLAN` offline ownership + presentation / multi-pair / offset correction (still IR 1.4.5)
+- **PURPOSE:** Make `coverage_mode` the sole mutation owner; compile Skills as deterministic PRESENTATION of all 8 canvas skills (4+remainder); emit two independent Experience pairs; compile numeric Header below as `clearance_px=2` on the existing below floor
+- **BEFORE STATE:** Deployed `81d2f4a` / IR 1.4.5 + compiler-dispatch; `revtask-a3de0a46-4da` FAILED_PLAN; Skills VA+MUTATION_REQUIRED; inventory clipped Data Analysis; Experience first-pair only; Header numeric below had no clearance
+- **CHANGE:** Compile-time ownership invariant; plan-schema/prompt consume `coverage_mode` only; presentation-before-replacement; prefix scope; `from…into` / `arranged`; remainder vs continuation; first-N columns; `extractAllNamedSpacingPairs`; numeric `clearance_px`; inventory truncation mark; sanitized DM fixture + full-intent verifier; C1 negatives 13–18. No schema bump. Historical Digital Marketing/Healthcare/Dental/TA/C5 tasks not rewritten.
+- **FILES MODIFIED:** FounderFeedbackIR; RevisionIntentScope; RequestedChangeClassification; PresentationIntent; FounderFeedbackFulfillment; FounderSpacingRelation; RevisionPromptBuilder; RevisionPlanner; CanvasInventory; HeaderIdentityLayout; C1/DM/6G/6P/plan-schema verifiers; this file; project master; project-state; `AGENTS.md`
+- **TESTS:** DM full-intent PASS; Healthcare PASS; Dental PASS; TA PASS; C1–C4 PASS; actionability PASS; 6H PASS; 6K PASS; 6O PASS; 6P PASS; plan-geometry PASS; role PASS; preservation PASS; plan-schema PASS
+- **COMMIT:** *(this maintenance; uncommitted)*
+- **DEPLOY:** None in this run
+- **LIVE PROOF:** NO retry of `revtask-a3de0a46-4da`. `LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=YES` as a **new** Founder action only
+- **RESULT:** Offline full-intent PASS. Historical Digital Marketing remains FAILED_PLAN. Department remains OPERATIONALLY_COMPLETE. C6 not rewritten.
+- **NEW RISKS:** Unmodeled ownership/presentation phrasing remains fail-closed; VPS still serves pre-ownership-correction IR 1.4.5 until Founder deploys
+- **NEXT STEP:** Resume Founder-to-public E2E business acceptance. Do not retry Digital Marketing, Healthcare, Dental, or TA historical tasks. Do not start a seventh C5.
+
 ---
 
 ## 34. Current Next Step
 
 **Exactly one authorized next major action:**
 
-**Resume Founder-to-public E2E business acceptance remains pending.** Do not retry Healthcare Administrator, Dental Hygienist, or Teaching Assistant. Do not start Website automation or SEO in this stream.
+**Resume Founder-to-public E2E business acceptance remains pending.** Do not retry Digital Marketing Specialist, Healthcare Administrator, Dental Hygienist, or Teaching Assistant historical tasks. Do not start Website automation or SEO in this stream.
 
-Resume Template Department is `OPERATIONALLY_COMPLETE`. C6 = PASS / COMPLETE. Seventh C5 is not required. Healthcare, Dental, and Teaching Assistant live retries are not required. Founder-directed successor after E2E is SEO (recorded, not activated).
+Resume Template Department is `OPERATIONALLY_COMPLETE`. C6 = PASS / COMPLETE. Seventh C5 is not required. Live retry after this offline PASS is a **new** Founder action only — do not retry `revtask-a3de0a46-4da`. Founder-directed successor after E2E is SEO (recorded, not activated).
 
-Do not Approve or Reject `revtask-863f67a5-790`, `revtask-4a0c006c-507`, `revtask-3f5b2339-73e`, `revtask-0d58e039-326`, `revtask-68a5d250-b24`, `revtask-3a9bcae2-16c`, `revtask-232a10da-349`, `revtask-f67ce2e4-bb0`, or `revtask-adf420bb-a53`.  
-Do not retry `revtask-adf420bb-a53`, `revtask-f67ce2e4-bb0`, `revtask-232a10da-349`, `revtask-3a9bcae2-16c`, `revtask-68a5d250-b24`, `revtask-0d58e039-326`, `revtask-3f5b2339-73e`, `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
+Do not Approve or Reject `revtask-863f67a5-790`, `revtask-4a0c006c-507`, `revtask-3f5b2339-73e`, `revtask-0d58e039-326`, `revtask-68a5d250-b24`, `revtask-3a9bcae2-16c`, `revtask-232a10da-349`, `revtask-f67ce2e4-bb0`, `revtask-adf420bb-a53`, or `revtask-a3de0a46-4da`.  
+Do not retry `revtask-a3de0a46-4da`, `revtask-adf420bb-a53`, `revtask-f67ce2e4-bb0`, `revtask-232a10da-349`, `revtask-3a9bcae2-16c`, `revtask-68a5d250-b24`, `revtask-0d58e039-326`, `revtask-3f5b2339-73e`, `revtask-4a0c006c-507`, `revtask-863f67a5-790`, `revtask-5d933072-daf`, or `revtask-76a04a21-6ff`.  
 Do not reopen Resume revision engineering unless a new real production failure occurs.  
 Do not enable `SOS_AIOS_LIVE`.  
 Do not implement Website architecture or enable Website automation in the same step as this maintenance.

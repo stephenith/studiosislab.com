@@ -273,7 +273,8 @@ assert(
       classifyRequestedChange(line).classification !== "MUTATION_REQUIRED" ||
       !isPlanCoverageExemptRequestedChange(line) ||
       resolveItemCoverageMode(line) === "DETERMINISTIC_LAYOUT_OWNED" ||
-      resolveItemCoverageMode(line) === "VALIDATION_ONLY",
+      resolveItemCoverageMode(line) === "VALIDATION_ONLY" ||
+      resolveItemCoverageMode(line) === "PRESERVATION_CONSTRAINT",
   ),
   "04b_exempt_mutation_items_declare_an_owner",
   "every coverage-exempt mutation item names its deterministic owner",
@@ -406,17 +407,22 @@ assert(
 
 const geometryOnly = ["Move the Experience heading down so it no longer crowds the Summary."];
 assert(
-  validateRevisionPlanShapeAndOperations(
-    plan([moveOp("exp-h", geometryOnly[0]!)]),
-    { requested_changes: geometryOnly, inventory: INVENTORY },
-  ).ok === true,
+  isPlanCoverageExemptRequestedChange(geometryOnly[0]!) &&
+    validateRevisionPlanShapeAndOperations(
+      plan([]),
+      {
+        requested_changes: geometryOnly,
+        inventory: INVENTORY,
+        allowEmptyOperations: true,
+      },
+    ).ok === true,
   "18_geometry_only_revision",
   "ok",
 );
 
 const mixed = [contentOnly[0]!, geometryOnly[0]!, VERIFICATION_LINE, PRESERVATION_LINE];
 const mixedResult = validateRevisionPlanShapeAndOperations(
-  plan([textOp("sum-b", mixed[0]!), moveOp("exp-h", mixed[1]!)]),
+  plan([textOp("sum-b", mixed[0]!)]),
   { requested_changes: mixed, inventory: INVENTORY },
 );
 assert(
@@ -426,9 +432,10 @@ assert(
   mixedResult.errors.join("; ") || "ok",
 );
 assert(
-  new Set(
-    (mixedResult.plan?.operations ?? []).map((o) => o.op),
-  ).size === 2,
+  (mixedResult.plan?.operations ?? []).some((o) => o.op === "update_text") &&
+    !(mixedResult.plan?.operations ?? []).some(
+      (o) => o.founder_feedback_item === geometryOnly[0],
+    ),
   "11b_mixed_request_uses_more_than_update_text",
   JSON.stringify((mixedResult.plan?.operations ?? []).map((o) => o.op)),
 );

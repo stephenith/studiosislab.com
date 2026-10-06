@@ -22,6 +22,7 @@ import {
   compileFounderFeedbackIR,
   FOUNDER_FEEDBACK_IR_SCHEMA,
   NUMBER_OF_SEMANTIC_INTERPRETATION_PATHS,
+  founderFeedbackIROwnershipErrors,
 } from "./FounderFeedbackIR.js";
 import {
   applyAlreadySatisfiedProof,
@@ -42,7 +43,11 @@ import {
   detectSpacingIntentDirection,
   isFounderMeasurableSpacingIntent,
 } from "./FounderSpacingIntent.js";
-import { extractPairEndpointNeedles } from "./FounderSpacingRelation.js";
+import {
+  extractAllNamedSpacingPairs,
+  extractPairEndpointNeedles,
+} from "./FounderSpacingRelation.js";
+import { classifyRequestedChange } from "./RequestedChangeClassification.js";
 import { buildFeedbackCoverage } from "./FeedbackCoverage.js";
 import { evaluateRevisionFinalAcceptance } from "./RevisionFinalAcceptance.js";
 import { evaluateCanonicalFinalStateLayoutProof } from "./CanonicalFinalStateLayoutProof.js";
@@ -111,6 +116,7 @@ const HISTORICAL = [
   "revtask-0d58e039-326",
   "revtask-68a5d250-b24",
   "revtask-3a9bcae2-16c",
+  "revtask-a3de0a46-4da",
 ];
 
 type Check = { name: string; pass: boolean; detail: string };
@@ -2810,6 +2816,85 @@ async function main(): Promise<void> {
       notes: rhythmCoverage.items[0]?.evidence?.notes,
       rhythm: rhythmOnPairMiss.reason,
     }),
+  );
+
+  const DM_HEADER =
+    "Header: Move the contact-details row slightly below the bottom edge of the light blue header background, approximately 2 points below it. Keep “Elena Masters”, “Digital Marketing Specialist”, and the light blue background in their current positions, and preserve all existing contact information and its order.";
+  const DM_SKILLS =
+    "Skills: Change the Skills section from the current horizontal sentence-style layout into vertical bullet points arranged in columns. Place 4 skills in the first column and continue the remaining skills in the column beside it. Preserve all existing skills and their current order.";
+  const DM_SKILLS_NOPREFIX = DM_SKILLS.replace(/^Skills:\s*/, "");
+  const DM_EXPERIENCE =
+    "Experience: In the “Marketing Coordinator — Crestline Consumer Goods” experience entry, remove the unnecessary vertical gap between the second bullet ending “organic lead generation.” and the third bullet beginning “Coordinated campaign analytics reporting”. Also remove the unnecessary gap between that third bullet and the fourth bullet beginning “Produced monthly marketing metrics dashboards”. Make these bullet spacings consistent with the other Experience bullets while preserving all Experience text and its order.";
+  const dmIr = compileFounderFeedbackIR([DM_HEADER, DM_SKILLS, DM_EXPERIENCE]);
+  const dmSkills = dmIr.items[1]!;
+  const dmHeader = dmIr.items[0]!;
+  const dmExp = dmIr.items[2]!;
+  const noPrefixSkills = compileFounderFeedbackIR([DM_SKILLS_NOPREFIX]).items[0]!;
+  assert(
+    founderFeedbackIROwnershipErrors(dmIr).length === 0 &&
+      dmIr.items.every((item) => item.coverage_mode !== "MUTATION_REQUIRED") &&
+      dmSkills.action === "PRESENTATION_MUTATION" &&
+      dmSkills.coverage_mode === "DETERMINISTIC_LAYOUT_OWNED" &&
+      noPrefixSkills.coverage_mode === dmSkills.coverage_mode &&
+      noPrefixSkills.action === dmSkills.action,
+    "c1_negative_13_prefix_does_not_change_skills_ownership",
+    JSON.stringify({
+      errors: founderFeedbackIROwnershipErrors(dmIr),
+      skills: { action: dmSkills.action, mode: dmSkills.coverage_mode },
+      noPrefix: {
+        action: noPrefixSkills.action,
+        mode: noPrefixSkills.coverage_mode,
+      },
+    }),
+  );
+  assert(
+    dmSkills.fulfillment.some((p) => p.kind === "PRESENTATION") &&
+      dmSkills.fulfillment.every((p) => p.kind !== "CONTENT_REWRITE") &&
+      dmSkills.fulfillment.find((p) => p.kind === "PRESENTATION")
+        ?.presentation_spec?.grouping?.items_per_group === 4 &&
+      dmSkills.coverage_mode === "DETERMINISTIC_LAYOUT_OWNED",
+    "c1_negative_14_from_into_arranged_bullet_points_are_presentation",
+    JSON.stringify({
+      class: classifyRequestedChange(DM_SKILLS).classification,
+      kinds: dmSkills.fulfillment.map((p) => p.kind),
+    }),
+  );
+  const contentMut = compileFounderFeedbackIR([
+    "Replace Google Ads with Meta Ads.",
+  ]).items[0]!;
+  assert(
+    contentMut.coverage_mode === "MUTATION_REQUIRED" &&
+      contentMut.fulfillment.some((p) => p.kind === "CONTENT_REWRITE"),
+    "c1_negative_15_named_skill_replace_is_provider_content",
+    JSON.stringify({
+      mode: contentMut.coverage_mode,
+      kinds: contentMut.fulfillment.map((p) => p.kind),
+    }),
+  );
+  const dmPairs = extractAllNamedSpacingPairs(DM_EXPERIENCE);
+  assert(
+    dmExp.fulfillment.filter((p) => p.kind === "SPACING_PAIR").length === 2 &&
+      dmPairs.length === 2,
+    "c1_negative_16_two_independent_named_pairs",
+    JSON.stringify(dmPairs),
+  );
+  const headerRel = compileRelativePlacement(DM_HEADER);
+  assert(
+    headerRel?.alignment.relation === "below" &&
+      headerRel.alignment.clearance_px === 2 &&
+      headerRel.alignment.tolerance_px === 2 &&
+      dmHeader.fulfillment.some((p) => p.kind === "PRESERVATION"),
+    "c1_negative_17_numeric_below_is_clearance_not_align_window",
+    JSON.stringify(headerRel?.alignment),
+  );
+  const taBelow = compileRelativePlacement(
+    "Move the title below the rectangle.",
+  );
+  assert(
+    taBelow?.alignment.relation === "below" &&
+      taBelow.alignment.clearance_px == null,
+    "c1_negative_18_nonnumeric_below_has_no_clearance",
+    JSON.stringify(taBelow?.alignment),
   );
 
   for (const id of HISTORICAL) {

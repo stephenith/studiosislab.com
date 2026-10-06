@@ -288,6 +288,18 @@ export function feedbackRequiresContactUpward(
   });
 }
 
+/** Founder asked to place contact below the header band — do not re-contain. */
+export function feedbackRequestsContactBelowHeaderBand(
+  requestedChanges: string[],
+): boolean {
+  return requestedChanges.some((c) => {
+    const n = normalizeFeedback(c);
+    return /\bcontact(?:[-\s]details?)?(?:\s+(?:row|line))?\b[\s\S]{0,100}\bbelow\b[\s\S]{0,80}\b(?:background|rectangle|rect|band)\b/.test(
+      n,
+    );
+  });
+}
+
 /**
  * Founder asks to keep header identity text tops fixed / preserve name-title-
  * contact positions when already non-overlapping — prefer BAND_ONLY.
@@ -571,6 +583,9 @@ export function applyHeaderIdentityBlockLayout(input: {
   const requireUp =
     input.require_contact_upward === true ||
     feedbackRequiresContactUpward(input.requested_changes ?? []);
+  const requireBelowBand = feedbackRequestsContactBelowHeaderBand(
+    input.requested_changes ?? [],
+  );
 
   const pad = HEADER_IDENTITY_PAD_PX;
   const clear = HEADER_TO_SUMMARY_CLEARANCE_PX;
@@ -597,12 +612,27 @@ export function applyHeaderIdentityBlockLayout(input: {
     identity_tops: identityTops0,
   };
 
+  if (requireBelowBand) {
+    reason_codes.push("contact_below_header_band_requested");
+    return emptyReport({
+      ok: true,
+      reason_codes,
+      ownership_mode: "NONE",
+      before,
+      after: before,
+      contact_delta_top: 0,
+      text_positions_preserved: true,
+    });
+  }
+
   const stackSafe = isHeaderIdentityStackSequentiallySafe(stack);
   const stackNonOverlapping = isHeaderIdentityStackNonOverlapping(stack);
   const preservePositions = feedbackRequestsPreserveHeaderTextPositions(
     input.requested_changes ?? [],
   );
-  const containmentOk = contactEb0 <= bandBottom0 - pad + 0.5;
+  const containmentOk = requireBelowBand
+    ? contactTop0 + 1e-9 >= bandBottom0 - 0.51
+    : contactEb0 <= bandBottom0 - pad + 0.5;
   const nameTopPadOk = nameTop0 + 1e-9 >= bandTop0 + pad - 0.5;
 
   // Stacked height if reflowed with canonical pad between every member.
@@ -638,6 +668,7 @@ export function applyHeaderIdentityBlockLayout(input: {
   // (including exact touching gap=0 — no rendered overlap under Phase 5W).
   const bandOnlyEligible =
     !requireUp &&
+    !requireBelowBand &&
     (stackSafe || (preservePositions && stackNonOverlapping));
   if (bandOnlyEligible) {
     const lowestEb = Math.max(

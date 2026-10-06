@@ -15,7 +15,10 @@ import {
   resolveIntentClauses,
   type RequestedChangeClass,
 } from "./RequestedChangeClassification.js";
-import { compilePresentationSpec } from "./PresentationIntent.js";
+import {
+  compilePresentationSpec,
+  hasPresentationStructureLanguage,
+} from "./PresentationIntent.js";
 export type ContentSectionKey =
   | "job_title"
   | "summary"
@@ -133,12 +136,36 @@ function isContentRemovalClause(text: string): boolean {
   );
 }
 
+function hasNamedContentMutation(text: string): boolean {
+  if (NAMED_PROFESSIONAL_IDENTITY_RE.test(text)) return true;
+  if (SPECIFIC_CONTENT_ITEM_RE.test(text)) return true;
+  if (/\breplace\b[\s\S]{0,120}\bwith\b/i.test(text)) return true;
+  if (/\b(?:add|insert|remove|delete)\b\s+[“"'][^”"']+[”"']/i.test(text)) {
+    return true;
+  }
+  if (
+    /\b(?:add|insert|remove|delete)\b\s+[A-Z][\w]+(?:\s+[A-Z][\w]+){0,4}\b/.test(
+      text,
+    ) &&
+    !/\b(?:column|bullet|pointer|layout|gap|spacing)\b/i.test(text)
+  ) {
+    return true;
+  }
+  return false;
+}
+
 function isContentReplacementClause(text: string): boolean {
   if (!CONTENT_REWRITE_VERB.test(text)) return false;
+  if (
+    hasPresentationStructureLanguage(text) &&
+    !hasNamedContentMutation(text)
+  ) {
+    return false;
+  }
   if (isLayoutObjectClause(text) && !NAMED_PROFESSIONAL_IDENTITY_RE.test(text)) {
     return false;
   }
-  return mentionedSections(text).length > 0;
+  return mentionedSections(text).length > 0 || hasNamedContentMutation(text);
 }
 
 function isContentAdditionClause(text: string): boolean {

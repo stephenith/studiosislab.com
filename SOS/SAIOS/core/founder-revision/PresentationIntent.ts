@@ -72,7 +72,7 @@ const STRUCTURE_RE =
   /\b(?:pointers?|bullet(?:s| points?)?|list(?:ing)?|stacked|stack(?:ing)?|one below another|one after another|separate lines?|side by side|two columns?|columns?|inline|vertical(?:ly)?|horizontal(?:ly)?|in a row|per row|per column|beside(?: it)?)\b/i;
 
 const PRESENTATION_ARRANGE_RE =
-  /\b(?:display|show|arrange|format|present|put each|put these|put them|keep these|keep them|make this a|make them|want it to be)\b/i;
+  /\b(?:display|show|arrang(?:e|ed|ing)|format|present|put each|put these|put them|keep these|keep them|make this a|make them|want it to be)\b/i;
 
 export function hasPresentationStructureLanguage(text: string): boolean {
   return STRUCTURE_RE.test(text);
@@ -94,14 +94,34 @@ export function hasPresentationIntent(text: string): boolean {
   ) {
     return false;
   }
+  if (isGeometryOnlyStructureLanguage(text)) return false;
   return (
     PRESENTATION_ARRANGE_RE.test(text) ||
     (/\bchange\b/i.test(text) &&
-      /\bfrom\b.+\bto\b/i.test(text) &&
+      /\bfrom\b.+\b(?:to|into)\b/i.test(text) &&
       hasPresentationStructureLanguage(text)) ||
+    (/\bchange\b/i.test(text) && hasPresentationStructureLanguage(text)) ||
     /\b(?:one below another|one after another|separate lines?|side by side|stack(?:ed|ing)?|pointers?|in a row|per row|per column|beside(?: it)?)\b/i.test(
       text,
     )
+  );
+}
+
+function isGeometryOnlyStructureLanguage(text: string): boolean {
+  if (
+    /\b(?:bullet|pointer|column|beside|inline|list|sentence-style|arranged)\b/i.test(
+      text,
+    )
+  ) {
+    return false;
+  }
+  if (/\bfrom\b.+\b(?:to|into)\b/i.test(text)) return false;
+  const hasStructureWord =
+    /\b(?:vertical|horizontal)(?:ly)?\b/i.test(text) ||
+    /\bstack(?:ed|ing)?\b/i.test(text);
+  if (!hasStructureWord) return false;
+  return /\b(?:position(?:ing)?|spacing|gap|separation|alignment|offset|rebalance|rhythm|empty gaps?)\b/i.test(
+    text,
   );
 }
 
@@ -167,7 +187,10 @@ function compileGrouping(line: string): PresentationGroupingSpec | undefined {
   const twoCols = /\b(?:two columns?|in two columns?)\b/i.test(line);
   const nMatch =
     line.match(
-      /\b(?:may be|maybe|exactly|precisely|around|about|roughly|approximately)?\s*(\d+)\s+(?:pointers?|items?|skills?|entries|bullets?)?\s*(?:in a row|per row|per column|per (?:group|line)|in one column|stacked vertically in one column)\b/i,
+      /\b(?:may be|maybe|exactly|precisely|around|about|roughly|approximately)?\s*(\d+)\s+(?:pointers?|items?|skills?|entries|bullets?)?\s*(?:in a row|per row|per column|per (?:group|line)|in (?:the )?(?:first|one) column|stacked vertically in one column)\b/i,
+    ) ??
+    line.match(
+      /\b(\d+)\s+(?:pointers?|items?|skills?|entries|bullets?)\s+in the first column\b/i,
     ) ??
     line.match(
       /\b(\d+)\s+(?:pointers?|items?|skills?|entries|bullets?)\s+in a row\b/i,
@@ -178,20 +201,30 @@ function compileGrouping(line: string): PresentationGroupingSpec | undefined {
     line.match(/\b(\d+)\s+per\s+(?:row|column|group|line)\b/i);
   const inRow = /\b(?:in a row|per row)\b/i.test(line);
   const perCol = /\bper column\b/i.test(line);
+  const firstColumnN = /\b(?:first|one) column\b/i.test(line);
   const oneThenNextColumn =
-    /\bone column\b/i.test(line) &&
-    /\b(?:next column|another column|second column)\b/i.test(line);
+    (/\bone column\b/i.test(line) || firstColumnN) &&
+    /\b(?:next column|another column|second column|beside|remaining)\b/i.test(
+      line,
+    );
   const beside =
     /\bbeside(?: it)?\b/i.test(line) ||
     /\bcontinue(?: it)? beside\b/i.test(line) ||
     /\bnext to\b/i.test(line);
-  if (!nMatch && !beside && !inRow && !perCol && !twoCols && !oneThenNextColumn) {
+  if (
+    !nMatch &&
+    !beside &&
+    !inRow &&
+    !perCol &&
+    !twoCols &&
+    !oneThenNextColumn
+  ) {
     return undefined;
   }
 
   const n = nMatch ? Number(nMatch[1]) : undefined;
   let axis: PresentationGroupingAxis | undefined;
-  if ((twoCols || oneThenNextColumn) && !inRow) axis = "column";
+  if ((twoCols || oneThenNextColumn || firstColumnN) && !inRow) axis = "column";
   else if (perCol && !inRow) axis = "column";
   else if (inRow && !beside && !perCol) axis = "row";
   else if (beside && !inRow) axis = "column";

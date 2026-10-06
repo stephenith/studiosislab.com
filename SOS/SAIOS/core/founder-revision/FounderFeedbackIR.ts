@@ -154,6 +154,48 @@ function dominantAction(
   return "VERIFICATION";
 }
 
+export function founderFeedbackIROwnershipErrors(
+  ir: FounderFeedbackIR,
+): string[] {
+  const errors: string[] = [];
+  for (let i = 0; i < ir.items.length; i++) {
+    const item = ir.items[i]!;
+    if (
+      (item.classification === "VERIFICATION_ACCEPTANCE" ||
+        item.classification === "PRESERVATION_CONSTRAINT") &&
+      item.coverage_mode === "MUTATION_REQUIRED"
+    ) {
+      errors.push(
+        `items[${i}] contradictory ownership: ${item.classification}+MUTATION_REQUIRED`,
+      );
+    }
+    if (
+      item.coverage_mode === "MUTATION_REQUIRED" &&
+      item.classification !== "MUTATION_REQUIRED"
+    ) {
+      errors.push(
+        `items[${i}] MUTATION_REQUIRED coverage requires MUTATION_REQUIRED classification`,
+      );
+    }
+    if (
+      item.action === "PRESENTATION_MUTATION" &&
+      item.coverage_mode !== "DETERMINISTIC_LAYOUT_OWNED"
+    ) {
+      errors.push(
+        `items[${i}] PRESENTATION_MUTATION must be DETERMINISTIC_LAYOUT_OWNED`,
+      );
+    }
+  }
+  return errors;
+}
+
+export function assertFounderFeedbackIROwnership(ir: FounderFeedbackIR): void {
+  const errors = founderFeedbackIROwnershipErrors(ir);
+  if (errors.length > 0) {
+    throw new Error(`invalid founder feedback IR ownership: ${errors.join("; ")}`);
+  }
+}
+
 function coverageModeForLine(
   line: string,
   classification: RequestedChangeClass,
@@ -291,7 +333,7 @@ export function compileFounderFeedbackIR(
     };
   });
 
-  return {
+  const ir: FounderFeedbackIR = {
     schema_version: FOUNDER_FEEDBACK_IR_SCHEMA,
     items,
     content_mutation_sections: intent_scope.content_mutation_sections,
@@ -307,6 +349,8 @@ export function compileFounderFeedbackIR(
     ],
     intent_scope,
   };
+  assertFounderFeedbackIROwnership(ir);
+  return ir;
 }
 
 export function founderFeedbackIRItem(

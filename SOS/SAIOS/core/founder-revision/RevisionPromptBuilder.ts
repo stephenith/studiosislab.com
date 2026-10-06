@@ -540,13 +540,9 @@ export function buildTargetCandidateHints(
   for (let i = 0; i < ir.items.length; i++) {
     const irItem = ir.items[i]!;
     const change = irItem.founder_feedback_item;
-    if (
-      irItem.classification === "VERIFICATION_ACCEPTANCE" &&
-      irItem.action !== "LAYOUT_MUTATION" &&
-      irItem.action !== "CONTENT_MUTATION"
-    ) {
+    if (irItem.coverage_mode !== "MUTATION_REQUIRED") {
       lines.push(
-        `Item ${i + 1} [VERIFICATION_ACCEPTANCE] — emit ZERO operations for this item.`,
+        `Item ${i + 1} [${irItem.coverage_mode}] — emit ZERO operations for this item.`,
       );
       continue;
     }
@@ -2242,12 +2238,20 @@ export function validateRevisionPlanShapeAndOperations(
             attributionInvalid = true;
             continue;
           }
-          if (
-            irByNorm.get(n)?.classification === "VERIFICATION_ACCEPTANCE"
-          ) {
-            errors.push(
-              `operations[${i}] founder attribution must not claim VERIFICATION_ACCEPTANCE item: ${attr}`,
-            );
+          const claimed = irByNorm.get(n);
+          if (claimed && claimed.coverage_mode !== "MUTATION_REQUIRED") {
+            if (
+              claimed.classification === "VERIFICATION_ACCEPTANCE" ||
+              claimed.coverage_mode === "VERIFICATION_ACCEPTANCE"
+            ) {
+              errors.push(
+                `operations[${i}] founder attribution must not claim VERIFICATION_ACCEPTANCE item: ${attr}`,
+              );
+            } else {
+              errors.push(
+                `operations[${i}] founder attribution must not claim ${claimed.coverage_mode} item: ${attr}`,
+              );
+            }
             attributionInvalid = true;
           }
         }

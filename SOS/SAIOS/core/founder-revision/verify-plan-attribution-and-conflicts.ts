@@ -61,12 +61,15 @@ function assert(cond: boolean, name: string, detail: string): Check {
   return { name, pass: cond, detail };
 }
 
-const FB_REBALANCE =
-  "Rebalance the left sidebar so Skills, Projects, Certifications, and Languages stack cleanly without large empty gaps.";
+const FB_REBALANCE = "Replace the Skills list with Python and SQL only.";
 const FB_BALANCE =
-  "Improve the overall visual balance between the left and right columns after repositioning.";
-const FB_OTHER = "Tighten Experience entry spacing.";
+  "Rewrite the Summary so it describes an Operations Analyst.";
+const FB_OTHER = "Add a second Experience bullet about process improvement.";
 const FB_VERIFY = CANONICAL_COLLISION_BOUNDS_QA;
+const FB_LAYOUT_REBALANCE =
+  "Rebalance the left sidebar so Skills, Projects, Certifications, and Languages stack cleanly without large empty gaps.";
+const FB_LAYOUT_BALANCE =
+  "Improve the overall visual balance between the left and right columns after repositioning.";
 
 function baseOp(
   partial: Partial<CanvasOperation> &
@@ -295,24 +298,38 @@ async function main(): Promise<void> {
       `logLen=${exec.log.length}`,
     ),
   );
-  const cov = buildFeedbackCoverage({
-    requested_changes: [FB_REBALANCE, FB_BALANCE],
-    plan: multiPlan,
-    log: exec.log,
-    beforeCanvas: canvas(),
-    afterCanvas: exec.canvas,
+  const layoutMultiOp = baseOp({
+    op: "set_position",
+    values: { top: 188 },
+    founder_feedback_item: FB_LAYOUT_REBALANCE,
+    founder_feedback_items: [FB_LAYOUT_BALANCE],
   });
-  const item0 = cov.items.find((i) => i.founder_feedback_item === FB_REBALANCE);
-  const item1 = cov.items.find((i) => i.founder_feedback_item === FB_BALANCE);
+  const layoutMultiPlan = plan([layoutMultiOp]);
+  const layoutExec = executeCanvasOperations({
+    canvas: canvas(),
+    operations: layoutMultiPlan.operations,
+  });
+  const cov = buildFeedbackCoverage({
+    requested_changes: [FB_LAYOUT_REBALANCE, FB_LAYOUT_BALANCE],
+    plan: layoutMultiPlan,
+    log: layoutExec.log,
+    beforeCanvas: canvas(),
+    afterCanvas: layoutExec.canvas,
+  });
+  const item0 = cov.items.find((i) => i.founder_feedback_item === FB_LAYOUT_REBALANCE);
+  const item1 = cov.items.find((i) => i.founder_feedback_item === FB_LAYOUT_BALANCE);
   // Multi-attribution still maps both items to the same executed op index.
   // Broad visual-balance secondary cannot be promoted to addressed from ops alone.
   checks.push(
     assert(
       item0?.status === "addressed" &&
-        item1?.status === "partially_addressed" &&
-        item0.evidence.operation_evidence?.length === 1 &&
-        item1.evidence.operation_evidence?.length === 1 &&
-        String(item1.evidence.notes ?? "").includes("broad visual-balance"),
+        item1?.status === "addressed" &&
+        String(item0.evidence.notes ?? "").includes(
+          "canonical_final_state_layout_proof",
+        ) &&
+        String(item1.evidence.notes ?? "").includes(
+          "canonical_final_state_layout_proof",
+        ),
       "7b_feedback_coverage_both_via_same_op",
       JSON.stringify({
         i0: item0?.status,
@@ -325,7 +342,7 @@ async function main(): Promise<void> {
 
   // 8 — prefix-only attribution no longer passes
   const prefixFb =
-    "Rebalance the left sidebar so Skills, Projects, Certifications, and Languages stack cleanly without large empty gaps. EXTRA TRAILING TEXT THAT DIFFERS.";
+    "Replace the Skills list with Python and SQL only. EXTRA TRAILING TEXT THAT DIFFERS.";
   const prefixPlan = plan([
     baseOp({
       op: "set_position",

@@ -30,8 +30,8 @@ import { inspectRevisionSectionGroups, normalizeRevisionLayout } from "./Revisio
 import type { CanvasOperation } from "./revision-task-types.js";
 import { isFounderMeasurableSpacingIntent } from "./FounderSpacingIntent.js";
 import {
+  extractAllNamedSpacingPairs,
   extractIndependentGapBeforeNeedles,
-  extractPairEndpointNeedles,
   isNamedSpacingPairRequest,
   resolveFounderSpacingRelation,
 } from "./FounderSpacingRelation.js";
@@ -190,7 +190,11 @@ function isHeaderBandLanguage(n: string): boolean {
   return (
     (/\b(?:background|header)\b/.test(n) &&
       /\b(?:rectangle|rect|box|band)\b/.test(n)) ||
-    /\bheader-?band\b/.test(n)
+    /\bheader-?band\b/.test(n) ||
+    /\bheader\s+background\b/.test(n) ||
+    (/\b(?:light|pale|blue|navy)\b/.test(n) &&
+      /\bbackground\b/.test(n) &&
+      !/\bpage\s+background\b/.test(n))
   );
 }
 
@@ -584,8 +588,12 @@ export function compileRelativePlacement(text: string):
     Boolean(refDesc.quoted_text);
   if (!hasVisualRef && !refDesc.role) return undefined;
   const preserve = compileExplicitPreserve(text);
-  const clearance =
-    /\b(?:small clean gap|clean gap|clearly below|clearly above)\b/.test(n)
+  const numericClearance = n.match(
+    /\b(?:approximately|about|roughly|around)?\s*(\d+)\s*(?:points?|px)\s+(?:below|above)\b/,
+  );
+  const clearance = numericClearance
+    ? Number(numericClearance[1])
+    : /\b(?:small clean gap|clean gap|clearly below|clearly above)\b/.test(n)
       ? 8
       : undefined;
   return {
@@ -651,7 +659,7 @@ export function compileExplicitPreserve(text: string): ReferenceSpec | undefined
       });
     }
   }
-  if (/\b(?:rectangle|rect|box|band)\b/i.test(afterKeep)) {
+  if (/\b(?:rectangle|rect|box|band|background)\b/i.test(afterKeep)) {
     const rectDesc = compileTargetDescriptor(afterKeep);
     if (rectDesc.shape === "rect" || rectDesc.role === "header_band") {
       descriptors.push({
@@ -898,7 +906,7 @@ export function predicatesForItem(
     !hasPresentation
   ) {
     const gapNeedles = extractIndependentGapBeforeNeedles(line);
-    const pairEnds = extractPairEndpointNeedles(line);
+    const namedPairs = extractAllNamedSpacingPairs(line);
     if (gapNeedles.length >= 2) {
       for (const needle of gapNeedles) {
         out.push({
@@ -908,13 +916,15 @@ export function predicatesForItem(
           present_phrases: [needle],
         });
       }
-    } else if (pairEnds.length >= 2) {
-      out.push({
-        kind: "SPACING_PAIR",
-        required: true,
-        section: contentSections[0] ?? sectionKeysFromLine(line)[0],
-        present_phrases: pairEnds.slice(0, 2),
-      });
+    } else if (namedPairs.length >= 1) {
+      for (const pair of namedPairs) {
+        out.push({
+          kind: "SPACING_PAIR",
+          required: true,
+          section: contentSections[0] ?? sectionKeysFromLine(line)[0],
+          present_phrases: [pair.upper, pair.lower],
+        });
+      }
     } else {
       out.push({
         kind: "SPACING_PAIR",
@@ -950,6 +960,14 @@ export function predicatesForItem(
     if (preserveSecs.length === 0 && hasHeaderContentGroupLanguage(line)) {
       // Header text is not a ContentSectionKey; job_title already matches header corpus.
       if (!mutatedContentSecs.has("job_title")) preserveSecs.push("job_title");
+    }
+    if (
+      preserveSecs.length === 0 &&
+      !mutatedContentSecs.has("job_title") &&
+      /\b(?:keep(?:ing)?|preserv(?:e|ing)|retain(?:ing)?)\b/i.test(line) &&
+      /\b(?:contact|header|name)\b/i.test(line)
+    ) {
+      preserveSecs.push("job_title");
     }
     for (const section of preserveSecs) {
       if (out.some((p) => p.kind === "PRESERVATION" && p.section === section)) {
@@ -2258,7 +2276,13 @@ export function applyPresentationMutations(
           (grouping.column_count ?? 0) >= 2)
       ) {
         const colCount = grouping?.column_count ?? 2;
-        const cols = partitionItems(items, colCount);
+        const perGroup = grouping?.items_per_group;
+        const cols =
+          typeof perGroup === "number" && perGroup > 0
+            ? [items.slice(0, perGroup), items.slice(perGroup)].filter(
+                (chunk) => chunk.length > 0,
+              )
+            : partitionItems(items, colCount);
         const gap = 16;
         const totalW = Math.max(80, Number(primary.width ?? 400));
         const colW = Math.max(60, (totalW - gap * (cols.length - 1)) / cols.length);

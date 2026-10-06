@@ -19,7 +19,7 @@
   "release_manager_status": "available",
   "runtime_catalog_status": "integrated",
   "pending_actions": [
-    "PROJECT-WIDE / RESUME \u2014 COMPILER-DISPATCH DEPLOYED 2026-10-06. Local wall=2026-10-06T13:57:47+05:30. UTC=2026-10-06T08:27:47.000Z. Runtime commit 81d2f4ab63e69543424ab0f94f212a1f9dc413c4 / IR founder-feedback-ir-1.4.5. Prior baseline c1f253e02fb0d6d730e6a55ee6e7c623ce21d154. Production fd-9dc11ca5-443 / revtask-adf420bb-a53 FAILED_COVERAGE remains immutable; no child; no live retry. Dental fd-637ad355-ed7 / revtask-f67ce2e4-bb0 FAILED_COVERAGE and TA fd-3eb58dc7-d08 / revtask-232a10da-349 FAILED_GATE remain immutable. LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO. FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. CURRENT_P0_BLOCKERS=NONE. C6=PASS/COMPLETE. SEVENTH_C5_REQUIRED=NO. Do NOT retry revtask-adf420bb-a53, revtask-f67ce2e4-bb0, revtask-232a10da-349, or historical C5 tasks. Do not start Website automation or SEO in this stream.",
+    "PROJECT-WIDE / RESUME \u2014 DIGITAL MARKETING OWNERSHIP CORRECTION OFFLINE 2026-10-06. Local wall=2026-10-06T15:42:34+05:30. UTC=2026-10-06T10:12:34.000Z. Deployed runtime remains 81d2f4ab63e69543424ab0f94f212a1f9dc413c4 / IR founder-feedback-ir-1.4.5. Worktree has uncommitted coverage_mode ownership + presentation / multi-pair / offset correction. Production fd-6946bfce-542 / revtask-a3de0a46-4da FAILED_PLAN remains immutable; no child; do not retry a3de0a46. Healthcare fd-9dc11ca5-443 / revtask-adf420bb-a53 FAILED_COVERAGE, Dental fd-637ad355-ed7 / revtask-f67ce2e4-bb0 FAILED_COVERAGE, and TA fd-3eb58dc7-d08 / revtask-232a10da-349 FAILED_GATE remain immutable. LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=YES as a new Founder action only. FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. CURRENT_P0_BLOCKERS=NONE. C6=PASS/COMPLETE. SEVENTH_C5_REQUIRED=NO. Do NOT retry revtask-a3de0a46-4da, revtask-adf420bb-a53, revtask-f67ce2e4-bb0, revtask-232a10da-349, or historical C5 tasks. Do not start Website automation or SEO in this stream.",
     "NEXT DEPARTMENT \u2014 Website Analysis / QA / Development is now the active project priority. Inspect existing repository/runtime/evidence first. Do not invent Website architecture. Do not enable Website automation. Do not implement Website work in the C6 administrative closure run. Do NOT reopen Resume Template revision engineering unless a new real production failure occurs.",
     "RESUME MAINTENANCE P1 \u2014 revision_failed Request Changes UI/actionability presentation (Motion Designer \u2026-bed721; Campus Ambassador \u2026-047495). Not a P0. Does not reactivate the department.",
     "RESUME MAINTENANCE P1 \u2014 publication controlled-apply proof for staged packages while AUTO_APPLY remains OFF.",
@@ -39,6 +39,11 @@
     "3 release(s) rolled back \u2014 snapshots available"
   ],
   "history": [
+    {
+      "at": "2026-10-06T10:12:34.000Z",
+      "type": "resume_digital_marketing_ownership_offline",
+      "summary": "Digital Marketing FAILED_PLAN offline ownership + presentation / multi-pair / offset correction. Local wall=2026-10-06T15:42:34+05:30. UTC=2026-10-06T10:12:34.000Z. Production fd-6946bfce-542 / revtask-a3de0a46-4da FAILED_PLAN remains immutable; no child; do not retry a3de0a46. Schema remains founder-feedback-ir-1.4.5. coverage_mode is the sole mutation owner; compile-time reject VA+MUTATION_REQUIRED; Skills PRESENTATION 4+remainder of 8 canvas skills; N Experience SPACING_PAIR; Header clearance_px=2 on existing below floor + 0.51 epsilon; inventory truncation mark. Offline: DM full-intent PASS; Healthcare PASS; Dental PASS; TA PASS; C1 PASS including negatives 13-18; C2 PASS; C3 PASS; C4 PASS; actionability PASS; 6H PASS; 6K PASS; 6O PASS; 6P PASS; plan-geometry PASS; role PASS; preservation PASS; plan-schema PASS. NEW_REGRESSION_COUNT=0. RESUME_TEMPLATE_DEPARTMENT_STATUS=OPERATIONALLY_COMPLETE. REVISION_ENGINEERING_STATUS=MAINTENANCE_REGRESSION_ONLY. C6=PASS not rewritten. SEVENTH_C5_REQUIRED=NO. LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=YES as a new Founder action only. FOUNDER_E2E_BUSINESS_ACCEPTANCE_STATUS=PENDING_LIVE_E2E_PROOF. Deployed HEAD remains 81d2f4ab63e69543424ab0f94f212a1f9dc413c4 / IR 1.4.5. Worktree ownership correction uncommitted. generated_at envelope left at 2026-07-11T23:31:33.456Z. No production OpenAI, generation, revision, Founder decision, publication, LIVE/timer/AUTO_APPLY, overlay, or historical-evidence changes. ACTIVE_PROJECT_PRIORITY=Website Analysis / QA / Development."
+    },
     {
       "at": "2026-10-06T08:27:47.000Z",
       "type": "resume_compiler_dispatch_controlled_deploy",
@@ -3496,7 +3501,7 @@
     "revision_engineering_status": "MAINTENANCE_REGRESSION_ONLY",
     "current_p0_blockers": [],
     "next_major_department": "Website Analysis / QA / Development",
-    "next_authorized_step": "Resume Founder-to-public E2E business acceptance remains pending (do not retry revtask-232a10da-349 or historical C5 tasks; LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=NO; READY_FOR_SEVENTH_C5_LIVE_PROOF=NO; C6=PASS; SEO is Founder-directed successor after E2E and is not activated)",
+    "next_authorized_step": "Resume Founder-to-public E2E business acceptance remains pending (do not retry revtask-a3de0a46-4da, revtask-adf420bb-a53, revtask-f67ce2e4-bb0, revtask-232a10da-349, or historical C5 tasks; LIVE_RETRY_REQUIRED_AFTER_OFFLINE_PASS=YES as a new Founder action only; READY_FOR_SEVENTH_C5_LIVE_PROOF=NO; C6=PASS; SEO is Founder-directed successor after E2E and is not activated)",
     "consolidation_plan": {
       "recorded_at_ist": "2026-09-29T15:22:52+05:30",
       "recorded_at_utc": "2026-09-29T09:52:52.100Z",
@@ -3627,10 +3632,11 @@
       "revtask-3a9bcae2-16c",
       "revtask-232a10da-349",
       "revtask-f67ce2e4-bb0",
-      "revtask-adf420bb-a53"
+      "revtask-adf420bb-a53",
+      "revtask-a3de0a46-4da"
     ],
-    "snapshot_ist": "2026-10-06T13:57:47+05:30",
-    "snapshot_utc": "2026-10-06T08:27:47.000Z",
+    "snapshot_ist": "2026-10-06T15:42:34+05:30",
+    "snapshot_utc": "2026-10-06T10:12:34.000Z",
     "heads": {
       "local": "81d2f4ab63e69543424ab0f94f212a1f9dc413c4",
       "origin": "81d2f4ab63e69543424ab0f94f212a1f9dc413c4",
@@ -3658,8 +3664,8 @@
       "Revenue / Monetization",
       "AIOS System Audit / Optimization"
     ],
-    "snapshot_ist": "2026-10-06T13:57:47+05:30",
-    "snapshot_utc": "2026-10-06T08:27:47.000Z",
+    "snapshot_ist": "2026-10-06T15:42:34+05:30",
+    "snapshot_utc": "2026-10-06T10:12:34.000Z",
     "heads": {
       "local": "81d2f4ab63e69543424ab0f94f212a1f9dc413c4",
       "origin": "81d2f4ab63e69543424ab0f94f212a1f9dc413c4",

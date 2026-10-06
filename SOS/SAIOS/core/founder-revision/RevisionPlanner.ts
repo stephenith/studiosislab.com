@@ -61,6 +61,7 @@ import {
   validateRevisionPlan,
   type UncoveredRequestedChange,
 } from "./RevisionPromptBuilder.js";
+import { compileFounderFeedbackIR } from "./FounderFeedbackIR.js";
 
 /** Same repo root the revision pipeline already uses for candidate artifacts. */
 const REPO = resolve(import.meta.dirname, "../../../..");
@@ -1186,6 +1187,19 @@ export async function planFounderCanvasRevision(input: {
   repoRoot?: string;
 }): Promise<PlannerResult> {
   const repoRoot = input.repoRoot ?? REPO;
+  try {
+    compileFounderFeedbackIR(input.task.requested_changes);
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : String(error),
+      status: "FAILED_PLAN",
+      prompt: {
+        objective: "Founder IR ownership rejected before provider planning",
+        instructions: "",
+      },
+    };
+  }
   const prompt = buildRevisionPlannerPrompt({
     task: input.task,
     inventory: input.inventory,

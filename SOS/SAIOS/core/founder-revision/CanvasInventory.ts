@@ -99,7 +99,11 @@ export function buildCanvasInventory(
       id: objectId(o, index),
       index,
       type: asStr(o.type) ?? "unknown",
-      text: text ? text.slice(0, 160) : null,
+      text: text
+        ? text.length > 160
+          ? `${text.slice(0, 160)}…`
+          : text
+        : null,
       left: asNum(o.left),
       top,
       width: asNum(o.width),

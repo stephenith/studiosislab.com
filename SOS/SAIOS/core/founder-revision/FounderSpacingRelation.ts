@@ -173,33 +173,58 @@ export function extractIndependentGapBeforeNeedles(text: string): string[] {
  * Pair endpoints from ordinary “between / ending with / beginning with”
  * language. Does not include an entry-title quote that merely scopes the pair.
  */
+export type NamedSpacingPair = { upper: string; lower: string };
+
+export function extractAllNamedSpacingPairs(text: string): NamedSpacingPair[] {
+  const pairs: NamedSpacingPair[] = [];
+  const seen = new Set<string>();
+  const add = (rawA: string, rawB: string) => {
+    const upper = stripDecor(rawA);
+    const lower = stripDecor(rawB);
+    if (upper.length < 3 || lower.length < 3 || upper === lower) return;
+    const key = `${upper}=>${lower}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    pairs.push({ upper, lower });
+  };
+  for (const m of text.matchAll(
+    /\bbetween\s+[\s\S]{0,80}?[“"']([^”"']{6,}?)[”"']\s+and\s+[\s\S]{0,80}?[“"']([^”"']{6,}?)[”"']/gi,
+  )) {
+    if (m[1] && m[2]) add(m[1], m[2]);
+  }
+  for (const m of text.matchAll(
+    /\balso\b[\s\S]{0,200}?\b(?:beginning|starting)\s+[“"']([^”"']{6,}?)[”"']/gi,
+  )) {
+    const next = m[1] ?? "";
+    const prev = pairs[pairs.length - 1];
+    if (prev) add(prev.lower, next);
+  }
+  if (pairs.length === 0) {
+    const ending = text.match(/\bending with\s+[“"']([^”"']{6,}?)[”"']/i);
+    const beginning = text.match(
+      /\b(?:beginning with|following)\s+[“"']([^”"']{6,}?)[”"']/i,
+    );
+    if (ending?.[1] && beginning?.[1]) add(ending[1], beginning[1]);
+  }
+  return pairs;
+}
+
 export function extractPairEndpointNeedles(text: string): string[] {
+  const pairs = extractAllNamedSpacingPairs(text);
+  if (pairs.length === 0) return extractIndependentGapBeforeNeedles(text);
   const out: string[] = [];
   const seen = new Set<string>();
-  const push = (raw: string) => {
-    const n = stripDecor(raw);
-    if (n.length < 3 || seen.has(n)) return;
-    seen.add(n);
-    out.push(n);
-  };
-  const between = text.match(
-    /\bbetween\s+[\s\S]{0,80}?[“"']([^”"']{6,}?)[”"']\s+and\s+[\s\S]{0,80}?[“"']([^”"']{6,}?)[”"']/i,
-  );
-  if (between?.[1] && between[2]) {
-    push(between[1]);
-    push(between[2]);
-    return out;
+  for (const pair of pairs) {
+    if (!seen.has(pair.upper)) {
+      seen.add(pair.upper);
+      out.push(pair.upper);
+    }
+    if (!seen.has(pair.lower)) {
+      seen.add(pair.lower);
+      out.push(pair.lower);
+    }
   }
-  const ending = text.match(
-    /\bending with\s+[“"']([^”"']{6,}?)[”"']/i,
-  );
-  const beginning = text.match(
-    /\b(?:beginning with|following)\s+[“"']([^”"']{6,}?)[”"']/i,
-  );
-  if (ending?.[1]) push(ending[1]);
-  if (beginning?.[1]) push(beginning[1]);
-  if (out.length >= 2) return out;
-  return extractIndependentGapBeforeNeedles(text);
+  return out;
 }
 
 function extractNamedNeedles(text: string): string[] {
@@ -582,12 +607,23 @@ export function resolveAllFounderSpacingRelations(input: {
       }
       continue;
     }
-    const pairEnds = extractPairEndpointNeedles(change);
+    const namedPairs = extractAllNamedSpacingPairs(change);
+    if (namedPairs.length >= 1) {
+      for (const pair of namedPairs) {
+        out.push(
+          resolveFounderSpacingRelation({
+            requestedChange: change,
+            canvas: input.canvas,
+            needles: [pair.upper, pair.lower],
+          }),
+        );
+      }
+      continue;
+    }
     out.push(
       resolveFounderSpacingRelation({
         requestedChange: change,
         canvas: input.canvas,
-        needles: pairEnds.length >= 2 ? pairEnds : undefined,
       }),
     );
   }
@@ -626,6 +662,11 @@ export function buildSafeNamedSpacingRelationOps(input: {
           requested_changes: input.requested_changes,
           canvas: input.canvas,
         });
+  const namedSkip = new Set(
+    resolvedList
+      .filter((r) => r.kind === "NAMED_PAIR")
+      .map((r) => `${r.upper_id}->${r.lower_id}`),
+  );
   for (const resolved of resolvedList) {
     const change = resolved.founder_feedback_item;
     if (resolved.kind !== "NAMED_PAIR") continue;
@@ -639,10 +680,22 @@ export function buildSafeNamedSpacingRelationOps(input: {
     const lower = findRow(rows, resolved.lower_id);
     if (!upper || !lower) continue;
 
-    const peers = peerVisualGapsInGroup(input.canvas, resolved.group_key, {
-      upper_id: upper.id,
-      lower_id: lower.id,
-    }).filter((g) => g >= SPACING_INTENT_MIN_GAP_PX);
+    const groupBullets = rows
+      .filter((r) => r.group_key === resolved.group_key && r.bullet)
+      .sort((a, b) => a.top - b.top);
+    const peers: number[] = [];
+    for (let i = 0; i < groupBullets.length - 1; i++) {
+      const a = groupBullets[i]!;
+      const b = groupBullets[i + 1]!;
+      if (namedSkip.has(`${a.id}->${b.id}`)) continue;
+      const visual = pairGap(a, b);
+      if (visual < SPACING_INTENT_MIN_GAP_PX) continue;
+      const storedGap = b.top - (a.top + a.storedHeight);
+      if (a.storedHeight > a.visualHeight + 1 && visual > storedGap + 1) {
+        continue;
+      }
+      peers.push(visual);
+    }
     const peerRhythm = peers.length > 0 ? median(peers) : 6;
     const desired = Math.max(SPACING_INTENT_MIN_GAP_PX, peerRhythm);
     const newTop = snapCoord(upper.contentBottom + desired);
@@ -674,6 +727,7 @@ export function buildSafeNamedSpacingRelationOps(input: {
         founder_feedback_item: change,
         confidence: 1,
       });
+      upper.storedHeight = Math.ceil(upper.visualHeight / scaleY) * scaleY;
     }
 
     if (canMove) {
@@ -686,6 +740,9 @@ export function buildSafeNamedSpacingRelationOps(input: {
         founder_feedback_item: change,
         confidence: 1,
       });
+      const delta = newTop - lower.top;
+      lower.top = newTop;
+      lower.contentBottom += delta;
     }
   }
   return ops;

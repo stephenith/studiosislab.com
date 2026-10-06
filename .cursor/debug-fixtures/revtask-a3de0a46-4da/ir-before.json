@@ -1,0 +1,14 @@
+{
+  "schema_version": "founder-revision-offline-ir-before-1.0.0",
+  "note": "Contrast-only snapshot of the production FAILED_PLAN ownership split. Not an input to proofs. Do not treat as current compile output.",
+  "task_id": "revtask-a3de0a46-4da",
+  "ir_schema": "founder-feedback-ir-1.4.5",
+  "production_failure": "FAILED_PLAN",
+  "skills_ownership_split": {
+    "classification": "VERIFICATION_ACCEPTANCE",
+    "coverage_mode": "MUTATION_REQUIRED",
+    "why_unsatisfiable": "remainder-design hit on remaining plus Change from/into after Skills colon-split; prompt required attribution while plan_schema forbade VA attribution"
+  },
+  "source_skills_actual_count": 8,
+  "inventory_preview_dropped": "Data Analysis via text.slice(0,160)"
+}

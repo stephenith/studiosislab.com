@@ -430,10 +430,16 @@ function isRemainderDesignPreservationPattern(n: string): boolean {
   ) {
     return false;
   }
+  const layoutContinuation =
+    /\bremaining (?:skills?|items?|pointers?|bullets?|entries)\b/.test(n) ||
+    (/\bremaining\b/.test(n) &&
+      /\b(?:beside|next column|column beside)\b/.test(n));
   const remainder =
-    /\bthe rest\b/.test(n) ||
-    /\bremaining\b/.test(n) ||
-    /\brest of (?:the )?(?:resume|template|design)\b/.test(n) ||
+    !layoutContinuation &&
+    (/\bthe rest\b/.test(n) ||
+      (/\bremaining\b/.test(n) &&
+        /\b(?:resume|template|design|layout)\b/.test(n)) ||
+      /\brest of (?:the )?(?:resume|template|design)\b/.test(n) ||
     // "Preserve the corrected/existing X, Y, Z … because those areas look correct"
     (/\bpreserv(?:e|ing)\b/.test(n) &&
       /\b(header|right[- ]side|summary|experience|education|typography|column)\b/.test(
@@ -442,7 +448,7 @@ function isRemainderDesignPreservationPattern(n: string): boolean {
       (/\balready look(?:s)? correct\b/.test(n) ||
         /\bnow look(?:s)? correct\b/.test(n) ||
         /\balready (?:good|fine|satisfactory|correct)\b/.test(n) ||
-        /\blooks? correct\b/.test(n)));
+        /\blooks? correct\b/.test(n))));
   const designSignals =
     /\b(design|section layout|layout|spacing|typography|header|summary|experience|education|column)\b/.test(
       n,
@@ -517,7 +523,18 @@ function isPageFitVerificationPattern(n: string): boolean {
   );
 }
 
+function isPositiveRestoreOrCorrectContentMutation(n: string): boolean {
+  if (/\b(?:do not|don't|never)\b[\s\S]{0,24}\b(?:restore|correct)\b/.test(n)) {
+    return false;
+  }
+  return (
+    (/\brestore\b/.test(n) && /\bcontent\b/.test(n)) ||
+    (/^correct\b/.test(n) && /\b(?:mismatch|content)\b/.test(n))
+  );
+}
+
 function isContentPreservationVerificationPattern(n: string): boolean {
+  if (isPositiveRestoreOrCorrectContentMutation(n)) return false;
   if (isContentEditMutationRequest(n)) return false;
   if (isConcreteLayoutOrGeometryMutationRequest(n)) return false;
 
@@ -622,9 +639,17 @@ const EXCEPTION_BOUNDARY_RE = /\b(?:unless|except|as long as|only if)\b/;
  * coordinated prohibitions ("does not clip, overflow, overlap, or extend into
  * another section") are handled without enumerating each verb.
  */
+const SECTION_LABEL_PREFIX_RE =
+  /^(header|skills|experience|education|summary|projects|certifications|languages|contact)\s*:\s*/i;
+
+export function stripSectionLabelPrefix(text: string): string {
+  return text.replace(SECTION_LABEL_PREFIX_RE, "");
+}
+
 export function resolveIntentClauses(normalized: string): IntentClause[] {
+  const scoped = stripSectionLabelPrefix(normalized);
   const out: IntentClause[] = [];
-  for (const raw of normalized.split(CLAUSE_BOUNDARY_RE)) {
+  for (const raw of scoped.split(CLAUSE_BOUNDARY_RE)) {
     const clause = raw.trim();
     if (!clause) continue;
     // Everything after an exception marker is a permitted fallback, not a demand.
@@ -799,6 +824,12 @@ function clauseHasConcreteMutationIntent(clause: IntentClause): boolean {
     return false;
   }
   if (!MUTATION_VERB_RE.test(clause.text)) return false;
+  if (/\breplace\b[\s\S]{0,120}\bwith\b/i.test(clause.text)) return true;
+  if (
+    /\b(?:add|insert|remove|delete)\b\s+[“"'][^”"']+[”"']/i.test(clause.text)
+  ) {
+    return true;
+  }
   return MUTATION_TARGET_RE.test(clause.text);
 }
 

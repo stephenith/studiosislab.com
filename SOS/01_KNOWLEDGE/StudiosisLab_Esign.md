@@ -295,6 +295,53 @@ The overlapping red-rectangle diagnosis remains unresolved. This release does no
 
 ---
 
+## Sender follow-up
+
+**State:** Deployed to the public site.  
+**Recorded:** 2026-10-13 18:44 IST (`2026-10-13T18:44:44+05:30`) / `2026-10-13T13:14:44.000Z`
+
+The prior production SHA `069a7be1ebb50e3fce5bf0a6b5c9ed1f74d9ab1e` was still current before this follow-up. Upload progress was left unchanged.
+
+Cause of the disappearing countersign box: the overlay effect rebuilt the target whenever page rendering, zoom, or the saved position changed. Rebuild removed the DOM node while a drag or resize still held that node. Pointer-up then read the detached node, which has no size, and stored a zero-size target. The lock control stayed because the placeholder record remained. This is separate from the unresolved overlapping red rectangles.
+
+The corrective change keeps the node mounted during the gesture, ignores a measurement that is not finite and positive, and restores the existing target identity and coordinates. It does not create a replacement at the default position, and it does not move a target that has already been sent.
+
+Sender behavior now allows one placed signature at a time. Insert is hidden for draw, upload, and mobile while any signature remains, including after reload and on documents that already have several saved signatures. Those older signatures are left in place. Lock and unlock do not bring Insert back. Delete does. The insert handler also refuses a second placement, so hiding the button is not the only guard. Recipient insertion is unchanged.
+
+Button changes: after the sender signature is locked, “Click to share for countersignature” is solid green with light text and stays visually disabled before that. “Add countersign box to continue” stays orange, with a plus icon and a trailing arrow. The unlocked target action is “Lock countersign position to continue”. Unlock stays “Unlock countersign position”. Eligible “Share for countersign” is light green with dark text; invalid and sending states stay disabled.
+
+| Item | Value |
+|------|--------|
+| Follow-up commit | `9f6e3569b3acee302281429dac484e4082b77a1f` |
+| Parent | `069a7be1ebb50e3fce5bf0a6b5c9ed1f74d9ab1e` |
+| Vercel project | `studiosislabcoms-projects/studiosislab-com` |
+| Deployment | Production. GitHub deployment `7039443991` state `success`. Created `2026-10-13T13:13:47Z`. Completion observed `2026-10-13T18:44:10+05:30` / `2026-10-13T13:14:10.000Z`. |
+| Deployment URL | `https://studiosislab-qfrw1byid-studiosislabcoms-projects.vercel.app` |
+| Inspector | `https://vercel.com/studiosislabcoms-projects/studiosislab-com/8n4p7nncsHbePzsyM93BPvWwkoH3` |
+| Public site | `https://www.studiosislab.com/tools` |
+
+Live `www.studiosislab.com` assets contain “Add countersign box to continue”, “Lock countersign position to continue”, and “Unlock countersign position”. No agreement was uploaded, signed, completed, or emailed.
+
+Checks, synthetic data only, loopback fixture, mocked Firebase, Storage, invitation validation, and email. Server PID `55270` was stopped after the run.
+
+| Check | Result |
+|-------|--------|
+| Repeated and rapid Insert | One signature |
+| Method switch and mobile fetch while a signature remains | No second signature |
+| Delete | Insert returns |
+| Lock and unlock | Insert stays hidden |
+| Restored and two-signature legacy documents | Existing signatures kept; Insert stays hidden |
+| Drag during a zoom rebuild, resize, scroll, zoom, lock, and unlock | Target stays visible, on page 1, with finite size and the same id |
+| Button colors | Locked share entry solid green; add control orange; eligible share light green with dark text; invalid share disabled |
+| PNG/JPEG, placement merge, export-failure, placement-rejection, viewer state, and preview-cache verifiers | PASS |
+| `tsc --noEmit` in the release worktree | PASS |
+
+Screenshots: `sender-countersign-entry.png`, `sender-countersign-add.png`, `sender-countersign-box.png`, `sender-countersign-emails.png`, `sender-narrow.png`.
+
+The overlapping red-rectangle diagnosis remains unresolved.
+
+---
+
 ## What this note does not authorize
 
 - Resume Template edits

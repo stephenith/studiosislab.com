@@ -342,6 +342,61 @@ The overlapping red-rectangle diagnosis remains unresolved.
 
 ---
 
+## Recipient experience
+
+**State:** Deployed to the public site.  
+**Recorded:** 2026-10-13 19:36 IST (`2026-10-13T19:36:24+05:30`) / `2026-10-13T14:06:24.000Z`
+
+Production was still `a759bfed76c3d78cef75e942858cc41d71408b52` before this change. The sender flow was left in place.
+
+Recipients now use the same three signing methods as the sender: Draw signature, Upload signature, and Sign using your mobile. Opening one closes the other. Drawn strokes, the selected file, and a mobile session stay when the method changes. Opening the mobile method does not create a session.
+
+A recipient mobile session is created only for an authenticated invitation that is still `sent` or `viewed`. The session stores the document owner in `ownerUid` and the recipient in `recipientUid`, with the invitation id. It does not make the recipient the document owner. Fetch is allowed for that recipient through the e-sign API. Completed, expired, and foreign invitations cannot create or use a session. The phone submit and validate routes re-check the invitation before accepting a drawing. Recipient signatures are not written by sender autosave. `firestore.rules` and shared authentication were not changed. Recipient browsers still cannot subscribe to the session directly, because those rules allow only the document owner to read it.
+
+After the recipient inserts one signature, Insert is hidden for all three methods. The insert handler ignores a second click, a method switch, and a mobile fetch. Sender signatures do not count as the recipient signature. Deleting the recipient’s own signature brings Insert back while the invitation can still be signed. The lock action is solid green, with a lock icon and a forward arrow. Unlock stays available before completion and does not move the countersign target or release the placement limit.
+
+On the recipient screen, sender signatures keep their image, page, position, and size, without selection handles or a red dashed border. The red dashed countersign target is the sender’s saved locked position and is visible before insertion. The recipient cannot drag, resize, unlock, or delete that target. Drawing, upload, JPEG, and mobile insertion place the signature inside the target on its page, preserving aspect ratio. The recipient can resize that image only while it remains inside the target. Locking freezes the adjustment. Saved normalized coordinates are what zoom and re-render use. If the stored target is missing or not locked, the page shows “This agreement has no countersign position. Completion is unavailable.” and completion stays disabled.
+
+Completion reads the allowed target from the stored document, not from the browser. A wrong page or a signature outside that target is rejected before export, storage, status, and email. A signature that fits inside the target is accepted.
+
+A completion attempt claims the invitation by setting its status to `completing`, with `completionClaimId`, `completionClaimUid`, and `completionClaimedAt`. Those three fields are the only new persisted state, and they are cleared when the attempt finishes or is released. A second attempt while the claim is under two minutes old does not export or email. If export fails, the claim is released and the invitation returns to its previous status, so it is not marked completed and can be tried again. If the process stops after the claim and before release, the same recipient can retry after two minutes. After a successful export, one transaction writes the completed invitation and document, then one pair of completion emails is sent. An invitation that is already completed returns the stored PDF and does not export, update completion again, or send email. Validation reports `completed` before the expiry check, so reopening a finished link stays read-only. An unfinished expired invitation is still rejected. The completed view and download use `/api/esign/download?documentId=…&final=1`.
+
+| Item | Value |
+|------|--------|
+| Product commit | `494594dfddab8f130225513e4c795b0cfc0f2af6` |
+| Parent | `a759bfed76c3d78cef75e942858cc41d71408b52` |
+| Vercel project | `studiosislabcoms-projects/studiosislab-com` |
+| Deployment | Production. GitHub deployment `7040647780` state `success`. Created `2026-10-13T14:04:55Z`. Public chunk check `2026-10-13T19:35:31+05:30` / `2026-10-13T14:05:31.000Z`. |
+| Deployment URL | `https://studiosislab-ob5t1hs3f-studiosislabcoms-projects.vercel.app` |
+| Inspector | `https://vercel.com/studiosislabcoms-projects/studiosislab-com/paakA5FTim7ShWeiHFDRPCSANXbM` |
+| Public site | `https://www.studiosislab.com/tools` |
+
+Live `www.studiosislab.com` chunk `/_next/static/chunks/ec424e44ca23f897.js` contains “Countersign complete.” and “Download completed agreement”. No agreement was uploaded, signed, completed, or emailed.
+
+Checks used synthetic documents and mocked Firebase, Storage, email, and invitation state. The browser fixture listened on `127.0.0.1` only. Server PID `58173` exited after a PASS run.
+
+| Check | Result |
+|-------|--------|
+| Three recipient accordions, retained strokes and selected file | PASS |
+| PNG, JPEG, drawing, and mobile fetch insertion | PASS in the browser. Mobile fetch used the fixture’s canned PNG. The phone drawing page was not opened. |
+| Repeated insert, method switch, and mobile fetch | One recipient signature |
+| Sender marks | No red border and no edit handles |
+| Fixed target | Visible before insertion and not moved by resize or unlock |
+| Resize | Stays inside the target. Zoom keeps the normalized position. |
+| Wrong-page completion | Rejected with no storage write, status write, or email |
+| Completion, refresh, and reopening | “Countersign complete.” Signing controls are gone. |
+| Repeated completion | One save and one email pair |
+| Overlapping completion | One export and one email pair. The other attempt is busy. |
+| Export failure | Invitation returns to an incomplete status |
+| Existing sender, PNG/JPEG, placement, and preview checks | PASS |
+| `tsc --noEmit` in the release worktree | PASS |
+
+Screenshots: `recipient-target.png`, `recipient-methods.png`, `recipient-lock.png`, `recipient-ready.png`, `recipient-failed.png`, `recipient-completing.png`, `recipient-completed.png`, `recipient-reopened.png`.
+
+The overlapping red-rectangle diagnosis remains unresolved. Recipient session reads go through the e-sign API because the existing Firestore rule still allows only the document owner to read a mobile session.
+
+---
+
 ## What this note does not authorize
 
 - Resume Template edits

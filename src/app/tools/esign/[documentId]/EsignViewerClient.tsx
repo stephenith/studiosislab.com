@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { Lock, LockOpen, Mail, Plus, Share2 } from "lucide-react";
+import { ArrowRight, Lock, LockOpen, Mail, Plus, Share2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc, onSnapshot, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -301,6 +301,8 @@ function EsignPdfViewerInner(
   const onSignatureUpdatedRef = useRef<((id: string, n: { xNorm: number; yNorm: number; wNorm?: number; hNorm?: number }) => void) | undefined>(undefined);
   const onCountersignPlaceholderChangeRef = useRef<((n: { page: number; xNorm: number; yNorm: number; wNorm: number; hNorm: number }) => void) | undefined>(undefined);
   const signaturesLockedRef = useRef<Set<string>>(new Set());
+  const countersignGestureRef = useRef(false);
+  const [countersignLayoutEpoch, setCountersignLayoutEpoch] = useState(0);
 
   activeSignatureRef.current = activeSignature;
   placingRef.current = placing;
@@ -324,11 +326,11 @@ function EsignPdfViewerInner(
   }, [lockedSignatureIds]);
 
   const placeAtCenter = useCallback((dataUrl: string, pageNumber: number) => {
-    if (!dataUrl) return;
+    if (!dataUrl) return false;
     const overlay = containerRef.current?.querySelector<HTMLDivElement>(
       `[data-esign-overlay][data-page-number="${pageNumber}"]`
     );
-    if (!overlay) return;
+    if (!overlay) return false;
     const w = overlay.clientWidth;
     const h = overlay.clientHeight;
     const defaultW = 160;
@@ -353,6 +355,7 @@ function EsignPdfViewerInner(
     
     onSignaturePlacedRef.current?.();
     onSignatureCreatedRef.current?.(sig);
+    return true;
   }, []);
 
   const placeAtNormalized = useCallback(
@@ -683,7 +686,10 @@ function EsignPdfViewerInner(
   }, [signatures.length, loading, scrollContainerRef, onVisiblePageChange]);
 
   // Sync countersign placeholder box (sender-only) into the overlay.
+  // A drag keeps this node mounted. Rebuilding it while the pointer is down
+  // detaches the node, and pointerup would then store a zero-size target.
   useEffect(() => {
+    if (countersignGestureRef.current) return;
     if (loading || !countersignPlaceholder || !onCountersignPlaceholderChange) return;
     const container = containerRef.current;
     if (!container) return;
@@ -691,34 +697,56 @@ function EsignPdfViewerInner(
     const overlay = Array.from(overlays).find((el) => el.getAttribute("data-page-number") === String(countersignPlaceholder.page));
     if (!overlay) return;
 
-    const existing = overlay.querySelector("[data-esign-countersign-box]");
-    existing?.remove();
+    container.querySelectorAll("[data-esign-countersign-box]").forEach((node) => node.remove());
 
     const w = overlay.clientWidth;
     const h = overlay.clientHeight;
+    const { xNorm, yNorm, wNorm, hNorm } = countersignPlaceholder;
+    const normsFinite = [xNorm, yNorm, wNorm, hNorm].every((value) => Number.isFinite(value));
+    if (!(w > 0) || !(h > 0) || !normsFinite || !(wNorm > 0) || !(hNorm > 0)) return;
+
     const box = document.createElement("div");
     box.setAttribute("data-esign-countersign-box", countersignPlaceholder.id);
     box.style.position = "absolute";
-    box.style.left = `${countersignPlaceholder.xNorm * w}px`;
-    box.style.top = `${countersignPlaceholder.yNorm * h}px`;
-    box.style.width = `${countersignPlaceholder.wNorm * w}px`;
-    box.style.height = `${countersignPlaceholder.hNorm * h}px`;
+    box.style.left = `${xNorm * w}px`;
+    box.style.top = `${yNorm * h}px`;
+    box.style.width = `${wNorm * w}px`;
+    box.style.height = `${hNorm * h}px`;
     box.style.border = "2px dashed #dc2626";
     box.style.backgroundColor = "rgba(254,226,226,0.3)";
     box.style.boxSizing = "border-box";
     box.style.pointerEvents = countersignPlaceholder.locked ? "none" : "auto";
     box.style.cursor = countersignPlaceholder.locked ? "default" : "move";
 
-    const commitPlaceholder = () => {
-      const nw = overlay.clientWidth;
-      const nh = overlay.clientHeight;
-      onCountersignPlaceholderChangeRef.current?.({
+    const readNorms = () => {
+      if (!box.isConnected) return null;
+      const overlayRect = overlay.getBoundingClientRect();
+      const boxRect = box.getBoundingClientRect();
+      if (!(overlayRect.width > 0) || !(overlayRect.height > 0)) return null;
+      if (!(boxRect.width > 0) || !(boxRect.height > 0)) return null;
+      const nextW = Math.min(boxRect.width / overlayRect.width, 1);
+      const nextH = Math.min(boxRect.height / overlayRect.height, 1);
+      const nextX = Math.max(0, Math.min((boxRect.left - overlayRect.left) / overlayRect.width, 1 - nextW));
+      const nextY = Math.max(0, Math.min((boxRect.top - overlayRect.top) / overlayRect.height, 1 - nextH));
+      if (![nextX, nextY, nextW, nextH].every((value) => Number.isFinite(value) && value >= 0)) return null;
+      if (!(nextW > 0) || !(nextH > 0)) return null;
+      return {
         page: countersignPlaceholder.page,
-        xNorm: box.offsetLeft / nw,
-        yNorm: box.offsetTop / nh,
-        wNorm: box.offsetWidth / nw,
-        hNorm: box.offsetHeight / nh,
-      });
+        xNorm: nextX,
+        yNorm: nextY,
+        wNorm: nextW,
+        hNorm: nextH,
+      };
+    };
+
+    const finishGesture = () => {
+      countersignGestureRef.current = false;
+      const norms = readNorms();
+      if (norms) {
+        onCountersignPlaceholderChangeRef.current?.(norms);
+      } else {
+        setCountersignLayoutEpoch((value) => value + 1);
+      }
     };
 
     if (!countersignPlaceholder.locked) {
@@ -726,22 +754,27 @@ function EsignPdfViewerInner(
         if ((e.target as HTMLElement).dataset.resize === "true") return;
         e.preventDefault();
         e.stopPropagation();
+        countersignGestureRef.current = true;
         const startX = e.clientX;
         const startY = e.clientY;
-        const origLeft = box.offsetLeft;
-        const origTop = box.offsetTop;
+        const overlayRect = overlay.getBoundingClientRect();
+        const boxRect = box.getBoundingClientRect();
+        const originLeft = boxRect.left - overlayRect.left;
+        const originTop = boxRect.top - overlayRect.top;
         const move = (ev: PointerEvent) => {
-          const dx = ev.clientX - startX;
-          const dy = ev.clientY - startY;
-          let nextLeft = Math.max(0, Math.min(origLeft + dx, overlay.clientWidth - box.offsetWidth));
-          let nextTop = Math.max(0, Math.min(origTop + dy, overlay.clientHeight - box.offsetHeight));
+          const width = box.getBoundingClientRect().width || boxRect.width;
+          const height = box.getBoundingClientRect().height || boxRect.height;
+          const maxLeft = Math.max(0, overlay.clientWidth - width);
+          const maxTop = Math.max(0, overlay.clientHeight - height);
+          const nextLeft = Math.max(0, Math.min(originLeft + ev.clientX - startX, maxLeft));
+          const nextTop = Math.max(0, Math.min(originTop + ev.clientY - startY, maxTop));
           box.style.left = `${nextLeft}px`;
           box.style.top = `${nextTop}px`;
         };
         const up = () => {
           window.removeEventListener("pointermove", move);
           window.removeEventListener("pointerup", up);
-          commitPlaceholder();
+          finishGesture();
         };
         window.addEventListener("pointermove", move);
         window.addEventListener("pointerup", up);
@@ -758,20 +791,25 @@ function EsignPdfViewerInner(
       handle.onpointerdown = (e) => {
         e.preventDefault();
         e.stopPropagation();
+        countersignGestureRef.current = true;
         const startX = e.clientX;
         const startY = e.clientY;
-        const origW = box.offsetWidth;
-        const origH = box.offsetHeight;
+        const origW = box.getBoundingClientRect().width;
+        const origH = box.getBoundingClientRect().height;
         const move = (ev: PointerEvent) => {
-          const dw = ev.clientX - startX;
-          const dh = ev.clientY - startY;
-          box.style.width = `${Math.max(40, origW + dw)}px`;
-          box.style.height = `${Math.max(24, origH + dh)}px`;
+          const overlayRect = overlay.getBoundingClientRect();
+          const boxRect = box.getBoundingClientRect();
+          const left = boxRect.left - overlayRect.left;
+          const top = boxRect.top - overlayRect.top;
+          const maxW = Math.max(40, overlay.clientWidth - left);
+          const maxH = Math.max(24, overlay.clientHeight - top);
+          box.style.width = `${Math.max(40, Math.min(origW + ev.clientX - startX, maxW))}px`;
+          box.style.height = `${Math.max(24, Math.min(origH + ev.clientY - startY, maxH))}px`;
         };
         const up = () => {
           window.removeEventListener("pointermove", move);
           window.removeEventListener("pointerup", up);
-          commitPlaceholder();
+          finishGesture();
         };
         window.addEventListener("pointermove", move);
         window.addEventListener("pointerup", up);
@@ -781,9 +819,10 @@ function EsignPdfViewerInner(
 
     overlay.appendChild(box);
     return () => {
+      if (countersignGestureRef.current) return;
       box.remove();
     };
-  }, [loading, countersignPlaceholder, renderedPageCount]);
+  }, [loading, countersignPlaceholder, renderedPageCount, countersignLayoutEpoch]);
 
   return (
     <div className="mx-auto w-full max-w-4xl">
@@ -825,7 +864,7 @@ export default function EsignViewerClient({
   const signatureInputRef = useRef<HTMLInputElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<{
-    placeSignatureAtCenter: (dataUrl: string, page: number) => void;
+    placeSignatureAtCenter: (dataUrl: string, page: number) => boolean;
     placeSignatureAtNormalized: (
       dataUrl: string,
       page: number,
@@ -853,6 +892,7 @@ export default function EsignViewerClient({
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [countersignSetupOpen, setCountersignSetupOpen] = useState(false);
   const [countersignLockHint, setCountersignLockHint] = useState(false);
+  const [countersignSending, setCountersignSending] = useState(false);
   const [senderEmail, setSenderEmail] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [counterMessage, setCounterMessage] = useState("");
@@ -891,6 +931,7 @@ export default function EsignViewerClient({
   const docDataRef = useRef<EsignDocument | null>(docData);
   const initialLoadDoneRef = useRef(false);
   const insertingRef = useRef(false);
+  const senderInsertBlockedRef = useRef(false);
   const clientSignatureInsertedRef = useRef(false);
   const completionTrackedRef = useRef(false);
   const pendingRecipientInsertRef = useRef(false);
@@ -898,6 +939,10 @@ export default function EsignViewerClient({
   signaturesRef.current = signatures;
   countersignPlaceholderRef.current = countersignPlaceholder;
   docDataRef.current = docData;
+
+  useEffect(() => {
+    senderInsertBlockedRef.current = signatures.length > 0;
+  }, [signatures.length]);
 
   const saveDocumentProgress = useCallback(() => {
     const docRef = doc(db, "esign_documents", documentId);
@@ -1670,25 +1715,30 @@ export default function EsignViewerClient({
   const recipientCanComplete = recipientActionEnabled(phase);
       const handleSenderInsert = (signatureOverride?: string) => {
         const sig = signatureOverride || activeSignature;
-        
         if (!sig) {
-        alert("Please draw or upload your signature first.");
-        return;
+          alert("Please draw or upload your signature first.");
+          return;
         }
-        
-        if (insertingRef.current) return;
-        
+        if (
+          senderInsertBlockedRef.current ||
+          signaturesRef.current.length > 0 ||
+          insertingRef.current
+        ) {
+          return;
+        }
+        senderInsertBlockedRef.current = true;
         insertingRef.current = true;
-        
-        viewerRef.current?.placeSignatureAtCenter(
-        sig,
-        visiblePageNumber || 1
+        const placed = viewerRef.current?.placeSignatureAtCenter(
+          sig,
+          visiblePageNumber || 1
         );
-        
+        if (!placed) {
+          senderInsertBlockedRef.current = signaturesRef.current.length > 0;
+        }
         setTimeout(() => {
-        insertingRef.current = false;
+          insertingRef.current = false;
         }, 200);
-        };
+      };
 
         const handleRecipientInsert = () => {
 
@@ -2054,6 +2104,7 @@ export default function EsignViewerClient({
               {!countersignSetupOpen && (
                 <button
                   type="button"
+                  aria-disabled={!hasLockedSignature}
                   onClick={() => {
                     if (!hasLockedSignature) {
                       setCountersignLockHint(true);
@@ -2062,7 +2113,11 @@ export default function EsignViewerClient({
                     setCountersignLockHint(false);
                     setCountersignSetupOpen(true);
                   }}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-900 bg-zinc-900 px-3 py-2.5 text-xs font-medium text-white shadow-sm hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+                  className={`flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                    hasLockedSignature
+                      ? "border-green-700 bg-green-600 text-white hover:bg-green-700 focus-visible:outline-green-700"
+                      : "cursor-not-allowed border-zinc-200 bg-zinc-200 text-zinc-500"
+                  }`}
                 >
                   <Share2 aria-hidden className="h-4 w-4" strokeWidth={2} />
                   Click to share for countersignature
@@ -2098,7 +2153,8 @@ export default function EsignViewerClient({
                       className="flex w-full items-center justify-center gap-2 rounded-lg border border-orange-600 bg-orange-500 px-3 py-2.5 text-xs font-medium text-white shadow-sm hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300"
                     >
                       <Plus aria-hidden className="h-4 w-4" strokeWidth={2} />
-                      Add countersign box
+                      <span>Add countersign box to continue</span>
+                      <ArrowRight aria-hidden className="h-4 w-4" strokeWidth={2} />
                     </button>
                   )}
 
@@ -2113,7 +2169,7 @@ export default function EsignViewerClient({
                       className="flex w-full items-center justify-center gap-2 rounded-lg border border-sky-700 bg-sky-600 px-3 py-2.5 text-xs font-medium text-white shadow-sm hover:bg-sky-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
                     >
                       <Lock aria-hidden className="h-4 w-4" strokeWidth={2} />
-                      Lock countersign position
+                      Lock countersign position to continue
                     </button>
                   )}
 
@@ -2191,8 +2247,10 @@ export default function EsignViewerClient({
 
                       <button
                         type="button"
-                        disabled={!canShareCountersign}
+                        disabled={!canShareCountersign || countersignSending}
                         onClick={async () => {
+                          if (!canShareCountersign || countersignSending) return;
+                          setCountersignSending(true);
                           try {
                             if (!user) {
                               alert("Please sign in first.");
@@ -2242,12 +2300,14 @@ export default function EsignViewerClient({
                             alert(
                               "Failed to create countersign request. Please try again."
                             );
+                          } finally {
+                            setCountersignSending(false);
                           }
                         }}
-                        className={`flex w-full items-center justify-center gap-2 rounded px-3 py-2 text-xs font-medium ${
-                          canShareCountersign
-                            ? "bg-black text-white"
-                            : "cursor-not-allowed bg-zinc-200 text-zinc-500"
+                        className={`flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium ${
+                          canShareCountersign && !countersignSending
+                            ? "border-emerald-300 bg-emerald-100 text-emerald-950 hover:bg-emerald-200"
+                            : "cursor-not-allowed border-zinc-200 bg-zinc-200 text-zinc-500"
                         }`}
                       >
                         <Mail aria-hidden className="h-4 w-4" strokeWidth={2} />

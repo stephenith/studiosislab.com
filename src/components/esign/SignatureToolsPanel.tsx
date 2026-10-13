@@ -50,6 +50,7 @@ function SignaturePad({
   showTitle = true,
   fitWidth = false,
   active = true,
+  showInsert = true,
 }: {
   mode: "sender" | "recipient";
   activeSignature: string | null;
@@ -58,6 +59,7 @@ function SignaturePad({
   showTitle?: boolean;
   fitWidth?: boolean;
   active?: boolean;
+  showInsert?: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [color, setColor] = useState<"black" | "blue">("black");
@@ -193,7 +195,7 @@ function SignaturePad({
   };
 
   const handleUseSignature = () => {
-    if (!canvasRef.current) return;
+    if (!showInsert || !canvasRef.current) return;
     const dataUrl = canvasRef.current.toDataURL("image/png");
     if (!dataUrl) return;
     onSignatureDrawn(dataUrl);
@@ -241,16 +243,17 @@ function SignaturePad({
                 : "border-zinc-300"
             } bg-black`}
           />
-          <button
-            type="button"
-            onClick={() => setColor("blue")}
-            className={`h-6 w-6 rounded-full border ${
-              color === "blue"
-                ? "border-blue-500 ring-2 ring-blue-200"
-                : "border-zinc-300"
-            } bg-blue-600`}
-          />
+        <button
+          type="button"
+          onClick={() => setColor("blue")}
+          className={`h-6 w-6 rounded-full border ${
+            color === "blue"
+              ? "border-blue-500 ring-2 ring-blue-200"
+              : "border-zinc-300"
+          } bg-blue-600`}
+        />
         </div>
+        {showInsert && (
         <button
           type="button"
           onClick={handleUseSignature}
@@ -263,6 +266,7 @@ function SignaturePad({
          >
         Insert
        </button>
+        )}
       </div>
     </div>
   );
@@ -322,6 +326,7 @@ function MobileSigningFields({
   onFetchMobileSignature,
   onGenerateMobileSigningLink,
   onInsertSignature,
+  showInsert = true,
 }: {
   activeSignature: string | null;
   expiryLabel: string | null;
@@ -336,6 +341,7 @@ function MobileSigningFields({
   onFetchMobileSignature?: () => Promise<void> | void;
   onGenerateMobileSigningLink?: () => Promise<void> | void;
   onInsertSignature: (dataUrl?: string) => void;
+  showInsert?: boolean;
 }) {
   return (
     <div className="space-y-3">
@@ -405,10 +411,13 @@ function MobileSigningFields({
       {mobileSignatureReady && activeSignature && (
         <div className="space-y-2 rounded border border-green-200 bg-green-50 px-2 py-2">
           <p className="text-xs font-medium text-green-800">Mobile signature received.</p>
-          <p className="text-xs text-green-700">Click below to insert it into this document.</p>
+          {showInsert && (
+            <p className="text-xs text-green-700">Click below to insert it into this document.</p>
+          )}
           {mobileSigningStatusMessage && (
             <p className="text-[11px] text-green-700">{mobileSigningStatusMessage}</p>
           )}
+          {showInsert && (
           <button
             type="button"
             onClick={() => onInsertSignature()}
@@ -416,6 +425,7 @@ function MobileSigningFields({
           >
             Insert mobile signature
           </button>
+          )}
         </div>
       )}
     </div>
@@ -527,6 +537,7 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
               showTitle={false}
               fitWidth
               active={openMethod === "draw"}
+              showInsert={!hasPlacedSignature}
             />
           </MethodAccordion>
           <MethodAccordion
@@ -558,6 +569,7 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
                   {fileName || "Select file"}
                 </button>
               </div>
+              {!hasPlacedSignature && (
               <button
                 type="button"
                 onClick={() => onInsertSignature()}
@@ -565,6 +577,7 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
               >
                 Insert
               </button>
+              )}
             </div>
           </MethodAccordion>
           <MethodAccordion
@@ -590,6 +603,7 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
               onFetchMobileSignature={onFetchMobileSignature}
               onGenerateMobileSigningLink={onGenerateMobileSigningLink}
               onInsertSignature={onInsertSignature}
+              showInsert={!hasPlacedSignature}
             />
           </MethodAccordion>
         </div>

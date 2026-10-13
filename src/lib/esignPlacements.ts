@@ -1,3 +1,62 @@
+export const ESIGN_TARGET_ERRORS = {
+  missing_countersign_target:
+    "This agreement has no countersign position. Completion is unavailable.",
+  recipient_outside_target:
+    "The recipient signature must stay inside the countersign box.",
+} as const;
+
+export type EsignTargetFailureReason = keyof typeof ESIGN_TARGET_ERRORS;
+
+export type NormRect = {
+  page: number;
+  xNorm: number;
+  yNorm: number;
+  wNorm: number;
+  hNorm: number;
+};
+
+const CONTAIN_EPS = 0.004;
+
+export function readLockedCountersignTarget(value: unknown): NormRect | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
+  const data = value as Record<string, unknown>;
+  if (data.locked !== true) return null;
+  const page = typeof data.page === "number" ? data.page : Number.NaN;
+  const xNorm = Number(data.xNorm);
+  const yNorm = Number(data.yNorm);
+  const wNorm = Number(data.wNorm);
+  const hNorm = Number(data.hNorm);
+  if (!Number.isInteger(page) || page < 1) return null;
+  if (![xNorm, yNorm, wNorm, hNorm].every((item) => Number.isFinite(item))) return null;
+  if (!(wNorm > 0) || !(hNorm > 0)) return null;
+  if (xNorm < -0.001 || yNorm < -0.001) return null;
+  if (xNorm + wNorm > 1.01 || yNorm + hNorm > 1.01) return null;
+  return { page, xNorm, yNorm, wNorm, hNorm };
+}
+
+export function recipientPlacementInsideTarget(
+  target: NormRect,
+  placement: unknown
+): boolean {
+  if (typeof placement !== "object" || placement === null || Array.isArray(placement)) {
+    return false;
+  }
+  const data = placement as Record<string, unknown>;
+  const page = Number(data.page);
+  const xNorm = Number(data.xNorm);
+  const yNorm = Number(data.yNorm);
+  const wNorm = Number(data.wNorm);
+  const hNorm = Number(data.hNorm);
+  if (page !== target.page) return false;
+  if (![xNorm, yNorm, wNorm, hNorm].every((item) => Number.isFinite(item))) return false;
+  if (!(wNorm > 0) || !(hNorm > 0)) return false;
+  if (xNorm < target.xNorm - CONTAIN_EPS) return false;
+  if (yNorm < target.yNorm - CONTAIN_EPS) return false;
+  if (xNorm + wNorm > target.xNorm + target.wNorm + CONTAIN_EPS) return false;
+  if (yNorm + hNorm > target.yNorm + target.hNorm + CONTAIN_EPS) return false;
+  return true;
+}
+
 export const ESIGN_PLACEMENT_ERRORS = {
   missing_recipient_signature:
     "Recipient signature is missing. Refresh the page and try again.",

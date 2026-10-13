@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
+import { recipientSessionInviteDecision } from "@/lib/esignRecipientSession";
 
 export const runtime = "nodejs";
 
@@ -136,6 +137,25 @@ export async function POST(req: NextRequest) {
           headers: { "Content-Type": "application/json" },
         }
       );
+    }
+
+    const inviteId = typeof data.inviteId === "string" ? data.inviteId : "";
+    if (inviteId) {
+      const documentId = typeof data.documentId === "string" ? data.documentId : "";
+      const inviteSnap = documentId
+        ? await adminDb.collection("esign_documents").doc(documentId).collection("invites").doc(inviteId).get()
+        : null;
+      const actorUid = typeof data.recipientUid === "string" ? data.recipientUid : "";
+      const decision = recipientSessionInviteDecision(
+        inviteSnap && inviteSnap.exists ? inviteSnap.data() : null,
+        actorUid
+      );
+      if (!decision.ok) {
+        return new Response(JSON.stringify({ ok: false, error: decision.error }), {
+          status: decision.status,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
     }
 
     await sessionRef.update({

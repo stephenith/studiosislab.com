@@ -257,12 +257,7 @@ function SignaturePad({
         <button
           type="button"
           onClick={handleUseSignature}
-          disabled={mode === "recipient" && activeSignature !== null}
-          className={`ml-auto rounded-lg px-3 py-1.5 text-xs font-medium
-          ${mode === "recipient" && activeSignature !== null
-            ? "bg-zinc-300 text-zinc-500 cursor-not-allowed"
-            : "bg-black text-white"}
-          `}
+          className="ml-auto rounded-lg bg-black px-3 py-1.5 text-xs font-medium text-white"
          >
         Insert
        </button>
@@ -518,8 +513,7 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
         </div>
       )}
 
-      {mode === "sender" ? (
-        <div className="space-y-3">
+      <div className="space-y-3">
           <MethodAccordion
             id="draw"
             title="Draw signature"
@@ -606,51 +600,9 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
               showInsert={!hasPlacedSignature}
             />
           </MethodAccordion>
-        </div>
-      ) : (
-        <>
-      <SignaturePad
-        mode={mode}
-        activeSignature={activeSignature}
-        onSignatureDrawn={onSignatureDrawn}
-        onInsertSignature={onInsertSignature}
-      />
-
-      <div className="space-y-3">
-        <div className="text-xs font-semibold uppercase text-zinc-500">
-          Upload Signature
-        </div>
-        <div className="rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 flex items-center justify-between gap-2">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="flex-1 min-w-0 text-left text-xs text-zinc-600 truncate"
-          >
-            {fileName || "Select file"}
-          </button>
-          {fileName && (
-            <button
-              type="button"
-              className="shrink-0 text-zinc-500 hover:text-red-600 text-sm leading-none"
-              aria-label="Clear"
-            >
-              ×
-            </button>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={() => onInsertSignature()}
-          className="w-full rounded-lg bg-black px-3 py-1.5 text-xs font-medium text-white"
-        >
-          Insert
-        </button>
       </div>
-        </>
-      )}
 
-      {((mode === "sender" && hasPlacedSignature) ||
-        (mode === "recipient" && activeSignature)) && (
+      {hasPlacedSignature && (
         <div className="space-y-2 border-t border-zinc-200 pt-4">
           <div className="text-xs font-semibold uppercase text-zinc-500">
             Selected Signature
@@ -675,14 +627,14 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
               disabled={lockButton.disabled}
               className={lockButtonClassName(lockButton.tone, mode)}
             >
-              {mode === "sender" && lockButton.tone === "lock" && (
+              {lockButton.tone === "lock" && (
                 <Lock aria-hidden className="h-4 w-4" strokeWidth={2} />
               )}
-              {mode === "sender" && lockButton.tone === "unlock" && (
+              {lockButton.tone === "unlock" && (
                 <LockOpen aria-hidden className="h-4 w-4" strokeWidth={2} />
               )}
               <span>{lockButton.label}</span>
-              {mode === "sender" && lockButton.tone === "lock" && (
+              {lockButton.tone === "lock" && (
                 <ArrowRight aria-hidden className="h-4 w-4" strokeWidth={2} />
               )}
             </button>

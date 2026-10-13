@@ -72,6 +72,30 @@ export async function GET(req: NextRequest) {
     const inviteDoc = inviteSnap.docs[0];
     const inviteData = inviteDoc.data() as any;
 
+    if (inviteData.status === "completed") {
+      const parent = (await docRef.get()).data() as { finalPdfUrl?: string | null } | undefined;
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          completed: true,
+          finalPdfUrl: parent?.finalPdfUrl ?? inviteData.signedPdfUrl ?? null,
+          invite: {
+            id: inviteDoc.id,
+            token,
+            status: "completed",
+            senderEmail: inviteData.senderEmail,
+            clientEmail: inviteData.clientEmail,
+            message: inviteData.message,
+            recipientEmail: inviteData.recipientEmail,
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
     const now = new Date();
     const expiresAt = inviteData.expiresAt
       ? new Date(inviteData.expiresAt.toDate?.() ?? inviteData.expiresAt)

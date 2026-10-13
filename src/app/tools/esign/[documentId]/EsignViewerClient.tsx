@@ -23,6 +23,10 @@ import {
   recipientPhase,
 } from "@/lib/esignViewerState";
 import { loadEsignOriginalPreview } from "@/lib/esignOriginalPreview";
+import {
+  ESIGN_TARGET_ERRORS,
+  readLockedCountersignTarget,
+} from "@/lib/esignPlacements";
 import { trackEvent } from "@/lib/analytics";
 import SignatureToolsPanel from "@/components/esign/SignatureToolsPanel";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
@@ -238,7 +242,7 @@ function SignaturePad({
 type ZoomMode = "fit" | "custom";
 
 type EsignPdfViewerRef = {
-  placeSignatureAtCenter: (dataUrl: string, pageNumber: number) => void;
+  placeSignatureAtCenter: (dataUrl: string, pageNumber: number) => boolean;
   placeSignatureAtNormalized: (
     dataUrl: string,
     pageNumber: number,
@@ -248,6 +252,10 @@ type EsignPdfViewerRef = {
     hNorm: number,
     locked: boolean
   ) => void;
+  placeFittedInTarget: (
+    dataUrl: string,
+    target: { page: number; xNorm: number; yNorm: number; wNorm: number; hNorm: number }
+  ) => Promise<boolean>;
 };
 
 function EsignPdfViewerInner(
@@ -267,6 +275,11 @@ function EsignPdfViewerInner(
     onVisiblePageChange,
     countersignPlaceholder,
     onCountersignPlaceholderChange,
+    recipientView = false,
+    recipientSignatureId = null,
+    showStaticTarget = false,
+    useFinalPdf = false,
+    onSignaturesPainted,
   }: {
     documentId: string;
     activeSignature: string | null;
@@ -283,6 +296,11 @@ function EsignPdfViewerInner(
     onVisiblePageChange?: (page: number) => void;
     countersignPlaceholder?: CountersignPlaceholderModel | null;
     onCountersignPlaceholderChange?: (norms: { page: number; xNorm: number; yNorm: number; wNorm: number; hNorm: number }) => void;
+    recipientView?: boolean;
+    recipientSignatureId?: string | null;
+    showStaticTarget?: boolean;
+    useFinalPdf?: boolean;
+    onSignaturesPainted?: () => void;
   },
   ref: React.Ref<EsignPdfViewerRef>
 ) {
@@ -292,6 +310,9 @@ function EsignPdfViewerInner(
   const [error, setError] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const pageWrapperRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const recipientTargetScrolledRef = useRef(false);
+  const onSignaturesPaintedRef = useRef(onSignaturesPainted);
+  onSignaturesPaintedRef.current = onSignaturesPainted;
 
   const activeSignatureRef = useRef<string | null>(activeSignature);
   const placingRef = useRef<boolean>(placing);
@@ -441,13 +462,82 @@ function EsignPdfViewerInner(
     []
   );
 
+  const placeFittedInTarget = useCallback(
+    (
+      dataUrl: string,
+      target: { page: number; xNorm: number; yNorm: number; wNorm: number; hNorm: number }
+    ) => {
+      return new Promise<boolean>((resolve) => {
+        if (!dataUrl) {
+          resolve(false);
+          return;
+        }
+        const image = document.createElement("img");
+        image.onload = () => {
+          const overlay = containerRef.current?.querySelector<HTMLDivElement>(
+            `[data-esign-overlay][data-page-number="${target.page}"]`
+          );
+          const overlayWidth = overlay?.clientWidth ?? 0;
+          const overlayHeight = overlay?.clientHeight ?? 0;
+          const boxWidth = target.wNorm * overlayWidth;
+          const boxHeight = target.hNorm * overlayHeight;
+          if (
+            !overlay ||
+            !(overlayWidth > 0) ||
+            !(overlayHeight > 0) ||
+            !(image.naturalWidth > 0) ||
+            !(image.naturalHeight > 0) ||
+            !(boxWidth > 1) ||
+            !(boxHeight > 1)
+          ) {
+            resolve(false);
+            return;
+          }
+          const imageAspect = image.naturalWidth / image.naturalHeight;
+          const boxAspect = boxWidth / boxHeight;
+          let drawWidth = boxWidth;
+          let drawHeight = boxHeight;
+          if (imageAspect > boxAspect) {
+            drawWidth = boxWidth;
+            drawHeight = boxWidth / imageAspect;
+          } else {
+            drawHeight = boxHeight;
+            drawWidth = boxHeight * imageAspect;
+          }
+          const left = target.xNorm * overlayWidth + (boxWidth - drawWidth) / 2;
+          const top = target.yNorm * overlayHeight + (boxHeight - drawHeight) / 2;
+          const id =
+            typeof crypto !== "undefined" && "randomUUID" in crypto
+              ? crypto.randomUUID()
+              : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+          onSignatureCreatedRef.current?.({
+            id,
+            page: target.page,
+            xNorm: left / overlayWidth,
+            yNorm: top / overlayHeight,
+            wNorm: drawWidth / overlayWidth,
+            hNorm: drawHeight / overlayHeight,
+            imageDataUrl: dataUrl,
+            locked: false,
+          });
+          overlay.scrollIntoView({ block: "center", inline: "nearest" });
+          resolve(true);
+        };
+        image.onerror = () => resolve(false);
+        image.src = dataUrl;
+      });
+    },
+    []
+  );
+
   useImperativeHandle(
     ref,
     () => ({
       placeSignatureAtCenter: placeAtCenter,
       placeSignatureAtNormalized: placeAtNormalized,
+      placeFittedInTarget,
     }),
-    [placeAtCenter, placeAtNormalized]
+    [placeAtCenter, placeAtNormalized, placeFittedInTarget]
   );
 
   // Track container width for "fit" zoom mode.
@@ -478,8 +568,16 @@ function EsignPdfViewerInner(
 
         const url = `/api/esign/download?documentId=${encodeURIComponent(
           documentId
-        )}`;
-        const sharedBytes = await loadEsignOriginalPreview(documentId, async () => {
+        )}${useFinalPdf ? "&final=1" : ""}`;
+        const sharedBytes = useFinalPdf
+          ? await (async () => {
+              const response = await fetch(url);
+              if (!response.ok) {
+                throw new Error("Failed to render document");
+              }
+              return new Uint8Array(await response.arrayBuffer());
+            })()
+          : await loadEsignOriginalPreview(documentId, async () => {
           const response = await fetch(url);
           if (!response.ok) {
             throw new Error("Failed to render document");
@@ -588,7 +686,7 @@ function EsignPdfViewerInner(
       cancelled = true;
     };
     // PDF pages only rerender when document/zoom/source change. Signatures are rendered in a separate effect.
-  }, [documentId, zoomMode, zoomScale, containerWidth]);
+  }, [documentId, zoomMode, zoomScale, containerWidth, useFinalPdf]);
 
   // Sync signatures from state into overlay layers. Does NOT rebuild PDF canvases.
   useEffect(() => {
@@ -613,6 +711,25 @@ function EsignPdfViewerInner(
         img.style.height = `${model.hNorm * h}px`;
         img.style.left = `${model.xNorm * w}px`;
         img.style.top = `${model.yNorm * h}px`;
+        const ownRecipient = recipientView && model.id === recipientSignatureId;
+        const foreignRecipient = recipientView && !ownRecipient;
+        if (foreignRecipient) {
+          img.dataset.esignSenderMark = "1";
+          img.style.cursor = "default";
+          img.style.pointerEvents = "none";
+          img.style.border = "none";
+        } else if (ownRecipient) {
+          img.dataset.esignRecipientMark = "1";
+          img.style.cursor = "default";
+          img.style.pointerEvents = model.locked ? "none" : "auto";
+          img.style.border = "none";
+          if (!model.locked) {
+            img.addEventListener("click", (e) => {
+              e.stopPropagation();
+              onSignatureSelectedRef.current?.(model.id);
+            });
+          }
+        } else {
         img.style.cursor = model.locked ? "default" : "move";
         img.style.pointerEvents = "auto";
         img.style.border = model.locked ? "2px dashed red" : "none";
@@ -649,10 +766,12 @@ function EsignPdfViewerInner(
             window.addEventListener("pointerup", up);
           };
         }
+        }
         overlay.appendChild(img);
       });
     });
-  }, [signatures, loading, renderedPageCount]);
+    onSignaturesPaintedRef.current?.();
+  }, [signatures, loading, renderedPageCount, recipientView, recipientSignatureId]);
 
   // Track visible page for "Use this" / "Place Signature" instant placement.
   useEffect(() => {
@@ -690,7 +809,9 @@ function EsignPdfViewerInner(
   // detaches the node, and pointerup would then store a zero-size target.
   useEffect(() => {
     if (countersignGestureRef.current) return;
-    if (loading || !countersignPlaceholder || !onCountersignPlaceholderChange) return;
+    if (loading || !countersignPlaceholder) return;
+    const interactive = Boolean(onCountersignPlaceholderChange);
+    if (!interactive && !showStaticTarget) return;
     const container = containerRef.current;
     if (!container) return;
     const overlays = container.querySelectorAll<HTMLDivElement>("[data-esign-overlay]");
@@ -717,6 +838,18 @@ function EsignPdfViewerInner(
     box.style.boxSizing = "border-box";
     box.style.pointerEvents = countersignPlaceholder.locked ? "none" : "auto";
     box.style.cursor = countersignPlaceholder.locked ? "default" : "move";
+    if (!interactive) {
+      box.style.pointerEvents = "none";
+      box.style.cursor = "default";
+      overlay.appendChild(box);
+      if (!recipientTargetScrolledRef.current) {
+        recipientTargetScrolledRef.current = true;
+        box.scrollIntoView({ block: "center", inline: "nearest" });
+      }
+      return () => {
+        box.remove();
+      };
+    }
 
     const readNorms = () => {
       if (!box.isConnected) return null;
@@ -822,7 +955,7 @@ function EsignPdfViewerInner(
       if (countersignGestureRef.current) return;
       box.remove();
     };
-  }, [loading, countersignPlaceholder, renderedPageCount, countersignLayoutEpoch]);
+  }, [loading, countersignPlaceholder, renderedPageCount, countersignLayoutEpoch, showStaticTarget, onCountersignPlaceholderChange]);
 
   return (
     <div className="mx-auto w-full max-w-4xl">
@@ -874,6 +1007,10 @@ export default function EsignViewerClient({
       hNorm: number,
       locked: boolean
     ) => void;
+    placeFittedInTarget: (
+      dataUrl: string,
+      target: { page: number; xNorm: number; yNorm: number; wNorm: number; hNorm: number }
+    ) => Promise<boolean>;
   } | null>(null);
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -884,6 +1021,7 @@ export default function EsignViewerClient({
   const [recipientCompleting, setRecipientCompleting] = useState(false);
   const [clientSignatureInserted, setClientSignatureInserted] = useState(false);
   const [clientSignatureId, setClientSignatureId] = useState<string | null>(null);
+  const [signaturePaintEpoch, setSignaturePaintEpoch] = useState(0);
   const [showCompletionPopup, setShowCompletionPopup] = useState(false);
   const [visiblePageNumber, setVisiblePageNumber] = useState(1);
   const [zoomMode, setZoomMode] = useState<ZoomMode>("fit");
@@ -932,6 +1070,8 @@ export default function EsignViewerClient({
   const initialLoadDoneRef = useRef(false);
   const insertingRef = useRef(false);
   const senderInsertBlockedRef = useRef(false);
+  const recipientInsertBlockedRef = useRef(false);
+  const recipientInsertInFlightRef = useRef(false);
   const clientSignatureInsertedRef = useRef(false);
   const completionTrackedRef = useRef(false);
   const pendingRecipientInsertRef = useRef(false);
@@ -999,7 +1139,21 @@ export default function EsignViewerClient({
         el.style.height = `${sig.hNorm * overlay.clientHeight}px`;
       }
       const locked = sig.locked ?? false;
-      el.style.pointerEvents = locked ? "none" : "auto";
+      const ownRecipient = !isRecipientMode || sig.id === clientSignatureId;
+      if (isRecipientMode && !ownRecipient) {
+        el.style.pointerEvents = "none";
+        el.style.cursor = "default";
+        el.style.border = "none";
+        return;
+      }
+      if (isRecipientMode) {
+        el.style.pointerEvents = locked ? "none" : "auto";
+        el.style.cursor = "default";
+        el.style.border =
+          !locked && sig.id === selectedSignatureId ? "2px solid #3b82f6" : "none";
+        return;
+      }
+      el.style.pointerEvents = "auto";
       el.style.cursor = locked ? "default" : "move";
       if (locked) {
         el.style.border = "2px dashed red";
@@ -1011,7 +1165,8 @@ export default function EsignViewerClient({
     // Remove any existing resize handles from previous selection.
     document.querySelectorAll("[data-esign-resize-handle]").forEach((h) => h.remove());
     const selected = signatures.find((s) => s.id === selectedSignatureId);
-    if (selected && !(selected.locked ?? false)) {
+    const recipientOwnsSelection = !isRecipientMode || selected?.id === clientSignatureId;
+    if (selected && !(selected.locked ?? false) && recipientOwnsSelection) {
       const el = document.querySelector<HTMLImageElement>(
         `[data-esign-sig-id="${selectedSignatureId}"]`
       );
@@ -1040,8 +1195,32 @@ export default function EsignViewerClient({
           const move = (ev: PointerEvent) => {
             const dw = ev.clientX - startX;
             const dh = ev.clientY - startY;
-            el.style.width = `${Math.max(32, origW + dw)}px`;
-            el.style.height = `${Math.max(24, origH + dh)}px`;
+            if (isRecipientMode && countersignPlaceholder) {
+              const overlayWidth = overlay.clientWidth;
+              const overlayHeight = overlay.clientHeight;
+              const targetLeft = countersignPlaceholder.xNorm * overlayWidth;
+              const targetTop = countersignPlaceholder.yNorm * overlayHeight;
+              const targetRight = targetLeft + countersignPlaceholder.wNorm * overlayWidth;
+              const targetBottom = targetTop + countersignPlaceholder.hNorm * overlayHeight;
+              const aspect = origW / Math.max(origH, 1);
+              let nextWidth = Math.max(24, origW + dw);
+              let nextHeight = nextWidth / aspect;
+              const maxWidth = Math.max(24, targetRight - el.offsetLeft - 1);
+              const maxHeight = Math.max(24, targetBottom - el.offsetTop - 1);
+              if (nextWidth > maxWidth) {
+                nextWidth = maxWidth;
+                nextHeight = nextWidth / aspect;
+              }
+              if (nextHeight > maxHeight) {
+                nextHeight = maxHeight;
+                nextWidth = nextHeight * aspect;
+              }
+              el.style.width = `${nextWidth}px`;
+              el.style.height = `${nextHeight}px`;
+            } else {
+              el.style.width = `${Math.max(32, origW + dw)}px`;
+              el.style.height = `${Math.max(24, origH + dh)}px`;
+            }
             updatePos();
           };
           const up = () => {
@@ -1067,7 +1246,7 @@ export default function EsignViewerClient({
         overlay.appendChild(handle);
       }
     }
-  }, [signatures, selectedSignatureId]);
+  }, [signatures, selectedSignatureId, isRecipientMode, clientSignatureId, countersignPlaceholder, signaturePaintEpoch]);
 
   useEffect(() => {
     if (loading) return;
@@ -1095,7 +1274,24 @@ export default function EsignViewerClient({
             headers: { Authorization: `Bearer ${idToken}` },
           }
         );
+        const json = await res.json().catch(() => null);
         if (!alive) return;
+        if (json?.completed || json?.invite?.status === "completed") {
+          setInviteValid(true);
+          setRecipientComplete(true);
+          setDocData((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: "completed",
+                  countersignStatus: "completed",
+                  finalPdfUrl:
+                    typeof json.finalPdfUrl === "string" ? json.finalPdfUrl : prev.finalPdfUrl,
+                }
+              : prev
+          );
+          return;
+        }
         setInviteValid(res.ok);
       } catch {
         if (!alive) return;
@@ -1324,7 +1520,10 @@ export default function EsignViewerClient({
           "Content-Type": "application/json",
           Authorization: `Bearer ${idToken}`,
         },
-        body: JSON.stringify({ documentId }),
+        body: JSON.stringify({
+          documentId,
+          ...(isRecipientMode && token ? { inviteToken: token } : {}),
+        }),
       });
 
       const json = await res.json().catch(() => null);
@@ -1482,53 +1681,61 @@ export default function EsignViewerClient({
     handleUploadSignature(file);
   };
 
-  const insertClientSignature = (signatureData?: string) => {
-    if (clientSignatureInsertedRef.current) return;
-
+  const insertClientSignature = async (signatureData?: string) => {
+    if (
+      recipientInsertBlockedRef.current ||
+      recipientInsertInFlightRef.current ||
+      clientSignatureId
+    ) {
+      return;
+    }
+    const target = readLockedCountersignTarget(countersignPlaceholder);
+    if (!target) {
+      alert("This agreement has no countersign position. Completion is unavailable.");
+      return;
+    }
     const sig = signatureData || activeSignature;
-
     if (!sig) {
       alert("Please draw or upload your signature first");
       return;
     }
-
-    if (!countersignPlaceholder) {
-      console.error("Countersign placeholder missing");
-      return;
-    }
-
-    const page = Number(countersignPlaceholder.page) || 1;
-
-    clientSignatureInsertedRef.current = true;
+    recipientInsertBlockedRef.current = true;
+    recipientInsertInFlightRef.current = true;
     pendingRecipientInsertRef.current = true;
-    viewerRef.current?.placeSignatureAtNormalized(
-      sig,
-      page,
-      countersignPlaceholder.xNorm,
-      countersignPlaceholder.yNorm,
-      countersignPlaceholder.wNorm,
-      countersignPlaceholder.hNorm,
-      false
-    );
-    setClientSignatureInserted(true);
+    try {
+      const placed = await viewerRef.current?.placeFittedInTarget(sig, target);
+      if (!placed) {
+        recipientInsertBlockedRef.current = false;
+        pendingRecipientInsertRef.current = false;
+        alert("The signature could not be placed inside the countersign box.");
+        return;
+      }
+      clientSignatureInsertedRef.current = true;
+      setClientSignatureInserted(true);
+    } finally {
+      recipientInsertInFlightRef.current = false;
+    }
   };
 
   const handleDeleteSignature = () => {
     if (!selectedSignatureId) return;
+    if (isRecipientMode && selectedSignatureId !== clientSignatureId) return;
     setSignatures((prev) => prev.filter((s) => s.id !== selectedSignatureId));
     document
       .querySelector(`[data-esign-sig-id="${selectedSignatureId}"]`)
       ?.remove();
     setSelectedSignatureId(null);
     if (isRecipientMode) {
+      recipientInsertBlockedRef.current = false;
       clientSignatureInsertedRef.current = false;
       setClientSignatureInserted(false);
-      setActiveSignature(null);
+      setClientSignatureId(null);
     }
   };
 
   const handleLockSignature = () => {
     if (!selectedSignatureId) return;
+    if (isRecipientMode && selectedSignatureId !== clientSignatureId) return;
     setSignatures((prev) =>
       prev.map((s) =>
         s.id === selectedSignatureId
@@ -1577,8 +1784,26 @@ export default function EsignViewerClient({
         body: JSON.stringify({ documentId, token, placements }),
       });
       const json = await res.json().catch(() => null);
+      if (res.status === 409) {
+        alert(json?.error ?? "Completion is already in progress.");
+        return;
+      }
       if (!res.ok || !json?.ok) {
         alert(json?.error ?? "Failed to complete signing.");
+        return;
+      }
+      if (json.alreadyCompleted) {
+        setRecipientComplete(true);
+        setDocData((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: "completed",
+                countersignStatus: "completed",
+                finalPdfUrl: json.signedPdfUrl ?? prev.finalPdfUrl,
+              }
+            : prev
+        );
         return;
       }
       if (!completionTrackedRef.current) {
@@ -1740,25 +1965,12 @@ export default function EsignViewerClient({
         }, 200);
       };
 
-        const handleRecipientInsert = () => {
-
-          if (clientSignatureInserted) return;
-        
-          if (!activeSignature) {
-            alert("Please draw or upload your signature first.");
-            return;
-          }
-        
-          if (insertingRef.current) return;
-        
-          insertingRef.current = true;
-        
-          insertClientSignature();
-        
-          setTimeout(() => {
-            insertingRef.current = false;
-          }, 200);
-        };
+  const recipientTarget = isRecipientMode
+    ? readLockedCountersignTarget(countersignPlaceholder)
+    : null;
+  const recipientFinished = isRecipientMode && phase === "completed";
+  const recipientTargetMissing =
+    isRecipientMode && !loadingDoc && !recipientFinished && !recipientTarget;
 
   return (
     <main className="min-h-screen bg-slate-50 text-zinc-900">
@@ -1829,10 +2041,13 @@ export default function EsignViewerClient({
         </header>
 
         <div className="flex flex-1 min-h-0 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
+        {!recipientFinished && (
         <SignatureToolsPanel
           mode={isRecipientMode ? "recipient" : "sender"}
           activeSignature={activeSignature}
-          hasPlacedSignature={signatures.length > 0}
+          hasPlacedSignature={
+            isRecipientMode ? Boolean(clientSignatureId) : signatures.length > 0
+          }
           hasSelectedSignature={!!selectedSignatureId}
           signatureLocked={signatureLocked}
           onSignatureDrawn={setActiveSignature}
@@ -1855,7 +2070,11 @@ export default function EsignViewerClient({
           onUploadSignature={handleUploadSignature}
           onDeleteSignature={handleDeleteSignature}
           onLockSignature={handleLockSignature}
-          onGenerateMobileSigningLink={handleGenerateMobileSigningLink}
+          onGenerateMobileSigningLink={
+            isRecipientMode && (!inviteValid || inviteValidating)
+              ? undefined
+              : handleGenerateMobileSigningLink
+          }
           mobileSigningUrl={mobileSigningUrl}
           mobileSigningQrDataUrl={mobileSigningQrDataUrl}
           mobileSigningExpiresAt={mobileSigningExpiresAt}
@@ -1867,6 +2086,7 @@ export default function EsignViewerClient({
           mobileSignatureFetchError={mobileSignatureFetchError}
           mobileSignatureReady={mobileSignatureReady}
          />
+        )}
 
           <section className="relative order-2 flex min-h-[45vh] flex-1 flex-col lg:order-none lg:min-h-0">
             <div className="absolute left-1/2 top-2 z-10 flex max-w-[calc(100%-1rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-1.5 rounded-lg bg-white px-2 py-1.5 shadow-sm text-xs">
@@ -1970,7 +2190,7 @@ export default function EsignViewerClient({
                 lockedSignatureIds={signatures
                   .filter((s) => s.locked)
                   .map((s) => s.id)}
-                signatures={signatures}
+                signatures={recipientFinished ? [] : signatures}
                 scrollContainerRef={scrollContainerRef}
                 onVisiblePageChange={setVisiblePageNumber}
                 countersignPlaceholder={
@@ -1993,6 +2213,11 @@ export default function EsignViewerClient({
                         );
                       }
                 }
+                recipientView={isRecipientMode && !recipientFinished}
+                recipientSignatureId={clientSignatureId}
+                showStaticTarget={Boolean(recipientTarget) && !recipientFinished}
+                useFinalPdf={recipientFinished}
+                onSignaturesPainted={() => setSignaturePaintEpoch((value) => value + 1)}
               />
             </div>
           </section>
@@ -2002,21 +2227,34 @@ export default function EsignViewerClient({
           <div className="border-b px-4 py-3">
             <div className="font-semibold text-sm">Agreement Progress</div>
             <p className="mt-1 text-xs text-zinc-600">✓ Sender has signed</p>
-            <p className="mt-1 text-xs text-zinc-600">{recipientHelperText(phase)}</p>
+            <p className="mt-1 text-xs text-zinc-600">
+              {recipientTargetMissing
+                ? ESIGN_TARGET_ERRORS.missing_countersign_target
+                : recipientHelperText(phase)}
+            </p>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+            {recipientFinished ? (
+              <a
+                href={`/api/esign/download?documentId=${encodeURIComponent(documentId)}&final=1`}
+                className="inline-flex w-full items-center justify-center rounded-lg bg-orange-500 px-3 py-2 text-xs font-medium text-white hover:bg-orange-600"
+              >
+                Download completed agreement
+              </a>
+            ) : (
             <button
               type="button"
               onClick={handleRecipientComplete}
-              disabled={!recipientCanComplete}
+              disabled={!recipientCanComplete || recipientTargetMissing}
               className={`w-full rounded-lg px-3 py-2 text-xs font-medium ${
-                recipientCanComplete
+                recipientCanComplete && !recipientTargetMissing
                   ? "bg-green-600 text-white"
                   : "bg-zinc-200 text-zinc-500 cursor-not-allowed"
               }`}
             >
               {recipientActionLabel(phase)}
             </button>
+            )}
           </div>
         </aside>
         ) : (

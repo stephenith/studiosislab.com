@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
+import { recipientSessionInviteDecision } from "@/lib/esignRecipientSession";
 
 export const runtime = "nodejs";
 
@@ -76,6 +77,25 @@ export async function GET(req: NextRequest) {
           headers: { "Content-Type": "application/json" },
         }
       );
+    }
+
+    const inviteId = typeof data.inviteId === "string" ? data.inviteId : "";
+    if (inviteId) {
+      const boundDocumentId = typeof data.documentId === "string" ? data.documentId : "";
+      const inviteSnap = boundDocumentId
+        ? await adminDb.collection("esign_documents").doc(boundDocumentId).collection("invites").doc(inviteId).get()
+        : null;
+      const actorUid = typeof data.recipientUid === "string" ? data.recipientUid : "";
+      const decision = recipientSessionInviteDecision(
+        inviteSnap && inviteSnap.exists ? inviteSnap.data() : null,
+        actorUid
+      );
+      if (!decision.ok) {
+        return new Response(JSON.stringify({ ok: false, error: decision.error }), {
+          status: decision.status,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
     }
 
     const documentId =

@@ -4,13 +4,110 @@ import { getPublicAppUrl } from "@/lib/getPublicAppUrl";
 import { renderEsignEmailHeader } from "@/lib/mail/esignEmailLayout";
 import { sendEmail } from "@/lib/mail/sendEmail";
 import { buildAuditRecord, appendAuditCertificatePage } from "@/lib/esignAudit";
-import { mergeRecipientPlacement } from "@/lib/esignPlacements";
+import {
+  ESIGN_TARGET_ERRORS,
+  mergeRecipientPlacement,
+  readLockedCountersignTarget,
+  recipientPlacementInsideTarget,
+} from "@/lib/esignPlacements";
 import crypto from "crypto";
 
 export const runtime = "nodejs";
 
 const MAX_EMAIL_ATTACHMENT_BYTES = 20 * 1024 * 1024;
 const COMPLETION_EMAIL_SUBJECT = "Final signed document via StudiosisLab";
+const COMPLETION_CLAIM_MS = 2 * 60 * 1000;
+
+function toDate(value: unknown): Date | null {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "toDate" in value &&
+    typeof (value as { toDate?: () => Date }).toDate === "function"
+  ) {
+    return (value as { toDate: () => Date }).toDate();
+  }
+  if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+  return null;
+}
+
+type CompletionClaim =
+  | {
+      kind: "completed";
+      signedPdfUrl: string | null;
+      signedPdfPath: string | null;
+    }
+  | { kind: "busy" }
+  | { kind: "claimed"; claimId: string; previousStatus: string };
+
+async function claimRecipientCompletion(
+  inviteRef: { path?: string },
+  uid: string
+): Promise<CompletionClaim> {
+  return adminDb.runTransaction(async (tx) => {
+    const snap = (await tx.get(inviteRef as never)) as unknown as {
+      data: () => Record<string, unknown> | undefined;
+    };
+    const data = snap.data() || {};
+    if (data.status === "completed") {
+      return {
+        kind: "completed" as const,
+        signedPdfUrl: typeof data.signedPdfUrl === "string" ? data.signedPdfUrl : null,
+        signedPdfPath: typeof data.signedPdfPath === "string" ? data.signedPdfPath : null,
+      };
+    }
+    const claimedAt = toDate(data.completionClaimedAt);
+    const claimFresh =
+      data.status === "completing" &&
+      claimedAt !== null &&
+      Date.now() - claimedAt.getTime() < COMPLETION_CLAIM_MS;
+    if (claimFresh) {
+      return { kind: "busy" as const };
+    }
+    const rawStatus = typeof data.status === "string" ? data.status : "viewed";
+    const previousStatus = rawStatus === "completing" ? "viewed" : rawStatus;
+    const claimId = crypto.randomUUID();
+    tx.update(inviteRef as never, {
+      status: "completing",
+      completionClaimId: claimId,
+      completionClaimUid: uid,
+      completionClaimedAt: new Date(),
+      updatedAt: new Date(),
+    });
+    return { kind: "claimed" as const, claimId, previousStatus };
+  });
+}
+
+async function releaseRecipientCompletion(
+  inviteRef: { path?: string },
+  claimId: string,
+  previousStatus: string
+) {
+  try {
+    await adminDb.runTransaction(async (tx) => {
+      const snap = (await tx.get(inviteRef as never)) as unknown as {
+        data: () => Record<string, unknown> | undefined;
+      };
+      const data = snap.data() || {};
+      if (data.status === "completed") return;
+      if (data.completionClaimId !== claimId) return;
+      tx.update(inviteRef as never, {
+        status: previousStatus,
+        completionClaimId: null,
+        completionClaimUid: null,
+        completionClaimedAt: null,
+        updatedAt: new Date(),
+      });
+    });
+  } catch (error) {
+    console.error("esign invite complete release error", error);
+  }
+}
 
 function resolveAppOrigin(req: NextRequest): string {
   try {
@@ -296,9 +393,65 @@ export async function POST(req: NextRequest) {
       );
     }
     const allPlacements = merged.placements;
+    const storedTarget = readLockedCountersignTarget(docData.countersignPlaceholder);
+    if (!storedTarget) {
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: ESIGN_TARGET_ERRORS.missing_countersign_target,
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+    const recipientPlacement = allPlacements[allPlacements.length - 1];
+    if (!recipientPlacementInsideTarget(storedTarget, recipientPlacement)) {
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: ESIGN_TARGET_ERRORS.recipient_outside_target,
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const claim = await claimRecipientCompletion(inviteDoc.ref, uid);
+    if (claim.kind === "completed") {
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          alreadyCompleted: true,
+          signedPdfUrl: claim.signedPdfUrl,
+          signedPdfPath: claim.signedPdfPath,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+    if (claim.kind === "busy") {
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: "Completion is already in progress.",
+        }),
+        {
+          status: 409,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
 
     const now = new Date();
+    let finalized = false;
 
+    try {
     // Generate final signed PDF by reusing the existing export route.
     const origin = req.nextUrl.origin;
     const exportRes = await fetch(`${origin}/api/esign/export`, {
@@ -309,6 +462,11 @@ export async function POST(req: NextRequest) {
 
     if (!exportRes.ok) {
       const text = await exportRes.text().catch(() => "");
+      await releaseRecipientCompletion(
+        inviteDoc.ref,
+        claim.claimId,
+        claim.previousStatus
+      );
       return new Response(
         JSON.stringify({
           ok: false,
@@ -391,32 +549,47 @@ export async function POST(req: NextRequest) {
     audit.signedPdfPath = signedPdfPath ?? undefined;
     audit.signedPdfUrl = signedPdfUrl ?? undefined;
 
-    await inviteDoc.ref.update({
-      status: "completed",
-      completedAt: now,
-      updatedAt: now,
-      recipientUid: uid,
-      recipientEmail: email || inviteData.recipientEmail || null,
-      signedPdfUrl: signedPdfUrl ?? null,
-      signedPdfPath: signedPdfPath ?? null,
-      audit,
-    });
-
-    await docRef.set(
-      {
-        countersignStatus: "completed",
+    const finalize = await adminDb.runTransaction(async (tx) => {
+      const snap = await tx.get(inviteDoc.ref);
+      const current = (snap.data() || {}) as Record<string, unknown>;
+      if (current.status === "completed") {
+        return { already: true };
+      }
+      if (current.completionClaimId !== claim.claimId) {
+        return { already: true };
+      }
+      tx.update(inviteDoc.ref, {
         status: "completed",
-        countersignedAt: now,
         completedAt: now,
         updatedAt: now,
-        finalPdfUrl: signedPdfUrl ?? null,
-        auditId: audit.auditId,
-      },
-      { merge: true }
-    );
+        recipientUid: uid,
+        recipientEmail: email || inviteData.recipientEmail || null,
+        signedPdfUrl: signedPdfUrl ?? null,
+        signedPdfPath: signedPdfPath ?? null,
+        completionClaimId: null,
+        completionClaimUid: null,
+        completionClaimedAt: null,
+        audit,
+      });
+      tx.set(
+        docRef,
+        {
+          countersignStatus: "completed",
+          status: "completed",
+          countersignedAt: now,
+          completedAt: now,
+          updatedAt: now,
+          finalPdfUrl: signedPdfUrl ?? null,
+          auditId: audit.auditId,
+        },
+        { merge: true }
+      );
+      return { already: false };
+    });
+    finalized = true;
 
     // Send final signed document email to both parties (awaited; failures are logged, non-blocking).
-    if (signedPdfPath) {
+    if (!finalize.already && signedPdfPath) {
       const completionIso =
         now instanceof Date ? now.toISOString() : String(now ?? "");
       const docName = (docData.fileName as string | undefined) || "Document";
@@ -450,6 +623,16 @@ export async function POST(req: NextRequest) {
         headers: { "Content-Type": "application/json" },
       }
     );
+    } catch (completionError) {
+      if (!finalized) {
+        await releaseRecipientCompletion(
+          inviteDoc.ref,
+          claim.claimId,
+          claim.previousStatus
+        );
+      }
+      throw completionError;
+    }
   } catch (e) {
     if (e instanceof Response) {
       return e;

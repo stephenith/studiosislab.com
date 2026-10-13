@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
+import { recipientSessionInviteDecision } from "@/lib/esignRecipientSession";
 
 export const runtime = "nodejs";
 
@@ -62,22 +63,61 @@ export async function POST(req: NextRequest) {
 
     const data = docSnap.data() as Record<string, unknown> | undefined;
     const ownerUid = typeof data?.ownerUid === "string" ? data.ownerUid : "";
-    if (!ownerUid || ownerUid !== uid) {
-      return new Response(JSON.stringify({ ok: false, error: "Forbidden" }), {
-        status: 403,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    const inviteToken =
+      typeof body?.inviteToken === "string" ? body.inviteToken.trim() : "";
 
     const sessionId = randomUUID();
     const linkToken = randomUUID();
     const createdAt = new Date();
     const expiresAt = new Date(createdAt.getTime() + 15 * 60 * 1000);
+    let sessionRecord: Record<string, unknown>;
 
-    await adminDb
-      .collection("esign_mobile_signature_sessions")
-      .doc(sessionId)
-      .set({
+    if (inviteToken) {
+      const inviteSnap = await docRef
+        .collection("invites")
+        .where("token", "==", inviteToken)
+        .limit(1)
+        .get();
+      if (inviteSnap.empty) {
+        return new Response(JSON.stringify({ ok: false, error: "Invite not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      const inviteDoc = inviteSnap.docs[0];
+      const decision = recipientSessionInviteDecision(inviteDoc.data(), uid);
+      if (!decision.ok) {
+        return new Response(JSON.stringify({ ok: false, error: decision.error }), {
+          status: decision.status,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (!ownerUid) {
+        return new Response(JSON.stringify({ ok: false, error: "Document not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      sessionRecord = {
+        documentId,
+        ownerUid,
+        recipientUid: uid,
+        inviteId: inviteDoc.id,
+        role: "recipient",
+        status: "pending",
+        createdAt,
+        expiresAt,
+        linkToken,
+        usedAt: null,
+      };
+    } else {
+      if (!ownerUid || ownerUid !== uid) {
+        return new Response(JSON.stringify({ ok: false, error: "Forbidden" }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      sessionRecord = {
         documentId,
         ownerUid: uid,
         status: "pending",
@@ -85,7 +125,13 @@ export async function POST(req: NextRequest) {
         expiresAt,
         linkToken,
         usedAt: null,
-      });
+      };
+    }
+
+    await adminDb
+      .collection("esign_mobile_signature_sessions")
+      .doc(sessionId)
+      .set(sessionRecord);
 
     const appBase =
       process.env.NEXT_PUBLIC_APP_URL ||

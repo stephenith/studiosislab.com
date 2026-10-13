@@ -49,11 +49,9 @@ export function lockButtonClassName(
   audience: "sender" | "recipient" = "recipient"
 ): string {
   const base = "w-full rounded-lg border px-3 py-2 text-xs font-medium";
-  if (tone === "lock" && audience === "sender") {
-    return `${base} inline-flex items-center justify-center gap-2 border-green-700 bg-green-600 text-white shadow-sm hover:bg-green-700`;
-  }
   if (tone === "lock") {
-    return `${base} border-emerald-300 bg-emerald-100 text-emerald-950 hover:bg-emerald-200`;
+    void audience;
+    return `${base} inline-flex items-center justify-center gap-2 border-green-700 bg-green-600 text-white shadow-sm hover:bg-green-700`;
   }
   if (tone === "unlock") {
     return `${base} inline-flex items-center justify-center gap-2 border-zinc-300 bg-white text-zinc-800 hover:border-blue-400`;
@@ -108,7 +106,7 @@ export function recipientHelperText(phase: RecipientPhase): string {
     case "completing":
       return "Completing this agreement…";
     case "completed":
-      return "This agreement is completed.";
+      return "Countersign complete.";
   }
 }
 

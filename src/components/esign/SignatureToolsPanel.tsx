@@ -2,10 +2,26 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
+import {
+  ArrowRight,
+  ChevronDown,
+  ImageUp,
+  Lock,
+  LockOpen,
+  PenLine,
+  Smartphone,
+} from "lucide-react";
+import {
+  isPngOrJpegSignatureFile,
+  SIGNATURE_UPLOAD_ACCEPT,
+  SIGNATURE_UPLOAD_REJECTED_MESSAGE,
+} from "@/lib/esignSignatureUpload";
+import { lockButtonClassName, lockButtonView } from "@/lib/esignViewerState";
 
 type SignatureToolsPanelProps = {
   mode: "sender" | "recipient";
   activeSignature: string | null;
+  hasPlacedSignature?: boolean;
   hasSelectedSignature?: boolean;
   onSignatureDrawn: (dataUrl: string) => void;
   onInsertSignature: (dataUrl?: string) => void;
@@ -31,11 +47,17 @@ function SignaturePad({
   activeSignature,
   onSignatureDrawn,
   onInsertSignature,
+  showTitle = true,
+  fitWidth = false,
+  active = true,
 }: {
   mode: "sender" | "recipient";
   activeSignature: string | null;
   onSignatureDrawn: (dataUrl: string) => void;
   onInsertSignature: (dataUrl?: string) => void;
+  showTitle?: boolean;
+  fitWidth?: boolean;
+  active?: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [color, setColor] = useState<"black" | "blue">("black");
@@ -104,6 +126,24 @@ function SignaturePad({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [strokes]);
 
+  useEffect(() => {
+    if (!fitWidth || !active) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const frame = requestAnimationFrame(() => {
+      const width = Math.round(canvas.getBoundingClientRect().width);
+      if (width < 20) return;
+      if (canvas.width !== width || canvas.height !== 140) {
+        canvas.width = width;
+        canvas.height = 140;
+      }
+      redraw();
+    });
+    return () => cancelAnimationFrame(frame);
+    // Fit once when the sender accordion opens. Strokes stay in component state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fitWidth, active]);
+
   const getPoint = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     return {
@@ -162,15 +202,21 @@ function SignaturePad({
 
   return (
     <div className="space-y-3">
-      <div className="text-xs font-semibold uppercase text-zinc-500">
-        Draw Signature
-      </div>
+      {showTitle && (
+        <div className="text-xs font-semibold uppercase text-zinc-500">
+          Draw Signature
+        </div>
+      )}
       <div className="rounded-xl border border-zinc-300 bg-white p-2">
         <canvas
           ref={canvasRef}
-          width={320}
-          height={120}
-          className="w-full rounded-lg bg-white"
+          width={fitWidth ? undefined : 320}
+          height={fitWidth ? undefined : 120}
+          className={
+            fitWidth
+              ? "block h-[140px] w-full touch-none rounded-lg bg-white"
+              : "w-full touch-none rounded-lg bg-white"
+          }
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -222,9 +268,164 @@ function SignaturePad({
   );
 }
 
+function MethodAccordion({
+  id,
+  title,
+  icon,
+  open,
+  onToggle,
+  children,
+}: {
+  id: string;
+  title: string;
+  icon: React.ReactNode;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  const panelId = `esign-sign-method-${id}`;
+  return (
+    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={onToggle}
+        className="flex w-full items-center gap-3 px-4 py-3.5 text-left text-sm font-medium text-zinc-900 hover:bg-zinc-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+      >
+        <span className="text-zinc-700">{icon}</span>
+        <span className="flex-1">{title}</span>
+        <ChevronDown
+          aria-hidden
+          strokeWidth={2}
+          className={`h-4 w-4 text-zinc-500 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      <div id={panelId} role="region" aria-label={title} hidden={!open} className="border-t border-zinc-100 px-4 py-3">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function MobileSigningFields({
+  activeSignature,
+  expiryLabel,
+  mobileSigningError,
+  mobileSigningLoading,
+  mobileSigningQrDataUrl,
+  mobileSigningStatusMessage,
+  mobileSigningUrl,
+  mobileSignatureFetchError,
+  mobileSignatureFetching,
+  mobileSignatureReady,
+  onFetchMobileSignature,
+  onGenerateMobileSigningLink,
+  onInsertSignature,
+}: {
+  activeSignature: string | null;
+  expiryLabel: string | null;
+  mobileSigningError?: string | null;
+  mobileSigningLoading?: boolean;
+  mobileSigningQrDataUrl?: string | null;
+  mobileSigningStatusMessage?: string | null;
+  mobileSigningUrl?: string | null;
+  mobileSignatureFetchError?: string | null;
+  mobileSignatureFetching?: boolean;
+  mobileSignatureReady?: boolean;
+  onFetchMobileSignature?: () => Promise<void> | void;
+  onGenerateMobileSigningLink?: () => Promise<void> | void;
+  onInsertSignature: (dataUrl?: string) => void;
+}) {
+  return (
+    <div className="space-y-3">
+      <p className="text-xs leading-relaxed text-zinc-600">
+        Scan this QR code with your phone to draw your signature using touch.
+      </p>
+      <button
+        type="button"
+        onClick={() => onGenerateMobileSigningLink?.()}
+        disabled={mobileSigningLoading || !onGenerateMobileSigningLink}
+        className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 transition hover:border-blue-400 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {mobileSigningLoading ? "Generating..." : "Generate mobile signing link"}
+      </button>
+      {mobileSigningQrDataUrl && (
+        <div className="mx-auto w-fit rounded-lg border border-zinc-200 bg-white p-2">
+          <Image
+            src={mobileSigningQrDataUrl}
+            alt="Mobile signing QR code"
+            className="h-40 w-40"
+            width={160}
+            height={160}
+            unoptimized
+          />
+        </div>
+      )}
+      {mobileSigningUrl && (
+        <div className="space-y-2">
+          <a
+            href={mobileSigningUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="block break-all rounded border border-zinc-200 bg-white px-2 py-1.5 text-[11px] font-medium text-zinc-700 hover:border-blue-300 hover:text-zinc-900"
+          >
+            {mobileSigningUrl}
+          </a>
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(mobileSigningUrl);
+              } catch {
+                // no-op
+              }
+            }}
+            className="w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-[11px] font-medium text-zinc-700 hover:border-blue-400"
+          >
+            Copy mobile signing link
+          </button>
+        </div>
+      )}
+      {mobileSigningUrl && onFetchMobileSignature && (
+        <button
+          type="button"
+          onClick={() => onFetchMobileSignature()}
+          disabled={mobileSignatureFetching}
+          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 transition hover:border-blue-400 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {mobileSignatureFetching ? "Checking..." : "Fetch mobile signature"}
+        </button>
+      )}
+      {expiryLabel && <p className="text-[11px] text-zinc-500">Expires at {expiryLabel}</p>}
+      {mobileSigningError && <p className="text-xs text-red-600">{mobileSigningError}</p>}
+      {mobileSignatureFetchError && (
+        <p className="text-xs text-red-600">{mobileSignatureFetchError}</p>
+      )}
+      {mobileSignatureReady && activeSignature && (
+        <div className="space-y-2 rounded border border-green-200 bg-green-50 px-2 py-2">
+          <p className="text-xs font-medium text-green-800">Mobile signature received.</p>
+          <p className="text-xs text-green-700">Click below to insert it into this document.</p>
+          {mobileSigningStatusMessage && (
+            <p className="text-[11px] text-green-700">{mobileSigningStatusMessage}</p>
+          )}
+          <button
+            type="button"
+            onClick={() => onInsertSignature()}
+            className="w-full rounded-md bg-black px-3 py-1.5 text-xs font-medium text-white"
+          >
+            Insert mobile signature
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
   mode,
   activeSignature,
+  hasPlacedSignature = false,
   hasSelectedSignature,
   onSignatureDrawn,
   onInsertSignature,
@@ -256,7 +457,13 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = "";
     if (!file) return;
+    if (!isPngOrJpegSignatureFile(file)) {
+      setFileName(null);
+      alert(SIGNATURE_UPLOAD_REJECTED_MESSAGE);
+      return;
+    }
     setFileName(file.name || "Signature");
     onUploadSignature(file);
   };
@@ -275,6 +482,9 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
     }
   })();
 
+  const [openMethod, setOpenMethod] = useState<"draw" | "upload" | "mobile" | null>(null);
+  const lockButton = lockButtonView(!!hasSelectedSignature, signatureLocked, mode);
+
   return (
     <aside className="h-auto min-h-0 w-full shrink-0 overflow-y-auto overscroll-contain border-b bg-white p-4 space-y-6 lg:h-full lg:w-[320px] lg:border-b-0 lg:border-r">
       {mode === "sender" && showOnboardingTip && (
@@ -292,21 +502,105 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
               How to sign
             </h2>
             <p className="mt-1.5 text-xs leading-relaxed text-emerald-900/90">
-              Use any of these methods to sign.
-              <br />
-              Once signed, insert/place the signature on the required area and
-              lock the signature.
+              Draw, upload, or sign on your phone. Place the signature, then lock it.
             </p>
           </div>
         </div>
       )}
 
+      {mode === "sender" ? (
+        <div className="space-y-3">
+          <MethodAccordion
+            id="draw"
+            title="Draw signature"
+            icon={<PenLine aria-hidden className="h-5 w-5" strokeWidth={2} />}
+            open={openMethod === "draw"}
+            onToggle={() =>
+              setOpenMethod((current) => (current === "draw" ? null : "draw"))
+            }
+          >
+            <SignaturePad
+              mode={mode}
+              activeSignature={activeSignature}
+              onSignatureDrawn={onSignatureDrawn}
+              onInsertSignature={onInsertSignature}
+              showTitle={false}
+              fitWidth
+              active={openMethod === "draw"}
+            />
+          </MethodAccordion>
+          <MethodAccordion
+            id="upload"
+            title="Upload signature"
+            icon={<ImageUp aria-hidden className="h-5 w-5" strokeWidth={2} />}
+            open={openMethod === "upload"}
+            onToggle={() =>
+              setOpenMethod((current) => (current === "upload" ? null : "upload"))
+            }
+          >
+            <div className="space-y-3">
+              {activeSignature && (
+                <Image
+                  src={activeSignature}
+                  alt="Selected signature preview"
+                  width={160}
+                  height={48}
+                  unoptimized
+                  className="mx-auto h-12 w-auto object-contain"
+                />
+              )}
+              <div className="flex items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="min-w-0 flex-1 truncate text-left text-xs text-zinc-600"
+                >
+                  {fileName || "Select file"}
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => onInsertSignature()}
+                className="w-full rounded-lg bg-black px-3 py-1.5 text-xs font-medium text-white"
+              >
+                Insert
+              </button>
+            </div>
+          </MethodAccordion>
+          <MethodAccordion
+            id="mobile"
+            title="Sign using your mobile"
+            icon={<Smartphone aria-hidden className="h-5 w-5" strokeWidth={2} />}
+            open={openMethod === "mobile"}
+            onToggle={() =>
+              setOpenMethod((current) => (current === "mobile" ? null : "mobile"))
+            }
+          >
+            <MobileSigningFields
+              activeSignature={activeSignature}
+              expiryLabel={expiryLabel}
+              mobileSigningError={mobileSigningError}
+              mobileSigningLoading={mobileSigningLoading}
+              mobileSigningQrDataUrl={mobileSigningQrDataUrl}
+              mobileSigningStatusMessage={mobileSigningStatusMessage}
+              mobileSigningUrl={mobileSigningUrl}
+              mobileSignatureFetchError={mobileSignatureFetchError}
+              mobileSignatureFetching={mobileSignatureFetching}
+              mobileSignatureReady={mobileSignatureReady}
+              onFetchMobileSignature={onFetchMobileSignature}
+              onGenerateMobileSigningLink={onGenerateMobileSigningLink}
+              onInsertSignature={onInsertSignature}
+            />
+          </MethodAccordion>
+        </div>
+      ) : (
+        <>
       <SignaturePad
-  mode={mode}
-  activeSignature={activeSignature}
-  onSignatureDrawn={onSignatureDrawn}
-  onInsertSignature={onInsertSignature}
-/>
+        mode={mode}
+        activeSignature={activeSignature}
+        onSignatureDrawn={onSignatureDrawn}
+        onInsertSignature={onInsertSignature}
+      />
 
       <div className="space-y-3">
         <div className="text-xs font-semibold uppercase text-zinc-500">
@@ -338,108 +632,11 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
           Insert
         </button>
       </div>
-
-      {mode === "sender" && (
-        <div className="space-y-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-          <div className="text-xs font-semibold uppercase text-zinc-500">
-            Sign using your mobile
-          </div>
-          <p className="text-xs leading-relaxed text-zinc-600">
-            Scan this QR code with your phone to draw your signature using touch.
-          </p>
-          <button
-            type="button"
-            onClick={() => onGenerateMobileSigningLink?.()}
-            disabled={mobileSigningLoading || !onGenerateMobileSigningLink}
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 transition hover:border-blue-400 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {mobileSigningLoading ? "Generating..." : "Generate mobile signing link"}
-          </button>
-
-          {mobileSigningQrDataUrl && (
-            <div className="mx-auto w-fit rounded-lg border border-zinc-200 bg-white p-2">
-              <Image
-                src={mobileSigningQrDataUrl}
-                alt="Mobile signing QR code"
-                className="h-40 w-40"
-                width={160}
-                height={160}
-                unoptimized
-              />
-            </div>
-          )}
-
-          {mobileSigningUrl && (
-            <div className="space-y-2">
-              <a
-                href={mobileSigningUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="block rounded border border-zinc-200 bg-white px-2 py-1.5 text-[11px] font-medium text-zinc-700 hover:border-blue-300 hover:text-zinc-900 break-all"
-              >
-                {mobileSigningUrl}
-              </a>
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(mobileSigningUrl);
-                  } catch {
-                    // no-op
-                  }
-                }}
-                className="w-full rounded border border-zinc-300 bg-white px-3 py-1.5 text-[11px] font-medium text-zinc-700 hover:border-blue-400"
-              >
-                Copy mobile signing link
-              </button>
-            </div>
-          )}
-
-          {mobileSigningUrl && onFetchMobileSignature && (
-            <button
-              type="button"
-              onClick={() => onFetchMobileSignature?.()}
-              disabled={mobileSignatureFetching}
-              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-800 transition hover:border-blue-400 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {mobileSignatureFetching ? "Checking..." : "Fetch mobile signature"}
-            </button>
-          )}
-
-          {expiryLabel && (
-            <p className="text-[11px] text-zinc-500">Expires at {expiryLabel}</p>
-          )}
-
-          {mobileSigningError && (
-            <p className="text-xs text-red-600">{mobileSigningError}</p>
-          )}
-          {mobileSignatureFetchError && (
-            <p className="text-xs text-red-600">{mobileSignatureFetchError}</p>
-          )}
-          {mobileSignatureReady && activeSignature && (
-            <div className="space-y-2 rounded border border-green-200 bg-green-50 px-2 py-2">
-              <p className="text-xs font-medium text-green-800">
-                Mobile signature received.
-              </p>
-              <p className="text-xs text-green-700">
-                Click below to insert it into this document.
-              </p>
-              {mobileSigningStatusMessage && (
-                <p className="text-[11px] text-green-700">{mobileSigningStatusMessage}</p>
-              )}
-              <button
-                type="button"
-                onClick={() => onInsertSignature()}
-                className="w-full rounded-md bg-black px-3 py-1.5 text-xs font-medium text-white"
-              >
-                Insert mobile signature
-              </button>
-            </div>
-          )}
-        </div>
+        </>
       )}
 
-      {activeSignature && (
+      {((mode === "sender" && hasPlacedSignature) ||
+        (mode === "recipient" && activeSignature)) && (
         <div className="space-y-2 border-t border-zinc-200 pt-4">
           <div className="text-xs font-semibold uppercase text-zinc-500">
             Selected Signature
@@ -453,7 +650,7 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
             >
               Delete Signature
             </button>
-            {!hasSelectedSignature && (
+            {!hasSelectedSignature && mode === "recipient" && (
               <p className="text-[11px] text-zinc-500">
                 Select a placed signature to delete it.
               </p>
@@ -461,10 +658,23 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
             <button
               type="button"
               onClick={onLockSignature}
-              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs font-medium text-zinc-800 hover:border-blue-400"
+              disabled={lockButton.disabled}
+              className={lockButtonClassName(lockButton.tone, mode)}
             >
-              {signatureLocked ? "Unlock Signature" : "Lock Signature"}
+              {mode === "sender" && lockButton.tone === "lock" && (
+                <Lock aria-hidden className="h-4 w-4" strokeWidth={2} />
+              )}
+              {mode === "sender" && lockButton.tone === "unlock" && (
+                <LockOpen aria-hidden className="h-4 w-4" strokeWidth={2} />
+              )}
+              <span>{lockButton.label}</span>
+              {mode === "sender" && lockButton.tone === "lock" && (
+                <ArrowRight aria-hidden className="h-4 w-4" strokeWidth={2} />
+              )}
             </button>
+            {lockButton.guidance && (
+              <p className="text-[11px] text-zinc-500">{lockButton.guidance}</p>
+            )}
           </div>
           {showManageSignatureHelper && (
             <div className="relative mt-2 shrink-0 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 pr-9 text-emerald-950 shadow-md ring-1 ring-emerald-100/80">
@@ -484,7 +694,7 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
                 it again.
                 <br />
                 Once you are happy with the signature position, click Lock
-                Signature.
+                signature to continue.
               </p>
             </div>
           )}
@@ -494,7 +704,7 @@ const SignatureToolsPanel: React.FC<SignatureToolsPanelProps> = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept={SIGNATURE_UPLOAD_ACCEPT}
         className="hidden"
         onChange={handleFileChange}
       />

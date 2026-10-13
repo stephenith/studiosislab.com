@@ -3,12 +3,26 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { Lock, LockOpen, Mail, Plus, Share2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc, onSnapshot, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/lib/useAuthUser";
 import type { EsignDocument } from "@/lib/esign";
 import { removeBackgroundFromDataUrl } from "@/lib/esignRemoveBackground";
+import {
+  isPngOrJpegSignatureFile,
+  SIGNATURE_UPLOAD_ACCEPT,
+  SIGNATURE_UPLOAD_REJECTED_MESSAGE,
+} from "@/lib/esignSignatureUpload";
+import {
+  esignTitleStatus,
+  recipientActionEnabled,
+  recipientActionLabel,
+  recipientHelperText,
+  recipientPhase,
+} from "@/lib/esignViewerState";
+import { loadEsignOriginalPreview } from "@/lib/esignOriginalPreview";
 import { trackEvent } from "@/lib/analytics";
 import SignatureToolsPanel from "@/components/esign/SignatureToolsPanel";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
@@ -274,6 +288,7 @@ function EsignPdfViewerInner(
 ) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [loading, setLoading] = useState(true);
+  const [renderedPageCount, setRenderedPageCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const pageWrapperRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -451,11 +466,9 @@ function EsignPdfViewerInner(
     const run = async () => {
       try {
         setLoading(true);
+        setRenderedPageCount(0);
         setError(null);
-        // Dynamically import pdf.js only in the browser using the legacy build.
-        // This avoids SSR issues and DOM-related errors in Next.js App Router.
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore - pdfjs-dist ships no types for this legacy entry
+        // @ts-expect-error pdfjs-dist ships no types for this legacy entry
         const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf");
 
         (pdfjsLib as any).GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
@@ -463,7 +476,16 @@ function EsignPdfViewerInner(
         const url = `/api/esign/download?documentId=${encodeURIComponent(
           documentId
         )}`;
-        const loadingTask = (pdfjsLib as any).getDocument(url);
+        const sharedBytes = await loadEsignOriginalPreview(documentId, async () => {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error("Failed to render document");
+          }
+          return new Uint8Array(await response.arrayBuffer());
+        });
+        const loadingTask = (pdfjsLib as any).getDocument({
+          data: sharedBytes.slice(),
+        });
         const pdf = await loadingTask.promise;
         if (cancelled) return;
 
@@ -547,6 +569,9 @@ function EsignPdfViewerInner(
             canvasContext: context!,
             viewport,
           }).promise;
+          if (cancelled) return;
+          setRenderedPageCount(pageNumber);
+          if (pageNumber === 1) setLoading(false);
         }
       } catch (e: any) {
         if (cancelled) return;
@@ -586,7 +611,7 @@ function EsignPdfViewerInner(
         img.style.left = `${model.xNorm * w}px`;
         img.style.top = `${model.yNorm * h}px`;
         img.style.cursor = model.locked ? "default" : "move";
-        img.style.pointerEvents = model.locked ? "none" : "auto";
+        img.style.pointerEvents = "auto";
         img.style.border = model.locked ? "2px dashed red" : "none";
         img.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -624,7 +649,7 @@ function EsignPdfViewerInner(
         overlay.appendChild(img);
       });
     });
-  }, [signatures, loading]);
+  }, [signatures, loading, renderedPageCount]);
 
   // Track visible page for "Use this" / "Place Signature" instant placement.
   useEffect(() => {
@@ -758,7 +783,7 @@ function EsignPdfViewerInner(
     return () => {
       box.remove();
     };
-  }, [loading, countersignPlaceholder]);
+  }, [loading, countersignPlaceholder, renderedPageCount]);
 
   return (
     <div className="mx-auto w-full max-w-4xl">
@@ -815,7 +840,7 @@ export default function EsignViewerClient({
   const token = searchParams.get("token");
   const isRecipientMode = Boolean(token);
   const [inviteValid, setInviteValid] = useState<boolean>(false);
-  const [inviteValidating, setInviteValidating] = useState<boolean>(false);
+  const [inviteValidating, setInviteValidating] = useState<boolean>(Boolean(token));
   const [recipientComplete, setRecipientComplete] = useState(false);
   const [recipientCompleting, setRecipientCompleting] = useState(false);
   const [clientSignatureInserted, setClientSignatureInserted] = useState(false);
@@ -826,7 +851,8 @@ export default function EsignViewerClient({
   const [zoomScale, setZoomScale] = useState(1);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
-  const [counterMode, setCounterMode] = useState<"single" | "multi">("single");
+  const [countersignSetupOpen, setCountersignSetupOpen] = useState(false);
+  const [countersignLockHint, setCountersignLockHint] = useState(false);
   const [senderEmail, setSenderEmail] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [counterMessage, setCounterMessage] = useState("");
@@ -859,8 +885,6 @@ export default function EsignViewerClient({
   >(null);
   const [countersignPlaceholder, setCountersignPlaceholder] = useState<CountersignPlaceholderModel | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
-  const [showWorkflowTip, setShowWorkflowTip] = useState(true);
-  const [showCounterSignTip, setShowCounterSignTip] = useState(true);
 
   const signaturesRef = useRef<SignatureModel[]>(signatures);
   const countersignPlaceholderRef = useRef<CountersignPlaceholderModel | null>(countersignPlaceholder);
@@ -1115,6 +1139,29 @@ export default function EsignViewerClient({
     };
   }, [user, documentId, isRecipientMode]);
 
+  // Start the original download as soon as the sender is known so it overlaps
+  // Firestore metadata. A same-tab upload already stored these bytes.
+  useEffect(() => {
+    if (!user || !documentId) return;
+    const url = `/api/esign/download?documentId=${encodeURIComponent(documentId)}`;
+    loadEsignOriginalPreview(documentId, async () => {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Failed to download document");
+      return new Uint8Array(await response.arrayBuffer());
+    }).catch(() => {
+      // The PDF viewer surfaces the failure if the bytes are still unavailable.
+    });
+  }, [user, documentId]);
+
+  useEffect(() => {
+    if (
+      docData?.countersignStatus === "sent" ||
+      docData?.countersignStatus === "completed"
+    ) {
+      setCountersignSetupOpen(true);
+    }
+  }, [docData?.countersignStatus]);
+
   // Lightweight realtime listener for document metadata (status/progress only).
   useEffect(() => {
     if (!user) return;
@@ -1186,6 +1233,10 @@ export default function EsignViewerClient({
 
   const handleUploadSignature = (file: File) => {
     if (!file) return;
+    if (!isPngOrJpegSignatureFile(file)) {
+      alert(SIGNATURE_UPLOAD_REJECTED_MESSAGE);
+      return;
+    }
     const name = file.name || "";
     setSignatureFileName(name);
     try {
@@ -1381,6 +1432,8 @@ export default function EsignViewerClient({
 
   const handleSignatureFileChange = (e: any) => {
     const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
     handleUploadSignature(file);
   };
 
@@ -1445,25 +1498,37 @@ export default function EsignViewerClient({
       alert("Please sign in first.");
       return;
     }
+    const ownSignature = signatures.find((s) => s.id === clientSignatureId);
+    if (
+      !clientSignatureId ||
+      !ownSignature ||
+      typeof ownSignature.imageDataUrl !== "string" ||
+      ownSignature.imageDataUrl.length === 0
+    ) {
+      alert("Recipient signature is missing. Refresh the page and try again.");
+      return;
+    }
     setRecipientCompleting(true);
     try {
       const idToken = await user.getIdToken();
-      const placements = signatures.map((s) => ({
-        page: s.page,
-        xNorm: s.xNorm,
-        yNorm: s.yNorm,
-        wNorm: s.wNorm,
-        hNorm: s.hNorm,
-        imageDataUrl: s.imageDataUrl,
-        locked: s.locked ?? false,
-      }));
+      const placements = [
+        {
+          id: ownSignature.id,
+          page: ownSignature.page,
+          xNorm: ownSignature.xNorm,
+          yNorm: ownSignature.yNorm,
+          wNorm: ownSignature.wNorm,
+          hNorm: ownSignature.hNorm,
+          imageDataUrl: ownSignature.imageDataUrl,
+          locked: ownSignature.locked ?? false,
+        },
+      ];
       const res = await fetch("/api/esign/invite/complete", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${idToken}`,
         },
-        // Backend currently expects placements; keep payload compatible.
         body: JSON.stringify({ documentId, token, placements }),
       });
       const json = await res.json().catch(() => null);
@@ -1535,26 +1600,23 @@ export default function EsignViewerClient({
     }
   })();
 
-  const statusLabel =
-    docData.status === "completed"
-      ? "Completed"
-      : docData.status === "pending_client"
-      ? "Pending"
-      : "Draft";
+  const statusLabel = esignTitleStatus({
+    status: docData.status,
+    countersignStatus: docData.countersignStatus,
+    recipientComplete,
+  });
 
   const hasLockedSignature = signatures.some((s) => s.locked ?? false);
-
-  const showWorkflowGuidance =
-    !isRecipientMode &&
+  const invitationAlreadySent =
+    inviteSent ||
+    docData.countersignStatus === "sent" ||
+    docData.countersignStatus === "completed";
+  const canShareCountersign =
+    signatures.length > 0 &&
     hasLockedSignature &&
-    counterMode === "single" &&
-    showWorkflowTip;
-
-  const showCounterSignGuidance =
-    !isRecipientMode &&
-    counterMode === "multi" &&
-    showCounterSignTip &&
-    countersignPlaceholder == null;
+    Boolean(countersignPlaceholder?.locked) &&
+    senderEmail.trim().length > 0 &&
+    clientEmail.trim().length > 0;
 
   const step1Done =
     signatures.length >= 1 && hasLockedSignature;
@@ -1596,6 +1658,16 @@ export default function EsignViewerClient({
   const recipientLockedSignature = signatures.some(
     (s) => s.id === clientSignatureId && s.locked && s.imageDataUrl
   );
+  const phase = recipientPhase({
+    status: docData.status,
+    recipientComplete,
+    recipientCompleting,
+    recipientLockedSignature,
+    clientSignatureInserted,
+    inviteValid,
+    inviteValidating,
+  });
+  const recipientCanComplete = recipientActionEnabled(phase);
       const handleSenderInsert = (signatureOverride?: string) => {
         const sig = signatureOverride || activeSignature;
         
@@ -1710,6 +1782,7 @@ export default function EsignViewerClient({
         <SignatureToolsPanel
           mode={isRecipientMode ? "recipient" : "sender"}
           activeSignature={activeSignature}
+          hasPlacedSignature={signatures.length > 0}
           hasSelectedSignature={!!selectedSignatureId}
           signatureLocked={signatureLocked}
           onSignatureDrawn={setActiveSignature}
@@ -1850,14 +1923,25 @@ export default function EsignViewerClient({
                 signatures={signatures}
                 scrollContainerRef={scrollContainerRef}
                 onVisiblePageChange={setVisiblePageNumber}
-                countersignPlaceholder={countersignPlaceholder}
+                countersignPlaceholder={
+                  countersignPlaceholder
+                    ? {
+                        ...countersignPlaceholder,
+                        locked:
+                          Boolean(countersignPlaceholder.locked) ||
+                          invitationAlreadySent,
+                      }
+                    : countersignPlaceholder
+                }
                 onCountersignPlaceholderChange={
                   isRecipientMode
                     ? undefined
-                    : (n) =>
+                    : (n) => {
+                        if (invitationAlreadySent) return;
                         setCountersignPlaceholder((p) =>
                           p ? { ...p, ...n } : null
-                        )
+                        );
+                      }
                 }
               />
             </div>
@@ -1868,22 +1952,20 @@ export default function EsignViewerClient({
           <div className="border-b px-4 py-3">
             <div className="font-semibold text-sm">Agreement Progress</div>
             <p className="mt-1 text-xs text-zinc-600">✓ Sender has signed</p>
-            <p className="mt-1 text-xs text-zinc-600">
-              Please insert your signature to complete this agreement.
-            </p>
+            <p className="mt-1 text-xs text-zinc-600">{recipientHelperText(phase)}</p>
           </div>
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
             <button
               type="button"
               onClick={handleRecipientComplete}
-              disabled={!recipientLockedSignature || recipientCompleting || !inviteValid}
+              disabled={!recipientCanComplete}
               className={`w-full rounded-lg px-3 py-2 text-xs font-medium ${
-                !recipientLockedSignature || recipientCompleting || !inviteValid
-                  ? "bg-zinc-200 text-zinc-500 cursor-not-allowed"
-                  : "bg-green-600 text-white"
+                recipientCanComplete
+                  ? "bg-green-600 text-white"
+                  : "bg-zinc-200 text-zinc-500 cursor-not-allowed"
               }`}
             >
-              {recipientCompleting ? "Completing…" : "Agreement Completed"}
+              {recipientActionLabel(phase)}
             </button>
           </div>
         </aside>
@@ -1901,82 +1983,65 @@ export default function EsignViewerClient({
                   <span className="text-[11px] text-green-500 ml-2">Saved</span>
                 )}
               </div>
-              {counterMode === "multi" ? (
-                <>
-                  <button
-                    type="button"
-                    disabled
-                    className="w-full rounded px-3 py-2 text-xs font-medium bg-zinc-200 text-zinc-500 cursor-not-allowed"
-                  >
-                    Download signed document
-                  </button>
-                  <p className="text-[11px] text-zinc-500">
-                    Final agreement will be available after countersign is completed.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    disabled={signatures.length === 0 || !hasLockedSignature || downloading}
-                    onClick={async () => {
-                      if (signatures.length === 0 || !hasLockedSignature || downloading) return;
-                      setDownloadError(null);
-                      try {
-                        setDownloading(true);
-                        const placements = signatures.map((s) => ({
-                          page: s.page,
-                          xNorm: s.xNorm,
-                          yNorm: s.yNorm,
-                          wNorm: s.wNorm,
-                          hNorm: s.hNorm,
-                          imageDataUrl: s.imageDataUrl,
-                          locked: s.locked,
-                        }));
-                        const res = await fetch("/api/esign/export", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ documentId, placements }),
-                        });
-                        if (!res.ok) {
-                          const json = await res.json().catch(() => ({}));
-                          setDownloadError(json?.error || "Export failed.");
-                          return;
-                        }
-                        const blob = await res.blob();
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement("a");
-                        a.href = url;
-                        const name = (docData.fileName || documentId).replace(/\.pdf$/i, "") + ".pdf";
-                        a.download = `SIGNED-${name}`;
-                        document.body.appendChild(a);
-                        a.click();
-                        a.remove();
-                        URL.revokeObjectURL(url);
-                      } catch (e: any) {
-                        setDownloadError(e?.message || "Download failed.");
-                      } finally {
-                        setDownloading(false);
-                      }
-                    }}
-                    className={`w-full rounded px-3 py-2 text-xs font-medium ${
-                      signatures.length === 0 || !hasLockedSignature || downloading
-                        ? "bg-zinc-200 text-zinc-500 cursor-not-allowed"
-                        : "bg-black text-white"
-                    }`}
-                  >
-                    {downloading ? "Preparing download…" : "Download signed document"}
-                  </button>
-                  {downloadError && (
-                    <p className="text-[11px] text-red-600">{downloadError}</p>
-                  )}
-                  <p className="text-[11px] text-zinc-500">
-                    {signatures.length === 0 || !hasLockedSignature
-                      ? "Place and lock your signature to enable download."
-                      : "Downloads a signed copy with your placed signature(s)."}
-                  </p>
-                </>
+              <button
+                type="button"
+                disabled={signatures.length === 0 || !hasLockedSignature || downloading}
+                onClick={async () => {
+                  if (signatures.length === 0 || !hasLockedSignature || downloading) return;
+                  setDownloadError(null);
+                  try {
+                    setDownloading(true);
+                    const placements = signatures.map((s) => ({
+                      page: s.page,
+                      xNorm: s.xNorm,
+                      yNorm: s.yNorm,
+                      wNorm: s.wNorm,
+                      hNorm: s.hNorm,
+                      imageDataUrl: s.imageDataUrl,
+                      locked: s.locked,
+                    }));
+                    const res = await fetch("/api/esign/export", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ documentId, placements }),
+                    });
+                    if (!res.ok) {
+                      const json = await res.json().catch(() => ({}));
+                      setDownloadError(json?.error || "Export failed.");
+                      return;
+                    }
+                    const blob = await res.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    const name = (docData.fileName || documentId).replace(/\.pdf$/i, "") + ".pdf";
+                    a.download = `SIGNED-${name}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    URL.revokeObjectURL(url);
+                  } catch (e: any) {
+                    setDownloadError(e?.message || "Download failed.");
+                  } finally {
+                    setDownloading(false);
+                  }
+                }}
+                className={`w-full rounded px-3 py-2 text-xs font-medium ${
+                  signatures.length === 0 || !hasLockedSignature || downloading
+                    ? "bg-zinc-200 text-zinc-500 cursor-not-allowed"
+                    : "bg-black text-white"
+                }`}
+              >
+                {downloading ? "Preparing download…" : "Download signed document"}
+              </button>
+              {downloadError && (
+                <p className="text-[11px] text-red-600">{downloadError}</p>
               )}
+              <p className="text-[11px] text-zinc-500">
+                {signatures.length === 0 || !hasLockedSignature
+                  ? "Place and lock your signature to enable download."
+                  : "Downloads a signed copy with your placed signature(s)."}
+              </p>
               <p className="mt-1 text-[11px] text-zinc-500">
                 Signatures placed: <span className="font-medium">{signatures.length}</span>
               </p>
@@ -1984,222 +2049,215 @@ export default function EsignViewerClient({
 
             <div className="h-px bg-zinc-200" />
 
-            {/* Section B: Workflow Type */}
+            {/* Countersign */}
             <div className="space-y-3">
-              <div className="font-semibold text-sm">Workflow Type</div>
-              <div className="space-y-2 text-xs">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="esign-counter-mode"
-                    value="single"
-                    checked={counterMode === "single"}
-                    onChange={() => setCounterMode("single")}
-                  />
-                  <span>Solo Sign</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="esign-counter-mode"
-                    value="multi"
-                    checked={counterMode === "multi"}
-                    onChange={() => setCounterMode("multi")}
-                  />
-                  <span>Countersign</span>
-                </label>
-              </div>
-
-              {showWorkflowGuidance && (
-                <div className="relative shrink-0 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 pr-9 text-emerald-950 shadow-md ring-1 ring-emerald-100/80">
-                  <button
-                    type="button"
-                    onClick={() => setShowWorkflowTip(false)}
-                    className="absolute right-2 top-2 rounded p-0.5 text-emerald-800 hover:bg-emerald-100/90"
-                    aria-label="Dismiss workflow tip"
-                  >
-                    <span className="block text-sm font-medium leading-none">×</span>
-                  </button>
-                  <h2 className="text-xs font-semibold text-emerald-950">
-                    Choose workflow type
-                  </h2>
-                  <p className="mt-1.5 text-xs leading-relaxed text-emerald-900/90">
-                    If you want to send this document for a second-party signature,
-                    click Counter Sign.
-                    <br />
-                    If not, you can continue with Solo Sign and download the signed
-                    copy.
-                  </p>
-                </div>
+              {!countersignSetupOpen && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!hasLockedSignature) {
+                      setCountersignLockHint(true);
+                      return;
+                    }
+                    setCountersignLockHint(false);
+                    setCountersignSetupOpen(true);
+                  }}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-900 bg-zinc-900 px-3 py-2.5 text-xs font-medium text-white shadow-sm hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+                >
+                  <Share2 aria-hidden className="h-4 w-4" strokeWidth={2} />
+                  Click to share for countersignature
+                </button>
+              )}
+              {(countersignLockHint || (countersignSetupOpen && !hasLockedSignature)) && (
+                <p className="text-[11px] text-zinc-600">
+                  Lock your signature before sharing for countersignature.
+                </p>
               )}
 
-              {counterMode === "multi" && (
+              {countersignSetupOpen && (
                 <div className="space-y-3">
-                  {showCounterSignGuidance && (
-                    <div className="relative shrink-0 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 pr-9 text-emerald-950 shadow-md ring-1 ring-emerald-100/80">
-                      <button
-                        type="button"
-                        onClick={() => setShowCounterSignTip(false)}
-                        className="absolute right-2 top-2 rounded p-0.5 text-emerald-800 hover:bg-emerald-100/90"
-                        aria-label="Dismiss countersign tip"
-                      >
-                        <span className="block text-sm font-medium leading-none">×</span>
-                      </button>
-                      <h2 className="text-xs font-semibold text-emerald-950">
-                        Add counter signature box
-                      </h2>
-                      <p className="mt-1.5 text-xs leading-relaxed text-emerald-900/90">
-                        Click Add Counter Sign Box and place it where the second
-                        party needs to sign.
-                        <br />
-                        Then enter the email details and share it for countersign.
-                      </p>
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const id = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-                      setCountersignPlaceholder({
-                        id,
-                        page: visiblePageNumber || 1,
-                        xNorm: 0.35,
-                        yNorm: 0.65,
-                        wNorm: 0.3,
-                        hNorm: 0.1,
-                        locked: false,
-                      });
-                    }}
-                    className="w-full rounded border border-orange-500 bg-orange-500 px-3 py-2 text-xs font-medium text-white hover:bg-orange-600 hover:border-orange-600"
-                  >
-                    Add Countersign Box
-                  </button>
-                  {countersignPlaceholder && (
+                  {!countersignPlaceholder && !invitationAlreadySent && (
                     <button
                       type="button"
-                      onClick={() => setCountersignPlaceholder((p) => p ? { ...p, locked: true } : null)}
-                      disabled={countersignPlaceholder.locked}
-                      className={`w-full rounded-lg px-3 py-2 text-xs font-medium ${
-                        countersignPlaceholder.locked
-                          ? "cursor-default bg-zinc-100 text-zinc-500"
-                          : "bg-sky-500 text-white shadow-sm hover:bg-sky-600"
-                      }`}
+                      onClick={() => {
+                        if (countersignPlaceholder) return;
+                        const id =
+                          typeof crypto !== "undefined" && "randomUUID" in crypto
+                            ? crypto.randomUUID()
+                            : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+                        setCountersignPlaceholder({
+                          id,
+                          page: visiblePageNumber || 1,
+                          xNorm: 0.35,
+                          yNorm: 0.65,
+                          wNorm: 0.3,
+                          hNorm: 0.1,
+                          locked: false,
+                        });
+                      }}
+                      className="flex w-full items-center justify-center gap-2 rounded-lg border border-orange-600 bg-orange-500 px-3 py-2.5 text-xs font-medium text-white shadow-sm hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300"
                     >
-                      Click to lock countersign position
+                      <Plus aria-hidden className="h-4 w-4" strokeWidth={2} />
+                      Add countersign box
                     </button>
                   )}
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div className="space-y-1">
-                      <label className="font-medium">Your official email</label>
-                      <input
-                        type="email"
-                        value={senderEmail}
-                        onChange={(e) => setSenderEmail(e.target.value)}
-                        placeholder="your-side@email.com"
-                        className="w-full rounded border border-zinc-300 px-2 py-1 text-xs"
-                      />
-                      <p className="text-[11px] text-zinc-500">
-                        This email will receive the final counter-signed agreement.
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="font-medium">Client email</label>
-                      <input
-                        type="email"
-                        value={clientEmail}
-                        onChange={(e) => setClientEmail(e.target.value)}
-                        placeholder="client-side@email.com"
-                        className="w-full rounded border border-zinc-300 px-2 py-1 text-xs"
-                      />
-                      <p className="text-[11px] text-zinc-500">
-                        The signing link will be sent here.
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="space-y-1 text-xs">
-                    <label className="font-medium">Message (optional)</label>
-                    <textarea
-                      value={counterMessage}
-                      onChange={(e) => setCounterMessage(e.target.value)}
-                      placeholder="Add a short note for the recipient…"
-                      rows={3}
-                      className="w-full rounded border border-zinc-300 px-2 py-1 text-xs resize-none"
-                    />
-                  </div>
-
-                  <button
-                    type="button"
-                    disabled={
-                      signatures.length === 0 ||
-                      !hasLockedSignature ||
-                      counterMode !== "multi" ||
-                      !countersignPlaceholder ||
-                      !countersignPlaceholder.locked ||
-                      !senderEmail.trim() ||
-                      !clientEmail.trim()
-                    }
-                    onClick={async () => {
-                      try {
-                        if (!user) {
-                          alert("Please sign in first.");
-                          return;
-                        }
-                        const idToken = await user.getIdToken();
-                        const res = await fetch("/api/esign/invite", {
-                          method: "POST",
-                          headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${idToken}`,
-                          },
-                          body: JSON.stringify({
-                            documentId,
-                            senderEmail: senderEmail.trim(),
-                            clientEmail: clientEmail.trim(),
-                            message: counterMessage.trim(),
-                          }),
-                        });
-                        const json = await res.json().catch(() => null);
-                        if (!res.ok || !json?.ok) {
-                          const msg =
-                            json?.error ||
-                            "Failed to create countersign invite. Please try again.";
-                          alert(msg);
-                          return;
-                        }
-                        const url = `${window.location.origin}${json.url}`;
-                        setGeneratedInviteLink(url);
-                        setCopiedInvite(false);
-                        setInviteSent(true);
-                        const snap = await getDoc(doc(db, "esign_documents", documentId));
-                        if (snap.exists()) {
-                          const d = snap.data() as any;
-                          setDocData((prev) => (prev ? { ...prev, countersignStatus: d.countersignStatus ?? prev.countersignStatus, status: d.status ?? prev.status } : prev));
-                        }
-                        // eslint-disable-next-line no-console
-                        console.log("Countersign link:", url);
-                      } catch (e) {
-                        alert(
-                          "Failed to create countersign request. Please try again."
-                        );
+                  {countersignPlaceholder && !countersignPlaceholder.locked && !invitationAlreadySent && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCountersignPlaceholder((current) =>
+                          current ? { ...current, locked: true } : current
+                        )
                       }
-                    }}
-                    className={`w-full rounded px-3 py-2 text-xs font-medium ${
-                      signatures.length === 0 ||
-                      !hasLockedSignature ||
-                      !countersignPlaceholder ||
-                      !countersignPlaceholder.locked ||
-                      !senderEmail.trim() ||
-                      !clientEmail.trim()
-                        ? "bg-zinc-200 text-zinc-500 cursor-not-allowed"
-                        : "bg-black text-white"
-                    }`}
-                  >
-                    Share for countersign
-                  </button>
-                  <p className="text-[11px] text-zinc-500">
-                    Lock both your signature and the countersign position before sharing.
-                  </p>
+                      className="flex w-full items-center justify-center gap-2 rounded-lg border border-sky-700 bg-sky-600 px-3 py-2.5 text-xs font-medium text-white shadow-sm hover:bg-sky-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
+                    >
+                      <Lock aria-hidden className="h-4 w-4" strokeWidth={2} />
+                      Lock countersign position
+                    </button>
+                  )}
+
+                  {countersignPlaceholder?.locked && !invitationAlreadySent && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCountersignPlaceholder((current) =>
+                          current ? { ...current, locked: false } : current
+                        )
+                      }
+                      className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-xs font-medium text-zinc-800 shadow-sm hover:border-zinc-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+                    >
+                      <LockOpen aria-hidden className="h-4 w-4" strokeWidth={2} />
+                      Unlock countersign position
+                    </button>
+                  )}
+
+                  {invitationAlreadySent && countersignPlaceholder && (
+                    <p className="text-[11px] text-zinc-600">
+                      This countersign position is already shared and stays in place.
+                    </p>
+                  )}
+
+                  {countersignPlaceholder?.locked && (
+                    <>
+                      <div className="grid grid-cols-1 gap-3 text-xs">
+                        <div className="space-y-1">
+                          <label className="font-medium" htmlFor="esign-sender-email">
+                            Your official email
+                          </label>
+                          <input
+                            id="esign-sender-email"
+                            type="email"
+                            value={senderEmail}
+                            onChange={(e) => setSenderEmail(e.target.value)}
+                            placeholder="your-side@email.com"
+                            className="w-full rounded border border-zinc-300 px-2 py-1 text-xs"
+                          />
+                          <p className="text-[11px] text-zinc-500">
+                            This email will receive the final counter-signed agreement.
+                          </p>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="font-medium" htmlFor="esign-client-email">
+                            {"Client's official email"}
+                          </label>
+                          <input
+                            id="esign-client-email"
+                            type="email"
+                            value={clientEmail}
+                            onChange={(e) => setClientEmail(e.target.value)}
+                            placeholder="client-side@email.com"
+                            className="w-full rounded border border-zinc-300 px-2 py-1 text-xs"
+                          />
+                          <p className="text-[11px] text-zinc-500">
+                            The signing link will be sent here.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 text-xs">
+                        <label className="font-medium" htmlFor="esign-counter-message">
+                          Message (optional)
+                        </label>
+                        <textarea
+                          id="esign-counter-message"
+                          value={counterMessage}
+                          onChange={(e) => setCounterMessage(e.target.value)}
+                          placeholder="Add a short note for the recipient…"
+                          rows={3}
+                          className="w-full resize-none rounded border border-zinc-300 px-2 py-1 text-xs"
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        disabled={!canShareCountersign}
+                        onClick={async () => {
+                          try {
+                            if (!user) {
+                              alert("Please sign in first.");
+                              return;
+                            }
+                            const idToken = await user.getIdToken();
+                            const res = await fetch("/api/esign/invite", {
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${idToken}`,
+                              },
+                              body: JSON.stringify({
+                                documentId,
+                                senderEmail: senderEmail.trim(),
+                                clientEmail: clientEmail.trim(),
+                                message: counterMessage.trim(),
+                              }),
+                            });
+                            const json = await res.json().catch(() => null);
+                            if (!res.ok || !json?.ok) {
+                              const msg =
+                                json?.error ||
+                                "Failed to create countersign invite. Please try again.";
+                              alert(msg);
+                              return;
+                            }
+                            const url = `${window.location.origin}${json.url}`;
+                            setGeneratedInviteLink(url);
+                            setCopiedInvite(false);
+                            setInviteSent(true);
+                            const snap = await getDoc(doc(db, "esign_documents", documentId));
+                            if (snap.exists()) {
+                              const d = snap.data() as any;
+                              setDocData((prev) =>
+                                prev
+                                  ? {
+                                      ...prev,
+                                      countersignStatus:
+                                        d.countersignStatus ?? prev.countersignStatus,
+                                      status: d.status ?? prev.status,
+                                    }
+                                  : prev
+                              );
+                            }
+                          } catch {
+                            alert(
+                              "Failed to create countersign request. Please try again."
+                            );
+                          }
+                        }}
+                        className={`flex w-full items-center justify-center gap-2 rounded px-3 py-2 text-xs font-medium ${
+                          canShareCountersign
+                            ? "bg-black text-white"
+                            : "cursor-not-allowed bg-zinc-200 text-zinc-500"
+                        }`}
+                      >
+                        <Mail aria-hidden className="h-4 w-4" strokeWidth={2} />
+                        Share for countersign
+                      </button>
+                      <p className="text-[11px] text-zinc-500">
+                        Lock both your signature and the countersign position before sharing.
+                      </p>
+                    </>
+                  )}
 
                   {inviteSent && (
                     <div className="rounded-lg bg-green-600 px-3 py-2 text-xs font-medium text-white">
@@ -2223,7 +2281,8 @@ export default function EsignViewerClient({
                           const a = document.createElement("a");
                           a.href = docData.finalPdfUrl;
                           const name =
-                            (docData.fileName || documentId).replace(/\.pdf$/i, "") + "_signed.pdf";
+                            (docData.fileName || documentId).replace(/\.pdf$/i, "") +
+                            "_signed.pdf";
                           a.download = name;
                           document.body.appendChild(a);
                           a.click();
@@ -2250,7 +2309,7 @@ export default function EsignViewerClient({
                           type="text"
                           readOnly
                           value={generatedInviteLink}
-                          className="flex-1 min-w-0 rounded border border-zinc-300 px-2 py-1 text-[11px] text-zinc-700 bg-zinc-50"
+                          className="min-w-0 flex-1 rounded border border-zinc-300 bg-zinc-50 px-2 py-1 text-[11px] text-zinc-700"
                           onFocus={(e) => e.currentTarget.select()}
                         />
                         <button
@@ -2258,9 +2317,7 @@ export default function EsignViewerClient({
                           onClick={async () => {
                             try {
                               if (!generatedInviteLink) return;
-                              await navigator.clipboard.writeText(
-                                generatedInviteLink
-                              );
+                              await navigator.clipboard.writeText(generatedInviteLink);
                               setCopiedInvite(true);
                               setTimeout(() => setCopiedInvite(false), 2000);
                             } catch {
@@ -2314,7 +2371,7 @@ export default function EsignViewerClient({
       <input
         ref={signatureInputRef}
         type="file"
-        accept="image/*"
+        accept={SIGNATURE_UPLOAD_ACCEPT}
         className="hidden"
         onChange={handleSignatureFileChange}
       />

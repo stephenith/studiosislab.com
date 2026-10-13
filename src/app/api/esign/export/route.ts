@@ -1,39 +1,18 @@
 import { NextRequest } from "next/server";
-import { PDFDocument } from "pdf-lib";
+import {
+  buildSignedPdf,
+  safeEsignExportFailure,
+  type SignaturePlacement,
+} from "@/lib/esignSignatureImage";
 
 export const runtime = "nodejs";
 
-export type ExportPlacement = {
-  page: number;
-  xNorm: number;
-  yNorm: number;
-  wNorm: number;
-  hNorm: number;
-  imageDataUrl: string;
-  locked?: boolean;
-};
+export type ExportPlacement = SignaturePlacement;
 
 export type ExportBody = {
   documentId: string;
   placements: ExportPlacement[];
 };
-
-/** Convert normalized coords (0..1, top-left origin) to PDF points (bottom-left origin). */
-function normToPdf(
-  pageWidthPts: number,
-  pageHeightPts: number,
-  xNorm: number,
-  yNorm: number,
-  wNorm: number,
-  hNorm: number
-) {
-  const wPts = wNorm * pageWidthPts;
-  const hPts = hNorm * pageHeightPts;
-  const xPts = xNorm * pageWidthPts;
-  // PDF origin is bottom-left; yNorm is from top, so flip.
-  const yPts = pageHeightPts - yNorm * pageHeightPts - hPts;
-  return { x: xPts, y: yPts, width: wPts, height: hPts };
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -85,58 +64,22 @@ export async function POST(req: NextRequest) {
     }
 
     const originalBytes = new Uint8Array(await downloadRes.arrayBuffer());
-    const pdfDoc = await PDFDocument.load(originalBytes);
-    const numPages = pdfDoc.getPageCount();
-
-    for (const p of placements) {
-      const pageNumber = Math.max(1, Math.min(numPages, Number(p.page) || 1));
-      const pageIndex = pageNumber - 1;
-      const page = pdfDoc.getPage(pageIndex);
-      const pageWidthPts = page.getWidth();
-      const pageHeightPts = page.getHeight();
-
-      const imageDataUrl = p.imageDataUrl;
-      if (!imageDataUrl || typeof imageDataUrl !== "string") continue;
-
-      const base64 = imageDataUrl.split(",")[1];
-      if (!base64) continue;
-
-      const pngBytes = Buffer.from(base64, "base64");
-      const pngImage = await pdfDoc.embedPng(pngBytes);
-
-      const xNorm = Number(p.xNorm ?? 0);
-      const yNorm = Number(p.yNorm ?? 0);
-      const wNorm = Number(p.wNorm ?? 0.2);
-      const hNorm = Number(p.hNorm ?? 0.08);
-
-      const { x, y, width, height } = normToPdf(
-        pageWidthPts,
-        pageHeightPts,
-        xNorm,
-        yNorm,
-        wNorm,
-        hNorm
-      );
-
-      page.drawImage(pngImage, { x, y, width, height });
-    }
-
-    const signedBytes = await pdfDoc.save();
-    const pdfBuffer = Buffer.from(signedBytes);
+    const signedBytes = await buildSignedPdf(originalBytes, placements);
 
     // Simple binary PDF response, no Storage writes for now.
-    return new Response(pdfBuffer, {
+    return new Response(Buffer.from(signedBytes), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
       },
     });
-  } catch (e: any) {
-    console.error("esign export error", e);
+  } catch (error: unknown) {
+    const failure = safeEsignExportFailure(error);
+    console.error("esign export error", { reason: failure.reason });
     return new Response(
       JSON.stringify({
         ok: false,
-        error: e?.message || "Failed to export signed PDF",
+        error: failure.clientMessage,
       }),
       {
         status: 500,

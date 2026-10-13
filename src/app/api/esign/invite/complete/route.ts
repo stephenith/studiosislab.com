@@ -4,6 +4,7 @@ import { getPublicAppUrl } from "@/lib/getPublicAppUrl";
 import { renderEsignEmailHeader } from "@/lib/mail/esignEmailLayout";
 import { sendEmail } from "@/lib/mail/sendEmail";
 import { buildAuditRecord, appendAuditCertificatePage } from "@/lib/esignAudit";
+import { mergeRecipientPlacement } from "@/lib/esignPlacements";
 import crypto from "crypto";
 
 export const runtime = "nodejs";
@@ -284,14 +285,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const now = new Date();
+    const merged = mergeRecipientPlacement(docData.placements, placements);
+    if (!merged.ok) {
+      return new Response(
+        JSON.stringify({ ok: false, error: merged.error }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+    const allPlacements = merged.placements;
 
-    // Merge sender placements from Firestore with recipient request placements so the final PDF includes both.
-    const senderPlacementsRaw = Array.isArray(docData.placements) ? docData.placements : [];
-    const senderPlacements = senderPlacementsRaw.filter(
-      (p: any) => p && typeof p.imageDataUrl === "string" && p.imageDataUrl.length > 0
-    );
-    const allPlacements = [...senderPlacements, ...placements];
+    const now = new Date();
 
     // Generate final signed PDF by reusing the existing export route.
     const origin = req.nextUrl.origin;

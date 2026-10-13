@@ -21,6 +21,7 @@ import {
   putPdfToSignedUrl,
   validateEsignPdfFile,
 } from "@/lib/esignSignedUpload";
+import { rememberEsignOriginalPreview } from "@/lib/esignOriginalPreview";
 import { useAuth } from "@/lib/useAuth";
 import { trackEvent, uploadSizeBucket } from "@/lib/analytics";
 import { getLoginRedirectUrl } from "@/lib/safeNextPath";
@@ -203,6 +204,11 @@ export default function EsignToolsPage() {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadPhase, setUploadPhase] = useState<
+    "preparing" | "uploading" | "saving" | "opening" | null
+  >(null);
+  const [uploadPercent, setUploadPercent] = useState<number | null>(null);
+  const uploadBusyRef = useRef(false);
   const [recents, setRecents] = useState<RecentAgreementItem[]>([]);
   const [recentsLoading, setRecentsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -381,6 +387,7 @@ export default function EsignToolsPage() {
   }
 
   const handleBrowseClick = () => {
+    if (uploadBusyRef.current) return;
     setHubNotice(null);
     fileInputRef.current?.click();
   };
@@ -547,6 +554,7 @@ export default function EsignToolsPage() {
   };
 
   const handleProceed = async () => {
+    if (uploadBusyRef.current) return;
     if (!user) {
       router.push(getLoginRedirectUrl());
       return;
@@ -562,9 +570,13 @@ export default function EsignToolsPage() {
       return;
     }
 
+    uploadBusyRef.current = true;
+    let opened = false;
     try {
       setHubNotice(null);
       setUploading(true);
+      setUploadPhase("preparing");
+      setUploadPercent(null);
       trackEvent("esign_upload_start", { flow: "tools_hub" });
 
       const idToken = await user.getIdToken();
@@ -614,9 +626,15 @@ export default function EsignToolsPage() {
       }
 
       const { documentId, uploadUrl } = initJson;
+      const previewBytesPromise = selectedFile.arrayBuffer().then(
+        (buffer) => new Uint8Array(buffer)
+      );
 
       try {
-        await putPdfToSignedUrl(selectedFile, uploadUrl);
+        setUploadPhase("uploading");
+        await putPdfToSignedUrl(selectedFile, uploadUrl, (percent) => {
+          setUploadPercent(percent);
+        });
       } catch (uploadErr) {
         const uploadMsg =
           uploadErr instanceof Error && uploadErr.message.trim()
@@ -626,6 +644,11 @@ export default function EsignToolsPage() {
         return;
       }
 
+      const previewBytes = await previewBytesPromise;
+      rememberEsignOriginalPreview(documentId, previewBytes);
+
+      setUploadPhase("saving");
+      setUploadPercent(null);
       const finalizeRes = await fetch("/api/esign/finalize-upload", {
         method: "POST",
         headers: {
@@ -665,12 +688,19 @@ export default function EsignToolsPage() {
         size_bucket: uploadSizeBucket(selectedFile.size),
       });
 
+      setUploadPhase("opening");
+      opened = true;
       router.push(`/tools/esign/${documentId}`);
     } catch (err) {
       devWarn("E-sign upload failed", err);
       setHubNotice("Something went wrong while uploading. Please try again.");
     } finally {
-      setUploading(false);
+      if (!opened) {
+        uploadBusyRef.current = false;
+        setUploading(false);
+        setUploadPhase(null);
+        setUploadPercent(null);
+      }
     }
   };
 
@@ -803,7 +833,8 @@ export default function EsignToolsPage() {
                 <button
                   type="button"
                   onClick={handleBrowseClick}
-                  className="min-h-10 rounded-full border border-zinc-600 bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-100 transition-colors hover:border-zinc-500 hover:bg-zinc-700 sm:min-h-0 sm:py-1.5"
+                  disabled={uploading}
+                  className="min-h-10 rounded-full border border-orange-600 bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-200 disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-0 sm:py-1.5"
                 >
                   Browse
                 </button>
@@ -813,10 +844,36 @@ export default function EsignToolsPage() {
                   disabled={uploading || !selectedFile}
                   className="min-h-10 rounded-full bg-emerald-600 px-5 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-0 sm:py-1.5"
                 >
-                  {uploading ? "Uploading..." : selectedFile ? "Upload and continue" : "Proceed"}
+                  {uploadPhase === "preparing"
+                    ? "Preparing upload…"
+                    : uploadPhase === "uploading"
+                      ? uploadPercent == null
+                        ? "Uploading PDF…"
+                        : `Uploading PDF… ${uploadPercent}%`
+                      : uploadPhase === "saving"
+                        ? "Saving document…"
+                        : uploadPhase === "opening"
+                          ? "Opening document…"
+                          : selectedFile
+                            ? "Upload and continue"
+                            : "Proceed"}
                 </button>
               </div>
             </div>
+
+            {uploadPhase && (
+              <p role="status" aria-live="polite" className="mt-2 text-xs text-orange-200">
+                {uploadPhase === "preparing"
+                  ? "Preparing upload…"
+                  : uploadPhase === "uploading"
+                    ? uploadPercent == null
+                      ? "Uploading PDF…"
+                      : `Uploading PDF… ${uploadPercent}%`
+                    : uploadPhase === "saving"
+                      ? "Saving document…"
+                      : "Opening document…"}
+              </p>
+            )}
 
             <p className="mt-2 text-xs text-zinc-400">
               Upload the PDF that needs to be signed. PDF only • Up to 50 MB.

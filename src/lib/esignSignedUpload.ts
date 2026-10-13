@@ -21,17 +21,29 @@ export function validateEsignPdfFile(file: File): string | null {
 
 export async function putPdfToSignedUrl(
   file: File,
-  uploadUrl: string
+  uploadUrl: string,
+  onProgress?: (percent: number) => void
 ): Promise<void> {
-  const res = await fetch(uploadUrl, {
-    method: "PUT",
-    body: file,
-    headers: { "Content-Type": "application/pdf" },
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", uploadUrl);
+    xhr.setRequestHeader("Content-Type", "application/pdf");
+    xhr.upload.onprogress = (event) => {
+      if (!onProgress || !event.lengthComputable || event.total <= 0) return;
+      onProgress(Math.min(100, Math.round((event.loaded / event.total) * 100)));
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve();
+        return;
+      }
+      reject(
+        new Error(`Storage upload failed (${xhr.status}). Please try again.`)
+      );
+    };
+    xhr.onerror = () => {
+      reject(new Error("Storage upload failed. Please try again."));
+    };
+    xhr.send(file);
   });
-
-  if (!res.ok) {
-    throw new Error(
-      `Storage upload failed (${res.status}). Please try again.`
-    );
-  }
 }

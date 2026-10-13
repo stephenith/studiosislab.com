@@ -26,6 +26,7 @@ import NoiseBackground from "@/components/home/NoiseBackground";
 import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
 import { TEMPLATE_CATEGORIES } from "@/data/templateCategories";
 import { useRuntimeResumeCatalog } from "@/lib/runtimeResumeCatalogClient";
+import { RecentResumePreview } from "@/components/resume/RecentResumePreview";
 
 const RESUME_GALLERY_HIDDEN_TEMPLATE_IDS = new Set(["t001", "t002", "t003"]);
 
@@ -131,8 +132,10 @@ type RecentDoc = {
   createdAt?: any;
   updatedAt?: any;
 
-  // saved thumbnail (dataURL) from Firestore
   thumbnail?: string;
+  thumbnailRevision?: number;
+  autosaveRevision?: number;
+  pagesData?: any[] | null;
   canvasJson?: any;
 };
 
@@ -155,6 +158,7 @@ export default function ResumeTemplatesPage() {
   // Load recents
   useEffect(() => {
     let alive = true;
+    let showSpinner = true;
     const run = async () => {
       if (!authReady || !user) {
         if (!alive) return;
@@ -164,7 +168,7 @@ export default function ResumeTemplatesPage() {
       }
       try {
         if (!alive) return;
-        setRecentsLoading(true);
+        if (showSpinner) setRecentsLoading(true);
         const q = fsQuery(
           collection(db, "users", user.uid, "resume_docs"),
           orderBy("updatedAt", "desc"),
@@ -186,14 +190,22 @@ export default function ResumeTemplatesPage() {
         if (!alive) return;
         setRecents([]);
       } finally {
+        showSpinner = false;
         if (!alive) return;
         setRecentsLoading(false);
       }
     };
 
-    run();
+    void run();
+    const refreshIfVisible = () => {
+      if (document.visibilityState === "visible") void run();
+    };
+    document.addEventListener("visibilitychange", refreshIfVisible);
+    window.addEventListener("focus", refreshIfVisible);
     return () => {
       alive = false;
+      document.removeEventListener("visibilitychange", refreshIfVisible);
+      window.removeEventListener("focus", refreshIfVisible);
     };
   }, [authReady, user]);
 
@@ -324,11 +336,6 @@ export default function ResumeTemplatesPage() {
       return "";
     }
   };
-
-  // allow only known static template ids for fallback
-  const KNOWN_TEMPLATE_IDS = new Set(
-    templates.map((t) => t.id).concat(["blank"])
-  );
 
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
@@ -522,14 +529,6 @@ export default function ResumeTemplatesPage() {
               </div>
             ) : (
                 recents.map((r) => {
-                  const fallbackTemplateId = String(
-                    r.sourceTemplateId || r.templateId || "blank"
-                  );
-                  const canUseStaticFallback = KNOWN_TEMPLATE_IDS.has(
-                    fallbackTemplateId
-                  );
-                  const isBlank = fallbackTemplateId === "blank";
-
                   return (
                     <div
                       key={r.id}
@@ -669,30 +668,7 @@ export default function ResumeTemplatesPage() {
                               </div>
                             )}
                           </div>
-                          {r.thumbnail ? (
-                            // Use <img> for dataURL (no Next config needed)
-                            <img
-                              src={r.thumbnail}
-                              alt="Recent resume thumbnail"
-                              className="h-full w-full object-cover"
-                            />
-                          ) : isBlank ? (
-                            <div className="flex h-full w-full items-center justify-center text-sm text-zinc-500">
-                              Saved (blank)
-                            </div>
-                          ) : canUseStaticFallback && !isBlank ? (
-                            <Image
-                              src={`/templates/${fallbackTemplateId}.png`}
-                              alt="Recent resume preview"
-                              fill
-                              className="object-cover"
-                              sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 100vw"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center text-sm text-zinc-500">
-                              Preview unavailable
-                            </div>
-                          )}
+                          <RecentResumePreview doc={r} />
                       </div>
 
                       <div className="min-w-0 pt-0.5">

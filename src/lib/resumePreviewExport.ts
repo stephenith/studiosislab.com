@@ -4,11 +4,18 @@
  */
 
 import { Canvas } from "fabric";
-import { initFabricCanvas } from "@/lib/editor/canvasInitializer";
-import type { PageSize } from "@/types/editor";
-import { PAGE_SIZES } from "@/types/editor";
-
-const THUMBNAIL_FALLBACK_IMAGE_SRC = "/templates/avatar-placeholder.png";
+import { ensureFontLoaded } from "@/lib/fonts/fontLoader";
+import { getAsset } from "@/lib/localAssets";
+import {
+  isPortableThumbnailImageSrc,
+  localAssetIdFromJson,
+  prepareFirstPageThumbnailJson,
+  selectFirstPageSnapshot,
+  THUMBNAIL_OMITTED_IMAGE_SRC,
+  THUMBNAIL_PAGE_SIZES,
+  THUMBNAIL_TARGET_WIDTH,
+  type ThumbnailPageSize,
+} from "@/lib/resumePreviewScene";
 
 function loadFromJsonPromise(canvas: Canvas, json: unknown): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -33,117 +40,166 @@ function loadFromJsonPromise(canvas: Canvas, json: unknown): Promise<void> {
   });
 }
 
-function walkFabricTree(root: any, onNode: (node: any) => void): void {
-  const seen = new WeakSet<object>();
-  const visit = (value: any) => {
-    if (!value || typeof value !== "object") return;
-    if (Array.isArray(value)) {
-      for (const item of value) visit(item);
+function collectFontFamilies(nodes: any[], into: Set<string>): void {
+  for (const node of nodes || []) {
+    if (!node || typeof node !== "object") continue;
+    const family = typeof node.fontFamily === "string" ? node.fontFamily.trim() : "";
+    if (family) into.add(family);
+    if (Array.isArray(node.objects)) collectFontFamilies(node.objects, into);
+  }
+}
+
+async function loadThumbnailFonts(objects: any[]): Promise<void> {
+  const families = new Set<string>();
+  collectFontFamilies(objects, families);
+  if (!families.size || typeof document === "undefined") return;
+  try {
+    const catalogMod = await import("@/data/fonts/catalog.json");
+    const catalog = (catalogMod.default || catalogMod) as Array<{
+      family: string;
+      variants: Array<{ weight: number; style: "normal" | "italic"; fileUrl?: string }>;
+    }>;
+    await Promise.all(
+      [...families].map(async (family) => {
+        const font = catalog.find((item) => item.family === family);
+        const variant =
+          font?.variants?.find((item) => item.weight === 400 && item.style === "normal") ||
+          font?.variants?.[0];
+        if (!variant) return;
+        await ensureFontLoaded(family, variant);
+      })
+    );
+  } catch {
+    // The preview still draws with the browser's fallback font.
+  }
+}
+
+function pageExportBounds(canvas: Canvas, pageW: number, pageH: number): {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+} {
+  const objects = canvas.getObjects?.() || [];
+  const page = objects.find((obj: any) => {
+    const role = obj?.role || obj?.data?.role;
+    return role === "pageBackground" || role === "page-bg" || role === "page" || obj?.isPageBg === true;
+  }) as any;
+  if (page?.getBoundingRect) {
+    const rect = page.getBoundingRect(true, true);
+    if (rect?.width > 1 && rect?.height > 1) {
+      return {
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+      };
+    }
+  }
+  return { left: 0, top: 0, width: pageW, height: pageH };
+}
+
+async function hydrateLocalThumbnailImages(nodes: any[]): Promise<string[]> {
+  const created: string[] = [];
+  const walk = async (node: any): Promise<void> => {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) {
+      for (const item of node) await walk(item);
       return;
     }
-    if (seen.has(value)) return;
-    seen.add(value);
-    onNode(value);
-    for (const nested of Object.values(value)) {
-      if (nested && typeof nested === "object") visit(nested);
+    if (String(node.type || "").toLowerCase() === "image") {
+      const assetId = localAssetIdFromJson(node);
+      const src = String(node.src || "").trim();
+      if (assetId && !isPortableThumbnailImageSrc(src)) {
+        let blob: Blob | null = null;
+        try {
+          blob = await getAsset(assetId);
+        } catch {
+          blob = null;
+        }
+        if (blob && typeof URL !== "undefined" && typeof URL.createObjectURL === "function") {
+          const url = URL.createObjectURL(blob);
+          node.src = url;
+          created.push(url);
+        } else {
+          node.src = THUMBNAIL_OMITTED_IMAGE_SRC;
+          node.opacity = 0;
+        }
+      }
     }
+    if (Array.isArray(node.objects)) await walk(node.objects);
   };
-  visit(root);
+  await walk(nodes);
+  return created;
 }
 
-function isPortableImageSrc(src: string): boolean {
-  const normalized = String(src || "").trim().toLowerCase();
-  if (!normalized) return false;
-  if (normalized.startsWith("data:")) return true;
-  if (normalized.startsWith("http://")) return true;
-  if (normalized.startsWith("https://")) return true;
-  if (normalized.startsWith("/")) return true;
-  return false;
-}
-
-function sanitizeThumbnailJson(json: any): void {
-  walkFabricTree(json, (node) => {
-    const type = String((node as any)?.type || "").toLowerCase();
-    if (type !== "image") return;
-    const src = String((node as any)?.src || "").trim();
-    if (!src || src.toLowerCase().startsWith("blob:") || !isPortableImageSrc(src)) {
-      (node as any).src = THUMBNAIL_FALLBACK_IMAGE_SRC;
-    }
-  });
+function exportPrepared(canvas: Canvas, pageW: number, pageH: number): string {
+  canvas.discardActiveObject?.();
+  canvas.setViewportTransform?.([1, 0, 0, 1, 0, 0]);
+  (canvas as any).setZoom?.(1);
+  canvas.renderAll();
+  const bounds = pageExportBounds(canvas, pageW, pageH);
+  const multiplier = Math.max(0.12, Math.min(0.5, THUMBNAIL_TARGET_WIDTH / Math.max(1, bounds.width)));
+  const dataUrl = canvas.toDataURL({
+    format: "png",
+    left: bounds.left,
+    top: bounds.top,
+    width: bounds.width,
+    height: bounds.height,
+    multiplier,
+  } as any);
+  return typeof dataUrl === "string" ? dataUrl : "";
 }
 
 export async function generateResumeThumbnail(params: {
   pagesData?: any[] | null;
   canvasJson?: any;
-  pageSize?: PageSize;
+  pageSize?: ThumbnailPageSize;
 }): Promise<string> {
-  const { pagesData, canvasJson, pageSize = "A4" } = params;
-  if (typeof document === "undefined") return "";
+  const pageSize = params.pageSize && THUMBNAIL_PAGE_SIZES[params.pageSize] ? params.pageSize : "A4";
+  const snapshot = selectFirstPageSnapshot({
+    pagesData: params.pagesData,
+    canvasJson: params.canvasJson,
+  });
+  if (!snapshot || typeof document === "undefined") return "";
 
-  const fallback = PAGE_SIZES[pageSize] ?? PAGE_SIZES.A4;
-
-  let json: any = null;
-  if (Array.isArray(pagesData) && pagesData.length > 0) {
-    json = { ...pagesData[0] };
-  } else if (canvasJson != null) {
-    json =
-      typeof canvasJson === "string"
-        ? JSON.parse(canvasJson)
-        : { ...canvasJson };
-  }
-
-  if (!json || !Array.isArray(json.objects)) {
-    return "";
-  }
-
-  sanitizeThumbnailJson(json);
-
-  const w =
-    typeof json.width === "number" && Number.isFinite(json.width) && json.width > 0
-      ? json.width
-      : fallback.w;
-  const h =
-    typeof json.height === "number" && Number.isFinite(json.height) && json.height > 0
-      ? json.height
-      : fallback.h;
-
+  const prepared = prepareFirstPageThumbnailJson(snapshot, pageSize);
+  const localUrls = await hydrateLocalThumbnailImages(prepared.objects);
   const el = document.createElement("canvas");
-  const bg =
-    typeof json.background === "string" && json.background.length > 0
-      ? json.background
-      : "#ffffff";
-
-  const c = initFabricCanvas(el, {
-    width: w,
-    height: h,
-    backgroundColor: bg,
+  const canvas = new Canvas(el, {
+    width: prepared.width,
+    height: prepared.height,
+    backgroundColor: "#ffffff",
     selection: false,
     preserveObjectStacking: true,
-  });
+  } as any);
 
   try {
-    await loadFromJsonPromise(c, json);
-    c.renderAll();
-    const dataUrl = c.toDataURL({
-      format: "png",
-      multiplier: 0.25,
-    } as any);
-    return typeof dataUrl === "string" ? dataUrl : "";
+    await loadThumbnailFonts(prepared.objects);
+    await loadFromJsonPromise(canvas, { objects: prepared.objects });
+    try {
+      return exportPrepared(canvas, prepared.width, prepared.height);
+    } catch {
+      const images = (canvas.getObjects?.() || []).filter(
+        (obj: any) => String(obj?.type || "").toLowerCase() === "image"
+      );
+      if (!images.length) return "";
+      images.forEach((obj: any) => canvas.remove(obj));
+      return exportPrepared(canvas, prepared.width, prepared.height);
+    }
   } catch (e) {
     console.warn("[generateResumeThumbnail]", e);
-    try {
-      c.renderAll();
-      const fallbackDataUrl = c.toDataURL({
-        format: "png",
-        multiplier: 0.25,
-      } as any);
-      return typeof fallbackDataUrl === "string" ? fallbackDataUrl : "";
-    } catch {
-      return "";
-    }
+    return "";
   } finally {
+    for (const url of localUrls) {
+      try {
+        URL.revokeObjectURL(url);
+      } catch {
+        /* ignore */
+      }
+    }
     try {
-      c.dispose();
+      canvas.dispose();
     } catch {
       /* ignore */
     }

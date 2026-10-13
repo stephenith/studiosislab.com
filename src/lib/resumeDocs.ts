@@ -1,5 +1,10 @@
-import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, runTransaction, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import {
+  incomingThumbnailMayReplace,
+  thumbnailMatchesSavedRevision,
+  THUMBNAIL_MAX_DATA_URL_CHARS,
+} from "@/lib/resumePreviewScene";
 
 const COLLECTION = "resume_docs";
 
@@ -186,6 +191,34 @@ export async function updateResumeDoc(params: {
   }
   const cleanPayload = stripUndefinedDeep(payload);
   await updateDoc(ref, cleanPayload);
+}
+
+/**
+ * Stores a first-page preview on the same user document.
+ * An older revision cannot overwrite a newer preview. Canvas JSON is left untouched.
+ */
+export async function updateResumeThumbnail(params: {
+  uid: string;
+  docId: string;
+  thumbnail: string;
+  thumbnailRevision: number;
+}): Promise<"written" | "stale" | "skipped"> {
+  const { uid, docId, thumbnail, thumbnailRevision } = params;
+  if (!thumbnail || thumbnail.length >= THUMBNAIL_MAX_DATA_URL_CHARS) return "skipped";
+  if (!Number.isFinite(thumbnailRevision)) return "skipped";
+  const ref = doc(db, "users", uid, COLLECTION, docId);
+  return runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists()) return "stale";
+    const data = snap.data() || {};
+    if (!incomingThumbnailMayReplace(data.thumbnailRevision, thumbnailRevision)) return "stale";
+    if (!thumbnailMatchesSavedRevision(data.autosaveRevision, thumbnailRevision)) return "stale";
+    tx.update(ref, {
+      thumbnail,
+      thumbnailRevision,
+    });
+    return "written";
+  });
 }
 
 export async function getResumeDoc(params: { uid: string; docId: string }) {

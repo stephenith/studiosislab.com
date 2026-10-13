@@ -16,7 +16,7 @@ import { getSystemTemplateById } from "@/data/systemTemplates/registry";
 import { toHexColor } from "@/lib/color";
 import { auth } from "@/lib/firebase";
 import { useAuthUser } from "@/lib/useAuthUser";
-import { createResumeDoc, getResumeDoc, updateResumeDoc } from "@/lib/resumeDocs";
+import { createResumeDoc, getResumeDoc, updateResumeDoc, updateResumeThumbnail } from "@/lib/resumeDocs";
 import { generateResumeThumbnail } from "@/lib/resumePreviewExport";
 import {
   deleteOldAssets,
@@ -541,10 +541,14 @@ export function useFabricEditor({
   const syncTimerRef = useRef<number | null>(null);
   const syncIntervalRef = useRef<number | null>(null);
   const isCloudSyncRunningRef = useRef(false);
-  /** Throttle offscreen thumbnail uploads after cloud sync (ms). */
-  const THUMBNAIL_CLOUD_MIN_INTERVAL_MS = 90_000;
-  const lastThumbnailGenAtRef = useRef(0);
-  const lastThumbnailGenHashRef = useRef<string | null>(null);
+  const thumbnailJobRef = useRef<{
+    uid: string;
+    docId: string;
+    revision: number;
+    pageSize: PageSize;
+    snapshot: any;
+  } | null>(null);
+  const thumbnailPumpingRef = useRef(false);
   const restoreCheckKeyRef = useRef<string | null>(null);
   const markDirtyRef = useRef<(snapshot: any) => void>(() => {});
   const imageFrameCropModeRef = useRef<{
@@ -1553,6 +1557,54 @@ export function useFabricEditor({
     [computeSnapshotHash, runWhenIdle, saveLocalDraftNow]
   );
 
+  const enqueueFirstPageThumbnail = (job: {
+    uid: string;
+    docId: string;
+    revision: number;
+    pageSize: PageSize;
+    snapshot: any;
+  }) => {
+    const queued = thumbnailJobRef.current;
+    if (queued && queued.revision > job.revision) return;
+    thumbnailJobRef.current = job;
+    if (thumbnailPumpingRef.current) return;
+    thumbnailPumpingRef.current = true;
+    void (async () => {
+      try {
+        while (thumbnailJobRef.current) {
+          const current = thumbnailJobRef.current;
+          thumbnailJobRef.current = null;
+          let thumb = "";
+          try {
+            thumb = await generateResumeThumbnail({
+              canvasJson: current.snapshot,
+              pageSize: current.pageSize,
+            });
+          } catch (e) {
+            devWarn("[thumb] cloud thumbnail failed", e);
+            thumb = "";
+          }
+          const pending = thumbnailJobRef.current as typeof current | null;
+          if (pending && pending.revision > current.revision) continue;
+          if (!thumb) continue;
+          try {
+            await updateResumeThumbnail({
+              uid: current.uid,
+              docId: current.docId,
+              thumbnail: thumb,
+              thumbnailRevision: current.revision,
+            });
+          } catch (e) {
+            devWarn("[thumb] cloud thumbnail failed", e);
+          }
+        }
+      } finally {
+        thumbnailPumpingRef.current = false;
+        if (thumbnailJobRef.current) enqueueFirstPageThumbnail(thumbnailJobRef.current);
+      }
+    })();
+  };
+
   const syncNow = useCallback(async () => {
     if (mode === "doc" && !hasInitialDocLoadCompletedRef.current) {
       return;
@@ -1582,9 +1634,15 @@ export function useFabricEditor({
     }
     isCloudSyncRunningRef.current = true;
     setAutosaveStatus("syncing");
+    const revisionAtSave = autosaveRevisionRef.current;
+    const pagesAtSave = getPagesJsonForSave();
+    const firstPageAtSave =
+      Array.isArray(pagesAtSave) && pagesAtSave.length > 0
+        ? pagesAtSave[0]
+        : getCanvasJsonForSave();
     try {
       const saveResult = await saveToCloud(docTitle || undefined, {
-        autosaveRevision: autosaveRevisionRef.current,
+        autosaveRevision: revisionAtSave,
         autosaveHash: hash,
       });
       if (!saveResult) {
@@ -1593,40 +1651,14 @@ export function useFabricEditor({
       }
       lastSyncedHashRef.current = hash;
 
-      if (resolvedUser) {
-        const activeDocId = saveResult.docId;
-        const now = Date.now();
-        const elapsed =
-          lastThumbnailGenAtRef.current === 0
-            ? THUMBNAIL_CLOUD_MIN_INTERVAL_MS
-            : now - lastThumbnailGenAtRef.current;
-        const hashChanged = hash !== lastThumbnailGenHashRef.current;
-        if (hashChanged && elapsed >= THUMBNAIL_CLOUD_MIN_INTERVAL_MS) {
-          const pd = getPagesJsonForSave();
-          const multi = Array.isArray(pd) && pd.length > 1;
-          const cj = multi ? undefined : getCanvasJsonForSave();
-          void (async () => {
-            try {
-              const thumb = await generateResumeThumbnail({
-                pagesData: multi ? pd : undefined,
-                canvasJson: multi ? undefined : cj,
-                pageSize,
-              });
-              if (thumb && thumb.length < 950_000) {
-                await updateResumeDoc({
-                  uid: resolvedUser.uid,
-                  docId: activeDocId,
-                  title: docTitle || "Untitled Resume",
-                  thumbnail: thumb,
-                });
-                lastThumbnailGenHashRef.current = hash;
-                lastThumbnailGenAtRef.current = Date.now();
-              }
-            } catch (e) {
-              devWarn("[thumb] cloud thumbnail failed", e);
-            }
-          })();
-        }
+      if (resolvedUser && firstPageAtSave) {
+        enqueueFirstPageThumbnail({
+          uid: resolvedUser.uid,
+          docId: saveResult.docId,
+          revision: revisionAtSave,
+          pageSize,
+          snapshot: firstPageAtSave,
+        });
       }
 
       const latestHash = computeSnapshotHash(pendingSnapshotRef.current);

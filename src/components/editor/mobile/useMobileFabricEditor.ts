@@ -24,7 +24,8 @@ import {
   resolveStarRatingValueFromPointer,
   setStarRatingValueOnGroup,
 } from "@/lib/editor/starRating/starRatingFactory";
-import { createResumeDoc, updateResumeDoc } from "@/lib/resumeDocs";
+import { createResumeDoc, updateResumeDoc, updateResumeThumbnail } from "@/lib/resumeDocs";
+import { generateResumeThumbnail } from "@/lib/resumePreviewExport";
 import { useAuth } from "@/lib/useAuth";
 import { PAGE_SIZES, type PageSize } from "@/types/editor";
 
@@ -544,12 +545,14 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
     setSaveStatus("saving");
     try {
       const pageSize: PageSize = "A4";
+      const thumbnailRevision = Date.now();
       const common = {
         uid: user.uid,
         title: docTitle || "Untitled Resume",
         canvasJson,
         pageSize,
         zoom: 1,
+        autosaveRevision: thumbnailRevision,
       };
 
       if (docIdRef.current) {
@@ -564,6 +567,27 @@ export function useMobileFabricEditor({ templateId }: UseMobileFabricEditorOptio
         });
         docIdRef.current = newId;
       }
+
+      const savedId = docIdRef.current;
+      const savedJson = canvasJson;
+      const savedUid = user.uid;
+      void (async () => {
+        try {
+          const thumb = await generateResumeThumbnail({
+            canvasJson: savedJson,
+            pageSize: "A4",
+          });
+          if (!thumb || !savedId) return;
+          await updateResumeThumbnail({
+            uid: savedUid,
+            docId: savedId,
+            thumbnail: thumb,
+            thumbnailRevision,
+          });
+        } catch (err) {
+          console.error("[mobile-editor] Thumbnail failed", err);
+        }
+      })();
 
       isDirtyRef.current = false;
       setSaveStatus("saved");

@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-
 import {
   collection,
   deleteDoc,
@@ -22,7 +20,7 @@ import { trackEvent } from "@/lib/analytics";
 import { getLoginRedirectUrl } from "@/lib/safeNextPath";
 
 import NoiseBackground from "@/components/home/NoiseBackground";
-import { useRuntimeResumeCatalog } from "@/lib/runtimeResumeCatalogClient";
+import { RecentResumePreview } from "@/components/resume/RecentResumePreview";
 
 const THUMB_FRAME =
   "relative w-full overflow-hidden rounded-xl bg-zinc-100 aspect-[210/297] shadow-[0_4px_16px_-6px_rgba(0,0,0,0.14)] ring-1 ring-zinc-200/80 transition-shadow duration-200 group-hover:shadow-[0_8px_22px_-8px_rgba(0,0,0,0.18)]";
@@ -36,16 +34,15 @@ type RecentDoc = {
   createdAt?: any;
   updatedAt?: any;
   thumbnail?: string;
+  thumbnailRevision?: number;
+  autosaveRevision?: number;
+  pagesData?: any[] | null;
   canvasJson?: any;
 };
 
 export default function ResumeRecentsPage() {
   const router = useRouter();
   const { user, authReady } = useAuth();
-  const { templates } = useRuntimeResumeCatalog();
-  const knownTemplateIds = new Set(templates.map((t) => t.id).concat(["blank"]));
-  const templateThumbById = new Map(templates.map((template) => [template.id, template.thumb]));
-
 
   const [recents, setRecents] = useState<RecentDoc[]>([]);
   const [recentsLoading, setRecentsLoading] = useState(false);
@@ -60,11 +57,12 @@ export default function ResumeRecentsPage() {
 
   useEffect(() => {
     let alive = true;
+    let showSpinner = true;
     const run = async () => {
       if (!user) return;
       try {
         if (!alive) return;
-        setRecentsLoading(true);
+        if (showSpinner) setRecentsLoading(true);
         const q = fsQuery(
           collection(db, "users", user.uid, "resume_docs"),
           orderBy("updatedAt", "desc"),
@@ -86,14 +84,22 @@ export default function ResumeRecentsPage() {
         if (!alive) return;
         setRecents([]);
       } finally {
+        showSpinner = false;
         if (!alive) return;
         setRecentsLoading(false);
       }
     };
 
-    run();
+    void run();
+    const refreshIfVisible = () => {
+      if (document.visibilityState === "visible") void run();
+    };
+    document.addEventListener("visibilitychange", refreshIfVisible);
+    window.addEventListener("focus", refreshIfVisible);
     return () => {
       alive = false;
+      document.removeEventListener("visibilitychange", refreshIfVisible);
+      window.removeEventListener("focus", refreshIfVisible);
     };
   }, [user]);
 
@@ -181,13 +187,6 @@ export default function ResumeRecentsPage() {
             </div>
           ) : (
             recents.map((r) => {
-              const fallbackTemplateId = String(
-                r.sourceTemplateId || r.templateId || "blank"
-              );
-              const canUseStaticFallback = knownTemplateIds.has(fallbackTemplateId);
-              const isBlank = fallbackTemplateId === "blank";
-              const fallbackThumb = templateThumbById.get(fallbackTemplateId) || `/templates/${fallbackTemplateId}.png`;
-
               return (
                 <div
                   key={r.id}
@@ -357,29 +356,7 @@ export default function ResumeRecentsPage() {
                           </div>
                         )}
                       </div>
-                      {r.thumbnail ? (
-                        <img
-                          src={r.thumbnail}
-                          alt="Recent resume thumbnail"
-                          className="h-full w-full object-cover"
-                        />
-                      ) : isBlank ? (
-                        <div className="flex h-full w-full items-center justify-center text-sm text-zinc-500">
-                          Saved (blank)
-                        </div>
-                      ) : canUseStaticFallback && !isBlank ? (
-                        <Image
-                          src={fallbackThumb}
-                          alt="Recent resume preview"
-                          fill
-                          className="object-cover"
-                          sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 100vw"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-sm text-zinc-500">
-                          Preview unavailable
-                        </div>
-                      )}
+                      <RecentResumePreview doc={r} />
                   </div>
 
                   <div className="min-w-0 pt-0.5">

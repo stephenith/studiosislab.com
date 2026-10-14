@@ -5,6 +5,7 @@
 
 import type { Canvas } from "fabric";
 import type { LayerItem } from "@/types/editor";
+import { isImageCropChrome } from "@/lib/editor/imageCrop";
 
 export interface GetLayersOptions {
   isPageBackground?: (obj: any) => boolean;
@@ -27,7 +28,7 @@ export function getLayers(
   const objs = canvas.getObjects?.() ?? [];
   const size = { w: 0, h: 0 };
   const normalObjs = objs.filter(
-    (o: any) => o?.role !== "grid" && !isPageBackground(o)
+    (o: any) => o?.role !== "grid" && !isPageBackground(o) && !isImageCropChrome(o)
   );
   const typeCounts: Record<string, number> = {};
   return normalObjs

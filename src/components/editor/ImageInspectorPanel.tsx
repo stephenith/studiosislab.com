@@ -367,11 +367,18 @@ export function ImageInspectorPanel({
         </div>
       )}
 
+      {imageProps?.cropError && !isCropping && (
+        <p className="text-xs text-red-600">{imageProps.cropError}</p>
+      )}
+
       {/* Section 5 — Crop mode */}
       {isCropping && (
         <div className="rounded-xl bg-white border border-zinc-200 shadow-lg p-3 space-y-3">
           <div className="text-xs font-medium text-zinc-600">Crop mode</div>
-          <p className="text-xs text-zinc-500">Drag the crop box on canvas, then apply.</p>
+          <p className="text-xs text-zinc-500">Drag the box, then press Enter or Apply.</p>
+          {imageProps?.cropError && (
+            <p className="text-xs text-red-600">{imageProps.cropError}</p>
+          )}
           <div className="flex gap-2">
             <button
               type="button"

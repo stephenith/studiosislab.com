@@ -32,6 +32,8 @@ assert.equal(first.objects[1].text, "PAGE ONE");
 const source = page("Edited", [
     { type: "line", role: "grid", left: 0, top: 0 },
     { type: "rect", excludeFromExport: true, left: 10, top: 10, width: 20, height: 20 },
+    { type: "rect", role: "image-crop-rect", left: 12, top: 12, width: 30, height: 30 },
+    { type: "rect", data: { role: "image-crop-dim" }, left: 0, top: 0, width: 8, height: 8 },
     { type: "image", src: "blob:http://local/secret", left: 30, top: 30, width: 40, height: 40 },
     {
       type: "image",
@@ -49,6 +51,8 @@ const sourceLeft = source.objects[1].left;
 const prepared = prepareFirstPageThumbnailJson(source);
 assert.equal(source.objects[1].left, sourceLeft);
 assert.equal(prepared.objects.some((obj) => obj.role === "grid"), false);
+assert.equal(prepared.objects.some((obj) => obj.role === "image-crop-rect"), false);
+assert.equal(prepared.objects.some((obj) => obj?.data?.role === "image-crop-dim"), false);
 assert.equal(prepared.objects.some((obj) => obj.excludeFromExport === true), false);
 assert.equal(prepared.objects.find((obj) => obj.text === "Edited").text, "Edited");
 const omitted = prepared.objects.find((obj) => obj.opacity === 0);

@@ -531,6 +531,7 @@ export default function EditorShell({
           editor.cancelImageCrop?.();
           return;
         }
+        return;
       }
 
       if (!mod) {

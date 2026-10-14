@@ -65,6 +65,7 @@ export type ImageProps = {
   width: number;
   height: number;
   isCropping: boolean;
+  cropError: string | null;
   adjustments: ImageAdjustments;
 };
 

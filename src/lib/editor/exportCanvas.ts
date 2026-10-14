@@ -17,6 +17,8 @@ export interface PageBounds {
 export interface ExportToDataURLOptions {
   multiplier?: number;
   getPageBounds: (canvas: Canvas) => PageBounds | null;
+  /** When set, only matching objects are painted. Crop chrome uses this. */
+  filter?: (object: any) => boolean;
 }
 
 /**
@@ -27,7 +29,7 @@ export function exportToDataURL(
   canvas: Canvas,
   options: ExportToDataURLOptions
 ): { dataUrl: string; width: number; height: number } | null {
-  const { multiplier = 2, getPageBounds } = options;
+  const { multiplier = 2, getPageBounds, filter } = options;
   const pageBounds = getPageBounds(canvas);
   if (!pageBounds) return null;
   const { left, top, width, height, fabricObj: pageFabricObj } = pageBounds;
@@ -47,6 +49,7 @@ export function exportToDataURL(
     width,
     height,
     multiplier,
+    ...(filter ? { filter } : {}),
   });
 
   if (prevVt) canvas.setViewportTransform(prevVt as any);

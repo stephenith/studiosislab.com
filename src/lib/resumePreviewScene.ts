@@ -133,6 +133,8 @@ export function prepareFirstPageThumbnailJson(
   const objects = rawObjects.filter((obj: any) => {
     if (!obj || typeof obj !== "object") return false;
     if (isGridJsonObject(obj)) return false;
+    const role = String(obj?.role || obj?.data?.role || "").toLowerCase();
+    if (role === "image-crop-rect" || role === "image-crop-dim") return false;
     if (obj.excludeFromExport === true && !isPageBackgroundJson(obj, target.w, target.h)) return false;
     return true;
   });

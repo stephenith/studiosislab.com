@@ -67,6 +67,14 @@ import { generateQrDataUrl } from "@/lib/editor/qrGenerator";
 import { getLayers as getLayersFromModule } from "@/lib/editor/layerManager";
 import { exportToDataURL as exportToDataURLModule } from "@/lib/editor/exportCanvas";
 import {
+  IMAGE_CROP_DIM_ROLE,
+  IMAGE_CROP_RECT_ROLE,
+  computeAxisAlignedImageCrop,
+  imageCropBlockedReason,
+  isImageCropChrome,
+  omitImageCropChromeFromSnapshot,
+} from "@/lib/editor/imageCrop";
+import {
   deleteAutosaveDraft,
   readAutosaveDraft,
   saveAutosaveDraft,
@@ -135,6 +143,7 @@ function generateThumbnailFromCanvas(canvas: any) {
       format: "png",
       quality: 1,
       multiplier: 1,
+      filter: (object: any) => !isImageCropChrome(object),
     });
 
     devLog("Thumbnail generated");
@@ -622,6 +631,7 @@ export function useFabricEditor({
     width: 0,
     height: 0,
     isCropping: false,
+    cropError: null,
     adjustments: { ...DEFAULT_IMAGE_ADJUSTMENTS },
   });
   const [tableProps, setTableProps] = useState<TableProps>({
@@ -670,6 +680,7 @@ export function useFabricEditor({
   const isHydratingFromSelectionRef = useRef(false);
   const imageCropStateRef = useRef<{
     image: any;
+    canvas: any;
     baseCropX: number;
     baseCropY: number;
     dimTop: any;
@@ -683,6 +694,7 @@ export function useFabricEditor({
       modified: () => void;
     };
   } | null>(null);
+  const exitImageCropRef = useRef<() => void>(() => {});
   const suppressImageHistoryPushRef = useRef(false);
   const prevActivePageIdRef = useRef<string | null>(null);
   const { user, loading: authLoading } = useAuthUser();
@@ -926,7 +938,9 @@ export function useFabricEditor({
       const srcCanvas = srcId ? pageCanvasesRef.current.get(srcId) : null;
       const id = createPageId();
       if (srcCanvas) {
-        const json = (srcCanvas as any).toJSON([...DUPLICATE_SNAPSHOT_PROPS]);
+        const json = omitImageCropChromeFromSnapshot(
+          (srcCanvas as any).toJSON([...DUPLICATE_SNAPSHOT_PROPS])
+        );
         const vpt = srcCanvas.viewportTransform;
         const objects = Array.isArray((json as any)?.objects) ? (json as any).objects : [];
         if (!objects.length) {
@@ -1287,8 +1301,10 @@ export function useFabricEditor({
       "locked",
       "hidden",
     ]);
-    const objects = (full.objects || []).filter((o: any) => o.role !== "grid");
-    return { objects };
+    const objects = (full.objects || []).filter(
+      (o: any) => o.role !== "grid" && !isImageCropChrome(o)
+    );
+    return omitImageCropChromeFromSnapshot({ objects });
   }, []);
 
   const getDraftKey = useCallback(() => {
@@ -1304,32 +1320,7 @@ export function useFabricEditor({
   const serializeForDraft = useCallback(() => {
     const c = getCanvas();
     if (!c) return null;
-    return (c as any).toJSON([
-      "excludeFromExport",
-      "selectable",
-      "evented",
-      "role",
-      "data",
-      "name",
-      "slbId",
-      "slbAssetId",
-      "slbSource",
-      "isPageBg",
-      "locked",
-      "hidden",
-    ]);
-  }, [getCanvas]);
-
-  const getCanvasJsonForSave = useCallback(() => {
-    return serializeForDraft();
-  }, [serializeForDraft]);
-
-  const getCanvasJson = useCallback(() => {
-    return getCanvasJsonForSave();
-  }, [getCanvasJsonForSave]);
-
-  const getPagesJsonForSave = useCallback(() => {
-    const toJson = (c: Canvas) =>
+    return omitImageCropChromeFromSnapshot(
       (c as any).toJSON([
         "excludeFromExport",
         "selectable",
@@ -1343,7 +1334,36 @@ export function useFabricEditor({
         "isPageBg",
         "locked",
         "hidden",
-      ]);
+      ])
+    );
+  }, [getCanvas]);
+
+  const getCanvasJsonForSave = useCallback(() => {
+    return serializeForDraft();
+  }, [serializeForDraft]);
+
+  const getCanvasJson = useCallback(() => {
+    return getCanvasJsonForSave();
+  }, [getCanvasJsonForSave]);
+
+  const getPagesJsonForSave = useCallback(() => {
+    const toJson = (c: Canvas) =>
+      omitImageCropChromeFromSnapshot(
+        (c as any).toJSON([
+          "excludeFromExport",
+          "selectable",
+          "evented",
+          "role",
+          "data",
+          "name",
+          "slbId",
+          "slbAssetId",
+          "slbSource",
+          "isPageBg",
+          "locked",
+          "hidden",
+        ])
+      );
     const pagesData: any[] = [];
     const order = pages.map((p) => p.id);
     for (const pageId of order) {
@@ -2982,9 +3002,11 @@ try {
       width: Number.isFinite(Number(active.width)) ? Number(active.width) : 0,
       height: Number.isFinite(Number(active.height)) ? Number(active.height) : 0,
       isCropping: !!imageCropStateRef.current,
+      cropError: null,
       adjustments: getImageAdjustmentsFromObject(active),
     };
     setImageProps((prev) => {
+      nextImage.cropError = imageCropStateRef.current ? prev.cropError : null;
       if (
         prev.opacity === nextImage.opacity &&
         prev.scaleX === nextImage.scaleX &&
@@ -2995,6 +3017,7 @@ try {
         prev.width === nextImage.width &&
         prev.height === nextImage.height &&
         prev.isCropping === nextImage.isCropping &&
+        prev.cropError === nextImage.cropError &&
         prev.adjustments.brightness === nextImage.adjustments.brightness &&
         prev.adjustments.contrast === nextImage.adjustments.contrast &&
         prev.adjustments.saturation === nextImage.adjustments.saturation &&
@@ -3078,6 +3101,13 @@ try {
       return;
     }
     lastSelectionRef.current = currentId;
+
+    if (active && isImageCropChrome(active)) {
+      setSelectionType((prev) => (prev === "image" ? prev : "image"));
+      setActiveObjectType((prev: string | null) => (prev === "image" ? prev : "image"));
+      setSelectedFrameHasImage((prev: boolean) => (prev === false ? prev : false));
+      return;
+    }
 
     if (!active || isActiveSelectionLike(active)) {
       if (isActiveSelectionLike(active)) {
@@ -3474,7 +3504,8 @@ try {
         objectRotating: () => {
           setIsRotatingObject(true);
         },
-        objectModified: () => {
+        objectModified: (e: any) => {
+          if (imageCropStateRef.current || isImageCropChrome(e?.target)) return;
           setIsRotatingObject(false);
           updateSelection();
           updateLayers();
@@ -3600,6 +3631,9 @@ try {
     if (!id) return;
     const c = pageCanvasesRef.current.get(id) || null;
     const didPageActuallyChange = prevActivePageIdRef.current !== id;
+    if (didPageActuallyChange && prevActivePageIdRef.current) {
+      exitImageCropRef.current();
+    }
     canvasRef.current = c;
     pageCanvasesRef.current.forEach((canvas, pageId) => {
       const isActivePage = pageId === id;
@@ -3728,6 +3762,7 @@ try {
       if (!c) return null;
       return exportToDataURLModule(c, {
         multiplier,
+        filter: (object) => !isImageCropChrome(object),
         getPageBounds: (canv) => {
           const size = pageSizePxRef.current;
           const pageObj = findPageObject(canv, size.w, size.h) as any;
@@ -5346,14 +5381,24 @@ try {
         evented: false,
         excludeFromExport: true,
       }) as any;
+    const blocked = imageCropBlockedReason(image);
+    if (blocked) {
+      setImageProps((prev) => ({ ...prev, isCropping: false, cropError: blocked }));
+      return;
+    }
+    const markChrome = (obj: any, role: string) => {
+      obj.role = role;
+      obj.excludeFromExport = true;
+      obj.data = { ...(obj.data || {}), role };
+    };
     const dimTop = makeDim();
     const dimBottom = makeDim();
     const dimLeft = makeDim();
     const dimRight = makeDim();
-    dimTop.role = "image-crop-dim";
-    dimBottom.role = "image-crop-dim";
-    dimLeft.role = "image-crop-dim";
-    dimRight.role = "image-crop-dim";
+    markChrome(dimTop, IMAGE_CROP_DIM_ROLE);
+    markChrome(dimBottom, IMAGE_CROP_DIM_ROLE);
+    markChrome(dimLeft, IMAGE_CROP_DIM_ROLE);
+    markChrome(dimRight, IMAGE_CROP_DIM_ROLE);
 
     const cropRect = new Rect({
       left: imageRect.left,
@@ -5373,8 +5418,9 @@ try {
       cornerSize: 10,
       originX: "left",
       originY: "top",
+      excludeFromExport: true,
     }) as any;
-    cropRect.role = "image-crop-rect";
+    markChrome(cropRect, IMAGE_CROP_RECT_ROLE);
 
     const syncCropUi = () => {
       clampCropRectToImageBounds(cropRect, image);
@@ -5407,6 +5453,7 @@ try {
 
     imageCropStateRef.current = {
       image,
+      canvas: c,
       baseCropX: Math.max(0, Number(image.cropX || 0)),
       baseCropY: Math.max(0, Number(image.cropY || 0)),
       dimTop,
@@ -5416,106 +5463,79 @@ try {
       cropRect,
       handlers,
     };
-    setImageProps((prev) => ({ ...prev, isCropping: true }));
+    setImageProps((prev) => ({ ...prev, isCropping: true, cropError: null }));
     c.requestRenderAll();
   }, [clampCropRectToImageBounds, getActiveImageObject, getCanvas, updateCropDimRects]);
 
+  const dismissImageCrop = useCallback(
+    (restoreSelection: boolean) => {
+      const state = imageCropStateRef.current;
+      if (!state) return;
+      const canvas = state.canvas;
+      const { cropRect, dimTop, dimBottom, dimLeft, dimRight, image, handlers } = state;
+      try {
+        cropRect?.off?.("moving", handlers.moving);
+        cropRect?.off?.("scaling", handlers.scaling);
+        cropRect?.off?.("modified", handlers.modified);
+      } catch {
+        /* listener already gone */
+      }
+      isApplyingRef.current = true;
+      try {
+        canvas?.remove?.(dimTop, dimBottom, dimLeft, dimRight, cropRect);
+        if (restoreSelection && canvas && image && getCanvas() === canvas) {
+          canvas.setActiveObject(image);
+        }
+      } finally {
+        isApplyingRef.current = false;
+      }
+      imageCropStateRef.current = null;
+      setImageProps((prev) => ({ ...prev, isCropping: false, cropError: null }));
+      canvas?.requestRenderAll?.();
+      if (restoreSelection && image) hydrateImageUiFromActiveObject(image);
+    },
+    [getCanvas, hydrateImageUiFromActiveObject]
+  );
+  exitImageCropRef.current = () => dismissImageCrop(false);
+
+  useEffect(() => {
+    return () => {
+      exitImageCropRef.current();
+    };
+  }, []);
+
   const cancelImageCrop = useCallback(() => {
-    const c = getCanvas();
-    const state = imageCropStateRef.current;
-    if (!c || !state) return;
-    const { cropRect, dimTop, dimBottom, dimLeft, dimRight, image, handlers } = state;
-    cropRect.off("moving", handlers.moving);
-    cropRect.off("scaling", handlers.scaling);
-    cropRect.off("modified", handlers.modified);
-    isApplyingRef.current = true;
-    try {
-      c.remove(dimTop);
-      c.remove(dimBottom);
-      c.remove(dimLeft);
-      c.remove(dimRight);
-      c.remove(cropRect);
-      c.setActiveObject(image);
-    } finally {
-      isApplyingRef.current = false;
-    }
-    imageCropStateRef.current = null;
-    setImageProps((prev) => ({ ...prev, isCropping: false }));
-    c.requestRenderAll();
-    hydrateImageUiFromActiveObject(image);
-  }, [getCanvas, hydrateImageUiFromActiveObject]);
+    dismissImageCrop(true);
+  }, [dismissImageCrop]);
 
   const applyImageCrop = useCallback(() => {
-    const c = getCanvas();
     const state = imageCropStateRef.current;
-    if (!c || !state) return;
-    const { image, cropRect, dimTop, dimBottom, dimLeft, dimRight, handlers, baseCropX, baseCropY } =
-      state;
-
-    cropRect.off("moving", handlers.moving);
-    cropRect.off("scaling", handlers.scaling);
-    cropRect.off("modified", handlers.modified);
+    const canvas = state?.canvas;
+    if (!canvas || !state) return;
+    const { image, cropRect } = state;
     clampCropRectToImageBounds(cropRect, image);
-
-    const left = Number(cropRect.left || 0);
-    const top = Number(cropRect.top || 0);
-    const width = Math.max(1, Number(cropRect.width || 1));
-    const height = Math.max(1, Number(cropRect.height || 1));
-    const pointA = new (FabricNS as any).Point(left, top);
-    const pointB = new (FabricNS as any).Point(left + width, top + height);
-    const localA = image.toLocalPoint?.(pointA, "center", "center");
-    const localB = image.toLocalPoint?.(pointB, "center", "center");
-    if (!localA || !localB) {
-      cancelImageCrop();
+    const result = computeAxisAlignedImageCrop(image, cropRect);
+    if (!result.ok) {
+      setImageProps((prev) => ({ ...prev, isCropping: true, cropError: result.error }));
       return;
     }
 
-    const sourceW = Math.max(1, Number(image.width || 1));
-    const sourceH = Math.max(1, Number(image.height || 1));
-    const localLeft = Math.max(0, Math.min(sourceW, Math.min(localA.x, localB.x) + sourceW / 2));
-    const localRight = Math.max(0, Math.min(sourceW, Math.max(localA.x, localB.x) + sourceW / 2));
-    const localTop = Math.max(0, Math.min(sourceH, Math.min(localA.y, localB.y) + sourceH / 2));
-    const localBottom = Math.max(0, Math.min(sourceH, Math.max(localA.y, localB.y) + sourceH / 2));
-    const nextWidth = Math.max(1, localRight - localLeft);
-    const nextHeight = Math.max(1, localBottom - localTop);
-    const renderedWidth = sourceW * Math.max(0.0001, Number(image.scaleX || 1));
-    const renderedHeight = sourceH * Math.max(0.0001, Number(image.scaleY || 1));
-
-    image.set({
-      cropX: Math.max(0, baseCropX + localLeft),
-      cropY: Math.max(0, baseCropY + localTop),
-      width: nextWidth,
-      height: nextHeight,
-      scaleX: renderedWidth / nextWidth,
-      scaleY: renderedHeight / nextHeight,
-      left: left + width / 2,
-      top: top + height / 2,
-      originX: "center",
-      originY: "center",
-    });
+    const assetId = image.slbAssetId;
+    const source = image.slbSource;
+    image.set(result.patch);
+    if (assetId) image.set("slbAssetId", assetId);
+    if (source) image.set("slbSource", source);
     image.setCoords?.();
+    image.dirty = true;
 
-    isApplyingRef.current = true;
-    try {
-      c.remove(dimTop);
-      c.remove(dimBottom);
-      c.remove(dimLeft);
-      c.remove(dimRight);
-      c.remove(cropRect);
-      c.setActiveObject(image);
-    } finally {
-      isApplyingRef.current = false;
-    }
-    imageCropStateRef.current = null;
-    setImageProps((prev) => ({ ...prev, isCropping: false }));
-    c.requestRenderAll();
-    hydrateImageUiFromActiveObject(image);
+    dismissImageCrop(true);
+    canvas.requestRenderAll();
     pushHistory("object:update");
-  }, [cancelImageCrop, clampCropRectToImageBounds, getCanvas, hydrateImageUiFromActiveObject, pushHistory]);
+  }, [clampCropRectToImageBounds, dismissImageCrop, pushHistory]);
 
   const deleteSelected = useCallback(() => {
     const c = getCanvas();
-    if (!c) return;
+    if (!c || imageCropStateRef.current) return;
     const active = c.getActiveObject() as any;
     if (!active) return;
 
@@ -5754,7 +5774,7 @@ try {
 
   const undo = useCallback(async () => {
     const c = getCanvas();
-    if (!c || undoRef.current.length <= 1) return;
+    if (!c || imageCropStateRef.current || undoRef.current.length <= 1) return;
     const current = undoRef.current.pop();
     if (current) redoRef.current.push(current);
     const prev = undoRef.current[undoRef.current.length - 1];
@@ -5763,7 +5783,7 @@ try {
 
   const redo = useCallback(async () => {
     const c = getCanvas();
-    if (!c || redoRef.current.length === 0) return;
+    if (!c || imageCropStateRef.current || redoRef.current.length === 0) return;
     const next = redoRef.current.pop();
     if (next) undoRef.current.push(next);
     await applySnapshotRef.current(next, "history");

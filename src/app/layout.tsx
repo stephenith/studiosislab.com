@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { Inter, Poppins } from "next/font/google";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import { GoogleAnalyticsPageView } from "@/components/analytics/GoogleAnalyticsPageView";
+import { GoogleTagManagerHead, GoogleTagManagerNoScript } from "@/components/analytics/GoogleTagManager";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -90,7 +91,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" className={`h-full ${poppins.variable} ${inter.variable}`}>
+      <head>
+        <GoogleTagManagerHead />
+      </head>
       <body className="h-full font-body">
+        <GoogleTagManagerNoScript />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_JSON_LD) }}

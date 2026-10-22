@@ -2,6 +2,112 @@ import type { BlogArticle } from "@/data/blog/types";
 
 export const blogArticles: BlogArticle[] = [
   {
+    slug: "how-to-create-an-invoice-as-a-freelancer",
+    title: "How to Create an Invoice as a Freelancer",
+    description:
+      "See what a clear freelancer invoice includes, how to describe the work and check the totals, and what to confirm before you send it.",
+    excerpt:
+      "A practical guide to writing a freelancer invoice, with an example, a payment note, and a short checklist before you send it.",
+    publishedAt: "2026-10-22",
+    category: "Productivity",
+    tags: ["freelancer invoice", "invoice checklist", "payment instructions"],
+    readTime: "4 min read",
+    sections: [
+      {
+        heading: "What a clear freelancer invoice includes",
+        paragraphs: [
+          "A useful invoice tells the client who did the work, what was delivered, what it costs, and how to pay. It should be readable in one pass, without a separate explanation by email.",
+          "Start with your name or business name and a way to reach you. Add the client’s name and, when you have it, their billing address. Give the invoice its own number, an issue date, and a due date. Then list each piece of work on its own line.",
+        ],
+        bullets: [
+          "Your name or business name, and contact details",
+          "The client’s name and billing details",
+          "An invoice number, issue date, and due date",
+          "A line for each piece of work, with quantity, rate, and amount",
+          "The total, and a short note on how to pay",
+        ],
+      },
+      {
+        heading: "Describe the work so the client can check it",
+        paragraphs: [
+          "Write each line the way the client would recognize the job. “Website updates” is hard to approve. “Homepage copy revision, 12 March” is easier to match to the work you delivered.",
+          "If you charge by time, show the hours and the rate. If you charge a fixed price, say what that price covers, such as one design round or a finished logo file. Keep deposits, extra rounds, and expenses on separate lines so a question about one item does not hold up the whole invoice.",
+        ],
+      },
+      {
+        heading: "Check the calculations before you send",
+        paragraphs: [
+          "Do the arithmetic from the lines, not from memory. Quantity times rate is the line amount. The line amounts add up to the subtotal. Calculate and label any taxes or fees according to the rules applicable to the transaction, then include those amounts in the total you ask the client to pay.",
+          "Read the total out loud against the lines. A swapped quantity, a rate copied from an older job, or a tax line left over from a previous invoice are the mistakes clients notice first.",
+        ],
+        bullets: [
+          "Quantity × rate = line amount",
+          "Line amounts added together = subtotal",
+          "Taxes or fees are calculated and labelled according to the rules applicable to the transaction",
+          "Subtotal plus only applicable taxes or fees = the total you ask the client to pay",
+        ],
+      },
+      {
+        heading: "State how and when you want to be paid",
+        paragraphs: [
+          "Payment instructions belong on the invoice, not only in a chat message. Name the method you accept, such as a bank transfer, and include the details the client needs to complete it. Say when payment is due, and ask the client to put the invoice number in the payment reference.",
+          "If you charge a late fee or offer a discount for early payment, write the condition in one plain sentence. Leave it off when you do not use it.",
+        ],
+      },
+      {
+        heading: "Example invoice",
+        paragraphs: [
+          "This is a labelled example, not a form for any particular country or tax system. The amounts are illustrative, and the currency should match the client agreement. The figures show how the lines, the subtotal, and the total fit together.",
+        ],
+        bullets: [
+          "From: Ada Shah, Studio North — ada@example.test",
+          "Bill to: Client Co — accounts@example.test",
+          "Invoice number: INV-104",
+          "Issued: 22 October 2026. Due: 5 November 2026",
+          "Homepage copy revision — quantity 1 × 450.00 = 450.00",
+          "Extra revision round — quantity 2 × 75.00 = 150.00",
+          "Subtotal: 600.00",
+          "Tax in this example: 0.00",
+          "Total due: 600.00",
+          "Payment: bank transfer within 14 days. Put INV-104 in the payment reference.",
+        ],
+      },
+      {
+        heading: "Pre-send checklist",
+        paragraphs: [
+          "Read the invoice once as if you were the client. You should be able to tell what you are paying for, how the total was reached, and where to send the money.",
+        ],
+        bullets: [
+          "The client name and your contact details are correct",
+          "The invoice number is new, and the dates match the agreement",
+          "Each line describes work the client can recognize",
+          "Quantity × rate matches every line amount",
+          "The lines add up to the subtotal, and the total includes only the tax or fees you intend",
+          "The payment method, due date, and payment reference are written on the invoice",
+          "You are sending the final version, not an older draft",
+        ],
+      },
+      {
+        heading: "Create the invoice in your browser",
+        paragraphs: [
+          "StudiosisLab has a free invoice page where you can fill in these details and download an A4 PDF. No account is required. The invoice is saved in this browser on the current device. It is not stored in an online account. Clearing this site's browser data may remove it, so download the PDF before you clear site data or switch browsers.",
+          "The page does not decide which tax applies to you. Invoice and tax requirements vary by country, state, and the kind of work you do. Check the rules for your location, or ask a qualified adviser, before you treat an invoice as a tax record.",
+        ],
+        links: [
+          {
+            label: "Create a freelancer invoice in your browser",
+            href: "https://studiosislab.com/tools/invoice",
+          },
+        ],
+      },
+    ],
+    cta: {
+      label: "Create a freelancer invoice in your browser",
+      href: "https://studiosislab.com/tools/invoice",
+      note: "No account is required. The invoice stays in this browser on this device, and clearing this site's data may remove it.",
+    },
+  },
+  {
     slug: "is-esigning-legally-valid-in-the-us",
     title: "Is E-Signing Legally Valid in the US?",
     description:

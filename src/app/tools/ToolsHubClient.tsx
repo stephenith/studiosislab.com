@@ -815,6 +815,16 @@ export default function EsignToolsPage() {
             <p className="mt-3 text-sm text-zinc-600 sm:text-base">
               Upload a PDF to start a signing flow, or verify an agreement you already have.
             </p>
+            <p className="mt-3 text-sm text-zinc-600">
+              Need an invoice instead?{" "}
+              <Link
+                href="/tools/invoice"
+                className="font-medium text-zinc-900 underline underline-offset-2 hover:text-zinc-950"
+              >
+                Open the invoice generator
+              </Link>
+              .
+            </p>
           </div>
         </div>
 

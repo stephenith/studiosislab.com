@@ -13,7 +13,7 @@ const DOCK_ICON_SRC = {
   esign: "/dock/esign.svg",
   docs: "/dock/docs.svg",
   games: "/dock/games.svg",
-  settings: "/dock/settings.svg",
+  invoice: "/dock/invoice.svg",
 } as const;
 
 function DockPng({ src, label }: { src: string; label: string }) {
@@ -58,16 +58,17 @@ const ITEMS: DockItem[] = [
     icon: <DockPng src={DOCK_ICON_SRC.games} label="Games" />,
   },
   {
-    id: "settings",
-    label: "Settings",
-    icon: <DockPng src={DOCK_ICON_SRC.settings} label="Settings" />,
+    id: "invoice",
+    label: "Invoice",
+    path: "/tools/invoice",
+    icon: <DockPng src={DOCK_ICON_SRC.invoice} label="Invoice" />,
   },
 ];
 
 function dockDestination(item: DockItem): string {
   if (item.id === "tools") return "/dashboard/login";
   if (item.id === "games") return "/games";
-  if (item.id === "settings") return "/settings";
+  if (item.id === "invoice") return "/tools/invoice";
   if (item.path) return item.path;
   return "";
 }
@@ -188,8 +189,8 @@ export default function MacDock() {
         router.push("/games");
         return;
       }
-      if (item.id === "settings") {
-        router.push("/settings");
+      if (item.id === "invoice") {
+        router.push("/tools/invoice");
         return;
       }
       if (item.path) {
@@ -237,8 +238,8 @@ export default function MacDock() {
         {ITEMS.map((item, index) => {
           const [scale, lift] = scaleAndLiftForIndex(index, hoverIndex);
           const isHovered = hoverIndex != null && index === hoverIndex;
-          const isResumeItem = item.id === "resume";
-          const isDisabled = isResumeItem ? false : !authReady;
+          const isPublicItem = item.id === "resume" || item.id === "invoice";
+          const isDisabled = isPublicItem ? false : !authReady;
           return (
             <button
               key={item.id}

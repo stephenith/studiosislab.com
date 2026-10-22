@@ -37,7 +37,9 @@ export default function PrivacyPolicyPage() {
         <p>
           Files you upload (such as resumes, PDFs, and e-sign documents) are processed to deliver
           requested features. Document data may be stored so you can continue work, review history, or
-          access finalized outputs within the product.
+          access finalized outputs within the product. Invoices you create with the invoice tool are
+          saved in this browser. They are not an account or server record, and they may be lost if
+          this site&apos;s data is cleared.
         </p>
       </SectionBlock>
 

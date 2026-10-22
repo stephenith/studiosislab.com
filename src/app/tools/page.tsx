@@ -4,7 +4,7 @@ import ToolsHubClient from "./ToolsHubClient";
 export const metadata: Metadata = {
   title: "Online Document Tools | StudiosisLab",
   description:
-    "Access StudiosisLab tools for e-signing documents and managing digital workflows online.",
+    "Access StudiosisLab tools for e-signing documents, generating invoices, and managing digital workflows online.",
   alternates: {
     canonical: "/tools",
   },

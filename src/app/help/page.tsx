@@ -25,8 +25,8 @@ export default function HelpCenterPage() {
         <div className="mt-8 space-y-6">
           <SectionBlock title="Account & Login">
             <p>
-              Sign in with Google to access account-linked workflows and saved progress. If you are
-              returning to previous work, use the same account you originally used on StudiosisLab.
+              Sign in with Google to reopen a saved resume or e-sign agreement. Use the same account you
+              used when you created it. The invoice tool does not use this account.
             </p>
             <p>
               <Link href="/login" className="font-medium text-zinc-900 underline">
@@ -37,8 +37,9 @@ export default function HelpCenterPage() {
 
           <SectionBlock title="Resume Builder">
             <p>
-              Choose a template, edit content directly in the builder, and export resumes for job
-              applications. You can start from a template or continue from recent work.
+              Open a Resume Template, sign in with Google, edit, and download a PDF. A larger screen can
+              also download a PNG. On a phone, open the Resume Template from the hub. Delete a saved resume
+              from the hub. No payment is required for these features today.
             </p>
             <p>
               <Link href="/resume-builder" className="font-medium text-zinc-900 underline">
@@ -53,8 +54,8 @@ export default function HelpCenterPage() {
 
           <SectionBlock title="E-Sign Documents">
             <p>
-              Upload documents, prepare agreements, insert signatures, and continue workflows from your
-              recent agreements list. Verification flows are available for completed documents.
+              Sign in with Google and upload a PDF of up to 50 MB. Place signatures, download the finished
+              PDF, or delete the agreement from the workspace. Other file types are not accepted.
             </p>
             <p>
               <Link href="/esign-online" className="font-medium text-zinc-900 underline">
@@ -69,8 +70,9 @@ export default function HelpCenterPage() {
 
           <SectionBlock title="Privacy & Security">
             <p>
-              StudiosisLab uses secure connections and account-based access patterns for sensitive
-              workflows. For policy details, review privacy and security pages.
+              Resume and e-sign files stay with your Google account. Invoices stay in this browser. Pages
+              use HTTPS. The privacy and security pages describe what deletion does, and they do not claim
+              that stored files are encrypted at rest.
             </p>
             <p>
               <Link href="/privacy-policy" className="font-medium text-zinc-900 underline">
@@ -85,8 +87,8 @@ export default function HelpCenterPage() {
 
           <SectionBlock title="Downloads & Exports">
             <p>
-              StudiosisLab supports practical output workflows for resumes and e-sign documents. Export
-              options are continually improved to support quality and compatibility.
+              Resume: PDF, and PNG on a larger screen. E-sign: PDF. Invoice: A4 PDF. The invoice is saved
+              in this browser only. Open the invoice tool without signing in.
             </p>
           </SectionBlock>
 
@@ -96,6 +98,10 @@ export default function HelpCenterPage() {
               the StudiosisLab blog.
             </p>
             <p>
+              <Link href="/tools/invoice" className="font-medium text-zinc-900 underline">
+                Open the invoice tool
+              </Link>
+              {" · "}
               <Link href="/blog" className="font-medium text-zinc-900 underline">
                 Visit the StudiosisLab Blog
               </Link>

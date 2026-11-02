@@ -78,6 +78,9 @@ export default function SendDocumentsForSignaturePage() {
             Send signature-ready documents without printing, scanning, or chasing scattered email threads.
             StudiosisLab helps you prepare PDFs, share signing steps with recipients, and keep progress visible.
           </p>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600">
+            You need a PDF of 50 MB or less. Sign in with Google to upload it and return later. Other file types are not accepted. Download the finished PDF from the workspace. A completion email attaches the PDF when it is 20 MB or less, and includes a download link when it is larger. You can delete the agreement in the workspace. No payment is required for the e-sign features available today.
+          </p>
         </section>
 
         <section className="mt-10">

@@ -4,7 +4,7 @@ import ToolsHubClient from "./ToolsHubClient";
 export const metadata: Metadata = {
   title: "Online Document Tools | StudiosisLab",
   description:
-    "Access StudiosisLab tools for e-signing documents, generating invoices, and managing digital workflows online.",
+    "Sign in with Google to upload a PDF of up to 50 MB, place signatures, and download the finished file.",
   alternates: {
     canonical: "/tools",
   },

@@ -7,7 +7,7 @@ import EsignOnlineIllustration from "@/components/marketing/illustrations/EsignO
 export const metadata: Metadata = {
   title: "Free Electronic Signature | StudiosisLab",
   description:
-    "Use StudiosisLab for a free electronic signature workflow with document upload, signature preparation, and secure online access.",
+    "Place a signature on a PDF in the browser. Google sign-in is required. No payment is required for the e-sign features available today.",
   alternates: {
     canonical: "/esign-online/free-electronic-signature",
   },
@@ -17,7 +17,7 @@ const faqItems = [
   {
     question: "Is the electronic signature workflow available at no cost?",
     answer:
-      "StudiosisLab currently provides free access to core e-sign workflows so users can prepare and complete common document tasks.",
+      "No payment is required for the e-sign features available today. This does not promise that every future feature will be free.",
   },
   {
     question: "Can I use a free electronic signature flow for personal paperwork?",
@@ -37,7 +37,7 @@ const faqItems = [
   {
     question: "How is a secure electronic signature workflow supported on StudiosisLab?",
     answer:
-      "Workflows use authenticated account access, controlled document actions, and agreement visibility so users can monitor active signing progress.",
+      "Google sign-in is required. Pages are served over HTTPS. This is not a claim that stored files are encrypted at rest.",
   },
   {
     question: "Can I use this for secure online signing across recurring documents?",
@@ -56,7 +56,7 @@ const pageSchema = {
   "@type": "WebPage",
   name: "Free Electronic Signature",
   description:
-    "Use StudiosisLab for a free electronic signature workflow with document upload, signature preparation, and secure online access.",
+    "Place a signature on a PDF in the browser. Google sign-in is required. No payment is required for the e-sign features available today.",
   url: "https://studiosislab.com/esign-online/free-electronic-signature",
   isPartOf: {
     "@type": "WebSite",
@@ -92,6 +92,9 @@ export default function FreeElectronicSignaturePage() {
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600">
             If you need a free electronic signature workflow for day-to-day documents, StudiosisLab keeps
             the process clear: upload your PDF, prepare signature steps, and manage progress online.
+          </p>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600">
+            You need a PDF of 50 MB or less. Sign in with Google to upload it and return later. Other file types are not accepted. Download the finished PDF from the workspace. A completion email attaches the PDF when it is 20 MB or less, and includes a download link when it is larger. You can delete the agreement in the workspace. No payment is required for the e-sign features available today.
           </p>
         </section>
 

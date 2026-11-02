@@ -22,7 +22,7 @@ const faqItems = [
   {
     question: "When does electronic signing usually save the most time?",
     answer:
-      "It usually saves the most time in recurring approval workflows, remote collaboration, and high-volume document handoffs.",
+      "People use it when they want to avoid printing and scanning. StudiosisLab has not measured a time saving.",
   },
   {
     question: "Are paper signatures still used in some situations?",
@@ -75,9 +75,11 @@ export default function ElectronicSignatureVsPaperSignaturePage() {
             Electronic Signature vs Paper Signature
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600">
-            US teams often need to choose between familiar paper-based signing and faster electronic
-            workflows. This comparison helps you decide based on document speed, coordination effort, and
-            day-to-day operational practicality.
+            This page compares a PDF signed in the StudiosisLab workspace with a printed signature. It
+            does not say which one a court, a client, or a company will accept.
+          </p>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600">
+            You need a PDF of 50 MB or less. Sign in with Google to upload it and return later. Other file types are not accepted. Download the finished PDF from the workspace. A completion email attaches the PDF when it is 20 MB or less, and includes a download link when it is larger. You can delete the agreement in the workspace. No payment is required for the e-sign features available today.
           </p>
         </section>
 

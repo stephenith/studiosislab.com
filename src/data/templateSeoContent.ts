@@ -79,7 +79,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     slug: "registered-nurse-resume",
     seoTitle: "Registered Nurse Resume Template | StudiosisLab",
     seoDescription:
-      "Create a registered nurse resume that highlights clinical experience, patient care outcomes, licenses, and certifications in a clean ATS-friendly format.",
+      "Create a registered nurse resume that highlights clinical experience, patient care outcomes, licenses, and certifications in a clear format.",
     h1: "Registered Nurse Resume Template",
     intro:
       "Nursing resumes need to show both clinical capability and dependable patient care. This template is structured to surface licenses, certifications, and unit-specific experience so employers can quickly see fit for RN positions.",
@@ -133,7 +133,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     slug: "project-manager-resume",
     seoTitle: "Project Manager Resume Template | StudiosisLab",
     seoDescription:
-      "Build a project manager resume that shows delivery outcomes, stakeholder leadership, timelines, budgets, and risk management in an ATS-ready layout.",
+      "Build a project manager resume that shows delivery outcomes, stakeholder leadership, timelines, budgets, and risk management in a clear layout.",
     h1: "Project Manager Resume Template",
     intro:
       "Project management resumes perform best when they show results, not just responsibilities. This template helps you present delivery metrics, team coordination, and stakeholder communication in a format that hiring managers can scan quickly.",
@@ -187,7 +187,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     slug: "data-analyst-resume",
     seoTitle: "Data Analyst Resume Template | StudiosisLab",
     seoDescription:
-      "Use this data analyst resume template to present SQL, dashboards, business insights, and reporting impact in a practical ATS-friendly format.",
+      "Use this data analyst resume template to present SQL, dashboards, business insights, and reporting impact in a practical, easy-to-read format.",
     h1: "Data Analyst Resume Template",
     intro:
       "Data analyst hiring teams want clear evidence that you can turn raw data into decisions. This template helps you present analysis projects, BI tools, and business outcomes without clutter.",
@@ -403,7 +403,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     slug: "cybersecurity-analyst-resume",
     seoTitle: "Cybersecurity Analyst Resume Template | StudiosisLab",
     seoDescription:
-      "Build a cybersecurity analyst resume that shows threat detection, incident response, SIEM work, and security controls in an ATS-friendly structure.",
+      "Build a cybersecurity analyst resume that shows threat detection, incident response, SIEM work, and security controls in a clear structure.",
     h1: "Cybersecurity Analyst Resume Template",
     intro:
       "Cybersecurity roles require a resume that demonstrates technical depth and practical risk reduction. This template helps you present incident response, monitoring, and control implementation in a way that security teams can evaluate quickly.",
@@ -565,7 +565,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     slug: "it-support-specialist-resume",
     seoTitle: "IT Support Specialist Resume Template | StudiosisLab",
     seoDescription:
-      "ATS-friendly IT support resume template focused on troubleshooting, help desk workflows, technical support, and end-user assistance.",
+      "IT support Resume Template focused on troubleshooting, help desk workflows, technical support, and end-user assistance.",
     h1: "IT Support Specialist Resume Template",
     intro:
       "IT support hiring teams want proof that you can solve technical issues without slowing people down. This template helps you present troubleshooting depth, ticket handling, and user communication in a clean format employers can scan quickly.",
@@ -1411,7 +1411,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
           "Yes. Professional work demonstrates production impact, while strong projects can show technical depth and initiative.",
       },
       {
-        question: "How do I make a software developer resume ATS-friendly?",
+        question: "How can I keep a software developer resume easy to scan?",
         answer:
           "Use clear headings, include exact technical terms from the posting, and describe outcomes in readable bullet points.",
       },
@@ -1578,7 +1578,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
           "Yes, if you have both. It shows broader strategy range and execution ability.",
       },
       {
-        question: "How can I make social content work ATS-friendly?",
+        question: "How can I keep social campaign results easy to scan?",
         answer:
           "Use standard headings and role-specific terminology while keeping campaign outcomes clear and specific.",
       },
@@ -1702,7 +1702,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Customer support representative resume template focused on ticket resolution, call center experience, CRM tools, communication, and customer satisfaction.",
     h1: "Customer Support Representative Resume Template",
     intro:
-      "Customer support representative resumes should demonstrate fast issue resolution and clear communication under pressure. This template helps you present ticket handling, call center workflows, and customer satisfaction outcomes in an ATS-friendly format.",
+      "Customer support representative resumes should demonstrate fast issue resolution and clear communication under pressure. This template helps you present ticket handling, call center workflows, and customer satisfaction outcomes in a clear format.",
     bestFor: [
       "Customer support representatives handling email, chat, and phone-based issue resolution.",
       "Call center professionals supporting high-volume queues and escalation workflows.",
@@ -1848,7 +1848,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
           "Yes. Supplier performance, sourcing coordination, and relationship management are core parts of many supply chain roles.",
       },
       {
-        question: "How can I make a supply chain resume ATS-friendly?",
+        question: "How can I keep a supply chain resume easy to scan?",
         answer:
           "Use standard headings and include job-aligned terms like logistics, procurement, forecasting, and inventory optimization in context.",
       },
@@ -1860,17 +1860,17 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     templateId: "t101",
     slug: "marketing-manager-ats-resume",
     seoTitle: "Marketing Manager Resume Template | StudiosisLab",
-    seoDescription: "Use this marketing manager resume template to present marketing manager experience clearly for ATS and hiring managers.",
+    seoDescription: "Open this marketing manager Resume Template, sign in, replace the sample text, and download a PDF.",
     h1: "Marketing Manager Resume Template",
-    intro: "Use this marketing manager resume template to present marketing manager experience clearly for ATS and hiring managers.",
-    bestFor: ["ATS job applications", "StudiosisLab editor workflows", "Professional one-page resumes"],
+    intro: "Open this marketing manager Resume Template, sign in with Google, replace the sample text with your own, and download a PDF.",
+    bestFor: ["People applying for marketing manager roles", "Editing after Google sign-in", "Downloading a PDF"],
     whatToInclude: ["Professional summary", "Experience", "Skills", "Education"],
-    atsTips: ["Use standard headings", "Keep text machine-readable", "Preserve ATS-safe single-column structure"],
+    atsTips: ["Use the heading names already on the page", "Keep important details in text, not only in images", "Read the downloaded PDF before you submit it"],
     writingTips: ["Lead with outcomes", "Keep bullets concise", "Match the role with relevant terminology"],
     faq: [
       {
-        "question": "Is the Marketing Manager Resume ATS-friendly?",
-        "answer": "Yes. This StudiosisLab template uses a clear single-page structure suited for ATS parsing."
+        "question": "Does StudiosisLab test this Resume Template in an applicant-tracking system?",
+        "answer": "No. Read the downloaded PDF before you submit it. Employer systems differ."
       }
     ],
     relatedTemplateIds: [],
@@ -1880,17 +1880,17 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     templateId: "t102",
     slug: "accountant-ats-resume",
     seoTitle: "Accountant Resume Template | StudiosisLab",
-    seoDescription: "Use this accountant resume template to present accountant experience clearly for ATS and hiring managers.",
+    seoDescription: "Open this accountant Resume Template, sign in, replace the sample text, and download a PDF.",
     h1: "Accountant Resume Template",
-    intro: "Use this accountant resume template to present accountant experience clearly for ATS and hiring managers.",
-    bestFor: ["ATS job applications", "StudiosisLab editor workflows", "Professional one-page resumes"],
+    intro: "Open this accountant Resume Template, sign in with Google, replace the sample text with your own, and download a PDF.",
+    bestFor: ["People applying for accountant roles", "Editing after Google sign-in", "Downloading a PDF"],
     whatToInclude: ["Professional summary", "Experience", "Skills", "Education"],
-    atsTips: ["Use standard headings", "Keep text machine-readable", "Preserve ATS-safe single-column structure"],
+    atsTips: ["Use the heading names already on the page", "Keep important details in text, not only in images", "Read the downloaded PDF before you submit it"],
     writingTips: ["Lead with outcomes", "Keep bullets concise", "Match the role with relevant terminology"],
     faq: [
       {
-        "question": "Is the Accountant Resume ATS-friendly?",
-        "answer": "Yes. This StudiosisLab template uses a clear single-page structure suited for ATS parsing."
+        "question": "Does StudiosisLab test this Resume Template in an applicant-tracking system?",
+        "answer": "No. Read the downloaded PDF before you submit it. Employer systems differ."
       }
     ],
     relatedTemplateIds: [],
@@ -1900,17 +1900,17 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     templateId: "t103",
     slug: "graphic-designer-ats-resume",
     seoTitle: "Graphic Designer Resume Template | StudiosisLab",
-    seoDescription: "Use this graphic designer resume template to present graphic designer experience clearly for ATS and hiring managers.",
+    seoDescription: "Open this graphic designer Resume Template, sign in, replace the sample text, and download a PDF.",
     h1: "Graphic Designer Resume Template",
-    intro: "Use this graphic designer resume template to present graphic designer experience clearly for ATS and hiring managers.",
-    bestFor: ["ATS job applications", "StudiosisLab editor workflows", "Professional one-page resumes"],
+    intro: "Open this graphic designer Resume Template, sign in with Google, replace the sample text with your own, and download a PDF.",
+    bestFor: ["People applying for graphic designer roles", "Editing after Google sign-in", "Downloading a PDF"],
     whatToInclude: ["Professional summary", "Experience", "Skills", "Education"],
-    atsTips: ["Use standard headings", "Keep text machine-readable", "Preserve ATS-safe single-column structure"],
+    atsTips: ["Use the heading names already on the page", "Keep important details in text, not only in images", "Read the downloaded PDF before you submit it"],
     writingTips: ["Lead with outcomes", "Keep bullets concise", "Match the role with relevant terminology"],
     faq: [
       {
-        "question": "Is the Graphic Designer Resume ATS-friendly?",
-        "answer": "Yes. This StudiosisLab template uses a clear single-page structure suited for ATS parsing."
+        "question": "Does StudiosisLab test this Resume Template in an applicant-tracking system?",
+        "answer": "No. Read the downloaded PDF before you submit it. Employer systems differ."
       }
     ],
     relatedTemplateIds: [],
@@ -1920,17 +1920,17 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     templateId: "t105",
     slug: "office-manager-resume",
     seoTitle: "Office Manager Resume Template | StudiosisLab",
-    seoDescription: "Use this office manager resume template to present office manager experience clearly for ATS and hiring managers.",
+    seoDescription: "Open this office manager Resume Template, sign in, replace the sample text, and download a PDF.",
     h1: "Office Manager Resume Template",
-    intro: "Use this office manager resume template to present office manager experience clearly for ATS and hiring managers.",
-    bestFor: ["ATS job applications", "StudiosisLab editor workflows", "Professional one-page resumes"],
+    intro: "Open this office manager Resume Template, sign in with Google, replace the sample text with your own, and download a PDF.",
+    bestFor: ["People applying for office manager roles", "Editing after Google sign-in", "Downloading a PDF"],
     whatToInclude: ["Professional summary", "Experience", "Skills", "Education"],
-    atsTips: ["Use standard headings", "Keep text machine-readable", "Preserve ATS-safe single-column structure"],
+    atsTips: ["Use the heading names already on the page", "Keep important details in text, not only in images", "Read the downloaded PDF before you submit it"],
     writingTips: ["Lead with outcomes", "Keep bullets concise", "Match the role with relevant terminology"],
     faq: [
       {
-        "question": "Is the Office Manager Resume ATS-friendly?",
-        "answer": "Yes. This StudiosisLab template uses a clear single-page structure suited for ATS parsing."
+        "question": "Does StudiosisLab test this Resume Template in an applicant-tracking system?",
+        "answer": "No. Read the downloaded PDF before you submit it. Employer systems differ."
       }
     ],
     relatedTemplateIds: [],

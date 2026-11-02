@@ -39,10 +39,11 @@ export default function EditorMobileGuard({ children }: EditorMobileGuardProps) 
             Best on tablet or desktop
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-zinc-600">
-            For the best resume editing experience, please use a tablet or desktop.
+            This is the fuller resume editor. Use a tablet or a larger screen. On a phone, open a Resume
+            Template from the resume hub. That path uses a simpler editor and downloads a PDF.
           </p>
           <p className="mt-2 text-xs text-zinc-500">
-            You can continue browsing templates and resume drafts from the hub.
+            You can keep browsing Resume Templates from the hub.
           </p>
           <Link
             href="/resume"

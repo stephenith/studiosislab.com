@@ -3,7 +3,7 @@ import InvoiceEditor from "./InvoiceEditor";
 
 export const metadata: Metadata = {
   title: "Free Invoice Generator | StudiosisLab",
-  description: "Create a professional invoice in the browser, preview it as you type, and download an A4 PDF. No account required.",
+  description: "Create an invoice in this browser and download an A4 PDF. No account and no payment. The invoice is saved in this browser only.",
   alternates: { canonical: "/tools/invoice" },
 };
 

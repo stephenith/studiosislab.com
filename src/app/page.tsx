@@ -11,9 +11,9 @@ import HeroSection from "@/components/HeroSection";
 import SiteFooter from "@/components/layout/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "StudiosisLab",
+  title: "StudiosisLab — Create and manage your documents",
   description:
-    "Create resumes, manage documents, and prepare e-sign workflows with StudiosisLab’s simple online productivity tools.",
+    "Create and manage your documents. Build a resume, sign a PDF, or make an invoice in the browser. No payment is required for the features available today.",
   alternates: {
     canonical: "/",
   },

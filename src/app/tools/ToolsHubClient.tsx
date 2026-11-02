@@ -813,7 +813,8 @@ export default function EsignToolsPage() {
               E-sign tools
             </h1>
             <p className="mt-3 text-sm text-zinc-600 sm:text-base">
-              Upload a PDF to start a signing flow, or verify an agreement you already have.
+              Upload a PDF of up to 50 MB, place signatures, and download the finished PDF. Other file
+              types are not accepted. No payment is required for the e-sign features available today.
             </p>
             <p className="mt-3 text-sm text-zinc-600">
               Need an invoice instead?{" "}

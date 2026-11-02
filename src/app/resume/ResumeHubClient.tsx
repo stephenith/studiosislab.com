@@ -400,14 +400,16 @@ export default function ResumeTemplatesPage() {
       <div className="relative z-10 mx-auto w-full max-w-7xl">
         <header className="px-1 pt-2 text-center sm:px-2 sm:pt-4">
           <h1 className="mx-auto max-w-4xl font-heading text-xl font-medium leading-[1.08] tracking-tight text-zinc-900 sm:text-2xl md:text-3xl lg:text-4xl">
-            Type your role, pick a <span className="text-violet-600">design</span>, and shine.
+            Find a <span className="text-violet-600">Resume Template</span> and start editing.
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-sm text-zinc-600 sm:text-base">
-            Create, edit, and manage resumes in one place.
+            Search by role and open a Resume Template. Sign in with Google to edit, save, and download.
+            A saved resume stays with that account. You can delete it from this hub.
           </p>
           {isGuest ? (
             <p className="mx-auto mt-3 max-w-lg text-xs text-zinc-500 sm:text-sm">
-              Sign in to save and edit resumes.
+              Sign in with Google to save and edit resumes. No payment is required for the resume features
+              available today.
             </p>
           ) : null}
         </header>

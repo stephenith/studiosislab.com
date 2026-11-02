@@ -5,7 +5,7 @@ import SectionBlock from "@/components/legal/SectionBlock";
 export const metadata: Metadata = {
   title: "Security | StudiosisLab",
   description:
-    "Learn how StudiosisLab approaches security for resumes, PDFs, and e-sign documents, including encrypted connections and responsible data handling.",
+    "How StudiosisLab handles resumes, e-sign PDFs, and invoices, including HTTPS and what deletion does.",
   alternates: {
     canonical: "/security",
   },
@@ -15,7 +15,7 @@ export default function SecurityPage() {
   return (
     <LegalPageShell
       title="Security"
-      intro="StudiosisLab is built with a trust-first approach for handling resumes, PDFs, and e-sign workflows."
+      intro="This page describes the security facts that are visible in the product today. It does not claim that stored files are encrypted at rest."
     >
       <SectionBlock title="Encrypted Connections">
         <p>
@@ -26,23 +26,25 @@ export default function SecurityPage() {
 
       <SectionBlock title="Authentication and Access Control">
         <p>
-          We use secure authentication flows and access controls to help ensure users can only access
-          authorized account resources and document actions.
+          Resume editing and the e-sign workspace require Google sign-in. A saved resume and an e-sign
+          agreement are tied to that account. The invoice tool does not use an account.
         </p>
       </SectionBlock>
 
       <SectionBlock title="Document Handling Practices">
         <p>
-          Uploaded files are handled for specific product workflows such as editing, verification, and
-          e-sign execution. We continuously evaluate how to reduce unnecessary data exposure while
-          preserving required functionality.
+          A resume is saved so you can reopen it. An e-sign PDF is stored so you can continue the
+          agreement and download the finished file. An invoice is saved in the browser where you created
+          it.
         </p>
       </SectionBlock>
 
       <SectionBlock title="Storage and Retention Philosophy">
         <p>
-          Our long-term direction includes stronger retention controls and automatic cleanup options
-          where operationally appropriate, helping users manage how long documents remain stored.
+          You can delete a resume from the resume hub and an agreement from the e-sign workspace. You can
+          delete an invoice in the invoice tool or its history. Those actions remove the item from that
+          place. StudiosisLab does not publish an automatic deletion period. This page does not claim that
+          every email copy or backup is erased, or that stored files are encrypted at rest.
         </p>
       </SectionBlock>
 

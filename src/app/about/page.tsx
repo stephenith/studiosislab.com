@@ -6,7 +6,7 @@ import SectionBlock from "@/components/legal/SectionBlock";
 export const metadata: Metadata = {
   title: "About StudiosisLab",
   description:
-    "StudiosisLab is a free online tools platform for resumes, e-signing, and document workflows—with guides, optional ads that help keep core tools free, and clear policies.",
+    "StudiosisLab is a browser workspace for documents. Build a resume, sign a PDF, or make an invoice. No payment is required for the features available today.",
   alternates: {
     canonical: "/about",
   },
@@ -18,7 +18,7 @@ export default function AboutPage() {
   return (
     <LegalPageShell
       title="About StudiosisLab"
-      intro="StudiosisLab is a free online tools platform. We focus on practical resume and document workflows, e-signing, and helpful guides—built to stay simple, fast, and accessible in the browser."
+      intro="StudiosisLab is a place to create and manage documents in the browser. The live tools are a resume editor, an e-sign workspace, and an invoice tool."
     >
       <SectionBlock title="Who operates StudiosisLab?">
         <p>
@@ -30,11 +30,10 @@ export default function AboutPage() {
 
       <SectionBlock title="What is StudiosisLab?">
         <p>
-          StudiosisLab brings together resume building, PDF-oriented document tasks, and e-signing in
-          one place. You can explore features without a heavy install: everything runs as a modern web
-          app. Where it makes sense, the site may be supported by advertising so we can keep core
-          tools free to use. We are not trying to be the loudest product on the market—we want
-          dependable workflows that feel approachable for everyday use.
+          You can build a resume, sign a PDF, and make an invoice. Resume editing and e-sign use a
+          Google account. The invoice stays in this browser and does not need an account. No payment is
+          required for these features today. Advertising may appear so the current tools can stay free.
+          That is not a promise about future features.
         </p>
       </SectionBlock>
 
@@ -59,13 +58,19 @@ export default function AboutPage() {
             <Link href="/esign-online" className={linkClass}>
               E-sign online
             </Link>{" "}
-            — overview of how we approach digital signing and document preparation.
+            — read how e-sign works, then sign in to upload a PDF.
+          </li>
+          <li>
+            <Link href="/tools/invoice" className={linkClass}>
+              Invoice
+            </Link>{" "}
+            — create an A4 PDF in this browser. No account.
           </li>
           <li>
             <Link href="/tools" className={linkClass}>
-              E-sign tools
+              E-sign workspace
             </Link>{" "}
-            — document utilities and signing-related workflows in one entry point.
+            — sign in with Google to upload a PDF and download the finished file.
           </li>
           <li>
             <Link href="/blog" className={linkClass}>
@@ -88,11 +93,9 @@ export default function AboutPage() {
 
       <SectionBlock title="How We Are Building">
         <p>
-          We ship in iterations: resume and document flows first, e-sign paths where they matter most,
-          and blog content that answers real questions we see in support and usage. Over time we plan
-          to add more document and creative tools on the same principles—simple entry points, honest
-          labeling, and no inflated promises. We are not announcing fixed dates; when something is
-          ready, you will see it on the site and in the changelog of releases users care about.
+          The live tools are the resume editor, the e-sign workspace, and the invoice tool. A later
+          tool is not part of the product until it is on the site and can be used. There is no date
+          for anything that is not listed above.
         </p>
       </SectionBlock>
 

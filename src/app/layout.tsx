@@ -45,7 +45,7 @@ function getAdsensePublisherScriptSrc(): string | null {
 export const metadata: Metadata = {
   title: "StudiosisLab",
   description:
-    "Create resumes, manage documents, and prepare e-sign workflows with StudiosisLab’s simple online productivity tools.",
+    "StudiosisLab — Create and manage your documents. Build a resume, sign a PDF, or make an invoice.",
   metadataBase: new URL("https://studiosislab.com"),
   manifest: "/manifest.webmanifest",
   icons: {

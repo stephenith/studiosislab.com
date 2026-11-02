@@ -15,42 +15,51 @@ const faqItems = [
   {
     question: "Is StudiosisLab free to use?",
     answer:
-      "StudiosisLab currently offers free access to core product experiences, including resume and document workflows. Pricing and premium plans may evolve as platform capabilities expand.",
+      "The resume editor, e-sign workspace, and invoice tool are free to use. No payment is required for the features available today. This does not promise that every future feature will be free.",
   },
   {
     question: "Are uploaded files secure?",
     answer:
-      "We use secure connections and controlled access practices to protect uploaded files. We continue improving security controls to support trust-first document handling.",
+      "Resume and e-sign files are available after you sign in with Google. Pages are served over HTTPS. Invoices stay in this browser and are not stored in your account. This is not a claim that stored files are encrypted at rest.",
   },
   {
     question: "Can I download my resumes and documents?",
     answer:
-      "Yes. StudiosisLab is designed to let users create and export practical outputs, including resume files and e-sign related documents.",
+      "A resume downloads as a PDF, or as a PNG on a larger screen. A signed agreement downloads as a PDF. An invoice downloads as an A4 PDF.",
   },
   {
     question: "How does e-signing work on StudiosisLab?",
     answer:
-      "You can upload a document, prepare it for signing, and use built-in flows for signature placement and verification. Document status and history are surfaced through the e-sign workspace.",
+      "Sign in with Google, upload a PDF of up to 50 MB, place signatures, and download the finished PDF. A completion email attaches the PDF when it is 20 MB or less, and includes a download link when it is larger. You can delete the agreement from the e-sign workspace.",
   },
   {
     question: "Do files stay stored permanently?",
     answer:
-      "Document retention depends on product behavior and workflow requirements. We are actively moving toward stronger retention controls, including safer long-term cleanup options.",
+      "You can delete a resume from the resume hub and an agreement from the e-sign workspace. You can delete an invoice in the invoice tool or its history. StudiosisLab does not publish an automatic deletion period. Deleting in the product removes the item from that place. It is not a claim that every email or backup copy is erased.",
   },
   {
     question: "Is login required to use StudiosisLab?",
     answer:
-      "Some capabilities require authentication to protect account-linked data and document access. Public browsing and feature visibility may still be available without sign-in.",
+      "Google sign-in is required to edit a resume and to use the e-sign workspace. The invoice tool does not require an account. Guides, the blog, and Resume Template pages can be read without signing in.",
   },
   {
     question: "Can I use StudiosisLab on mobile devices?",
     answer:
-      "Yes. StudiosisLab supports modern mobile browsers, though some advanced editing experiences are more efficient on larger screens.",
+      "On a phone, a Resume Template opened from the hub uses a simpler editor and downloads as a PDF. The fuller resume editor asks for a tablet or a larger screen. E-sign and the invoice tool open in the browser.",
   },
   {
     question: "Are resume templates ATS-friendly?",
     answer:
-      "StudiosisLab includes templates designed for practical readability and professional structure. ATS compatibility can vary by employer system, so users should review exported content and formatting before final submission.",
+      "StudiosisLab does not test Resume Templates in applicant-tracking systems. Read the downloaded PDF before you submit it.",
+  },
+  {
+    question: "Where is my invoice saved?",
+    answer:
+      "In this browser on this device. It is not saved to a StudiosisLab account. Another browser cannot open it. Clearing this site's data removes it. Download the A4 PDF, or export a backup from History, before you clear site data.",
+  },
+  {
+    question: "What file do I need for e-sign?",
+    answer: "A PDF of 50 MB or less. Other file types are not accepted. Google sign-in is required.",
   },
 ] as const;
 
@@ -71,66 +80,14 @@ export default function FaqPage() {
   return (
     <LegalPageShell
       title="Frequently Asked Questions"
-      intro="Quick answers to common questions about StudiosisLab features, data handling, and everyday usage."
+      intro="Answers about the resume editor, e-sign workspace, and invoice tool: what you need, what you get back, and where the file stays."
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-      <SectionBlock title="Is StudiosisLab free to use?">
-        <p>
-          StudiosisLab currently offers free access to core product experiences, including resume and
-          document workflows. Pricing and premium plans may evolve as platform capabilities expand.
-        </p>
-      </SectionBlock>
-
-      <SectionBlock title="Are uploaded files secure?">
-        <p>
-          We use secure connections and controlled access practices to protect uploaded files. We
-          continue improving security controls to support trust-first document handling.
-        </p>
-      </SectionBlock>
-
-      <SectionBlock title="Can I download my resumes and documents?">
-        <p>
-          Yes. StudiosisLab is designed to let users create and export practical outputs, including
-          resume files and e-sign related documents.
-        </p>
-      </SectionBlock>
-
-      <SectionBlock title="How does e-signing work on StudiosisLab?">
-        <p>
-          You can upload a document, prepare it for signing, and use built-in flows for signature
-          placement and verification. Document status and history are surfaced through the e-sign
-          workspace.
-        </p>
-      </SectionBlock>
-
-      <SectionBlock title="Do files stay stored permanently?">
-        <p>
-          Document retention depends on product behavior and workflow requirements. We are actively
-          moving toward stronger retention controls, including safer long-term cleanup options.
-        </p>
-      </SectionBlock>
-
-      <SectionBlock title="Is login required to use StudiosisLab?">
-        <p>
-          Some capabilities require authentication to protect account-linked data and document access.
-          Public browsing and feature visibility may still be available without sign-in.
-        </p>
-      </SectionBlock>
-
-      <SectionBlock title="Can I use StudiosisLab on mobile devices?">
-        <p>
-          Yes. StudiosisLab supports modern mobile browsers, though some advanced editing experiences
-          are more efficient on larger screens.
-        </p>
-      </SectionBlock>
-
-      <SectionBlock title="Are resume templates ATS-friendly?">
-        <p>
-          StudiosisLab includes templates designed for practical readability and professional structure.
-          ATS compatibility can vary by employer system, so users should review exported content and
-          formatting before final submission.
-        </p>
-      </SectionBlock>
+      {faqItems.map((item) => (
+        <SectionBlock key={item.question} title={item.question}>
+          <p>{item.answer}</p>
+        </SectionBlock>
+      ))}
     </LegalPageShell>
   );
 }

@@ -5,8 +5,9 @@ const FOOTER_GROUPS = [
     title: "Product",
     links: [
       { label: "Resume Builder", href: "/resume-builder" },
+      { label: "Invoice", href: "/tools/invoice" },
       { label: "E-sign online", href: "/esign-online" },
-      { label: "E-sign tools", href: "/tools" },
+      { label: "E-sign workspace", href: "/tools" },
     ],
   },
   {
@@ -49,7 +50,7 @@ export default function SiteFooter() {
         ))}
       </div>
       <p className="mt-8 pb-2 text-xs text-zinc-400">
-        StudiosisLab — modern tools for resumes, documents, and e-sign workflows.
+        StudiosisLab — Create and manage your documents.
       </p>
     </footer>
   );

@@ -46,8 +46,8 @@ function AuthPanel({
           One-time Google sign-up
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600 sm:text-base">
-          Sign in once and your resumes, downloads, and documents stay saved for the next time you
-          come back.
+          Sign in with Google to save a resume or an e-sign agreement to your account. The invoice tool
+          does not use this sign-in. An invoice stays in this browser.
         </p>
 
         <button

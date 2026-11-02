@@ -16,7 +16,7 @@ export default function HomeSectionEsign() {
       <div className={ILLUSTRATION_FRAME}>
         <Image
           src={ESIGN_ILLUSTRATION_SRC}
-          alt="E-Sign workflow illustration"
+          alt="Illustration of a document being signed"
           fill
           className="object-contain object-center"
           sizes="(max-width: 768px) 100vw, 768px"
@@ -30,9 +30,9 @@ export default function HomeSectionEsign() {
           E‑Sign
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600 md:text-base">
-          A straightforward digital signing flow—upload documents, sign with confidence, and keep
-          everything organized from first draft to final file. Built to save time versus manual
-          paperwork and stay pleasant when you come back again and again.
+          Upload a PDF of up to 50 MB, place a signature, and download the finished PDF. Sign in with
+          Google to open the workspace and return to an agreement later. Other file types are not
+          accepted. No payment is required for the e-sign features available today.
         </p>
       </div>
     </div>

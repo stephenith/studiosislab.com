@@ -245,6 +245,12 @@ export default function InvoiceEditor() {
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Tools</p>
           <h1 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">Invoice</h1>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-zinc-600">
+            No account and no payment. The invoice is saved in this browser on this device. Download an A4
+            PDF before you clear this site&apos;s data. Currencies are USD, INR, EUR, GBP, CAD, and AUD. A tax
+            rate is a percentage of the subtotal. This page does not decide which tax applies. A signature
+            image is a picture on the invoice, not a cryptographic or legal signature.
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={() => void startNew()} className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-medium">

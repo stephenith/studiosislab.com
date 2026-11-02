@@ -16,7 +16,7 @@ export default function HomeSectionDashboard() {
       <div className={ILLUSTRATION_FRAME}>
         <Image
           src={DASHBOARD_ILLUSTRATION_SRC}
-          alt="Publisher dashboard illustration"
+          alt="Illustration of a dashboard"
           fill
           className="object-contain object-center"
           sizes="(max-width: 768px) 100vw, 768px"
@@ -30,9 +30,8 @@ export default function HomeSectionDashboard() {
           Publisher dashboard
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600 md:text-base">
-          Invite-only access for approved publishing and ad-tech partners. With issued credentials, your
-          team can monitor live performance in one place while we operate and maintain the platform in the
-          background—clear visibility when transparency matters.
+          Publisher is for approved partners with issued credentials. It is not the place to edit a
+          resume, sign a PDF, or make an invoice.
         </p>
       </div>
     </div>

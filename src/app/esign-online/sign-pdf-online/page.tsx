@@ -22,7 +22,7 @@ const faqItems = [
   {
     question: "Do I need to create an account before signing a PDF?",
     answer:
-      "Account sign-in helps keep document actions tied to your workspace so you can reopen and continue later.",
+      "Yes. Google sign-in is required before you can upload a PDF and return to it later.",
   },
   {
     question: "Can I return to a draft PDF after closing the page?",
@@ -77,6 +77,9 @@ export default function SignPdfOnlinePage() {
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600">
             Need to sign a PDF quickly? StudiosisLab gives you a focused browser workflow to upload a file,
             place signatures, and keep document progress organized in one place.
+          </p>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600">
+            You need a PDF of 50 MB or less. Sign in with Google to upload it and return later. Other file types are not accepted. Download the finished PDF from the workspace. A completion email attaches the PDF when it is 20 MB or less, and includes a download link when it is larger. You can delete the agreement in the workspace. No payment is required for the e-sign features available today.
           </p>
         </section>
 

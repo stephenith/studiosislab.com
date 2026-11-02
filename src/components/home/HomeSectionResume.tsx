@@ -16,7 +16,7 @@ export default function HomeSectionResume() {
       <div className={ILLUSTRATION_FRAME}>
         <Image
           src={RESUME_ILLUSTRATION_SRC}
-          alt="Resume builder illustration"
+          alt="Illustration of a resume page"
           fill
           className="object-contain object-center"
           sizes="(max-width: 768px) 100vw, 896px"
@@ -30,8 +30,9 @@ export default function HomeSectionResume() {
           Resume builder
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600 md:text-base">
-          Build and edit your resume in the browser, then download whenever you are ready. Create from a
-          template or a blank page, refine the details, and export a polished file you can use right away.
+          Build and edit your resume in the browser. Start from a Resume Template or a blank page. Sign
+          in with Google to save it with your account. On a phone, open a Resume Template from the hub to
+          use the simpler editor and download a PDF. On a larger screen you can download a PDF or a PNG.
         </p>
       </div>
     </div>

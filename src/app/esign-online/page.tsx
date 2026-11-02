@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 const esignFaqItems = [
   {
     question: "Do I need an account to use e-sign features?",
-    answer: "Account sign-in is used for secure access and workflow continuity.",
+    answer: "Yes. Google sign-in is required to upload a PDF and return to an agreement.",
   },
   {
     question: "Can I track agreement status?",
@@ -24,7 +24,8 @@ const esignFaqItems = [
   },
   {
     question: "Are documents handled securely?",
-    answer: "Document workflows use secure transport and controlled access patterns within the platform.",
+    answer:
+      "The workspace requires Google sign-in, and pages are served over HTTPS. This is not a claim that stored files are encrypted at rest.",
   },
   {
     question: "Can I continue an agreement later?",
@@ -69,6 +70,9 @@ export default function EsignOnlineLandingPage() {
               Upload Document
             </Link>
           </div>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600">
+            You need a PDF of 50 MB or less. Sign in with Google to upload it and return later. Other file types are not accepted. Download the finished PDF from the workspace. A completion email attaches the PDF when it is 20 MB or less, and includes a download link when it is larger. You can delete the agreement in the workspace. No payment is required for the e-sign features available today.
+          </p>
         </section>
 
         <section className="mt-10">
@@ -87,17 +91,17 @@ export default function EsignOnlineLandingPage() {
             </p>
           </SectionBlock>
 
-          <SectionBlock title="Free electronic signature and secure online signing">
+          <SectionBlock title="Free electronic signature">
             <p>
-              Explore how to start electronic signature workflows with current core free access, secure
-              online document handling, and account-based workflow visibility.
+              No payment is required for the e-sign features available today. Google sign-in is required,
+              and the file you upload must be a PDF of 50 MB or less.
             </p>
             <p>
               <Link
                 href="/esign-online/free-electronic-signature"
                 className="font-medium text-zinc-900 underline"
               >
-                Visit Free Electronic Signature and Security Workflow Guide
+                Visit Free Electronic Signature
               </Link>
             </p>
           </SectionBlock>
@@ -209,7 +213,7 @@ export default function EsignOnlineLandingPage() {
                 href="/blog/how-to-build-a-resume-that-passes-ats-in-2026"
                 className="font-medium text-zinc-900 underline"
               >
-                How to Build a Resume That Passes ATS in 2026
+                How to Structure a Resume for Applicant-Tracking Systems
               </Link>
             </li>
           </ul>

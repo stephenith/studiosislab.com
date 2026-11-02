@@ -21,8 +21,9 @@ export default function TermsAndConditionsPage() {
         <p>
           You agree to use StudiosisLab only for lawful purposes and in a way that does not abuse,
           disrupt, or compromise service quality, infrastructure stability, or other users&apos;
-          experience. Core tools are offered with free access where stated; optional advertising may
-          appear in some areas to help support operating costs.
+          experience. The resume editor, e-sign workspace, and invoice tool do not require payment for
+          the features available today. Optional advertising may appear in some areas. This is not a
+          promise that every future feature will be free.
         </p>
       </SectionBlock>
 
@@ -45,7 +46,9 @@ export default function TermsAndConditionsPage() {
         <p>
           You are responsible for files and content you upload, generate, or share through StudiosisLab.
           You must ensure you have the legal right to use that content and that it does not violate
-          third-party rights or applicable law.
+          third-party rights or applicable law. You are also responsible for the resume text, the PDF you
+          upload, and the amounts and tax labels on an invoice. StudiosisLab does not decide whether a
+          signature meets a legal test or whether an invoice meets a tax rule.
         </p>
       </SectionBlock>
 

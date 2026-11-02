@@ -7,7 +7,7 @@ import ResumeBuilderIllustration from "@/components/marketing/illustrations/Resu
 export const metadata: Metadata = {
   title: "Free Online Resume Builder | StudiosisLab",
   description:
-    "Create professional resumes online with StudiosisLab’s simple resume builder, editable templates, and fast document workflow.",
+    "Build a resume in the browser from a Resume Template or a blank page. Sign in with Google to save it. Download a PDF, or a PNG on a larger screen. No payment is required today.",
   alternates: {
     canonical: "/resume-builder",
   },
@@ -16,20 +16,23 @@ export const metadata: Metadata = {
 const resumeFaqItems = [
   {
     question: "Is StudiosisLab free to use?",
-    answer: "StudiosisLab currently provides free access to core resume workflows.",
+    answer:
+      "No payment is required for the resume features available today. This does not promise that every future feature will be free.",
   },
   {
     question: "Can I edit resumes after creating them?",
-    answer: "Yes. You can continue editing and refining resume content before final export.",
+    answer:
+      "Yes, after you sign in with Google. The saved resume stays with that account, and you can delete it from the resume hub.",
   },
   {
     question: "Can I use the builder on mobile?",
-    answer: "Yes, though detailed editing is generally smoother on larger screens.",
+    answer:
+      "On a phone, a Resume Template opened from the hub uses a simpler editor and downloads as a PDF. The fuller editor asks for a tablet or a larger screen.",
   },
   {
     question: "Are templates suitable for ATS workflows?",
     answer:
-      "Templates are designed for clear structure and readability. Compatibility can vary by employer system, so always review your final export.",
+      "StudiosisLab does not test Resume Templates in applicant-tracking systems. Read the downloaded PDF before you submit it.",
   },
 ] as const;
 
@@ -59,8 +62,9 @@ export default function ResumeBuilderLandingPage() {
             Free Online Resume Builder
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600">
-            Build modern resumes online with a simple workflow designed for students, freshers,
-            professionals, and active job seekers.
+            Build a resume from a Resume Template or a blank page. Sign in with Google to edit and save
+            it. Download a PDF, or a PNG on a larger screen. No payment is required for the resume
+            features available today.
           </p>
           <div className="mt-6">
             <Link
@@ -79,19 +83,19 @@ export default function ResumeBuilderLandingPage() {
         <section className="mt-10 grid gap-6 md:grid-cols-2">
           <SectionBlock title="Why People Use StudiosisLab Resume Builder">
             <ul className="list-disc space-y-2 pl-5">
-              <li>Clean resume templates built for practical job applications.</li>
-              <li>Edit content online without complicated setup.</li>
-              <li>Designed for students, freshers, and experienced professionals.</li>
-              <li>Fast workflow focused on export and submission readiness.</li>
-              <li>Simple UI that keeps writing and layout decisions clear.</li>
+              <li>Start from a Resume Template or a blank page.</li>
+              <li>Sign in with Google. The resume is saved with that account.</li>
+              <li>Download a PDF. A larger screen can also download a PNG.</li>
+              <li>Delete a saved resume from the resume hub.</li>
+              <li>No payment is required for these features today.</li>
             </ul>
           </SectionBlock>
 
           <SectionBlock title="How It Works">
             <ol className="list-decimal space-y-2 pl-5">
-              <li>Choose a template that matches your profile and role.</li>
-              <li>Customize your details, projects, and experience sections.</li>
-              <li>Download your resume or continue refining it in the editor.</li>
+              <li>Choose a Resume Template, or start from a blank page.</li>
+              <li>Sign in with Google and replace the sample text with your own.</li>
+              <li>Download a PDF. On a larger screen you can also download a PNG.</li>
             </ol>
           </SectionBlock>
         </section>
@@ -107,8 +111,8 @@ export default function ResumeBuilderLandingPage() {
 
           <SectionBlock title="Trust and Security">
             <p>
-              Resume workflows run with account-based access and secure connections. We are committed
-              to responsible handling of user documents and clear privacy practices.
+              A saved resume stays with your Google account. The connection uses HTTPS. StudiosisLab does
+              not claim that stored files are encrypted at rest.
             </p>
             <p>
               <Link href="/security" className="font-medium text-zinc-900 underline">
@@ -139,7 +143,7 @@ export default function ResumeBuilderLandingPage() {
                 href="/blog/how-to-build-a-resume-that-passes-ats-in-2026"
                 className="font-medium text-zinc-900 underline"
               >
-                How to Build a Resume That Passes ATS in 2026
+                How to Structure a Resume for Applicant-Tracking Systems
               </Link>
             </li>
             <li>
@@ -156,7 +160,7 @@ export default function ResumeBuilderLandingPage() {
         <section className="mt-8 rounded-2xl border border-zinc-200/80 bg-white/90 p-6 text-center shadow-sm">
           <h2 className="font-heading text-2xl font-semibold tracking-tight">Ready to build your resume?</h2>
           <p className="mt-2 text-sm text-zinc-600">
-            Start in minutes and keep full control over your content and structure.
+            Sign in with Google, edit the Resume Template, and download a PDF.
           </p>
           <div className="mt-5">
             <Link

@@ -76,9 +76,9 @@ export default function PrivacyPolicyPage() {
 
       <SectionBlock title="Security Practices">
         <p>
-          We apply security-focused practices to reduce risk, including controlled access, secure
-          transport, and operational safeguards. No system is completely risk-free, but we design with
-          trust and responsible handling as core requirements.
+          Pages are served over HTTPS. A saved resume or e-sign agreement is available to the signed-in
+          Google account. No system is free of risk. This policy does not claim that stored files are
+          encrypted at rest.
         </p>
       </SectionBlock>
 

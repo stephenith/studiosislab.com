@@ -134,7 +134,10 @@ export default function InvoiceHistoryClient() {
     <InvoiceChrome showToolsLink={false}>
       <div>
         <h1 className="font-heading text-3xl font-semibold tracking-tight">History</h1>
-        <p className="mt-2 max-w-2xl text-sm text-zinc-600">Invoices saved on this device stay in this browser.</p>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600">
+          These invoices are stored in this browser. Open one, duplicate it, delete it, or export a backup.
+          Another browser cannot open them. Clearing this site&apos;s data removes them.
+        </p>
       </div>
       <StorageNotice status={status} />
       {migrationNote ? (

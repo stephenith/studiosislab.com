@@ -38,11 +38,11 @@ export default function ContactPage() {
         </p>
       </SectionBlock>
 
-      <SectionBlock title="Response Time">
+      <SectionBlock title="What to include">
         <p>
-          We aim to respond to most support requests within 1-2 business days. Complex technical
-          issues may take longer when deeper investigation is required, but we will keep you updated
-          on progress.
+          Include the page address and what you were trying to do. For a resume or an e-sign agreement,
+          write from the Google account that created it. Invoices stay in your browser, so support cannot
+          open them from an account. A specific reply time is not stated here.
         </p>
       </SectionBlock>
 

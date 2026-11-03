@@ -41,18 +41,16 @@ export default function HeroSection() {
         <div className="mt-1 flex flex-col items-center text-center">
           <h1 className="flex max-w-[min(100%,22rem)] flex-col gap-1.5 font-heading text-xl font-medium leading-[1.08] tracking-tight text-zinc-900 sm:max-w-none sm:text-2xl md:text-3xl lg:text-4xl">
             <span className="block">
-              <span className="text-violet-600">Create</span> and manage
+              <span className="text-violet-600">Create</span>, Edit & Manage
             </span>
 
             <span className="block">
-              your <span className="text-violet-600">documents</span>.
+              your <span className="text-violet-600">documents</span> for FREE.
             </span>
           </h1>
 
           <p className="mt-4 max-w-lg text-xs sm:text-sm text-zinc-500">
-            Build a resume, sign a PDF, or make an invoice. Resume editing and e-sign use a Google
-            sign-in. The invoice stays in this browser and does not need an account. No payment is
-            required for these features today.
+            Build a resume, sign a PDF, or make an invoice. Sign in with Google to save your resume and use the E-sign workspace. Invoices do not require an account and are saved in this browser. No payment is required for the current tools.
           </p>
         </div>
       </div>

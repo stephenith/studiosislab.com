@@ -5,6 +5,7 @@ import NoiseBackground from "@/components/home/NoiseBackground";
 import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
 import HomeSectionDashboard from "@/components/home/HomeSectionDashboard";
 import HomeSectionEsign from "@/components/home/HomeSectionEsign";
+import HomeSectionInvoice from "@/components/home/HomeSectionInvoice";
 import HomeSectionResume from "@/components/home/HomeSectionResume";
 import HomeHeaderAuth from "@/components/HomeHeaderAuth";
 import HeroSection from "@/components/HeroSection";
@@ -51,6 +52,10 @@ export default function HomePage() {
 
         <section className="flex min-h-[calc(100dvh-6rem)] flex-col items-center justify-center px-4 py-6 sm:min-h-[calc(100dvh-6.5rem)] sm:py-8">
           <HomeSectionDashboard />
+        </section>
+
+        <section className="flex min-h-[calc(100dvh-6rem)] flex-col items-center justify-center px-4 py-6 sm:min-h-[calc(100dvh-6.5rem)] sm:py-8">
+          <HomeSectionInvoice />
         </section>
 
         <div className="mx-auto w-full max-w-5xl px-1 pb-4 sm:px-2 sm:pb-6">

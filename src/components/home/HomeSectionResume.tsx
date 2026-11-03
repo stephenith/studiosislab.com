@@ -30,9 +30,7 @@ export default function HomeSectionResume() {
           Resume builder
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600 md:text-base">
-          Build and edit your resume in the browser. Start from a Resume Template or a blank page. Sign
-          in with Google to save it with your account. On a phone, open a Resume Template from the hub to
-          use the simpler editor and download a PDF. On a larger screen you can download a PDF or a PNG.
+          Build and edit your resume in the desktop or laptop browser. Start from a Resume Template or a blank page. Sign in with Google to save it with your account.
         </p>
       </div>
     </div>

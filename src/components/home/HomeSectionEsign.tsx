@@ -1,8 +1,6 @@
-import Image from "next/image";
 import { HomeCtaLink } from "@/components/analytics/HomeCtaLink";
 
-const ESIGN_ILLUSTRATION_SRC =
-  "/illustrations/" + encodeURIComponent("E-signing illustration.webp");
+const ESIGN_ILLUSTRATION_SRC = "/dock/esign.svg";
 
 const ILLUSTRATION_FRAME =
   "relative h-[min(40vh,460px)] w-full max-w-3xl shrink-0";
@@ -14,12 +12,10 @@ export default function HomeSectionEsign() {
   return (
     <div className="flex w-full max-w-3xl flex-col items-center gap-5 px-4 text-center sm:gap-6">
       <div className={ILLUSTRATION_FRAME}>
-        <Image
+        <img
           src={ESIGN_ILLUSTRATION_SRC}
           alt="Illustration of a document being signed"
-          fill
-          className="object-contain object-center"
-          sizes="(max-width: 768px) 100vw, 768px"
+          className="h-full w-full object-contain object-center"
         />
       </div>
       <HomeCtaLink href="/tools" surface="home_esign" className={CTA_CLASS}>

@@ -1,8 +1,6 @@
-import Image from "next/image";
 import { HomeCtaLink } from "@/components/analytics/HomeCtaLink";
 
-const DASHBOARD_ILLUSTRATION_SRC =
-  "/illustrations/" + encodeURIComponent("Dashboard illustration.webp");
+const DASHBOARD_ILLUSTRATION_SRC = "/dock/docs.svg";
 
 const ILLUSTRATION_FRAME =
   "relative h-[min(40vh,460px)] w-full max-w-3xl shrink-0";
@@ -14,12 +12,10 @@ export default function HomeSectionDashboard() {
   return (
     <div className="flex w-full max-w-3xl flex-col items-center gap-5 px-4 text-center sm:gap-6">
       <div className={ILLUSTRATION_FRAME}>
-        <Image
+        <img
           src={DASHBOARD_ILLUSTRATION_SRC}
           alt="Illustration of a dashboard"
-          fill
-          className="object-contain object-center"
-          sizes="(max-width: 768px) 100vw, 768px"
+          className="h-full w-full object-contain object-center"
         />
       </div>
       <HomeCtaLink href="/dashboard/login" surface="home_publishers" className={CTA_CLASS}>

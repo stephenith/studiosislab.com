@@ -26,7 +26,7 @@ export default function HomeSectionEsign() {
           E‑Sign
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600 md:text-base">
-          Upload a PDF of up to 50 MB, place a signature and download the finished PDF. Sign in with Google to open the workspace and return to an agreement later. Other file types are not accepted. No payment is required for the e-sign tool.
+          Upload a PDF of up to 50 MB, place a signature and download the finished PDF. Sign in with Google to open the workspace and return to an agreement later. Only PDF is allowed currently.
         </p>
       </div>
     </div>

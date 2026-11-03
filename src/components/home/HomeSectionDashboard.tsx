@@ -26,8 +26,7 @@ export default function HomeSectionDashboard() {
           Publisher dashboard
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600 md:text-base">
-          Publisher is for approved partners with issued credentials. It is not the place to edit a
-          resume, sign a PDF, or make an invoice.
+          Publisher is for approved partners with issued credentials.
         </p>
       </div>
     </div>

@@ -26,7 +26,7 @@ export default function HomeSectionInvoice() {
           Invoice
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-zinc-600 md:text-base">
-          Invoice is tool where any user can come and generate invoices for the enterprise or for their freelancing project and customise it according to their brand.
+          Invoice is tool where any user can come and generate invoices for the enterprise or for their freelancing project and customise it according to their brand with auto summing and supporting multiple currency options.
         </p>
       </div>
     </div>

@@ -50,7 +50,7 @@ export default function HeroSection() {
           </h1>
 
           <p className="mt-4 max-w-lg text-xs sm:text-sm text-zinc-500">
-            Build a resume, sign a PDF, or make an invoice. Sign in with Google to save your resume and use the E-sign workspace. Invoices do not require an account and are saved in this browser. No payment is required for the current tools.
+            Build a resume, sign a PDF & create invoice. Sign in with Google to save your resume and use the E-sign workspace. Invoices do not require an account and are saved in this browser. All the tools on this website are completely for free.
           </p>
         </div>
       </div>

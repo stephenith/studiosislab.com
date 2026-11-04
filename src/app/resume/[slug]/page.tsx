@@ -155,7 +155,7 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
 
         <section className="mt-6 rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-sm sm:p-7">
           <h2 className="font-heading text-2xl font-semibold tracking-tight text-zinc-900">
-            {page.slug === "registered-nurse-resume"
+            {page.slug === "registered-nurse-resume" || page.slug === "project-manager-resume"
               ? "Who can use this resume template ?"
               : "Who this resume is for"}
           </h2>
@@ -168,7 +168,11 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
 
         <section className="mt-6 rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-sm sm:p-7">
           <h2 className="font-heading text-2xl font-semibold tracking-tight text-zinc-900">
-            {page.slug === "registered-nurse-resume" ? "What to include ?" : "What to include"}
+            {page.slug === "registered-nurse-resume"
+              ? "What to include ?"
+              : page.slug === "project-manager-resume"
+                ? "Changes to be made"
+                : "What to include"}
           </h2>
           <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-zinc-700 sm:text-base">
             {page.whatToInclude.map((item) => (
@@ -180,7 +184,7 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
         <section className="mt-6 rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-sm sm:p-7">
           <h2 className="font-heading text-2xl font-semibold tracking-tight text-zinc-900">ATS tips</h2>
           <p className="mt-4 text-sm leading-relaxed text-zinc-700 sm:text-base">
-            {page.slug === "registered-nurse-resume"
+            {page.slug === "registered-nurse-resume" || page.slug === "project-manager-resume"
               ? "These are writing suggestions. Read the downloaded PDF before you share or submit it."
               : "These are writing suggestions. StudiosisLab does not test Resume Templates in applicant-tracking systems. A clear layout is not a promise that an employer's system will accept the file. Read the downloaded PDF before you submit it."}
           </p>
@@ -193,7 +197,7 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
 
         <section className="mt-6 rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-sm sm:p-7">
           <h2 className="font-heading text-2xl font-semibold tracking-tight text-zinc-900">
-            Resume writing tips
+            {page.slug === "project-manager-resume" ? "Resume writing tips !" : "Resume writing tips"}
           </h2>
           <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-zinc-700 sm:text-base">
             {page.writingTips.map((item) => (

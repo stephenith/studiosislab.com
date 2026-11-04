@@ -136,42 +136,42 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Build a project manager resume that shows delivery outcomes, stakeholder leadership, timelines, budgets, and risk management in a clear layout.",
     h1: "Project Manager Resume Template",
     intro:
-      "Project management resumes perform best when they show results, not just responsibilities. This template helps you present delivery metrics, team coordination, and stakeholder communication in a format that hiring managers can scan quickly.",
+      "Project management resumes perform best when they show results, not just responsibilities. This template helps you present delivery metrics, team coordination and stakeholder communication in a format that hiring managers can scan quickly.",
     bestFor: [
-      "Project managers in technology, operations, or cross-functional business teams.",
+      "Project managers in technology, operations or cross-functional business teams.",
       "PMs transitioning from coordinator or analyst roles.",
-      "Candidates applying to Agile, hybrid, or waterfall project environments.",
-      "Professionals managing budgets, timelines, and multi-team execution.",
+      "Candidates applying to Agile, hybrid or waterfall project environments.",
+      "Professionals managing budgets, timelines and multi-team execution.",
     ],
     whatToInclude: [
       "A concise summary with domain focus and years of project delivery experience.",
-      "Project highlights with scope, budget range, timeline, and business impact.",
-      "Methods and tools such as Agile, Scrum, Jira, Asana, or MS Project.",
+      "Project highlights with scope, budget range, timeline and business impact.",
+      "Methods and tools such as Agile, Scrum, Jira, Asana or MS Project.",
       "Stakeholder and team management examples across functions.",
-      "Certifications like PMP, CAPM, or Scrum credentials when applicable.",
+      "Certifications like PMP, CAPM or Scrum credentials when applicable.",
     ],
     atsTips: [
-      "Reflect target-job terms like risk management, roadmap, sprint planning, or vendor management.",
+      "Reflect target-job terms like risk management, roadmap, sprint planning or vendor management.",
       "Use standard headings so ATS systems can classify your experience correctly.",
       "Include both strategic and execution keywords across summary and bullets.",
       "Avoid overusing jargon if a plain term communicates the same point.",
     ],
     writingTips: [
-      "Use result-first bullets: what was delivered, by when, and with what impact.",
+      "Use result-first bullets: what was delivered, by when and with what impact.",
       "Show decision-making examples when priorities or scope changed.",
       "Mention cross-team influence, not only direct-report management.",
-      "Keep achievements tied to business outcomes such as cost, speed, or quality.",
+      "Keep achievements tied to business outcomes such as cost, speed or quality.",
     ],
     faq: [
       {
         question: "What metrics matter most for a project manager resume?",
         answer:
-          "Delivery timelines, budget adherence, risk reduction, and measurable business outcomes are the most useful metrics.",
+          "Delivery timelines, budget adherence, risk reduction and measurable business outcomes are the most useful metrics.",
       },
       {
         question: "Should I list every project?",
         answer:
-          "No. Select the most relevant projects and explain them clearly with scope, role, and measurable impact.",
+          "No. Select the most relevant projects and explain them clearly with scope, role and measurable impact.",
       },
       {
         question: "Do I need a certifications section?",

@@ -82,30 +82,30 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Create a registered nurse resume that highlights clinical experience, patient care outcomes, licenses, and certifications in a clear format.",
     h1: "Registered Nurse Resume Template",
     intro:
-      "Nursing resumes need to show both clinical capability and dependable patient care. This template is structured to surface licenses, certifications, and unit-specific experience so employers can quickly see fit for RN positions.",
+      "Nursing resumes need to show both clinical capability and dependable patient care. This template is structured to surface licenses, certifications and unit-specific experience so employers can quickly see fit for RN positions.",
     bestFor: [
-      "Registered nurses applying to hospital, clinic, and outpatient roles.",
-      "RNs moving between specialties such as med-surg, ICU, or emergency care.",
-      "Nurses with travel, per-diem, or multi-facility experience.",
+      "Registered nurses applying to hospital, clinic & outpatient roles.",
+      "RNs moving between specialties such as med-surg, ICU or emergency care.",
+      "Nurses with travel, per-diem or multi-facility experience.",
       "Recent nursing graduates applying to entry-level RN openings.",
     ],
     whatToInclude: [
       "RN licensure details and active certifications such as BLS or ACLS.",
-      "Clinical experience with patient population, unit type, and shift environment.",
-      "Evidence of patient outcomes, safety protocol compliance, and collaboration.",
-      "Medication administration, charting systems, and relevant medical tools.",
-      "Education, clinical rotations, and continuing education coursework.",
+      "Clinical experience with patient population, unit type and shift environment.",
+      "Evidence of patient outcomes, safety protocol compliance and collaboration.",
+      "Medication administration, charting systems and relevant medical tools.",
+      "Education, clinical rotations and continuing education coursework.",
     ],
     atsTips: [
-      "Match specialty keywords from the posting, such as telemetry, triage, or discharge planning.",
-      "Use full terms and abbreviations where appropriate, for example Electronic Health Record (EHR).",
+      "Match specialty keywords from the posting such as telemetry, triage or discharge planning.",
+      "Use full terms and abbreviations where appropriate for example Electronic Health Record (EHR).",
       "List credentials consistently to avoid ATS mismatch across sections.",
       "Keep date formats and job titles clean and readable.",
     ],
     writingTips: [
       "Focus on patient care scope, not only task lists.",
-      "Quantify workload where useful, such as average patient ratios or case volume.",
-      "Highlight teamwork with physicians, therapists, and support staff.",
+      "Quantify workload where useful such as average patient ratios or case volume.",
+      "Highlight teamwork with physicians, therapists and support staff.",
       "Add examples of calm decision-making in high-pressure situations.",
     ],
     faq: [
@@ -117,7 +117,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "How do I show nursing outcomes on a resume?",
         answer:
-          "Use practical metrics like reduced readmissions, improved handoff accuracy, or patient education completion rates when available.",
+          "Use practical metrics like reduced readmissions, improved handoff accuracy or patient education completion rates when available.",
       },
       {
         question: "Do new RNs need a separate clinical rotations section?",

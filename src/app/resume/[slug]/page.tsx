@@ -155,7 +155,9 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
 
         <section className="mt-6 rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-sm sm:p-7">
           <h2 className="font-heading text-2xl font-semibold tracking-tight text-zinc-900">
-            Who this resume is for
+            {page.slug === "registered-nurse-resume"
+              ? "Who can use this resume template ?"
+              : "Who this resume is for"}
           </h2>
           <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-zinc-700 sm:text-base">
             {page.bestFor.map((item) => (
@@ -166,7 +168,7 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
 
         <section className="mt-6 rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-sm sm:p-7">
           <h2 className="font-heading text-2xl font-semibold tracking-tight text-zinc-900">
-            What to include
+            {page.slug === "registered-nurse-resume" ? "What to include ?" : "What to include"}
           </h2>
           <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-zinc-700 sm:text-base">
             {page.whatToInclude.map((item) => (
@@ -178,9 +180,9 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
         <section className="mt-6 rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-sm sm:p-7">
           <h2 className="font-heading text-2xl font-semibold tracking-tight text-zinc-900">ATS tips</h2>
           <p className="mt-4 text-sm leading-relaxed text-zinc-700 sm:text-base">
-            These are writing suggestions. StudiosisLab does not test Resume Templates in
-            applicant-tracking systems. A clear layout is not a promise that an employer&apos;s system will
-            accept the file. Read the downloaded PDF before you submit it.
+            {page.slug === "registered-nurse-resume"
+              ? "These are writing suggestions. Read the downloaded PDF before you share or submit it."
+              : "These are writing suggestions. StudiosisLab does not test Resume Templates in applicant-tracking systems. A clear layout is not a promise that an employer's system will accept the file. Read the downloaded PDF before you submit it."}
           </p>
           <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-zinc-700 sm:text-base">
             {page.atsTips.map((item) => (

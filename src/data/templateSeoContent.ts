@@ -190,29 +190,29 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Use this data analyst resume template to present SQL, dashboards, business insights, and reporting impact in a practical, easy-to-read format.",
     h1: "Data Analyst Resume Template",
     intro:
-      "Data analyst hiring teams want clear evidence that you can turn raw data into decisions. This template helps you present analysis projects, BI tools, and business outcomes without clutter.",
+      "Data analyst hiring teams want clear evidence that you can turn raw data into decisions. This template helps you present analysis projects, BI tools and business outcomes without clutter.",
     bestFor: [
-      "Data analysts working with SQL, spreadsheets, and BI dashboards.",
-      "Analysts applying for reporting, product analytics, or operations analytics roles.",
+      "Data analysts working with SQL, spreadsheets and BI dashboards.",
+      "Analysts applying for reporting, product analytics or operations analytics roles.",
       "Junior analysts moving from internship or trainee positions.",
       "Professionals transitioning from finance or business operations into analytics.",
     ],
     whatToInclude: [
-      "Core analytics stack including SQL, Excel, Python or R, and dashboard tools.",
+      "Core analytics stack including SQL, Excel, Python or R and dashboard tools.",
       "Projects or work examples that connect analysis to business outcomes.",
-      "Metrics ownership such as conversion, retention, forecasting, or reporting accuracy.",
-      "Data cleaning, validation, and quality-control responsibilities.",
-      "Education, certificates, and domain knowledge relevant to the target industry.",
+      "Metrics ownership such as conversion, retention, forecasting or reporting accuracy.",
+      "Data cleaning, validation and quality-control responsibilities.",
+      "Education, certificates and domain knowledge relevant to the target industry.",
     ],
     atsTips: [
-      "Use explicit tool names from the job description, such as Tableau, Power BI, or Looker.",
-      "Include both analyst and business terms like KPI, trend analysis, and stakeholder reporting.",
+      "Use explicit tool names from the job description, such as Tableau, Power BI or Looker.",
+      "Include both analyst and business terms like KPI, trend analysis and stakeholder reporting.",
       "Keep project titles descriptive so ATS and recruiters understand context immediately.",
       "Use readable bullet formatting and avoid dense paragraphs.",
     ],
     writingTips: [
       "Pair each analysis activity with a decision or result it supported.",
-      "Explain your process briefly: data source, method, finding, action.",
+      "Explain your process briefly: data source, method, finding & action.",
       "Show communication ability through examples of presenting insights to non-technical teams.",
       "Prioritize quality over quantity in tools listed.",
     ],
@@ -230,7 +230,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "What if my experience is mostly academic projects?",
         answer:
-          "Academic projects are valid. Frame them with clear problem statements, tools used, and measurable findings.",
+          "Academic projects are valid. Frame them with clear problem statements, tools used and measurable findings.",
       },
     ],
     relatedTemplateIds: ["t040", "t045", "t042"],

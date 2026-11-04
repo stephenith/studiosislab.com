@@ -244,22 +244,22 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Build a customer service representative resume that highlights communication, issue resolution, service metrics, and CRM experience.",
     h1: "Customer Service Representative Resume Template",
     intro:
-      "Customer service resumes should prove reliability, communication, and problem-solving under pressure. This template helps you present support experience, service metrics, and customer outcomes in a straightforward format.",
+      "Customer service resumes should prove reliability, communication and problem solving under pressure. This template helps you present support experience, service metrics and customer outcomes in a straight forward format.",
     bestFor: [
-      "Customer service representatives in call center, retail, and online support teams.",
+      "Customer service representatives in call center, retail and online support teams.",
       "Support professionals applying for inbound or outbound service roles.",
       "Candidates moving from frontline service jobs into office-based support.",
       "Entry-level applicants with strong communication and service experience.",
     ],
     whatToInclude: [
       "A summary focused on customer communication and resolution strengths.",
-      "Experience bullets with ticket volume, handle time, CSAT, or resolution rate metrics.",
-      "Systems and tools such as CRM, chat support, and knowledge base software.",
+      "Experience bullets with ticket volume, handle time, CSAT or resolution rate metrics.",
+      "Systems and tools such as CRM, chat support and knowledge base software.",
       "Examples of handling escalations and de-escalating difficult conversations.",
-      "Training, certifications, or language skills that improve service quality.",
+      "Training, certifications or language skills that improve service quality.",
     ],
     atsTips: [
-      "Mirror role terms like customer support, call handling, escalation, and retention.",
+      "Mirror role terms like customer support, call handling, escalation and retention.",
       "Use recognized section names so ATS can parse your work history correctly.",
       "Include both soft skills and system skills in separate sections.",
       "Avoid uncommon abbreviations without full names.",
@@ -268,18 +268,18 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Use specific examples of how you solved customer problems.",
       "Show consistency by mentioning repeatable service metrics.",
       "Highlight teamwork with supervisors and cross-functional partners.",
-      "Keep language clear, practical, and outcome-focused.",
+      "Keep language clear, practical and outcome-focused.",
     ],
     faq: [
       {
         question: "Do I need metrics on a customer service resume?",
         answer:
-          "Yes. Metrics like customer satisfaction, response time, or first-contact resolution help validate your impact.",
+          "Yes. Metrics like customer satisfaction, response time or first contact resolution help validate your impact.",
       },
       {
         question: "Can I apply without direct call center experience?",
         answer:
-          "Yes. Transferable experience from retail, hospitality, or front-desk roles can be strong when framed around customer outcomes.",
+          "Yes. Transferable experience from retail, hospitality or front-desk roles can be strong when framed around customer outcomes.",
       },
       {
         question: "Should I include communication skills in the summary?",

@@ -406,22 +406,22 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Build a cybersecurity analyst resume that shows threat detection, incident response, SIEM work, and security controls in a clear structure.",
     h1: "Cybersecurity Analyst Resume Template",
     intro:
-      "Cybersecurity roles require a resume that demonstrates technical depth and practical risk reduction. This template helps you present incident response, monitoring, and control implementation in a way that security teams can evaluate quickly.",
+      "Cybersecurity roles require a resume that demonstrates technical depth and practical risk reduction. This template helps you present incident response, monitoring and control implementation in a way that security teams can evaluate quickly.",
     bestFor: [
-      "Cybersecurity analysts in SOC, detection, and incident response roles.",
+      "Cybersecurity analysts in SOC, detection and incident response roles.",
       "IT professionals transitioning into security analyst positions.",
-      "Candidates with hands-on SIEM, vulnerability, and log analysis experience.",
+      "Candidates with hands-on SIEM, vulnerability and log analysis experience.",
       "Analysts applying for roles tied to compliance and security operations.",
     ],
     whatToInclude: [
-      "Security summary with focus areas such as monitoring, threat analysis, or response.",
-      "Hands-on tools and platforms like SIEM, EDR, IAM, and vulnerability scanners.",
-      "Incident response examples with timeline, severity, and remediation outcomes.",
-      "Security controls, policy enforcement, and audit or compliance contributions.",
-      "Certifications such as Security+, CEH, CISSP, or cloud security credentials where relevant.",
+      "Security summary with focus areas such as monitoring, threat analysis or response.",
+      "Hands-on tools and platforms like SIEM, EDR, IAM and vulnerability scanners.",
+      "Incident response examples with timeline, severity and remediation outcomes.",
+      "Security controls, policy enforcement and audit or compliance contributions.",
+      "Certifications such as Security+, CEH, CISSP or cloud security credentials where relevant.",
     ],
     atsTips: [
-      "Use exact skill terms from postings, including SOC, SIEM, incident response, and threat intelligence.",
+      "Use exact skill terms from postings, including SOC, SIEM, incident response and threat intelligence.",
       "Include both technical controls and governance language when role requires both.",
       "Expand acronyms at least once for ATS readability.",
       "Use clear chronology for security roles and projects.",
@@ -429,7 +429,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     writingTips: [
       "Show what threats you handled and how your actions reduced risk.",
       "Balance technical detail with business impact and communication.",
-      "Highlight collaboration with IT, compliance, and leadership teams.",
+      "Highlight collaboration with IT, compliance and leadership teams.",
       "Use concise bullets that emphasize ownership and outcomes.",
     ],
     faq: [
@@ -441,12 +441,12 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "Are certifications enough without experience?",
         answer:
-          "Certifications help, but pairing them with projects, labs, or internship work gives recruiters stronger evidence of readiness.",
+          "Certifications help, but pairing them with projects, labs or internship work gives recruiters stronger evidence of readiness.",
       },
       {
         question: "How do I show incident response work on a resume?",
         answer:
-          "Summarize the incident type, your role, tools used, and the remediation or prevention outcome.",
+          "Summarise the incident type, your role, tools used and the remediation or prevention outcome.",
       },
     ],
     relatedTemplateIds: ["t040", "t043", "t045"],

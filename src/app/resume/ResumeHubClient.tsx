@@ -403,8 +403,7 @@ export default function ResumeTemplatesPage() {
             Find a <span className="text-violet-600">Resume Template</span> and start editing.
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-sm text-zinc-600 sm:text-base">
-            Search by role and open a Resume Template. Sign in with Google to edit, save, and download.
-            A saved resume stays with that account. You can delete it from this hub.
+            Search role and open a Resume Template. Sign in with Google to edit, save and download. A saved resume stays with that account. You can re-edit or delete it from this hub anytime you like.
           </p>
           {isGuest ? (
             <p className="mx-auto mt-3 max-w-lg text-xs text-zinc-500 sm:text-sm">

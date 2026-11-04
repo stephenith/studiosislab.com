@@ -17,7 +17,7 @@ export default function HomeSectionDashboard() {
           alt="Illustration of a dashboard"
           draggable={false}
           className="absolute inset-0 h-full w-full object-contain object-center"
-          style={{ transform: "translateZ(0)" }}
+          style={{ transform: "scale(0.9) translateZ(0)" }}
         />
       </div>
       <HomeCtaLink href="/dashboard/login" surface="home_publishers" className={CTA_CLASS}>

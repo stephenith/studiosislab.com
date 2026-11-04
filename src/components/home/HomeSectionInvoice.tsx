@@ -17,7 +17,7 @@ export default function HomeSectionInvoice() {
           alt="Illustration of an invoice"
           draggable={false}
           className="absolute inset-0 h-full w-full object-contain object-center"
-          style={{ transform: "translateZ(0)" }}
+          style={{ transform: "scale(0.9) translateZ(0)" }}
         />
       </div>
       <HomeCtaLink href="/tools/invoice" surface="home_invoice" className={CTA_CLASS}>

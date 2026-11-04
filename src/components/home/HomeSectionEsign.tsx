@@ -17,7 +17,7 @@ export default function HomeSectionEsign() {
           alt="Illustration of a document being signed"
           draggable={false}
           className="absolute left-1/2 top-1/2 h-[92%] w-auto max-w-[92%] object-contain"
-          style={{ transform: "translate(-50%, -50%) translateZ(0)" }}
+          style={{ transform: "translate(-50%, -50%) scale(0.9) translateZ(0)" }}
         />
       </div>
       <HomeCtaLink href="/tools" surface="home_esign" className={CTA_CLASS}>

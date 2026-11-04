@@ -352,22 +352,22 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Create a teacher resume that highlights classroom management, lesson planning, student progress, and certifications in an organized format.",
     h1: "Teacher Resume Template",
     intro:
-      "A strong teacher resume should quickly communicate classroom impact, curriculum planning, and student support. This template helps educators show instructional strengths and practical results in a clean, readable layout.",
+      "A strong teacher resume should quickly communicate classroom impact, curriculum planning and student support. This template helps educators show instructional strengths and practical results in a clean readable layout.",
     bestFor: [
-      "K-12 teachers applying for public or private school roles.",
+      "Teachers applying for public or private school roles.",
       "Educators changing grade levels or subject specialization.",
       "New teachers preparing applications after student teaching.",
       "Teachers seeking roles that combine instruction and student mentoring.",
     ],
     whatToInclude: [
-      "Teaching summary with grade levels, subjects, and years of experience.",
+      "Teaching summary with grade levels, subjects and years of experience.",
       "Classroom achievements such as student performance gains or engagement improvements.",
-      "Lesson planning, assessment strategy, and curriculum alignment examples.",
+      "Lesson planning, assessment strategy and curriculum alignment examples.",
       "Classroom management and parent communication highlights.",
-      "Licensure, certifications, and professional development.",
+      "Licensure, certifications and professional development.",
     ],
     atsTips: [
-      "Use role-specific terms such as differentiated instruction, classroom management, and formative assessment.",
+      "Use role specific terms such as differentiated instruction, classroom management and formative assessment.",
       "Include grade bands and subject areas in your experience entries.",
       "Keep credential names clear for quick ATS matching.",
       "Avoid decorative formatting that can hide important text.",
@@ -375,19 +375,19 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     writingTips: [
       "Focus on student outcomes and teaching approach, not only duties.",
       "Show how you adapted instruction for diverse learning needs.",
-      "Include collaboration with counselors, administrators, and families.",
+      "Include collaboration with counselors, administrators and families.",
       "Use concise examples of classroom impact.",
     ],
     faq: [
       {
         question: "Should teachers include classroom metrics on resumes?",
         answer:
-          "Yes, when available. Metrics such as improved assessment scores or attendance trends help show measurable impact.",
+          "Yes, as it helps show measurable impact.",
       },
       {
         question: "Can substitute teaching experience be included?",
         answer:
-          "Yes. Include it when it demonstrates grade-level coverage, adaptability, and classroom leadership.",
+          "Yes. Include it when it demonstrates grade-level coverage, adaptability and classroom leadership.",
       },
       {
         question: "Where should I place teaching certifications?",

@@ -16,23 +16,22 @@ export const metadata: Metadata = {
 const resumeFaqItems = [
   {
     question: "Is StudiosisLab free to use?",
-    answer:
-      "No payment is required for the resume features available today. This does not promise that every future feature will be free.",
+    answer: "Yes, All the tools published on this website are completely for free.",
   },
   {
     question: "Can I edit resumes after creating them?",
     answer:
-      "Yes, after you sign in with Google. The saved resume stays with that account, and you can delete it from the resume hub.",
+      "Yes, after you sign in with Google. The saved resume stays with that account and you can delete it from the resume hub.",
   },
   {
     question: "Can I use the builder on mobile?",
     answer:
-      "On a phone, a Resume Template opened from the hub uses a simpler editor and downloads as a PDF. The fuller editor asks for a tablet or a larger screen.",
+      "No, as of now the editor can only be used if you desktop or laptop.",
   },
   {
     question: "Are templates suitable for ATS workflows?",
     answer:
-      "StudiosisLab does not test Resume Templates in applicant-tracking systems. Read the downloaded PDF before you submit it.",
+      "Yes in our template gallery we have few templates specifically designed as per the ATS workflow.",
   },
 ] as const;
 
@@ -59,12 +58,10 @@ export default function ResumeBuilderLandingPage() {
         />
         <section className="text-center">
           <h1 className="font-heading text-3xl font-semibold tracking-tight md:text-5xl">
-            Free Online Resume Builder
+            Free Online Resume Editor
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600">
-            Build a resume from a Resume Template or a blank page. Sign in with Google to edit and save
-            it. Download a PDF, or a PNG on a larger screen. No payment is required for the resume
-            features available today.
+            Choose and Edit any resume from a resume template or a blank page. Sign in with Google to edit and download it. Download a PDF or a PNG. All the tools available on this website are completely for FREE!
           </p>
           <div className="mt-6">
             <Link
@@ -81,31 +78,29 @@ export default function ResumeBuilderLandingPage() {
         </section>
 
         <section className="mt-10 grid gap-6 md:grid-cols-2">
-          <SectionBlock title="Why People Use StudiosisLab Resume Builder">
+          <SectionBlock title="Why People Use StudiosisLab Resume Builder ?">
             <ul className="list-disc space-y-2 pl-5">
               <li>Start from a Resume Template or a blank page.</li>
               <li>Sign in with Google. The resume is saved with that account.</li>
-              <li>Download a PDF. A larger screen can also download a PNG.</li>
+              <li>Download in PDF and PNG format.</li>
               <li>Delete a saved resume from the resume hub.</li>
-              <li>No payment is required for these features today.</li>
+              <li>Completely for FREE!!</li>
             </ul>
           </SectionBlock>
 
-          <SectionBlock title="How It Works">
+          <SectionBlock title="How It Works ?">
             <ol className="list-decimal space-y-2 pl-5">
-              <li>Choose a Resume Template, or start from a blank page.</li>
-              <li>Sign in with Google and replace the sample text with your own.</li>
-              <li>Download a PDF. On a larger screen you can also download a PNG.</li>
+              <li>Choose a Resume Template or start from a blank page.</li>
+              <li>Just click open any template you like and replace the sample text with your own.</li>
+              <li>Download in PDF and PNG format.</li>
             </ol>
           </SectionBlock>
         </section>
 
         <section className="mt-6 grid gap-6 md:grid-cols-2">
-          <SectionBlock title="Who It Is For">
+          <SectionBlock title="Who It Is For ?">
             <p>
-              StudiosisLab supports students preparing first resumes, freshers applying to entry roles,
-              professionals updating career documents, freelancers pitching clients, and career
-              switchers repositioning experience.
+              StudiosisLab supports students preparing first resumes, freshers applying to entry roles, professionals updating career documents, freelancers pitching clients, user who wants to build resume using an online editor and career switchers repositioning experience.
             </p>
           </SectionBlock>
 
@@ -123,7 +118,7 @@ export default function ResumeBuilderLandingPage() {
         </section>
 
         <section className="mt-6">
-          <SectionBlock title="Resume Builder FAQ">
+          <SectionBlock title="Resume Editor FAQ">
             {resumeFaqItems.map((item) => (
               <div key={item.question} className="space-y-1">
                 <h3 className="font-medium text-zinc-900">{item.question}</h3>
@@ -160,7 +155,7 @@ export default function ResumeBuilderLandingPage() {
         <section className="mt-8 rounded-2xl border border-zinc-200/80 bg-white/90 p-6 text-center shadow-sm">
           <h2 className="font-heading text-2xl font-semibold tracking-tight">Ready to build your resume?</h2>
           <p className="mt-2 text-sm text-zinc-600">
-            Sign in with Google, edit the Resume Template, and download a PDF.
+            Sign in with Google, edit the Resume Template and download as PDF or PNG.
           </p>
           <div className="mt-5">
             <Link

@@ -15,7 +15,9 @@ export default function HomeSectionInvoice() {
         <img
           src={INVOICE_ILLUSTRATION_SRC}
           alt="Illustration of an invoice"
-          className="h-full w-full object-contain object-center"
+          draggable={false}
+          className="absolute inset-0 h-full w-full object-contain object-center"
+          style={{ transform: "translateZ(0)" }}
         />
       </div>
       <HomeCtaLink href="/tools/invoice" surface="home_invoice" className={CTA_CLASS}>

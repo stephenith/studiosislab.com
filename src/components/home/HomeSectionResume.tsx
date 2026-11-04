@@ -15,7 +15,9 @@ export default function HomeSectionResume() {
         <img
           src={RESUME_ILLUSTRATION_SRC}
           alt="Illustration of a resume page"
-          className="h-full w-full object-contain object-center"
+          draggable={false}
+          className="absolute left-1/2 top-1/2 h-[92%] w-auto max-w-[92%] object-contain"
+          style={{ transform: "translate(-50%, -50%) translateZ(0)" }}
         />
       </div>
       <HomeCtaLink href="/resume" surface="home_resume" className={CTA_CLASS}>

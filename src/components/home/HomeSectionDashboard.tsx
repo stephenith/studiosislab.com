@@ -15,7 +15,9 @@ export default function HomeSectionDashboard() {
         <img
           src={DASHBOARD_ILLUSTRATION_SRC}
           alt="Illustration of a dashboard"
-          className="h-full w-full object-contain object-center"
+          draggable={false}
+          className="absolute inset-0 h-full w-full object-contain object-center"
+          style={{ transform: "translateZ(0)" }}
         />
       </div>
       <HomeCtaLink href="/dashboard/login" surface="home_publishers" className={CTA_CLASS}>

@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import MarketingPageShell from "@/components/layout/MarketingPageShell";
 import SectionBlock from "@/components/legal/SectionBlock";
-import ResumeBuilderIllustration from "@/components/marketing/illustrations/ResumeBuilderIllustration";
-
 export const metadata: Metadata = {
   title: "Free Online Resume Builder | StudiosisLab",
   description:
@@ -74,7 +72,17 @@ export default function ResumeBuilderLandingPage() {
         </section>
 
         <section className="mt-10">
-          <ResumeBuilderIllustration />
+          <div className="relative mx-auto w-full max-w-3xl overflow-hidden rounded-[2rem] border border-zinc-200/80 bg-white/70 shadow-sm">
+            <div className="relative aspect-[16/9] w-full">
+              <img
+                src="/dock/resume.svg"
+                alt="Resume builder illustration"
+                draggable={false}
+                className="absolute inset-0 h-full w-full object-contain object-center p-6 sm:p-8"
+                style={{ transform: "translateZ(0)" }}
+              />
+            </div>
+          </div>
         </section>
 
         <section className="mt-10 grid gap-6 md:grid-cols-2">

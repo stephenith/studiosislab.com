@@ -298,19 +298,19 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Use this business analyst resume template to show requirements gathering, process improvement, stakeholder alignment, and measurable business results.",
     h1: "Business Analyst Resume Template",
     intro:
-      "Business analyst hiring teams look for clarity in how you turn business needs into executable solutions. This template helps you present requirement work, process improvements, and cross-team collaboration with practical detail.",
+      "Business analyst hiring teams look for clarity in how you turn business needs into executable solutions. This template helps you present work requirement, process improvements and cross-team collaboration with practical detail.",
     bestFor: [
-      "Business analysts working on process, product, or operations initiatives.",
-      "Professionals transitioning from QA, project coordination, or operations roles.",
+      "Business analysts working on process, product or operations initiatives.",
+      "Professionals transitioning from QA, project coordination or operations roles.",
       "Analysts supporting software delivery and business transformation projects.",
-      "Candidates applying to BA roles in finance, healthcare, retail, or tech.",
+      "Candidates applying to BA roles in finance, healthcare, retail or tech.",
     ],
     whatToInclude: [
       "Summary of domain expertise and analysis strengths.",
-      "Examples of requirement elicitation, documentation, and stakeholder workshops.",
+      "Examples of requirement elicitation, documentation and stakeholder workshops.",
       "Process mapping or workflow redesign outcomes tied to efficiency gains.",
-      "Tools and methods such as user stories, SQL, dashboards, or BPMN documentation.",
-      "Collaboration with product, engineering, operations, and leadership teams.",
+      "Tools and methods such as user stories, SQL, dashboards or BPMN documentation.",
+      "Collaboration with product, engineering, operations and leadership teams.",
     ],
     atsTips: [
       "Use language from postings: requirements gathering, gap analysis, UAT, process improvement.",
@@ -328,12 +328,12 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "How is a business analyst resume different from a data analyst resume?",
         answer:
-          "Business analyst resumes focus more on requirements, processes, and stakeholder alignment, while data analyst resumes center more on technical analysis and reporting.",
+          "Business analyst resumes focus more on requirements, processes and stakeholder alignment, while data analyst resumes center more on technical analysis and reporting.",
       },
       {
         question: "Should I include SQL on a business analyst resume?",
         answer:
-          "Include SQL if you actively use it for analysis, validation, or reporting and it supports the target role.",
+          "Include SQL if you actively use it for analysis, validation or reporting and it supports the target role.",
       },
       {
         question: "Is UAT experience important to highlight?",

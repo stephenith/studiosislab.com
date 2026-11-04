@@ -460,23 +460,23 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Use this human resources resume template to present recruiting, onboarding, employee relations, HR systems, and policy execution clearly.",
     h1: "Human Resources Resume Template",
     intro:
-      "Human resources resumes should show people operations impact, not just process ownership. This template helps you communicate hiring support, onboarding execution, and employee-focused outcomes in a practical structure.",
+      "Human resources resumes should show people operations impact, not just process ownership. This template helps you communicate hiring support, onboarding execution and employee-focused outcomes in a practical structure.",
     bestFor: [
-      "HR generalists, HR coordinators, and people operations professionals.",
-      "Recruitment-focused candidates applying for broader HR roles.",
+      "HR generalists, HR coordinators and people operations professionals.",
+      "Recruitment focused candidates applying for broader HR roles.",
       "HR professionals supporting compliance, employee relations, and onboarding.",
       "Candidates transitioning into HR from administrative or operations backgrounds.",
     ],
     whatToInclude: [
       "Summary of HR scope, including recruiting, onboarding, and employee support.",
-      "Work achievements tied to hiring cycle time, retention, or process quality.",
-      "Experience with HRIS, applicant tracking systems, and reporting workflows.",
-      "Policy communication, documentation, and compliance-related responsibilities.",
+      "Work achievements tied to hiring cycle time, retention or process quality.",
+      "Experience with HRIS, applicant tracking systems and reporting workflows.",
+      "Policy communication, documentation and compliance-related responsibilities.",
       "Relevant certifications such as SHRM or PHR where applicable.",
     ],
     atsTips: [
-      "Match job-specific terms like talent acquisition, onboarding, employee relations, and HRIS.",
-      "Use clear section labels for skills, experience, and certifications.",
+      "Match job-specific terms like talent acquisition, onboarding, employee relations and HRIS.",
+      "Use clear section labels for skills, experience and certifications.",
       "Include both operational and people-facing competencies.",
       "Avoid broad keyword lists that are not supported by experience.",
     ],
@@ -490,7 +490,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "What metrics are useful on an HR resume?",
         answer:
-          "Hiring cycle time, onboarding completion rates, retention trends, and policy compliance improvements are useful when accurate.",
+          "Hiring cycle time, onboarding completion rates, retention trends and policy compliance improvements are useful when accurate.",
       },
       {
         question: "Should I list every HR tool I have seen?",
@@ -500,7 +500,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "Can recruiting experience support a generalist role application?",
         answer:
-          "Yes. Emphasize transferable work such as interviewing, onboarding, and stakeholder coordination.",
+          "Yes. Emphasise transferable work such as interviewing, onboarding and stakeholder coordination.",
       },
     ],
     relatedTemplateIds: ["t045", "t042", "t044"],

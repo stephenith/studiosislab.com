@@ -162,7 +162,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                 page.slug === "project-manager-resume" ||
                 page.slug === "data-analyst-resume" ||
                 page.slug === "customer-service-representative-resume" ||
-                page.slug === "teacher-resume"
+                page.slug === "teacher-resume" ||
+                page.slug === "human-resources-resume"
                 ? "Who can use this resume template ?"
                 : "Who this resume is for"}
           </h2>
@@ -201,7 +202,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
             page.slug === "customer-service-representative-resume" ||
             page.slug === "business-analyst-resume" ||
             page.slug === "teacher-resume" ||
-            page.slug === "cybersecurity-analyst-resume"
+            page.slug === "cybersecurity-analyst-resume" ||
+            page.slug === "human-resources-resume"
               ? "These are writing suggestions. Read the downloaded PDF before you share or submit it."
               : "These are writing suggestions. StudiosisLab does not test Resume Templates in applicant-tracking systems. A clear layout is not a promise that an employer's system will accept the file. Read the downloaded PDF before you submit it."}
           </p>

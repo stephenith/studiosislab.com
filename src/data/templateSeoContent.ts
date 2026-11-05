@@ -568,37 +568,37 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "IT support Resume Template focused on troubleshooting, help desk workflows, technical support, and end-user assistance.",
     h1: "IT Support Specialist Resume Template",
     intro:
-      "IT support hiring teams want proof that you can solve technical issues without slowing people down. This template helps you present troubleshooting depth, ticket handling, and user communication in a clean format employers can scan quickly.",
+      "IT support hiring teams want proof that you can solve technical issues without slowing people down. This template helps you present troubleshooting depth, ticket handling and user communication in a clean format employers can scan quickly.",
     bestFor: [
       "Help desk specialists supporting office or remote teams.",
       "Desktop support professionals moving into broader IT support roles.",
-      "IT technicians handling hardware, software, and account access issues.",
-      "Candidates transitioning from general IT operations into support-focused jobs.",
+      "IT technicians handling hardware, software and account access issues.",
+      "Candidates transitioning from general IT operations into support focused jobs.",
     ],
     whatToInclude: [
-      "A summary that covers your support scope, systems familiarity, and service mindset.",
-      "Ticketing experience with examples of incident volume, priorities, and response quality.",
-      "Troubleshooting responsibilities across devices, operating systems, and core business apps.",
-      "Experience with account administration, permissions, and user onboarding support.",
-      "Certifications or training such as CompTIA, Microsoft, or role-specific support credentials.",
+      "A summary that covers your support scope, systems familiarity and service mindset.",
+      "Ticketing experience with examples of incident volume, priorities and response quality.",
+      "Troubleshooting responsibilities across devices, operating systems and core business apps.",
+      "Experience with account administration, permissions and user onboarding support.",
+      "Certifications or training such as CompTIA, Microsoft or role-specific support credentials.",
     ],
     atsTips: [
-      "Use the same technical terms listed in job descriptions, such as help desk, ticket triage, and root cause analysis.",
-      "Name the tools you use, including ticketing systems, remote support tools, and directory management.",
-      "Keep section headings standard so ATS can classify skills, work experience, and certifications correctly.",
+      "Use the same technical terms listed in job descriptions, such as help desk, ticket triage and root cause analysis.",
+      "Name the tools you use, including ticketing systems, remote support tools and directory management.",
+      "Keep section headings standard so ATS can classify skills, work experience and certifications correctly.",
       "Write out full product or platform names at least once instead of only abbreviations.",
     ],
     writingTips: [
       "Show how you resolved issues, not just that you answered tickets.",
-      "Include user-facing communication examples, especially where you translated technical issues clearly.",
-      "Use measurable context when possible, such as resolution time, queue size, or repeat-issue reduction.",
-      "Highlight teamwork with security, infrastructure, and business teams where relevant.",
+      "Include user facing communication examples, especially where you translated technical issues clearly.",
+      "Use measurable context when possible, such as resolution time, queue size or repeat issue reduction.",
+      "Highlight teamwork with security, infrastructure and business teams where relevant.",
     ],
     faq: [
       {
         question: "Should I include ticket volume on an IT support resume?",
         answer:
-          "Yes. Ticket volume, response time, and resolution quality help hiring managers understand your day-to-day workload and effectiveness.",
+          "Yes. Ticket volume, response time and resolution quality help hiring managers understand your day-to-day workload and effectiveness.",
       },
       {
         question: "Do entry-level IT support resumes need certifications?",
@@ -608,7 +608,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "How do I show soft skills in a technical support resume?",
         answer:
-          "Include short examples of communicating with non-technical users, managing expectations, and resolving issues calmly.",
+          "Include short examples of communicating with non-technical users, managing expectations and resolving issues calmly.",
       },
     ],
     relatedTemplateIds: ["t040", "t047", "t043"],

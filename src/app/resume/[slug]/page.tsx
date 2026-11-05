@@ -155,8 +155,10 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
 
         <section className="mt-6 rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-sm sm:p-7">
           <h2 className="font-heading text-2xl font-semibold tracking-tight text-zinc-900">
-            {page.slug === "it-support-specialist-resume"
-              ? "Who can use this template ?"
+            {page.slug === "marketing-manager-resume"
+              ? "Who is this resume template for ?"
+              : page.slug === "it-support-specialist-resume"
+                ? "Who can use this template ?"
               : page.slug === "business-analyst-resume" ||
                 page.slug === "cybersecurity-analyst-resume"
                 ? "Who can use this resume ?"
@@ -186,7 +188,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                 : page.slug === "registered-nurse-resume" ||
                   page.slug === "data-analyst-resume" ||
                   page.slug === "warehouse-worker-resume" ||
-                  page.slug === "it-support-specialist-resume"
+                  page.slug === "it-support-specialist-resume" ||
+                  page.slug === "marketing-manager-resume"
                   ? "What to include ?"
                   : page.slug === "project-manager-resume"
                     ? "Changes to be made"
@@ -211,7 +214,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
             page.slug === "cybersecurity-analyst-resume" ||
             page.slug === "human-resources-resume" ||
             page.slug === "warehouse-worker-resume" ||
-            page.slug === "it-support-specialist-resume"
+            page.slug === "it-support-specialist-resume" ||
+            page.slug === "marketing-manager-resume"
               ? "These are writing suggestions. Read the downloaded PDF before you share or submit it."
               : "These are writing suggestions. StudiosisLab does not test Resume Templates in applicant-tracking systems. A clear layout is not a promise that an employer's system will accept the file. Read the downloaded PDF before you submit it."}
           </p>

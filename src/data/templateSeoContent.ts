@@ -622,29 +622,29 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Professional marketing manager resume template designed for campaign strategy, digital growth, brand management, and ROI-focused resumes.",
     h1: "Marketing Manager Resume Template",
     intro:
-      "Marketing manager resumes perform best when they connect strategy to measurable growth. This template is built to help you present campaign leadership, cross-channel performance, and business impact in language hiring teams actually care about.",
+      "Marketing manager resumes perform best when they connect strategy to measurable growth. This template is built to help you present campaign leadership, cross channel performance and business impact in language hiring teams actually care about.",
     bestFor: [
       "Marketing managers leading integrated campaigns across digital and offline channels.",
-      "Growth-focused marketers responsible for leads, conversion, and pipeline outcomes.",
+      "Growth focused marketers responsible for leads, conversion and pipeline outcomes.",
       "Brand and demand generation professionals moving into broader management roles.",
-      "Candidates managing agencies, partners, and cross-functional go-to-market execution.",
+      "Candidates managing agencies, partners and cross functional go to market execution.",
     ],
     whatToInclude: [
-      "A short summary describing your channel strengths, industry focus, and leadership scope.",
-      "Campaign achievements with metrics such as pipeline growth, cost efficiency, or return on ad spend.",
-      "Team and stakeholder collaboration across creative, sales, product, and analytics functions.",
-      "Budget ownership, forecasting, and optimization examples tied to business goals.",
+      "A short summary describing your channel strengths, industry focus and leadership scope.",
+      "Campaign achievements with metrics such as pipeline growth, cost efficiency or return on ad spend.",
+      "Team and stakeholder collaboration across creative, sales, product and analytics functions.",
+      "Budget ownership, forecasting and optimization examples tied to business goals.",
       "Tooling and reporting experience with platforms used for execution and performance analysis.",
     ],
     atsTips: [
-      "Use role-specific keywords naturally, including campaign strategy, demand generation, and performance marketing.",
+      "Use role specific keywords naturally, including campaign strategy, demand generation and performance marketing.",
       "Include both strategic language and execution terms so ATS captures your full scope.",
-      "Mention channels explicitly, such as email, paid search, social, content, or lifecycle marketing.",
+      "Mention channels explicitly, such as email, paid search, social, content or lifecycle marketing.",
       "Keep metric language consistent and easy to parse in bullet points.",
     ],
     writingTips: [
       "Lead with outcomes first, then explain the campaign actions that created them.",
-      "Show how your decisions improved efficiency, quality of leads, or revenue impact.",
+      "Show how your decisions improved efficiency, quality of leads or revenue impact.",
       "Balance leadership claims with concrete examples of execution ownership.",
       "Avoid listing every platform unless it supports your target role.",
     ],
@@ -652,7 +652,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "What metrics should a marketing manager include on a resume?",
         answer:
-          "Include metrics tied to growth and efficiency, such as lead volume, conversion rate, CAC, ROAS, or campaign-influenced revenue.",
+          "Include metrics tied to growth and efficiency, such as lead volume, conversion rate, CAC, ROAS or campaign influenced revenue.",
       },
       {
         question: "Should I separate brand and performance marketing experience?",

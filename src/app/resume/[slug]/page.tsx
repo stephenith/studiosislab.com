@@ -158,7 +158,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
             {page.slug === "marketing-manager-resume"
               ? "Who is this resume template for ?"
               : page.slug === "it-support-specialist-resume" ||
-                page.slug === "medical-assistant-resume"
+                page.slug === "medical-assistant-resume" ||
+                page.slug === "ux-designer-resume"
                 ? "Who can use this template ?"
               : page.slug === "business-analyst-resume" ||
                 page.slug === "cybersecurity-analyst-resume"
@@ -191,7 +192,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                   page.slug === "warehouse-worker-resume" ||
                   page.slug === "it-support-specialist-resume" ||
                   page.slug === "marketing-manager-resume" ||
-                  page.slug === "medical-assistant-resume"
+                  page.slug === "medical-assistant-resume" ||
+                  page.slug === "ux-designer-resume"
                   ? "What to include ?"
                   : page.slug === "project-manager-resume"
                     ? "Changes to be made"
@@ -218,7 +220,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
             page.slug === "warehouse-worker-resume" ||
             page.slug === "it-support-specialist-resume" ||
             page.slug === "marketing-manager-resume" ||
-            page.slug === "medical-assistant-resume"
+            page.slug === "medical-assistant-resume" ||
+            page.slug === "ux-designer-resume"
               ? "These are writing suggestions. Read the downloaded PDF before you share or submit it."
               : "These are writing suggestions. StudiosisLab does not test Resume Templates in applicant-tracking systems. A clear layout is not a promise that an employer's system will accept the file. Read the downloaded PDF before you submit it."}
           </p>

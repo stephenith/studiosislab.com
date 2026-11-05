@@ -730,31 +730,31 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "UX designer resume template focused on user research, interaction design, wireframes, prototypes, and product design impact.",
     h1: "UX Designer Resume Template",
     intro:
-      "A strong UX resume should make your process and impact easy to understand in seconds. This template helps you communicate research decisions, interaction design work, and collaboration outcomes without overwhelming recruiters with portfolio-only language.",
+      "A strong UX resume should make your process and impact easy to understand in seconds. This template helps you communicate research decisions, interaction design work and collaboration outcomes without overwhelming recruiters with portfolio only language.",
     bestFor: [
       "UX designers building products for web or mobile experiences.",
-      "Designers moving from UI-heavy work into broader user experience roles.",
-      "Product designers who combine research, prototyping, and collaboration.",
-      "Candidates applying to cross-functional UX roles in startup or enterprise teams.",
+      "Designers moving from UI heavy work into broader user experience roles.",
+      "Product designers who combine research, prototyping and collaboration.",
+      "Candidates applying to cross functional UX roles in startup or enterprise teams.",
     ],
     whatToInclude: [
-      "A summary that defines your UX focus, product context, and design strengths.",
-      "Project experience showing research methods, design decisions, and user-centered outcomes.",
-      "Examples of wireframes, prototypes, usability testing, and iteration cycles.",
-      "Collaboration details with product managers, engineers, researchers, and stakeholders.",
+      "A summary that defines your UX focus, product context and design strengths.",
+      "Project experience showing research methods, design decisions and user-centred outcomes.",
+      "Examples of wireframes, prototypes, usability testing and iteration cycles.",
+      "Collaboration details with product managers, engineers, researchers and stakeholders.",
       "Portfolio links and selected case studies aligned to the role you are targeting.",
     ],
     atsTips: [
-      "Use keywords found in job postings, such as user research, interaction design, prototyping, and usability testing.",
+      "Use keywords found in job postings, such as user research, interaction design, prototyping and usability testing.",
       "Mention core tools and workflows with clear naming, including Figma and prototyping platforms.",
       "Avoid overly stylized section titles that ATS systems may not parse well.",
       "Include both research and execution terms if the role spans end-to-end product design.",
     ],
     writingTips: [
       "Describe design challenges and outcomes, not only deliverables.",
-      "Show how your work improved clarity, usability, adoption, or conversion where possible.",
+      "Show how your work improved clarity, usability, adoption or conversion where possible.",
       "Keep bullets tied to one clear decision or contribution each.",
-      "Use your portfolio to expand details, and keep resume bullets concise and outcome-focused.",
+      "Use your portfolio to expand details, and keep resume bullets concise and outcome focused.",
     ],
     faq: [
       {
@@ -770,7 +770,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "Can UI-heavy experience still fit a UX designer resume?",
         answer:
-          "Yes, if you frame your UI work around user problems, testing insights, and product outcomes.",
+          "Yes, if you frame your UI work around user problems, testing insights and product outcomes.",
       },
     ],
     relatedTemplateIds: ["t040", "t043", "t051"],

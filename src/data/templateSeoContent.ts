@@ -1000,47 +1000,47 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Customer success manager resume template focused on client retention, onboarding, renewals, account growth, and SaaS customer relationships.",
     h1: "Customer Success Manager Resume Template",
     intro:
-      "Customer success teams are measured on retention, expansion, and customer outcomes, not just support responsiveness. This template helps you present onboarding execution, churn reduction efforts, QBR ownership, and account growth contributions in a way ATS systems and hiring managers can evaluate quickly.",
+      "Customer success teams are measured on retention, expansion and customer outcomes, not just support responsiveness. This template helps you present onboarding execution, churn reduction efforts, QBR ownership and account growth contributions in a way ATS systems and hiring managers can evaluate quickly.",
     bestFor: [
-      "Customer success managers owning onboarding, adoption, and renewal outcomes in SaaS teams.",
-      "CS professionals managing strategic accounts, customer health scores, and expansion opportunities.",
-      "Account-facing candidates moving from support or implementation into CSM roles.",
-      "Customer success candidates working cross-functionally with sales, product, and support teams.",
+      "Customer success managers owning onboarding, adoption and renewal outcomes in SaaS teams.",
+      "CS professionals managing strategic accounts, customer health scores and expansion opportunities.",
+      "Account facing candidates moving from support or implementation into CSM roles.",
+      "Customer success candidates working cross functionally with sales, product and support teams.",
     ],
     whatToInclude: [
-      "A role-focused summary with customer segment, book-of-business scope, and retention strengths.",
-      "Onboarding and activation work tied to time-to-value and adoption milestones.",
-      "Renewal and churn performance with metrics such as renewal rate, GRR/NRR, or retention lift.",
-      "Account growth contributions including upsell identification, expansion planning, and QBR delivery.",
-      "Tools and workflows such as CRM, customer success platforms, health scoring, and lifecycle reporting.",
+      "A role focused summary with customer segment, book of business scope and retention strengths.",
+      "Onboarding and activation work tied to time to value and adoption milestones.",
+      "Renewal and churn performance with metrics such as renewal rate, GRR/NRR or retention lift.",
+      "Account growth contributions including upsell identification, expansion planning and QBR delivery.",
+      "Tools and workflows such as CRM, customer success platforms, health scoring and lifecycle reporting.",
     ],
     atsTips: [
-      "Use role terms naturally, including customer onboarding, renewals, retention, churn reduction, and account growth.",
+      "Use role terms naturally, including customer onboarding, renewals, retention, churn reduction and account growth.",
       "Include SaaS and CRM keywords from postings where they match your actual experience.",
       "Write out business metrics clearly so ATS can parse renewal and customer health context.",
-      "Keep section headings standard so systems can classify summary, experience, and skills correctly.",
+      "Keep section headings standard so systems can classify summary, experience and skills correctly.",
     ],
     writingTips: [
       "Lead bullets with outcomes, then show the customer success actions that produced them.",
-      "Show how you partnered with product, support, and sales to unblock customer goals.",
-      "Include realistic metrics such as renewal performance, adoption changes, or risk account recovery.",
+      "Show how you partnered with product, support and sales to unblock customer goals.",
+      "Include realistic metrics such as renewal performance, adoption changes or risk account recovery.",
       "Avoid generic relationship claims and focus on specific customer lifecycle contributions.",
     ],
     faq: [
       {
         question: "What metrics matter most on a customer success manager resume?",
         answer:
-          "Renewal rate, retention trends, churn reduction, expansion impact, and customer adoption metrics are the most useful when accurate.",
+          "Renewal rate, retention trends, churn reduction, expansion impact and customer adoption metrics are the most useful when accurate.",
       },
       {
         question: "Should I mention QBRs and customer health scores?",
         answer:
-          "Yes. They show how you managed strategic communication, risk visibility, and account planning in recurring-revenue environments.",
+          "Yes. They show how you managed strategic communication, risk visibility and account planning in recurring revenue environments.",
       },
       {
         question: "Can support experience help when applying for a CSM role?",
         answer:
-          "Yes, especially when you frame it around onboarding, customer outcomes, proactive communication, and account retention impact.",
+          "Yes, especially when you frame it around onboarding, customer outcomes, proactive communication and account retention impact.",
       },
     ],
     relatedTemplateIds: ["t044", "t045", "t054"],

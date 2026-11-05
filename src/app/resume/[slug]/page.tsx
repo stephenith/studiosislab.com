@@ -164,7 +164,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                 page.slug === "ux-designer-resume" ||
                 page.slug === "sales-associate-resume" ||
                 page.slug === "graphic-designer-resume" ||
-                page.slug === "administrative-assistant-resume"
+                page.slug === "administrative-assistant-resume" ||
+                page.slug === "customer-success-manager-resume"
                 ? "Who can use this template ?"
               : page.slug === "business-analyst-resume" ||
                 page.slug === "cybersecurity-analyst-resume"
@@ -200,7 +201,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                   page.slug === "medical-assistant-resume" ||
                   page.slug === "ux-designer-resume" ||
                   page.slug === "sales-associate-resume" ||
-                  page.slug === "accountant-resume"
+                  page.slug === "accountant-resume" ||
+                  page.slug === "customer-success-manager-resume"
                   ? "What to include ?"
                   : page.slug === "project-manager-resume"
                     ? "Changes to be made"
@@ -232,7 +234,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
             page.slug === "sales-associate-resume" ||
             page.slug === "accountant-resume" ||
             page.slug === "graphic-designer-resume" ||
-            page.slug === "administrative-assistant-resume"
+            page.slug === "administrative-assistant-resume" ||
+            page.slug === "customer-success-manager-resume"
               ? "These are writing suggestions. Read the downloaded PDF before you share or submit it."
               : "These are writing suggestions. StudiosisLab does not test Resume Templates in applicant-tracking systems. A clear layout is not a promise that an employer's system will accept the file. Read the downloaded PDF before you submit it."}
           </p>

@@ -1216,29 +1216,29 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Human resources manager resume template focused on recruitment, employee relations, HR operations, compliance, onboarding, and workforce planning.",
     h1: "Human Resources Manager Resume Template",
     intro:
-      "HR manager hiring teams look for evidence of strong people operations and policy execution at scale. This template helps you present recruitment leadership, employee relations, compliance support, and workforce planning work in a structure that ATS systems and HR leaders can review quickly.",
+      "HR manager hiring teams look for evidence of strong people operations and policy execution at scale. This template helps you present recruitment leadership, employee relations, compliance support and workforce planning work in a structure that ATS systems and HR leaders can review quickly.",
     bestFor: [
-      "HR managers overseeing recruitment, onboarding, and employee lifecycle operations.",
-      "People leaders handling employee relations, policy application, and compliance coordination.",
-      "HR professionals managing workforce planning and cross-functional talent initiatives.",
-      "Candidates moving from HR generalist roles into manager-level HR ownership.",
+      "HR managers overseeing recruitment, onboarding and employee lifecycle operations.",
+      "People leaders handling employee relations, policy application and compliance coordination.",
+      "HR professionals managing workforce planning and cross functional talent initiatives.",
+      "Candidates moving from HR generalist roles into manager level HR ownership.",
     ],
     whatToInclude: [
-      "A clear summary of HR leadership scope, organizational context, and people operations strengths.",
-      "Recruitment and hiring outcomes including time-to-fill, quality-of-hire, or pipeline improvements.",
-      "Employee relations examples involving conflict resolution, coaching, and manager partnership.",
-      "HR operations work such as onboarding, policy rollout, documentation, and audit readiness.",
+      "A clear summary of HR leadership scope, organizational context and people operations strengths.",
+      "Recruitment and hiring outcomes including time to fill, quality of hire or pipeline improvements.",
+      "Employee relations examples involving conflict resolution, coaching and manager partnership.",
+      "HR operations work such as onboarding, policy rollout, documentation and audit readiness.",
       "Workforce planning and talent strategy contributions tied to headcount and business priorities.",
     ],
     atsTips: [
-      "Use job-post language naturally: recruitment, onboarding, employee relations, HR operations, compliance, and workforce planning.",
+      "Use jobpost language naturally: recruitment, onboarding, employee relations, HR operations, compliance and workforce planning.",
       "Include HR systems and process terms clearly so ATS can classify operational HR experience.",
       "Keep section labels conventional for better ATS parsing of leadership and policy work.",
       "Avoid unsupported keyword lists and align each term to real achievements in experience bullets.",
     ],
     writingTips: [
       "Frame HR work with business and people outcomes rather than only policy administration.",
-      "Use concise, specific examples of manager support and workforce problem-solving.",
+      "Use concise, specific examples of manager support and workforce problem solving.",
       "Highlight operational consistency and judgment in sensitive employee matters.",
       "Quantify recruiting or retention impact where numbers are available and reliable.",
     ],
@@ -1246,7 +1246,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "How should I show employee relations experience on an HR manager resume?",
         answer:
-          "Describe the type of issues managed, your role in resolution, and outcomes tied to team stability or policy consistency.",
+          "Describe the type of issues managed, your role in resolution and outcomes tied to team stability or policy consistency.",
       },
       {
         question: "Should workforce planning appear in the summary section?",

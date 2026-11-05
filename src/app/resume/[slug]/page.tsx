@@ -166,7 +166,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                 page.slug === "graphic-designer-resume" ||
                 page.slug === "administrative-assistant-resume" ||
                 page.slug === "customer-success-manager-resume" ||
-                page.slug === "operations-manager-resume"
+                page.slug === "operations-manager-resume" ||
+                page.slug === "human-resources-manager-resume"
                 ? "Who can use this template ?"
               : page.slug === "business-analyst-resume" ||
                 page.slug === "cybersecurity-analyst-resume" ||
@@ -208,7 +209,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                   page.slug === "accountant-resume" ||
                   page.slug === "customer-success-manager-resume" ||
                   page.slug === "financial-analyst-resume" ||
-                  page.slug === "operations-manager-resume"
+                  page.slug === "operations-manager-resume" ||
+                  page.slug === "human-resources-manager-resume"
                   ? "What to include ?"
                   : page.slug === "project-manager-resume"
                     ? "Changes to be made"
@@ -224,7 +226,9 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
         <section className="mt-6 rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-sm sm:p-7">
           <h2 className="font-heading text-2xl font-semibold tracking-tight text-zinc-900">ATS tips</h2>
           <p className="mt-4 text-sm leading-relaxed text-zinc-700 sm:text-base">
-            {page.slug === "registered-nurse-practitioner-resume"
+            {page.slug === "human-resources-manager-resume"
+              ? "These are writing suggestions.  Read the downloaded PDF before you share or submit it."
+              : page.slug === "registered-nurse-practitioner-resume"
               ? "These are writing suggestions. Read the downloaded PDF before you submit it."
               : page.slug === "registered-nurse-resume" ||
             page.slug === "project-manager-resume" ||

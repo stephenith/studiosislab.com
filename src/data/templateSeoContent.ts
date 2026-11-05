@@ -784,22 +784,22 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Sales associate resume template that highlights retail sales, customer service, merchandising, and upselling experience.",
     h1: "Sales Associate Resume Template",
     intro:
-      "Sales associate resumes should show more than friendliness at the register. This template helps you present customer-facing sales results, floor execution, and day-to-day retail reliability in a practical format for hiring managers.",
+      "Sales associate resumes should show more than friendliness at the register. This template helps you present customer facing sales results, floor execution and day-to-day retail reliability in a practical format for hiring managers.",
     bestFor: [
-      "Retail sales associates working on floor sales, customer service, and checkout support.",
-      "Candidates applying to store, showroom, or brand-specific sales roles.",
-      "Job seekers with upselling, merchandising, and product recommendation experience.",
-      "Entry-level applicants with strong customer interaction and sales potential.",
+      "Retail sales associates working on floor sales, customer service and checkout support.",
+      "Candidates applying to store, showroom or brand specific sales roles.",
+      "Job seekers with upselling, merchandising and product recommendation experience.",
+      "Entry level applicants with strong customer interaction and sales potential.",
     ],
     whatToInclude: [
-      "A concise summary covering sales strengths, customer approach, and store operations experience.",
-      "Sales outcomes such as target attainment, upsell conversion, or average transaction value improvements.",
-      "Customer support examples including product guidance, issue resolution, and service consistency.",
-      "Operational contributions like merchandising, inventory checks, and opening or closing routines.",
-      "Point-of-sale and retail systems used for transactions, returns, and stock workflows.",
+      "A concise summary covering sales strengths, customer approach and store operations experience.",
+      "Sales outcomes such as target attainment, upsell conversion or average transaction value improvements.",
+      "Customer support examples including product guidance, issue resolution and service consistency.",
+      "Operational contributions like merchandising, inventory checks and opening or closing routines.",
+      "Point of sale and retail systems used for transactions, returns and stock workflows.",
     ],
     atsTips: [
-      "Use role terms from job postings, including sales associate, merchandising, and customer service.",
+      "Use role terms from job postings, including sales associate, merchandising and customer service.",
       "Include measurable sales details where possible instead of generic responsibility lists.",
       "Name POS platforms or retail systems if they are relevant to the target role.",
       "Keep formatting simple and chronological so ATS can parse employment history accurately.",
@@ -814,17 +814,17 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "What metrics matter most on a sales associate resume?",
         answer:
-          "Useful metrics include sales target attainment, upsell rate, conversion contribution, and customer satisfaction indicators.",
+          "Useful metrics include sales target attainment, upsell rate, conversion contribution and customer satisfaction indicators.",
       },
       {
         question: "Should I include cashier duties on a sales resume?",
         answer:
-          "Yes, if relevant. Frame cashier work with accuracy, speed, and customer service impact.",
+          "Yes, if relevant. Frame cashier work with accuracy, speed and customer service impact.",
       },
       {
         question: "Can I apply for sales associate roles without formal sales titles?",
         answer:
-          "Yes. Retail, service, and customer-facing experience can translate well when you show practical sales contributions.",
+          "Yes. Retail, service and customer facing experience can translate well when you show practical sales contributions.",
       },
     ],
     relatedTemplateIds: ["t044", "t049", "t051"],

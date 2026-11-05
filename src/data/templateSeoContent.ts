@@ -838,47 +838,47 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Accountant resume template focused on bookkeeping, financial reporting, reconciliations, tax support, and accounting software skills.",
     h1: "Accountant Resume Template",
     intro:
-      "Hiring teams for accounting roles look for reliable financial accuracy and strong reporting discipline. This template helps you present reconciliations, close-cycle work, and system skills in a clear format that works for ATS screening and hiring manager review.",
+      "Hiring teams for accounting roles look for reliable financial accuracy and strong reporting discipline. This template helps you present reconciliations, close cycle work and system skills in a clear format that works for ATS screening and hiring manager review.",
     bestFor: [
-      "Accountants handling general ledger, reconciliations, and month-end close tasks.",
+      "Accountants handling general ledger, reconciliations and month end close tasks.",
       "Bookkeeping professionals moving into broader accounting roles.",
-      "Candidates supporting AP/AR, payroll coordination, and tax preparation workflows.",
+      "Candidates supporting AP/AR, payroll coordination and tax preparation workflows.",
       "Finance team members applying for staff accountant or junior accountant openings.",
     ],
     whatToInclude: [
-      "A concise summary showing accounting scope, reporting strengths, and software proficiency.",
-      "Hands-on work in reconciliations, journal entries, month-end close, and variance review.",
-      "Examples of AP/AR support, invoice workflows, and payment tracking accuracy.",
-      "Financial reporting responsibilities, including schedules, statements, and audit prep support.",
-      "Tools and certifications such as QuickBooks, Excel, ERP systems, and accounting coursework.",
+      "A concise summary showing accounting scope, reporting strengths and software proficiency.",
+      "Hands on work in reconciliations, journal entries, month end close and variance review.",
+      "Examples of AP/AR support, invoice workflows and payment tracking accuracy.",
+      "Financial reporting responsibilities, including schedules, statements and audit prep support.",
+      "Tools and certifications such as QuickBooks, Excel, ERP systems and accounting coursework.",
     ],
     atsTips: [
-      "Use role-specific terms naturally, including reconciliations, AP/AR, financial reporting, and month-end close.",
-      "Include software names exactly as listed in job posts, such as QuickBooks, Excel, and ERP platforms.",
-      "Keep headings standard so ATS can parse accounting experience, skills, and education correctly.",
+      "Use role specific terms naturally, including reconciliations, AP/AR, financial reporting and month end close.",
+      "Include software names exactly as listed in job posts, such as QuickBooks, Excel and ERP platforms.",
+      "Keep headings standard so ATS can parse accounting experience, skills and education correctly.",
       "Add both technical keywords and process terms to reflect day-to-day accounting responsibilities.",
     ],
     writingTips: [
-      "Show measurable outcomes such as reduced errors, faster close cycles, or reporting accuracy improvements.",
+      "Show measurable outcomes such as reduced errors, faster close cycles or reporting accuracy improvements.",
       "Pair accounting tasks with clear context so reviewers understand business impact.",
-      "Use concise bullet points that demonstrate consistency, detail orientation, and deadline reliability.",
+      "Use concise bullet points that demonstrate consistency, detail orientation and deadline reliability.",
       "Avoid generic claims and focus on concrete contributions within finance operations.",
     ],
     faq: [
       {
         question: "Which accounting tools should I list on an accountant resume?",
         answer:
-          "List tools you actively use, such as QuickBooks, Excel, and relevant ERP systems, especially those requested in the job description.",
+          "List tools you actively use, such as QuickBooks, Excel and relevant ERP systems, especially those requested in the job description.",
       },
       {
         question: "How do I present month-end close experience clearly?",
         answer:
-          "Include your specific responsibilities in the close cycle, timelines you supported, and any improvements in speed or accuracy.",
+          "Include your specific responsibilities in the close cycle, timelines you supported and any improvements in speed or accuracy.",
       },
       {
         question: "Should AP/AR work be included for staff accountant roles?",
         answer:
-          "Yes. AP/AR ownership or support can strengthen your profile when tied to accuracy, controls, and reporting outcomes.",
+          "Yes. AP/AR ownership or support can strengthen your profile when tied to accuracy, controls and reporting outcomes.",
       },
     ],
     relatedTemplateIds: ["t023", "t024", "t025", "t026"],

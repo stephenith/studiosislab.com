@@ -1054,37 +1054,37 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Registered nurse practitioner resume template focused on patient assessment, treatment planning, clinical documentation, primary care, and advanced nursing skills.",
     h1: "Registered Nurse Practitioner Resume Template",
     intro:
-      "Nurse practitioner hiring teams look for clear evidence of advanced clinical judgment, patient management, and documentation quality. This template helps you present patient assessment, diagnosis, treatment planning, and chronic disease management in a practical format for ATS review and clinical hiring decisions.",
+      "Nurse practitioner hiring teams look for clear evidence of advanced clinical judgment, patient management and documentation quality. This template helps you present patient assessment, diagnosis, treatment planning and chronic disease management in a practical format for ATS review and clinical hiring decisions.",
     bestFor: [
-      "Registered nurse practitioners applying to primary care, family practice, or outpatient NP roles.",
-      "NP candidates managing diagnosis, treatment planning, and medication management workflows.",
+      "Registered nurse practitioners applying to primary care, family practice or outpatient NP roles.",
+      "NP candidates managing diagnosis, treatment planning and medication management workflows.",
       "Advanced practice nurses supporting chronic disease management and continuity of care.",
       "Nurse practitioners documenting care in EHR-driven clinical environments.",
     ],
     whatToInclude: [
-      "A concise clinical summary with specialty focus, patient population, and care setting.",
-      "Patient assessment and diagnostic responsibilities with examples of evidence-based clinical decisions.",
-      "Treatment planning, medication management, and follow-up care coordination details.",
+      "A concise clinical summary with specialty focus, patient population and care setting.",
+      "Patient assessment and diagnostic responsibilities with examples of evidence based clinical decisions.",
+      "Treatment planning, medication management and follow-up care coordination details.",
       "Chronic disease management outcomes across common conditions and longitudinal care plans.",
       "Clinical documentation and EHR proficiency, including chart quality and care compliance support.",
     ],
     atsTips: [
-      "Use role-relevant terms from postings, such as patient assessment, diagnosis, treatment planning, and primary care.",
+      "Use role relevant terms from postings, such as patient assessment, diagnosis, treatment planning and primary care.",
       "Include complete credential wording and common abbreviations where applicable for ATS matching.",
       "Mention EHR and clinical documentation explicitly so systems and recruiters can parse core workflow skills.",
-      "Keep chronology and section names clear to avoid ATS ambiguity across licenses, experience, and certifications.",
+      "Keep chronology and section names clear to avoid ATS ambiguity across licenses, experience and certifications.",
     ],
     writingTips: [
       "Prioritize clinical outcomes and patient management scope over broad duty lists.",
-      "Show collaboration with physicians, nurses, and care teams in complex treatment decisions.",
-      "Use concise bullets that connect assessment, intervention, and patient follow-up.",
-      "Avoid overclaiming and keep clinical language precise, practical, and role-specific.",
+      "Show collaboration with physicians, nurses and care teams in complex treatment decisions.",
+      "Use concise bullets that connect assessment, intervention and patient follow up.",
+      "Avoid over claiming and keep clinical language precise, practical and role specific.",
     ],
     faq: [
       {
         question: "How is a nurse practitioner resume different from an RN resume?",
         answer:
-          "A nurse practitioner resume should emphasize advanced assessment, diagnosis, treatment planning, and independent clinical decision-making scope.",
+          "A nurse practitioner resume should emphasise advanced assessment, diagnosis, treatment planning and independent clinical decision making scope.",
       },
       {
         question: "Should I include EHR systems on an NP resume?",
@@ -1094,7 +1094,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "What should I highlight for chronic disease management experience?",
         answer:
-          "Highlight patient panel context, treatment plan execution, follow-up consistency, and measurable care outcomes where available.",
+          "Highlight patient panel context, treatment plan execution, follow up consistency and measurable care outcomes where available.",
       },
     ],
     relatedTemplateIds: ["t041", "t052", "t057"],

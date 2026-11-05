@@ -1108,29 +1108,29 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Financial analyst resume template focused on financial modeling, forecasting, budgeting, reporting, Excel, FP&A, and business analysis.",
     h1: "Financial Analyst Resume Template",
     intro:
-      "Financial analyst hiring teams expect strong modeling discipline and clear business storytelling. This template helps you present FP&A work, variance analysis, budgeting support, and reporting outcomes in a format that reads well in ATS scans and recruiter reviews.",
+      "Financial analyst hiring teams expect strong modeling discipline and clear business storytelling. This template helps you present FP&A work, variance analysis, budgeting support and reporting outcomes in a format that reads well in ATS scans and recruiter reviews.",
     bestFor: [
-      "Financial analysts supporting budgeting, forecasting, and monthly performance reporting.",
+      "Financial analysts supporting budgeting, forecasting and monthly performance reporting.",
       "FP&A candidates building financial models and business planning recommendations.",
       "Professionals moving from accounting or operations analysis into analyst roles.",
-      "Analysts preparing for corporate finance, planning, and strategy-facing openings.",
+      "Analysts preparing for corporate finance, planning and strategy facing openings.",
     ],
     whatToInclude: [
-      "A concise summary of financial analysis scope, domain focus, and planning strengths.",
-      "Financial modeling projects with assumptions, scenario analysis, and decision impact.",
+      "A concise summary of financial analysis scope, domain focus and planning strengths.",
+      "Financial modeling projects with assumptions, scenario analysis and decision impact.",
       "Budgeting and forecasting contributions tied to planning cycles and KPI tracking.",
-      "Variance analysis and reporting outputs used by leadership or cross-functional teams.",
-      "Tools and systems such as Excel, BI reporting tools, and FP&A workflows.",
+      "Variance analysis and reporting outputs used by leadership or cross functional teams.",
+      "Tools and systems such as Excel, BI reporting tools and FP&A workflows.",
     ],
     atsTips: [
-      "Use job-post language naturally, including financial modeling, forecasting, budgeting, FP&A, and variance analysis.",
+      "Use job post language naturally, including financial modeling, forecasting, budgeting, FP&A and variance analysis.",
       "Include full tool names and core finance terms so ATS systems can map your skills accurately.",
       "Keep section headings conventional: Summary, Experience, Skills, Education, Certifications.",
       "Show both technical analysis and business communication keywords across your bullets.",
     ],
     writingTips: [
-      "Lead with outcome-first bullets that connect analysis to planning or performance decisions.",
-      "Quantify improvements such as forecast accuracy, reporting speed, or cost visibility gains.",
+      "Lead with outcome first bullets that connect analysis to planning or performance decisions.",
+      "Quantify improvements such as forecast accuracy, reporting speed or cost visibility gains.",
       "Explain model purpose briefly so reviewers see business context, not just spreadsheet work.",
       "Avoid broad finance jargon and keep examples tied to real responsibilities.",
     ],
@@ -1138,17 +1138,17 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "Which metrics should I include on a financial analyst resume?",
         answer:
-          "Use metrics tied to planning impact, such as forecast accuracy, variance reduction, reporting turnaround, or budget performance.",
+          "Use metrics tied to planning impact, such as forecast accuracy, variance reduction, reporting turnaround or budget performance.",
       },
       {
         question: "Should I mention Excel explicitly even for senior analyst roles?",
         answer:
-          "Yes. Excel remains a core requirement for many analyst roles, and naming it helps both ATS filtering and recruiter screening.",
+          "Yes. Excel remains a core requirement for many analyst roles and naming it helps both ATS filtering and recruiter screening.",
       },
       {
         question: "How do I show FP&A experience clearly?",
         answer:
-          "Describe the planning cycle work you owned, the reports you produced, and how your analysis supported business decisions.",
+          "Describe the planning cycle work you owned, the reports you produced and how your analysis supported business decisions.",
       },
     ],
     relatedTemplateIds: ["t023", "t024", "t055"],

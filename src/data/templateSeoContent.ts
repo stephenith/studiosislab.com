@@ -676,22 +676,22 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Medical assistant resume template built for clinical support, patient care workflows, scheduling, charting, and healthcare administration.",
     h1: "Medical Assistant Resume Template",
     intro:
-      "Medical assistant roles require a careful mix of clinical reliability and front-office coordination. This template helps you show patient-facing support, documentation accuracy, and workflow consistency in a way clinics and healthcare employers can evaluate quickly.",
+      "Medical assistant roles require a careful mix of clinical reliability and front office coordination. This template helps you show patient facing support, documentation accuracy and workflow consistency in a way clinics and healthcare employers can evaluate quickly.",
     bestFor: [
-      "Medical assistants working in outpatient clinics, urgent care, or specialty practices.",
+      "Medical assistants working in outpatient clinics, urgent care or specialty practices.",
       "Candidates balancing clinical support with scheduling and administrative duties.",
-      "Certified assistants applying for roles with patient intake and exam-room preparation.",
+      "Certified assistants applying for roles with patient intake and exam room preparation.",
       "Healthcare support professionals transitioning into full medical assistant positions.",
     ],
     whatToInclude: [
       "A focused summary that reflects your clinical support strengths and patient interaction experience.",
-      "Patient intake, vitals, room preparation, and provider support responsibilities.",
+      "Patient intake, vitals, room preparation and provider support responsibilities.",
       "Charting and records workflows, including EHR usage and documentation accuracy.",
-      "Administrative duties such as appointment coordination, follow-up communication, and insurance basics.",
-      "Relevant certifications, training, and compliance practices used in daily work.",
+      "Administrative duties such as appointment coordination, follow up communication and insurance basics.",
+      "Relevant certifications, training and compliance practices used in daily work.",
     ],
     atsTips: [
-      "Use exact role terms from postings, such as patient intake, charting, and clinical support.",
+      "Use exact role terms from postings, such as patient intake, charting and clinical support.",
       "Include certification names and credential abbreviations in a consistent format.",
       "List EHR and healthcare systems by full names where possible.",
       "Keep section headings straightforward so ATS can parse clinical and administrative experience clearly.",
@@ -699,19 +699,19 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     writingTips: [
       "Demonstrate reliability with specific examples of workflow accuracy and patient support.",
       "Show both clinical and admin contributions instead of focusing on one side only.",
-      "Use concise bullets that describe action, context, and practical outcome.",
-      "Highlight communication with providers and patients in a professional, factual tone.",
+      "Use concise bullets that describe action, context and practical outcome.",
+      "Highlight communication with providers and patients in a professional tone.",
     ],
     faq: [
       {
         question: "Should I include both clinical and front-desk tasks on my resume?",
         answer:
-          "Yes. Many medical assistant roles expect both, and showing that range can make your profile more competitive.",
+          "Yes. Many medical assistant roles expect both and showing that range can make your profile more competitive.",
       },
       {
         question: "How should I present EHR experience?",
         answer:
-          "Name the systems you used and briefly describe how you handled charting, updates, or documentation workflows.",
+          "Name the systems you used and briefly describe how you handled charting, updates or documentation workflows.",
       },
       {
         question: "Do medical assistant resumes need certifications at the top?",

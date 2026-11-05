@@ -514,29 +514,29 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Create a warehouse worker resume that highlights safety, inventory accuracy, equipment handling, and productivity metrics in a clear format.",
     h1: "Warehouse Worker Resume Template",
     intro:
-      "Warehouse hiring managers usually scan resumes for reliability, safety habits, and pace. This template helps you present inventory work, equipment experience, and shift performance clearly for quick review.",
+      "Warehouse hiring managers usually scan resumes for reliability, safety habits and pace. This template helps you present inventory work, equipment experience and shift performance clearly for quick review.",
     bestFor: [
-      "Warehouse associates applying for picking, packing, receiving, or shipping roles.",
+      "Warehouse associates applying for picking, packing, receiving or shipping roles.",
       "Candidates with forklift or pallet jack experience.",
-      "Workers moving into higher-responsibility warehouse positions.",
-      "Entry-level applicants with logistics, retail stockroom, or fulfillment experience.",
+      "Workers moving into higher responsibility warehouse positions.",
+      "Entry level applicants with logistics, retail stockroom or similar experience.",
     ],
     whatToInclude: [
-      "Summary with shift readiness, safety focus, and warehouse strengths.",
-      "Experience bullets covering receiving, inventory checks, order picking, and shipping support.",
-      "Equipment and systems such as forklifts, scanners, or warehouse management tools.",
-      "Productivity and quality outcomes like order accuracy or on-time throughput.",
-      "Safety training, certifications, or compliance practices.",
+      "Summary with shift readiness, safety focus and warehouse strengths.",
+      "Experience bullets covering receiving, inventory checks, order picking and shipping support.",
+      "Equipment and systems such as forklifts, scanners or warehouse management tools.",
+      "Productivity and quality outcomes like order accuracy or on time throughput.",
+      "Safety training, certifications or compliance practices.",
     ],
     atsTips: [
-      "Use posting keywords naturally, including inventory, shipping, receiving, and forklift.",
+      "Use posting keywords naturally, including inventory, shipping, receiving and forklift.",
       "Include measurable details such as volume handled per shift when available.",
       "Use standard headings so ATS can parse your work history and skills.",
       "Keep formatting simple with clear bullets and dates.",
     ],
     writingTips: [
       "Emphasize safety consistency and attention to detail.",
-      "Show reliability with attendance, shift flexibility, or cross-team support examples.",
+      "Show reliability with attendance, shift flexibility or cross-team support examples.",
       "Use concise bullets that explain both task and result.",
       "Highlight physical and operational readiness without exaggeration.",
     ],
@@ -544,12 +544,12 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "Should I mention physical capability on my resume?",
         answer:
-          "You can mention role-relevant readiness, such as lifting requirements and shift work, in a factual and professional way.",
+          "You can mention role relevant readiness, such as lifting requirements and shift work, in a factual and professional way.",
       },
       {
         question: "Do warehouse resumes need metrics?",
         answer:
-          "Yes. Metrics like pick rate, order accuracy, and shipping volume can strengthen your application.",
+          "Yes. Metrics like pick rate, order accuracy and shipping volume can strengthen your application.",
       },
       {
         question: "Is forklift certification important to list?",

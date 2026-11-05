@@ -1162,37 +1162,37 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Operations manager resume template focused on process improvement, team leadership, workflow optimization, logistics, and operational performance.",
     h1: "Operations Manager Resume Template",
     intro:
-      "Operations manager resumes should show execution leadership and measurable efficiency gains. This template helps you present process improvement work, logistics coordination, KPI ownership, and team leadership in a way ATS tools and hiring managers can quickly evaluate.",
+      "Operations manager resumes should show execution leadership and measurable efficiency gains. This template helps you present process improvement work, logistics coordination, KPI ownership and team leadership in a way ATS tools and hiring managers can quickly evaluate.",
     bestFor: [
-      "Operations managers leading daily workflows across multi-team business functions.",
-      "Professionals improving process reliability, cost control, and operational efficiency.",
-      "Leaders managing logistics, vendor coordination, and cross-functional execution.",
+      "Operations managers leading daily workflows across multi team business functions.",
+      "Professionals improving process reliability, cost control and operational efficiency.",
+      "Leaders managing logistics, vendor coordination and cross-functional execution.",
       "Candidates moving from supervisor or project roles into broader operations leadership.",
     ],
     whatToInclude: [
-      "A role summary highlighting operations scope, team size, and performance focus.",
-      "Process improvement examples with before/after impact on throughput, quality, or cycle time.",
-      "KPI ownership across service levels, productivity, and operational cost control.",
+      "A role summary highlighting operations scope, team size and performance focus.",
+      "Process improvement examples with before/after impact on throughput, quality or cycle time.",
+      "KPI ownership across service levels, productivity and operational cost control.",
       "Logistics or workflow optimization responsibilities across departments and stakeholders.",
-      "People management achievements such as coaching, staffing, and performance routines.",
+      "People management achievements such as coaching, staffing and performance routines.",
     ],
     atsTips: [
-      "Use posting keywords naturally, including process improvement, workflow optimization, logistics, KPIs, and operational efficiency.",
+      "Use posting keywords naturally, including process improvement, workflow optimisation, logistics, KPIs and operational efficiency.",
       "Include standard section names so ATS systems can parse leadership and operations experience correctly.",
       "Write out measurable outcomes in your bullets instead of generic management claims.",
       "List tools or systems relevant to operations tracking and reporting where applicable.",
     ],
     writingTips: [
       "Show what operational problem you solved and the business result it produced.",
-      "Use numbers to anchor claims, such as cycle-time reduction or service-level improvements.",
-      "Balance strategic coordination with hands-on execution ownership.",
-      "Highlight cross-team alignment with finance, product, HR, or logistics partners.",
+      "Use numbers to anchor claims, such as cycle time reduction or service-level improvements.",
+      "Balance strategic coordination with hands on execution ownership.",
+      "Highlight cross team alignment with finance, product, HR or logistics partners.",
     ],
     faq: [
       {
         question: "What metrics are most valuable on an operations manager resume?",
         answer:
-          "Metrics like cycle time, output quality, on-time performance, cost efficiency, and team productivity are most useful when accurate.",
+          "Metrics like cycle time, output quality, on-time performance, cost efficiency and team productivity are most useful when accurate.",
       },
       {
         question: "Should I include team size in operations leadership roles?",
@@ -1202,7 +1202,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "How can I present process improvement work effectively?",
         answer:
-          "Describe the baseline issue, your change initiative, and measurable operational results after implementation.",
+          "Describe the baseline issue, your change initiative and measurable operational results after implementation.",
       },
     ],
     relatedTemplateIds: ["t042", "t045", "t064"],

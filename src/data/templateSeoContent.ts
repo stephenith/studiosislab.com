@@ -1810,47 +1810,47 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Supply chain manager resume template focused on logistics, procurement, inventory management, vendor coordination, forecasting, and supply chain optimization.",
     h1: "Supply Chain Manager Resume Template",
     intro:
-      "Supply chain manager resumes need to show how operational decisions improve flow, cost, and reliability. This template helps you present logistics leadership, procurement strategy, and inventory optimization in language ATS systems and hiring teams can evaluate quickly.",
+      "Supply chain manager resumes need to show how operational decisions improve flow, cost and reliability. This template helps you present logistics leadership, procurement strategy and inventory optimization in language ATS systems and hiring teams can evaluate quickly.",
     bestFor: [
-      "Supply chain managers overseeing logistics, procurement, and inventory planning across operations.",
-      "Professionals managing vendor performance, fulfillment consistency, and cost optimization initiatives.",
-      "Candidates responsible for forecasting accuracy and cross-functional supply coordination.",
-      "Operations leaders moving into end-to-end supply chain management roles.",
+      "Supply chain managers overseeing logistics, procurement and inventory planning across operations.",
+      "Professionals managing vendor performance, fulfillment consistency and cost optimization initiatives.",
+      "Candidates responsible for forecasting accuracy and cross functional supply coordination.",
+      "Operations leaders moving into end to end supply chain management roles.",
     ],
     whatToInclude: [
-      "A summary with supply chain scope, industry context, and core optimization strengths.",
-      "Logistics and distribution outcomes tied to delivery reliability and service-level performance.",
+      "A summary with supply chain scope, industry context and core optimization strengths.",
+      "Logistics and distribution outcomes tied to delivery reliability and service level performance.",
       "Procurement and vendor coordination work including sourcing strategy and supplier management.",
-      "Inventory management responsibilities focused on stock efficiency, turnover, and availability.",
+      "Inventory management responsibilities focused on stock efficiency, turnover and availability.",
       "Forecasting and planning contributions that improved supply chain consistency and operational decisions.",
     ],
     atsTips: [
-      "Use role-specific language naturally, including logistics, procurement, inventory management, and supply chain optimization.",
+      "Use role specific language naturally, including logistics, procurement, inventory management and supply chain optimization.",
       "Include forecasting and vendor management terms from target job descriptions when relevant.",
       "Use clear section headings so ATS can parse operations achievements and tool proficiency accurately.",
-      "Support keyword usage with measurable outcomes such as lead-time, cost, or service-level improvements.",
+      "Support keyword usage with measurable outcomes such as lead time, cost or service level improvements.",
     ],
     writingTips: [
-      "Show how your decisions impacted cost, lead times, inventory balance, or fulfillment reliability.",
-      "Use concise bullets with baseline challenge, action taken, and operational result.",
-      "Highlight collaboration across procurement, warehouse, finance, and planning stakeholders.",
+      "Show how your decisions impacted cost, lead times, inventory balance or fulfillment reliability.",
+      "Use concise bullets with baseline challenge, action taken and operational result.",
+      "Highlight collaboration across procurement, warehouse, finance and planning stakeholders.",
       "Avoid generic operations wording and focus on measurable supply chain improvements.",
     ],
     faq: [
       {
         question: "What metrics are most useful on a supply chain manager resume?",
         answer:
-          "Lead-time reduction, inventory turns, service-level performance, and cost optimization outcomes are usually the most useful metrics.",
+          "Lead time reduction, inventory turns, service-level performance and cost optimization outcomes are usually the most useful metrics.",
       },
       {
         question: "Should I include vendor management responsibilities explicitly?",
         answer:
-          "Yes. Supplier performance, sourcing coordination, and relationship management are core parts of many supply chain roles.",
+          "Yes. Supplier performance, sourcing coordination and relationship management are core parts of many supply chain roles.",
       },
       {
         question: "How can I keep a supply chain resume easy to scan?",
         answer:
-          "Use standard headings and include job-aligned terms like logistics, procurement, forecasting, and inventory optimization in context.",
+          "Use standard headings and include job aligned terms like logistics, procurement, forecasting and inventory optimization in context.",
       },
     ],
     relatedTemplateIds: ["t061", "t049", "t064"],

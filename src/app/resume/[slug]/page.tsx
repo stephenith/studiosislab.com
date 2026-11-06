@@ -176,7 +176,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                 page.slug === "executive-assistant-resume" ||
                 page.slug === "data-scientist-resume" ||
                 page.slug === "occupational-therapist-resume" ||
-                page.slug === "business-development-manager-resume"
+                page.slug === "business-development-manager-resume" ||
+                page.slug === "supply-chain-manager-resume"
                 ? "Who can use this template ?"
               : page.slug === "business-analyst-resume" ||
                 page.slug === "cybersecurity-analyst-resume" ||
@@ -231,7 +232,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                   page.slug === "occupational-therapist-resume" ||
                   page.slug === "business-development-manager-resume" ||
                   page.slug === "customer-support-representative-resume" ||
-                  page.slug === "mechanical-engineer-resume"
+                  page.slug === "mechanical-engineer-resume" ||
+                  page.slug === "supply-chain-manager-resume"
                   ? "What to include ?"
                   : page.slug === "project-manager-resume"
                     ? "Changes to be made"
@@ -251,7 +253,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
             page.slug === "data-scientist-resume"
               ? "These are writing suggestions.  Read the downloaded PDF before you share or submit it."
               : page.slug === "registered-nurse-practitioner-resume" ||
-                page.slug === "customer-support-representative-resume"
+                page.slug === "customer-support-representative-resume" ||
+                page.slug === "supply-chain-manager-resume"
               ? "These are writing suggestions. Read the downloaded PDF before you submit it."
               : page.slug === "registered-nurse-resume" ||
             page.slug === "project-manager-resume" ||

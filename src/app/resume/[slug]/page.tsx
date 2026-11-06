@@ -173,7 +173,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                 page.slug === "physical-therapist-resume" ||
                 page.slug === "software-developer-resume" ||
                 page.slug === "executive-assistant-resume" ||
-                page.slug === "data-scientist-resume"
+                page.slug === "data-scientist-resume" ||
+                page.slug === "occupational-therapist-resume"
                 ? "Who can use this template ?"
               : page.slug === "business-analyst-resume" ||
                 page.slug === "cybersecurity-analyst-resume" ||
@@ -223,7 +224,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                   page.slug === "software-developer-resume" ||
                   page.slug === "executive-assistant-resume" ||
                   page.slug === "data-scientist-resume" ||
-                  page.slug === "social-media-manager-resume"
+                  page.slug === "social-media-manager-resume" ||
+                  page.slug === "occupational-therapist-resume"
                   ? "What to include ?"
                   : page.slug === "project-manager-resume"
                     ? "Changes to be made"
@@ -268,7 +270,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
             page.slug === "product-manager-resume" ||
             page.slug === "software-developer-resume" ||
             page.slug === "executive-assistant-resume" ||
-            page.slug === "social-media-manager-resume"
+            page.slug === "social-media-manager-resume" ||
+            page.slug === "occupational-therapist-resume"
               ? "These are writing suggestions. Read the downloaded PDF before you share or submit it."
               : "These are writing suggestions. StudiosisLab does not test Resume Templates in applicant-tracking systems. A clear layout is not a promise that an employer's system will accept the file. Read the downloaded PDF before you submit it."}
           </p>

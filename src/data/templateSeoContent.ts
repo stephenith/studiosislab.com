@@ -1594,25 +1594,25 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Occupational therapist resume template focused on rehabilitation, patient assessment, treatment planning, adaptive equipment, and clinical care.",
     h1: "Occupational Therapist Resume Template",
     intro:
-      "Occupational therapist resumes should demonstrate patient-centered clinical planning and practical recovery support. This template helps you present patient assessment, treatment plans, adaptive equipment training, and interdisciplinary care coordination in a format employers can review efficiently.",
+      "Occupational therapist resumes should demonstrate patient centred clinical planning and practical recovery support. This template helps you present patient assessment, treatment plans, adaptive equipment training and interdisciplinary care coordination in a format employers can review efficiently.",
     bestFor: [
-      "Occupational therapists working in hospitals, outpatient clinics, schools, or rehabilitation settings.",
+      "Occupational therapists working in hospitals, outpatient clinics, schools or rehabilitation settings.",
       "Clinicians supporting functional recovery and daily living skill development.",
-      "Candidates creating treatment plans across pediatric, adult, or geriatric care populations.",
-      "OT professionals collaborating with interdisciplinary teams for long-term patient progress.",
+      "Candidates creating treatment plans across pediatric, adult or geriatric care populations.",
+      "OT professionals collaborating with interdisciplinary teams for long term patient progress.",
     ],
     whatToInclude: [
-      "A focused summary with care setting, patient population, and therapeutic strengths.",
+      "A focused summary with care setting, patient population and therapeutic strengths.",
       "Patient assessment responsibilities and treatment planning process across common case types.",
       "Adaptive equipment and assistive strategy training used to improve daily function.",
-      "Clinical care coordination with physicians, PTs, nurses, and caregivers.",
-      "Documentation quality, progress tracking, and care plan adjustments based on patient response.",
+      "Clinical care coordination with physicians, PTs, nurses and caregivers.",
+      "Documentation quality, progress tracking and care plan adjustments based on patient response.",
     ],
     atsTips: [
-      "Use posting terminology naturally, such as occupational therapy, patient assessment, treatment planning, and adaptive equipment.",
+      "Use posting terminology naturally, such as occupational therapy, patient assessment, treatment planning and adaptive equipment.",
       "Include complete credential and licensure wording so ATS can match clinical requirements.",
       "Use standard section headers for easier parsing of experience and certifications.",
-      "Reference care-setting context when it aligns with the target employer environment.",
+      "Reference care setting context when it aligns with the target employer environment.",
     ],
     writingTips: [
       "Describe patient progress outcomes with clear clinical context and realistic scope.",
@@ -1624,7 +1624,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "How should occupational therapists show treatment planning on a resume?",
         answer:
-          "Show assessment inputs, intervention approach, and how plans were adjusted as patient function changed.",
+          "Show assessment inputs, intervention approach and how plans were adjusted as patient function changed.",
       },
       {
         question: "Should adaptive equipment training be listed explicitly?",
@@ -1634,7 +1634,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "What ATS keywords are useful for occupational therapist roles?",
         answer:
-          "Common terms include patient assessment, treatment planning, rehabilitation, adaptive equipment, and clinical documentation.",
+          "Common terms include patient assessment, treatment planning, rehabilitation, adaptive equipment and clinical documentation.",
       },
     ],
     relatedTemplateIds: ["t063", "t052", "t059"],

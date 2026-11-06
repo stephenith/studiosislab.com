@@ -809,9 +809,10 @@ export default function EsignToolsPage() {
             />
           </div>
           <div className="w-full text-center">
-            <h1 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
-              E-sign tools
-            </h1>
+            <h1
+              className="font-heading text-2xl font-semibold tracking-tight md:text-3xl"
+              dangerouslySetInnerHTML={{ __html: "E-sign&#x20;" }}
+            />
             <p
               className="mt-3 text-sm text-zinc-600 sm:text-base"
               dangerouslySetInnerHTML={{

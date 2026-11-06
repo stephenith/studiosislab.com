@@ -184,7 +184,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                 page.slug === "business-development-manager-resume" ||
                 page.slug === "supply-chain-manager-resume" ||
                 page.slug === "marketing-manager-ats-resume" ||
-                page.slug === "accountant-ats-resume"
+                page.slug === "accountant-ats-resume" ||
+                page.slug === "graphic-designer-ats-resume"
                 ? "Who can use this template ?"
               : page.slug === "business-analyst-resume" ||
                 page.slug === "cybersecurity-analyst-resume" ||
@@ -209,6 +210,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
               page.slug === "marketing-manager-ats-resume" && item.includes("&#x20;") ? (
                 <li key={item} dangerouslySetInnerHTML={{ __html: item }} />
               ) : page.slug === "accountant-ats-resume" && item.includes("&#x20;") ? (
+                <li key={item} dangerouslySetInnerHTML={{ __html: item }} />
+              ) : page.slug === "graphic-designer-ats-resume" && item.includes("&#x20;") ? (
                 <li key={item} dangerouslySetInnerHTML={{ __html: item }} />
               ) : (
                 <li key={item}>{item}</li>
@@ -249,7 +252,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                   page.slug === "supply-chain-manager-resume" ||
                   page.slug === "entry-level-software-engineer-resume" ||
                   page.slug === "marketing-manager-ats-resume" ||
-                  page.slug === "accountant-ats-resume"
+                  page.slug === "accountant-ats-resume" ||
+                  page.slug === "graphic-designer-ats-resume"
                   ? "What to include ?"
                   : page.slug === "project-manager-resume"
                     ? "Changes to be made"
@@ -267,7 +271,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
           <p className="mt-4 text-sm leading-relaxed text-zinc-700 sm:text-base">
             {page.slug === "accountant-ats-resume"
               ? "These are writing suggestions.  Read the downloaded PDF or PNG before you share or submit it."
-              : page.slug === "marketing-manager-ats-resume"
+              : page.slug === "marketing-manager-ats-resume" ||
+                page.slug === "graphic-designer-ats-resume"
               ? "These are writing suggestions. Read the downloaded PDF or PNG before you share or submit it."
               : page.slug === "human-resources-manager-resume" ||
             page.slug === "data-scientist-resume"

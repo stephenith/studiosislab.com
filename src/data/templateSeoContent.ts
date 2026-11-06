@@ -1486,42 +1486,42 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Data scientist resume template focused on machine learning, Python, SQL, statistics, predictive analytics, data visualization, and business impact.",
     h1: "Data Scientist Resume Template",
     intro:
-      "Data scientist resumes should show both modeling depth and business value. This template helps you present machine learning projects, statistical reasoning, and decision impact in a structure that ATS tools and technical hiring teams can evaluate efficiently.",
+      "Data scientist resumes should show both modeling depth and business value. This template helps you present machine learning projects, statistical reasoning and decision impact in a structure that ATS tools and technical hiring teams can evaluate efficiently.",
     bestFor: [
       "Data scientists building predictive models and analytical solutions for product or business teams.",
-      "Candidates applying to machine learning, experimentation, or applied analytics roles.",
-      "Professionals using Python, SQL, and statistics to drive measurable decisions.",
-      "Analysts transitioning into data science roles with model-building experience.",
+      "Candidates applying to machine learning, experimentation or applied analytics roles.",
+      "Professionals using Python, SQL and statistics to drive measurable decisions.",
+      "Analysts transitioning into data science roles with model building experience.",
     ],
     whatToInclude: [
-      "A concise summary with domain focus, modeling strengths, and business context.",
-      "Machine learning projects with data sources, methods, and measurable outcomes.",
-      "Python and SQL usage for data preparation, analysis, and model deployment support.",
-      "Statistical and predictive analytics examples tied to product, operations, or revenue impact.",
-      "Data visualization and stakeholder communication examples for non-technical decision-making.",
+      "A concise summary with domain focus, modeling strengths and business context.",
+      "Machine learning projects with data sources, methods and measurable outcomes.",
+      "Python and SQL usage for data preparation, analysis and model deployment support.",
+      "Statistical and predictive analytics examples tied to product, operations or revenue impact.",
+      "Data visualization and stakeholder communication examples for non-technical decision making.",
     ],
     atsTips: [
-      "Include role-relevant terms from postings, such as machine learning, feature engineering, predictive modeling, and experimentation.",
+      "Include role relevant terms from postings, such as machine learning, feature engineering, predictive modelling and experimentation.",
       "Name tools and libraries explicitly when relevant, including Python ecosystem and SQL workflows.",
       "Use clear section labels so ATS can parse technical skills and project outcomes effectively.",
       "Balance modeling keywords with practical business impact language.",
     ],
     writingTips: [
-      "Explain each project in a simple arc: problem, approach, model, and business result.",
+      "Explain each project in a simple arc: problem, approach, model and business result.",
       "Highlight model performance responsibly with context, not isolated metrics only.",
-      "Show collaboration with product, engineering, and business stakeholders.",
-      "Avoid jargon-heavy bullets that do not explain why the analysis mattered.",
+      "Show collaboration with product, engineering and business stakeholders.",
+      "Avoid jargon heavy bullets that do not explain why the analysis mattered.",
     ],
     faq: [
       {
         question: "How is a data scientist resume different from a data analyst resume?",
         answer:
-          "A data scientist resume should emphasize modeling, statistical methods, and predictive outcomes in addition to analysis and reporting.",
+          "A data scientist resume should emphasize modeling, statistical methods and predictive outcomes in addition to analysis and reporting.",
       },
       {
         question: "Should I include model metrics on a data scientist resume?",
         answer:
-          "Yes, when meaningful. Include them with problem context and business relevance rather than metric-only claims.",
+          "Yes, when meaningful. Include them with problem context and business relevance rather than metric only claims.",
       },
       {
         question: "Do ATS systems parse technical libraries and tools well?",

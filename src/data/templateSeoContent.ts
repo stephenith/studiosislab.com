@@ -1378,30 +1378,30 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Software developer resume template focused on programming skills, web development, APIs, frameworks, agile teams, and technical projects.",
     h1: "Software Developer Resume Template",
     intro:
-      "Software developer hiring teams want clear evidence that you can build, debug, and ship reliable features. This template helps you present programming strengths, project ownership, and collaboration with product and QA in language that works for ATS scans and technical interview screening.",
+      "Software developer hiring teams want clear evidence that you can build, debug and ship reliable features. This template helps you present programming strengths, project ownership and collaboration with product and QA in language that works for ATS scans and technical interview screening.",
     bestFor: [
-      "Software developers applying for front-end, back-end, or full-stack roles.",
-      "Developers with project-driven experience in web applications and API integrations.",
+      "Software developers applying for front end, back end or full stack roles.",
+      "Developers with project driven experience in web applications and API integrations.",
       "Candidates moving from junior engineering work into broader delivery ownership.",
       "Professionals working in agile teams with iterative release cycles.",
     ],
     whatToInclude: [
-      "A summary that states your development focus, primary stack, and problem-solving strengths.",
-      "Project and work examples showing programming languages, frameworks, and system impact.",
+      "A summary that states your development focus, primary stack and problem solving strengths.",
+      "Project and work examples showing programming languages, frameworks and system impact.",
       "API development or integration responsibilities with practical implementation outcomes.",
-      "Software delivery context including collaboration with product, design, QA, or DevOps teams.",
-      "Technical skills grouped by languages, frameworks, tools, and databases for quick review.",
+      "Software delivery context including collaboration with product, design, QA or DevOps teams.",
+      "Technical skills grouped by languages, frameworks, tools and databases for quick review.",
     ],
     atsTips: [
-      "Use exact role keywords naturally, such as software developer, APIs, JavaScript, Python, and agile workflows.",
+      "Use exact role keywords naturally, such as software developer, APIs, JavaScript, Python and agile workflows.",
       "Include complete framework and tool names as listed in target job descriptions.",
-      "Keep section headings standard so ATS can parse skills, projects, and experience clearly.",
-      "Balance technical keywords with business-facing outcomes in bullet points.",
+      "Keep section headings standard so ATS can parse skills, projects and experience clearly.",
+      "Balance technical keywords with business facing outcomes in bullet points.",
     ],
     writingTips: [
-      "Show how your code changed product behavior, reliability, or delivery speed.",
-      "Use concise bullets with action, technical context, and measurable result where possible.",
-      "Highlight debugging, testing, and code quality contributions, not just feature delivery.",
+      "Show how your code changed product behaviour, reliability or delivery speed.",
+      "Use concise bullets with action, technical context and measurable result where possible.",
+      "Highlight debugging, testing and code quality contributions, not just feature delivery.",
       "Avoid broad tool lists and focus on technologies you can discuss confidently in interviews.",
     ],
     faq: [
@@ -1413,12 +1413,12 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "How can I keep a software developer resume easy to scan?",
         answer:
-          "Use clear headings, include exact technical terms from the posting, and describe outcomes in readable bullet points.",
+          "Use clear headings, include exact technical terms from the posting and describe outcomes in readable bullet points.",
       },
       {
         question: "Is it important to mention API experience explicitly?",
         answer:
-          "Yes. API design, integration, and reliability work are commonly screened in software developer hiring.",
+          "Yes. API design, integration and reliability work are commonly screened in software developer hiring.",
       },
     ],
     relatedTemplateIds: ["t040", "t043", "t067"],

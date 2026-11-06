@@ -190,7 +190,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                 page.slug === "warehouse-worker-resume"
                 ? "Who can use this resume template ?"
                 : page.slug === "financial-analyst-resume" ||
-                  page.slug === "product-manager-resume"
+                  page.slug === "product-manager-resume" ||
+                  page.slug === "customer-support-representative-resume"
                   ? "Who is this resume for ?"
                   : "Who this resume is for"}
           </h2>
@@ -227,7 +228,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                   page.slug === "data-scientist-resume" ||
                   page.slug === "social-media-manager-resume" ||
                   page.slug === "occupational-therapist-resume" ||
-                  page.slug === "business-development-manager-resume"
+                  page.slug === "business-development-manager-resume" ||
+                  page.slug === "customer-support-representative-resume"
                   ? "What to include ?"
                   : page.slug === "project-manager-resume"
                     ? "Changes to be made"
@@ -246,7 +248,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
             {page.slug === "human-resources-manager-resume" ||
             page.slug === "data-scientist-resume"
               ? "These are writing suggestions.  Read the downloaded PDF before you share or submit it."
-              : page.slug === "registered-nurse-practitioner-resume"
+              : page.slug === "registered-nurse-practitioner-resume" ||
+                page.slug === "customer-support-representative-resume"
               ? "These are writing suggestions. Read the downloaded PDF before you submit it."
               : page.slug === "registered-nurse-resume" ||
             page.slug === "project-manager-resume" ||

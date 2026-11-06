@@ -1702,47 +1702,47 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Customer support representative resume template focused on ticket resolution, call center experience, CRM tools, communication, and customer satisfaction.",
     h1: "Customer Support Representative Resume Template",
     intro:
-      "Customer support representative resumes should demonstrate fast issue resolution and clear communication under pressure. This template helps you present ticket handling, call center workflows, and customer satisfaction outcomes in a clear format.",
+      "Customer support representative resumes should demonstrate fast issue resolution and clear communication under pressure. This template helps you present ticket handling, call center workflows and customer satisfaction outcomes in a clear format.",
     bestFor: [
-      "Customer support representatives handling email, chat, and phone-based issue resolution.",
-      "Call center professionals supporting high-volume queues and escalation workflows.",
-      "Candidates with CRM-driven support experience across SaaS, e-commerce, or service teams.",
-      "Support specialists aiming to show customer satisfaction and retention-oriented impact.",
+      "Customer support representatives handling email, chat and phone based issue resolution.",
+      "Call center professionals supporting high volume queues and escalation workflows.",
+      "Candidates with CRM driven support experience across SaaS, e-commerce or service teams.",
+      "Support specialists aiming to show customer satisfaction and retention oriented impact.",
     ],
     whatToInclude: [
-      "A summary covering support channels, ticket volume context, and communication strengths.",
-      "Ticket resolution examples with response quality, turnaround improvements, or escalation handling.",
+      "A summary covering support channels, ticket volume context and communication strengths.",
+      "Ticket resolution examples with response quality, turnaround improvements or escalation handling.",
       "Call center or support desk responsibilities tied to queue management and customer outcomes.",
-      "CRM and help-desk tools used for case tracking, documentation, and follow-up workflows.",
-      "Service performance indicators such as CSAT trends, resolution rates, or first-contact improvements.",
+      "CRM and help desk tools used for case tracking, documentation and follow up workflows.",
+      "Service performance indicators such as CSAT trends, resolution rates or first contact improvements.",
     ],
     atsTips: [
-      "Use posting keywords naturally, including customer support, ticket resolution, CRM, and call center experience.",
+      "Use posting keywords naturally, including customer support, ticket resolution, CRM and call center experience.",
       "Include both communication skills and platform/tool terminology for balanced ATS matching.",
       "Keep role titles and dates clear so systems can interpret support experience chronology accurately.",
-      "Use standard section names to improve parsing of skills, work history, and service metrics.",
+      "Use standard section names to improve parsing of skills, work history and service metrics.",
     ],
     writingTips: [
       "Show how you resolved issues efficiently while maintaining customer trust.",
-      "Use concise bullets with channel context, action taken, and measurable service result.",
-      "Highlight escalation ownership and cross-team coordination when cases required deeper support.",
-      "Avoid vague service claims and focus on practical examples that show day-to-day reliability.",
+      "Use concise bullets with channel context, action taken and measurable service result.",
+      "Highlight escalation ownership and cross team coordination when cases required deeper support.",
+      "Avoid vague service claims and focus on practical examples that show day to day reliability.",
     ],
     faq: [
       {
         question: "How should I present ticket resolution metrics on my resume?",
         answer:
-          "Use clear metrics such as resolution rate, average response time, or CSAT movement when they are available and accurate.",
+          "Use clear metrics such as resolution rate, average response time or CSAT movement when they are available and accurate.",
       },
       {
         question: "Do call center roles and digital support roles belong on the same resume?",
         answer:
-          "Yes, if relevant. Group them with clear context to show breadth across phone, chat, and email support channels.",
+          "Yes, if relevant. Group them with clear context to show breadth across phone, chat and email support channels.",
       },
       {
         question: "What ATS keywords help customer support resumes rank better?",
         answer:
-          "Terms like ticket resolution, CRM, call center, escalation handling, and customer satisfaction are commonly used in support job postings.",
+          "Terms like ticket resolution, CRM, call center, escalation handling and customer satisfaction are commonly used in support job postings.",
       },
     ],
     relatedTemplateIds: ["t044", "t054", "t058"],

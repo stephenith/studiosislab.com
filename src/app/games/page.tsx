@@ -20,7 +20,7 @@ const GAMES = [
   },
   {
     title: "Snake",
-    description: "Steer the line, eat the dots, and try not to crash into yourself.",
+    description: "Steer the line, eat the dots and try not to crash into yourself.",
     href: "/games/snake",
     Thumb: SnakeThumb,
   },
@@ -63,7 +63,7 @@ export default function GamesPage() {
               Games
             </h1>
             <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600 sm:mx-0 md:text-base">
-              Small browser games built for calm breaks—pick one and play when you are ready.
+              Small browser games built for calm breaks—Just pick one and play.
             </p>
           </div>
 

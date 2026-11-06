@@ -26,31 +26,31 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     seoTitle: "Entry-Level Software Engineer Resume Template | StudiosisLab",
     seoDescription:
       "Use this entry-level software engineer resume template to present projects, internships, and technical skills clearly for ATS and hiring managers.",
-    h1: "Entry-Level Software Engineer Resume Template",
+    h1: "Entry Level Software Engineer Resume Template",
     intro:
-      "Breaking into software roles usually means proving ability before long job history. This template helps you highlight coding projects, internships, and core skills in a format that reads well in ATS tools and makes sense to technical recruiters.",
+      "Breaking into software roles usually means proving ability before long job history. This template helps you highlight coding projects, internships and core skills in a format that reads well in ATS tools and makes sense to technical recruiters.",
     bestFor: [
       "Computer science students and recent graduates applying to SWE roles.",
-      "Bootcamp graduates with strong project portfolios and limited full-time experience.",
+      "Bootcamp graduates with strong project portfolios and limited full time experience.",
       "Career changers targeting junior developer openings.",
-      "Candidates applying for front-end, back-end, or full-stack entry-level roles.",
+      "Candidates applying for front end, back end or full stack entry level roles.",
     ],
     whatToInclude: [
-      "A short summary that states your target role, primary stack, and strengths.",
-      "Projects with clear outcomes, tech stack, and links to GitHub or live demos.",
-      "Internship or part-time experience with impact-focused bullet points.",
-      "Technical skills grouped by languages, frameworks, tools, and databases.",
-      "Education, relevant coursework, and certifications if they support the role.",
+      "A short summary that states your target role, primary stack and strengths.",
+      "Projects with clear outcomes, tech stack and links to GitHub or live demos.",
+      "Internship or part-time experience with impact focused bullet points.",
+      "Technical skills grouped by languages, frameworks, tools and databases.",
+      "Education, relevant coursework and certifications if they support the role.",
     ],
     atsTips: [
-      "Use job-posting language naturally for core skills like JavaScript, Python, React, SQL, and APIs.",
+      "Use job posting language naturally for core skills like JavaScript, Python, React, SQL and APIs.",
       "Keep section headings standard: Summary, Skills, Projects, Experience, Education.",
       "Write complete skill names at least once instead of only abbreviations.",
       "Avoid text in images so ATS can parse all key details.",
     ],
     writingTips: [
       "Lead project bullets with action and end with measurable result when possible.",
-      "Show engineering thinking, not just tools used: architecture, debugging, testing, deployment.",
+      "Show engineering thinking, not just tools used: architecture, debugging, testing & deployment.",
       "Keep each bullet specific to one contribution or achievement.",
       "Prioritize recent, relevant projects over unrelated older work.",
     ],
@@ -58,17 +58,17 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "Should I place projects above work experience?",
         answer:
-          "For entry-level software roles, yes if your projects are stronger and more relevant than your experience section.",
+          "For entry level software roles, yes if your projects are stronger and more relevant than your experience section.",
       },
       {
         question: "How many projects should I include?",
         answer:
-          "Include 2 to 4 strong projects with clear outcomes, responsibilities, and links recruiters can review quickly.",
+          "Include 2 to 4 strong projects with clear outcomes, responsibilities and links recruiters can review quickly.",
       },
       {
         question: "Do I need a resume summary as a fresher?",
         answer:
-          "A short summary helps when it clearly states your target role, stack, and what you bring to the team.",
+          "A short summary helps when it clearly states your target role, stack and what you bring to the team.",
       },
     ],
     relatedTemplateIds: ["t043", "t045", "t047"],

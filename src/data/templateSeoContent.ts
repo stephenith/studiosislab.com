@@ -1270,37 +1270,37 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Physical therapist resume template focused on rehabilitation, treatment planning, patient assessment, mobility training, and clinical care experience.",
     h1: "Physical Therapist Resume Template",
     intro:
-      "Physical therapist resumes should demonstrate clinical judgment, treatment progression, and patient-centered care. This template helps you present patient assessment, rehabilitation planning, mobility training, and clinical documentation in a format that employers can review efficiently.",
+      "Physical therapist resumes should demonstrate clinical judgment, treatment progression and patient centred care. This template helps you present patient assessment, rehabilitation planning, mobility training and clinical documentation in a format that employers can review efficiently.",
     bestFor: [
-      "Physical therapists working in outpatient clinics, hospitals, or rehabilitation settings.",
-      "PT candidates managing patient assessment, treatment planning, and progress tracking.",
-      "Clinicians supporting post-surgical, orthopedic, neurologic, or chronic mobility recovery.",
+      "Physical therapists working in outpatient clinics, hospitals or rehabilitation settings.",
+      "PT candidates managing patient assessment, treatment planning and progress tracking.",
+      "Clinicians supporting post surgical, orthopaedic, neurologic or chronic mobility recovery.",
       "Professionals applying for roles requiring interdisciplinary clinical collaboration.",
     ],
     whatToInclude: [
-      "A focused summary with care setting, patient population, and rehabilitation strengths.",
-      "Patient assessment and treatment planning responsibilities with evidence-based interventions.",
+      "A focused summary with care setting, patient population and rehabilitation strengths.",
+      "Patient assessment and treatment planning responsibilities with evidence based interventions.",
       "Mobility training and functional recovery work tied to measurable patient progress.",
-      "Clinical documentation quality, care plans, and follow-up coordination details.",
-      "Collaboration examples with physicians, nurses, and therapy teams in integrated care.",
+      "Clinical documentation quality, care plans and follow up coordination details.",
+      "Collaboration examples with physicians, nurses and therapy teams in integrated care.",
     ],
     atsTips: [
-      "Use posting terms naturally, including rehabilitation, treatment planning, patient assessment, mobility training, and clinical documentation.",
+      "Use posting terms naturally, including rehabilitation, treatment planning, patient assessment, mobility training and clinical documentation.",
       "Include complete credential and licensure wording where relevant for ATS matching.",
       "Use standard section headings so systems can parse clinical experience and certifications clearly.",
       "Mention care setting context to align your profile with target role requirements.",
     ],
     writingTips: [
-      "Show patient care outcomes and functional improvement rather than task-only bullet lists.",
+      "Show patient care outcomes and functional improvement rather than task only bullet lists.",
       "Use concise examples that connect evaluation findings to treatment adjustments.",
-      "Highlight communication with patients, families, and multidisciplinary care teams.",
+      "Highlight communication with patients, families and multidisciplinary care teams.",
       "Keep claims factual and avoid overstating results beyond your clinical scope.",
     ],
     faq: [
       {
         question: "What outcomes should I include on a physical therapist resume?",
         answer:
-          "Include outcomes tied to mobility improvement, treatment adherence, discharge readiness, or functional progress where documented.",
+          "Include outcomes tied to mobility improvement, treatment adherence, discharge readiness or functional progress where documented.",
       },
       {
         question: "Should I include clinical documentation systems on my resume?",
@@ -1310,7 +1310,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "How do I present treatment planning experience clearly?",
         answer:
-          "Describe assessment findings, intervention strategy, and how you adapted plans based on patient progress.",
+          "Describe assessment findings, intervention strategy and how you adapted plans based on patient progress.",
       },
     ],
     relatedTemplateIds: ["t041", "t052", "t059"],

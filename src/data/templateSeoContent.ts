@@ -1540,28 +1540,28 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Social media manager resume template focused on content strategy, campaign management, engagement growth, social analytics, and brand awareness.",
     h1: "Social Media Manager Resume Template",
     intro:
-      "Social media manager hiring teams look for strategic planning and consistent execution, not only posting frequency. This template helps you present content strategy, campaign performance, and audience growth in a way ATS systems and marketing leaders can quickly understand.",
+      "Social media manager hiring teams look for strategic planning and consistent execution, not only posting frequency. This template helps you present content strategy, campaign performance and audience growth in a way ATS systems and marketing leaders can quickly understand.",
     bestFor: [
-      "Social media managers leading multi-channel content and campaign execution.",
-      "Marketers responsible for engagement growth, community responses, and brand consistency.",
-      "Candidates managing social reporting, content calendars, and campaign optimization.",
+      "Social media managers leading multi channel content and campaign execution.",
+      "Marketers responsible for engagement growth, community responses and brand consistency.",
+      "Candidates managing social reporting, content calendars and campaign optimization.",
       "Professionals moving from coordinator roles into broader social strategy ownership.",
     ],
     whatToInclude: [
-      "A summary that reflects platform strengths, audience focus, and campaign leadership scope.",
+      "A summary that reflects platform strengths, audience focus and campaign leadership scope.",
       "Content strategy and publishing workflow examples tied to business or brand objectives.",
-      "Campaign management achievements with engagement, reach, or conversion-oriented outcomes.",
+      "Campaign management achievements with engagement, reach or conversion oriented outcomes.",
       "Social analytics responsibilities with reporting insights used to refine strategy.",
-      "Cross-team collaboration with design, content, product marketing, or paid media teams.",
+      "Cross team collaboration with design, content, product marketing or paid media teams.",
     ],
     atsTips: [
-      "Use role keywords naturally, including content strategy, social analytics, engagement growth, and campaign management.",
+      "Use role keywords naturally, including content strategy, social analytics, engagement growth and campaign management.",
       "Include platform and tooling terms from postings where they match your experience.",
-      "Keep bullets readable and outcome-driven so ATS and recruiters can scan quickly.",
+      "Keep bullets readable and outcome driven so ATS and recruiters can scan quickly.",
       "Combine creative and performance language to reflect full social ownership.",
     ],
     writingTips: [
-      "Lead with measurable impact such as engagement lift, response improvements, or audience growth trends.",
+      "Lead with measurable impact such as engagement lift, response improvements or audience growth trends.",
       "Show how your strategy changed based on performance data and campaign insights.",
       "Include examples of balancing brand voice with timely operational execution.",
       "Avoid vague social media claims and focus on specific campaign or calendar outcomes.",
@@ -1570,7 +1570,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "What metrics should a social media manager include on a resume?",
         answer:
-          "Include engagement rate, follower growth quality, campaign reach, and conversions when relevant to the role.",
+          "Include engagement rate, follower growth quality, campaign reach and conversions when relevant to the role.",
       },
       {
         question: "Should I mention both organic and paid campaign work?",
@@ -1580,7 +1580,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "How can I keep social campaign results easy to scan?",
         answer:
-          "Use standard headings and role-specific terminology while keeping campaign outcomes clear and specific.",
+          "Use standard headings and role specific terminology while keeping campaign outcomes clear and specific.",
       },
     ],
     relatedTemplateIds: ["t020", "t051", "t054"],

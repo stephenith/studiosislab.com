@@ -155,7 +155,9 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
 
         <section className="mt-6 rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-sm sm:p-7">
           <h2 className="font-heading text-2xl font-semibold tracking-tight text-zinc-900">
-            {page.slug === "accountant-resume"
+            {page.slug === "social-media-manager-resume"
+              ? "Who is this template for ?"
+              : page.slug === "accountant-resume"
               ? "Who can use the template ?"
               : page.slug === "marketing-manager-resume"
                 ? "Who is this resume template for ?"
@@ -220,7 +222,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                   page.slug === "product-manager-resume" ||
                   page.slug === "software-developer-resume" ||
                   page.slug === "executive-assistant-resume" ||
-                  page.slug === "data-scientist-resume"
+                  page.slug === "data-scientist-resume" ||
+                  page.slug === "social-media-manager-resume"
                   ? "What to include ?"
                   : page.slug === "project-manager-resume"
                     ? "Changes to be made"
@@ -264,7 +267,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
             page.slug === "physical-therapist-resume" ||
             page.slug === "product-manager-resume" ||
             page.slug === "software-developer-resume" ||
-            page.slug === "executive-assistant-resume"
+            page.slug === "executive-assistant-resume" ||
+            page.slug === "social-media-manager-resume"
               ? "These are writing suggestions. Read the downloaded PDF before you share or submit it."
               : "These are writing suggestions. StudiosisLab does not test Resume Templates in applicant-tracking systems. A clear layout is not a promise that an employer's system will accept the file. Read the downloaded PDF before you submit it."}
           </p>

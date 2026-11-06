@@ -1324,29 +1324,29 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Product manager resume template focused on product strategy, roadmaps, agile teams, user research, stakeholder management, and product launches.",
     h1: "Product Manager Resume Template",
     intro:
-      "Product manager resumes need to show strategic thinking and execution ownership across teams. This template helps you present roadmap planning, user research insights, sprint execution, stakeholder alignment, and launch outcomes in language that ATS systems and hiring managers can quickly assess.",
+      "Product manager resumes need to show strategic thinking and execution ownership across teams. This template helps you present roadmap planning, user research insights, sprint execution, stakeholder alignment and launch outcomes in language that ATS systems and hiring managers can quickly assess.",
     bestFor: [
-      "Product managers owning roadmap priorities, delivery planning, and launch execution.",
-      "PM candidates working with agile teams across engineering, design, and business stakeholders.",
+      "Product managers owning roadmap priorities, delivery planning and launch execution.",
+      "PM candidates working with agile teams across engineering, design and business stakeholders.",
       "Professionals translating user research and market inputs into product strategy decisions.",
-      "Candidates moving from analyst, project, or domain specialist roles into product management.",
+      "Candidates moving from analyst, project or domain specialist roles into product management.",
     ],
     whatToInclude: [
-      "A concise summary with product domain, ownership scope, and decision-making strengths.",
+      "A concise summary with product domain, ownership scope and decision making strengths.",
       "Roadmap and product strategy work tied to user outcomes and business goals.",
-      "Agile execution examples including sprint planning, backlog prioritization, and release coordination.",
-      "User research and feedback loops that influenced feature tradeoffs or product direction.",
+      "Agile execution examples including sprint planning, backlog prioritization and release coordination.",
+      "User research and feedback loops that influenced features or product direction.",
       "Launch achievements and stakeholder management examples across cross-functional teams.",
     ],
     atsTips: [
-      "Use role-specific terms from postings naturally, such as roadmap, product strategy, agile, sprint planning, user research, and product launches.",
+      "Use role specific terms from postings naturally, such as roadmap, product strategy, agile, sprint planning, user research and product launches.",
       "Include both discovery and delivery keywords so ATS captures full PM responsibilities.",
       "Keep section labels standard for better parsing of experience, skills, and outcomes.",
       "Use measurable outcomes to support claims around prioritization and execution impact.",
     ],
     writingTips: [
-      "Explain the problem, product decision, and outcome in each key achievement bullet.",
-      "Show how you balanced user needs, technical constraints, and stakeholder priorities.",
+      "Explain the problem, product decision and outcome in each key achievement bullet.",
+      "Show how you balanced user needs, technical constraints and stakeholder priorities.",
       "Use launch and adoption examples to demonstrate execution beyond planning.",
       "Avoid generic product buzzwords and focus on concrete decisions and results.",
     ],
@@ -1354,7 +1354,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "What should a product manager resume emphasize most?",
         answer:
-          "It should emphasize strategy-to-execution ownership: prioritization decisions, cross-functional delivery, and measurable product outcomes.",
+          "It should emphasize strategy to execution ownership: prioritization decisions, cross functional delivery and measurable product outcomes.",
       },
       {
         question: "Should user research be included even for technical PM roles?",
@@ -1364,7 +1364,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "How can I show product launch impact on a resume?",
         answer:
-          "Include launch scope, collaboration details, and post-launch outcomes such as adoption, retention, or operational improvements.",
+          "Include launch scope, collaboration details and post launch outcomes such as adoption, retention or operational improvements.",
       },
     ],
     relatedTemplateIds: ["t040", "t045", "t053"],

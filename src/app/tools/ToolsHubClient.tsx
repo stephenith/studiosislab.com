@@ -812,10 +812,13 @@ export default function EsignToolsPage() {
             <h1 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
               E-sign tools
             </h1>
-            <p className="mt-3 text-sm text-zinc-600 sm:text-base">
-              Upload a PDF of up to 50 MB, place signatures, and download the finished PDF. Other file
-              types are not accepted. No payment is required for the e-sign features available today.
-            </p>
+            <p
+              className="mt-3 text-sm text-zinc-600 sm:text-base"
+              dangerouslySetInnerHTML={{
+                __html:
+                  "Upload a PDF of up to 50 MB, place signatures and download the finished PDF. Other file types are not accepted.&#x20;",
+              }}
+            />
             <p className="mt-3 text-sm text-zinc-600">
               Need an invoice instead?{" "}
               <Link

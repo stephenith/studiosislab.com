@@ -1432,37 +1432,37 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Executive assistant resume template focused on calendar management, executive support, meeting coordination, travel planning, and office operations.",
     h1: "Executive Assistant Resume Template",
     intro:
-      "Executive assistant roles require high-trust coordination and consistent follow-through. This template helps you present executive scheduling, communication support, and operational reliability in a format that ATS systems and hiring managers can review quickly.",
+      "Executive assistant roles require high trust coordination and consistent follow through. This template helps you present executive scheduling, communication support and operational reliability in a format that ATS systems and hiring managers can review quickly.",
     bestFor: [
-      "Executive assistants supporting founders, senior leadership, or department heads.",
-      "Administrative professionals handling high-volume scheduling and meeting preparation.",
-      "Candidates coordinating travel, documentation, and executive communications workflows.",
+      "Executive assistants supporting founders, senior leadership or department heads.",
+      "Administrative professionals handling high volume scheduling and meeting preparation.",
+      "Candidates coordinating travel, documentation and executive communications workflows.",
       "Office support specialists moving into senior assistant responsibilities.",
     ],
     whatToInclude: [
       "A focused summary covering executive support scope and organizational strengths.",
-      "Calendar management examples with prioritization across meetings, deadlines, and stakeholders.",
-      "Meeting coordination contributions including agendas, logistics, and follow-up tracking.",
+      "Calendar management examples with prioritization across meetings, deadlines and stakeholders.",
+      "Meeting coordination contributions including agendas, logistics and follow up tracking.",
       "Travel planning and itinerary management responsibilities for leadership schedules.",
       "Office operations and communication support with tools such as Google Workspace and Microsoft Office.",
     ],
     atsTips: [
-      "Use posting language such as executive support, calendar management, travel coordination, and office operations.",
-      "Include software skills clearly, especially calendar, communication, and documentation platforms.",
+      "Use posting language such as executive support, calendar management, travel coordination and office operations.",
+      "Include software skills clearly, especially calendar, communication and documentation platforms.",
       "Keep chronology and section names simple so ATS can parse responsibilities accurately.",
       "Use practical workflow terms instead of generic assistant buzzwords.",
     ],
     writingTips: [
       "Show how your coordination work improved leadership focus and decision readiness.",
       "Write bullets that pair task ownership with concrete outcomes like fewer scheduling conflicts.",
-      "Highlight discretion, communication, and prioritization with short real-world examples.",
+      "Highlight discretion, communication and prioritization with short real world examples.",
       "Keep language precise and avoid vague claims like fast learner without evidence.",
     ],
     faq: [
       {
         question: "What should an executive assistant resume emphasize most?",
         answer:
-          "It should emphasize calendar control, communication support, and reliable coordination for executive priorities.",
+          "It should emphasize calendar control, communication support and reliable coordination for executive priorities.",
       },
       {
         question: "Should I include travel planning and event support experience?",
@@ -1472,7 +1472,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "How can I make executive support work sound more impactful?",
         answer:
-          "Tie your work to outcomes such as smoother scheduling, faster follow-up, and improved executive efficiency.",
+          "Tie your work to outcomes such as smoother scheduling, faster follow up and improved executive efficiency.",
       },
     ],
     relatedTemplateIds: ["t057", "t030", "t062"],

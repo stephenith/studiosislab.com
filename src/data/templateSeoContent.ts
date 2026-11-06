@@ -1648,37 +1648,37 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Business development manager resume template focused on lead generation, client acquisition, partnerships, pipeline management, and revenue growth.",
     h1: "Business Development Manager Resume Template",
     intro:
-      "Business development manager hiring teams look for growth outcomes backed by consistent execution. This template helps you present lead generation, partnership development, and pipeline performance in language that ATS systems and hiring managers can quickly assess.",
+      "Business development manager hiring teams look for growth outcomes backed by consistent execution. This template helps you present lead generation, partnership development and pipeline performance in language that ATS systems and hiring managers can quickly assess.",
     bestFor: [
-      "Business development managers owning outbound strategy, pipeline growth, and deal progression.",
-      "Professionals focused on client acquisition, account expansion, and strategic partnerships.",
-      "Sales and partnerships candidates moving into manager-level business development roles.",
-      "Revenue-focused applicants working with cross-functional teams across sales, marketing, and operations.",
+      "Business development managers owning outbound strategy, pipeline growth and deal progression.",
+      "Professionals focused on client acquisition, account expansion and strategic partnerships.",
+      "Sales and partnerships candidates moving into manager level business development roles.",
+      "Revenue focused applicants working with cross functional teams across sales, marketing and operations.",
     ],
     whatToInclude: [
-      "A summary describing your market focus, growth strengths, and revenue-oriented leadership scope.",
-      "Lead generation achievements with pipeline metrics, conversion movement, and deal outcomes.",
-      "Client acquisition examples tied to territory growth, account wins, or strategic vertical expansion.",
-      "Partnership development work including channel relationships, alliance execution, or co-sell efforts.",
-      "Pipeline management details using CRM tools, forecasting, and cross-team handoff coordination.",
+      "A summary describing your market focus, growth strengths and revenue oriented leadership scope.",
+      "Lead generation achievements with pipeline metrics, conversion movement and deal outcomes.",
+      "Client acquisition examples tied to territory growth, account wins or strategic vertical expansion.",
+      "Partnership development work including channel relationships and  alliance execution.",
+      "Pipeline management details using CRM tools, forecasting and cross team handoff coordination.",
     ],
     atsTips: [
-      "Use target-role terms naturally, including business development, client acquisition, pipeline management, and partnerships.",
+      "Use target role terms naturally, including business development, client acquisition, pipeline management and partnerships.",
       "Include measurable revenue or pipeline indicators to support growth claims with concrete outcomes.",
       "List CRM and reporting tools clearly for ATS matching against required platform experience.",
-      "Keep headings clean and standard so systems can parse sales, strategy, and management contributions.",
+      "Keep headings clean and standard so systems can parse sales, strategy and management contributions.",
     ],
     writingTips: [
-      "Frame each major bullet with market opportunity, action taken, and growth result.",
-      "Show how you collaborated with sales, marketing, and product teams to move deals forward.",
-      "Use practical metrics such as pipeline value, qualified opportunities, or win-rate improvements.",
-      "Avoid generic relationship-building language unless it is tied to specific commercial impact.",
+      "Frame each major bullet with market opportunity, action taken and growth result.",
+      "Show how you collaborated with sales, marketing and product teams to move deals forward.",
+      "Use practical metrics such as pipeline value, qualified opportunities or win rate improvements.",
+      "Avoid generic relationship building language unless it is tied to specific commercial impact.",
     ],
     faq: [
       {
         question: "Which metrics matter most on a business development manager resume?",
         answer:
-          "Pipeline growth, qualified opportunity volume, conversion rates, and revenue outcomes are typically the most useful metrics.",
+          "Pipeline growth, qualified opportunity volume, conversion rates and revenue outcomes are typically the most useful metrics.",
       },
       {
         question: "Should partnerships be listed separately from direct sales work?",
@@ -1688,7 +1688,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       {
         question: "How do I show pipeline management clearly?",
         answer:
-          "Describe the stages you owned, forecasting responsibilities, and how your actions improved deal progression.",
+          "Describe the stages you owned, forecasting responsibilities and how your actions improved deal progression.",
       },
     ],
     relatedTemplateIds: ["t045", "t058", "t061"],

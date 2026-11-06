@@ -1756,47 +1756,47 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Mechanical engineer resume template focused on CAD design, manufacturing, engineering projects, quality improvement, and technical documentation.",
     h1: "Mechanical Engineer Resume Template",
     intro:
-      "Mechanical engineer resumes perform best when they connect technical design work to production results. This template helps you present CAD projects, manufacturing collaboration, and quality improvement contributions in a structure ATS systems and engineering teams can review efficiently.",
+      "Mechanical engineer resumes perform best when they connect technical design work to production results. This template helps you present CAD projects, manufacturing collaboration and quality improvement contributions in a structure ATS systems and engineering teams can review efficiently.",
     bestFor: [
-      "Mechanical engineers working on design, prototyping, and production-ready product development.",
-      "Candidates supporting manufacturing processes, equipment improvements, and technical project execution.",
-      "Engineers applying for roles involving CAD modeling, testing, and validation workflows.",
+      "Mechanical engineers working on design, prototyping and production ready product development.",
+      "Candidates supporting manufacturing processes, equipment improvements and technical project execution.",
+      "Engineers applying for roles involving CAD modeling, testing and validation workflows.",
       "Professionals moving from junior design positions into broader engineering ownership.",
     ],
     whatToInclude: [
-      "A summary that outlines engineering focus, industry context, and technical strengths.",
-      "CAD design and engineering project work with scope, constraints, and outcome context.",
+      "A summary that outlines engineering focus, industry context and technical strengths.",
+      "CAD design and engineering project work with scope, constraints and outcome context.",
       "Manufacturing collaboration examples tied to production readiness or process improvements.",
-      "Quality improvement contributions including root-cause analysis, testing, and corrective actions.",
-      "Technical documentation work such as drawings, specifications, and design change communication.",
+      "Quality improvement contributions including root cause analysis, testing and corrective actions.",
+      "Technical documentation work such as drawings, specifications and design change communication.",
     ],
     atsTips: [
-      "Use role-aligned terms naturally, including CAD, mechanical design, manufacturing support, and quality improvement.",
+      "Use role aligned terms naturally, including CAD, mechanical design, manufacturing support and quality improvement.",
       "List key software and engineering tools by full names where possible for better ATS matching.",
-      "Include both design and production-oriented keywords to reflect full engineering workflow coverage.",
+      "Include both design and production oriented keywords to reflect full engineering workflow coverage.",
       "Keep section labels conventional so ATS can parse technical skills and project outcomes accurately.",
     ],
     writingTips: [
-      "Describe engineering decisions with constraints, method, and measurable result.",
-      "Show how your work improved manufacturability, performance, reliability, or cost efficiency.",
+      "Describe engineering decisions with constraints, method and measurable result.",
+      "Show how your work improved manufacturability, performance, reliability or cost efficiency.",
       "Use concise bullets that balance technical precision with practical business impact.",
-      "Avoid dense jargon-only phrasing and keep accomplishments understandable to cross-functional reviewers.",
+      "Avoid dense jargon only phrasing and keep accomplishments understandable to cross functional reviewers.",
     ],
     faq: [
       {
         question: "What should mechanical engineers include besides CAD software on a resume?",
         answer:
-          "Include project outcomes, manufacturing collaboration, testing results, and quality improvements to show broader engineering impact.",
+          "Include project outcomes, manufacturing collaboration, testing results and quality improvements to show broader engineering impact.",
       },
       {
         question: "How can I show engineering project ownership clearly?",
         answer:
-          "State the project goal, your technical contribution, and the measurable outcome from your design or process decisions.",
+          "State the project goal, your technical contribution and the measurable outcome from your design or process decisions.",
       },
       {
         question: "Are technical documentation skills important for ATS matching?",
         answer:
-          "Yes. Many roles screen for documentation, specification writing, and communication of design changes.",
+          "Yes. Many roles screen for documentation, specification writing and communication of design changes.",
       },
     ],
     relatedTemplateIds: ["t064", "t061", "t060"],

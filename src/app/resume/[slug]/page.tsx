@@ -155,7 +155,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
 
         <section className="mt-6 rounded-2xl border border-zinc-200/80 bg-white/90 p-5 shadow-sm sm:p-7">
           <h2 className="font-heading text-2xl font-semibold tracking-tight text-zinc-900">
-            {page.slug === "social-media-manager-resume"
+            {page.slug === "social-media-manager-resume" ||
+            page.slug === "mechanical-engineer-resume"
               ? "Who is this template for ?"
               : page.slug === "accountant-resume"
               ? "Who can use the template ?"
@@ -229,7 +230,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
                   page.slug === "social-media-manager-resume" ||
                   page.slug === "occupational-therapist-resume" ||
                   page.slug === "business-development-manager-resume" ||
-                  page.slug === "customer-support-representative-resume"
+                  page.slug === "customer-support-representative-resume" ||
+                  page.slug === "mechanical-engineer-resume"
                   ? "What to include ?"
                   : page.slug === "project-manager-resume"
                     ? "Changes to be made"
@@ -277,7 +279,8 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
             page.slug === "executive-assistant-resume" ||
             page.slug === "social-media-manager-resume" ||
             page.slug === "occupational-therapist-resume" ||
-            page.slug === "business-development-manager-resume"
+            page.slug === "business-development-manager-resume" ||
+            page.slug === "mechanical-engineer-resume"
               ? "These are writing suggestions. Read the downloaded PDF before you share or submit it."
               : "These are writing suggestions. StudiosisLab does not test Resume Templates in applicant-tracking systems. A clear layout is not a promise that an employer's system will accept the file. Read the downloaded PDF before you submit it."}
           </p>

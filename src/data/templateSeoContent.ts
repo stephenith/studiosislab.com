@@ -1862,14 +1862,18 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     seoTitle: "Marketing Manager Resume Template | StudiosisLab",
     seoDescription: "Open this marketing manager Resume Template, sign in, replace the sample text, and download a PDF.",
     h1: "Marketing Manager Resume Template",
-    intro: "Open this marketing manager Resume Template, sign in with Google, replace the sample text with your own, and download a PDF.",
-    bestFor: ["People applying for marketing manager roles", "Editing after Google sign-in", "Downloading a PDF"],
+    intro: "Open this marketing manager Resume Template, replace the sample text with your own and download a PDF or PNG.",
+    bestFor: [
+      "People applying for marketing manager roles",
+      "Anyone who is looking to edit the document online.",
+      "&#x20;Anyone who wants the final format to be download as PNG or PDF",
+    ],
     whatToInclude: ["Professional summary", "Experience", "Skills", "Education"],
     atsTips: ["Use the heading names already on the page", "Keep important details in text, not only in images", "Read the downloaded PDF before you submit it"],
     writingTips: ["Lead with outcomes", "Keep bullets concise", "Match the role with relevant terminology"],
     faq: [
       {
-        "question": "Does StudiosisLab test this Resume Template in an applicant-tracking system?",
+        "question": "Does StudiosisLab test this Resume Template in an applicant tracking system?",
         "answer": "No. Read the downloaded PDF before you submit it. Employer systems differ."
       }
     ],

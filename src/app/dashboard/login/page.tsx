@@ -41,8 +41,7 @@ export default function DashboardLoginPage() {
             </h1>
             <p className="mt-4 text-center text-sm leading-relaxed text-zinc-600">
               This space is reserved for approved Studiosis publishing and ad-tech partners. Access is
-              invite-only: credentials are issued manually after onboarding and approval—not through
-              public sign-up.
+              invite-only: credentials are issued manually after onboarding and approval.
             </p>
             <p className="mt-4 text-center text-sm leading-relaxed text-zinc-600">
               If you are exploring a partnership or need help with StudiosisLab, reach our team through

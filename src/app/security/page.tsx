@@ -51,8 +51,8 @@ export default function SecurityPage() {
       <SectionBlock title="Security Reporting">
         <p>
           If you discover a potential security issue, report it responsibly to{" "}
-          <a className="font-medium text-zinc-900 underline" href="mailto:security@studiosislab.com">
-            security@studiosislab.com
+          <a className="font-medium text-zinc-900 underline" href="mailto:business@studiosis.in">
+            business@studiosis.in
           </a>
           . Please include reproduction details and impact context. We review all credible reports with
           priority.

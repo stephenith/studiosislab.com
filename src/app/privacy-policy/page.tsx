@@ -86,8 +86,8 @@ export default function PrivacyPolicyPage() {
         <p>
           You may request account-related privacy support, including data review or deletion requests,
           by contacting{" "}
-          <a className="font-medium text-zinc-900 underline" href="mailto:privacy@studiosislab.com">
-            privacy@studiosislab.com
+          <a className="font-medium text-zinc-900 underline" href="mailto:business@studiosis.in">
+            business@studiosis.in
           </a>
           . We will review requests in line with applicable legal and operational obligations.
         </p>

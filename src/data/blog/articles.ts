@@ -788,9 +788,9 @@ export const blogArticles: BlogArticle[] = [
   },
   {
     slug: "why-small-businesses-are-switching-to-e-sign-workflows",
-    title: "How Small Teams Can Get Contracts Signed Faster",
+    title: "How Teams Can Get Contracts Signed Faster",
     description:
-      "The client has agreed to the work. Now you need a signed contract. See how to send a PDF for signature, check its status, and save the signed copy.",
+      "The client has agreed to the work. Now you need a signed contract. See how to send a PDF for signature, check its status and save the signed copy.",
     excerpt:
       "See how a small team can get a client agreement signed online without asking the client to print and scan it.",
     publishedAt: "2026-05-31",
@@ -801,30 +801,30 @@ export const blogArticles: BlogArticle[] = [
       {
         heading: "How online signing can shorten contract turnaround",
         paragraphs: [
-          "Say you run a small design studio. You’ve agreed on the scope and price, and the client needs to sign before you can book the kickoff. Upload the final PDF and share a signing link. The client signs in their browser, and you can download the completed PDF without asking them to print, scan, or email it back.",
-          "Before you send the link, open the PDF one last time. Check the scope, price, and dates, and make sure you have the right signer’s email. It’s easier to catch an old draft now than after someone has signed it.",
-          "Have a contract ready? Open the tool and choose Browse to select your PDF. You’ll need to sign in with Google to upload it.",
+          "Say you run a small design studio. You’ve agreed on the scope and price and the client needs to sign before you can book the kickoff. Upload the final PDF and share a signing link. The client signs in their browser and you can download the completed PDF without asking them to print, scan or email it back.",
+          "Before you send the link, open the PDF one last time. Check the scope, price, dates and make sure you have the right signer’s email. It’s easier to catch an old draft now than after someone has signed it.",
+          "Have a contract ready? Open the tool and choose Browse to select your PDF. You’ll need to sign in with your Google ID to upload it.",
         ],
         links: [{ label: "Open the e-sign tool", href: "/tools" }],
       },
       {
-        heading: "Client onboarding gets cleaner with one signing flow",
+        heading: "Client onboarding gets cleaner with e-signing flow",
         paragraphs: [
-          "Onboarding often requires multiple approvals, acknowledgements, or service documents. If each item follows a different channel, teams waste time rebuilding context. A unified e-sign flow gives owners one place to start, monitor, and complete onboarding paperwork.",
-          "Small teams benefit most here because the same people often manage sales, onboarding, and delivery. Reducing context switching helps protect both speed and customer experience.",
+          "Onboarding often requires multiple approvals, acknowledgements or service documents. If each item follows a different channel, teams waste time rebuilding context. A unified e-sign flow gives owners one place to start, monitor and complete onboarding paperwork.",
+          "Small teams benefit most here because the same people often manage sales, onboarding and delivery. Reducing context switching helps protect both speed and customer experience.",
         ],
         bullets: [
           "Fewer missed onboarding steps",
           "Clear ownership for each agreement",
           "Better client response times during kickoff",
-          "Less back-and-forth across email threads",
+          "Less back and forth across email threads",
         ],
       },
       {
         heading: "Vendor agreements and remote approvals are now routine",
         paragraphs: [
           "Small businesses increasingly work with distributed vendors, part-time specialists, and remote contractors. Manual approval methods break down quickly in this environment because timing and timezone coordination become the bottleneck.",
-          "E-sign workflows support remote approvals with predictable document progression. Teams can prepare documents once, keep progress visible, and continue without restarting each time a stakeholder is unavailable.",
+          "E-sign workflows support remote approvals with predictable document progression. Teams can prepare documents once, keep progress visible and continue without restarting each time a stakeholder is unavailable.",
         ],
         links: [
           { label: "E-Sign for Small Business page", href: "/esign-online/e-sign-for-small-business" },
@@ -842,8 +842,8 @@ export const blogArticles: BlogArticle[] = [
       {
         heading: "Reduced paperwork does not mean reduced control",
         paragraphs: [
-          "Moving away from paper can improve control when digital handling is clear. Teams can keep document actions tied to authenticated access, limit who can progress agreements, and maintain status visibility in one workflow.",
-          "For trust-sensitive operations, teams should document how they use e-sign internally, including who owns each stage and when to escalate stalled agreements. This turns e-sign from a tool choice into an operational discipline.",
+          "Moving away from paper can improve control when digital handling is clear. Teams can keep document actions tied to authenticated access, limit who can progress agreements and maintain status visibility in one workflow.",
+          "For trust sensitive operations, teams should document how they use e-sign internally, including who owns each stage and when to escalate stalled agreements. This turns e-sign from a tool choice into an operational discipline.",
         ],
         links: [
           { label: "Security page", href: "/security" },
@@ -853,17 +853,17 @@ export const blogArticles: BlogArticle[] = [
       {
         heading: "A rollout model for small teams",
         paragraphs: [
-          "Start with one document category that creates frequent delays, such as service agreements or onboarding forms. Run the e-sign workflow for a short pilot window, then compare turnaround time, follow-up load, and completion reliability against the old process.",
-          "After the pilot, write a one-page operating guideline so everyone handles documents the same way. Small teams move faster when rules are simple and practical, not over-engineered.",
+          "Start with one document category that creates frequent delays, such as service agreements or onboarding forms. Run the e-sign workflow for a short pilot window, then compare turnaround time, follow-up load and completion reliability against the old process.",
+          "After the pilot, write a one page operating guideline so everyone handles documents the same way. Small teams move faster when rules are simple and practical, not over engineered.",
         ],
       },
       {
         heading: "FAQ: e-sign for small business teams",
         paragraphs: [
           "Q: Is e-sign only useful for large companies? A: No. Small teams often benefit faster because they have fewer layers and can standardize quickly.",
-          "Q: Which small business workflows improve first? A: Usually contracts, onboarding documents, and recurring vendor approvals.",
+          "Q: Which small business workflows improve first? A: Usually contracts, onboarding documents and recurring vendor approvals.",
           "Q: Can e-sign help remote approvals without adding complexity? A: Yes. A shared workflow with visible status reduces coordination overhead.",
-          "Q: What should teams review before adopting an e-sign process? A: Ownership rules, access expectations, and security handling details.",
+          "Q: What should teams review before adopting an e-sign process? A: Ownership rules, access expectations and security handling details.",
         ],
       },
     ],
@@ -875,7 +875,7 @@ export const blogArticles: BlogArticle[] = [
       },
       {
         question: "Which small business workflows improve first?",
-        answer: "Usually contracts, onboarding documents, and recurring vendor approvals.",
+        answer: "Usually contracts, onboarding documents and recurring vendor approvals.",
       },
       {
         question: "Can e-sign help remote approvals without adding complexity?",
@@ -883,7 +883,7 @@ export const blogArticles: BlogArticle[] = [
       },
       {
         question: "What should teams review before adopting an e-sign process?",
-        answer: "Ownership rules, access expectations, and security handling details.",
+        answer: "Ownership rules, access expectations and security handling details.",
       },
     ],
     cta: {

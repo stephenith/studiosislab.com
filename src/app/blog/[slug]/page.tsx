@@ -43,14 +43,26 @@ export default async function BlogArticlePage({ params }: BlogArticlePageProps) 
   if (!article) notFound();
 
   const related = getRelatedArticles(article, 3).map((item) => {
-    if (article.slug !== "how-to-create-an-invoice-as-a-freelancer") return item;
-    const summary =
-      item.slug === "is-esigning-legally-valid-in-the-us"
-        ? "A simple guide to US e-sign legality for common business workflows with practical limits and next steps."
-        : item.slug === "how-to-choose-the-right-resume-template"
-          ? "A practical framework to pick the right resume template for fresher, mid-level and specialized roles."
-          : null;
-    return summary ? { ...item, excerpt: summary } : item;
+    if (article.slug === "how-to-create-an-invoice-as-a-freelancer") {
+      const summary =
+        item.slug === "is-esigning-legally-valid-in-the-us"
+          ? "A simple guide to US e-sign legality for common business workflows with practical limits and next steps."
+          : item.slug === "how-to-choose-the-right-resume-template"
+            ? "A practical framework to pick the right resume template for fresher, mid-level and specialized roles."
+            : null;
+      return summary ? { ...item, excerpt: summary } : item;
+    }
+    if (
+      article.slug === "why-small-businesses-are-switching-to-e-sign-workflows" &&
+      item.slug === "send-documents-for-signature-online-step-by-step"
+    ) {
+      return {
+        ...item,
+        excerpt:
+          "Learn how to send documents for signature online without printing, scanning or chasing manual approvals.",
+      };
+    }
+    return item;
   });
   const relatedResumeTemplates = (article.relatedResumeTemplateIds ?? [])
     .slice(0, 4)

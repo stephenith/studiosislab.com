@@ -28,6 +28,24 @@ export const blogArticles: BlogArticle[] = [
         ],
       },
       {
+        heading: "Example invoice",
+        paragraphs: [
+          "This is a labelled example, not a form for any particular country or tax system. The amounts are illustrative and the currency should match the client agreement. The figures show how the lines, the subtotal and the total fit together.",
+        ],
+        bullets: [
+          "From: Ada Shah, Studio North — ada@example.test",
+          "Bill to: Client Co — accounts@example.test",
+          "Invoice number: INV-104",
+          "Issued: 22 October 2026. Due: 5 November 2026",
+          "Homepage copy revision — quantity 1 × 450.00 = 450.00",
+          "Extra revision round — quantity 2 × 75.00 = 150.00",
+          "Subtotal: 600.00",
+          "Tax in this example: 0.00",
+          "Total due: 600.00",
+          "Payment: bank transfer within 14 days. Put INV-104 in the payment reference.",
+        ],
+      },
+      {
         heading: "Describe the work so the client can check it",
         paragraphs: [
           "Write each line the way the client would recognize the job. “Website updates” is hard to approve. “Homepage copy revision, 12 March” is easier to match to the work you delivered.",
@@ -52,24 +70,6 @@ export const blogArticles: BlogArticle[] = [
         paragraphs: [
           "Payment instructions belong on the invoice, not only in a chat message. Name the method you accept, such as a bank transfer and include the details the client needs to complete it. Say when payment is due and ask the client to put the invoice number in the payment reference.",
           "If you charge a late fee or offer a discount for early payment, write the condition in one plain sentence. Leave it off when you do not use it.",
-        ],
-      },
-      {
-        heading: "Example invoice",
-        paragraphs: [
-          "This is a labelled example, not a form for any particular country or tax system. The amounts are illustrative and the currency should match the client agreement. The figures show how the lines, the subtotal and the total fit together.",
-        ],
-        bullets: [
-          "From: Ada Shah, Studio North — ada@example.test",
-          "Bill to: Client Co — accounts@example.test",
-          "Invoice number: INV-104",
-          "Issued: 22 October 2026. Due: 5 November 2026",
-          "Homepage copy revision — quantity 1 × 450.00 = 450.00",
-          "Extra revision round — quantity 2 × 75.00 = 150.00",
-          "Subtotal: 600.00",
-          "Tax in this example: 0.00",
-          "Total due: 600.00",
-          "Payment: bank transfer within 14 days. Put INV-104 in the payment reference.",
         ],
       },
       {

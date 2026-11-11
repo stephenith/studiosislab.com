@@ -4,23 +4,28 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  BarChart3,
-  ChevronLeft,
-  ChevronRight,
   Cloud,
+  Copy,
   Download,
-  FileText,
-  ImageIcon,
-  Layers,
+  Frame,
+  ImagePlus,
   Loader2,
-  MoreHorizontal,
+  Minus,
+  Pencil,
+  Plus,
   Save,
-  Scan,
+  Shapes,
+  Table2,
+  Trash2,
   Type,
+  LayoutTemplate,
 } from "lucide-react";
+import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 import TextEditSheet from "@/components/editor/mobile/TextEditSheet";
 import SkillBarEditSheet from "@/components/editor/mobile/SkillBarEditSheet";
+import { MOBILE_SHAPE_CHOICES, MOBILE_TEXT_FONTS } from "@/components/editor/mobile/mobileCanvasActions";
 import { useMobileFabricEditor } from "@/components/editor/mobile/useMobileFabricEditor";
+import { SYSTEM_TEMPLATES } from "@/data/systemTemplates/registry";
 
 type MobileEditorShellProps = {
   templateId: string | null;
@@ -28,18 +33,23 @@ type MobileEditorShellProps = {
   blank?: boolean;
 };
 
-type DockTab = "text" | "skills" | "pages" | "more";
+type DockTool = "templates" | "text" | "shapes" | "tables" | "frames" | "upload";
 
-const MOBILE_SAFE_AREA = {
-  paddingTop: "max(0.5rem, env(safe-area-inset-top))",
-  paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
-  paddingRight: "max(0.75rem, env(safe-area-inset-right))",
-} as const;
+const DOCK: { id: DockTool; label: string; icon: typeof Type }[] = [
+  { id: "templates", label: "Templates", icon: LayoutTemplate },
+  { id: "text", label: "Text", icon: Type },
+  { id: "shapes", label: "Shapes", icon: Shapes },
+  { id: "tables", label: "Tables", icon: Table2 },
+  { id: "frames", label: "Frames", icon: Frame },
+  { id: "upload", label: "Upload", icon: ImagePlus },
+];
+
+const COLORS = ["#111827", "#374151", "#7C3AED", "#1d4ed8", "#b91c1c", "#15803d"];
 
 function saveStatusLabel(status: string): string {
   switch (status) {
     case "saving":
-      return "Saving…";
+      return "Saving";
     case "saved":
       return "Saved";
     case "unsaved":
@@ -53,17 +63,74 @@ function saveStatusLabel(status: string): string {
   }
 }
 
-const dockButtonClass = (active: boolean) =>
-  `flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 text-[11px] font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 ${
-    active ? "bg-violet-600 text-white" : "text-white/75 active:bg-white/10"
-  }`;
+function TextStyleBar({
+  style,
+  onChange,
+}: {
+  style: NonNullable<ReturnType<typeof useMobileFabricEditor>["textStyle"]>;
+  onChange: (props: {
+    fontFamily?: string;
+    fontSize?: number;
+    fontWeight?: number;
+    fontStyle?: "normal" | "italic";
+    underline?: boolean;
+    textAlign?: "left" | "center" | "right";
+    fill?: string;
+  }) => void;
+}) {
+  return (
+    <div className="mb-2 rounded-2xl border border-[#d6deeb] bg-white p-2">
+      <p className="px-1 text-[11px] font-semibold tracking-wide text-violet-700">TEXT</p>
+      <div className="mt-2 flex flex-wrap items-center gap-1">
+        {MOBILE_TEXT_FONTS.map((font) => (
+          <button
+            key={font}
+            type="button"
+            onClick={() => onChange({ fontFamily: font })}
+            className={`inline-flex h-11 items-center rounded-xl px-3 text-xs ${style.fontFamily === font ? "bg-violet-600 text-white" : "bg-zinc-100 text-zinc-800"}`}
+            style={{ fontFamily: font }}
+          >
+            {font}
+          </button>
+        ))}
+        <button type="button" className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-100" aria-label="Smaller text" onClick={() => onChange({ fontSize: Math.max(8, style.fontSize - 2) })}>
+          <Minus className="h-4 w-4" />
+        </button>
+        <span className="min-w-8 text-center text-sm">{style.fontSize}</span>
+        <button type="button" className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-100" aria-label="Larger text" onClick={() => onChange({ fontSize: style.fontSize + 2 })}>
+          <Plus className="h-4 w-4" />
+        </button>
+        <button type="button" className={`inline-flex h-11 w-11 items-center justify-center rounded-xl font-bold ${style.fontWeight >= 600 ? "bg-violet-600 text-white" : "bg-zinc-100"}`} aria-label="Bold" onClick={() => onChange({ fontWeight: style.fontWeight >= 600 ? 400 : 700 })}>
+          B
+        </button>
+        <button type="button" className={`inline-flex h-11 w-11 items-center justify-center rounded-xl italic ${style.fontStyle === "italic" ? "bg-violet-600 text-white" : "bg-zinc-100"}`} aria-label="Italic" onClick={() => onChange({ fontStyle: style.fontStyle === "italic" ? "normal" : "italic" })}>
+          I
+        </button>
+        <button type="button" className={`inline-flex h-11 w-11 items-center justify-center rounded-xl underline ${style.underline ? "bg-violet-600 text-white" : "bg-zinc-100"}`} aria-label="Underline" onClick={() => onChange({ underline: !style.underline })}>
+          U
+        </button>
+        {(["left", "center", "right"] as const).map((align) => (
+          <button key={align} type="button" className={`inline-flex h-11 items-center rounded-xl px-2 text-xs capitalize ${style.textAlign === align ? "bg-violet-600 text-white" : "bg-zinc-100"}`} aria-label={`Align ${align}`} onClick={() => onChange({ textAlign: align })}>
+            {align}
+          </button>
+        ))}
+        {COLORS.map((color) => (
+          <button key={color} type="button" aria-label={`Text color ${color}`} onClick={() => onChange({ fill: color })} className="h-11 w-11 rounded-xl border border-zinc-200" style={{ background: color }} />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function MobileEditorShell({ templateId, docId, blank = false }: MobileEditorShellProps) {
   const editor = useMobileFabricEditor({ templateId, docId, blank });
-  const [dock, setDock] = useState<DockTab>("text");
+  const [tool, setTool] = useState<DockTool | null>(null);
   const [downloadOpen, setDownloadOpen] = useState(false);
-  const textOpen = Boolean(editor.textEdit);
-  const skillOpen = Boolean(editor.skillBarEdit);
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [tableRows, setTableRows] = useState(3);
+  const [tableCols, setTableCols] = useState(3);
+  const busyDownload = editor.downloadKind !== null;
+  const selected = Boolean(editor.selectionLabel);
 
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -83,36 +150,33 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
   }, []);
 
   useEffect(() => {
-    if (textOpen) setDock("text");
-  }, [textOpen]);
-
-  useEffect(() => {
-    if (skillOpen) setDock("skills");
-  }, [skillOpen]);
+    const onPaste = (event: ClipboardEvent) => {
+      const files = Array.from(event.clipboardData?.files || []).filter((file) => file.type.startsWith("image/"));
+      if (!files.length) return;
+      event.preventDefault();
+      void editor.uploadImages(files);
+    };
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  }, [editor]);
 
   if (editor.loadError) {
     return (
       <main className="flex h-[100dvh] flex-col bg-[#ebecf0] font-[family-name:var(--font-inter)]">
-        <header className="shrink-0 bg-[#1f1f28] text-white" style={MOBILE_SAFE_AREA}>
-          <div className="flex items-center gap-3 pb-3">
-            <Link
-              href="/resume"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 active:bg-white/10"
-              aria-label="Back to Resume Hub"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-            <h1 className="text-sm font-medium">Resume Editor</h1>
-          </div>
+        <header
+          className="flex items-center gap-2 bg-[#1f1f28] px-3 pb-3 text-white"
+          style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}
+        >
+          <Link href="/resume" className="inline-flex h-11 w-11 items-center justify-center" aria-label="Back to Resume Hub">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <img src={HOME_LOGOS_DARK.header} alt="StudiosisLab" className="h-6 w-auto" />
         </header>
         <div className="flex flex-1 items-center justify-center p-6">
-          <div className="w-full max-w-sm rounded-2xl border border-[#d6deeb] bg-white p-6 text-center shadow-[0_6px_14px_rgba(30,64,175,0.08)]">
-            <h2 className="text-base font-semibold text-zinc-900">Unable to open resume</h2>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-600">{editor.loadError}</p>
-            <Link
-              href="/resume"
-              className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 active:bg-zinc-800"
-            >
+          <div className="w-full max-w-sm rounded-2xl border border-[#d6deeb] bg-white p-6 text-center">
+            <h1 className="text-base font-semibold text-zinc-900">Unable to open resume</h1>
+            <p className="mt-2 text-sm text-zinc-600">{editor.loadError}</p>
+            <Link href="/resume" className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-zinc-900 px-5 text-sm text-white">
               Back to Resume Hub
             </Link>
           </div>
@@ -121,153 +185,193 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
     );
   }
 
-  const busyDownload = editor.downloadKind !== null;
-
   return (
     <main className="flex h-[100dvh] w-full max-w-[100vw] flex-col overflow-hidden bg-[#ebecf0] font-[family-name:var(--font-inter)]">
       <header
-        className="z-20 shrink-0 bg-[#1f1f28] text-white"
-        style={{ ...MOBILE_SAFE_AREA, touchAction: "pan-y" }}
-      >
-        <div className="flex min-w-0 items-center gap-2 pb-2">
-          <Link
-            href="/resume"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 active:bg-white/10"
-            aria-label="Back to Resume Hub"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <h1 className="min-w-0 truncate font-[family-name:var(--font-poppins)] text-sm font-semibold">
-            Studiosis<span className="text-violet-400">Lab</span>
-            <span className="px-2 font-normal text-white/35" aria-hidden="true">
-              |
-            </span>
-            <span className="font-medium text-white/90">Resume Editor</span>
-          </h1>
-        </div>
-      </header>
-
-      <div
-        className="flex shrink-0 items-center gap-2 border-b border-[#d6deeb] bg-white px-3 py-2"
+        className="z-20 flex shrink-0 items-center gap-1.5 bg-[#1f1f28] px-2 pb-2 text-white"
         style={{
-          paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
-          paddingRight: "max(0.75rem, env(safe-area-inset-right))",
+          paddingTop: "max(0.4rem, env(safe-area-inset-top))",
+          paddingLeft: "max(0.5rem, env(safe-area-inset-left))",
+          paddingRight: "max(0.5rem, env(safe-area-inset-right))",
         }}
       >
-        <FileText className="h-4 w-4 shrink-0 text-zinc-400" aria-hidden="true" />
-        <input
-          type="text"
-          value={editor.docTitle}
-          onChange={(e) => {
-            editor.setDocTitle(e.target.value);
-          }}
-          className="min-h-11 w-0 min-w-0 flex-1 truncate border-none bg-transparent font-[family-name:var(--font-poppins)] text-sm font-medium text-zinc-900 outline-none focus:ring-2 focus:ring-violet-100"
-          aria-label="Resume title"
-        />
-        <p className="inline-flex shrink-0 items-center gap-1 text-xs text-zinc-500" aria-live="polite">
-          <Cloud className="h-3.5 w-3.5" aria-hidden="true" />
+        <Link
+          href="/resume"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
+          aria-label="Back to Resume Hub"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
+        <img src={HOME_LOGOS_DARK.header} alt="StudiosisLab" className="h-6 w-auto shrink-0" />
+        <button
+          type="button"
+          onClick={() => setRenameOpen((open) => !open)}
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
+          aria-label="Rename resume"
+          aria-expanded={renameOpen}
+        >
+          <Pencil className="h-4 w-4" />
+        </button>
+        <p className="sr-only" aria-live="polite">
           {saveStatusLabel(editor.saveStatus)}
         </p>
-      </div>
+        <span className="ml-auto inline-flex min-w-0 items-center gap-1 text-[11px] text-white/70">
+          <Cloud className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <span className="truncate">{saveStatusLabel(editor.saveStatus)}</span>
+        </span>
+        <button
+          type="button"
+          onClick={() => void editor.save()}
+          disabled={editor.saveStatus === "saving" || editor.saveStatus === "stale" || editor.loading}
+          className="inline-flex h-11 shrink-0 items-center gap-1 rounded-xl border border-white/20 px-3 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300 disabled:opacity-50"
+        >
+          {editor.saveStatus === "saving" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          Save
+        </button>
+        <button
+          type="button"
+          onClick={() => setDownloadOpen((open) => !open)}
+          aria-expanded={downloadOpen}
+          className="inline-flex h-11 shrink-0 items-center gap-1 rounded-xl bg-violet-600 px-3 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
+        >
+          <Download className="h-4 w-4" />
+          Download
+        </button>
+      </header>
+
+      {renameOpen ? (
+        <div className="shrink-0 border-b border-[#d6deeb] bg-white px-3 py-2">
+          <label className="sr-only" htmlFor="mobile-resume-title">
+            Resume title
+          </label>
+          <input
+            id="mobile-resume-title"
+            value={editor.docTitle}
+            onChange={(event) => editor.setDocTitle(event.target.value)}
+            className="min-h-11 w-full rounded-xl border border-zinc-200 px-3 text-sm text-zinc-900 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-100"
+          />
+        </div>
+      ) : null}
+
+      {downloadOpen ? (
+        <div className="flex shrink-0 gap-2 border-b border-[#d6deeb] bg-white px-3 py-2" role="group" aria-label="Download format">
+          <button
+            type="button"
+            onClick={() => void editor.downloadPdf()}
+            disabled={editor.loading || busyDownload}
+            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-zinc-200 text-sm font-medium disabled:opacity-50"
+          >
+            {editor.downloadKind === "pdf" ? <Loader2 className="h-4 w-4 animate-spin" /> : "PDF"}
+          </button>
+          <button
+            type="button"
+            onClick={() => void editor.downloadPng()}
+            disabled={editor.loading || busyDownload}
+            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-zinc-200 text-sm font-medium disabled:opacity-50"
+          >
+            {editor.downloadKind === "png" ? <Loader2 className="h-4 w-4 animate-spin" /> : "PNG"}
+          </button>
+        </div>
+      ) : null}
 
       {editor.saveError ? (
-        <div className="shrink-0 border-b border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-800">
+        <div className="shrink-0 bg-white px-3 py-2 text-sm text-zinc-800">
           <p>{editor.saveError}</p>
           {editor.saveStatus === "stale" ? (
-            <button
-              type="button"
-              onClick={editor.reloadLatest}
-              className="mt-2 inline-flex min-h-11 items-center justify-center rounded-xl bg-zinc-900 px-4 text-sm font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 active:bg-zinc-800"
-            >
+            <button type="button" onClick={editor.reloadLatest} className="mt-2 inline-flex min-h-11 items-center rounded-xl bg-zinc-900 px-4 text-sm text-white">
               Reload latest
             </button>
           ) : null}
         </div>
       ) : null}
-
-      {editor.imageNotice ? (
-        <p className="shrink-0 border-b border-zinc-200 bg-white px-4 py-2 text-xs leading-relaxed text-zinc-600">
-          {editor.imageNotice}
-        </p>
-      ) : null}
+      {editor.imageNotice ? <p className="shrink-0 bg-white px-3 py-2 text-xs text-zinc-600">{editor.imageNotice}</p> : null}
+      {editor.actionNotice ? <p className="shrink-0 bg-white px-3 py-2 text-xs text-zinc-700">{editor.actionNotice}</p> : null}
 
       <div className="relative min-h-0 flex-1">
+        <div ref={editor.viewportRef} className="absolute inset-0 overflow-hidden touch-none">
+          {editor.loading ? (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#ebecf0]/80">
+              <div className="flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm text-zinc-700">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {docId ? "Loading saved resume…" : "Loading template…"}
+              </div>
+            </div>
+          ) : null}
+          <div ref={editor.canvasWrapRef} className="relative h-full w-full">
+            <canvas ref={editor.attachCanvasEl} className="block h-full w-full" />
+            {editor.selectionFrame ? (
+              <div
+                className="pointer-events-none absolute z-10 rounded-sm ring-2 ring-violet-600"
+                style={{
+                  left: editor.selectionFrame.left,
+                  top: editor.selectionFrame.top,
+                  width: editor.selectionFrame.width,
+                  height: editor.selectionFrame.height,
+                }}
+              />
+            ) : null}
+          </div>
+        </div>
+        <div
+          data-slb-canvas-control="true"
+          className="absolute bottom-2 right-2 z-20 flex items-center gap-1"
+          style={{ right: "max(0.5rem, env(safe-area-inset-right))" }}
+        >
+          <button type="button" onClick={() => editor.zoomBy(1 / 1.15)} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d6deeb] bg-white" aria-label="Zoom out">
+            <Minus className="h-4 w-4" />
+          </button>
+          <button type="button" onClick={editor.resetView} className="inline-flex h-11 items-center rounded-full border border-[#d6deeb] bg-white px-3 text-xs font-medium" aria-label="Fit page">
+            {editor.zoomPercent}%
+          </button>
+          <button type="button" onClick={() => editor.zoomBy(1.15)} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d6deeb] bg-white" aria-label="Zoom in">
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
       <div
-        ref={editor.viewportRef}
-        className="absolute inset-0 overflow-hidden touch-none"
+        className="flex shrink-0 items-center justify-center gap-2 border-t border-[#d6deeb] bg-white px-3 py-1.5"
         style={{
+          paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
+          paddingRight: "max(0.75rem, env(safe-area-inset-right))",
+        }}
+      >
+        <button type="button" onClick={() => void editor.duplicateCurrentPage()} className="inline-flex h-11 items-center gap-1 rounded-xl px-2 text-xs font-medium text-zinc-800" aria-label="Duplicate page">
+          <Copy className="h-4 w-4" />
+          Duplicate
+        </button>
+        <button
+          type="button"
+          disabled={editor.pageCount < 2}
+          onClick={() => {
+            if (window.confirm("Delete this page? The other pages stay in the resume.")) void editor.deleteCurrentPage();
+          }}
+          className="inline-flex h-11 items-center gap-1 rounded-xl px-2 text-xs font-medium text-zinc-800 disabled:opacity-40"
+          aria-label="Delete page"
+        >
+          <Trash2 className="h-4 w-4" />
+          Delete
+        </button>
+        <button type="button" onClick={() => void editor.addPageAfter()} className="inline-flex h-11 items-center gap-1 rounded-xl px-2 text-xs font-medium text-zinc-800" aria-label="Add page">
+          <Plus className="h-4 w-4" />
+          Add
+        </button>
+        <span className="text-xs text-zinc-500">
+          {editor.pageIndex + 1}/{editor.pageCount}
+        </span>
+      </div>
+
+      <div
+        className="shrink-0 bg-[#f7f7f8]"
+        style={{
+          paddingBottom: "calc(max(0.25rem, env(safe-area-inset-bottom)) + var(--slb-keyboard-inset, 0px))",
           paddingLeft: "max(0.5rem, env(safe-area-inset-left))",
           paddingRight: "max(0.5rem, env(safe-area-inset-right))",
         }}
       >
-        {editor.loading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#ebecf0]/80">
-            <div className="flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm text-zinc-700 shadow-sm">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              {docId ? "Loading saved resume…" : "Loading template…"}
-            </div>
-          </div>
-        )}
-        <div ref={editor.canvasWrapRef} className="relative h-full w-full">
-          <canvas ref={editor.attachCanvasEl} className="block h-full w-full" />
-          {editor.selectionFrame ? (
-            <div
-              className="pointer-events-none absolute z-10 rounded-sm ring-2 ring-violet-600"
-              style={{
-                left: editor.selectionFrame.left,
-                top: editor.selectionFrame.top,
-                width: editor.selectionFrame.width,
-                height: editor.selectionFrame.height,
-              }}
-            />
-          ) : null}
-          {editor.selectionLabel ? (
-            <div className="pointer-events-none absolute left-2 top-2 z-10 max-w-[70%] truncate rounded-full bg-[#1f1f28] px-3 py-1 text-xs font-medium text-white">
-              {editor.selectionLabel}
-            </div>
-          ) : null}
-        </div>
-      </div>
-        <button
-          type="button"
-          onClick={editor.resetView}
-          disabled={editor.loading}
-          className="absolute bottom-3 z-10 inline-flex h-11 items-center gap-1 rounded-full border border-[#d6deeb] bg-white px-3 text-xs font-medium text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 active:bg-zinc-50 disabled:opacity-50"
-          style={{ left: "max(0.75rem, env(safe-area-inset-left))" }}
-          aria-label="Reset view"
-        >
-          <Scan className="h-4 w-4" />
-          Fit
-        </button>
-      </div>
-
-      <div
-        className="shrink-0 border-t border-[#d6deeb] bg-[#f7f7f8]"
-        style={{
-          paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
-          paddingRight: "max(0.75rem, env(safe-area-inset-right))",
-          paddingBottom: "calc(max(0.35rem, env(safe-area-inset-bottom)) + var(--slb-keyboard-inset, 0px))",
-        }}
-      >
-        <div className="max-h-[42dvh] overflow-y-auto px-3 pt-3 [@media(max-height:520px)]:max-h-[34dvh]">
-          {dock === "text" ? (
-            editor.textEdit ? (
-              <TextEditSheet
-                open
-                value={editor.textEdit.draft}
-                onChange={(draft) => editor.setTextEdit({ draft })}
-                onCancel={editor.closeTextEdit}
-                onSave={editor.commitTextEdit}
-              />
-            ) : (
-              <p className="rounded-2xl border border-[#d6deeb] bg-white px-3 py-3 text-sm leading-relaxed text-zinc-600">
-                Tap text on the resume to edit it. Bold, italic, size, alignment, and color stay as they are on the page.
-              </p>
-            )
-          ) : null}
-
-          {dock === "skills" ? (
-            editor.skillBarEdit ? (
+        {selected || tool || editor.skillBarEdit || editor.textEdit ? (
+          <div className="max-h-[30dvh] overflow-y-auto px-2 py-2">
+            {editor.skillBarEdit ? (
               <SkillBarEditSheet
                 open
                 label={editor.skillBarEdit.label}
@@ -277,144 +381,133 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
                 onCancel={editor.cancelSkillBarEdit}
                 onDone={editor.commitSkillBarEdit}
               />
-            ) : (
-              <p className="rounded-2xl border border-[#d6deeb] bg-white px-3 py-3 text-sm leading-relaxed text-zinc-600">
-                Tap a skill bar on the resume to change its level. Star ratings can be tapped directly on the page.
-              </p>
-            )
-          ) : null}
-
-          {dock === "pages" ? (
-            <div className="rounded-2xl border border-[#d6deeb] bg-white px-3 py-3">
-              <div className="flex items-center justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => void editor.showPage(editor.pageIndex - 1)}
-                  disabled={editor.pageIndex === 0 || editor.pageCount < 2}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-200 text-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 active:bg-zinc-50 disabled:opacity-40"
-                  aria-label="Previous page"
-                >
-                  <ChevronLeft className="h-4 w-4" />
+            ) : null}
+            {editor.textEdit ? (
+              <TextEditSheet
+                open
+                value={editor.textEdit.draft}
+                onChange={(draft) => editor.setTextEdit({ draft })}
+                onCancel={editor.closeTextEdit}
+                onSave={editor.commitTextEdit}
+              />
+            ) : null}
+            {editor.textStyle ? (
+              <TextStyleBar style={editor.textStyle} onChange={editor.updateSelectedText} />
+            ) : null}
+            {selected && !editor.skillBarEdit ? (
+              <div className="mb-2 flex flex-wrap gap-1">
+                <button type="button" className="inline-flex h-11 items-center rounded-xl bg-white px-3 text-xs" aria-label="Resize larger" onClick={() => editor.resizeSelection(1.1)}>
+                  Larger
                 </button>
-                <p className="min-w-24 text-center text-sm font-medium text-zinc-800">
-                  Page {editor.pageIndex + 1} of {editor.pageCount}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => void editor.showPage(editor.pageIndex + 1)}
-                  disabled={editor.pageIndex >= editor.pageCount - 1}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-200 text-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 active:bg-zinc-50 disabled:opacity-40"
-                  aria-label="Next page"
-                >
-                  <ChevronRight className="h-4 w-4" />
+                <button type="button" className="inline-flex h-11 items-center rounded-xl bg-white px-3 text-xs" aria-label="Resize smaller" onClick={() => editor.resizeSelection(0.9)}>
+                  Smaller
+                </button>
+                <button type="button" className="inline-flex h-11 items-center rounded-xl bg-white px-3 text-xs" aria-label="Duplicate selection" onClick={() => void editor.duplicateSelection()}>
+                  Duplicate
+                </button>
+                <button type="button" className="inline-flex h-11 items-center rounded-xl bg-white px-3 text-xs" aria-label="Delete selection" onClick={editor.deleteSelection}>
+                  Delete
                 </button>
               </div>
-              {editor.pageCount > 1 ? (
-                <p className="mt-2 text-center text-xs leading-relaxed text-zinc-500 [@media(max-height:520px)]:hidden">
-                  This phone edits one page at a time. Other pages stay in the resume and are included in downloads.
+            ) : null}
+
+            {tool === "templates" ? (
+              <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Resume templates">
+                {SYSTEM_TEMPLATES.map((template) => (
+                  <button
+                    key={template.id}
+                    type="button"
+                    className="w-24 shrink-0 text-left"
+                    onClick={() => {
+                      const ok = window.confirm(`Replace the current page with ${template.name}? Other pages stay in this resume.`);
+                      if (ok) void editor.applyTemplateToPage(template.id);
+                    }}
+                  >
+                    <img src={template.thumbnail} alt="" className="h-28 w-24 rounded-lg border border-[#d6deeb] bg-white object-cover" />
+                    <span className="mt-1 block truncate text-[11px] text-zinc-700">{template.name}</span>
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            {tool === "text" ? (
+              <button type="button" onClick={editor.addTextBox} className="inline-flex h-11 items-center rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white">
+                Add text
+              </button>
+            ) : null}
+            {tool === "shapes" ? (
+              <div className="flex flex-wrap gap-1">
+                {MOBILE_SHAPE_CHOICES.map((shape) => (
+                  <button key={shape.id} type="button" onClick={() => editor.addShape(shape.id)} className="inline-flex h-11 items-center rounded-xl bg-white px-3 text-xs">
+                    {shape.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            {tool === "tables" ? (
+              <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-white p-2">
+                <label className="text-xs text-zinc-600">
+                  Rows
+                  <input type="number" min={1} max={8} value={tableRows} onChange={(event) => setTableRows(Number(event.target.value) || 1)} className="ml-1 h-11 w-16 rounded-lg border border-zinc-200 px-2" />
+                </label>
+                <label className="text-xs text-zinc-600">
+                  Columns
+                  <input type="number" min={1} max={6} value={tableCols} onChange={(event) => setTableCols(Number(event.target.value) || 1)} className="ml-1 h-11 w-16 rounded-lg border border-zinc-200 px-2" />
+                </label>
+                <button type="button" onClick={() => editor.addTable(tableRows, tableCols)} className="inline-flex h-11 items-center rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white">
+                  Insert table
+                </button>
+              </div>
+            ) : null}
+            {tool === "frames" ? (
+              <div className="flex gap-2">
+                <button type="button" onClick={() => editor.addFrame("square")} className="inline-flex h-11 items-center rounded-xl bg-white px-3 text-sm">
+                  Square frame
+                </button>
+                <button type="button" onClick={() => editor.addFrame("circle")} className="inline-flex h-11 items-center rounded-xl bg-white px-3 text-sm">
+                  Circle frame
+                </button>
+              </div>
+            ) : null}
+            {tool === "upload" ? (
+              <div className="rounded-2xl bg-white p-3">
+                <label className="inline-flex min-h-11 cursor-pointer items-center rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white">
+                  Choose photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={(event) => {
+                      const files = Array.from(event.target.files || []);
+                      if (files.length) void editor.uploadImages(files);
+                      event.target.value = "";
+                    }}
+                  />
+                </label>
+                <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+                  Upload uses your photo library. Pasting an image works only when this browser allows it.
                 </p>
-              ) : (
-                <p className="mt-2 text-center text-xs text-zinc-500">This resume has one page.</p>
-              )}
-            </div>
-          ) : null}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
-          {dock === "more" ? (
-            <div className="rounded-2xl border border-[#d6deeb] bg-white px-3 py-3">
+        <nav aria-label="Editor tools" className="flex gap-1 overflow-x-auto bg-[#1f1f28] px-2 py-1.5">
+          {DOCK.map((item) => {
+            const Icon = item.icon;
+            const active = tool === item.id;
+            return (
               <button
+                key={item.id}
                 type="button"
-                onClick={editor.resetView}
-                disabled={editor.loading}
-                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 text-sm font-medium text-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 active:bg-zinc-50 disabled:opacity-50"
+                aria-pressed={active}
+                onClick={() => setTool((current) => (current === item.id ? null : item.id))}
+                className={`inline-flex h-14 min-w-16 shrink-0 flex-col items-center justify-center rounded-xl px-2 text-[11px] font-medium ${active ? "bg-violet-600 text-white" : "text-white/75"}`}
               >
-                <Scan className="h-4 w-4" />
-                Fit page
+                <Icon className="h-4 w-4" />
+                {item.label}
               </button>
-              <p className="mt-2 text-center text-xs leading-relaxed text-zinc-500 [@media(max-height:520px)]:hidden">
-                Pinch to zoom and drag to move around the page.
-              </p>
-            </div>
-          ) : null}
-
-          {downloadOpen ? (
-            <div className="mt-3 grid grid-cols-2 gap-2" role="group" aria-label="Download format">
-              <button
-                type="button"
-                onClick={() => void editor.downloadPdf()}
-                disabled={editor.loading || busyDownload}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white text-sm font-medium text-zinc-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 active:bg-zinc-50 disabled:opacity-50"
-              >
-                {editor.downloadKind === "pdf" ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Download className="h-4 w-4" />
-                )}
-                PDF
-              </button>
-              <button
-                type="button"
-                onClick={() => void editor.downloadPng()}
-                disabled={editor.loading || busyDownload}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white text-sm font-medium text-zinc-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 active:bg-zinc-50 disabled:opacity-50"
-              >
-                {editor.downloadKind === "png" ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <ImageIcon className="h-4 w-4" />
-                )}
-                PNG
-              </button>
-            </div>
-          ) : null}
-        </div>
-
-        <div className="flex items-center gap-2 px-3 py-2">
-          <button
-            type="button"
-            onClick={() => void editor.save()}
-            disabled={editor.saveStatus === "saving" || editor.saveStatus === "stale" || editor.loading}
-            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-zinc-300 bg-white text-sm font-semibold text-zinc-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 active:bg-zinc-50 disabled:opacity-50"
-          >
-            {editor.saveStatus === "saving" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save
-          </button>
-          <button
-            type="button"
-            onClick={() => setDownloadOpen((open) => !open)}
-            aria-expanded={downloadOpen}
-            className="inline-flex min-h-12 flex-[1.4] items-center justify-center gap-2 rounded-2xl bg-violet-600 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-800 active:bg-violet-700"
-          >
-            <Download className="h-4 w-4" />
-            Download
-          </button>
-        </div>
-
-        <nav
-          className="grid grid-cols-4 gap-1 bg-[#1f1f28] px-2 py-1.5"
-          aria-label="Editor tools"
-          style={{
-            marginLeft: "calc(-1 * max(0.75rem, env(safe-area-inset-left)))",
-            marginRight: "calc(-1 * max(0.75rem, env(safe-area-inset-right)))",
-            paddingLeft: "max(0.5rem, env(safe-area-inset-left))",
-            paddingRight: "max(0.5rem, env(safe-area-inset-right))",
-          }}
-        >
-          <button type="button" className={dockButtonClass(dock === "text")} aria-pressed={dock === "text"} onClick={() => setDock("text")}>
-            <Type className="h-4 w-4" />
-            Text
-          </button>
-          <button type="button" className={dockButtonClass(dock === "skills")} aria-pressed={dock === "skills"} onClick={() => setDock("skills")}>
-            <BarChart3 className="h-4 w-4" />
-            Skills
-          </button>
-          <button type="button" className={dockButtonClass(dock === "pages")} aria-pressed={dock === "pages"} onClick={() => setDock("pages")}>
-            <Layers className="h-4 w-4" />
-            Pages
-          </button>
-          <button type="button" className={dockButtonClass(dock === "more")} aria-pressed={dock === "more"} onClick={() => setDock("more")}>
-            <MoreHorizontal className="h-4 w-4" />
-            More
-          </button>
+            );
+          })}
         </nav>
       </div>
     </main>

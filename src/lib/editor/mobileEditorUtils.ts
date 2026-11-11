@@ -15,7 +15,8 @@ import { normalizeStarRatings } from "@/lib/editor/starRating/starRatingFactory"
 import { CANVAS_BG, PAGE_SIZES, type PageSize } from "@/types/editor";
 
 export type EditableTarget =
-  | { type: "text"; object: any }
+  | { type: "text"; object: any; host: any | null }
+  | { type: "object"; object: any; host: null }
   | { type: "skill-bar"; object: any }
   | { type: "star-rating"; object: any };
 
@@ -326,7 +327,7 @@ export function applyMobileInteractionLocks(c: Canvas, pageW: number, pageH: num
 
       obj.set?.({
         selectable: false,
-        evented: false,
+        evented: true,
         hasControls: false,
         hasBorders: false,
         subTargetCheck: true,
@@ -339,6 +340,7 @@ export function applyMobileInteractionLocks(c: Canvas, pageW: number, pageH: num
       obj.set?.({
         selectable: false,
         evented: true,
+        editable: true,
         hasControls: false,
         hasBorders: false,
         lockMovementX: true,
@@ -353,7 +355,7 @@ export function applyMobileInteractionLocks(c: Canvas, pageW: number, pageH: num
 
     obj.set?.({
       selectable: false,
-      evented: false,
+      evented: true,
       hasControls: false,
       hasBorders: false,
       lockMovementX: true,
@@ -381,8 +383,8 @@ export type MobileViewportState = {
   panY: number;
 };
 
-export const MOBILE_TAP_MOVE_THRESHOLD_PX = 10;
-export const MOBILE_TAP_MAX_DURATION_MS = 300;
+export const MOBILE_TAP_MOVE_THRESHOLD_PX = 18;
+export const MOBILE_TAP_MAX_DURATION_MS = 600;
 export const MOBILE_ZOOM_MAX_MULTIPLIER = 3;
 
 export function applyMobileViewportTransform(c: Canvas, state: MobileViewportState): void {
@@ -422,11 +424,12 @@ export function fitCanvasToViewport(
   containerHeight: number,
   pageBounds: { left: number; top: number; width: number; height: number }
 ): FitCanvasResult {
-  const padding = 16;
+  const padding = 8;
   const availW = Math.max(1, containerWidth - padding * 2);
+  const availH = Math.max(1, containerHeight - padding * 2);
   const pageW = Math.max(1, pageBounds.width);
   const pageH = Math.max(1, pageBounds.height);
-  const baseZoom = availW / pageW;
+  const baseZoom = Math.min(availW / pageW, availH / pageH);
   const scaledW = Math.round(pageW * baseZoom);
   const scaledH = Math.round(pageH * baseZoom);
   const panX = (containerWidth - scaledW) / 2 - pageBounds.left * baseZoom;
@@ -466,15 +469,20 @@ export function findEditableTargetAtContainerPoint(
   const starRating = resolveStarRatingFromTarget(target);
   if (starRating) return { type: "star-rating", object: starRating };
 
-  if (
-    isTextObject(target) &&
-    !resolveSkillBarFromTarget(target) &&
-    !resolveStarRatingFromTarget(target)
-  ) {
-    return { type: "text", object: target };
+  let host = target;
+  while (host?.group) host = host.group;
+  if (isPageBackgroundObject(host) || isPageBackgroundObject(target)) return null;
+
+  const text = isTextObject(target) ? target : isTextObject(host) ? host : null;
+  if (text && !resolveSkillBarFromTarget(text) && !resolveStarRatingFromTarget(text)) {
+    const textHost = text.group ? host : null;
+    return { type: "text", object: text, host: textHost && textHost !== text ? textHost : null };
   }
 
-  return null;
+  if (host && host !== target && !isPageBackgroundObject(host)) {
+    return { type: "object", object: host, host: null };
+  }
+  return { type: "object", object: target, host: null };
 }
 
 /** @deprecated Use findEditableTargetAtContainerPoint */

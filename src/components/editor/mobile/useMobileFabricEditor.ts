@@ -31,6 +31,21 @@ import {
   savedPagePixelSize,
   updatedAtToken,
 } from "@/lib/editor/mobileDocument";
+import { processLocalImageFiles } from "@/components/editor/processLocalImageFiles";
+import {
+  addMobileFrame,
+  addMobileImage,
+  addMobileShape,
+  addMobileTable,
+  addMobileText,
+  applyMobileTextStyle,
+  deleteMobileObject,
+  duplicateMobileObject,
+  exitCanvasText,
+  focusCanvasText,
+  readTextStyle,
+  resizeMobileObject,
+} from "@/components/editor/mobile/mobileCanvasActions";
 import { getSkillBarModel, setSkillBarValueOnGroup } from "@/lib/editor/skillBar/skillBarFactory";
 import {
   getStarRatingModel,
@@ -41,7 +56,7 @@ import { commitMobileResumeDoc, getResumeDoc, updateResumeThumbnail } from "@/li
 import { generateResumeThumbnail } from "@/lib/resumePreviewExport";
 import { getAsset } from "@/lib/localAssets";
 import { useAuth } from "@/lib/useAuth";
-import type { PageSize } from "@/types/editor";
+import type { PageSize, TextProps } from "@/types/editor";
 
 export type MobileSaveStatus = "idle" | "unsaved" | "saving" | "saved" | "error" | "stale";
 
@@ -60,7 +75,7 @@ type UseMobileFabricEditorOptions = {
   blank?: boolean;
 };
 
-type GestureMode = "none" | "pan" | "pinch";
+type GestureMode = "none" | "pan" | "pinch" | "move";
 
 type GestureSession = {
   mode: GestureMode;
@@ -169,6 +184,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const baseZoomRef = useRef(1);
   const userAdjustedViewRef = useRef(false);
   const gestureRef = useRef<GestureSession>(emptyGesture());
+  const gestureHitRef = useRef<any>(null);
   const textOpenRef = useRef(false);
   const lastSizeRef = useRef({ w: 0, h: 0 });
   const resizeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -187,6 +203,9 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const [selectionFrame, setSelectionFrame] = useState<MobileSelectionFrame | null>(null);
   const [selectionLabel, setSelectionLabel] = useState<string | null>(null);
   const [imageNotice, setImageNotice] = useState<string | null>(null);
+  const [textStyle, setTextStyle] = useState<ReturnType<typeof readTextStyle> | null>(null);
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
+  const [zoomPercent, setZoomPercent] = useState(100);
   const [reloadNonce, setReloadNonce] = useState(0);
   const [saveKick, setSaveKick] = useState(0);
   const saveStatusRef = useRef<MobileSaveStatus>("idle");
@@ -225,6 +244,8 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       if (!canvas) return;
       viewStateRef.current = state;
       applyMobileViewportTransform(canvas, state);
+      const base = baseZoomRef.current || state.zoom || 1;
+      setZoomPercent(Math.max(100, Math.round((state.zoom / base) * 100)));
       refreshSelectionFrame();
     },
     [refreshSelectionFrame]
@@ -242,6 +263,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       const result = fitCanvasToViewport(canvas, rect.width, rect.height, pageBounds);
       viewStateRef.current = result.state;
       baseZoomRef.current = result.baseZoom;
+      setZoomPercent(100);
       lastSizeRef.current = { w: rect.width, h: rect.height };
       refreshSelectionFrame();
     },
@@ -625,7 +647,6 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       const height = entry.contentRect.height;
       const previous = lastSizeRef.current;
       if (previous.w > 0 && Math.abs(width - previous.w) < 1 && Math.abs(height - previous.h) < 1) return;
-      if (textOpenRef.current) return;
       const largeChange = Math.abs(width - previous.w) >= 80 || Math.abs(height - previous.h) >= 80;
       if (resizeDebounceRef.current) clearTimeout(resizeDebounceRef.current);
       resizeDebounceRef.current = setTimeout(() => {
@@ -671,8 +692,16 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     };
 
     const onTouchStart = (event: TouchEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest?.("[data-slb-canvas-control]")) return;
       if (event.touches.length === 1) {
         const point = localPoint(event.touches[0]);
+        gestureHitRef.current = findEditableTargetAtContainerPoint(
+          canvas,
+          viewport,
+          event.touches[0].clientX,
+          event.touches[0].clientY
+        );
         gestureRef.current = {
           ...emptyGesture(),
           mode: "pan",
@@ -683,6 +712,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           lastY: point.y,
         };
       } else if (event.touches.length >= 2) {
+        gestureHitRef.current = null;
         gestureRef.current = { ...emptyGesture(), mode: "pinch", startTime: Date.now() };
         beginPinchGesture(event.touches[0], event.touches[1], viewport);
         event.preventDefault();
@@ -691,6 +721,24 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
 
     const onTouchMove = (event: TouchEvent) => {
       const gesture = gestureRef.current;
+      if (gesture.mode === "move" && event.touches.length === 1) {
+        const point = localPoint(event.touches[0]);
+        const obj = selectedObjectRef.current;
+        if (!obj || obj.isEditing) return;
+        const zoom = viewStateRef.current.zoom || 1;
+        obj.set?.({
+          left: (obj.left || 0) + (point.x - gesture.lastX) / zoom,
+          top: (obj.top || 0) + (point.y - gesture.lastY) / zoom,
+        });
+        obj.setCoords?.();
+        canvas.requestRenderAll();
+        refreshSelectionFrame();
+        gesture.lastX = point.x;
+        gesture.lastY = point.y;
+        markUnsaved();
+        event.preventDefault();
+        return;
+      }
       if (gesture.mode === "pan" && event.touches.length === 1) {
         const point = localPoint(event.touches[0]);
         const total = Math.hypot(point.x - gesture.startX, point.y - gesture.startY);
@@ -699,6 +747,17 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           gesture.hadGesture = true;
           gesture.lastX = point.x;
           gesture.lastY = point.y;
+          const hit = gestureHitRef.current;
+          const selected = selectedObjectRef.current;
+          const moveTarget =
+            selected && hit && (hit.object === selected || hit.host === selected) && !selected.isEditing
+              ? selected
+              : null;
+          if (moveTarget) {
+            gesture.mode = "move";
+            return;
+          }
+          if (selected?.isEditing) return;
           userAdjustedViewRef.current = true;
           return;
         }
@@ -747,6 +806,8 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
             const model = getSkillBarModel(hit.object);
             editingSkillBarRef.current = hit.object;
             selectObject(hit.object, model.label || "Skill bar");
+            setTextStyle(null);
+            setTextEdit(null);
             setSkillBarEdit({
               draftValue: model.value,
               max: model.max,
@@ -765,10 +826,24 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           } else if (hit?.type === "text") {
             editingObjectRef.current = hit.object;
             const text = String(hit.object.text ?? "");
-            selectObject(hit.object, text.split("\n")[0].slice(0, 42) || "Text");
-            setTextEdit({ draft: text });
+            selectObject(hit.host || hit.object, text.split("\n")[0].slice(0, 42) || "Text");
+            setTextStyle(readTextStyle(hit.object));
+            setTextEdit(focusCanvasText(canvas, hit.object) ? null : { draft: text });
+            setSkillBarEdit(null);
+          } else if (hit?.type === "object") {
+            editingObjectRef.current = null;
+            exitCanvasText(selectedObjectRef.current);
+            selectObject(hit.object, hit.object?.data?.role === "table" ? "Table" : "Selection");
+            setTextStyle(null);
+            setTextEdit(null);
+            setSkillBarEdit(null);
           } else {
+            exitCanvasText(selectedObjectRef.current);
+            editingObjectRef.current = null;
             selectObject(null, null);
+            setTextStyle(null);
+            setTextEdit(null);
+            setSkillBarEdit(null);
           }
         }
         gestureRef.current = emptyGesture();
@@ -798,7 +873,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       viewport.removeEventListener("touchmove", onTouchMove);
       viewport.removeEventListener("touchend", onTouchEnd);
     };
-  }, [applyViewState, beginPinchGesture, canvasReady, loading, markUnsaved, selectObject]);
+  }, [applyViewState, beginPinchGesture, canvasReady, loading, markUnsaved, refreshSelectionFrame, selectObject]);
 
   const closeTextEdit = useCallback(() => {
     editingObjectRef.current = null;
@@ -938,6 +1013,212 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     [rememberPageEdits]
   );
 
+  const clearSelection = useCallback(() => {
+    exitCanvasText(editingObjectRef.current);
+    exitCanvasText(selectedObjectRef.current);
+    editingObjectRef.current = null;
+    selectObject(null, null);
+    setTextStyle(null);
+    setTextEdit(null);
+    setSkillBarEdit(null);
+  }, [selectObject]);
+
+  const rememberAdded = useCallback(
+    (obj: any, label: string) => {
+      if (!obj) return;
+      editingObjectRef.current = null;
+      selectObject(obj, label);
+      setTextStyle(null);
+      setTextEdit(null);
+      markUnsaved();
+    },
+    [markUnsaved, selectObject]
+  );
+
+  const addTextBox = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const obj = addMobileText(canvas, pageSizeRef.current);
+    editingObjectRef.current = obj;
+    selectObject(obj, "Text");
+    setTextStyle(readTextStyle(obj));
+    setTextEdit(focusCanvasText(canvas, obj) ? null : { draft: "Text" });
+    markUnsaved();
+  }, [markUnsaved, selectObject]);
+
+  const addShape = useCallback(
+    (shapeId: string) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      rememberAdded(addMobileShape(canvas, shapeId, pageSizeRef.current), "Shape");
+    },
+    [rememberAdded]
+  );
+
+  const addTable = useCallback(
+    (rows: number, cols: number) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      rememberAdded(addMobileTable(canvas, rows, cols, pageSizeRef.current), "Table");
+    },
+    [rememberAdded]
+  );
+
+  const addFrame = useCallback(
+    (type: "square" | "circle") => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      rememberAdded(addMobileFrame(canvas, type, pageSizeRef.current), "Frame");
+    },
+    [rememberAdded]
+  );
+
+  const uploadImages = useCallback(
+    async (files: File[]) => {
+      const canvas = canvasRef.current;
+      if (!canvas || !user?.uid) {
+        setActionNotice("Sign in again before uploading a photo.");
+        return;
+      }
+      const page = pageSizeRef.current;
+      const result = await processLocalImageFiles({
+        files,
+        uid: user.uid,
+        docId: docIdRef.current || "draft",
+        addImageFromUrl: async (url, meta) => {
+          const obj = await addMobileImage(canvas, url, page, meta);
+          if (!obj) return;
+          editingObjectRef.current = null;
+          selectObject(obj, "Photo");
+          setTextStyle(null);
+          markUnsaved();
+        },
+      });
+      setActionNotice(result.uploadedCount ? null : "That photo could not be added. Try Upload again.");
+    },
+    [markUnsaved, selectObject, user?.uid]
+  );
+
+  const updateSelectedText = useCallback(
+    (props: Partial<TextProps>) => {
+      const obj = editingObjectRef.current;
+      if (!obj) return;
+      applyMobileTextStyle(obj, props);
+      setTextStyle(readTextStyle(obj));
+      refreshSelectionFrame();
+      markUnsaved();
+    },
+    [markUnsaved, refreshSelectionFrame]
+  );
+
+  const resizeSelection = useCallback(
+    (factor: number) => {
+      const obj = selectedObjectRef.current;
+      if (!obj) return;
+      resizeMobileObject(obj, factor);
+      if (editingObjectRef.current) setTextStyle(readTextStyle(editingObjectRef.current));
+      refreshSelectionFrame();
+      markUnsaved();
+    },
+    [markUnsaved, refreshSelectionFrame]
+  );
+
+  const duplicateSelection = useCallback(async () => {
+    const canvas = canvasRef.current;
+    const obj = selectedObjectRef.current;
+    if (!canvas || !obj) return;
+    rememberAdded(await duplicateMobileObject(canvas, obj, pageSizeRef.current), "Copy");
+  }, [rememberAdded]);
+
+  const deleteSelection = useCallback(() => {
+    const canvas = canvasRef.current;
+    const obj = selectedObjectRef.current;
+    if (!canvas || !obj) return;
+    deleteMobileObject(canvas, obj, pageSizeRef.current);
+    clearSelection();
+    markUnsaved();
+  }, [clearSelection, markUnsaved]);
+
+  const zoomBy = useCallback(
+    (factor: number) => {
+      const viewport = viewportRef.current;
+      if (!viewport) return;
+      const rect = viewport.getBoundingClientRect();
+      const current = viewStateRef.current;
+      userAdjustedViewRef.current = true;
+      applyViewState(
+        zoomViewportAroundPoint(
+          current,
+          current.zoom * factor,
+          rect.width / 2,
+          rect.height / 2,
+          baseZoomRef.current
+        )
+      );
+    },
+    [applyViewState]
+  );
+
+  const applyTemplateToPage = useCallback(
+    async (nextTemplateId: string) => {
+      const template = getSystemTemplateById(nextTemplateId);
+      const canvas = canvasRef.current;
+      if (!template || !canvas) return;
+      const snapshot = await template.load();
+      const box = pageSizeRef.current;
+      await loadSnapshotOntoCanvas(canvas, snapshot, box.w, box.h, { isTemplateLoad: true });
+      const loaded = serializeCanvasForSave(canvas);
+      const pages = serverPagesRef.current.slice();
+      pages[activePageRef.current] = loaded;
+      serverPagesRef.current = pages;
+      clearSelection();
+      requestAnimationFrame(() => fitToContainer({ force: true }));
+      markUnsaved();
+    },
+    [clearSelection, fitToContainer, markUnsaved]
+  );
+
+  const addPageAfter = useCallback(async () => {
+    rememberPageEdits();
+    const pages = serverPagesRef.current.slice();
+    const index = activePageRef.current + 1;
+    pages.splice(index, 0, { objects: [] });
+    serverPagesRef.current = pages;
+    if (pages.length > 1) shapeRef.current = "pages";
+    setPageCount(pages.length);
+    await loadPageAt(index, pages[index]);
+    clearSelection();
+    markUnsaved();
+  }, [clearSelection, loadPageAt, markUnsaved, rememberPageEdits]);
+
+  const duplicateCurrentPage = useCallback(async () => {
+    rememberPageEdits();
+    const pages = serverPagesRef.current.slice();
+    const copy = JSON.parse(JSON.stringify(pages[activePageRef.current] || { objects: [] }));
+    const index = activePageRef.current + 1;
+    pages.splice(index, 0, copy);
+    serverPagesRef.current = pages;
+    if (pages.length > 1) shapeRef.current = "pages";
+    setPageCount(pages.length);
+    await loadPageAt(index, pages[index]);
+    clearSelection();
+    markUnsaved();
+  }, [clearSelection, loadPageAt, markUnsaved, rememberPageEdits]);
+
+  const deleteCurrentPage = useCallback(async () => {
+    if (serverPagesRef.current.length < 2) return;
+    rememberPageEdits();
+    const pages = serverPagesRef.current.slice();
+    const removeAt = activePageRef.current;
+    pages.splice(removeAt, 1);
+    serverPagesRef.current = pages;
+    const next = Math.min(removeAt, pages.length - 1);
+    setPageCount(pages.length);
+    await loadPageAt(next, pages[next]);
+    clearSelection();
+    markUnsaved();
+  }, [clearSelection, loadPageAt, markUnsaved, rememberPageEdits]);
+
   useEffect(() => {
     return () => {
       objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
@@ -970,6 +1251,9 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     selectionFrame,
     selectionLabel,
     imageNotice,
+    textStyle,
+    actionNotice,
+    zoomPercent,
     attachCanvasEl,
     viewportRef,
     canvasWrapRef,
@@ -983,5 +1267,20 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     resetView,
     showPage,
     reloadLatest,
+    clearSelection,
+    addTextBox,
+    addShape,
+    addTable,
+    addFrame,
+    uploadImages,
+    updateSelectedText,
+    resizeSelection,
+    duplicateSelection,
+    deleteSelection,
+    zoomBy,
+    applyTemplateToPage,
+    addPageAfter,
+    duplicateCurrentPage,
+    deleteCurrentPage,
   };
 }

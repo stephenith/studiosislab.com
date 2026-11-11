@@ -1,19 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  Cloud,
   Copy,
   Download,
   Frame,
   ImagePlus,
   Loader2,
   Minus,
-  Pencil,
   Plus,
-  Save,
   Shapes,
   Table2,
   Trash2,
@@ -124,30 +121,38 @@ function TextStyleBar({
 
 export default function MobileEditorShell({ templateId, docId, blank = false }: MobileEditorShellProps) {
   const editor = useMobileFabricEditor({ templateId, docId, blank });
+  const shellRef = useRef<HTMLElement>(null);
   const [tool, setTool] = useState<DockTool | null>(null);
   const [downloadOpen, setDownloadOpen] = useState(false);
-  const [renameOpen, setRenameOpen] = useState(false);
   const [tableRows, setTableRows] = useState(3);
   const [tableCols, setTableCols] = useState(3);
   const busyDownload = editor.downloadKind !== null;
   const selected = Boolean(editor.selectionLabel);
 
   useEffect(() => {
+    const root = shellRef.current;
     const viewport = window.visualViewport;
-    if (!viewport) return;
+    if (!root) return;
     const sync = () => {
-      const inset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
-      document.documentElement.style.setProperty("--slb-keyboard-inset", `${Math.round(inset)}px`);
+      const height = viewport?.height ?? window.innerHeight;
+      const top = viewport?.offsetTop ?? 0;
+      root.style.position = "fixed";
+      root.style.left = "0";
+      root.style.right = "0";
+      root.style.width = "100%";
+      root.style.top = `${top}px`;
+      root.style.height = `${Math.round(height)}px`;
     };
     sync();
-    viewport.addEventListener("resize", sync);
-    viewport.addEventListener("scroll", sync);
+    viewport?.addEventListener("resize", sync);
+    viewport?.addEventListener("scroll", sync);
+    window.addEventListener("resize", sync);
     return () => {
-      viewport.removeEventListener("resize", sync);
-      viewport.removeEventListener("scroll", sync);
-      document.documentElement.style.removeProperty("--slb-keyboard-inset");
+      viewport?.removeEventListener("resize", sync);
+      viewport?.removeEventListener("scroll", sync);
+      window.removeEventListener("resize", sync);
     };
-  }, []);
+  }, [editor.loadError]);
 
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
@@ -186,9 +191,12 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
   }
 
   return (
-    <main className="flex h-[100dvh] w-full max-w-[100vw] flex-col overflow-hidden bg-[#ebecf0] font-[family-name:var(--font-inter)]">
+    <main
+      ref={shellRef}
+      className="flex h-[100dvh] w-full max-w-[100vw] flex-col overflow-hidden bg-[#ebecf0] font-[family-name:var(--font-inter)]"
+    >
       <header
-        className="z-20 flex shrink-0 items-center gap-1.5 bg-[#1f1f28] px-2 pb-2 text-white"
+        className="z-30 flex shrink-0 items-center gap-2 bg-[#1f1f28] px-2 pb-2 text-white"
         style={{
           paddingTop: "max(0.4rem, env(safe-area-inset-top))",
           paddingLeft: "max(0.5rem, env(safe-area-inset-left))",
@@ -202,56 +210,17 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <img src={HOME_LOGOS_DARK.header} alt="StudiosisLab" className="h-6 w-auto shrink-0" />
-        <button
-          type="button"
-          onClick={() => setRenameOpen((open) => !open)}
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
-          aria-label="Rename resume"
-          aria-expanded={renameOpen}
-        >
-          <Pencil className="h-4 w-4" />
-        </button>
-        <p className="sr-only" aria-live="polite">
-          {saveStatusLabel(editor.saveStatus)}
-        </p>
-        <span className="ml-auto inline-flex min-w-0 items-center gap-1 text-[11px] text-white/70">
-          <Cloud className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          <span className="truncate">{saveStatusLabel(editor.saveStatus)}</span>
-        </span>
-        <button
-          type="button"
-          onClick={() => void editor.save()}
-          disabled={editor.saveStatus === "saving" || editor.saveStatus === "stale" || editor.loading}
-          className="inline-flex h-11 shrink-0 items-center gap-1 rounded-xl border border-white/20 px-3 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300 disabled:opacity-50"
-        >
-          {editor.saveStatus === "saving" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Save
-        </button>
+        <img src={HOME_LOGOS_DARK.header} alt="StudiosisLab" className="h-6 w-auto max-w-[46vw] shrink object-contain object-left" />
         <button
           type="button"
           onClick={() => setDownloadOpen((open) => !open)}
           aria-expanded={downloadOpen}
-          className="inline-flex h-11 shrink-0 items-center gap-1 rounded-xl bg-violet-600 px-3 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
+          className="ml-auto inline-flex h-11 shrink-0 items-center gap-1 rounded-xl bg-violet-600 px-3 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
         >
           <Download className="h-4 w-4" />
           Download
         </button>
       </header>
-
-      {renameOpen ? (
-        <div className="shrink-0 border-b border-[#d6deeb] bg-white px-3 py-2">
-          <label className="sr-only" htmlFor="mobile-resume-title">
-            Resume title
-          </label>
-          <input
-            id="mobile-resume-title"
-            value={editor.docTitle}
-            onChange={(event) => editor.setDocTitle(event.target.value)}
-            className="min-h-11 w-full rounded-xl border border-zinc-200 px-3 text-sm text-zinc-900 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-100"
-          />
-        </div>
-      ) : null}
 
       {downloadOpen ? (
         <div className="flex shrink-0 gap-2 border-b border-[#d6deeb] bg-white px-3 py-2" role="group" aria-label="Download format">
@@ -287,7 +256,8 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
       {editor.imageNotice ? <p className="shrink-0 bg-white px-3 py-2 text-xs text-zinc-600">{editor.imageNotice}</p> : null}
       {editor.actionNotice ? <p className="shrink-0 bg-white px-3 py-2 text-xs text-zinc-700">{editor.actionNotice}</p> : null}
 
-      <div className="relative min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 flex-col">
+      <div className="relative z-0 min-h-[46%] flex-1 overflow-hidden">
         <div ref={editor.viewportRef} className="absolute inset-0 overflow-hidden touch-none">
           {editor.loading ? (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#ebecf0]/80">
@@ -298,7 +268,7 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
             </div>
           ) : null}
           <div ref={editor.canvasWrapRef} className="relative h-full w-full">
-            <canvas ref={editor.attachCanvasEl} className="block h-full w-full" />
+            <canvas ref={editor.attachCanvasEl} className="block" />
             {editor.selectionFrame ? (
               <div
                 className="pointer-events-none absolute z-10 rounded-sm ring-2 ring-violet-600"
@@ -329,13 +299,33 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
         </div>
       </div>
 
+      <div className="flex max-h-[54%] min-h-0 flex-col overflow-y-auto">
       <div
-        className="flex shrink-0 items-center justify-center gap-2 border-t border-[#d6deeb] bg-white px-3 py-1.5"
+        className="flex shrink-0 flex-wrap items-center gap-1 border-t border-[#d6deeb] bg-white px-2 py-1.5"
         style={{
-          paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
-          paddingRight: "max(0.75rem, env(safe-area-inset-right))",
+          paddingLeft: "max(0.5rem, env(safe-area-inset-left))",
+          paddingRight: "max(0.5rem, env(safe-area-inset-right))",
         }}
       >
+        <label className="sr-only" htmlFor="mobile-resume-title">
+          Resume title
+        </label>
+        <input
+          id="mobile-resume-title"
+          value={editor.docTitle}
+          onChange={(event) => editor.setDocTitle(event.target.value)}
+          className="h-11 min-w-[7.5rem] flex-1 rounded-xl border border-zinc-200 px-3 text-sm text-zinc-900 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-100"
+        />
+        <button
+          type="button"
+          onClick={() => void editor.save()}
+          disabled={editor.saveStatus === "saving" || editor.saveStatus === "stale" || editor.loading}
+          className="inline-flex h-11 shrink-0 items-center px-2 text-xs font-medium text-zinc-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300 disabled:opacity-50"
+          aria-live="polite"
+          aria-label={`${saveStatusLabel(editor.saveStatus)}. Save now`}
+        >
+          {editor.saveStatus === "saving" ? <Loader2 className="h-4 w-4 animate-spin" /> : saveStatusLabel(editor.saveStatus)}
+        </button>
         <button type="button" onClick={() => void editor.duplicateCurrentPage()} className="inline-flex h-11 items-center gap-1 rounded-xl px-2 text-xs font-medium text-zinc-800" aria-label="Duplicate page">
           <Copy className="h-4 w-4" />
           Duplicate
@@ -364,13 +354,13 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
       <div
         className="shrink-0 bg-[#f7f7f8]"
         style={{
-          paddingBottom: "calc(max(0.25rem, env(safe-area-inset-bottom)) + var(--slb-keyboard-inset, 0px))",
+          paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))",
           paddingLeft: "max(0.5rem, env(safe-area-inset-left))",
           paddingRight: "max(0.5rem, env(safe-area-inset-right))",
         }}
       >
         {selected || tool || editor.skillBarEdit || editor.textEdit ? (
-          <div className="max-h-[30dvh] overflow-y-auto px-2 py-2">
+          <div className="overflow-y-auto px-2 py-2">
             {editor.skillBarEdit ? (
               <SkillBarEditSheet
                 open
@@ -509,6 +499,8 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
             );
           })}
         </nav>
+      </div>
+      </div>
       </div>
     </main>
   );

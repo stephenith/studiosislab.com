@@ -183,6 +183,8 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const viewStateRef = useRef<MobileViewportState>({ zoom: 1, panX: 0, panY: 0 });
   const baseZoomRef = useRef(1);
   const userAdjustedViewRef = useRef(false);
+  const keyboardViewRef = useRef<MobileViewportState | null>(null);
+  const visualHeightRef = useRef(0);
   const gestureRef = useRef<GestureSession>(emptyGesture());
   const gestureHitRef = useRef<any>(null);
   const textOpenRef = useRef(false);
@@ -222,14 +224,16 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     const canvas = canvasRef.current;
     const wrap = canvasWrapRef.current;
     const element = canvas?.getElement?.();
-    if (!frame || !wrap || !element?.width || !element.height) {
+    if (!canvas || !frame || !wrap || !element?.width || !element.height) {
       setSelectionFrame(null);
       return;
     }
     const canvasRect = element.getBoundingClientRect();
     const wrapRect = wrap.getBoundingClientRect();
-    const scaleX = canvasRect.width / element.width;
-    const scaleY = canvasRect.height / element.height;
+    const logicalWidth = canvas.getWidth() || element.width;
+    const logicalHeight = canvas.getHeight() || element.height;
+    const scaleX = canvasRect.width / logicalWidth;
+    const scaleY = canvasRect.height / logicalHeight;
     setSelectionFrame({
       left: canvasRect.left - wrapRect.left + frame.left * scaleX,
       top: canvasRect.top - wrapRect.top + frame.top * scaleY,
@@ -265,13 +269,58 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       baseZoomRef.current = result.baseZoom;
       setZoomPercent(100);
       lastSizeRef.current = { w: rect.width, h: rect.height };
+      visualHeightRef.current = window.visualViewport?.height ?? window.innerHeight;
       refreshSelectionFrame();
     },
     [refreshSelectionFrame]
   );
 
+  const syncStageSize = useCallback(
+    (width: number, height: number) => {
+      const canvas = canvasRef.current;
+      if (!canvas || width < 2 || height < 2) return;
+      const previous = lastSizeRef.current;
+      const state = viewStateRef.current;
+      const visualHeight = window.visualViewport?.height ?? window.innerHeight;
+      const keyboardMoved = visualHeightRef.current > 0 && Math.abs(visualHeight - visualHeightRef.current) > 80;
+      visualHeightRef.current = visualHeight;
+      const grew = keyboardMoved && previous.h > 0 && height > previous.h + 40;
+      const shrank = keyboardMoved && previous.h > 0 && height < previous.h - 40;
+      canvas.setDimensions({ width: Math.round(width), height: Math.round(height) });
+      lastSizeRef.current = { w: width, h: height };
+      if (grew && keyboardViewRef.current) {
+        const saved = keyboardViewRef.current;
+        keyboardViewRef.current = null;
+        applyViewState(saved);
+        return;
+      }
+      let next = state;
+      const obj = selectedObjectRef.current;
+      if (shrank && obj) {
+        applyMobileViewportTransform(canvas, state);
+        const frame = selectionFrameForObject(obj);
+        if (frame) {
+          const cx = frame.left + frame.width / 2;
+          const cy = frame.top + frame.height / 2;
+          const margin = 24;
+          let panX = state.panX;
+          let panY = state.panY;
+          if (cx < margin || cx > width - margin) panX += width / 2 - cx;
+          if (cy < margin || cy > height - margin) panY += height * 0.42 - cy;
+          if (panX !== state.panX || panY !== state.panY) {
+            if (!keyboardViewRef.current) keyboardViewRef.current = state;
+            next = { ...state, panX, panY };
+          }
+        }
+      }
+      applyViewState(next);
+    },
+    [applyViewState]
+  );
+
   const resetView = useCallback(() => {
     userAdjustedViewRef.current = false;
+    keyboardViewRef.current = null;
     fitToContainer({ force: true });
   }, [fitToContainer]);
 
@@ -647,19 +696,25 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       const height = entry.contentRect.height;
       const previous = lastSizeRef.current;
       if (previous.w > 0 && Math.abs(width - previous.w) < 1 && Math.abs(height - previous.h) < 1) return;
-      const largeChange = Math.abs(width - previous.w) >= 80 || Math.abs(height - previous.h) >= 80;
       if (resizeDebounceRef.current) clearTimeout(resizeDebounceRef.current);
       resizeDebounceRef.current = setTimeout(() => {
-        if (largeChange) userAdjustedViewRef.current = false;
-        fitToContainer({ force: largeChange });
-      }, 120);
+        const latest = lastSizeRef.current;
+        const widthChanged = latest.w > 0 && Math.abs(width - latest.w) >= 48;
+        const heightChanged = latest.h > 0 && Math.abs(height - latest.h) >= 40;
+        if (latest.w === 0 || (widthChanged && !userAdjustedViewRef.current)) {
+          keyboardViewRef.current = null;
+          fitToContainer({ force: true });
+          return;
+        }
+        if (widthChanged || heightChanged) syncStageSize(width, height);
+      }, 80);
     });
     observer.observe(viewport);
     return () => {
       observer.disconnect();
       if (resizeDebounceRef.current) clearTimeout(resizeDebounceRef.current);
     };
-  }, [fitToContainer, loading]);
+  }, [fitToContainer, loading, syncStageSize]);
 
   const beginPinchGesture = useCallback(
     (t0: Touch, t1: Touch, container: HTMLElement) => {
@@ -677,6 +732,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
         hadGesture: true,
       };
       userAdjustedViewRef.current = true;
+      keyboardViewRef.current = null;
     },
     []
   );
@@ -759,6 +815,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           }
           if (selected?.isEditing) return;
           userAdjustedViewRef.current = true;
+          keyboardViewRef.current = null;
           return;
         }
         const next = {
@@ -1146,6 +1203,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       const rect = viewport.getBoundingClientRect();
       const current = viewStateRef.current;
       userAdjustedViewRef.current = true;
+      keyboardViewRef.current = null;
       applyViewState(
         zoomViewportAroundPoint(
           current,

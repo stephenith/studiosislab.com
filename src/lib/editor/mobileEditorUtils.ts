@@ -415,8 +415,9 @@ export function zoomViewportAroundPoint(
 }
 
 /**
- * Fit the resume page to the mobile viewport width (with padding).
- * Uses Fabric viewportTransform for pan/zoom; canvas display fills the container.
+ * Fit the whole resume page inside the phone stage, keeping its real aspect ratio.
+ * The canvas backing size matches the stage, so the viewport transform is the only
+ * scale. A CSS-only resize would shrink that drawing a second time.
  */
 export function fitCanvasToViewport(
   c: Canvas,
@@ -424,7 +425,7 @@ export function fitCanvasToViewport(
   containerHeight: number,
   pageBounds: { left: number; top: number; width: number; height: number }
 ): FitCanvasResult {
-  const padding = 8;
+  const padding = 16;
   const availW = Math.max(1, containerWidth - padding * 2);
   const availH = Math.max(1, containerHeight - padding * 2);
   const pageW = Math.max(1, pageBounds.width);
@@ -436,10 +437,10 @@ export function fitCanvasToViewport(
   const panY = (containerHeight - scaledH) / 2 - pageBounds.top * baseZoom;
   const state: MobileViewportState = { zoom: baseZoom, panX, panY };
 
-  c.setDimensions(
-    { width: Math.max(1, Math.round(containerWidth)), height: Math.max(1, Math.round(containerHeight)) },
-    { cssOnly: true }
-  );
+  c.setDimensions({
+    width: Math.max(1, Math.round(containerWidth)),
+    height: Math.max(1, Math.round(containerHeight)),
+  });
   applyMobileViewportTransform(c, state);
 
   return { scaledW, scaledH, baseZoom, state };

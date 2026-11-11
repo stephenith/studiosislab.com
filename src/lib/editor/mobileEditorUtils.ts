@@ -507,13 +507,16 @@ export async function loadSnapshotOntoCanvas(
   snap: any,
   pageW: number,
   pageH: number,
-  opts?: { isTemplateLoad?: boolean }
+  opts?: { isTemplateLoad?: boolean; preserveUserImages?: boolean; preservePageBox?: boolean }
 ): Promise<void> {
   const json = normalizeToFabricJson(snap);
   if (!json || !Array.isArray(json.objects)) {
     throw new Error("Invalid template JSON: expected { objects: [] }");
   }
-  sanitizeImageSourcesForLoad(json);
+  const preservePageBox = opts?.preservePageBox === true;
+  if (!opts?.preserveUserImages) {
+    sanitizeImageSourcesForLoad(json);
+  }
 
   await new Promise<void>((resolve, reject) => {
     try {
@@ -532,7 +535,7 @@ export async function loadSnapshotOntoCanvas(
     applyTextBoxNoStretch(o);
   });
 
-  if (opts?.isTemplateLoad !== false) {
+  if (opts?.isTemplateLoad !== false && !preservePageBox) {
     normalizeTemplateScale(c, pageW, pageH);
   }
 
@@ -541,7 +544,9 @@ export async function loadSnapshotOntoCanvas(
   const fill =
     (pageObj?.fill as string) ||
     (typeof jsonAny.background === "string" ? jsonAny.background : "#ffffff");
-  ensurePageBackground(c, pageW, pageH, fill || "#ffffff");
+  if (!preservePageBox || !pageObj) {
+    ensurePageBackground(c, pageW, pageH, fill || "#ffffff");
+  }
   normalizeSkillBars(c);
   normalizeStarRatings(c);
   applyMobileInteractionLocks(c, pageW, pageH);
@@ -550,4 +555,29 @@ export async function loadSnapshotOntoCanvas(
 
 export function serializeCanvasForSave(c: Canvas): any {
   return (c as any).toJSON([...FABRIC_JSON_PROPS]);
+}
+
+export type MobileSelectionFrame = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
+
+/** Viewport-pixel box for a selected object. Does not change the object. */
+export function selectionFrameForObject(obj: any): MobileSelectionFrame | null {
+  if (!obj) return null;
+  obj.setCoords?.();
+  const coords = obj.lineCoords || obj.oCoords || obj.aCoords;
+  const points = coords ? [coords.tl, coords.tr, coords.bl, coords.br] : [];
+  const usable = points.filter((point) => point && Number.isFinite(point.x) && Number.isFinite(point.y));
+  if (usable.length < 4) return null;
+  const xs = usable.map((point) => point.x);
+  const ys = usable.map((point) => point.y);
+  const left = Math.min(...xs);
+  const top = Math.min(...ys);
+  const width = Math.max(...xs) - left;
+  const height = Math.max(...ys) - top;
+  if (width < 1 || height < 1) return null;
+  return { left, top, width, height };
 }

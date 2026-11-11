@@ -5,6 +5,7 @@ import {
   thumbnailMatchesSavedRevision,
   THUMBNAIL_MAX_DATA_URL_CHARS,
 } from "@/lib/resumePreviewScene";
+import { mobileCommitDecision, nextMobileRevision, updatedAtToken } from "@/lib/editor/mobileDocument";
 
 const COLLECTION = "resume_docs";
 
@@ -218,6 +219,108 @@ export async function updateResumeThumbnail(params: {
       thumbnailRevision,
     });
     return "written";
+  });
+}
+
+export type MobileResumeCommitResult =
+  | { ok: true; docId: string; autosaveRevision: number; updatedAtToken: string | null }
+  | { ok: false; reason: "stale"; autosaveRevision: number }
+  | { ok: false; reason: "missing" };
+
+/**
+ * Phone-only create or update. A newer autosaveRevision blocks the write.
+ * Desktop continues to use createResumeDoc and updateResumeDoc.
+ * Omitted fields are left untouched, so an existing pagesData array is not cleared
+ * unless this call explicitly sends pagesData.
+ */
+export async function commitMobileResumeDoc(params: {
+  uid: string;
+  docId?: string | null;
+  baseRevision: number | null;
+  baseUpdatedAt?: string | null;
+  title: string;
+  sourceTemplateId?: string | null;
+  canvasJson?: any;
+  pagesData?: any[] | null;
+}): Promise<MobileResumeCommitResult> {
+  const { uid, title } = params;
+  const existingId = String(params.docId || "").trim();
+  const id =
+    existingId ||
+    (typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : String(Date.now()));
+  const ref = doc(db, "users", uid, COLLECTION, id);
+
+  if (!existingId) {
+    const revision = nextMobileRevision(null);
+    const payload: Record<string, any> = {
+      uid,
+      title: title || "Untitled Resume",
+      sourceTemplateId: params.sourceTemplateId ?? "blank",
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      autosaveRevision: revision,
+    };
+    if (Array.isArray(params.pagesData) && params.pagesData.length > 0) {
+      payload.pagesData = sanitizeFabricPagesData(params.pagesData);
+    } else if (params.canvasJson != null) {
+      payload.canvasJson = sanitizeFabricCanvasJson(params.canvasJson);
+    }
+    await setDoc(ref, stripUndefinedDeep(payload), { merge: true });
+    const created = await getDoc(ref);
+    return {
+      ok: true,
+      docId: id,
+      autosaveRevision: revision,
+      updatedAtToken: updatedAtToken(created.data()?.updatedAt),
+    };
+  }
+
+  return runTransaction(db, async (tx): Promise<MobileResumeCommitResult> => {
+    const snap = await tx.get(ref);
+    if (!snap.exists()) return { ok: false, reason: "missing" };
+    const data = snap.data() || {};
+    if (
+      mobileCommitDecision(
+        data.autosaveRevision,
+        params.baseRevision,
+        data.updatedAt,
+        params.baseUpdatedAt
+      ) === "stale"
+    ) {
+      return {
+        ok: false,
+        reason: "stale",
+        autosaveRevision: Number(data.autosaveRevision) || params.baseRevision || 0,
+      };
+    }
+    const revision = nextMobileRevision(data.autosaveRevision);
+    const payload: Record<string, any> = {
+      title: title || "Untitled Resume",
+      updatedAt: serverTimestamp(),
+      autosaveRevision: revision,
+    };
+    if (Array.isArray(params.pagesData) && params.pagesData.length > 0) {
+      payload.pagesData = sanitizeFabricPagesData(params.pagesData);
+    }
+    if (params.canvasJson != null) {
+      payload.canvasJson = sanitizeFabricCanvasJson(params.canvasJson);
+    }
+    tx.update(ref, stripUndefinedDeep(payload));
+    return { ok: true, docId: id, autosaveRevision: revision, updatedAtToken: null };
+  }).then(async (result): Promise<MobileResumeCommitResult> => {
+    if (!result.ok) return result;
+    const written = await getDoc(ref);
+    const data = written.data();
+    if (!written.exists() || Number(data?.autosaveRevision) !== result.autosaveRevision) {
+      return {
+        ok: false as const,
+        reason: "stale" as const,
+        autosaveRevision: Number(data?.autosaveRevision) || result.autosaveRevision,
+      };
+    }
+    return { ...result, updatedAtToken: updatedAtToken(data?.updatedAt) };
   });
 }
 

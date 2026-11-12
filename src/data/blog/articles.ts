@@ -565,12 +565,13 @@ export const blogArticles: BlogArticle[] = [
   },
   {
     slug: "improving-document-turnaround-time-with-digital-signing",
-    title: "Where a Signing Workflow Can Replace Printing",
+    title: "How to Reduce Delays in Document Signing",
     description:
-      "A PDF can be uploaded, signed, and downloaded without printing. StudiosisLab has not measured a time saving.",
+      "Check common causes of document signing delays, prepare the PDF before sending it, and follow up with the right signer.",
     excerpt:
-      "Explore practical ways digital signing can help teams move documents from draft to completed faster.",
+      "Check common causes of document signing delays, prepare the PDF before sending it, and follow up with the right signer.",
     publishedAt: "2026-06-06",
+    updatedAt: "2026-11-12",
     category: "E-Sign",
     tags: ["document turnaround time", "digital signing", "approval bottlenecks", "workflow optimization"],
     readTime: "2 min read",

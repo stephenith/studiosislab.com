@@ -18,7 +18,6 @@ import {
   Table2,
   Trash2,
   Type,
-  X,
   LayoutTemplate,
 } from "lucide-react";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
@@ -67,19 +66,15 @@ function saveStatusLabel(status: string): string {
 const ACTIVE_TEXT_CONTROL = "border-blue-600 bg-blue-600 text-white";
 const IDLE_TEXT_CONTROL = "border-zinc-200 bg-white text-zinc-800";
 
-function keepTextFieldFocus(event: { preventDefault: () => void }) {
+function holdCanvasEditing(event: { preventDefault: () => void }) {
   event.preventDefault();
 }
 
 function TextStyleBar({
   style,
-  text,
   onChange,
-  onTextChange,
-  onClose,
 }: {
   style: NonNullable<ReturnType<typeof useMobileFabricEditor>["textStyle"]>;
-  text: string;
   onChange: (props: {
     fontFamily?: string;
     fontSize?: number;
@@ -89,8 +84,6 @@ function TextStyleBar({
     textAlign?: "left" | "center" | "right";
     fill?: string;
   }) => void;
-  onTextChange: (value: string) => void;
-  onClose: () => void;
 }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const fonts = MOBILE_TEXT_FONTS.includes(style.fontFamily as (typeof MOBILE_TEXT_FONTS)[number])
@@ -99,58 +92,42 @@ function TextStyleBar({
   const colorValue = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(style.fill) ? style.fill.toUpperCase() : style.fill;
   const swatches = COLORS.includes(style.fill) ? COLORS : [style.fill, ...COLORS];
   return (
-    <section aria-label="Text formatting" className="mb-2 max-w-full rounded-2xl border border-[#d6deeb] bg-white p-3" onPointerDown={(event) => event.stopPropagation()}>
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold tracking-wide text-zinc-900">TEXT</h2>
-        <button type="button" aria-label="Close text editing" onMouseDown={keepTextFieldFocus} onClick={onClose} className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-zinc-700">
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-      <div className="mt-2 flex min-w-0 items-center gap-2">
-        <input
-          aria-label="Selected text"
-          value={text}
-          onChange={(event) => onTextChange(event.target.value)}
-          onFocus={(event) => {
-            const scroller = event.currentTarget.closest("[data-slb-tool-scroll]");
-            if (scroller instanceof HTMLElement) scroller.scrollTop = 0;
-          }}
-          className="h-11 min-w-0 flex-1 rounded-xl border border-zinc-200 bg-white px-3 text-base text-zinc-900"
-        />
+    <section aria-label="Text formatting" className="mb-2 max-w-full rounded-2xl border border-[#d6deeb] bg-white p-2" onPointerDown={(event) => event.stopPropagation()}>
+      <div className="flex min-w-0 items-center gap-2">
+        <label className="min-w-0 flex-1">
+          <span className="sr-only">Font family</span>
+          <select
+            aria-label="Font family"
+            value={style.fontFamily}
+            onChange={(event) => onChange({ fontFamily: event.target.value })}
+            className="h-11 w-full max-w-full rounded-xl border border-zinc-200 bg-white px-2 text-sm text-zinc-900"
+          >
+            {fonts.map((font) => (
+              <option key={font} value={font}>
+                {font}
+              </option>
+            ))}
+          </select>
+        </label>
         <div className="inline-flex shrink-0 items-center rounded-xl border border-zinc-200 bg-white" role="group" aria-label="Font size">
-          <button type="button" className="inline-flex h-11 w-11 items-center justify-center" aria-label="Smaller text" onMouseDown={keepTextFieldFocus} onClick={() => onChange({ fontSize: Math.max(8, style.fontSize - 2) })}>
+          <button type="button" className="inline-flex h-11 w-11 items-center justify-center text-zinc-900" aria-label="Smaller text" onMouseDown={holdCanvasEditing} onClick={() => onChange({ fontSize: Math.max(8, style.fontSize - 2) })}>
             <Minus className="h-4 w-4" />
           </button>
           <span className="min-w-8 text-center text-sm tabular-nums text-zinc-900">{style.fontSize}</span>
-          <button type="button" className="inline-flex h-11 w-11 items-center justify-center" aria-label="Larger text" onMouseDown={keepTextFieldFocus} onClick={() => onChange({ fontSize: style.fontSize + 2 })}>
+          <button type="button" className="inline-flex h-11 w-11 items-center justify-center text-zinc-900" aria-label="Larger text" onMouseDown={holdCanvasEditing} onClick={() => onChange({ fontSize: style.fontSize + 2 })}>
             <Plus className="h-4 w-4" />
           </button>
         </div>
       </div>
-      <label className="mt-2 block min-w-0">
-        <span className="sr-only">Font family</span>
-        <select
-          aria-label="Font family"
-          value={style.fontFamily}
-          onChange={(event) => onChange({ fontFamily: event.target.value })}
-          className="h-11 w-full max-w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900"
-        >
-          {fonts.map((font) => (
-            <option key={font} value={font}>
-              {font}
-            </option>
-          ))}
-        </select>
-      </label>
       <div className="mt-2 flex max-w-full flex-wrap items-center gap-2">
         <div className="inline-flex shrink-0 rounded-xl border border-zinc-200 p-0.5" role="group" aria-label="Text style">
-          <button type="button" className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border font-bold ${style.fontWeight >= 600 ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label="Bold" aria-pressed={style.fontWeight >= 600} onMouseDown={keepTextFieldFocus} onClick={() => onChange({ fontWeight: style.fontWeight >= 600 ? 400 : 700 })}>
+          <button type="button" className={`inline-flex h-11 w-11 items-center justify-center rounded-lg border font-bold ${style.fontWeight >= 600 ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label="Bold" aria-pressed={style.fontWeight >= 600} onMouseDown={holdCanvasEditing} onClick={() => onChange({ fontWeight: style.fontWeight >= 600 ? 400 : 700 })}>
             B
           </button>
-          <button type="button" className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border italic ${style.fontStyle === "italic" ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label="Italic" aria-pressed={style.fontStyle === "italic"} onMouseDown={keepTextFieldFocus} onClick={() => onChange({ fontStyle: style.fontStyle === "italic" ? "normal" : "italic" })}>
+          <button type="button" className={`inline-flex h-11 w-11 items-center justify-center rounded-lg border italic ${style.fontStyle === "italic" ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label="Italic" aria-pressed={style.fontStyle === "italic"} onMouseDown={holdCanvasEditing} onClick={() => onChange({ fontStyle: style.fontStyle === "italic" ? "normal" : "italic" })}>
             I
           </button>
-          <button type="button" className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border underline ${style.underline ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label="Underline" aria-pressed={style.underline} onMouseDown={keepTextFieldFocus} onClick={() => onChange({ underline: !style.underline })}>
+          <button type="button" className={`inline-flex h-11 w-11 items-center justify-center rounded-lg border underline ${style.underline ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label="Underline" aria-pressed={style.underline} onMouseDown={holdCanvasEditing} onClick={() => onChange({ underline: !style.underline })}>
             U
           </button>
         </div>
@@ -160,13 +137,13 @@ function TextStyleBar({
             ["center", AlignCenter],
             ["right", AlignRight],
           ] as const).map(([align, Icon]) => (
-            <button key={align} type="button" className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border ${style.textAlign === align ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label={`Align ${align}`} aria-pressed={style.textAlign === align} onMouseDown={keepTextFieldFocus} onClick={() => onChange({ textAlign: align })}>
+            <button key={align} type="button" className={`inline-flex h-11 w-11 items-center justify-center rounded-lg border ${style.textAlign === align ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label={`Align ${align}`} aria-pressed={style.textAlign === align} onMouseDown={holdCanvasEditing} onClick={() => onChange({ textAlign: align })}>
               <Icon className="h-4 w-4" />
             </button>
           ))}
         </div>
         <div className="relative min-w-0">
-          <button type="button" className="inline-flex h-10 max-w-full items-center gap-2 rounded-xl border border-zinc-200 bg-white px-2 text-xs text-zinc-800" aria-label="Text color" aria-expanded={paletteOpen} onMouseDown={keepTextFieldFocus} onClick={() => setPaletteOpen((open) => !open)}>
+          <button type="button" className="inline-flex h-11 max-w-full items-center gap-2 rounded-xl border border-zinc-200 bg-white px-2 text-xs text-zinc-800" aria-label="Text color" aria-expanded={paletteOpen} onMouseDown={holdCanvasEditing} onClick={() => setPaletteOpen((open) => !open)}>
             <span className="h-5 w-5 shrink-0 rounded-md border border-zinc-200" style={{ background: style.fill }} />
             <span className="truncate font-mono">{colorValue}</span>
           </button>
@@ -174,13 +151,9 @@ function TextStyleBar({
             <div className="absolute bottom-full left-0 z-20 mb-1 w-48 max-w-[calc(100vw-2rem)] rounded-xl border border-zinc-200 bg-white p-2 shadow-sm" role="group" aria-label="Text color palette">
               <div className="grid grid-cols-6 gap-1">
                 {swatches.map((color) => (
-                  <button key={color} type="button" aria-label={`Text color ${color}`} onMouseDown={keepTextFieldFocus} onClick={() => { onChange({ fill: color }); setPaletteOpen(false); }} className="aspect-square w-full rounded-md border border-zinc-200" style={{ background: color }} />
+                  <button key={color} type="button" aria-label={`Text color ${color}`} onMouseDown={holdCanvasEditing} onClick={() => { onChange({ fill: color }); setPaletteOpen(false); }} className="aspect-square w-full rounded-md border border-zinc-200" style={{ background: color }} />
                 ))}
               </div>
-              <label className="mt-2 flex items-center gap-2 text-xs text-zinc-600">
-                Custom
-                <input aria-label="Custom text color" type="color" value={/^#[0-9a-f]{6}$/i.test(style.fill) ? style.fill : "#111827"} onChange={(event) => onChange({ fill: event.target.value })} className="h-8 w-10 border-0 bg-transparent p-0" />
-              </label>
             </div>
           ) : null}
         </div>
@@ -315,6 +288,18 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
   const [tableCols, setTableCols] = useState(3);
   const busyDownload = editor.downloadKind !== null;
   const selected = Boolean(editor.selectionLabel);
+  const textPanelOpen = Boolean(editor.textStyle);
+  const textPanelWasOpen = useRef(false);
+
+  useEffect(() => {
+    if (textPanelOpen && !textPanelWasOpen.current) {
+      setTool("text");
+      const panel = document.querySelector("[aria-label='Text formatting']");
+      const scroller = panel?.closest("[data-slb-tool-scroll]");
+      if (panel instanceof HTMLElement && scroller instanceof HTMLElement) scroller.scrollTop = panel.offsetTop;
+    }
+    textPanelWasOpen.current = textPanelOpen;
+  }, [textPanelOpen]);
 
   useEffect(() => {
     const root = shellRef.current;
@@ -462,8 +447,8 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
                 frame={editor.selectionFrame}
                 boundsWidth={editor.viewportRef.current?.clientWidth || 0}
                 boundsHeight={editor.viewportRef.current?.clientHeight || 0}
-                showHandles={editor.selectionResizable && !keyboardOpen && !editor.textEdit && !editor.skillBarEdit}
-                showActions={!keyboardOpen && !tool && !editor.textEdit && !editor.skillBarEdit}
+                showHandles={editor.selectionResizable && !editor.skillBarEdit && (textPanelOpen || (!keyboardOpen && !editor.textEdit))}
+                showActions={textPanelOpen || (!keyboardOpen && !tool && !editor.textEdit && !editor.skillBarEdit)}
                 accent={editor.textStyle ? "blue" : "violet"}
                 onResize={editor.resizeSelectionByCorner}
                 onDuplicate={() => void editor.duplicateSelection()}
@@ -556,15 +541,7 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
                 onSave={editor.commitTextEdit}
               />
             ) : null}
-            {editor.textStyle ? (
-              <TextStyleBar
-                style={editor.textStyle}
-                text={editor.selectedText}
-                onChange={editor.updateSelectedText}
-                onTextChange={editor.setSelectedTextContent}
-                onClose={editor.clearSelection}
-              />
-            ) : null}
+            {editor.textStyle ? <TextStyleBar style={editor.textStyle} onChange={editor.updateSelectedText} /> : null}
             {tool === "templates" ? (
               <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Resume templates">
                 {SYSTEM_TEMPLATES.map((template) => (

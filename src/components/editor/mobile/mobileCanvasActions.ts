@@ -32,14 +32,35 @@ export function readTextStyle(obj: any) {
 }
 
 export function focusCanvasText(canvas: Canvas, obj: any): boolean {
-  if (!obj || typeof obj.enterEditing !== "function") return false;
+  if (!obj || typeof obj.enterEditing !== "function" || !canvas) return false;
   try {
     obj.set?.({ editable: true });
     canvas.setActiveObject?.(obj);
     obj.enterEditing();
-    obj.hiddenTextarea?.focus?.();
+    const area = obj.hiddenTextarea as HTMLTextAreaElement | undefined;
+    if (area) {
+      const bounds = canvas.upperCanvasEl?.getBoundingClientRect?.() || canvas.getElement?.()?.getBoundingClientRect?.();
+      area.setAttribute("aria-label", "Resume text");
+      area.style.fontSize = "16px";
+      area.style.opacity = "0";
+      area.style.position = "fixed";
+      area.style.width = "20px";
+      area.style.height = "20px";
+      area.style.padding = "0";
+      area.style.border = "0";
+      area.style.zIndex = "30";
+      const place = () => {
+        if (bounds) {
+          area.style.left = `${Math.round(bounds.left + 8)}px`;
+          area.style.top = `${Math.round(bounds.top + Math.min(24, bounds.height / 3))}px`;
+        }
+      };
+      place();
+      area.focus();
+      requestAnimationFrame(place);
+    }
     canvas.requestRenderAll();
-    return true;
+    return Boolean(obj.isEditing || area);
   } catch {
     return false;
   }

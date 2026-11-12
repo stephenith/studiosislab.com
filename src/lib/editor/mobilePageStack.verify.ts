@@ -4,6 +4,7 @@ import {
   blankMobilePage,
   deleteMobilePage,
   insertMobilePage,
+  isMobilePageSurface,
   MOBILE_A4_HEIGHT,
   MOBILE_A4_WIDTH,
   MOBILE_PAGE_GAP,
@@ -82,5 +83,11 @@ assert.deepEqual(
   ["One", "One copy", "Two"]
 );
 assert.equal(reloaded.pages[1].objects.find((obj: any) => obj.type === "textbox")?.top, 90);
+
+const offsetPage = { type: "rect", left: 0, top: MOBILE_A4_HEIGHT + MOBILE_PAGE_GAP, width: 794, height: 1123, fill: "#ffffff" };
+assert.equal(isMobilePageSurface(offsetPage), true);
+assert.equal(isMobilePageSurface({ type: "rect", role: "pageBackground", left: 0, top: 1400, width: 400, height: 200 }), true);
+assert.equal(isMobilePageSurface({ type: "textbox", text: "Headline", left: 80, top: 90, width: 400, height: 40 }), false);
+assert.equal(isMobilePageSurface({ type: "rect", left: 80, top: 200, width: 120, height: 80 }), false);
 
 console.log("mobilePageStack.verify: PASS");

@@ -12,6 +12,7 @@ import { isSkillBar, resolveSkillBarFromTarget } from "@/lib/editor/skillBar/ski
 import { normalizeSkillBars } from "@/lib/editor/skillBar/skillBarFactory";
 import { isStarRating, resolveStarRatingFromTarget } from "@/lib/editor/starRating/starRatingDetection";
 import { normalizeStarRatings } from "@/lib/editor/starRating/starRatingFactory";
+import { isMobilePageSurface } from "@/lib/editor/mobilePageStack";
 import { CANVAS_BG, PAGE_SIZES, type PageSize } from "@/types/editor";
 
 export type EditableTarget =
@@ -291,12 +292,17 @@ export function applyMobileInteractionLocks(c: Canvas, pageW: number, pageH: num
     ensureObjectId(obj);
     applyTextBoxNoStretch(obj);
 
-    if (isPageBackgroundObject(obj, pageW, pageH) || obj?.role === "grid") {
+    if (isMobilePageSurface(obj) || isPageBackgroundObject(obj, pageW, pageH) || obj?.role === "grid") {
       obj.set?.({
         selectable: false,
         evented: false,
         hasControls: false,
         hasBorders: false,
+        lockMovementX: true,
+        lockMovementY: true,
+        lockScalingX: true,
+        lockScalingY: true,
+        lockRotation: true,
       });
       return;
     }
@@ -383,6 +389,9 @@ export type MobileViewportState = {
   panY: number;
 };
 
+/** Screen pixels kept under a fitted page for its Duplicate, Delete, and Add controls. */
+export const MOBILE_PAGE_CONTROL_CLEARANCE = 64;
+
 export const MOBILE_TAP_MOVE_THRESHOLD_PX = 18;
 export const MOBILE_TAP_MAX_DURATION_MS = 600;
 export const MOBILE_ZOOM_MAX_MULTIPLIER = 3;
@@ -427,14 +436,14 @@ export function fitCanvasToViewport(
 ): FitCanvasResult {
   const padding = 16;
   const availW = Math.max(1, containerWidth - padding * 2);
-  const availH = Math.max(1, containerHeight - padding * 2);
+  const availH = Math.max(1, containerHeight - padding * 2 - MOBILE_PAGE_CONTROL_CLEARANCE);
   const pageW = Math.max(1, pageBounds.width);
   const pageH = Math.max(1, pageBounds.height);
   const baseZoom = Math.min(availW / pageW, availH / pageH);
   const scaledW = Math.round(pageW * baseZoom);
   const scaledH = Math.round(pageH * baseZoom);
   const panX = (containerWidth - scaledW) / 2 - pageBounds.left * baseZoom;
-  const panY = (containerHeight - scaledH) / 2 - pageBounds.top * baseZoom;
+  const panY = padding + (availH - scaledH) / 2 - pageBounds.top * baseZoom;
   const state: MobileViewportState = { zoom: baseZoom, panX, panY };
 
   c.setDimensions({
@@ -472,7 +481,9 @@ export function findEditableTargetAtContainerPoint(
 
   let host = target;
   while (host?.group) host = host.group;
-  if (isPageBackgroundObject(host) || isPageBackgroundObject(target)) return null;
+  if (isMobilePageSurface(host) || isMobilePageSurface(target) || isPageBackgroundObject(host) || isPageBackgroundObject(target)) {
+    return null;
+  }
 
   const text = isTextObject(target) ? target : isTextObject(host) ? host : null;
   if (text && !resolveSkillBarFromTarget(text) && !resolveStarRatingFromTarget(text)) {

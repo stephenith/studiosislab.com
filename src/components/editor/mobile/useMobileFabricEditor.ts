@@ -13,6 +13,7 @@ import {
   fabricSavePayloadHasDataImageSrc,
   findEditableTargetAtContainerPoint,
   fitCanvasToViewport,
+  MOBILE_PAGE_CONTROL_CLEARANCE,
   getPageBounds,
   loadSnapshotOntoCanvas,
   MOBILE_TAP_MAX_DURATION_MS,
@@ -35,6 +36,7 @@ import {
   blankMobilePage,
   deleteMobilePage,
   insertMobilePage,
+  isMobilePageSurface,
   mobilePageIndexAtSceneY,
   mobilePageIndexForObjectTop,
   splitStackedMobilePages,
@@ -215,6 +217,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const [pageIndex, setPageIndex] = useState(0);
   const [pageCount, setPageCount] = useState(1);
   const [selectionFrame, setSelectionFrame] = useState<MobileSelectionFrame | null>(null);
+  const [pageFrames, setPageFrames] = useState<{ index: number; left: number; top: number; width: number; height: number }[]>([]);
   const [selectionLabel, setSelectionLabel] = useState<string | null>(null);
   const [imageNotice, setImageNotice] = useState<string | null>(null);
   const [textStyle, setTextStyle] = useState<ReturnType<typeof readTextStyle> | null>(null);
@@ -232,12 +235,13 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   }, [docId]);
 
   const refreshSelectionFrame = useCallback(() => {
-    const frame = selectionFrameForObject(selectedObjectRef.current);
     const canvas = canvasRef.current;
     const wrap = canvasWrapRef.current;
     const element = canvas?.getElement?.();
-    if (!canvas || !frame || !wrap || !element?.width || !element.height) {
+    const meta = stackMetaRef.current;
+    if (!canvas || !wrap || !element?.width || !element.height) {
       setSelectionFrame(null);
+      setPageFrames([]);
       return;
     }
     const canvasRect = element.getBoundingClientRect();
@@ -246,6 +250,28 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     const logicalHeight = canvas.getHeight() || element.height;
     const scaleX = canvasRect.width / logicalWidth;
     const scaleY = canvasRect.height / logicalHeight;
+    const state = viewStateRef.current;
+    const zoom = state.zoom || 1;
+    setPageFrames(
+      meta?.pageTops.map((pageTop, index) => {
+        const size = meta.pageSizes[index] || { w: 0, h: 0 };
+        const x = state.panX * scaleX;
+        const y = (pageTop * zoom + state.panY) * scaleY;
+        return {
+          index,
+          left: canvasRect.left - wrapRect.left + x,
+          top: canvasRect.top - wrapRect.top + y,
+          width: size.w * zoom * scaleX,
+          height: size.h * zoom * scaleY,
+        };
+      }) || []
+    );
+    const selected = selectedObjectRef.current;
+    const frame = selected && !isMobilePageSurface(selected) ? selectionFrameForObject(selected) : null;
+    if (!frame) {
+      setSelectionFrame(null);
+      return;
+    }
     setSelectionFrame({
       left: canvasRect.left - wrapRect.left + frame.left * scaleX,
       top: canvasRect.top - wrapRect.top + frame.top * scaleY,
@@ -345,21 +371,34 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     fitToContainer({ force: true });
   }, [fitToContainer]);
 
+  const activatePageIndex = useCallback((index: number) => {
+    const meta = stackMetaRef.current;
+    if (!meta?.pageTops.length) return;
+    const next = Math.min(Math.max(index, 0), meta.pageTops.length - 1);
+    activePageRef.current = next;
+    setPageIndex(next);
+    const size = meta.pageSizes[next];
+    if (size) pageSizeRef.current = size;
+  }, []);
+
   const selectObject = useCallback(
     (obj: any, label: string | null) => {
+      if (obj && isMobilePageSurface(obj)) {
+        selectedObjectRef.current = null;
+        setSelectionLabel(null);
+        setSelectionFrame(null);
+        const meta = stackMetaRef.current;
+        if (meta?.pageTops.length) activatePageIndex(mobilePageIndexForObjectTop(Number(obj.top) || 0, meta.pageTops));
+        refreshSelectionFrame();
+        return;
+      }
       selectedObjectRef.current = obj;
       setSelectionLabel(label);
       const meta = stackMetaRef.current;
-      if (obj && meta?.pageTops.length) {
-        const index = mobilePageIndexForObjectTop(Number(obj.top) || 0, meta.pageTops);
-        activePageRef.current = index;
-        setPageIndex(index);
-        const size = meta.pageSizes[index];
-        if (size) pageSizeRef.current = size;
-      }
+      if (obj && meta?.pageTops.length) activatePageIndex(mobilePageIndexForObjectTop(Number(obj.top) || 0, meta.pageTops));
       refreshSelectionFrame();
     },
-    [refreshSelectionFrame]
+    [activatePageIndex, refreshSelectionFrame]
   );
 
   const rememberPageEdits = useCallback(() => {
@@ -395,8 +434,10 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       if (rect.width < 2 || rect.height < 2) return;
       canvas.setDimensions({ width: Math.round(rect.width), height: Math.round(rect.height) });
       const zoom = viewStateRef.current.zoom || baseZoomRef.current || 1;
+      const padding = 16;
+      const availH = Math.max(1, rect.height - padding * 2 - MOBILE_PAGE_CONTROL_CLEARANCE);
       const panX = (rect.width - size.w * zoom) / 2;
-      const panY = (rect.height - size.h * zoom) / 2 - (meta.pageTops[index] || 0) * zoom;
+      const panY = padding + (availH - size.h * zoom) / 2 - (meta.pageTops[index] || 0) * zoom;
       applyViewState({ zoom, panX, panY });
     },
     [applyViewState]
@@ -850,7 +891,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       if (gesture.mode === "move" && event.touches.length === 1) {
         const point = localPoint(event.touches[0]);
         const obj = selectedObjectRef.current;
-        if (!obj || obj.isEditing) return;
+        if (!obj || obj.isEditing || isMobilePageSurface(obj)) return;
         const zoom = viewStateRef.current.zoom || 1;
         obj.set?.({
           left: (obj.left || 0) + (point.x - gesture.lastX) / zoom,
@@ -876,7 +917,12 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           const hit = gestureHitRef.current;
           const selected = selectedObjectRef.current;
           const moveTarget =
-            selected && hit && (hit.object === selected || hit.host === selected) && !selected.isEditing
+            selected &&
+            hit &&
+            !isMobilePageSurface(selected) &&
+            !isMobilePageSurface(hit.object) &&
+            (hit.object === selected || hit.host === selected) &&
+            !selected.isEditing
               ? selected
               : null;
           if (moveTarget) {
@@ -971,6 +1017,15 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
             setTextStyle(null);
             setTextEdit(null);
             setSkillBarEdit(null);
+            const meta = stackMetaRef.current;
+            const canvasRect = canvas.getElement()?.getBoundingClientRect();
+            const logicalHeight = canvas.getHeight?.() || canvasRect?.height || 1;
+            if (meta?.pageTops.length && canvasRect && logicalHeight) {
+              const scaleY = canvasRect.height / logicalHeight;
+              const logicalY = (touch.clientY - canvasRect.top) / (scaleY || 1);
+              const sceneY = (logicalY - viewStateRef.current.panY) / (viewStateRef.current.zoom || 1);
+              activatePageIndex(mobilePageIndexAtSceneY(sceneY, meta.pageTops, meta.pageSizes));
+            }
           }
         }
         if (gesture.hadGesture && gesture.mode === "pan") {
@@ -1015,7 +1070,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       viewport.removeEventListener("touchmove", onTouchMove);
       viewport.removeEventListener("touchend", onTouchEnd);
     };
-  }, [applyViewState, beginPinchGesture, canvasReady, loading, markUnsaved, refreshSelectionFrame, selectObject]);
+  }, [activatePageIndex, applyViewState, beginPinchGesture, canvasReady, loading, markUnsaved, refreshSelectionFrame, selectObject]);
 
   const closeTextEdit = useCallback(() => {
     editingObjectRef.current = null;
@@ -1272,7 +1327,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const resizeSelection = useCallback(
     (factor: number) => {
       const obj = selectedObjectRef.current;
-      if (!obj) return;
+      if (!obj || isMobilePageSurface(obj)) return;
       resizeMobileObject(obj, factor);
       if (editingObjectRef.current) setTextStyle(readTextStyle(editingObjectRef.current));
       refreshSelectionFrame();
@@ -1284,14 +1339,14 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const duplicateSelection = useCallback(async () => {
     const canvas = canvasRef.current;
     const obj = selectedObjectRef.current;
-    if (!canvas || !obj) return;
+    if (!canvas || !obj || isMobilePageSurface(obj)) return;
     rememberAdded(await duplicateMobileObject(canvas, obj, pageSizeRef.current), "Copy");
   }, [rememberAdded]);
 
   const deleteSelection = useCallback(() => {
     const canvas = canvasRef.current;
     const obj = selectedObjectRef.current;
-    if (!canvas || !obj) return;
+    if (!canvas || !obj || isMobilePageSurface(obj)) return;
     deleteMobileObject(canvas, obj, pageSizeRef.current);
     clearSelection();
     markUnsaved();
@@ -1375,8 +1430,9 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     [commitPageList, rememberPageEdits, renderStackedPages]
   );
 
-  const addPageAfter = useCallback(async () => {
+  const addPageAfter = useCallback(async (pageIndex?: number) => {
     const run = pageOpRef.current.then(async () => {
+      if (typeof pageIndex === "number") activePageRef.current = pageIndex;
       const previous = serverPagesRef.current.map((page) => JSON.parse(JSON.stringify(page)));
       const previousIndex = activePageRef.current;
       try {
@@ -1405,8 +1461,9 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     return run;
   }, [commitPageList, rememberPageEdits, renderStackedPages]);
 
-  const duplicateCurrentPage = useCallback(async () => {
+  const duplicateCurrentPage = useCallback(async (pageIndex?: number) => {
     const run = pageOpRef.current.then(async () => {
+      if (typeof pageIndex === "number") activePageRef.current = pageIndex;
       const previous = serverPagesRef.current.map((page) => JSON.parse(JSON.stringify(page)));
       const previousIndex = activePageRef.current;
       try {
@@ -1436,8 +1493,9 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     return run;
   }, [commitPageList, rememberPageEdits, renderStackedPages]);
 
-  const deleteCurrentPage = useCallback(async () => {
+  const deleteCurrentPage = useCallback(async (pageIndex?: number) => {
     const run = pageOpRef.current.then(async () => {
+      if (typeof pageIndex === "number") activePageRef.current = pageIndex;
       if (serverPagesRef.current.length < 2) return;
       const previous = serverPagesRef.current.map((page) => JSON.parse(JSON.stringify(page)));
       const previousIndex = activePageRef.current;
@@ -1498,6 +1556,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     pageIndex,
     pageCount,
     selectionFrame,
+    pageFrames,
     selectionLabel,
     imageNotice,
     textStyle,

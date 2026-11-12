@@ -4,7 +4,7 @@
  */
 import { cloneJson, savedPagePixelSize } from "@/lib/editor/mobileDocument";
 
-export const MOBILE_PAGE_GAP = 64;
+export const MOBILE_PAGE_GAP = 180;
 export const MOBILE_A4_WIDTH = 794;
 export const MOBILE_A4_HEIGHT = 1123;
 
@@ -56,6 +56,33 @@ export function deleteMobilePage(
   const removeAt = Math.min(Math.max(activeIndex, 0), next.length - 1);
   next.splice(removeAt, 1);
   return { pages: next, index: Math.min(removeAt, next.length - 1) };
+}
+
+/** A page rectangle is not an editable element, even after it is stacked below another page. */
+export function isMobilePageSurface(obj: any): boolean {
+  if (!obj) return false;
+  const role = String(obj.role || obj.data?.role || obj.data?.kind || "");
+  if (role === "pageBackground" || role === "page-bg" || role === "page" || obj.isPageBg === true) return true;
+  const name = typeof obj.name === "string" ? obj.name.toLowerCase().trim() : "";
+  if (name === "page background" || name === "page-bg") return true;
+  const id = obj.id || obj.data?.id;
+  if (id === "page_bg") return true;
+  const type = String(obj.type || "").toLowerCase();
+  if (type !== "rect") return false;
+  const width = Math.abs(
+    typeof obj.getScaledWidth === "function"
+      ? Number(obj.getScaledWidth()) || 0
+      : (Number(obj.width) || 0) * (Number(obj.scaleX) || 1)
+  );
+  const height = Math.abs(
+    typeof obj.getScaledHeight === "function"
+      ? Number(obj.getScaledHeight()) || 0
+      : (Number(obj.height) || 0) * (Number(obj.scaleY) || 1)
+  );
+  return (
+    (Math.abs(width - MOBILE_A4_WIDTH) < 4 && Math.abs(height - MOBILE_A4_HEIGHT) < 4) ||
+    (Math.abs(width - 816) < 4 && Math.abs(height - 1056) < 4)
+  );
 }
 
 function isPageBackground(obj: any): boolean {

@@ -282,6 +282,34 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
             ) : null}
           </div>
         </div>
+        {editor.pageFrames.map((frame) => (
+          <div
+            key={frame.index}
+            data-slb-canvas-control="true"
+            role="group"
+            aria-label="Page controls"
+            className="absolute z-20 flex items-center justify-center gap-3"
+            style={{ left: frame.left, top: frame.top + frame.height + 8, width: frame.width, paddingRight: 128 }}
+          >
+            <button type="button" onClick={() => void editor.duplicateCurrentPage(frame.index)} className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300" aria-label="Duplicate page">
+              <Copy className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              disabled={editor.pageCount < 2}
+              onClick={() => {
+                if (window.confirm("Delete this page? The other pages stay in the resume.")) void editor.deleteCurrentPage(frame.index);
+              }}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300 disabled:opacity-40"
+              aria-label="Delete page"
+            >
+              <Trash2 className="h-5 w-5" />
+            </button>
+            <button type="button" onClick={() => void editor.addPageAfter(frame.index)} className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300" aria-label="Add page">
+              <Plus className="h-5 w-5" />
+            </button>
+          </div>
+        ))}
         <div
           data-slb-canvas-control="true"
           className="absolute bottom-2 right-2 z-20 flex items-center gap-1"
@@ -305,33 +333,9 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
           {saveStatusLabel(editor.saveStatus)}
         </p>
       ) : null}
-      <div
-        className="flex shrink-0 items-center justify-center gap-3 border-t border-[#d6deeb] bg-white py-1"
-        role="toolbar"
-        aria-label="Page actions"
-      >
-        <button type="button" onClick={() => void editor.duplicateCurrentPage()} className="inline-flex h-11 w-11 items-center justify-center rounded-full text-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300" aria-label="Duplicate page">
-          <Copy className="h-5 w-5" />
-        </button>
-        <button
-          type="button"
-          disabled={editor.pageCount < 2}
-          onClick={() => {
-            if (window.confirm("Delete this page? The other pages stay in the resume.")) void editor.deleteCurrentPage();
-          }}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full text-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300 disabled:opacity-40"
-          aria-label="Delete page"
-        >
-          <Trash2 className="h-5 w-5" />
-        </button>
-        <button type="button" onClick={() => void editor.addPageAfter()} className="inline-flex h-11 w-11 items-center justify-center rounded-full text-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300" aria-label="Add page">
-          <Plus className="h-5 w-5" />
-        </button>
-        <p className="sr-only" aria-live="polite">
-          {`Page ${editor.pageIndex + 1} of ${editor.pageCount}`}
-        </p>
-      </div>
-
+      <p className="sr-only" aria-live="polite">
+        {`Page ${editor.pageIndex + 1} of ${editor.pageCount}`}
+      </p>
       <div
         className="min-h-0 overflow-y-auto bg-[#f7f7f8]"
         style={{

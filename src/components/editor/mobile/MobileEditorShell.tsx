@@ -119,11 +119,126 @@ function TextStyleBar({
   );
 }
 
+const RESIZE_CORNERS = [
+  { id: "tl" as const, label: "Resize from the top left corner" },
+  { id: "tr" as const, label: "Resize from the top right corner" },
+  { id: "bl" as const, label: "Resize from the bottom left corner" },
+  { id: "br" as const, label: "Resize from the bottom right corner" },
+];
+
+function SelectionChrome({
+  frame,
+  boundsWidth,
+  boundsHeight,
+  showHandles,
+  showActions,
+  onResize,
+  onDuplicate,
+  onDelete,
+}: {
+  frame: { left: number; top: number; width: number; height: number };
+  boundsWidth: number;
+  boundsHeight: number;
+  showHandles: boolean;
+  showActions: boolean;
+  onResize: (corner: "tl" | "tr" | "bl" | "br", phase: "start" | "move" | "end", clientX: number, clientY: number) => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+}) {
+  const actionWidth = 96;
+  let actionLeft = frame.left + frame.width / 2 - actionWidth / 2;
+  let actionTop = frame.top - 52;
+  if (actionTop < 8) actionTop = frame.top + frame.height + 8;
+  if (boundsWidth > 0) {
+    actionLeft = Math.max(8, Math.min(actionLeft, boundsWidth - actionWidth - 8));
+    actionTop = Math.max(8, Math.min(actionTop, Math.max(8, boundsHeight - 52)));
+  }
+  return (
+    <>
+      <div
+        className="pointer-events-none absolute z-10 rounded-sm ring-2 ring-violet-600"
+        style={{ left: frame.left, top: frame.top, width: frame.width, height: frame.height }}
+      />
+      {showHandles
+        ? RESIZE_CORNERS.map((corner) => {
+            const x = corner.id === "tl" || corner.id === "bl" ? frame.left : frame.left + frame.width;
+            const y = corner.id === "tl" || corner.id === "tr" ? frame.top : frame.top + frame.height;
+            let left = x - 22;
+            let top = y - 22;
+            if (boundsWidth > 0) {
+              left = Math.max(0, Math.min(left, boundsWidth - 44));
+              top = Math.max(0, Math.min(top, boundsHeight - 44));
+            }
+            return (
+              <button
+                key={corner.id}
+                type="button"
+                data-slb-canvas-control="true"
+                data-slb-resize-handle="true"
+                aria-label={corner.label}
+                className="absolute z-30 inline-flex h-11 w-11 items-center justify-center"
+                style={{ left, top, touchAction: "none" }}
+                onPointerDown={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  event.currentTarget.setPointerCapture(event.pointerId);
+                  onResize(corner.id, "start", event.clientX, event.clientY);
+                }}
+                onPointerMove={(event) => {
+                  if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+                  onResize(corner.id, "move", event.clientX, event.clientY);
+                }}
+                onPointerUp={(event) => {
+                  if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+                  onResize(corner.id, "end", event.clientX, event.clientY);
+                }}
+                onPointerCancel={(event) => onResize(corner.id, "end", event.clientX, event.clientY)}
+                onTouchStart={(event) => event.stopPropagation()}
+                onTouchMove={(event) => {
+                  event.stopPropagation();
+                  event.preventDefault();
+                }}
+              >
+                <span className="pointer-events-none h-3.5 w-3.5 rounded-full border-2 border-violet-600 bg-white shadow-sm" />
+              </button>
+            );
+          })
+        : null}
+      {showActions ? (
+        <div
+          data-slb-canvas-control="true"
+          className="absolute z-30 flex items-center gap-2"
+          style={{ left: actionLeft, top: actionTop }}
+          onTouchStart={(event) => event.stopPropagation()}
+        >
+          <button
+            type="button"
+            aria-label="Duplicate selection"
+            onClick={onDuplicate}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-zinc-800 shadow-sm backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
+          >
+            <Copy className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Delete selection"
+            onClick={onDelete}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-zinc-800 shadow-sm backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      ) : null}
+    </>
+  );
+}
+
 export default function MobileEditorShell({ templateId, docId, blank = false }: MobileEditorShellProps) {
   const editor = useMobileFabricEditor({ templateId, docId, blank });
   const shellRef = useRef<HTMLElement>(null);
   const [tool, setTool] = useState<DockTool | null>(null);
   const [downloadOpen, setDownloadOpen] = useState(false);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
   const [tableRows, setTableRows] = useState(3);
   const [tableCols, setTableCols] = useState(3);
   const busyDownload = editor.downloadKind !== null;
@@ -136,6 +251,7 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
     const sync = () => {
       const height = viewport?.height ?? window.innerHeight;
       const top = viewport?.offsetTop ?? 0;
+      setKeyboardOpen(window.innerHeight - height > 80);
       root.style.position = "fixed";
       root.style.left = "0";
       root.style.right = "0";
@@ -215,7 +331,7 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
           type="button"
           onClick={() => setDownloadOpen((open) => !open)}
           aria-expanded={downloadOpen}
-          className="ml-auto inline-flex h-11 shrink-0 items-center gap-1 rounded-xl bg-violet-600 px-3 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
+          className="ml-auto inline-flex h-11 shrink-0 items-center gap-1 rounded-xl bg-white px-3 text-sm font-medium text-[#1f1f28] focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
         >
           <Download className="h-4 w-4" />
           Download
@@ -270,14 +386,15 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
           <div ref={editor.canvasWrapRef} className="relative h-full w-full">
             <canvas ref={editor.attachCanvasEl} className="block" />
             {editor.selectionFrame ? (
-              <div
-                className="pointer-events-none absolute z-10 rounded-sm ring-2 ring-violet-600"
-                style={{
-                  left: editor.selectionFrame.left,
-                  top: editor.selectionFrame.top,
-                  width: editor.selectionFrame.width,
-                  height: editor.selectionFrame.height,
-                }}
+              <SelectionChrome
+                frame={editor.selectionFrame}
+                boundsWidth={editor.viewportRef.current?.clientWidth || 0}
+                boundsHeight={editor.viewportRef.current?.clientHeight || 0}
+                showHandles={editor.selectionResizable && !keyboardOpen && !editor.textEdit && !editor.skillBarEdit}
+                showActions={!keyboardOpen && !tool && !editor.textEdit && !editor.skillBarEdit}
+                onResize={editor.resizeSelectionByCorner}
+                onDuplicate={() => void editor.duplicateSelection()}
+                onDelete={editor.deleteSelection}
               />
             ) : null}
           </div>
@@ -289,10 +406,10 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
             role="group"
             aria-label="Page controls"
             className="absolute z-20 flex items-center justify-center gap-3"
-            style={{ left: frame.left, top: frame.top + frame.height + 8, width: frame.width, paddingRight: 128 }}
+            style={{ left: frame.left, top: frame.top + frame.height + 8, width: frame.width }}
           >
             <button type="button" onClick={() => void editor.duplicateCurrentPage(frame.index)} className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300" aria-label="Duplicate page">
-              <Copy className="h-5 w-5" />
+              <Copy className="h-4 w-4" />
             </button>
             <button
               type="button"
@@ -303,10 +420,10 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
               className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300 disabled:opacity-40"
               aria-label="Delete page"
             >
-              <Trash2 className="h-5 w-5" />
+              <Trash2 className="h-4 w-4" />
             </button>
             <button type="button" onClick={() => void editor.addPageAfter(frame.index)} className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300" aria-label="Add page">
-              <Plus className="h-5 w-5" />
+              <Plus className="h-4 w-4" />
             </button>
           </div>
         ))}
@@ -368,23 +485,6 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
             {editor.textStyle ? (
               <TextStyleBar style={editor.textStyle} onChange={editor.updateSelectedText} />
             ) : null}
-            {selected && !editor.skillBarEdit ? (
-              <div className="mb-2 flex flex-wrap gap-1">
-                <button type="button" className="inline-flex h-11 items-center rounded-xl bg-white px-3 text-xs" aria-label="Resize larger" onClick={() => editor.resizeSelection(1.1)}>
-                  Larger
-                </button>
-                <button type="button" className="inline-flex h-11 items-center rounded-xl bg-white px-3 text-xs" aria-label="Resize smaller" onClick={() => editor.resizeSelection(0.9)}>
-                  Smaller
-                </button>
-                <button type="button" className="inline-flex h-11 items-center rounded-xl bg-white px-3 text-xs" aria-label="Duplicate selection" onClick={() => void editor.duplicateSelection()}>
-                  Duplicate
-                </button>
-                <button type="button" className="inline-flex h-11 items-center rounded-xl bg-white px-3 text-xs" aria-label="Delete selection" onClick={editor.deleteSelection}>
-                  Delete
-                </button>
-              </div>
-            ) : null}
-
             {tool === "templates" ? (
               <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Resume templates">
                 {SYSTEM_TEMPLATES.map((template) => (

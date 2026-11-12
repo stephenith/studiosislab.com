@@ -389,8 +389,70 @@ export type MobileViewportState = {
   panY: number;
 };
 
-/** Screen pixels kept under a fitted page for its Duplicate, Delete, and Add controls. */
-export const MOBILE_PAGE_CONTROL_CLEARANCE = 64;
+/** Screen pixels kept under a fitted page so its controls sit above the zoom cluster. */
+export const MOBILE_PAGE_CONTROL_CLEARANCE = 112;
+
+export type ResizeCorner = "tl" | "tr" | "bl" | "br";
+
+export type ResizeBounds = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
+
+export type ElementResizeMode = "none" | "text" | "uniform" | "free";
+
+/** Page surfaces, skill bars, and star ratings are not corner-resized. */
+export function elementResizeMode(obj: any): ElementResizeMode {
+  if (!obj || isMobilePageSurface(obj) || isSkillBar(obj) || isStarRating(obj)) return "none";
+  const type = String(obj.type || "").toLowerCase();
+  if (type === "textbox" || type === "i-text" || type === "text") return "text";
+  if (type === "image" || obj.lockUniScaling || obj.slbAssetId) return "uniform";
+  return "free";
+}
+
+/**
+ * New object bounds after dragging one corner.
+ * `width` and `height` are the displayed size. Text keeps its top and height so the box reflows by width.
+ * Uniform mode keeps the starting aspect ratio.
+ */
+export function resizeBoundsForCorner(
+  start: ResizeBounds,
+  corner: ResizeCorner,
+  dx: number,
+  dy: number,
+  mode: ElementResizeMode
+): ResizeBounds {
+  const min = 24;
+  const anchorRight = corner === "tl" || corner === "bl";
+  const anchorBottom = corner === "tl" || corner === "tr";
+  const anchorX = anchorRight ? start.left + start.width : start.left;
+  const anchorY = anchorBottom ? start.top + start.height : start.top;
+  let width = anchorRight ? start.width - dx : start.width + dx;
+  let height = anchorBottom ? start.height - dy : start.height + dy;
+  if (mode === "uniform") {
+    const sx = width / Math.max(1, start.width);
+    const sy = height / Math.max(1, start.height);
+    let scale = Math.abs(sx - 1) >= Math.abs(sy - 1) ? sx : sy;
+    const minScale = min / Math.max(start.width, start.height, 1);
+    if (!Number.isFinite(scale) || scale < minScale) scale = minScale;
+    width = start.width * scale;
+    height = start.height * scale;
+  } else if (mode === "text") {
+    width = Math.max(min, width);
+    height = start.height;
+  } else {
+    width = Math.max(min, width);
+    height = Math.max(min, height);
+  }
+  return {
+    left: anchorRight ? anchorX - width : start.left,
+    top: mode === "text" ? start.top : anchorBottom ? anchorY - height : start.top,
+    width,
+    height,
+  };
+}
 
 export const MOBILE_TAP_MOVE_THRESHOLD_PX = 18;
 export const MOBILE_TAP_MAX_DURATION_MS = 600;

@@ -12,8 +12,11 @@ import {
   ensurePageBackground,
   fabricSavePayloadHasDataImageSrc,
   findEditableTargetAtContainerPoint,
+  elementResizeMode,
   fitCanvasToViewport,
   MOBILE_PAGE_CONTROL_CLEARANCE,
+  resizeBoundsForCorner,
+  type ResizeCorner,
   getPageBounds,
   loadSnapshotOntoCanvas,
   MOBILE_TAP_MAX_DURATION_MS,
@@ -58,6 +61,7 @@ import {
   readTextStyle,
   resizeMobileObject,
 } from "@/components/editor/mobile/mobileCanvasActions";
+import { applyTextBoxNoStretch } from "@/lib/editor/textTools";
 import { getSkillBarModel, setSkillBarValueOnGroup } from "@/lib/editor/skillBar/skillBarFactory";
 import {
   getStarRatingModel,
@@ -217,6 +221,14 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const [pageIndex, setPageIndex] = useState(0);
   const [pageCount, setPageCount] = useState(1);
   const [selectionFrame, setSelectionFrame] = useState<MobileSelectionFrame | null>(null);
+  const [selectionResizable, setSelectionResizable] = useState(false);
+  const resizeDragRef = useRef<{
+    corner: ResizeCorner;
+    startX: number;
+    startY: number;
+    start: { left: number; top: number; width: number; height: number };
+    mode: ReturnType<typeof elementResizeMode>;
+  } | null>(null);
   const [pageFrames, setPageFrames] = useState<{ index: number; left: number; top: number; width: number; height: number }[]>([]);
   const [selectionLabel, setSelectionLabel] = useState<string | null>(null);
   const [imageNotice, setImageNotice] = useState<string | null>(null);
@@ -387,6 +399,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
         selectedObjectRef.current = null;
         setSelectionLabel(null);
         setSelectionFrame(null);
+        setSelectionResizable(false);
         const meta = stackMetaRef.current;
         if (meta?.pageTops.length) activatePageIndex(mobilePageIndexForObjectTop(Number(obj.top) || 0, meta.pageTops));
         refreshSelectionFrame();
@@ -394,6 +407,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       }
       selectedObjectRef.current = obj;
       setSelectionLabel(label);
+      setSelectionResizable(elementResizeMode(obj) !== "none");
       const meta = stackMetaRef.current;
       if (obj && meta?.pageTops.length) activatePageIndex(mobilePageIndexForObjectTop(Number(obj.top) || 0, meta.pageTops));
       refreshSelectionFrame();
@@ -860,7 +874,10 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
 
     const onTouchStart = (event: TouchEvent) => {
       const target = event.target as HTMLElement | null;
-      if (target?.closest?.("[data-slb-canvas-control]")) return;
+      if (target?.closest?.("[data-slb-canvas-control]")) {
+        gestureRef.current = emptyGesture();
+        return;
+      }
       if (event.touches.length === 1) {
         const point = localPoint(event.touches[0]);
         gestureHitRef.current = findEditableTargetAtContainerPoint(
@@ -1324,6 +1341,65 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     [markUnsaved, refreshSelectionFrame]
   );
 
+  const resizeSelectionByCorner = useCallback(
+    (corner: ResizeCorner, phase: "start" | "move" | "end", clientX: number, clientY: number) => {
+      const obj = selectedObjectRef.current;
+      const mode = elementResizeMode(obj);
+      if (!obj || mode === "none") return;
+      if (phase === "end") {
+        resizeDragRef.current = null;
+        return;
+      }
+      const displayedWidth = Math.abs(Number(obj.width) || 0) * Math.abs(Number(obj.scaleX) || 1);
+      const displayedHeight = Math.abs(Number(obj.height) || 0) * Math.abs(Number(obj.scaleY) || 1);
+      if (phase === "start") {
+        resizeDragRef.current = {
+          corner,
+          startX: clientX,
+          startY: clientY,
+          start: { left: Number(obj.left) || 0, top: Number(obj.top) || 0, width: displayedWidth, height: displayedHeight },
+          mode,
+        };
+        return;
+      }
+      const drag = resizeDragRef.current;
+      if (!drag || drag.corner !== corner) return;
+      const canvas = canvasRef.current;
+      const element = canvas?.getElement?.();
+      const logicalWidth = canvas?.getWidth?.() || element?.width || 1;
+      const canvasRect = element?.getBoundingClientRect();
+      const cssScale = canvasRect && logicalWidth ? canvasRect.width / logicalWidth : 1;
+      const scenePerPixel = 1 / ((viewStateRef.current.zoom || 1) * (cssScale || 1));
+      const next = resizeBoundsForCorner(
+        drag.start,
+        corner,
+        (clientX - drag.startX) * scenePerPixel,
+        (clientY - drag.startY) * scenePerPixel,
+        drag.mode
+      );
+      if (drag.mode === "text") {
+        const scaleX = Number(obj.scaleX) || 1;
+        obj.set?.({ left: next.left, width: Math.max(24, next.width / Math.abs(scaleX || 1)) });
+        applyTextBoxNoStretch(obj);
+        obj.initDimensions?.();
+      } else {
+        const baseW = Math.abs(Number(obj.width) || 0) || 1;
+        const baseH = Math.abs(Number(obj.height) || 0) || 1;
+        obj.set?.({
+          left: next.left,
+          top: next.top,
+          scaleX: next.width / baseW,
+          scaleY: next.height / baseH,
+        });
+      }
+      obj.setCoords?.();
+      canvas?.requestRenderAll();
+      refreshSelectionFrame();
+      markUnsaved();
+    },
+    [markUnsaved, refreshSelectionFrame]
+  );
+
   const resizeSelection = useCallback(
     (factor: number) => {
       const obj = selectedObjectRef.current;
@@ -1556,6 +1632,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     pageIndex,
     pageCount,
     selectionFrame,
+    selectionResizable,
     pageFrames,
     selectionLabel,
     imageNotice,
@@ -1583,6 +1660,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     uploadImages,
     updateSelectedText,
     resizeSelection,
+    resizeSelectionByCorner,
     duplicateSelection,
     deleteSelection,
     zoomBy,

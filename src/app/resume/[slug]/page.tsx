@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import MarketingPageShell from "@/components/layout/MarketingPageShell";
+import ResumeEditorLink from "@/components/resume/ResumeEditorLink";
 import {
   getAllPublishedTemplateSeoPages,
   getTemplateSeoById,
@@ -138,12 +139,12 @@ export default async function TemplateSeoPage({ params }: TemplateSeoPageProps) 
               />
             </div>
             <div className="flex flex-col gap-3">
-              <Link
-                href={`/editor/template/${page.templateId}`}
+              <ResumeEditorLink
+                templateId={page.templateId}
                 className="inline-flex w-fit items-center justify-center rounded-full bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
               >
                 Use this template
-              </Link>
+              </ResumeEditorLink>
               <Link
                 href="/resume"
                 className="inline-flex w-fit items-center justify-center rounded-full border border-zinc-300 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-800 transition-colors hover:bg-zinc-50"

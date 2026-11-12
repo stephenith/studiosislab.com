@@ -1,14 +1,20 @@
 /**
  * One phone-versus-desktop decision for resume editing.
  *
- * Portrait phones match the existing 767px width rule.
- * Landscape phones are wider than 767px and shorter than about 520px,
- * with a coarse pointer and no hover. That includes large phones in
- * landscape (about 844×390 through 932×430) and excludes iPad and laptop
- * windows, which are taller or report a fine pointer.
+ * iPhone Safari can inflate the layout viewport. `window.innerWidth` and a
+ * max-width media query then both look wider than the phone, so neither one
+ * is enough on its own. An iPhone or Android-phone user agent still identifies
+ * the device. So does a phone-sized screen short side with a coarse pointer or
+ * touch points: that stays phone-sized when the layout viewport grows, and it
+ * stays above 767px on iPad and laptop screens.
  *
- * Saved resumes stay on the existing phone route. The document id is a
- * `doc` query so refresh and sign-in return keep the same id.
+ * An honest layout viewport still uses the 767px rule, including a narrow
+ * desktop window. Landscape phones also match the coarse, no-hover, short
+ * height query when the layout width is real.
+ *
+ * Saved resumes stay on the phone route. The document id is a `doc` query so
+ * refresh and sign-in return keep the same id. The template id stays in the
+ * path when the caller knows it.
  */
 
 export const PHONE_EDITOR_MEDIA_QUERY =
@@ -16,17 +22,52 @@ export const PHONE_EDITOR_MEDIA_QUERY =
 
 const RESUME_DOC_ID = /^[A-Za-z0-9_-]{1,128}$/;
 
+export type PhoneEditorSignals = {
+  match: (query: string) => boolean;
+  userAgent?: string;
+  screenWidth?: number;
+  screenHeight?: number;
+  maxTouchPoints?: number;
+};
+
 export function isResumeDocumentId(value: string | null | undefined): boolean {
   return RESUME_DOC_ID.test(String(value || "").trim());
 }
 
-export function wantsPhoneEditor(match: (query: string) => boolean): boolean {
-  return match(PHONE_EDITOR_MEDIA_QUERY);
+function asSignals(input: ((query: string) => boolean) | PhoneEditorSignals): PhoneEditorSignals {
+  return typeof input === "function" ? { match: input } : input;
+}
+
+function isPhoneUserAgent(userAgent: string): boolean {
+  if (/iPhone|iPod/i.test(userAgent)) return true;
+  return /Android/i.test(userAgent) && /Mobile/i.test(userAgent);
+}
+
+function phoneSizedTouchScreen(signals: PhoneEditorSignals): boolean {
+  const width = Number(signals.screenWidth) || 0;
+  const height = Number(signals.screenHeight) || 0;
+  if (width <= 0 || height <= 0) return false;
+  if (Math.min(width, height) > 767) return false;
+  const coarse = signals.match("(pointer: coarse)") && signals.match("(hover: none)");
+  return coarse || (signals.maxTouchPoints ?? 0) > 0;
+}
+
+export function wantsPhoneEditor(input: ((query: string) => boolean) | PhoneEditorSignals): boolean {
+  const signals = asSignals(input);
+  if (isPhoneUserAgent(signals.userAgent || "")) return true;
+  if (phoneSizedTouchScreen(signals)) return true;
+  return signals.match(PHONE_EDITOR_MEDIA_QUERY);
 }
 
 export function phoneEditorViewportMatch(): boolean {
   if (typeof window === "undefined") return false;
-  return wantsPhoneEditor((query) => window.matchMedia(query).matches);
+  return wantsPhoneEditor({
+    match: (query) => window.matchMedia(query).matches,
+    userAgent: navigator.userAgent,
+    screenWidth: window.screen?.width,
+    screenHeight: window.screen?.height,
+    maxTouchPoints: navigator.maxTouchPoints,
+  });
 }
 
 export type EditorOpenTarget = {

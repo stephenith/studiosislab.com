@@ -21,6 +21,11 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/useAuth";
 import { trackEvent } from "@/lib/analytics";
 import { isSafeInternalNextPath } from "@/lib/safeNextPath";
+import {
+  editorHrefForViewport,
+  phoneEditorViewportMatch,
+  type EditorOpenTarget,
+} from "@/lib/editor/phoneEditorRoute";
 
 import NoiseBackground from "@/components/home/NoiseBackground";
 import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
@@ -366,6 +371,18 @@ export default function ResumeTemplatesPage() {
     return `/login?next=${encodeURIComponent(nextPath)}`;
   }, []);
 
+  const openEditor = useCallback(
+    (target: EditorOpenTarget) => {
+      const href = editorHrefForViewport(target, phoneEditorViewportMatch());
+      if (user) {
+        router.push(href);
+        return;
+      }
+      router.push(getLoginPathWithNext(href));
+    },
+    [getLoginPathWithNext, router, user]
+  );
+
   if (!authReady) {
     return (
       <main className="relative min-h-dvh w-full bg-white">
@@ -460,7 +477,7 @@ export default function ResumeTemplatesPage() {
               type="button"
               onClick={() => {
                 trackEvent("resume_create_blank", { surface: "resume_hub_guest" });
-                router.push(getLoginPathWithNext("/editor/new"));
+                openEditor({ blank: true });
               }}
               className="group flex w-full max-w-xl items-center gap-3 rounded-xl border border-dashed border-zinc-300/90 bg-zinc-50/80 px-4 py-3.5 text-left shadow-none outline-none transition-colors hover:border-zinc-400 hover:bg-zinc-50 focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:gap-4 sm:px-5 sm:py-4"
             >
@@ -505,7 +522,7 @@ export default function ResumeTemplatesPage() {
               type="button"
               onClick={() => {
                 trackEvent("resume_create_blank", { surface: "resume_hub" });
-                  router.push("/editor/new");
+                  openEditor({ blank: true });
               }}
               className="group flex w-full flex-col gap-1.5 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
             >
@@ -535,10 +552,10 @@ export default function ResumeTemplatesPage() {
                       key={r.id}
                       role="button"
                       tabIndex={0}
-                      onClick={() => router.push(`/editor/doc/${r.id}`)}
+                      onClick={() => openEditor({ docId: r.id, templateId: r.sourceTemplateId || r.templateId })}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
-                          router.push(`/editor/doc/${r.id}`);
+                          openEditor({ docId: r.id, templateId: r.sourceTemplateId || r.templateId });
                         }
                       }}
                       className="group flex w-full cursor-pointer flex-col gap-1.5 border-0 bg-transparent p-0 text-left outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
@@ -699,7 +716,7 @@ export default function ResumeTemplatesPage() {
                   type="button"
                   onClick={() => {
                     setOpeningTemplateId(template.id);
-                    router.push(user ? `/editor/template/${template.id}` : getLoginPathWithNext(`/editor/template/${template.id}`));
+                    openEditor({ templateId: template.id });
                   }}
                   className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none"
                 >
@@ -733,7 +750,7 @@ export default function ResumeTemplatesPage() {
                   type="button"
                   onClick={() => {
                     setOpeningTemplateId(template.id);
-                    router.push(user ? `/editor/template/${template.id}` : getLoginPathWithNext(`/editor/template/${template.id}`));
+                    openEditor({ templateId: template.id });
                   }}
                   className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none"
                 >
@@ -801,15 +818,7 @@ export default function ResumeTemplatesPage() {
                         template_id: template.id,
                         surface: "resume_hub",
                       });
-                      if (user) {
-                        router.push(
-                        typeof window !== "undefined" && window.innerWidth <= 767
-                          ? `/editor/mobile/template/${template.id}`
-                          : `/editor/template/${template.id}`
-                      );
-                        return;
-                      }
-                      router.push(getLoginPathWithNext(`/editor/template/${template.id}`));
+                      openEditor({ templateId: template.id });
                     }}
                     className={`group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
                       isAnyTemplateOpening ? "cursor-wait opacity-80" : ""

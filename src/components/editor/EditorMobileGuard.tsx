@@ -2,26 +2,41 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  PHONE_EDITOR_MEDIA_QUERY,
+  phoneEditorHrefFromDesktopPath,
+  phoneEditorViewportMatch,
+} from "@/lib/editor/phoneEditorRoute";
 
 type EditorMobileGuardProps = {
   children: ReactNode;
 };
 
 export default function EditorMobileGuard({ children }: EditorMobileGuardProps) {
+  const pathname = usePathname();
+  const router = useRouter();
   const [isPhone, setIsPhone] = useState(false);
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    const media = window.matchMedia("(max-width: 767px)");
+    const media = window.matchMedia(PHONE_EDITOR_MEDIA_QUERY);
     const sync = () => {
-      setIsPhone(media.matches);
+      const phone = phoneEditorViewportMatch();
+      setIsPhone(phone);
       setChecked(true);
+      if (!phone) return;
+      const href = phoneEditorHrefFromDesktopPath(`${pathname}${window.location.search}`);
+      if (href) router.replace(href);
     };
     sync();
     media.addEventListener("change", sync);
-    return () => media.removeEventListener("change", sync);
-  }, []);
+    window.addEventListener("resize", sync);
+    return () => {
+      media.removeEventListener("change", sync);
+      window.removeEventListener("resize", sync);
+    };
+  }, [pathname, router]);
 
   if (!checked) {
     return (
@@ -34,24 +49,7 @@ export default function EditorMobileGuard({ children }: EditorMobileGuardProps) 
   if (isPhone) {
     return (
       <main className="h-screen flex items-center justify-center bg-[#ebecf0] px-4">
-        <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 text-center shadow-sm">
-          <h1 className="text-lg font-semibold text-zinc-900">
-            Best on tablet or desktop
-          </h1>
-          <p className="mt-3 text-sm leading-relaxed text-zinc-600">
-            This is the fuller resume editor. Use a tablet or a larger screen. On a phone, open a Resume
-            Template from the resume hub. That path uses a simpler editor and downloads a PDF.
-          </p>
-          <p className="mt-2 text-xs text-zinc-500">
-            You can keep browsing Resume Templates from the hub.
-          </p>
-          <Link
-            href="/resume"
-            className="mt-5 inline-flex items-center justify-center rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-zinc-800"
-          >
-            Back to Resume Hub
-          </Link>
-        </div>
+        <p className="text-sm text-zinc-600">Opening the phone editor…</p>
       </main>
     );
   }

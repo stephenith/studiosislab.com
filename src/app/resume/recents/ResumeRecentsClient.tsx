@@ -18,6 +18,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/useAuth";
 import { trackEvent } from "@/lib/analytics";
 import { getLoginRedirectUrl } from "@/lib/safeNextPath";
+import { editorHrefForViewport, phoneEditorViewportMatch } from "@/lib/editor/phoneEditorRoute";
 
 import NoiseBackground from "@/components/home/NoiseBackground";
 import { RecentResumePreview } from "@/components/resume/RecentResumePreview";
@@ -163,7 +164,7 @@ export default function ResumeRecentsPage() {
             type="button"
             onClick={() => {
               trackEvent("resume_create_blank", { surface: "resume_recents" });
-              router.push("/editor/new");
+              router.push(editorHrefForViewport({ blank: true }, phoneEditorViewportMatch()));
             }}
             className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
           >
@@ -192,10 +193,22 @@ export default function ResumeRecentsPage() {
                   key={r.id}
                   role="button"
                   tabIndex={0}
-                  onClick={() => router.push(`/editor/doc/${r.id}`)}
+                  onClick={() =>
+                    router.push(
+                      editorHrefForViewport(
+                        { docId: r.id, templateId: r.sourceTemplateId || r.templateId },
+                        phoneEditorViewportMatch()
+                      )
+                    )
+                  }
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
-                      router.push(`/editor/doc/${r.id}`);
+                      router.push(
+                        editorHrefForViewport(
+                          { docId: r.id, templateId: r.sourceTemplateId || r.templateId },
+                          phoneEditorViewportMatch()
+                        )
+                      );
                     }
                   }}
                   className="group flex w-full cursor-pointer flex-col gap-2 border-0 bg-transparent p-0 text-left outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"

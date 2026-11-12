@@ -31,36 +31,64 @@ export function readTextStyle(obj: any) {
   };
 }
 
-export function focusCanvasText(canvas: Canvas, obj: any): boolean {
-  if (!obj || typeof obj.enterEditing !== "function" || !canvas) return false;
+/** Keep Fabric's hidden textarea on the visible phone viewport so iOS can focus it without scrolling the resume away. */
+export function holdPhoneTextCaret(obj: any) {
+  const area = obj?.hiddenTextarea as HTMLTextAreaElement | undefined;
+  if (!area || typeof window === "undefined") return;
+  const viewport = window.visualViewport;
+  const top = Math.max(0, viewport?.offsetTop ?? 0);
+  area.style.position = "fixed";
+  area.style.left = "0px";
+  area.style.top = `${top}px`;
+  area.style.width = "1px";
+  area.style.height = "1px";
+  area.style.fontSize = "16px";
+  area.style.lineHeight = "16px";
+  area.style.opacity = "0";
+  area.style.padding = "0";
+  area.style.margin = "0";
+  area.style.border = "0";
+  area.style.zIndex = "60";
+  area.style.transform = "none";
+  area.style.caretColor = "transparent";
+}
+
+function placePhoneTextCaret(obj: any, pointerEvent?: Event) {
+  try {
+    let index: number | null = null;
+    if (pointerEvent && typeof obj.getSelectionStartFromPointer === "function") {
+      const next = obj.getSelectionStartFromPointer(pointerEvent);
+      if (typeof next === "number" && Number.isFinite(next)) index = next;
+    }
+    if (index == null) index = String(obj.text ?? "").length;
+    obj.selectionStart = index;
+    obj.selectionEnd = index;
+    if (obj.hiddenTextarea) {
+      obj.hiddenTextarea.selectionStart = index;
+      obj.hiddenTextarea.selectionEnd = index;
+    }
+  } catch {
+    /* Fabric keeps its own caret if the pointer cannot be mapped. */
+  }
+}
+
+export function focusCanvasText(canvas: Canvas, obj: any, pointerEvent?: Event): boolean {
+  if (!canvas || !obj || typeof obj.enterEditing !== "function") return false;
+  const scrollX = typeof window !== "undefined" ? window.scrollX : 0;
+  const scrollY = typeof window !== "undefined" ? window.scrollY : 0;
   try {
     obj.set?.({ editable: true });
     canvas.setActiveObject?.(obj);
     obj.enterEditing();
-    const area = obj.hiddenTextarea as HTMLTextAreaElement | undefined;
-    if (area) {
-      const bounds = canvas.upperCanvasEl?.getBoundingClientRect?.() || canvas.getElement?.()?.getBoundingClientRect?.();
-      area.setAttribute("aria-label", "Resume text");
-      area.style.fontSize = "16px";
-      area.style.opacity = "0";
-      area.style.position = "fixed";
-      area.style.width = "20px";
-      area.style.height = "20px";
-      area.style.padding = "0";
-      area.style.border = "0";
-      area.style.zIndex = "30";
-      const place = () => {
-        if (bounds) {
-          area.style.left = `${Math.round(bounds.left + 8)}px`;
-          area.style.top = `${Math.round(bounds.top + Math.min(24, bounds.height / 3))}px`;
-        }
-      };
-      place();
-      area.focus();
-      requestAnimationFrame(place);
+    if (!obj.isEditing) return false;
+    placePhoneTextCaret(obj, pointerEvent);
+    holdPhoneTextCaret(obj);
+    obj.hiddenTextarea?.focus?.({ preventScroll: true });
+    if (typeof window !== "undefined" && (window.scrollX !== scrollX || window.scrollY !== scrollY)) {
+      window.scrollTo(scrollX, scrollY);
     }
-    canvas.requestRenderAll();
-    return Boolean(obj.isEditing || area);
+    canvas.requestRenderAll?.();
+    return true;
   } catch {
     return false;
   }
@@ -193,6 +221,9 @@ export async function addMobileImage(
 
 export function applyMobileTextStyle(obj: any, props: Partial<TextProps>) {
   updateTextProps(obj, props);
+  obj?.initDimensions?.();
+  obj?.setCoords?.();
+  holdPhoneTextCaret(obj);
   obj?.canvas?.requestRenderAll?.();
 }
 

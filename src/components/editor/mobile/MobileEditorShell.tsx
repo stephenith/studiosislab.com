@@ -7,6 +7,7 @@ import {
   AlignLeft,
   AlignRight,
   ArrowLeft,
+  ChevronDown,
   Copy,
   Download,
   Frame,
@@ -18,6 +19,7 @@ import {
   Table2,
   Trash2,
   Type,
+  X,
   LayoutTemplate,
 } from "lucide-react";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
@@ -66,13 +68,14 @@ function saveStatusLabel(status: string): string {
 const ACTIVE_TEXT_CONTROL = "border-blue-600 bg-blue-600 text-white";
 const IDLE_TEXT_CONTROL = "border-zinc-200 bg-white text-zinc-800";
 
-function holdCanvasEditing(event: { preventDefault: () => void }) {
+function keepTextFieldFocus(event: { preventDefault: () => void }) {
   event.preventDefault();
 }
 
 function TextStyleBar({
   style,
   onChange,
+  onClose,
 }: {
   style: NonNullable<ReturnType<typeof useMobileFabricEditor>["textStyle"]>;
   onChange: (props: {
@@ -84,6 +87,7 @@ function TextStyleBar({
     textAlign?: "left" | "center" | "right";
     fill?: string;
   }) => void;
+  onClose: () => void;
 }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const fonts = MOBILE_TEXT_FONTS.includes(style.fontFamily as (typeof MOBILE_TEXT_FONTS)[number])
@@ -92,8 +96,12 @@ function TextStyleBar({
   const colorValue = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(style.fill) ? style.fill.toUpperCase() : style.fill;
   const swatches = COLORS.includes(style.fill) ? COLORS : [style.fill, ...COLORS];
   return (
-    <section aria-label="Text formatting" className="mb-2 max-w-full rounded-2xl border border-[#d6deeb] bg-white p-2" onPointerDown={(event) => event.stopPropagation()}>
-      <div className="flex min-w-0 items-center gap-2">
+    <section aria-label="Text formatting" className="mb-1 max-w-full rounded-2xl border border-[#d6deeb] bg-white p-1.5" onPointerDown={(event) => event.stopPropagation()}>
+      <div className="flex min-w-0 items-center gap-1">
+        <h2 className="flex shrink-0 items-center gap-1 text-xs font-semibold tracking-wide text-zinc-900">
+          <Type className="h-3.5 w-3.5" />
+          TEXT
+        </h2>
         <label className="min-w-0 flex-1">
           <span className="sr-only">Font family</span>
           <select
@@ -110,24 +118,27 @@ function TextStyleBar({
           </select>
         </label>
         <div className="inline-flex shrink-0 items-center rounded-xl border border-zinc-200 bg-white" role="group" aria-label="Font size">
-          <button type="button" className="inline-flex h-11 w-11 items-center justify-center text-zinc-900" aria-label="Smaller text" onMouseDown={holdCanvasEditing} onClick={() => onChange({ fontSize: Math.max(8, style.fontSize - 2) })}>
+          <button type="button" className="inline-flex h-11 w-10 items-center justify-center" aria-label="Smaller text" onPointerDown={keepTextFieldFocus} onClick={() => onChange({ fontSize: Math.max(8, style.fontSize - 2) })}>
             <Minus className="h-4 w-4" />
           </button>
-          <span className="min-w-8 text-center text-sm tabular-nums text-zinc-900">{style.fontSize}</span>
-          <button type="button" className="inline-flex h-11 w-11 items-center justify-center text-zinc-900" aria-label="Larger text" onMouseDown={holdCanvasEditing} onClick={() => onChange({ fontSize: style.fontSize + 2 })}>
+          <span className="w-7 text-center text-sm tabular-nums text-zinc-900">{style.fontSize}</span>
+          <button type="button" className="inline-flex h-11 w-10 items-center justify-center" aria-label="Larger text" onPointerDown={keepTextFieldFocus} onClick={() => onChange({ fontSize: style.fontSize + 2 })}>
             <Plus className="h-4 w-4" />
           </button>
         </div>
+        <button type="button" aria-label="Close text editing" onPointerDown={keepTextFieldFocus} onClick={onClose} className="inline-flex h-11 w-10 shrink-0 items-center justify-center rounded-xl text-zinc-700">
+          <X className="h-4 w-4" />
+        </button>
       </div>
-      <div className="mt-2 flex max-w-full flex-wrap items-center gap-2">
+      <div className="mt-1 flex max-w-full flex-wrap items-center gap-1">
         <div className="inline-flex shrink-0 rounded-xl border border-zinc-200 p-0.5" role="group" aria-label="Text style">
-          <button type="button" className={`inline-flex h-11 w-11 items-center justify-center rounded-lg border font-bold ${style.fontWeight >= 600 ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label="Bold" aria-pressed={style.fontWeight >= 600} onMouseDown={holdCanvasEditing} onClick={() => onChange({ fontWeight: style.fontWeight >= 600 ? 400 : 700 })}>
+          <button type="button" className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border font-bold ${style.fontWeight >= 600 ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label="Bold" aria-pressed={style.fontWeight >= 600} onPointerDown={keepTextFieldFocus} onClick={() => onChange({ fontWeight: style.fontWeight >= 600 ? 400 : 700 })}>
             B
           </button>
-          <button type="button" className={`inline-flex h-11 w-11 items-center justify-center rounded-lg border italic ${style.fontStyle === "italic" ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label="Italic" aria-pressed={style.fontStyle === "italic"} onMouseDown={holdCanvasEditing} onClick={() => onChange({ fontStyle: style.fontStyle === "italic" ? "normal" : "italic" })}>
+          <button type="button" className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border italic ${style.fontStyle === "italic" ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label="Italic" aria-pressed={style.fontStyle === "italic"} onPointerDown={keepTextFieldFocus} onClick={() => onChange({ fontStyle: style.fontStyle === "italic" ? "normal" : "italic" })}>
             I
           </button>
-          <button type="button" className={`inline-flex h-11 w-11 items-center justify-center rounded-lg border underline ${style.underline ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label="Underline" aria-pressed={style.underline} onMouseDown={holdCanvasEditing} onClick={() => onChange({ underline: !style.underline })}>
+          <button type="button" className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border underline ${style.underline ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label="Underline" aria-pressed={style.underline} onPointerDown={keepTextFieldFocus} onClick={() => onChange({ underline: !style.underline })}>
             U
           </button>
         </div>
@@ -137,23 +148,28 @@ function TextStyleBar({
             ["center", AlignCenter],
             ["right", AlignRight],
           ] as const).map(([align, Icon]) => (
-            <button key={align} type="button" className={`inline-flex h-11 w-11 items-center justify-center rounded-lg border ${style.textAlign === align ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label={`Align ${align}`} aria-pressed={style.textAlign === align} onMouseDown={holdCanvasEditing} onClick={() => onChange({ textAlign: align })}>
+            <button key={align} type="button" className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border ${style.textAlign === align ? ACTIVE_TEXT_CONTROL : IDLE_TEXT_CONTROL}`} aria-label={`Align ${align}`} aria-pressed={style.textAlign === align} onPointerDown={keepTextFieldFocus} onClick={() => onChange({ textAlign: align })}>
               <Icon className="h-4 w-4" />
             </button>
           ))}
         </div>
-        <div className="relative min-w-0">
-          <button type="button" className="inline-flex h-11 max-w-full items-center gap-2 rounded-xl border border-zinc-200 bg-white px-2 text-xs text-zinc-800" aria-label="Text color" aria-expanded={paletteOpen} onMouseDown={holdCanvasEditing} onClick={() => setPaletteOpen((open) => !open)}>
+        <div className="relative ml-auto min-w-0 shrink">
+          <button type="button" className="inline-flex h-10 max-w-full items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-2 text-xs text-zinc-800" aria-label="Text color" aria-expanded={paletteOpen} onPointerDown={keepTextFieldFocus} onClick={() => setPaletteOpen((open) => !open)}>
             <span className="h-5 w-5 shrink-0 rounded-md border border-zinc-200" style={{ background: style.fill }} />
             <span className="truncate font-mono">{colorValue}</span>
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-zinc-500" />
           </button>
           {paletteOpen ? (
-            <div className="absolute bottom-full left-0 z-20 mb-1 w-48 max-w-[calc(100vw-2rem)] rounded-xl border border-zinc-200 bg-white p-2 shadow-sm" role="group" aria-label="Text color palette">
+            <div className="absolute bottom-full right-0 z-20 mb-1 w-48 max-w-[calc(100vw-2rem)] rounded-xl border border-zinc-200 bg-white p-2 shadow-sm" role="group" aria-label="Text color palette">
               <div className="grid grid-cols-6 gap-1">
                 {swatches.map((color) => (
-                  <button key={color} type="button" aria-label={`Text color ${color}`} onMouseDown={holdCanvasEditing} onClick={() => { onChange({ fill: color }); setPaletteOpen(false); }} className="aspect-square w-full rounded-md border border-zinc-200" style={{ background: color }} />
+                  <button key={color} type="button" aria-label={`Text color ${color}`} onPointerDown={keepTextFieldFocus} onClick={() => { onChange({ fill: color }); setPaletteOpen(false); }} className="aspect-square w-full rounded-md border border-zinc-200" style={{ background: color }} />
                 ))}
               </div>
+              <label className="mt-2 flex items-center gap-2 text-xs text-zinc-600">
+                Custom
+                <input aria-label="Custom text color" type="color" value={/^#[0-9a-f]{6}$/i.test(style.fill) ? style.fill : "#111827"} onChange={(event) => onChange({ fill: event.target.value })} className="h-8 w-10 border-0 bg-transparent p-0" />
+              </label>
             </div>
           ) : null}
         </div>
@@ -198,6 +214,7 @@ function SelectionChrome({
     actionLeft = Math.max(8, Math.min(actionLeft, boundsWidth - actionWidth - 8));
     actionTop = Math.max(8, Math.min(actionTop, Math.max(8, boundsHeight - 52)));
   }
+  const actionFocus = accent === "blue" ? "focus-visible:outline-blue-300" : "focus-visible:outline-violet-300";
   return (
     <>
       <div
@@ -260,7 +277,7 @@ function SelectionChrome({
             type="button"
             aria-label="Duplicate selection"
             onClick={onDuplicate}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-zinc-800 shadow-sm backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
+            className={`inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-zinc-800 shadow-sm backdrop-blur-sm focus-visible:outline focus-visible:outline-2 ${actionFocus}`}
           >
             <Copy className="h-4 w-4" />
           </button>
@@ -268,7 +285,7 @@ function SelectionChrome({
             type="button"
             aria-label="Delete selection"
             onClick={onDelete}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-zinc-800 shadow-sm backdrop-blur-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300"
+            className={`inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-zinc-800 shadow-sm backdrop-blur-sm focus-visible:outline focus-visible:outline-2 ${actionFocus}`}
           >
             <Trash2 className="h-4 w-4" />
           </button>
@@ -288,18 +305,13 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
   const [tableCols, setTableCols] = useState(3);
   const busyDownload = editor.downloadKind !== null;
   const selected = Boolean(editor.selectionLabel);
-  const textPanelOpen = Boolean(editor.textStyle);
-  const textPanelWasOpen = useRef(false);
+  const textFormatting = Boolean(editor.textStyle);
 
   useEffect(() => {
-    if (textPanelOpen && !textPanelWasOpen.current) {
-      setTool("text");
-      const panel = document.querySelector("[aria-label='Text formatting']");
-      const scroller = panel?.closest("[data-slb-tool-scroll]");
-      if (panel instanceof HTMLElement && scroller instanceof HTMLElement) scroller.scrollTop = panel.offsetTop;
-    }
-    textPanelWasOpen.current = textPanelOpen;
-  }, [textPanelOpen]);
+    if (!textFormatting) return;
+    const scroller = shellRef.current?.querySelector("[data-slb-tool-scroll]");
+    if (scroller instanceof HTMLElement) scroller.scrollTop = 0;
+  }, [editor.selectionLabel, textFormatting]);
 
   useEffect(() => {
     const root = shellRef.current;
@@ -447,8 +459,8 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
                 frame={editor.selectionFrame}
                 boundsWidth={editor.viewportRef.current?.clientWidth || 0}
                 boundsHeight={editor.viewportRef.current?.clientHeight || 0}
-                showHandles={editor.selectionResizable && !editor.skillBarEdit && (textPanelOpen || (!keyboardOpen && !editor.textEdit))}
-                showActions={textPanelOpen || (!keyboardOpen && !tool && !editor.textEdit && !editor.skillBarEdit)}
+                showHandles={editor.selectionResizable && !editor.skillBarEdit && !editor.textEdit && (textFormatting || !keyboardOpen)}
+                showActions={!editor.skillBarEdit && !editor.textEdit && (textFormatting || (!keyboardOpen && !tool))}
                 accent={editor.textStyle ? "blue" : "violet"}
                 onResize={editor.resizeSelectionByCorner}
                 onDuplicate={() => void editor.duplicateSelection()}
@@ -541,7 +553,13 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
                 onSave={editor.commitTextEdit}
               />
             ) : null}
-            {editor.textStyle ? <TextStyleBar style={editor.textStyle} onChange={editor.updateSelectedText} /> : null}
+            {editor.textStyle ? (
+              <TextStyleBar
+                style={editor.textStyle}
+                onChange={editor.updateSelectedText}
+                onClose={editor.clearSelection}
+              />
+            ) : null}
             {tool === "templates" ? (
               <div className="flex gap-2 overflow-x-auto pb-1" aria-label="Resume templates">
                 {SYSTEM_TEMPLATES.map((template) => (

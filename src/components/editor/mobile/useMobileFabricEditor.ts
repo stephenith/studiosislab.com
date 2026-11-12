@@ -58,6 +58,7 @@ import {
   duplicateMobileObject,
   exitCanvasText,
   focusCanvasText,
+  holdPhoneTextCaret,
   readTextStyle,
   resizeMobileObject,
 } from "@/components/editor/mobile/mobileCanvasActions";
@@ -233,6 +234,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const [selectionLabel, setSelectionLabel] = useState<string | null>(null);
   const [imageNotice, setImageNotice] = useState<string | null>(null);
   const [textStyle, setTextStyle] = useState<ReturnType<typeof readTextStyle> | null>(null);
+  const [selectedText, setSelectedText] = useState("");
   const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [zoomPercent, setZoomPercent] = useState(100);
   const [reloadNonce, setReloadNonce] = useState(0);
@@ -377,6 +379,30 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     [applyViewState]
   );
 
+  const revealSelectedText = useCallback(() => {
+    const canvas = canvasRef.current;
+    const viewport = viewportRef.current;
+    const obj = selectedObjectRef.current;
+    if (!canvas || !viewport || !obj) return;
+    const rect = viewport.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    applyMobileViewportTransform(canvas, viewStateRef.current);
+    const frame = selectionFrameForObject(obj);
+    if (!frame) return;
+    const state = viewStateRef.current;
+    const cx = frame.left + frame.width / 2;
+    const cy = frame.top + frame.height / 2;
+    const margin = 16;
+    let panX = state.panX;
+    let panY = state.panY;
+    if (cx < margin || cx > rect.width - margin) panX += rect.width / 2 - cx;
+    if (cy < margin || cy > rect.height - margin) panY += rect.height * 0.35 - cy;
+    if (panX !== state.panX || panY !== state.panY) {
+      if (!keyboardViewRef.current) keyboardViewRef.current = state;
+      applyViewState({ ...state, panX, panY });
+    }
+  }, [applyViewState]);
+
   const resetView = useCallback(() => {
     userAdjustedViewRef.current = false;
     keyboardViewRef.current = null;
@@ -499,19 +525,6 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     setSaveError(null);
     setSaveStatus((status) => (status === "stale" ? status : "unsaved"));
   }, []);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !canvasReady) return;
-    const onTextChanged = () => {
-      markUnsaved();
-      refreshSelectionFrame();
-    };
-    canvas.on("text:changed", onTextChanged);
-    return () => {
-      canvas.off("text:changed", onTextChanged);
-    };
-  }, [canvasReady, markUnsaved, refreshSelectionFrame]);
 
   const setDocTitle = useCallback(
     (title: string) => {
@@ -854,6 +867,26 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     };
   }, [fitToContainer, loading, syncStageSize]);
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvasReady || !canvas) return;
+    const onTextChanged = () => {
+      const obj = editingObjectRef.current;
+      if (!obj) return;
+      holdPhoneTextCaret(obj);
+      const text = String(obj.text ?? "");
+      setSelectedText(text);
+      setSelectionLabel(text.split("\n")[0].slice(0, 42) || "Text");
+      setTextStyle(readTextStyle(obj));
+      refreshSelectionFrame();
+      markUnsaved();
+    };
+    canvas.on("text:changed", onTextChanged);
+    return () => {
+      canvas.off("text:changed", onTextChanged);
+    };
+  }, [canvasReady, markUnsaved, refreshSelectionFrame]);
+
   const beginPinchGesture = useCallback(
     (t0: Touch, t1: Touch, container: HTMLElement) => {
       const center = touchCenter(t0, t1, container);
@@ -959,7 +992,6 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
             gesture.mode = "move";
             return;
           }
-          if (selected?.isEditing) return;
           userAdjustedViewRef.current = true;
           keyboardViewRef.current = null;
           return;
@@ -1010,6 +1042,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
             editingSkillBarRef.current = hit.object;
             selectObject(hit.object, model.label || "Skill bar");
             setTextStyle(null);
+            setSelectedText("");
             setTextEdit(null);
             setSkillBarEdit({
               draftValue: model.value,
@@ -1020,6 +1053,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           } else if (hit?.type === "star-rating") {
             const nextValue = resolveStarRatingValueFromPointer(canvas, hit.object, touch.clientX, touch.clientY);
             selectObject(hit.object, "Star rating");
+            setSelectedText("");
             if (nextValue != null) {
               const originalValue = getStarRatingModel(hit.object).value;
               setStarRatingValueOnGroup(hit.object, nextValue);
@@ -1031,14 +1065,17 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
             const text = String(hit.object.text ?? "");
             selectObject(hit.host || hit.object, text.split("\n")[0].slice(0, 42) || "Text");
             setTextStyle(readTextStyle(hit.object));
+            setSelectedText(text);
             setTextEdit(null);
-            focusCanvasText(canvas, hit.object);
             setSkillBarEdit(null);
+            focusCanvasText(canvas, hit.object, event);
+            requestAnimationFrame(() => revealSelectedText());
           } else if (hit?.type === "object") {
             editingObjectRef.current = null;
             exitCanvasText(selectedObjectRef.current);
             selectObject(hit.object, hit.object?.data?.role === "table" ? "Table" : "Selection");
             setTextStyle(null);
+            setSelectedText("");
             setTextEdit(null);
             setSkillBarEdit(null);
           } else {
@@ -1046,6 +1083,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
             editingObjectRef.current = null;
             selectObject(null, null);
             setTextStyle(null);
+            setSelectedText("");
             setTextEdit(null);
             setSkillBarEdit(null);
             const meta = stackMetaRef.current;
@@ -1101,7 +1139,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       viewport.removeEventListener("touchmove", onTouchMove);
       viewport.removeEventListener("touchend", onTouchEnd);
     };
-  }, [activatePageIndex, applyViewState, beginPinchGesture, canvasReady, loading, markUnsaved, refreshSelectionFrame, selectObject]);
+  }, [activatePageIndex, applyViewState, beginPinchGesture, canvasReady, loading, markUnsaved, refreshSelectionFrame, revealSelectedText, selectObject]);
 
   const closeTextEdit = useCallback(() => {
     editingObjectRef.current = null;
@@ -1247,6 +1285,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     editingObjectRef.current = null;
     selectObject(null, null);
     setTextStyle(null);
+    setSelectedText("");
     setTextEdit(null);
     setSkillBarEdit(null);
   }, [selectObject]);
@@ -1271,6 +1310,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       editingObjectRef.current = null;
       selectObject(obj, label);
       setTextStyle(null);
+      setSelectedText("");
       setTextEdit(null);
       markUnsaved();
     },
@@ -1285,10 +1325,13 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     editingObjectRef.current = obj;
     selectObject(obj, "Text");
     setTextStyle(readTextStyle(obj));
+    setSelectedText(String(obj.text ?? "Text"));
     setTextEdit(null);
+    setSkillBarEdit(null);
     focusCanvasText(canvas, obj);
     markUnsaved();
-  }, [markUnsaved, offsetNewObjectToActivePage, selectObject]);
+    requestAnimationFrame(() => revealSelectedText());
+  }, [markUnsaved, offsetNewObjectToActivePage, revealSelectedText, selectObject]);
 
   const addShape = useCallback(
     (shapeId: string) => {
@@ -1336,6 +1379,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           editingObjectRef.current = null;
           selectObject(obj, "Photo");
           setTextStyle(null);
+          setSelectedText("");
           markUnsaved();
         },
       });
@@ -1348,13 +1392,35 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     (props: Partial<TextProps>) => {
       const obj = editingObjectRef.current;
       if (!obj) return;
-      const editing = Boolean(obj.isEditing);
       applyMobileTextStyle(obj, props);
       setTextStyle(readTextStyle(obj));
       refreshSelectionFrame();
       markUnsaved();
-      const canvas = canvasRef.current;
-      if (editing && canvas) focusCanvasText(canvas, obj);
+      const active = typeof document !== "undefined" ? document.activeElement : null;
+      const keepField =
+        active instanceof HTMLElement &&
+        active !== obj.hiddenTextarea &&
+        (active.tagName === "SELECT" || active.tagName === "INPUT");
+      if (obj.isEditing && !keepField) obj.hiddenTextarea?.focus?.({ preventScroll: true });
+    },
+    [markUnsaved, refreshSelectionFrame]
+  );
+
+  const setSelectedTextContent = useCallback(
+    (value: string) => {
+      const obj = editingObjectRef.current;
+      if (!obj) return;
+      exitCanvasText(obj);
+      const previous = String(obj.text ?? "");
+      obj.set?.({ text: value });
+      applyTextBoxNoStretch(obj);
+      obj.initDimensions?.();
+      obj.setCoords?.();
+      canvasRef.current?.requestRenderAll();
+      setSelectedText(value);
+      setSelectionLabel(value.split("\n")[0].slice(0, 42) || "Text");
+      refreshSelectionFrame();
+      if (value !== previous) markUnsaved();
     },
     [markUnsaved, refreshSelectionFrame]
   );
@@ -1644,6 +1710,8 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     saveError,
     textEdit,
     setTextEdit,
+    selectedText,
+    setSelectedTextContent,
     skillBarEdit,
     setSkillBarDraftValue,
     downloadKind,

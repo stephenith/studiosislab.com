@@ -31,6 +31,16 @@ import {
   savedPagePixelSize,
   updatedAtToken,
 } from "@/lib/editor/mobileDocument";
+import {
+  blankMobilePage,
+  deleteMobilePage,
+  insertMobilePage,
+  mobilePageIndexAtSceneY,
+  mobilePageIndexForObjectTop,
+  splitStackedMobilePages,
+  stackMobilePages,
+  type MobilePageStack,
+} from "@/lib/editor/mobilePageStack";
 import { processLocalImageFiles } from "@/components/editor/processLocalImageFiles";
 import {
   addMobileFrame,
@@ -172,6 +182,8 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const baseUpdatedAtRef = useRef<string | null>(null);
   const shapeRef = useRef<"pages" | "canvas">("canvas");
   const serverPagesRef = useRef<any[]>([]);
+  const stackMetaRef = useRef<MobilePageStack | null>(null);
+  const pageOpRef = useRef(Promise.resolve());
   const activePageRef = useRef(0);
   const loadedKeyRef = useRef<string | null>(null);
   const saveGenRef = useRef(0);
@@ -263,7 +275,16 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       if (!canvas || !viewport) return;
       const rect = viewport.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) return;
-      const pageBounds = getPageBounds(canvas, pageSizeKeyRef.current);
+      const meta = stackMetaRef.current;
+      const index = meta ? Math.min(activePageRef.current, Math.max(0, meta.pageTops.length - 1)) : 0;
+      const pageBounds = meta
+        ? {
+            left: 0,
+            top: meta.pageTops[index] || 0,
+            width: meta.pageSizes[index]?.w || rect.width,
+            height: meta.pageSizes[index]?.h || rect.height,
+          }
+        : getPageBounds(canvas, pageSizeKeyRef.current);
       const result = fitCanvasToViewport(canvas, rect.width, rect.height, pageBounds);
       viewStateRef.current = result.state;
       baseZoomRef.current = result.baseZoom;
@@ -328,6 +349,14 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     (obj: any, label: string | null) => {
       selectedObjectRef.current = obj;
       setSelectionLabel(label);
+      const meta = stackMetaRef.current;
+      if (obj && meta?.pageTops.length) {
+        const index = mobilePageIndexForObjectTop(Number(obj.top) || 0, meta.pageTops);
+        activePageRef.current = index;
+        setPageIndex(index);
+        const size = meta.pageSizes[index];
+        if (size) pageSizeRef.current = size;
+      }
       refreshSelectionFrame();
     },
     [refreshSelectionFrame]
@@ -336,26 +365,58 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const rememberPageEdits = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const index = activePageRef.current;
+    const meta = stackMetaRef.current;
+    if (!meta?.pageTops.length) {
+      const index = activePageRef.current;
+      const current = serializeCanvasForSave(canvas);
+      const serverPage = serverPagesRef.current[index];
+      const merged = serverPage ? mergePreservedImages(current, serverPage) : current;
+      const pages = serverPagesRef.current.slice();
+      pages[index] = merged;
+      serverPagesRef.current = pages;
+      return;
+    }
     const current = serializeCanvasForSave(canvas);
-    const serverPage = serverPagesRef.current[index];
-    const merged = serverPage ? mergePreservedImages(current, serverPage) : current;
-    const pages = serverPagesRef.current.slice();
-    pages[index] = merged;
-    serverPagesRef.current = pages;
+    const split = splitStackedMobilePages(current.objects || [], meta.pageTops);
+    serverPagesRef.current = split.map((page, index) => {
+      const previous = serverPagesRef.current[index];
+      return previous ? mergePreservedImages(page, previous) : page;
+    });
   }, []);
 
-  const loadPageAt = useCallback(
-    async (index: number, snapshot: any) => {
+  const scrollPageIntoView = useCallback(
+    (index: number) => {
+      const canvas = canvasRef.current;
+      const viewport = viewportRef.current;
+      const meta = stackMetaRef.current;
+      const size = meta?.pageSizes[index];
+      if (!canvas || !viewport || !meta || !size) return;
+      const rect = viewport.getBoundingClientRect();
+      if (rect.width < 2 || rect.height < 2) return;
+      canvas.setDimensions({ width: Math.round(rect.width), height: Math.round(rect.height) });
+      const zoom = viewStateRef.current.zoom || baseZoomRef.current || 1;
+      const panX = (rect.width - size.w * zoom) / 2;
+      const panY = (rect.height - size.h * zoom) / 2 - (meta.pageTops[index] || 0) * zoom;
+      applyViewState({ zoom, panX, panY });
+    },
+    [applyViewState]
+  );
+
+  const renderStackedPages = useCallback(
+    async (pages: any[], options: { activeIndex: number; fit?: boolean; scroll?: boolean }) => {
       const canvas = canvasRef.current;
       if (!canvas) throw new Error("Canvas failed to initialize");
-      const box = savedPagePixelSize(snapshot);
+      const source = pages.length ? pages : [blankMobilePage()];
+      const stacked = stackMobilePages(source);
+      stackMetaRef.current = stacked;
+      const index = Math.min(Math.max(options.activeIndex, 0), Math.max(0, stacked.pageTops.length - 1));
+      const box = stacked.pageSizes[index] || stacked.pageSizes[0] || { w: 794, h: 1123 };
       pageSizeRef.current = box;
       if (Math.abs(box.w - 816) < 8 && Math.abs(box.h - 1056) < 8) pageSizeKeyRef.current = "Letter";
       else if (Math.abs(box.w - 794) < 8 && Math.abs(box.h - 1123) < 8) pageSizeKeyRef.current = "A4";
       else pageSizeKeyRef.current = "Custom";
       canvas.setDimensions({ width: box.w, height: box.h });
-      await loadSnapshotOntoCanvas(canvas, snapshot, box.w, box.h, {
+      await loadSnapshotOntoCanvas(canvas, { objects: stacked.objects }, box.w, box.h, {
         isTemplateLoad: false,
         preserveUserImages: true,
         preservePageBox: true,
@@ -363,9 +424,18 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       await hydrateCanvasImages(canvas, objectUrlsRef.current);
       activePageRef.current = index;
       setPageIndex(index);
-      requestAnimationFrame(() => fitToContainer({ force: true }));
+      const reveal = () => {
+        if (options.fit) {
+          userAdjustedViewRef.current = false;
+          fitToContainer({ force: true });
+        } else if (options.scroll) {
+          scrollPageIntoView(index);
+        }
+      };
+      reveal();
+      requestAnimationFrame(reveal);
     },
-    [fitToContainer]
+    [fitToContainer, scrollPageIntoView]
   );
 
   const markUnsaved = useCallback(() => {
@@ -414,9 +484,13 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       setSelectionFrame(null);
       setTextEdit(null);
       setSkillBarEdit(null);
-      await loadPageAt(index, serverPagesRef.current[index]);
+      const size = stackMetaRef.current?.pageSizes[index];
+      if (size) pageSizeRef.current = size;
+      activePageRef.current = index;
+      setPageIndex(index);
+      scrollPageIntoView(index);
     },
-    [loadPageAt, rememberPageEdits]
+    [rememberPageEdits, scrollPageIntoView]
   );
 
   const save = useCallback(async () => {
@@ -437,8 +511,8 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     const payload = mobileSavePayload({
       shape: shapeRef.current,
       serverPages: serverPagesRef.current,
-      activeIndex: activePageRef.current,
-      activeJson,
+      activeIndex: stackMetaRef.current ? -1 : activePageRef.current,
+      activeJson: stackMetaRef.current ? { objects: [] } : activeJson,
     });
     const saveBody = payload.pagesData || payload.canvasJson;
     if (fabricSavePayloadHasDataImageSrc(saveBody)) {
@@ -616,7 +690,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
               "Photos added on another device stay in this resume. This phone does not replace them."
             );
           }
-          await loadPageAt(0, parsed.pages[0]);
+          await renderStackedPages(parsed.pages, { activeIndex: 0, fit: true });
         } else if (blank || !templateId) {
           const box = { w: 794, h: 1123 };
           pageSizeRef.current = box;
@@ -625,7 +699,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           canvas.clear();
           ensurePageBackground(canvas, box.w, box.h, "#ffffff");
           applyMobileInteractionLocks(canvas, box.w, box.h);
-          const empty = serializeCanvasForSave(canvas);
+          const empty = blankMobilePage();
           serverPagesRef.current = [empty];
           shapeRef.current = "canvas";
           docIdRef.current = null;
@@ -633,9 +707,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           baseUpdatedAtRef.current = null;
           setDocTitleState("Untitled Resume");
           setPageCount(1);
-          activePageRef.current = 0;
-          setPageIndex(0);
-          requestAnimationFrame(() => fitToContainer({ force: true }));
+          await renderStackedPages([empty], { activeIndex: 0, fit: true });
         } else {
           const template = getSystemTemplateById(templateId);
           if (!template) {
@@ -658,12 +730,10 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           baseRevisionRef.current = null;
           baseUpdatedAtRef.current = null;
           setPageCount(1);
-          activePageRef.current = 0;
-          setPageIndex(0);
           if (box.w > 1400) {
             /* Catalog pages are scaled into A4 by the existing template loader. */
           }
-          requestAnimationFrame(() => fitToContainer({ force: true }));
+          await renderStackedPages(serverPagesRef.current, { activeIndex: 0, fit: true });
         }
         if (cancelled) return;
         loadedKeyRef.current = key;
@@ -684,7 +754,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     return () => {
       cancelled = true;
     };
-  }, [blank, canvasReady, docId, fitToContainer, loadPageAt, reloadNonce, templateId, user?.uid]);
+  }, [blank, canvasReady, docId, reloadNonce, renderStackedPages, templateId, user?.uid]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -903,6 +973,21 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
             setSkillBarEdit(null);
           }
         }
+        if (gesture.hadGesture && gesture.mode === "pan") {
+          const meta = stackMetaRef.current;
+          const rect = viewport.getBoundingClientRect();
+          const state = viewStateRef.current;
+          if (meta?.pageTops.length && state.zoom) {
+            const sceneY = (rect.height / 2 - state.panY) / state.zoom;
+            const index = mobilePageIndexAtSceneY(sceneY, meta.pageTops, meta.pageSizes);
+            if (index !== activePageRef.current) {
+              activePageRef.current = index;
+              setPageIndex(index);
+              const size = meta.pageSizes[index];
+              if (size) pageSizeRef.current = size;
+            }
+          }
+        }
         gestureRef.current = emptyGesture();
       } else if (event.touches.length === 1 && gesture.mode === "pinch") {
         const point = localPoint(event.touches[0]);
@@ -1080,28 +1165,43 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     setSkillBarEdit(null);
   }, [selectObject]);
 
+  const offsetNewObjectToActivePage = useCallback((obj: any) => {
+    const meta = stackMetaRef.current;
+    if (!obj || !meta) return;
+    const pageTop = meta.pageTops[activePageRef.current] || 0;
+    if (pageTop <= 0) return;
+    const current = Number(obj.top) || 0;
+    if (current < pageTop) {
+      obj.set?.({ top: current + pageTop });
+      obj.setCoords?.();
+      canvasRef.current?.requestRenderAll?.();
+    }
+  }, []);
+
   const rememberAdded = useCallback(
     (obj: any, label: string) => {
       if (!obj) return;
+      offsetNewObjectToActivePage(obj);
       editingObjectRef.current = null;
       selectObject(obj, label);
       setTextStyle(null);
       setTextEdit(null);
       markUnsaved();
     },
-    [markUnsaved, selectObject]
+    [markUnsaved, offsetNewObjectToActivePage, selectObject]
   );
 
   const addTextBox = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const obj = addMobileText(canvas, pageSizeRef.current);
+    offsetNewObjectToActivePage(obj);
     editingObjectRef.current = obj;
     selectObject(obj, "Text");
     setTextStyle(readTextStyle(obj));
     setTextEdit(focusCanvasText(canvas, obj) ? null : { draft: "Text" });
     markUnsaved();
-  }, [markUnsaved, selectObject]);
+  }, [markUnsaved, offsetNewObjectToActivePage, selectObject]);
 
   const addShape = useCallback(
     (shapeId: string) => {
@@ -1145,6 +1245,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
         addImageFromUrl: async (url, meta) => {
           const obj = await addMobileImage(canvas, url, page, meta);
           if (!obj) return;
+          offsetNewObjectToActivePage(obj);
           editingObjectRef.current = null;
           selectObject(obj, "Photo");
           setTextStyle(null);
@@ -1153,7 +1254,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       });
       setActionNotice(result.uploadedCount ? null : "That photo could not be added. Try Upload again.");
     },
-    [markUnsaved, selectObject, user?.uid]
+    [markUnsaved, offsetNewObjectToActivePage, selectObject, user?.uid]
   );
 
   const updateSelectedText = useCallback(
@@ -1217,65 +1318,155 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     [applyViewState]
   );
 
+  const commitPageList = useCallback(
+    async (pages: any[], index: number) => {
+      serverPagesRef.current = pages;
+      if (pages.length > 1) shapeRef.current = "pages";
+      await renderStackedPages(pages, { activeIndex: index, scroll: true });
+      setPageCount(pages.length);
+      clearSelection();
+      markUnsaved();
+    },
+    [clearSelection, markUnsaved, renderStackedPages]
+  );
+
   const applyTemplateToPage = useCallback(
     async (nextTemplateId: string) => {
       const template = getSystemTemplateById(nextTemplateId);
-      const canvas = canvasRef.current;
-      if (!template || !canvas) return;
-      const snapshot = await template.load();
-      const box = pageSizeRef.current;
-      await loadSnapshotOntoCanvas(canvas, snapshot, box.w, box.h, { isTemplateLoad: true });
-      const loaded = serializeCanvasForSave(canvas);
-      const pages = serverPagesRef.current.slice();
-      pages[activePageRef.current] = loaded;
-      serverPagesRef.current = pages;
-      clearSelection();
-      requestAnimationFrame(() => fitToContainer({ force: true }));
-      markUnsaved();
+      if (!template || !canvasRef.current) return;
+      const previous = serverPagesRef.current.map((page) => JSON.parse(JSON.stringify(page)));
+      const previousIndex = activePageRef.current;
+      try {
+        rememberPageEdits();
+        const snapshot = await template.load();
+        const box = pageSizeRef.current;
+        const holder = document.createElement("canvas");
+        const temp = initFabricCanvas(holder, {
+          width: box.w,
+          height: box.h,
+          backgroundColor: "#ffffff",
+          selection: false,
+        });
+        try {
+          await loadSnapshotOntoCanvas(temp, snapshot, box.w, box.h, { isTemplateLoad: true });
+          const loaded = serializeCanvasForSave(temp);
+          const pages = serverPagesRef.current.slice();
+          pages[previousIndex] = loaded;
+          await commitPageList(pages, previousIndex);
+        } finally {
+          try {
+            temp.dispose();
+          } catch {
+            /* ignore */
+          }
+        }
+      } catch (err) {
+        console.error("[mobile-editor] Template replace failed", err);
+        serverPagesRef.current = previous;
+        setPageCount(previous.length);
+        setActionNotice("Couldn't replace this page. The resume was not changed.");
+        try {
+          await renderStackedPages(previous, { activeIndex: previousIndex, scroll: true });
+        } catch {
+          /* The previous pages remain stored. */
+        }
+      }
     },
-    [clearSelection, fitToContainer, markUnsaved]
+    [commitPageList, rememberPageEdits, renderStackedPages]
   );
 
   const addPageAfter = useCallback(async () => {
-    rememberPageEdits();
-    const pages = serverPagesRef.current.slice();
-    const index = activePageRef.current + 1;
-    pages.splice(index, 0, { objects: [] });
-    serverPagesRef.current = pages;
-    if (pages.length > 1) shapeRef.current = "pages";
-    setPageCount(pages.length);
-    await loadPageAt(index, pages[index]);
-    clearSelection();
-    markUnsaved();
-  }, [clearSelection, loadPageAt, markUnsaved, rememberPageEdits]);
+    const run = pageOpRef.current.then(async () => {
+      const previous = serverPagesRef.current.map((page) => JSON.parse(JSON.stringify(page)));
+      const previousIndex = activePageRef.current;
+      try {
+        rememberPageEdits();
+        const inserted = insertMobilePage(serverPagesRef.current, activePageRef.current, blankMobilePage());
+        await commitPageList(inserted.pages, inserted.index);
+        setActionNotice(null);
+      } catch (err) {
+        console.error("[mobile-editor] Add page failed", err);
+        serverPagesRef.current = previous;
+        activePageRef.current = previousIndex;
+        setPageIndex(previousIndex);
+        setPageCount(previous.length);
+        setActionNotice("Couldn't add a page. The resume was not changed.");
+        try {
+          await renderStackedPages(previous, { activeIndex: previousIndex, scroll: true });
+        } catch {
+          /* The previous pages remain stored. */
+        }
+      }
+    });
+    pageOpRef.current = run.then(
+      () => undefined,
+      () => undefined
+    );
+    return run;
+  }, [commitPageList, rememberPageEdits, renderStackedPages]);
 
   const duplicateCurrentPage = useCallback(async () => {
-    rememberPageEdits();
-    const pages = serverPagesRef.current.slice();
-    const copy = JSON.parse(JSON.stringify(pages[activePageRef.current] || { objects: [] }));
-    const index = activePageRef.current + 1;
-    pages.splice(index, 0, copy);
-    serverPagesRef.current = pages;
-    if (pages.length > 1) shapeRef.current = "pages";
-    setPageCount(pages.length);
-    await loadPageAt(index, pages[index]);
-    clearSelection();
-    markUnsaved();
-  }, [clearSelection, loadPageAt, markUnsaved, rememberPageEdits]);
+    const run = pageOpRef.current.then(async () => {
+      const previous = serverPagesRef.current.map((page) => JSON.parse(JSON.stringify(page)));
+      const previousIndex = activePageRef.current;
+      try {
+        rememberPageEdits();
+        const source = serverPagesRef.current[activePageRef.current] || blankMobilePage();
+        const inserted = insertMobilePage(serverPagesRef.current, activePageRef.current, source);
+        await commitPageList(inserted.pages, inserted.index);
+        setActionNotice(null);
+      } catch (err) {
+        console.error("[mobile-editor] Duplicate page failed", err);
+        serverPagesRef.current = previous;
+        activePageRef.current = previousIndex;
+        setPageIndex(previousIndex);
+        setPageCount(previous.length);
+        setActionNotice("Couldn't duplicate this page. The resume was not changed.");
+        try {
+          await renderStackedPages(previous, { activeIndex: previousIndex, scroll: true });
+        } catch {
+          /* The previous pages remain stored. */
+        }
+      }
+    });
+    pageOpRef.current = run.then(
+      () => undefined,
+      () => undefined
+    );
+    return run;
+  }, [commitPageList, rememberPageEdits, renderStackedPages]);
 
   const deleteCurrentPage = useCallback(async () => {
-    if (serverPagesRef.current.length < 2) return;
-    rememberPageEdits();
-    const pages = serverPagesRef.current.slice();
-    const removeAt = activePageRef.current;
-    pages.splice(removeAt, 1);
-    serverPagesRef.current = pages;
-    const next = Math.min(removeAt, pages.length - 1);
-    setPageCount(pages.length);
-    await loadPageAt(next, pages[next]);
-    clearSelection();
-    markUnsaved();
-  }, [clearSelection, loadPageAt, markUnsaved, rememberPageEdits]);
+    const run = pageOpRef.current.then(async () => {
+      if (serverPagesRef.current.length < 2) return;
+      const previous = serverPagesRef.current.map((page) => JSON.parse(JSON.stringify(page)));
+      const previousIndex = activePageRef.current;
+      try {
+        rememberPageEdits();
+        const removed = deleteMobilePage(serverPagesRef.current, activePageRef.current);
+        if (!removed) return;
+        await commitPageList(removed.pages, removed.index);
+        setActionNotice(null);
+      } catch (err) {
+        console.error("[mobile-editor] Delete page failed", err);
+        serverPagesRef.current = previous;
+        activePageRef.current = previousIndex;
+        setPageIndex(previousIndex);
+        setPageCount(previous.length);
+        setActionNotice("Couldn't delete this page. The resume was not changed.");
+        try {
+          await renderStackedPages(previous, { activeIndex: previousIndex, scroll: true });
+        } catch {
+          /* The previous pages remain stored. */
+        }
+      }
+    });
+    pageOpRef.current = run.then(
+      () => undefined,
+      () => undefined
+    );
+    return run;
+  }, [commitPageList, rememberPageEdits, renderStackedPages]);
 
   useEffect(() => {
     return () => {

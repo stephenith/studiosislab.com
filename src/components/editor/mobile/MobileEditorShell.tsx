@@ -299,36 +299,19 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
         </div>
       </div>
 
-      <div className="flex max-h-[54%] min-h-0 flex-col overflow-y-auto">
+      <div className="flex max-h-[54%] min-h-0 flex-col overflow-hidden">
+      {editor.saveStatus === "saving" || editor.saveStatus === "unsaved" || editor.saveStatus === "error" || editor.saveStatus === "stale" ? (
+        <p className="shrink-0 bg-white px-3 py-1 text-center text-xs text-zinc-600" aria-live="polite">
+          {saveStatusLabel(editor.saveStatus)}
+        </p>
+      ) : null}
       <div
-        className="flex shrink-0 flex-wrap items-center gap-1 border-t border-[#d6deeb] bg-white px-2 py-1.5"
-        style={{
-          paddingLeft: "max(0.5rem, env(safe-area-inset-left))",
-          paddingRight: "max(0.5rem, env(safe-area-inset-right))",
-        }}
+        className="flex shrink-0 items-center justify-center gap-3 border-t border-[#d6deeb] bg-white py-1"
+        role="toolbar"
+        aria-label="Page actions"
       >
-        <label className="sr-only" htmlFor="mobile-resume-title">
-          Resume title
-        </label>
-        <input
-          id="mobile-resume-title"
-          value={editor.docTitle}
-          onChange={(event) => editor.setDocTitle(event.target.value)}
-          className="h-11 min-w-[7.5rem] flex-1 rounded-xl border border-zinc-200 px-3 text-sm text-zinc-900 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-100"
-        />
-        <button
-          type="button"
-          onClick={() => void editor.save()}
-          disabled={editor.saveStatus === "saving" || editor.saveStatus === "stale" || editor.loading}
-          className="inline-flex h-11 shrink-0 items-center px-2 text-xs font-medium text-zinc-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300 disabled:opacity-50"
-          aria-live="polite"
-          aria-label={`${saveStatusLabel(editor.saveStatus)}. Save now`}
-        >
-          {editor.saveStatus === "saving" ? <Loader2 className="h-4 w-4 animate-spin" /> : saveStatusLabel(editor.saveStatus)}
-        </button>
-        <button type="button" onClick={() => void editor.duplicateCurrentPage()} className="inline-flex h-11 items-center gap-1 rounded-xl px-2 text-xs font-medium text-zinc-800" aria-label="Duplicate page">
-          <Copy className="h-4 w-4" />
-          Duplicate
+        <button type="button" onClick={() => void editor.duplicateCurrentPage()} className="inline-flex h-11 w-11 items-center justify-center rounded-full text-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300" aria-label="Duplicate page">
+          <Copy className="h-5 w-5" />
         </button>
         <button
           type="button"
@@ -336,25 +319,22 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
           onClick={() => {
             if (window.confirm("Delete this page? The other pages stay in the resume.")) void editor.deleteCurrentPage();
           }}
-          className="inline-flex h-11 items-center gap-1 rounded-xl px-2 text-xs font-medium text-zinc-800 disabled:opacity-40"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full text-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300 disabled:opacity-40"
           aria-label="Delete page"
         >
-          <Trash2 className="h-4 w-4" />
-          Delete
+          <Trash2 className="h-5 w-5" />
         </button>
-        <button type="button" onClick={() => void editor.addPageAfter()} className="inline-flex h-11 items-center gap-1 rounded-xl px-2 text-xs font-medium text-zinc-800" aria-label="Add page">
-          <Plus className="h-4 w-4" />
-          Add
+        <button type="button" onClick={() => void editor.addPageAfter()} className="inline-flex h-11 w-11 items-center justify-center rounded-full text-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300" aria-label="Add page">
+          <Plus className="h-5 w-5" />
         </button>
-        <span className="text-xs text-zinc-500">
-          {editor.pageIndex + 1}/{editor.pageCount}
-        </span>
+        <p className="sr-only" aria-live="polite">
+          {`Page ${editor.pageIndex + 1} of ${editor.pageCount}`}
+        </p>
       </div>
 
       <div
-        className="shrink-0 bg-[#f7f7f8]"
+        className="min-h-0 overflow-y-auto bg-[#f7f7f8]"
         style={{
-          paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))",
           paddingLeft: "max(0.5rem, env(safe-area-inset-left))",
           paddingRight: "max(0.5rem, env(safe-area-inset-right))",
         }}
@@ -480,8 +460,13 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
             ) : null}
           </div>
         ) : null}
+      </div>
 
-        <nav aria-label="Editor tools" className="flex gap-1 overflow-x-auto bg-[#1f1f28] px-2 py-1.5">
+        <nav
+          aria-label="Editor tools"
+          className="flex shrink-0 gap-1 overflow-x-auto bg-[#1f1f28] px-2 py-1.5"
+          style={{ paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }}
+        >
           {DOCK.map((item) => {
             const Icon = item.icon;
             const active = tool === item.id;
@@ -499,7 +484,6 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
             );
           })}
         </nav>
-      </div>
       </div>
       </div>
     </main>

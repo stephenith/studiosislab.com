@@ -1,4 +1,4 @@
-import { PDFDocument, PDFImage } from "pdf-lib";
+import { PDFDocument, PDFImage, PDFRef } from "pdf-lib";
 import { SIGNATURE_UPLOAD_REJECTED_MESSAGE } from "./esignSignatureUpload";
 
 export type SignaturePlacement = {
@@ -108,6 +108,33 @@ function normToPdf(
 }
 
 /**
+ * pdf-lib keeps every parsed generation, then writes two generations of one
+ * object number as consecutive index entries. Keep the newest body so the
+ * index stays aligned, and leave every reference's object number and
+ * generation unchanged. A later object that reused a deleted number is not
+ * that deleted generation.
+ */
+function dropSupersededObjects(pdfDoc: PDFDocument): void {
+  const context = pdfDoc.context;
+  const byNumber = new Map<number, PDFRef[]>();
+  for (const [ref] of context.enumerateIndirectObjects()) {
+    const group = byNumber.get(ref.objectNumber);
+    if (group) group.push(ref);
+    else byNumber.set(ref.objectNumber, [ref]);
+  }
+
+  for (const refs of byNumber.values()) {
+    let newest = refs[0];
+    for (const ref of refs) {
+      if (ref.generationNumber > newest.generationNumber) newest = ref;
+    }
+    for (const ref of refs) {
+      if (ref.generationNumber < newest.generationNumber) context.delete(ref);
+    }
+  }
+}
+
+/**
  * Draw every placement. A missing, unsupported, or unreadable image throws
  * before the PDF is saved, so callers cannot return a partial document.
  */
@@ -116,6 +143,7 @@ export async function buildSignedPdf(
   placements: SignaturePlacement[]
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.load(originalBytes);
+  dropSupersededObjects(pdfDoc);
   const numPages = pdfDoc.getPageCount();
 
   for (const placement of placements) {

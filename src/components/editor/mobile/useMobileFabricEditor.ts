@@ -70,6 +70,12 @@ import {
   setStarRatingValueOnGroup,
 } from "@/lib/editor/starRating/starRatingFactory";
 import { commitMobileResumeDoc, getResumeDoc, updateResumeThumbnail } from "@/lib/resumeDocs";
+import {
+  classifyPhoneResumeLoadError,
+  loadOwnedResumeWithAuthRetry,
+  phoneResumeLoadDecision,
+  unwrapTemplateSnapshot,
+} from "@/lib/editor/mobileResumeLoad";
 import { generateResumeThumbnail } from "@/lib/resumePreviewExport";
 import { getAsset } from "@/lib/localAssets";
 import { useAuth } from "@/lib/useAuth";
@@ -173,7 +179,7 @@ async function hydrateCanvasImages(canvas: Canvas, urls: string[]): Promise<void
 }
 
 export function useMobileFabricEditor({ templateId, docId, blank = false }: UseMobileFabricEditorOptions) {
-  const { user } = useAuth();
+  const { user, authReady } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const canvasRef = useRef<Canvas | null>(null);
@@ -238,6 +244,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [zoomPercent, setZoomPercent] = useState(100);
   const [reloadNonce, setReloadNonce] = useState(0);
+  const [canvasEpoch, setCanvasEpoch] = useState(0);
   const [saveKick, setSaveKick] = useState(0);
   const saveStatusRef = useRef<MobileSaveStatus>("idle");
 
@@ -535,7 +542,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   );
 
   const attachCanvasEl = useCallback((el: HTMLCanvasElement | null) => {
-    if (!el) return;
+    if (canvasRef.current?.getElement?.() === el) return;
     if (canvasRef.current) {
       try {
         canvasRef.current.dispose();
@@ -543,6 +550,10 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
         /* ignore */
       }
       canvasRef.current = null;
+    }
+    if (!el) {
+      setCanvasReady(false);
+      return;
     }
     const { w, h } = pageSizeRef.current;
     const canvas = initFabricCanvas(el, {
@@ -553,6 +564,8 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       preserveObjectStacking: true,
     });
     canvasRef.current = canvas;
+    loadedKeyRef.current = null;
+    setCanvasEpoch((value) => value + 1);
     setCanvasReady(true);
   }, []);
 
@@ -732,9 +745,20 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
 
   useEffect(() => {
     if (!canvasReady) return;
-    const key = docId ? `doc:${docId}` : blank ? "blank" : `tpl:${templateId || ""}`;
+    const decision = phoneResumeLoadDecision({
+      docId,
+      authReady,
+      uid: user?.uid ?? null,
+    });
+    if (decision.type === "wait") return;
+
+    const key =
+      decision.type === "document"
+        ? `doc:${decision.docId}`
+        : blank
+          ? "blank"
+          : `tpl:${templateId || ""}`;
     if (loadedKeyRef.current === key) return;
-    if (docId && !user?.uid) return;
 
     let cancelled = false;
     suppressDirtyRef.current = true;
@@ -748,20 +772,35 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
 
     const run = async () => {
       const canvas = canvasRef.current;
-      if (!canvas) return;
+      if (!canvas) {
+        if (!cancelled) {
+          setLoadError(classifyPhoneResumeLoadError(new Error("Canvas failed to initialize")).message);
+          setLoading(false);
+        }
+        return;
+      }
       try {
-        if (docId && user?.uid) {
-          const record = await getResumeDoc({ uid: user.uid, docId });
+        if (decision.type === "denied") {
+          setLoadError(decision.message);
+          setLoading(false);
+          return;
+        }
+        if (decision.type === "document") {
+          const read = await loadOwnedResumeWithAuthRetry({
+            load: () => getResumeDoc({ uid: decision.uid, docId: decision.docId }),
+            refreshAuth: () => user?.getIdToken?.(true),
+          });
           if (cancelled) return;
-          if (!record) {
-            setLoadError("That saved resume could not be found in this account.");
+          if (!read.ok) {
+            setLoadError(read.message);
             setLoading(false);
             return;
           }
+          const record = read.record;
           const parsed = pagesFromResumeRecord(record);
           serverPagesRef.current = parsed.pages;
           shapeRef.current = parsed.shape;
-          docIdRef.current = docId;
+          docIdRef.current = decision.docId;
           baseRevisionRef.current = typeof record.autosaveRevision === "number" ? record.autosaveRevision : 0;
           baseUpdatedAtRef.current = updatedAtToken(record.updatedAt);
           setDocTitleState(record.title || "Untitled Resume");
@@ -792,12 +831,12 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
         } else {
           const template = getSystemTemplateById(templateId);
           if (!template) {
-            setLoadError("Template not found.");
+            setLoadError(classifyPhoneResumeLoadError(new Error("Template not found.")).message);
             setLoading(false);
             return;
           }
           setDocTitleState(template.name || "Untitled Resume");
-          const snapshot = await template.load();
+          const snapshot = unwrapTemplateSnapshot(await template.load());
           if (cancelled) return;
           const box = savedPagePixelSize(snapshot);
           pageSizeRef.current = { w: 794, h: 1123 };
@@ -823,7 +862,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       } catch (err) {
         console.error("[mobile-editor] Failed to load", err);
         if (!cancelled) {
-          setLoadError("We couldn't load this resume. Please try again.");
+          setLoadError(classifyPhoneResumeLoadError(err).message);
           setLoading(false);
         }
       } finally {
@@ -835,7 +874,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     return () => {
       cancelled = true;
     };
-  }, [blank, canvasReady, docId, reloadNonce, renderStackedPages, templateId, user?.uid]);
+  }, [authReady, blank, canvasEpoch, canvasReady, docId, reloadNonce, renderStackedPages, templateId, user]);
 
   useEffect(() => {
     const viewport = viewportRef.current;

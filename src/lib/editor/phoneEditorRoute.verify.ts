@@ -66,14 +66,34 @@ assert.equal(editorHrefForViewport({ blank: true }, false), "/editor/new");
 assert.equal(wantsPhoneEditor((query) => query === PHONE_EDITOR_MEDIA_QUERY), true);
 assert.equal(editorHrefForViewport({ blank: true }, true), "/editor/mobile/template/blank");
 
+const androidChrome: PhoneEditorSignals = signals({
+  match: () => false,
+  userAgent:
+    "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+  screenWidth: 980,
+  screenHeight: 1200,
+  maxTouchPoints: 5,
+});
+assert.equal(wantsPhoneEditor(androidChrome), true);
+assert.equal(
+  editorHrefForViewport({ templateId: "t012" }, wantsPhoneEditor(androidChrome)),
+  "/editor/mobile/template/t012"
+);
+assert.equal(
+  editorHrefForViewport(
+    { templateId: "t012", docId: DOC },
+    wantsPhoneEditor(androidChrome)
+  ),
+  `/editor/mobile/template/t012?doc=${DOC}`
+);
 assert.equal(
   wantsPhoneEditor(
     signals({
       match: () => false,
       userAgent:
-        "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
-      screenWidth: 980,
-      screenHeight: 1200,
+        "Mozilla/5.0 (Linux; Android 14; SAMSUNG SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/25.0 Chrome/120.0.0.0 Mobile Safari/537.36",
+      screenWidth: 360,
+      screenHeight: 780,
       maxTouchPoints: 5,
     })
   ),

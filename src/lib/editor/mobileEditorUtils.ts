@@ -600,16 +600,10 @@ export async function loadSnapshotOntoCanvas(
     sanitizeImageSourcesForLoad(json);
   }
 
-  await new Promise<void>((resolve, reject) => {
-    try {
-      const result = (c as any).loadFromJSON(json, undefined, () => resolve());
-      if (result && typeof result.then === "function") {
-        result.then(() => resolve()).catch(reject);
-      }
-    } catch (err) {
-      reject(err);
-    }
-  });
+  const result = (c as any).loadFromJSON(json);
+  if (result && typeof result.then === "function") {
+    await result;
+  }
 
   const allBefore = c.getObjects();
   allBefore.forEach((o: any) => {

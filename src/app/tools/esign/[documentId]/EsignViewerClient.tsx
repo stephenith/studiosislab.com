@@ -28,6 +28,11 @@ import {
   readLockedCountersignTarget,
 } from "@/lib/esignPlacements";
 import { trackEvent } from "@/lib/analytics";
+import {
+  esignCountersignShareDataLayerEvent,
+  esignPdfDownloadDataLayerEvent,
+  trackEsignDataLayerEvent,
+} from "@/lib/esignGtmEvents";
 import SignatureToolsPanel from "@/components/esign/SignatureToolsPanel";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 
@@ -2308,6 +2313,12 @@ export default function EsignViewerClient({
                     a.click();
                     a.remove();
                     URL.revokeObjectURL(url);
+                    trackEsignDataLayerEvent(
+                      esignPdfDownloadDataLayerEvent({
+                        exportSucceeded: true,
+                        downloadInitiated: true,
+                      })
+                    );
                   } catch (e: any) {
                     setDownloadError(e?.message || "Download failed.");
                   } finally {
@@ -2516,6 +2527,9 @@ export default function EsignViewerClient({
                               alert(msg);
                               return;
                             }
+                            trackEsignDataLayerEvent(
+                              esignCountersignShareDataLayerEvent({ inviteSucceeded: true })
+                            );
                             const url = `${window.location.origin}${json.url}`;
                             setGeneratedInviteLink(url);
                             setCopiedInvite(false);

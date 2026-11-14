@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, Plus, Trash2 } from "lucide-react";
 import { computeInvoiceTotals, formatMinor, formatTaxPercent, parseDecimal } from "@/lib/invoice/calculations";
 import { invoicePdfBlob } from "@/lib/invoice/generateInvoicePdf";
+import { completeInvoiceDownloadTracking, trackInvoiceDataLayerEvent } from "@/lib/invoiceGtmEvents";
 import { readLogoFile } from "@/lib/invoice/logo";
 import {
   createInvoice,
@@ -216,12 +217,14 @@ export default function InvoiceEditor() {
       return;
     }
     setPdfErrors([]);
-    const url = URL.createObjectURL(result.blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `${invoice.invoiceNumber.replace(/[^A-Za-z0-9._-]+/g, "_") || "invoice"}.pdf`;
-    anchor.click();
-    URL.revokeObjectURL(url);
+    completeInvoiceDownloadTracking(true, () => {
+      const url = URL.createObjectURL(result.blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `${invoice.invoiceNumber.replace(/[^A-Za-z0-9._-]+/g, "_") || "invoice"}.pdf`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }, trackInvoiceDataLayerEvent);
   }
 
   if (!invoice || !totals) {

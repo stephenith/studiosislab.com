@@ -41,6 +41,18 @@ import {
   useEsignPhoneLayout,
 } from "@/components/esign/EsignPhoneChrome";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
+import {
+  dragSignatureBox,
+  isEsignSignatureTouchTarget,
+  phoneZoomPercent,
+  pinchMidpointInScroller,
+  pinchScaleFromDistance,
+  resizeSignatureBox,
+  scaledContentSize,
+  scrollToKeepPinchMidpoint,
+  touchDistance,
+  type EsignResizeCorner,
+} from "@/lib/esignPdfTouch";
 
 type EsignViewerClientProps = {
   documentId: string;
@@ -291,6 +303,11 @@ function EsignPdfViewerInner(
     showStaticTarget = false,
     useFinalPdf = false,
     onSignaturesPainted,
+    touchChrome = false,
+    viewScale = 1,
+    selectedPage = null,
+    onPageSelect,
+    pinchActiveRef: pinchActiveFromParent,
   }: {
     documentId: string;
     activeSignature: string | null;
@@ -312,6 +329,11 @@ function EsignPdfViewerInner(
     showStaticTarget?: boolean;
     useFinalPdf?: boolean;
     onSignaturesPainted?: () => void;
+    touchChrome?: boolean;
+    viewScale?: number;
+    selectedPage?: number | null;
+    onPageSelect?: (page: number) => void;
+    pinchActiveRef?: React.MutableRefObject<boolean>;
   },
   ref: React.Ref<EsignPdfViewerRef>
 ) {
@@ -335,6 +357,14 @@ function EsignPdfViewerInner(
   const signaturesLockedRef = useRef<Set<string>>(new Set());
   const countersignGestureRef = useRef(false);
   const [countersignLayoutEpoch, setCountersignLayoutEpoch] = useState(0);
+  const viewScaleRef = useRef(1);
+  const fallbackPinchActiveRef = useRef(false);
+  const pinchActiveRef = pinchActiveFromParent ?? fallbackPinchActiveRef;
+  const onPageSelectRef = useRef(onPageSelect);
+  const touchChromeRef = useRef(touchChrome);
+  onPageSelectRef.current = onPageSelect;
+  touchChromeRef.current = touchChrome;
+  viewScaleRef.current = viewScale;
 
   activeSignatureRef.current = activeSignature;
   placingRef.current = placing;
@@ -630,6 +660,7 @@ function EsignPdfViewerInner(
           pageWrapper.style.position = "relative";
           pageWrapper.style.marginBottom = "24px";
           pageWrapper.dataset.pageNumber = String(pageNumber);
+          pageWrapper.setAttribute("data-esign-page", String(pageNumber));
           pageWrapper.appendChild(canvas);
 
           const overlay = document.createElement("div");
@@ -638,6 +669,10 @@ function EsignPdfViewerInner(
           overlay.style.cursor = "crosshair";
           overlay.dataset.pageNumber = String(pageNumber);
           overlay.setAttribute("data-esign-overlay", "true");
+          overlay.addEventListener("pointerdown", (event) => {
+            if (event.target !== overlay) return;
+            onPageSelectRef.current?.(pageNumber);
+          });
 
           overlay.addEventListener("click", (event) => {
             if (!placingRef.current) return;
@@ -739,6 +774,59 @@ function EsignPdfViewerInner(
               e.stopPropagation();
               onSignatureSelectedRef.current?.(model.id);
             });
+            if (!touchChromeRef.current) {
+              // Desktop recipient keeps click-to-select; phone can drag inside the target.
+            } else {
+            img.style.touchAction = "none";
+            img.onpointerdown = (e) => {
+              if (pinchActiveRef.current) return;
+              e.preventDefault();
+              e.stopPropagation();
+              onSignatureSelectedRef.current?.(model.id);
+              img.setPointerCapture?.(e.pointerId);
+              const startX = e.clientX;
+              const startY = e.clientY;
+              const start = {
+                left: img.offsetLeft,
+                top: img.offsetTop,
+                width: img.offsetWidth,
+                height: img.offsetHeight,
+              };
+              const target = countersignPlaceholder;
+              const clampRect = target
+                ? {
+                    left: target.xNorm * overlay.clientWidth,
+                    top: target.yNorm * overlay.clientHeight,
+                    width: target.wNorm * overlay.clientWidth,
+                    height: target.hNorm * overlay.clientHeight,
+                  }
+                : null;
+              const move = (ev: PointerEvent) => {
+                if (pinchActiveRef.current) return;
+                const next = dragSignatureBox({
+                  start,
+                  dx: ev.clientX - startX,
+                  dy: ev.clientY - startY,
+                  overlayWidth: overlay.clientWidth,
+                  overlayHeight: overlay.clientHeight,
+                  scale: viewScaleRef.current,
+                  clampRect,
+                });
+                img.style.left = `${next.left}px`;
+                img.style.top = `${next.top}px`;
+              };
+              const up = () => {
+                window.removeEventListener("pointermove", move);
+                window.removeEventListener("pointerup", up);
+                onSignatureUpdatedRef.current?.(model.id, {
+                  xNorm: img.offsetLeft / overlay.clientWidth,
+                  yNorm: img.offsetTop / overlay.clientHeight,
+                });
+              };
+              window.addEventListener("pointermove", move);
+              window.addEventListener("pointerup", up);
+            };
+            }
           }
         } else {
         img.style.cursor = model.locked ? "default" : "move";
@@ -749,22 +837,33 @@ function EsignPdfViewerInner(
           onSignatureSelectedRef.current?.(model.id);
         });
         if (!model.locked) {
+          img.style.touchAction = "none";
           img.onpointerdown = (e) => {
+            if (pinchActiveRef.current) return;
             e.preventDefault();
             e.stopPropagation();
+            onSignatureSelectedRef.current?.(model.id);
+            img.setPointerCapture?.(e.pointerId);
             const startX = e.clientX;
             const startY = e.clientY;
-            const origLeft = img.offsetLeft;
-            const origTop = img.offsetTop;
+            const start = {
+              left: img.offsetLeft,
+              top: img.offsetTop,
+              width: img.offsetWidth,
+              height: img.offsetHeight,
+            };
             const move = (ev: PointerEvent) => {
-              const dx = ev.clientX - startX;
-              const dy = ev.clientY - startY;
-              let nextLeft = origLeft + dx;
-              let nextTop = origTop + dy;
-              nextLeft = Math.max(0, Math.min(nextLeft, overlay.clientWidth - img.offsetWidth));
-              nextTop = Math.max(0, Math.min(nextTop, overlay.clientHeight - img.offsetHeight));
-              img.style.left = `${nextLeft}px`;
-              img.style.top = `${nextTop}px`;
+              if (pinchActiveRef.current) return;
+              const next = dragSignatureBox({
+                start,
+                dx: ev.clientX - startX,
+                dy: ev.clientY - startY,
+                overlayWidth: overlay.clientWidth,
+                overlayHeight: overlay.clientHeight,
+                scale: viewScaleRef.current,
+              });
+              img.style.left = `${next.left}px`;
+              img.style.top = `${next.top}px`;
             };
             const up = () => {
               window.removeEventListener("pointermove", move);
@@ -782,7 +881,7 @@ function EsignPdfViewerInner(
       });
     });
     onSignaturesPaintedRef.current?.();
-  }, [signatures, loading, renderedPageCount, recipientView, recipientSignatureId]);
+  }, [signatures, loading, renderedPageCount, recipientView, recipientSignatureId, countersignPlaceholder, touchChrome]);
 
   // Track visible page for "Use this" / "Place Signature" instant placement.
   useEffect(() => {
@@ -790,13 +889,13 @@ function EsignPdfViewerInner(
     if (!root || !onVisiblePageChange) return;
     const container = containerRef.current;
     if (!container) return;
-    const wrappers = container.querySelectorAll<HTMLElement>("[data-page-number]");
+    const wrappers = container.querySelectorAll<HTMLElement>("[data-esign-page]");
     if (wrappers.length === 0) return;
     const ratiosRef = { current: new Map<number, number>() };
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          const page = parseInt(entry.target.getAttribute("data-page-number") ?? "1", 10);
+          const page = parseInt(entry.target.getAttribute("data-esign-page") ?? "1", 10);
           ratiosRef.current.set(page, entry.intersectionRatio);
         }
         let bestPage = 1;
@@ -968,6 +1067,17 @@ function EsignPdfViewerInner(
     };
   }, [loading, countersignPlaceholder, renderedPageCount, countersignLayoutEpoch, showStaticTarget, onCountersignPlaceholderChange]);
 
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    container.querySelectorAll<HTMLElement>("[data-esign-page]").forEach((page) => {
+      const pageNumber = parseInt(page.getAttribute("data-esign-page") ?? "1", 10);
+      const selected = touchChrome && selectedPage === pageNumber;
+      page.style.outline = selected ? "2px solid #1f1f28" : "";
+      page.style.outlineOffset = selected ? "3px" : "";
+    });
+  }, [touchChrome, selectedPage, loading, renderedPageCount]);
+
   return (
     <div className="mx-auto w-full max-w-4xl">
       {loading && (
@@ -993,6 +1103,15 @@ export default function EsignViewerClient({
   const { user, loading } = useAuthUser();
   const { phone: phoneLayout, setShellEl } = useEsignPhoneLayout();
   const [phoneSheet, setPhoneSheet] = useState<null | "sign" | "document">(null);
+  const [phoneZoom, setPhoneZoom] = useState(1);
+  const [phoneZoomHud, setPhoneZoomHud] = useState(false);
+  const [selectedPageNumber, setSelectedPageNumber] = useState(1);
+  const phoneZoomRef = useRef(1);
+  const phonePinchActiveRef = useRef(false);
+  const phonePagesRef = useRef<HTMLDivElement | null>(null);
+  const phoneSpacerRef = useRef<HTMLDivElement | null>(null);
+  const phoneZoomHudTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  phoneZoomRef.current = phoneZoom;
 
   const [docData, setDocData] = useState<EsignDocument | null>(null);
   const [loadingDoc, setLoadingDoc] = useState(true);
@@ -1039,6 +1158,146 @@ export default function EsignViewerClient({
   const [visiblePageNumber, setVisiblePageNumber] = useState(1);
   const [zoomMode, setZoomMode] = useState<ZoomMode>("fit");
   const [zoomScale, setZoomScale] = useState(1);
+  useEffect(() => {
+    if (!phoneLayout) {
+      setPhoneZoom(1);
+      setPhoneZoomHud(false);
+      phonePinchActiveRef.current = false;
+      return;
+    }
+    if (loadingDoc) return;
+    const scroller = scrollContainerRef.current;
+    const inner = phonePagesRef.current;
+    const spacer = phoneSpacerRef.current;
+    if (!scroller || !inner || !spacer) return;
+
+    const syncSpacer = (scale: number) => {
+      const size = scaledContentSize(inner.scrollWidth, inner.scrollHeight, scale);
+      spacer.style.width = `${Math.max(scroller.clientWidth, size.width)}px`;
+      spacer.style.height = `${size.height}px`;
+    };
+    syncSpacer(phoneZoomRef.current);
+
+    let startDistance = 0;
+    let originScale = 1;
+    let panX = 0;
+    let panY = 0;
+    let panning = false;
+
+    const showHud = (scale: number) => {
+      setPhoneZoomHud(true);
+      if (phoneZoomHudTimerRef.current) clearTimeout(phoneZoomHudTimerRef.current);
+      phoneZoomHudTimerRef.current = setTimeout(() => setPhoneZoomHud(false), 900);
+      void scale;
+    };
+
+    const applyScale = (next: number, midpoint: { x: number; y: number }) => {
+      const previous = phoneZoomRef.current;
+      if (Math.abs(next - previous) < 0.001) return;
+      const keep = scrollToKeepPinchMidpoint({
+        previousScale: previous,
+        nextScale: next,
+        scrollLeft: scroller.scrollLeft,
+        scrollTop: scroller.scrollTop,
+        midpointX: midpoint.x,
+        midpointY: midpoint.y,
+      });
+      phoneZoomRef.current = next;
+      inner.style.transform = `scale(${next})`;
+      syncSpacer(next);
+      scroller.scrollLeft = keep.scrollLeft;
+      scroller.scrollTop = keep.scrollTop;
+      setPhoneZoom(next);
+      showHud(next);
+    };
+
+    const onStart = (event: TouchEvent) => {
+      if (event.touches.length === 2) {
+        phonePinchActiveRef.current = true;
+        panning = false;
+        startDistance = touchDistance(event.touches[0], event.touches[1]);
+        originScale = phoneZoomRef.current;
+        if (event.cancelable) event.preventDefault();
+        return;
+      }
+      if (
+        event.touches.length === 1 &&
+        !phonePinchActiveRef.current &&
+        !isEsignSignatureTouchTarget(event.target)
+      ) {
+        panning = true;
+        panX = event.touches[0].clientX;
+        panY = event.touches[0].clientY;
+      }
+    };
+    const onMove = (event: TouchEvent) => {
+      if (event.touches.length === 2) {
+        phonePinchActiveRef.current = true;
+        panning = false;
+        if (event.cancelable) event.preventDefault();
+        if (!(startDistance > 0)) {
+          startDistance = touchDistance(event.touches[0], event.touches[1]);
+          originScale = phoneZoomRef.current;
+        }
+        const next = pinchScaleFromDistance(
+          startDistance,
+          touchDistance(event.touches[0], event.touches[1]),
+          originScale
+        );
+        const rect = scroller.getBoundingClientRect();
+        applyScale(
+          next,
+          pinchMidpointInScroller(event.touches[0], event.touches[1], rect)
+        );
+        return;
+      }
+      if (panning && event.touches.length === 1 && !isEsignSignatureTouchTarget(event.target)) {
+        if (event.cancelable) event.preventDefault();
+        const x = event.touches[0].clientX;
+        const y = event.touches[0].clientY;
+        scroller.scrollLeft -= x - panX;
+        scroller.scrollTop -= y - panY;
+        panX = x;
+        panY = y;
+      }
+    };
+    const onEnd = (event: TouchEvent) => {
+      if (event.touches.length < 2) {
+        phonePinchActiveRef.current = false;
+        startDistance = 0;
+      }
+      if (event.touches.length === 0) panning = false;
+      if (event.touches.length === 1) {
+        panning = !isEsignSignatureTouchTarget(event.target);
+        panX = event.touches[0].clientX;
+        panY = event.touches[0].clientY;
+      }
+    };
+    const preventGesture = (event: Event) => {
+      if (event.cancelable) event.preventDefault();
+    };
+
+    scroller.addEventListener("touchstart", onStart, { passive: false });
+    scroller.addEventListener("touchmove", onMove, { passive: false });
+    scroller.addEventListener("touchend", onEnd);
+    scroller.addEventListener("touchcancel", onEnd);
+    scroller.addEventListener("gesturestart", preventGesture, { passive: false });
+    scroller.addEventListener("gesturechange", preventGesture, { passive: false });
+    scroller.addEventListener("gestureend", preventGesture, { passive: false });
+    const observer = new ResizeObserver(() => syncSpacer(phoneZoomRef.current));
+    observer.observe(inner);
+    return () => {
+      observer.disconnect();
+      if (phoneZoomHudTimerRef.current) clearTimeout(phoneZoomHudTimerRef.current);
+      scroller.removeEventListener("touchstart", onStart);
+      scroller.removeEventListener("touchmove", onMove);
+      scroller.removeEventListener("touchend", onEnd);
+      scroller.removeEventListener("touchcancel", onEnd);
+      scroller.removeEventListener("gesturestart", preventGesture);
+      scroller.removeEventListener("gesturechange", preventGesture);
+      scroller.removeEventListener("gestureend", preventGesture);
+    };
+  }, [phoneLayout, loadingDoc]);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [countersignSetupOpen, setCountersignSetupOpen] = useState(false);
@@ -1185,30 +1444,82 @@ export default function EsignViewerClient({
       );
       const overlay = el?.parentElement as HTMLDivElement | null;
       if (el && overlay) {
+        const phoneHandles = phoneLayout;
+        const corners: EsignResizeCorner[] = phoneHandles
+          ? ["tl", "tr", "bl", "br"]
+          : ["br"];
+        const size = phoneHandles ? 18 : 10;
+        const placeHandle = (handle: HTMLDivElement, corner: EsignResizeCorner) => {
+          const left =
+            corner === "tl" || corner === "bl"
+              ? el.offsetLeft - size / 2
+              : el.offsetLeft + el.offsetWidth - size / 2;
+          const top =
+            corner === "tl" || corner === "tr"
+              ? el.offsetTop - size / 2
+              : el.offsetTop + el.offsetHeight - size / 2;
+          handle.style.left = `${left}px`;
+          handle.style.top = `${top}px`;
+        };
+        corners.forEach((corner) => {
         const handle = document.createElement("div");
         handle.setAttribute("data-esign-resize-handle", selected.id);
+        handle.dataset.corner = corner;
         handle.style.position = "absolute";
-        handle.style.width = "10px";
-        handle.style.height = "10px";
+        handle.style.width = `${size}px`;
+        handle.style.height = `${size}px`;
         handle.style.backgroundColor = "#3b82f6";
-        handle.style.cursor = "nwse-resize";
-        handle.style.borderRadius = "2px";
-        const updatePos = () => {
-          handle.style.left = `${el.offsetLeft + el.offsetWidth - 10}px`;
-          handle.style.top = `${el.offsetTop + el.offsetHeight - 10}px`;
-        };
-        updatePos();
+        handle.style.border = phoneHandles ? "2px solid #ffffff" : "none";
+        handle.style.zIndex = "6";
+        handle.style.touchAction = "none";
+        handle.style.cursor =
+          corner === "tl" || corner === "br" ? "nwse-resize" : "nesw-resize";
+        handle.style.borderRadius = phoneHandles ? "999px" : "2px";
+        placeHandle(handle, corner);
         handle.onpointerdown = (e) => {
           e.preventDefault();
           e.stopPropagation();
+          if (phonePinchActiveRef.current) return;
+          handle.setPointerCapture?.(e.pointerId);
           const startX = e.clientX;
           const startY = e.clientY;
           const origW = el.offsetWidth;
           const origH = el.offsetHeight;
+          const start = {
+            left: el.offsetLeft,
+            top: el.offsetTop,
+            width: origW,
+            height: origH,
+          };
           const move = (ev: PointerEvent) => {
-            const dw = ev.clientX - startX;
-            const dh = ev.clientY - startY;
-            if (isRecipientMode && countersignPlaceholder) {
+            if (phoneHandles) {
+              const overlayWidth = overlay.clientWidth;
+              const overlayHeight = overlay.clientHeight;
+              const clampRect =
+                isRecipientMode && countersignPlaceholder
+                  ? {
+                      left: countersignPlaceholder.xNorm * overlayWidth,
+                      top: countersignPlaceholder.yNorm * overlayHeight,
+                      width: countersignPlaceholder.wNorm * overlayWidth,
+                      height: countersignPlaceholder.hNorm * overlayHeight,
+                    }
+                  : null;
+              const next = resizeSignatureBox({
+                corner,
+                start,
+                dx: ev.clientX - startX,
+                dy: ev.clientY - startY,
+                overlayWidth,
+                overlayHeight,
+                aspect: origW / Math.max(origH, 1),
+                scale: phoneZoomRef.current,
+                clampRect,
+              });
+              el.style.left = `${next.left}px`;
+              el.style.top = `${next.top}px`;
+              el.style.width = `${next.width}px`;
+              el.style.height = `${next.height}px`;
+            } else if (isRecipientMode && countersignPlaceholder) {
               const overlayWidth = overlay.clientWidth;
               const overlayHeight = overlay.clientHeight;
               const targetLeft = countersignPlaceholder.xNorm * overlayWidth;
@@ -1216,7 +1527,7 @@ export default function EsignViewerClient({
               const targetRight = targetLeft + countersignPlaceholder.wNorm * overlayWidth;
               const targetBottom = targetTop + countersignPlaceholder.hNorm * overlayHeight;
               const aspect = origW / Math.max(origH, 1);
-              let nextWidth = Math.max(24, origW + dw);
+              let nextWidth = Math.max(24, origW + ev.clientX - startX);
               let nextHeight = nextWidth / aspect;
               const maxWidth = Math.max(24, targetRight - el.offsetLeft - 1);
               const maxHeight = Math.max(24, targetBottom - el.offsetTop - 1);
@@ -1231,10 +1542,13 @@ export default function EsignViewerClient({
               el.style.width = `${nextWidth}px`;
               el.style.height = `${nextHeight}px`;
             } else {
-              el.style.width = `${Math.max(32, origW + dw)}px`;
-              el.style.height = `${Math.max(24, origH + dh)}px`;
+              el.style.width = `${Math.max(32, origW + ev.clientX - startX)}px`;
+              el.style.height = `${Math.max(24, origH + ev.clientY - startY)}px`;
             }
-            updatePos();
+            document.querySelectorAll<HTMLDivElement>("[data-esign-resize-handle]").forEach((node) => {
+              const handleCorner = (node.dataset.corner || "br") as EsignResizeCorner;
+              placeHandle(node, handleCorner);
+            });
           };
           const up = () => {
             window.removeEventListener("pointermove", move);
@@ -1246,6 +1560,8 @@ export default function EsignViewerClient({
                 s.id === selectedSignatureId
                   ? {
                       ...s,
+                      xNorm: el.offsetLeft / nw,
+                      yNorm: el.offsetTop / nh,
                       wNorm: el.offsetWidth / nw,
                       hNorm: el.offsetHeight / nh,
                     }
@@ -1257,6 +1573,7 @@ export default function EsignViewerClient({
           window.addEventListener("pointerup", up);
         };
         overlay.appendChild(handle);
+        });
       }
     }
   }, [signatures, selectedSignatureId, isRecipientMode, clientSignatureId, countersignPlaceholder, signaturePaintEpoch]);
@@ -1968,7 +2285,7 @@ export default function EsignViewerClient({
         insertingRef.current = true;
         const placed = viewerRef.current?.placeSignatureAtCenter(
           sig,
-          visiblePageNumber || 1
+          selectedPageNumber || visiblePageNumber || 1
         );
         if (!placed) {
           senderInsertBlockedRef.current = signaturesRef.current.length > 0;
@@ -2238,6 +2555,17 @@ export default function EsignViewerClient({
         )}
 
           <section className={`relative flex min-h-0 flex-1 flex-col ${phoneLayout ? "order-none" : "order-2 min-h-[45vh] lg:order-none"}`}>
+            {phoneLayout && (
+              <div
+                aria-hidden={!phoneZoomHud}
+                className={`pointer-events-none absolute right-3 top-2 z-20 rounded-full bg-[#1f1f28]/80 px-2 py-0.5 text-[11px] font-medium text-white transition-opacity duration-300 ${
+                  phoneZoomHud ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                {phoneZoomPercent(phoneZoom)}%
+              </div>
+            )}
+            {!phoneLayout && (
             <div className="absolute left-1/2 top-2 z-10 flex max-w-[calc(100%-1rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-1.5 rounded-lg bg-white px-2 py-1.5 shadow-sm text-xs">
               <button
                 type="button"
@@ -2299,24 +2627,37 @@ export default function EsignViewerClient({
                 +
               </button>
             </div>
+            )}
 
             <div
               ref={scrollContainerRef}
-              className={`flex-1 min-h-0 overflow-y-auto pt-12 sm:pt-10 ${
-                phoneLayout ? "bg-[#ebecf0] touch-pan-y" : "bg-zinc-100"
+              className={`flex-1 min-h-0 ${
+                phoneLayout
+                  ? "overflow-auto overscroll-contain bg-[#ebecf0] pt-3 touch-none"
+                  : "overflow-y-auto bg-zinc-100 pt-12 sm:pt-10"
               }`}
             >
+              <div
+                ref={phoneSpacerRef}
+                className={phoneLayout ? "relative w-full" : undefined}
+              >
+                <div
+                  ref={phonePagesRef}
+                  className={phoneLayout ? "absolute left-0 top-0 w-full origin-top-left" : undefined}
+                  style={phoneLayout ? { transform: `scale(${phoneZoom})` } : undefined}
+                >
               <EsignPdfViewer
                 ref={viewerRef}
                 documentId={documentId}
                 activeSignature={activeSignature}
                 placing={placing}
                 onSignaturePlaced={() => setPlacing(false)}
-                zoomMode={zoomMode}
-                zoomScale={zoomScale}
+                zoomMode={phoneLayout ? "fit" : zoomMode}
+                zoomScale={phoneLayout ? 1 : zoomScale}
                 onSignatureCreated={(sig) => {
                   setSignatures((prev) => [...prev, sig]);
                   setSelectedSignatureId(sig.id);
+                  if (phoneLayout) setPhoneSheet(null);
                   if (isRecipientMode && pendingRecipientInsertRef.current) {
                     setClientSignatureId(sig.id);
                     pendingRecipientInsertRef.current = false;
@@ -2344,6 +2685,11 @@ export default function EsignViewerClient({
                 signatures={recipientFinished ? [] : signatures}
                 scrollContainerRef={scrollContainerRef}
                 onVisiblePageChange={setVisiblePageNumber}
+                touchChrome={phoneLayout}
+                viewScale={phoneLayout ? phoneZoom : 1}
+                selectedPage={selectedPageNumber}
+                onPageSelect={setSelectedPageNumber}
+                pinchActiveRef={phonePinchActiveRef}
                 countersignPlaceholder={
                   countersignPlaceholder
                     ? {
@@ -2370,6 +2716,8 @@ export default function EsignViewerClient({
                 useFinalPdf={recipientFinished}
                 onSignaturesPainted={() => setSignaturePaintEpoch((value) => value + 1)}
               />
+                </div>
+              </div>
             </div>
           </section>
 

@@ -101,6 +101,12 @@ function main() {
     "utf8"
   );
   assert.match(viewer, /EsignPhoneDock/);
+  assert.match(viewer, /!phoneLayout &&/);
+  assert.match(viewer, /phoneZoomPercent/);
+  assert.match(viewer, /touch-none/);
+  assert.match(viewer, /gesturestart/);
+  assert.match(viewer, /onPageSelect/);
+  assert.match(viewer, /setPhoneSheet\(null\)/);
   assert.match(viewer, /bg-\[#1f1f28\]/);
   assert.match(viewer, /bg-\[#ebecf0\]/);
   assert.match(viewer, /searchParams\.get\("token"\)/);

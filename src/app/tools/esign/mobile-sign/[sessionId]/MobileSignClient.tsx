@@ -224,12 +224,17 @@ export default function MobileSignClient({ sessionId }: MobileSignClientProps) {
   };
 
   return (
-    <main className="min-h-dvh bg-zinc-50 text-zinc-900">
-      <div className="mx-auto w-full max-w-md px-4 py-6">
-        <div className="mb-5 flex items-center justify-between">
+    <main
+      className="flex min-h-dvh flex-col bg-[#ebecf0] text-zinc-900"
+      style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+    >
+      <header
+        className="flex shrink-0 items-center bg-[#1f1f28] px-4 py-2 text-white"
+        style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}
+      >
           <Link
             href="/"
-            className="relative block h-9 w-[190px]"
+            className="relative block h-8 w-[168px]"
             aria-label="StudiosisLab home"
           >
             <Image
@@ -237,12 +242,12 @@ export default function MobileSignClient({ sessionId }: MobileSignClientProps) {
               alt="StudiosisLab"
               fill
               className="object-contain object-left"
-              sizes="190px"
+              sizes="168px"
               priority
             />
           </Link>
-        </div>
-
+      </header>
+      <div className="mx-auto w-full max-w-md flex-1 px-4 py-5">
         <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
           <h1 className="text-lg font-semibold">Sign using your mobile</h1>
 

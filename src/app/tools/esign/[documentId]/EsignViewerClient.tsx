@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { ArrowRight, Lock, LockOpen, Mail, Plus, Share2 } from "lucide-react";
+import { ArrowRight, FileUp, Lock, LockOpen, Mail, Plus, Share2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc, onSnapshot, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -17,6 +17,7 @@ import {
 } from "@/lib/esignSignatureUpload";
 import {
   esignTitleStatus,
+  lockButtonView,
   recipientActionEnabled,
   recipientActionLabel,
   recipientHelperText,
@@ -28,12 +29,12 @@ import {
   readLockedCountersignTarget,
 } from "@/lib/esignPlacements";
 import { trackEvent } from "@/lib/analytics";
-import {
-  esignCountersignShareDataLayerEvent,
-  esignPdfDownloadDataLayerEvent,
-  trackEsignDataLayerEvent,
-} from "@/lib/esignGtmEvents";
 import SignatureToolsPanel from "@/components/esign/SignatureToolsPanel";
+import {
+  EsignPhoneDock,
+  EsignPhoneSheet,
+  useEsignPhoneLayout,
+} from "@/components/esign/EsignPhoneChrome";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 
 type EsignViewerClientProps = {
@@ -985,6 +986,8 @@ export default function EsignViewerClient({
 }: EsignViewerClientProps) {
   const router = useRouter();
   const { user, loading } = useAuthUser();
+  const { phone: phoneLayout, setShellEl } = useEsignPhoneLayout();
+  const [phoneSheet, setPhoneSheet] = useState<null | "sign" | "document">(null);
 
   const [docData, setDocData] = useState<EsignDocument | null>(null);
   const [loadingDoc, setLoadingDoc] = useState(true);
@@ -1976,11 +1979,72 @@ export default function EsignViewerClient({
   const recipientFinished = isRecipientMode && phase === "completed";
   const recipientTargetMissing =
     isRecipientMode && !loadingDoc && !recipientFinished && !recipientTarget;
+  const phoneLockButton = lockButtonView(
+    !!selectedSignatureId,
+    signatureLocked,
+    isRecipientMode ? "recipient" : "sender"
+  );
+  const handleDownloadSignedCopy = async () => {
+    if (signatures.length === 0 || !hasLockedSignature || downloading) return;
+    setDownloadError(null);
+    try {
+      setDownloading(true);
+      const placements = signatures.map((s) => ({
+        page: s.page,
+        xNorm: s.xNorm,
+        yNorm: s.yNorm,
+        wNorm: s.wNorm,
+        hNorm: s.hNorm,
+        imageDataUrl: s.imageDataUrl,
+        locked: s.locked,
+      }));
+      const res = await fetch("/api/esign/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documentId, placements }),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        setDownloadError(json?.error || "Export failed.");
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const name = (docData.fileName || documentId).replace(/\.pdf$/i, "") + ".pdf";
+      a.download = `SIGNED-${name}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e: any) {
+      setDownloadError(e?.message || "Download failed.");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
-    <main className="min-h-screen bg-slate-50 text-zinc-900">
-      <div className="flex h-screen flex-col">
-        <header className="flex h-14 shrink-0 items-center justify-between gap-3 bg-[#000000] px-3 text-white shadow-sm sm:px-4">
+    <main
+      ref={setShellEl}
+      className={
+        phoneLayout
+          ? "flex h-[100dvh] flex-col overflow-hidden bg-[#ebecf0] text-zinc-900"
+          : "min-h-screen bg-slate-50 text-zinc-900"
+      }
+    >
+      <div className={phoneLayout ? "flex min-h-0 flex-1 flex-col" : "flex h-screen flex-col"}>
+        <header
+          className={`flex shrink-0 items-center justify-between gap-3 px-3 text-white shadow-sm sm:px-4 ${
+            phoneLayout ? "min-h-12 bg-[#1f1f28]" : "h-14 bg-[#000000]"
+          }`}
+          style={
+            phoneLayout
+              ? { paddingTop: "max(0.4rem, env(safe-area-inset-top))", paddingBottom: "0.4rem" }
+              : undefined
+          }
+        >
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <button
               type="button"
@@ -1992,7 +2056,11 @@ export default function EsignViewerClient({
             </button>
             <Link
               href="/"
-              className="relative block h-9 w-[min(100%,220px)] shrink-0 sm:h-10 sm:w-[min(100%,260px)]"
+              className={`relative block shrink-0 ${
+                phoneLayout
+                  ? "h-8 w-[min(100%,168px)]"
+                  : "h-9 w-[min(100%,220px)] sm:h-10 sm:w-[min(100%,260px)]"
+              }`}
             >
               <Image
                 src={HOME_LOGOS_DARK.header}
@@ -2018,6 +2086,15 @@ export default function EsignViewerClient({
               </div>
             </div>
           </div>
+          {phoneLayout && !isRecipientMode && (
+            <Link
+              href="/tools"
+              aria-label="Upload PDF"
+              className="shrink-0 rounded-md p-2 text-white/80 hover:bg-white/10 hover:text-white"
+            >
+              <FileUp aria-hidden className="h-4 w-4" strokeWidth={2} />
+            </Link>
+          )}
           <div className="hidden shrink-0 items-center gap-1 md:flex">
             {steps.map((s, i) => (
               <div key={i} className="flex items-center gap-1">
@@ -2045,8 +2122,63 @@ export default function EsignViewerClient({
           </div>
         </header>
 
-        <div className="flex flex-1 min-h-0 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
-        {!recipientFinished && (
+        <div
+          className={
+            phoneLayout
+              ? "relative flex min-h-0 flex-1 flex-col overflow-hidden"
+              : "flex flex-1 min-h-0 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden"
+          }
+        >
+        {!recipientFinished && (!phoneLayout || phoneSheet === "sign") && (
+        phoneLayout ? (
+        <EsignPhoneSheet title="Sign" onClose={() => setPhoneSheet(null)}>
+        <SignatureToolsPanel
+          presentation="sheet"
+          mode={isRecipientMode ? "recipient" : "sender"}
+          activeSignature={activeSignature}
+          hasPlacedSignature={
+            isRecipientMode ? Boolean(clientSignatureId) : signatures.length > 0
+          }
+          hasSelectedSignature={!!selectedSignatureId}
+          signatureLocked={signatureLocked}
+          onSignatureDrawn={setActiveSignature}
+          onInsertSignature={(dataUrl?: string) => {
+
+            const signature = dataUrl || activeSignature;
+          
+            if (!signature) {
+              alert("Please draw or upload your signature first");
+              return;
+            }
+          
+            if (isRecipientMode) {
+              insertClientSignature(signature);
+            } else {
+              handleSenderInsert(signature);
+            }
+          
+          }}
+          onUploadSignature={handleUploadSignature}
+          onDeleteSignature={handleDeleteSignature}
+          onLockSignature={handleLockSignature}
+          onGenerateMobileSigningLink={
+            isRecipientMode && (!inviteValid || inviteValidating)
+              ? undefined
+              : handleGenerateMobileSigningLink
+          }
+          mobileSigningUrl={mobileSigningUrl}
+          mobileSigningQrDataUrl={mobileSigningQrDataUrl}
+          mobileSigningExpiresAt={mobileSigningExpiresAt}
+          mobileSigningLoading={mobileSigningLoading}
+          mobileSigningError={mobileSigningError}
+          mobileSigningStatusMessage={mobileSigningStatusMessage}
+          onFetchMobileSignature={handleFetchMobileSignature}
+          mobileSignatureFetching={mobileSignatureFetching}
+          mobileSignatureFetchError={mobileSignatureFetchError}
+          mobileSignatureReady={mobileSignatureReady}
+         />
+        </EsignPhoneSheet>
+        ) : (
         <SignatureToolsPanel
           mode={isRecipientMode ? "recipient" : "sender"}
           activeSignature={activeSignature}
@@ -2091,9 +2223,10 @@ export default function EsignViewerClient({
           mobileSignatureFetchError={mobileSignatureFetchError}
           mobileSignatureReady={mobileSignatureReady}
          />
+        )
         )}
 
-          <section className="relative order-2 flex min-h-[45vh] flex-1 flex-col lg:order-none lg:min-h-0">
+          <section className={`relative flex min-h-0 flex-1 flex-col ${phoneLayout ? "order-none" : "order-2 min-h-[45vh] lg:order-none"}`}>
             <div className="absolute left-1/2 top-2 z-10 flex max-w-[calc(100%-1rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-1.5 rounded-lg bg-white px-2 py-1.5 shadow-sm text-xs">
               <button
                 type="button"
@@ -2158,7 +2291,9 @@ export default function EsignViewerClient({
 
             <div
               ref={scrollContainerRef}
-              className="flex-1 min-h-0 overflow-y-auto bg-zinc-100 pt-12 sm:pt-10"
+              className={`flex-1 min-h-0 overflow-y-auto pt-12 sm:pt-10 ${
+                phoneLayout ? "bg-[#ebecf0] touch-pan-y" : "bg-zinc-100"
+              }`}
             >
               <EsignPdfViewer
                 ref={viewerRef}
@@ -2228,7 +2363,15 @@ export default function EsignViewerClient({
           </section>
 
         {isRecipientMode ? (
-        <aside className="order-3 w-full max-h-[48vh] overflow-y-auto border-t bg-white lg:order-none lg:max-h-none lg:w-[320px] lg:border-l lg:border-t-0 lg:overflow-visible lg:flex lg:flex-col">
+        <aside
+          className={
+            phoneLayout
+              ? phoneSheet === "document" || recipientFinished
+                ? "absolute inset-x-0 bottom-0 z-20 max-h-[min(58vh,28rem)] overflow-y-auto rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
+                : "hidden"
+              : "order-3 w-full max-h-[48vh] overflow-y-auto border-t bg-white lg:order-none lg:max-h-none lg:w-[320px] lg:border-l lg:border-t-0 lg:overflow-visible lg:flex lg:flex-col"
+          }
+        >
           <div className="border-b px-4 py-3">
             <div className="font-semibold text-sm">Agreement Progress</div>
             <p className="mt-1 text-xs text-zinc-600">✓ Sender has signed</p>
@@ -2263,7 +2406,15 @@ export default function EsignViewerClient({
           </div>
         </aside>
         ) : (
-        <aside className="order-3 w-full max-h-[56vh] overflow-y-auto border-t bg-white lg:order-none lg:max-h-none lg:w-[320px] lg:border-l lg:border-t-0 lg:overflow-visible lg:flex lg:flex-col">
+        <aside
+          className={
+            phoneLayout
+              ? phoneSheet === "document"
+                ? "absolute inset-x-0 bottom-0 z-20 max-h-[min(58vh,28rem)] overflow-y-auto rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
+                : "hidden"
+              : "order-3 w-full max-h-[56vh] overflow-y-auto border-t bg-white lg:order-none lg:max-h-none lg:w-[320px] lg:border-l lg:border-t-0 lg:overflow-visible lg:flex lg:flex-col"
+          }
+        >
           <div className="flex-1 overflow-y-auto px-4 py-3 text-sm space-y-6">
             {/* Section A: Download Signed Document */}
             <div className="space-y-2">
@@ -2279,51 +2430,8 @@ export default function EsignViewerClient({
               <button
                 type="button"
                 disabled={signatures.length === 0 || !hasLockedSignature || downloading}
-                onClick={async () => {
-                  if (signatures.length === 0 || !hasLockedSignature || downloading) return;
-                  setDownloadError(null);
-                  try {
-                    setDownloading(true);
-                    const placements = signatures.map((s) => ({
-                      page: s.page,
-                      xNorm: s.xNorm,
-                      yNorm: s.yNorm,
-                      wNorm: s.wNorm,
-                      hNorm: s.hNorm,
-                      imageDataUrl: s.imageDataUrl,
-                      locked: s.locked,
-                    }));
-                    const res = await fetch("/api/esign/export", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ documentId, placements }),
-                    });
-                    if (!res.ok) {
-                      const json = await res.json().catch(() => ({}));
-                      setDownloadError(json?.error || "Export failed.");
-                      return;
-                    }
-                    const blob = await res.blob();
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    const name = (docData.fileName || documentId).replace(/\.pdf$/i, "") + ".pdf";
-                    a.download = `SIGNED-${name}`;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    URL.revokeObjectURL(url);
-                    trackEsignDataLayerEvent(
-                      esignPdfDownloadDataLayerEvent({
-                        exportSucceeded: true,
-                        downloadInitiated: true,
-                      })
-                    );
-                  } catch (e: any) {
-                    setDownloadError(e?.message || "Download failed.");
-                  } finally {
-                    setDownloading(false);
-                  }
+                onClick={() => {
+                  void handleDownloadSignedCopy();
                 }}
                 className={`w-full rounded px-3 py-2 text-xs font-medium ${
                   signatures.length === 0 || !hasLockedSignature || downloading
@@ -2527,9 +2635,6 @@ export default function EsignViewerClient({
                               alert(msg);
                               return;
                             }
-                            trackEsignDataLayerEvent(
-                              esignCountersignShareDataLayerEvent({ inviteSucceeded: true })
-                            );
                             const url = `${window.location.origin}${json.url}`;
                             setGeneratedInviteLink(url);
                             setCopiedInvite(false);
@@ -2653,6 +2758,44 @@ export default function EsignViewerClient({
         </aside>
         )}
         </div>
+        {phoneLayout && !recipientFinished && (
+          <EsignPhoneDock
+            mode={isRecipientMode ? "recipient" : "sender"}
+            signOpen={phoneSheet === "sign"}
+            documentOpen={phoneSheet === "document"}
+            lockButton={phoneLockButton}
+            hasSelectedSignature={!!selectedSignatureId}
+            downloading={downloading}
+            canDownload={signatures.length > 0 && hasLockedSignature}
+            recipientCompleteLabel={recipientActionLabel(phase)}
+            recipientCompleteEnabled={recipientCanComplete && !recipientTargetMissing}
+            recipientCompleting={recipientCompleting}
+            onOpenSign={() =>
+              setPhoneSheet((current) => (current === "sign" ? null : "sign"))
+            }
+            onOpenDocument={() =>
+              setPhoneSheet((current) => (current === "document" ? null : "document"))
+            }
+            onLock={handleLockSignature}
+            onDelete={handleDeleteSignature}
+            onDownload={() => {
+              void handleDownloadSignedCopy();
+            }}
+            onShare={() => {
+              if (!hasLockedSignature) {
+                setCountersignLockHint(true);
+                setPhoneSheet("document");
+                return;
+              }
+              setCountersignLockHint(false);
+              setCountersignSetupOpen(true);
+              setPhoneSheet("document");
+            }}
+            onRecipientComplete={() => {
+              void handleRecipientComplete();
+            }}
+          />
+        )}
       </div>
 
       {showCompletionPopup && (

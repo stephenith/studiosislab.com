@@ -3278,8 +3278,9 @@ export default function EsignViewerClient({
           }
         >
           <div
-            className="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain px-4 py-3 text-sm"
-            style={phoneLayout ? { WebkitOverflowScrolling: "touch" } : undefined}
+            className={`min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain px-4 py-3 text-sm ${
+              phoneLayout ? "touch-manipulation" : ""
+            }`}
           >
             {/* Section A: Download Signed Document */}
             <div className="space-y-2">
@@ -3337,9 +3338,10 @@ export default function EsignViewerClient({
                   }}
                   className={`flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
                     hasLockedSignature
-                      ? "border-green-700 bg-green-600 text-white hover:bg-green-700 focus-visible:outline-green-700"
+                      ? "cursor-pointer border-green-700 bg-green-600 text-white focus-visible:outline-green-700"
                       : "cursor-not-allowed border-zinc-200 bg-zinc-200 text-zinc-500"
                   }`}
+                  style={phoneLayout ? { touchAction: "manipulation" } : undefined}
                 >
                   <Share2 aria-hidden className="h-4 w-4" strokeWidth={2} />
                   Click to share for countersignature
@@ -3373,7 +3375,8 @@ export default function EsignViewerClient({
                           locked: false,
                         });
                       }}
-                      className="flex w-full items-center justify-center gap-2 rounded-lg border border-orange-600 bg-orange-500 px-3 py-2.5 text-xs font-medium text-white shadow-sm hover:bg-orange-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300"
+                      className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-orange-600 bg-orange-500 px-3 py-2.5 text-xs font-medium text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300"
+                      style={phoneLayout ? { touchAction: "manipulation" } : undefined}
                     >
                       <Plus aria-hidden className="h-4 w-4" strokeWidth={2} />
                       <span>Add countersign box to continue</span>
@@ -3387,7 +3390,7 @@ export default function EsignViewerClient({
                       disabled={countersignLockPending}
                       onClick={handleLockCountersignPosition}
                       style={{ touchAction: "manipulation" }}
-                      className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-sky-700 bg-sky-600 px-3 py-2.5 text-xs font-medium text-white shadow-sm hover:bg-sky-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 disabled:cursor-wait disabled:opacity-80"
+                      className="flex min-h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-sky-700 bg-sky-600 px-3 py-2.5 text-xs font-medium text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 disabled:cursor-wait disabled:opacity-80"
                     >
                       <Lock aria-hidden className="h-4 w-4" strokeWidth={2} />
                       {countersignLockPending
@@ -3409,7 +3412,8 @@ export default function EsignViewerClient({
                           current ? { ...current, locked: false } : current
                         )
                       }
-                      className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-xs font-medium text-zinc-800 shadow-sm hover:border-zinc-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+                      className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-xs font-medium text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+                      style={phoneLayout ? { touchAction: "manipulation" } : undefined}
                     >
                       <LockOpen aria-hidden className="h-4 w-4" strokeWidth={2} />
                       Unlock countersign position
@@ -3510,7 +3514,7 @@ export default function EsignViewerClient({
                         style={{ touchAction: "manipulation" }}
                         className={`flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium ${
                           canShareCountersign && !countersignSending
-                            ? "border-emerald-300 bg-emerald-100 text-emerald-950 hover:bg-emerald-200"
+                            ? "cursor-pointer border-emerald-300 bg-emerald-100 text-emerald-950"
                             : "cursor-not-allowed border-zinc-200 bg-zinc-200 text-zinc-500"
                         }`}
                       >
@@ -3612,7 +3616,11 @@ export default function EsignViewerClient({
         </aside>
         )}
         </div>
-        {phoneLayout && !recipientFinished && !keyboardOpen && (
+        {phoneLayout && !recipientFinished && (
+          <div
+            className={keyboardOpen ? "invisible pointer-events-none" : undefined}
+            aria-hidden={keyboardOpen}
+          >
           <EsignPhoneDock
             mode={isRecipientMode ? "recipient" : "sender"}
             signOpen={phoneSheet === "sign"}
@@ -3662,6 +3670,7 @@ export default function EsignViewerClient({
               void handleRecipientComplete();
             }}
           />
+          </div>
         )}
       </div>
 

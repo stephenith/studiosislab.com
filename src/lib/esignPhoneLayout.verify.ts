@@ -93,8 +93,10 @@ function main() {
   assert.equal(root.style.top, "0px");
   assert.equal(root.style.height, "420px");
 
-  const closed = pinEsignShellToVisualViewport(root, { height: 780, offsetTop: 0 }, 780);
+  const closed = pinEsignShellToVisualViewport(root, { height: 780, offsetTop: 40 }, 780);
   assert.equal(closed.keyboardOpen, false);
+  assert.equal(closed.top, 0);
+  assert.equal(root.style.top, "0px");
 
   const panel = readFileSync(
     path.join(__dirname, "../components/esign/SignatureToolsPanel.tsx"),
@@ -216,8 +218,14 @@ function main() {
   assert.match(viewer, /phoneEsignHeaderFileName/);
   assert.match(ESIGN_PHONE_CONTROL_CLASS, /text-\[16px\]/);
   assert.match(ESIGN_PHONE_CONTROL_CLASS, /min-h-10/);
+  assert.match(ESIGN_PHONE_CONTROL_CLASS, /cursor-pointer/);
+  assert.match(ESIGN_PHONE_CONTROL_CLASS, /touch-manipulation/);
   assert.match(ESIGN_PHONE_DOCUMENT_SHEET_CLASS, /max-h-\[min\(52vh,24rem\)\]/);
   assert.match(ESIGN_PHONE_DOCUMENT_SHEET_CLASS, /pointer-events-auto/);
+  assert.match(ESIGN_PHONE_DOCUMENT_SHEET_CLASS, /touch-manipulation/);
+  assert.equal(/WebkitOverflowScrolling/.test(viewer), false);
+  assert.equal(/!recipientFinished && !keyboardOpen &&/.test(viewer), false);
+  assert.match(viewer, /keyboardOpen \? "invisible pointer-events-none"/);
   assert.match(viewer, /ESIGN_PHONE_CONTROL_CLASS/);
   assert.match(viewer, /handleShareForCountersign/);
   assert.match(viewer, /Recipient signature/);

@@ -21,10 +21,10 @@ export const ESIGN_PHONE_PAGE_TOUCH_ACTION = "pan-x pan-y pinch-zoom";
 
 /** 16px so iOS does not zoom; keep padding compact like the share sheet screenshot. */
 export const ESIGN_PHONE_CONTROL_CLASS =
-  "min-h-10 w-full touch-manipulation rounded border border-zinc-300 bg-white px-2 py-1.5 text-[16px] leading-5 text-zinc-900";
+  "min-h-10 w-full cursor-pointer touch-manipulation rounded border border-zinc-300 bg-white px-2 py-1.5 text-[16px] leading-5 text-zinc-900";
 
 export const ESIGN_PHONE_DOCUMENT_SHEET_CLASS =
-  "pointer-events-auto absolute inset-x-0 bottom-0 z-40 flex max-h-[min(52vh,24rem)] min-h-0 flex-col overflow-hidden rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)]";
+  "pointer-events-auto absolute inset-x-0 bottom-0 z-40 flex max-h-[min(52vh,24rem)] min-h-0 flex-col overflow-hidden rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)] touch-manipulation";
 
 export type EsignPhoneSignals = {
   match: (query: string) => boolean;
@@ -71,7 +71,7 @@ export function pinEsignShellToVisualViewport(
 ): { keyboardOpen: boolean; height: number; top: number } {
   const height = viewport?.height ?? innerHeight;
   const keyboardOpen = innerHeight - height > 80;
-  const top = keyboardOpen ? 0 : viewport?.offsetTop ?? 0;
+  const top = 0;
   root.style.position = "fixed";
   root.style.left = "0";
   root.style.right = "0";

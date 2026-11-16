@@ -123,6 +123,13 @@ export function recipientActionEnabled(phase: RecipientPhase): boolean {
 export const PHONE_UNLOCKED_SIGNATURE_HINT =
   "Tap Lock to secure your signature and continue.";
 
+export const PHONE_ESIGN_HEADER_FALLBACK = "Document";
+
+export function phoneEsignHeaderFileName(fileName?: string | null): string {
+  const trimmed = typeof fileName === "string" ? fileName.trim() : "";
+  return trimmed || PHONE_ESIGN_HEADER_FALLBACK;
+}
+
 export function phoneUnlockedSignatureHint(
   phoneLayout: boolean,
   signatures: Array<{ locked?: boolean }>,

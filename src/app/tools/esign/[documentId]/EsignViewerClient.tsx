@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { ArrowRight, FileUp, Lock, LockOpen, Mail, Plus, Share2 } from "lucide-react";
+import { ArrowRight, Lock, LockOpen, Mail, Plus, Share2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc, onSnapshot, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -18,6 +18,7 @@ import {
 import {
   esignTitleStatus,
   lockButtonView,
+  phoneEsignHeaderFileName,
   phoneUnlockedSignatureHint,
   recipientActionEnabled,
   recipientActionLabel,
@@ -54,6 +55,13 @@ import {
   touchDistance,
   type EsignResizeCorner,
 } from "@/lib/esignPdfTouch";
+import {
+  nearbyEsignPdfPages,
+  phonePdfCanvasMetrics,
+  phonePdfPaintNeeded,
+  phonePdfPreviewOutputScale,
+  phonePdfSharpOutputScale,
+} from "@/lib/esignPdfRender";
 
 type EsignViewerClientProps = {
   documentId: string;
@@ -361,6 +369,11 @@ function EsignPdfViewerInner(
   const viewScaleRef = useRef(1);
   const fallbackPinchActiveRef = useRef(false);
   const pinchActiveRef = pinchActiveFromParent ?? fallbackPinchActiveRef;
+  const pdfDocRef = useRef<any>(null);
+  const pageRenderTaskRef = useRef<Map<number, { cancel: () => void }>>(new Map());
+  const pagePaintScaleRef = useRef<Map<number, number>>(new Map());
+  const pagePaintGenRef = useRef<Map<number, number>>(new Map());
+  const [paintFocusPage, setPaintFocusPage] = useState(1);
   const onPageSelectRef = useRef(onPageSelect);
   const touchChromeRef = useRef(touchChrome);
   onPageSelectRef.current = onPageSelect;
@@ -387,6 +400,68 @@ function EsignPdfViewerInner(
   useEffect(() => {
     signaturesLockedRef.current = new Set(lockedSignatureIds ?? []);
   }, [lockedSignatureIds]);
+
+  const paintPhonePage = useCallback(async (pageNumber: number, outputScale: number) => {
+    const pdf = pdfDocRef.current;
+    const container = containerRef.current;
+    if (!pdf || !container) return;
+    const wrapper = container.querySelector<HTMLElement>(
+      `[data-esign-page="${pageNumber}"]`
+    );
+    const live = wrapper?.querySelector("canvas");
+    if (!wrapper || !live) return;
+    const cssWidth = Number(wrapper.dataset.esignCssWidth);
+    const cssHeight = Number(wrapper.dataset.esignCssHeight);
+    const layoutScale = Number(wrapper.dataset.esignLayoutScale);
+    if (!(cssWidth > 0 && cssHeight > 0 && layoutScale > 0)) return;
+    const metrics = phonePdfCanvasMetrics({ cssWidth, cssHeight, outputScale });
+    if (
+      !phonePdfPaintNeeded(
+        pagePaintScaleRef.current.get(pageNumber) ?? 0,
+        metrics.outputScale
+      )
+    ) {
+      return;
+    }
+    const gen = (pagePaintGenRef.current.get(pageNumber) ?? 0) + 1;
+    pagePaintGenRef.current.set(pageNumber, gen);
+    try {
+      pageRenderTaskRef.current.get(pageNumber)?.cancel();
+    } catch {
+      // pdf.js cancel throws when the task is already done.
+    }
+    const page = await pdf.getPage(pageNumber);
+    if (pagePaintGenRef.current.get(pageNumber) !== gen) return;
+    const viewport = page.getViewport({ scale: layoutScale });
+    const offscreen = document.createElement("canvas");
+    offscreen.width = metrics.canvasWidth;
+    offscreen.height = metrics.canvasHeight;
+    const context = offscreen.getContext("2d");
+    if (!context) return;
+    const task = page.render({
+      canvasContext: context,
+      viewport,
+      transform: [metrics.outputScale, 0, 0, metrics.outputScale, 0, 0],
+    } as any);
+    pageRenderTaskRef.current.set(pageNumber, task);
+    try {
+      await task.promise;
+    } catch {
+      return;
+    } finally {
+      if (pageRenderTaskRef.current.get(pageNumber) === task) {
+        pageRenderTaskRef.current.delete(pageNumber);
+      }
+    }
+    if (pagePaintGenRef.current.get(pageNumber) !== gen) return;
+    if (!live.isConnected) return;
+    offscreen.style.display = "block";
+    offscreen.style.margin = "0 auto";
+    offscreen.style.width = `${metrics.cssWidth}px`;
+    offscreen.style.height = `${metrics.cssHeight}px`;
+    live.replaceWith(offscreen);
+    pagePaintScaleRef.current.set(pageNumber, metrics.outputScale);
+  }, []);
 
   const placeAtCenter = useCallback((dataUrl: string, pageNumber: number) => {
     if (!dataUrl) return false;
@@ -634,10 +709,24 @@ function EsignPdfViewerInner(
 
         const container = containerRef.current;
         if (!container) return;
+        pageRenderTaskRef.current.forEach((task) => {
+          try {
+            task.cancel();
+          } catch {
+            // Ignore completed tasks.
+          }
+        });
+        pageRenderTaskRef.current.clear();
+        pagePaintScaleRef.current.clear();
+        pagePaintGenRef.current.clear();
+        pdfDocRef.current = pdf;
         container.innerHTML = "";
 
         const effectiveWidth =
           (containerWidth ?? container.clientWidth) || 800;
+        const previewOutputScale = touchChrome
+          ? phonePdfPreviewOutputScale(window.devicePixelRatio || 1)
+          : 1;
 
         for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
           const page = await pdf.getPage(pageNumber);
@@ -649,18 +738,38 @@ function EsignPdfViewerInner(
               ? effectiveWidth / baseViewport.width
               : zoomScale;
           const viewport = page.getViewport({ scale });
+          const metrics = touchChrome
+            ? phonePdfCanvasMetrics({
+                cssWidth: viewport.width,
+                cssHeight: viewport.height,
+                outputScale: previewOutputScale,
+              })
+            : {
+                outputScale: 1,
+                canvasWidth: viewport.width,
+                canvasHeight: viewport.height,
+                cssWidth: viewport.width,
+                cssHeight: viewport.height,
+              };
 
           const canvas = document.createElement("canvas");
           const context = canvas.getContext("2d");
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
+          canvas.width = metrics.canvasWidth;
+          canvas.height = metrics.canvasHeight;
           canvas.style.display = "block";
           canvas.style.margin = "0 auto";
+          if (touchChrome) {
+            canvas.style.width = `${metrics.cssWidth}px`;
+            canvas.style.height = `${metrics.cssHeight}px`;
+          }
 
           const pageWrapper = document.createElement("div");
           pageWrapper.style.position = "relative";
           pageWrapper.style.marginBottom = "24px";
           pageWrapper.dataset.pageNumber = String(pageNumber);
+          pageWrapper.dataset.esignCssWidth = String(metrics.cssWidth);
+          pageWrapper.dataset.esignCssHeight = String(metrics.cssHeight);
+          pageWrapper.dataset.esignLayoutScale = String(scale);
           pageWrapper.setAttribute("data-esign-page", String(pageNumber));
           pageWrapper.appendChild(canvas);
 
@@ -713,11 +822,29 @@ function EsignPdfViewerInner(
           pageWrapper.appendChild(overlay);
           container.appendChild(pageWrapper);
 
-          await page.render({
+          const renderParams: {
+            canvasContext: CanvasRenderingContext2D;
+            viewport: typeof viewport;
+            transform?: number[];
+          } = {
             canvasContext: context!,
             viewport,
-          }).promise;
+          };
+          if (touchChrome && metrics.outputScale !== 1) {
+            renderParams.transform = [
+              metrics.outputScale,
+              0,
+              0,
+              metrics.outputScale,
+              0,
+              0,
+            ];
+          }
+          await page.render(renderParams as any).promise;
           if (cancelled) return;
+          if (touchChrome) {
+            pagePaintScaleRef.current.set(pageNumber, metrics.outputScale);
+          }
           setRenderedPageCount(pageNumber);
           if (pageNumber === 1) setLoading(false);
         }
@@ -731,9 +858,39 @@ function EsignPdfViewerInner(
     run();
     return () => {
       cancelled = true;
+      pageRenderTaskRef.current.forEach((task) => {
+        try {
+          task.cancel();
+        } catch {
+          // Ignore completed tasks.
+        }
+      });
+      pageRenderTaskRef.current.clear();
     };
     // PDF pages only rerender when document/zoom/source change. Signatures are rendered in a separate effect.
-  }, [documentId, zoomMode, zoomScale, containerWidth, useFinalPdf]);
+  }, [documentId, zoomMode, zoomScale, containerWidth, useFinalPdf, touchChrome]);
+
+  useEffect(() => {
+    if (!touchChrome || loading) return;
+    const pdf = pdfDocRef.current;
+    if (!pdf) return;
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      if (cancelled || pinchActiveRef.current) return;
+      const pageCount = Number(pdf.numPages) || 0;
+      const nearby = new Set(nearbyEsignPdfPages(paintFocusPage, pageCount));
+      const dpr = window.devicePixelRatio || 1;
+      const sharp = phonePdfSharpOutputScale(dpr, viewScaleRef.current);
+      const preview = phonePdfPreviewOutputScale(dpr);
+      for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
+        void paintPhonePage(pageNumber, nearby.has(pageNumber) ? sharp : preview);
+      }
+    }, 160);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [touchChrome, loading, renderedPageCount, viewScale, paintFocusPage, paintPhonePage]);
 
   // Sync signatures from state into overlay layers. Does NOT rebuild PDF canvases.
   useEffect(() => {
@@ -908,6 +1065,7 @@ function EsignPdfViewerInner(
           }
         });
         onVisiblePageChange(bestPage);
+        setPaintFocusPage(bestPage);
       },
       { root, rootMargin: "0px", threshold: [0, 0.25, 0.5, 0.75, 1] }
     );
@@ -2441,6 +2599,12 @@ export default function EsignViewerClient({
                 priority
               />
             </Link>
+            {phoneLayout ? (
+              <div className="min-w-0 flex-1 truncate text-sm font-medium text-white">
+                {phoneEsignHeaderFileName(docData.fileName)}
+              </div>
+            ) : (
+              <>
             <div
               className="shrink-0 self-center w-px bg-white/15"
               style={{ height: 18 }}
@@ -2455,16 +2619,9 @@ export default function EsignViewerClient({
                 {createdLabel && ` • ${createdLabel}`}
               </div>
             </div>
+              </>
+            )}
           </div>
-          {phoneLayout && !isRecipientMode && (
-            <Link
-              href="/tools"
-              aria-label="Upload PDF"
-              className="shrink-0 rounded-md p-2 text-white/80 hover:bg-white/10 hover:text-white"
-            >
-              <FileUp aria-hidden className="h-4 w-4" strokeWidth={2} />
-            </Link>
-          )}
           <div className="hidden shrink-0 items-center gap-1 md:flex">
             {steps.map((s, i) => (
               <div key={i} className="flex items-center gap-1">
@@ -2487,9 +2644,11 @@ export default function EsignViewerClient({
               </div>
             ))}
           </div>
+          {!phoneLayout && (
           <div className="shrink-0 text-[11px] text-white/70 md:hidden">
             {statusLabel}
           </div>
+          )}
         </header>
 
         <div

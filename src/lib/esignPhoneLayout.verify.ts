@@ -13,7 +13,9 @@ import {
   wantsEsignPhoneLayout,
 } from "./esignPhoneLayout";
 import {
+  PHONE_ESIGN_HEADER_FALLBACK,
   PHONE_UNLOCKED_SIGNATURE_HINT,
+  phoneEsignHeaderFileName,
   phoneUnlockedSignatureHint,
 } from "./esignViewerState";
 
@@ -117,7 +119,7 @@ function main() {
   assert.match(viewer, /\/api\/esign\/export/);
   assert.match(viewer, /\/api\/esign\/invite/);
   assert.match(viewer, /\/api\/esign\/invite\/complete/);
-  assert.match(viewer, /href="\/tools"/);
+  assert.match(viewer, /router\.push\("\/tools"\)/);
   assert.match(viewer, /bg-\[#000000\]/);
 
   const dock = readFileSync(
@@ -142,6 +144,14 @@ function main() {
   assert.match(viewer, /phonePinchStageSize/);
   assert.equal(/absolute left-0 top-0 w-full origin-top-left/.test(viewer), false);
   assert.match(viewer, /origin-top-left/);
+  assert.match(viewer, /phoneEsignHeaderFileName/);
+  assert.match(viewer, /phonePdfCanvasMetrics/);
+  assert.match(viewer, /paintPhonePage/);
+  assert.equal(phoneEsignHeaderFileName(" Agreement.pdf "), "Agreement.pdf");
+  assert.equal(phoneEsignHeaderFileName(""), PHONE_ESIGN_HEADER_FALLBACK);
+  assert.equal(phoneEsignHeaderFileName(null), PHONE_ESIGN_HEADER_FALLBACK);
+  assert.match(viewer, /Untitled document/);
+  assert.equal(/aria-label="Upload PDF"/.test(viewer), false);
 
   console.log("esignPhoneLayout.verify.ts: pass");
 }

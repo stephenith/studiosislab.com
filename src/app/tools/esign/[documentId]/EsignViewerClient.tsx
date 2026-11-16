@@ -361,6 +361,7 @@ function EsignPdfViewerInner(
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const pageWrapperRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const recipientTargetScrolledRef = useRef(false);
+  const senderBoxRevealRef = useRef<string | null>(null);
   const onSignaturesPaintedRef = useRef(onSignaturesPainted);
   onSignaturesPaintedRef.current = onSignaturesPainted;
 
@@ -785,6 +786,8 @@ function EsignPdfViewerInner(
           overlay.style.position = "absolute";
           overlay.style.inset = "0";
           overlay.style.cursor = "crosshair";
+          overlay.style.pointerEvents = "none";
+          overlay.style.zIndex = "1";
           overlay.dataset.pageNumber = String(pageNumber);
           overlay.setAttribute("data-esign-overlay", "true");
           overlay.addEventListener("pointerdown", (event) => {
@@ -1097,6 +1100,14 @@ function EsignPdfViewerInner(
   }, [signatures.length, loading, scrollContainerRef, onVisiblePageChange]);
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    container.querySelectorAll<HTMLDivElement>("[data-esign-overlay]").forEach((overlay) => {
+      overlay.style.pointerEvents = placing ? "auto" : "none";
+    });
+  }, [placing, loading, renderedPageCount]);
+
+  useEffect(() => {
     if (countersignPlaceholder?.locked) countersignGestureRef.current = false;
   }, [countersignPlaceholder?.locked]);
 
@@ -1129,13 +1140,30 @@ function EsignPdfViewerInner(
     box.style.top = `${yNorm * h}px`;
     box.style.width = `${wNorm * w}px`;
     box.style.height = `${hNorm * h}px`;
-    box.style.border = "2px dashed #dc2626";
-    box.style.backgroundColor = "rgba(254,226,226,0.3)";
+    box.style.border = "3px dashed #dc2626";
+    box.style.backgroundColor = "rgba(220,38,38,0.22)";
+    box.style.outline = "1px solid rgba(255,255,255,0.95)";
+    box.style.outlineOffset = "0px";
     box.style.boxSizing = "border-box";
     box.style.pointerEvents = countersignPlaceholder.locked ? "none" : "auto";
     box.style.cursor = countersignPlaceholder.locked ? "default" : "move";
     box.style.touchAction = "none";
-    box.style.zIndex = "2";
+    box.style.zIndex = "3";
+    const caption = document.createElement("div");
+    caption.textContent = "Recipient signature";
+    caption.style.position = "absolute";
+    caption.style.left = "4px";
+    caption.style.top = "4px";
+    caption.style.padding = "1px 4px";
+    caption.style.borderRadius = "4px";
+    caption.style.background = "rgba(220,38,38,0.92)";
+    caption.style.color = "#fff";
+    caption.style.fontSize = "10px";
+    caption.style.fontWeight = "600";
+    caption.style.lineHeight = "14px";
+    caption.style.pointerEvents = "none";
+    caption.style.whiteSpace = "nowrap";
+    box.appendChild(caption);
     if (!interactive) {
       box.style.pointerEvents = "none";
       box.style.cursor = "default";
@@ -1227,14 +1255,19 @@ function EsignPdfViewerInner(
       };
       const handle = document.createElement("div");
       handle.setAttribute("data-resize", "true");
+      handle.setAttribute("data-esign-resize-handle", "true");
       handle.style.position = "absolute";
       handle.style.right = "0";
       handle.style.bottom = "0";
-      handle.style.width = "12px";
-      handle.style.height = "12px";
-      handle.style.backgroundColor = "rgba(0,0,0,0.3)";
+      handle.style.width = "28px";
+      handle.style.height = "28px";
+      handle.style.background =
+        "linear-gradient(135deg, transparent 0 46%, #111827 46% 54%, transparent 54%), #dc2626";
+      handle.style.border = "2px solid #fff";
+      handle.style.borderRadius = "4px 0 0 0";
       handle.style.cursor = "nwse-resize";
       handle.style.touchAction = "none";
+      handle.style.zIndex = "4";
       handle.onpointerdown = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -1283,6 +1316,10 @@ function EsignPdfViewerInner(
     }
 
     overlay.appendChild(box);
+    if (senderBoxRevealRef.current !== countersignPlaceholder.id) {
+      senderBoxRevealRef.current = countersignPlaceholder.id;
+      box.scrollIntoView({ block: "center", inline: "nearest" });
+    }
     return () => {
       if (countersignGestureRef.current) return;
       box.remove();
@@ -1479,6 +1516,7 @@ export default function EsignViewerClient({
       if (
         event.touches.length === 1 &&
         !phonePinchActiveRef.current &&
+        phoneZoomRef.current > 1.02 &&
         !isEsignSignatureTouchTarget(event.target)
       ) {
         panning = true;
@@ -2983,7 +3021,7 @@ export default function EsignViewerClient({
         )
         )}
 
-          <section className={`relative flex min-h-0 flex-1 flex-col ${phoneLayout ? "order-none" : "order-2 min-h-[45vh] lg:order-none"} ${phoneLayout && phoneSheet ? "pointer-events-none" : ""}`}>
+          <section className={`relative flex min-h-0 flex-1 flex-col ${phoneLayout ? "order-none" : "order-2 min-h-[45vh] lg:order-none"}`}>
             {phoneLayout && (
               <div
                 ref={phoneZoomHudElRef}
@@ -3308,10 +3346,9 @@ export default function EsignViewerClient({
                     <button
                       type="button"
                       disabled={countersignLockPending}
-                      onPointerUp={handleLockCountersignPosition}
                       onClick={handleLockCountersignPosition}
                       style={{ touchAction: "manipulation" }}
-                      className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sky-700 bg-sky-600 px-3 py-2.5 text-xs font-medium text-white shadow-sm hover:bg-sky-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 disabled:cursor-wait disabled:opacity-80"
+                      className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-sky-700 bg-sky-600 px-3 py-2.5 text-xs font-medium text-white shadow-sm hover:bg-sky-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 disabled:cursor-wait disabled:opacity-80"
                     >
                       <Lock aria-hidden className="h-4 w-4" strokeWidth={2} />
                       {countersignLockPending
@@ -3446,15 +3483,11 @@ export default function EsignViewerClient({
                       <button
                         type="button"
                         disabled={!canShareCountersign || countersignSending}
-                        onPointerUp={(event) => {
-                          if (!canShareCountersign || countersignSending) return;
-                          void handleShareForCountersign(event);
-                        }}
                         onClick={(event) => {
                           void handleShareForCountersign(event);
                         }}
                         style={{ touchAction: "manipulation" }}
-                        className={`flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium ${
+                        className={`flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium ${
                           canShareCountersign && !countersignSending
                             ? "border-emerald-300 bg-emerald-100 text-emerald-950 hover:bg-emerald-200"
                             : "cursor-not-allowed border-zinc-200 bg-zinc-200 text-zinc-500"

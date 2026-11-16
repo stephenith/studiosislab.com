@@ -13,12 +13,12 @@ export const ESIGN_SIGNATURE_METHODS = ["draw", "upload", "mobile"] as const;
 export const ESIGN_PHONE_HEADER_BG = "#1f1f28";
 export const ESIGN_PHONE_STAGE_BG = "#ebecf0";
 
-/** 16px so iOS does not zoom and steal the first tap on countersign fields. */
+/** 16px so iOS does not zoom; keep padding compact like the share sheet screenshot. */
 export const ESIGN_PHONE_CONTROL_CLASS =
-  "min-h-11 w-full touch-manipulation rounded border border-zinc-300 bg-white px-3 py-2 text-base text-zinc-900";
+  "min-h-10 w-full touch-manipulation rounded border border-zinc-300 bg-white px-2 py-1.5 text-[16px] leading-5 text-zinc-900";
 
 export const ESIGN_PHONE_DOCUMENT_SHEET_CLASS =
-  "pointer-events-auto absolute inset-x-0 bottom-0 z-40 flex max-h-full min-h-0 flex-col overflow-hidden rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)]";
+  "pointer-events-auto absolute inset-x-0 bottom-0 z-40 flex max-h-[min(52vh,24rem)] min-h-0 flex-col overflow-hidden rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)]";
 
 export type EsignPhoneSignals = {
   match: (query: string) => boolean;

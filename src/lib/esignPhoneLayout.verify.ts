@@ -14,7 +14,10 @@ import {
 } from "./esignPhoneLayout";
 import {
   PHONE_ESIGN_HEADER_FALLBACK,
+  PHONE_LOCKED_RECIPIENT_HINT,
+  PHONE_LOCKED_SENDER_HINT,
   PHONE_UNLOCKED_SIGNATURE_HINT,
+  phoneDockGuidance,
   phoneEsignHeaderFileName,
   phoneUnlockedSignatureHint,
 } from "./esignViewerState";
@@ -128,7 +131,11 @@ function main() {
   );
   assert.match(dock, /min-h-11/);
   assert.match(dock, /visualViewport/);
-  assert.match(dock, /lockHint/);
+  assert.match(dock, /dockHint/);
+  assert.match(dock, /bg-lime-400/);
+  assert.match(dock, /bg-orange-400/);
+  assert.match(dock, /left-\[30%\]/);
+  assert.match(dock, /left-\[90%\]/);
 
   assert.equal(
     phoneUnlockedSignatureHint(true, [{ locked: false }]),
@@ -140,7 +147,50 @@ function main() {
     phoneUnlockedSignatureHint(true, [{ locked: false }], true),
     null
   );
-  assert.match(viewer, /phoneUnlockedSignatureHint/);
+  assert.deepEqual(
+    phoneDockGuidance({
+      phoneLayout: true,
+      mode: "sender",
+      signatures: [{ locked: false }],
+    }),
+    { text: PHONE_UNLOCKED_SIGNATURE_HINT, tone: "green", arrow: "lock" }
+  );
+  assert.deepEqual(
+    phoneDockGuidance({
+      phoneLayout: true,
+      mode: "sender",
+      signatures: [{ locked: true }],
+    }),
+    { text: PHONE_LOCKED_SENDER_HINT, tone: "orange", arrow: "share" }
+  );
+  assert.equal(
+    phoneDockGuidance({
+      phoneLayout: true,
+      mode: "sender",
+      signatures: [{ locked: true }],
+      senderLockedHintDismissed: true,
+    }),
+    null
+  );
+  assert.deepEqual(
+    phoneDockGuidance({
+      phoneLayout: true,
+      mode: "recipient",
+      signatures: [{ locked: true }],
+      recipientPhase: "ready",
+    }),
+    { text: PHONE_LOCKED_RECIPIENT_HINT, tone: "orange", arrow: "complete" }
+  );
+  assert.equal(
+    phoneDockGuidance({
+      phoneLayout: true,
+      mode: "recipient",
+      signatures: [{ locked: true }],
+      recipientPhase: "lock",
+    }),
+    null
+  );
+  assert.match(viewer, /phoneDockGuidance/);
   assert.match(viewer, /phonePinchStageSize/);
   assert.equal(/absolute left-0 top-0 w-full origin-top-left/.test(viewer), false);
   assert.match(viewer, /origin-top-left/);

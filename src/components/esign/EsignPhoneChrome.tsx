@@ -14,7 +14,7 @@ import {
   pinEsignShellToVisualViewport,
   wantsEsignPhoneLayout,
 } from "@/lib/esignPhoneLayout";
-import type { LockButtonView } from "@/lib/esignViewerState";
+import type { LockButtonView, PhoneDockGuidance } from "@/lib/esignViewerState";
 
 export function useEsignPhoneLayout() {
   const [phone, setPhone] = useState(false);
@@ -111,7 +111,7 @@ export function EsignPhoneDock({
   signOpen,
   documentOpen,
   lockButton,
-  lockHint = null,
+  dockHint = null,
   hasSelectedSignature,
   downloading,
   canDownload,
@@ -130,7 +130,7 @@ export function EsignPhoneDock({
   signOpen: boolean;
   documentOpen: boolean;
   lockButton: LockButtonView;
-  lockHint?: string | null;
+  dockHint?: PhoneDockGuidance | null;
   hasSelectedSignature: boolean;
   downloading: boolean;
   canDownload: boolean;
@@ -147,10 +147,30 @@ export function EsignPhoneDock({
 }) {
   return (
     <div className="shrink-0 bg-white">
-      {lockHint ? (
-        <p className="px-3 py-1.5 text-center text-[11px] leading-snug text-zinc-600">
-          {lockHint}
-        </p>
+      {dockHint ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`pointer-events-none relative px-3 pb-2 pt-1.5 ${
+            dockHint.tone === "green" ? "bg-lime-400" : "bg-orange-400"
+          }`}
+        >
+          <p className="text-center text-[11px] font-medium leading-snug text-zinc-900">
+            {dockHint.text}
+          </p>
+          <span
+            aria-hidden
+            className={`absolute bottom-0 h-0 w-0 -translate-x-1/2 translate-y-full border-x-[6px] border-x-transparent border-t-[7px] ${
+              dockHint.tone === "green" ? "border-t-lime-400" : "border-t-orange-400"
+            } ${
+              dockHint.arrow === "lock"
+                ? "left-[30%]"
+                : dockHint.arrow === "share"
+                ? "left-[90%]"
+                : "left-[70%]"
+            }`}
+          />
+        </div>
       ) : null}
     <nav
       aria-label="E-sign actions"

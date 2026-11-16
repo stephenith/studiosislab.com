@@ -18,8 +18,8 @@ import {
 import {
   esignTitleStatus,
   lockButtonView,
+  phoneDockGuidance,
   phoneEsignHeaderFileName,
-  phoneUnlockedSignatureHint,
   recipientActionEnabled,
   recipientActionLabel,
   recipientHelperText,
@@ -1264,6 +1264,7 @@ export default function EsignViewerClient({
   const [phoneSheet, setPhoneSheet] = useState<null | "sign" | "document">(null);
   const [phoneZoom, setPhoneZoom] = useState(1);
   const [phoneZoomHud, setPhoneZoomHud] = useState(false);
+  const [senderLockedHintDismissed, setSenderLockedHintDismissed] = useState(false);
   const [selectedPageNumber, setSelectedPageNumber] = useState(1);
   const phoneZoomRef = useRef(1);
   const phonePinchActiveRef = useRef(false);
@@ -2274,6 +2275,15 @@ export default function EsignViewerClient({
       )
     );
   };
+
+  useEffect(() => {
+    if (
+      signatures.length === 0 ||
+      signatures.some((signature) => !signature.locked)
+    ) {
+      setSenderLockedHintDismissed(false);
+    }
+  }, [signatures]);
 
   const handleRecipientComplete = async () => {
     if (!user || !token) {
@@ -3331,11 +3341,15 @@ export default function EsignViewerClient({
             signOpen={phoneSheet === "sign"}
             documentOpen={phoneSheet === "document"}
             lockButton={phoneLockButton}
-            lockHint={phoneUnlockedSignatureHint(
+            dockHint={phoneDockGuidance({
               phoneLayout,
+              mode: isRecipientMode ? "recipient" : "sender",
               signatures,
-              recipientFinished
-            )}
+              recipientFinished,
+              senderLockedHintDismissed:
+                senderLockedHintDismissed || invitationAlreadySent,
+              recipientPhase: phase,
+            })}
             hasSelectedSignature={!!selectedSignatureId}
             downloading={downloading}
             canDownload={signatures.length > 0 && hasLockedSignature}
@@ -3351,9 +3365,11 @@ export default function EsignViewerClient({
             onLock={handleLockSignature}
             onDelete={handleDeleteSignature}
             onDownload={() => {
+              setSenderLockedHintDismissed(true);
               void handleDownloadSignedCopy();
             }}
             onShare={() => {
+              if (hasLockedSignature) setSenderLockedHintDismissed(true);
               if (!hasLockedSignature) {
                 setCountersignLockHint(true);
                 setPhoneSheet("document");

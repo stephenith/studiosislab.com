@@ -123,6 +123,53 @@ export function recipientActionEnabled(phase: RecipientPhase): boolean {
 export const PHONE_UNLOCKED_SIGNATURE_HINT =
   "Tap Lock to secure your signature and continue.";
 
+export const PHONE_LOCKED_SENDER_HINT =
+  "Signature locked. Tap Download to save the signed agreement or Share to request a countersignature.";
+
+export const PHONE_LOCKED_RECIPIENT_HINT =
+  "Signature locked. Tap Complete to finish this agreement.";
+
+export type PhoneDockGuidance = {
+  text: string;
+  tone: "green" | "orange";
+  arrow: "lock" | "share" | "complete";
+};
+
+export function phoneDockGuidance(input: {
+  phoneLayout: boolean;
+  mode: "sender" | "recipient";
+  signatures: Array<{ locked?: boolean }>;
+  recipientFinished?: boolean;
+  senderLockedHintDismissed?: boolean;
+  recipientPhase?: RecipientPhase;
+}): PhoneDockGuidance | null {
+  if (!input.phoneLayout || input.recipientFinished) return null;
+  if (input.signatures.some((signature) => !signature.locked)) {
+    return {
+      text: PHONE_UNLOCKED_SIGNATURE_HINT,
+      tone: "green",
+      arrow: "lock",
+    };
+  }
+  if (!input.signatures.some((signature) => signature.locked)) return null;
+  if (input.mode === "sender") {
+    if (input.senderLockedHintDismissed) return null;
+    return {
+      text: PHONE_LOCKED_SENDER_HINT,
+      tone: "orange",
+      arrow: "share",
+    };
+  }
+  if (input.recipientPhase === "ready") {
+    return {
+      text: PHONE_LOCKED_RECIPIENT_HINT,
+      tone: "orange",
+      arrow: "complete",
+    };
+  }
+  return null;
+}
+
 export const PHONE_ESIGN_HEADER_FALLBACK = "Document";
 
 export function phoneEsignHeaderFileName(fileName?: string | null): string {
@@ -135,9 +182,13 @@ export function phoneUnlockedSignatureHint(
   signatures: Array<{ locked?: boolean }>,
   recipientFinished = false
 ): string | null {
-  if (!phoneLayout || recipientFinished) return null;
-  if (!signatures.some((signature) => !signature.locked)) return null;
-  return PHONE_UNLOCKED_SIGNATURE_HINT;
+  const hint = phoneDockGuidance({
+    phoneLayout,
+    mode: "sender",
+    signatures,
+    recipientFinished,
+  });
+  return hint?.arrow === "lock" ? hint.text : null;
 }
 
 export function esignTitleStatus(input: {

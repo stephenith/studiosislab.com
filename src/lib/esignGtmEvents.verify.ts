@@ -36,7 +36,7 @@ assert.equal(downloadHandler.includes("esign_pdf_download_success"), false);
 assert.equal(downloadHandler.includes("clientEmail"), false);
 assert.equal(downloadHandler.includes("token"), false);
 
-const shareHandler = sliceBetween(viewer, 'fetch("/api/esign/invite"', "Share for countersign");
+const shareHandler = sliceBetween(viewer, 'fetch("/api/esign/invite"', "setGeneratedInviteLink");
 const shareFailure = shareHandler.indexOf("if (!res.ok || !json?.ok)");
 const shareTrack = shareHandler.indexOf("esignCountersignShareDataLayerEvent");
 const shareUrl = shareHandler.indexOf("json.url");

@@ -42,6 +42,10 @@ import {
   EsignPhoneSheet,
   useEsignPhoneLayout,
 } from "@/components/esign/EsignPhoneChrome";
+import {
+  ESIGN_PHONE_CONTROL_CLASS,
+  ESIGN_PHONE_DOCUMENT_SHEET_CLASS,
+} from "@/lib/esignPhoneLayout";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 import {
   dragSignatureBox,
@@ -1319,7 +1323,7 @@ export default function EsignViewerClient({
 }: EsignViewerClientProps) {
   const router = useRouter();
   const { user, loading } = useAuthUser();
-  const { phone: phoneLayout, setShellEl } = useEsignPhoneLayout();
+  const { phone: phoneLayout, keyboardOpen, setShellEl } = useEsignPhoneLayout();
   const [phoneSheet, setPhoneSheet] = useState<null | "sign" | "document">(null);
   const [phoneZoom, setPhoneZoom] = useState(1);
   const [senderLockedHintDismissed, setSenderLockedHintDismissed] = useState(false);
@@ -1571,6 +1575,9 @@ export default function EsignViewerClient({
   const [countersignSetupOpen, setCountersignSetupOpen] = useState(false);
   const [countersignLockHint, setCountersignLockHint] = useState(false);
   const [countersignSending, setCountersignSending] = useState(false);
+  const [countersignShareError, setCountersignShareError] = useState<string | null>(null);
+  const countersignSendingRef = useRef(false);
+  const countersignShareTapRef = useRef(0);
   const [senderEmail, setSenderEmail] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [counterMessage, setCounterMessage] = useState("");
@@ -2392,6 +2399,101 @@ export default function EsignViewerClient({
     [inviteSent, countersignLockPending]
   );
 
+  const handleShareForCountersign = useCallback(
+    async (event?: { preventDefault?: () => void; stopPropagation?: () => void }) => {
+      event?.preventDefault?.();
+      event?.stopPropagation?.();
+      const now = Date.now();
+      if (now - countersignShareTapRef.current < 400) return;
+      countersignShareTapRef.current = now;
+      if (countersignSendingRef.current) return;
+      const alreadySent =
+        inviteSent ||
+        docDataRef.current?.countersignStatus === "sent" ||
+        docDataRef.current?.countersignStatus === "completed";
+      const placeholderLocked = Boolean(countersignPlaceholderRef.current?.locked);
+      const lockedSignature = signaturesRef.current.some((signature) => signature.locked);
+      const sender = senderEmail.trim();
+      const client = clientEmail.trim();
+      if (alreadySent) {
+        setCountersignShareError("This countersign request was already sent.");
+        return;
+      }
+      if (!lockedSignature || !placeholderLocked || !sender || !client) {
+        setCountersignShareError(
+          "Enter both official emails, then tap Share for countersign."
+        );
+        return;
+      }
+      if (!user) {
+        setCountersignShareError("Please sign in first.");
+        return;
+      }
+      countersignSendingRef.current = true;
+      setCountersignSending(true);
+      setCountersignShareError(null);
+      try {
+        const idToken = await user.getIdToken();
+        const res = await fetch("/api/esign/invite", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({
+            documentId,
+            senderEmail: sender,
+            clientEmail: client,
+            message: counterMessage.trim(),
+          }),
+        });
+        const json = await res.json().catch(() => null);
+        if (!res.ok || !json?.ok) {
+          setCountersignShareError(
+            json?.error || "Failed to create countersign invite. Please try again."
+          );
+          return;
+        }
+        trackEsignDataLayerEvent(
+          esignCountersignShareDataLayerEvent({ inviteSucceeded: true })
+        );
+        const url = `${window.location.origin}${json.url}`;
+        setGeneratedInviteLink(url);
+        setCopiedInvite(false);
+        setInviteSent(true);
+        const snap = await getDoc(doc(db, "esign_documents", documentId));
+        if (snap.exists()) {
+          const d = snap.data() as EsignDocument;
+          setDocData((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  countersignStatus: d.countersignStatus ?? prev.countersignStatus,
+                  status: d.status ?? prev.status,
+                }
+              : prev
+          );
+        }
+      } catch {
+        setCountersignShareError(
+          "Failed to create countersign request. Please try again."
+        );
+      } finally {
+        countersignSendingRef.current = false;
+        setCountersignSending(false);
+      }
+    },
+    [
+      clientEmail,
+      counterMessage,
+      countersignSending,
+      documentId,
+      inviteSent,
+      senderEmail,
+      user,
+    ]
+  );
+
   useEffect(() => {
     if (
       signatures.length === 0 ||
@@ -2881,7 +2983,7 @@ export default function EsignViewerClient({
         )
         )}
 
-          <section className={`relative flex min-h-0 flex-1 flex-col ${phoneLayout ? "order-none" : "order-2 min-h-[45vh] lg:order-none"}`}>
+          <section className={`relative flex min-h-0 flex-1 flex-col ${phoneLayout ? "order-none" : "order-2 min-h-[45vh] lg:order-none"} ${phoneLayout && phoneSheet ? "pointer-events-none" : ""}`}>
             {phoneLayout && (
               <div
                 ref={phoneZoomHudElRef}
@@ -3050,7 +3152,7 @@ export default function EsignViewerClient({
           className={
             phoneLayout
               ? phoneSheet === "document" || recipientFinished
-                ? "absolute inset-x-0 bottom-0 z-40 max-h-[min(58vh,28rem)] overflow-y-auto rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
+                ? ESIGN_PHONE_DOCUMENT_SHEET_CLASS
                 : "hidden"
               : "order-3 w-full max-h-[48vh] overflow-y-auto border-t bg-white lg:order-none lg:max-h-none lg:w-[320px] lg:border-l lg:border-t-0 lg:overflow-visible lg:flex lg:flex-col"
           }
@@ -3064,7 +3166,7 @@ export default function EsignViewerClient({
                 : recipientHelperText(phase)}
             </p>
           </div>
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-3">
             {recipientFinished ? (
               <a
                 href={`/api/esign/download?documentId=${encodeURIComponent(documentId)}&final=1`}
@@ -3093,12 +3195,15 @@ export default function EsignViewerClient({
           className={
             phoneLayout
               ? phoneSheet === "document"
-                ? "absolute inset-x-0 bottom-0 z-40 max-h-[min(58vh,28rem)] overflow-y-auto rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
+                ? ESIGN_PHONE_DOCUMENT_SHEET_CLASS
                 : "hidden"
               : "order-3 w-full max-h-[56vh] overflow-y-auto border-t bg-white lg:order-none lg:max-h-none lg:w-[320px] lg:border-l lg:border-t-0 lg:overflow-visible lg:flex lg:flex-col"
           }
         >
-          <div className="flex-1 overflow-y-auto px-4 py-3 text-sm space-y-6">
+          <div
+            className="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain px-4 py-3 text-sm"
+            style={phoneLayout ? { WebkitOverflowScrolling: "touch" } : undefined}
+          >
             {/* Section A: Download Signed Document */}
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2">
@@ -3251,10 +3356,28 @@ export default function EsignViewerClient({
                           <input
                             id="esign-sender-email"
                             type="email"
+                            inputMode="email"
+                            autoComplete="email"
+                            autoCapitalize="none"
+                            autoCorrect="off"
+                            spellCheck={false}
                             value={senderEmail}
-                            onChange={(e) => setSenderEmail(e.target.value)}
+                            onChange={(e) => {
+                              setSenderEmail(e.target.value);
+                              setCountersignShareError(null);
+                            }}
+                            onFocus={(e) =>
+                              e.currentTarget.scrollIntoView({
+                                block: "center",
+                                inline: "nearest",
+                              })
+                            }
                             placeholder="your-side@email.com"
-                            className="w-full rounded border border-zinc-300 px-2 py-1 text-xs"
+                            className={
+                              phoneLayout
+                                ? ESIGN_PHONE_CONTROL_CLASS
+                                : "w-full rounded border border-zinc-300 px-2 py-1 text-xs"
+                            }
                           />
                           <p className="text-[11px] text-zinc-500">
                             This email will receive the final counter-signed agreement.
@@ -3267,10 +3390,28 @@ export default function EsignViewerClient({
                           <input
                             id="esign-client-email"
                             type="email"
+                            inputMode="email"
+                            autoComplete="email"
+                            autoCapitalize="none"
+                            autoCorrect="off"
+                            spellCheck={false}
                             value={clientEmail}
-                            onChange={(e) => setClientEmail(e.target.value)}
+                            onChange={(e) => {
+                              setClientEmail(e.target.value);
+                              setCountersignShareError(null);
+                            }}
+                            onFocus={(e) =>
+                              e.currentTarget.scrollIntoView({
+                                block: "center",
+                                inline: "nearest",
+                              })
+                            }
                             placeholder="client-side@email.com"
-                            className="w-full rounded border border-zinc-300 px-2 py-1 text-xs"
+                            className={
+                              phoneLayout
+                                ? ESIGN_PHONE_CONTROL_CLASS
+                                : "w-full rounded border border-zinc-300 px-2 py-1 text-xs"
+                            }
                           />
                           <p className="text-[11px] text-zinc-500">
                             The signing link will be sent here.
@@ -3286,83 +3427,49 @@ export default function EsignViewerClient({
                           id="esign-counter-message"
                           value={counterMessage}
                           onChange={(e) => setCounterMessage(e.target.value)}
+                          onFocus={(e) =>
+                            e.currentTarget.scrollIntoView({
+                              block: "center",
+                              inline: "nearest",
+                            })
+                          }
                           placeholder="Add a short note for the recipient…"
                           rows={3}
-                          className="w-full resize-none rounded border border-zinc-300 px-2 py-1 text-xs"
+                          className={
+                            phoneLayout
+                              ? `${ESIGN_PHONE_CONTROL_CLASS} min-h-[5.5rem] resize-none`
+                              : "w-full resize-none rounded border border-zinc-300 px-2 py-1 text-xs"
+                          }
                         />
                       </div>
 
                       <button
                         type="button"
                         disabled={!canShareCountersign || countersignSending}
-                        onClick={async () => {
+                        onPointerUp={(event) => {
                           if (!canShareCountersign || countersignSending) return;
-                          setCountersignSending(true);
-                          try {
-                            if (!user) {
-                              alert("Please sign in first.");
-                              return;
-                            }
-                            const idToken = await user.getIdToken();
-                            const res = await fetch("/api/esign/invite", {
-                              method: "POST",
-                              headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${idToken}`,
-                              },
-                              body: JSON.stringify({
-                                documentId,
-                                senderEmail: senderEmail.trim(),
-                                clientEmail: clientEmail.trim(),
-                                message: counterMessage.trim(),
-                              }),
-                            });
-                            const json = await res.json().catch(() => null);
-                            if (!res.ok || !json?.ok) {
-                              const msg =
-                                json?.error ||
-                                "Failed to create countersign invite. Please try again.";
-                              alert(msg);
-                              return;
-                            }
-                            trackEsignDataLayerEvent(
-                              esignCountersignShareDataLayerEvent({ inviteSucceeded: true })
-                            );
-                            const url = `${window.location.origin}${json.url}`;
-                            setGeneratedInviteLink(url);
-                            setCopiedInvite(false);
-                            setInviteSent(true);
-                            const snap = await getDoc(doc(db, "esign_documents", documentId));
-                            if (snap.exists()) {
-                              const d = snap.data() as any;
-                              setDocData((prev) =>
-                                prev
-                                  ? {
-                                      ...prev,
-                                      countersignStatus:
-                                        d.countersignStatus ?? prev.countersignStatus,
-                                      status: d.status ?? prev.status,
-                                    }
-                                  : prev
-                              );
-                            }
-                          } catch {
-                            alert(
-                              "Failed to create countersign request. Please try again."
-                            );
-                          } finally {
-                            setCountersignSending(false);
-                          }
+                          void handleShareForCountersign(event);
                         }}
-                        className={`flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium ${
+                        onClick={(event) => {
+                          void handleShareForCountersign(event);
+                        }}
+                        style={{ touchAction: "manipulation" }}
+                        className={`flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium ${
                           canShareCountersign && !countersignSending
                             ? "border-emerald-300 bg-emerald-100 text-emerald-950 hover:bg-emerald-200"
                             : "cursor-not-allowed border-zinc-200 bg-zinc-200 text-zinc-500"
                         }`}
                       >
                         <Mail aria-hidden className="h-4 w-4" strokeWidth={2} />
-                        Share for countersign
+                        {countersignSending
+                          ? "Sending countersign request…"
+                          : "Share for countersign"}
                       </button>
+                      {countersignShareError && (
+                        <p className="text-[11px] text-red-600" role="alert">
+                          {countersignShareError}
+                        </p>
+                      )}
                       <p className="text-[11px] text-zinc-500">
                         Lock both your signature and the countersign position before sharing.
                       </p>
@@ -3451,7 +3558,7 @@ export default function EsignViewerClient({
         </aside>
         )}
         </div>
-        {phoneLayout && !recipientFinished && (
+        {phoneLayout && !recipientFinished && !keyboardOpen && (
           <EsignPhoneDock
             mode={isRecipientMode ? "recipient" : "sender"}
             signOpen={phoneSheet === "sign"}
@@ -3463,7 +3570,9 @@ export default function EsignViewerClient({
               signatures,
               recipientFinished,
               senderLockedHintDismissed:
-                senderLockedHintDismissed || invitationAlreadySent,
+                senderLockedHintDismissed ||
+                invitationAlreadySent ||
+                phoneSheet === "document",
               recipientPhase: phase,
             })}
             hasSelectedSignature={!!selectedSignatureId}

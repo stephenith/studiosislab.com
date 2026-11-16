@@ -9,6 +9,8 @@ import {
   ESIGN_PHONE_MEDIA_QUERY,
   ESIGN_PHONE_STAGE_BG,
   ESIGN_SIGNATURE_METHODS,
+  ESIGN_PHONE_CONTROL_CLASS,
+  ESIGN_PHONE_DOCUMENT_SHEET_CLASS,
   pinEsignShellToVisualViewport,
   wantsEsignPhoneLayout,
 } from "./esignPhoneLayout";
@@ -195,6 +197,14 @@ function main() {
   assert.equal(/absolute left-0 top-0 w-full origin-top-left/.test(viewer), false);
   assert.match(viewer, /origin-top-left/);
   assert.match(viewer, /phoneEsignHeaderFileName/);
+  assert.match(ESIGN_PHONE_CONTROL_CLASS, /text-base/);
+  assert.match(ESIGN_PHONE_CONTROL_CLASS, /min-h-11/);
+  assert.match(ESIGN_PHONE_DOCUMENT_SHEET_CLASS, /max-h-full/);
+  assert.match(ESIGN_PHONE_DOCUMENT_SHEET_CLASS, /pointer-events-auto/);
+  assert.match(viewer, /ESIGN_PHONE_CONTROL_CLASS/);
+  assert.match(viewer, /handleShareForCountersign/);
+  assert.match(viewer, /keyboardOpen/);
+  assert.equal(/max-h-\[min\(58vh,28rem\)\]/.test(viewer), false);
   assert.match(viewer, /phonePdfCanvasMetrics/);
   assert.match(viewer, /paintPhonePage/);
   assert.equal(phoneEsignHeaderFileName(" Agreement.pdf "), "Agreement.pdf");

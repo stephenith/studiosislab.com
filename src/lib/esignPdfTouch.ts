@@ -148,6 +148,24 @@ export function scaledContentSize(
   };
 }
 
+/**
+ * Scrollport size for a CSS-scaled page stack. `unscaledWidth` / `unscaledHeight`
+ * must be the pre-transform layout size. Feeding a width that already grew with
+ * the spacer stretches pages and can scroll them off the stage.
+ */
+export function phonePinchStageSize(
+  unscaledWidth: number,
+  unscaledHeight: number,
+  scale: number,
+  viewportWidth: number
+): { width: number; height: number } {
+  const scaled = scaledContentSize(unscaledWidth, unscaledHeight, scale);
+  return {
+    width: Math.max(Math.max(0, viewportWidth), scaled.width),
+    height: scaled.height,
+  };
+}
+
 export function phoneZoomPercent(scale: number): number {
   return Math.round(clampPhonePinchScale(scale) * 100);
 }

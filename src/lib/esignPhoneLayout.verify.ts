@@ -12,6 +12,10 @@ import {
   pinEsignShellToVisualViewport,
   wantsEsignPhoneLayout,
 } from "./esignPhoneLayout";
+import {
+  PHONE_UNLOCKED_SIGNATURE_HINT,
+  phoneUnlockedSignatureHint,
+} from "./esignViewerState";
 
 function main() {
   assert.deepEqual([...ESIGN_SIGNATURE_METHODS], ["draw", "upload", "mobile"]);
@@ -122,6 +126,22 @@ function main() {
   );
   assert.match(dock, /min-h-11/);
   assert.match(dock, /visualViewport/);
+  assert.match(dock, /lockHint/);
+
+  assert.equal(
+    phoneUnlockedSignatureHint(true, [{ locked: false }]),
+    PHONE_UNLOCKED_SIGNATURE_HINT
+  );
+  assert.equal(phoneUnlockedSignatureHint(true, [{ locked: true }]), null);
+  assert.equal(phoneUnlockedSignatureHint(false, [{ locked: false }]), null);
+  assert.equal(
+    phoneUnlockedSignatureHint(true, [{ locked: false }], true),
+    null
+  );
+  assert.match(viewer, /phoneUnlockedSignatureHint/);
+  assert.match(viewer, /phonePinchStageSize/);
+  assert.equal(/absolute left-0 top-0 w-full origin-top-left/.test(viewer), false);
+  assert.match(viewer, /origin-top-left/);
 
   console.log("esignPhoneLayout.verify.ts: pass");
 }

@@ -11,6 +11,7 @@ import {
   pinchScaleFromDistance,
   pointerDeltaInPageSpace,
   resizeSignatureBox,
+  phonePinchStageSize,
   scaledContentSize,
   scrollToKeepPinchMidpoint,
 } from "./esignPdfTouch";
@@ -73,6 +74,15 @@ function main() {
   const pages = scaledContentSize(300, 800, 2);
   assert.equal(pages.width, 600);
   assert.equal(pages.height, 1600);
+  const stageAtFit = phonePinchStageSize(300, 800, 1, 300);
+  assert.equal(stageAtFit.width, 300);
+  assert.equal(stageAtFit.height, 800);
+  const stageZoomed = phonePinchStageSize(300, 800, 2, 300);
+  assert.equal(stageZoomed.width, 600);
+  assert.equal(stageZoomed.height, 1600);
+  const noFeedback = phonePinchStageSize(300, 800, 2, 300);
+  assert.equal(noFeedback.width, 600);
+  assert.notEqual(phonePinchStageSize(600, 1600, 2, 300).width, 600);
 
   assert.equal(phoneZoomPercent(1.25), 125);
   const mid = pinchMidpointInScroller(

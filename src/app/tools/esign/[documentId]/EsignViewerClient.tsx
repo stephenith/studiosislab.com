@@ -18,6 +18,7 @@ import {
 import {
   esignTitleStatus,
   lockButtonView,
+  phoneUnlockedSignatureHint,
   recipientActionEnabled,
   recipientActionLabel,
   recipientHelperText,
@@ -44,11 +45,11 @@ import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 import {
   dragSignatureBox,
   isEsignSignatureTouchTarget,
+  phonePinchStageSize,
   phoneZoomPercent,
   pinchMidpointInScroller,
   pinchScaleFromDistance,
   resizeSignatureBox,
-  scaledContentSize,
   scrollToKeepPinchMidpoint,
   touchDistance,
   type EsignResizeCorner,
@@ -1171,11 +1172,24 @@ export default function EsignViewerClient({
     const spacer = phoneSpacerRef.current;
     if (!scroller || !inner || !spacer) return;
 
+    const layoutUnscaledWidth = () => {
+      const viewportWidth = scroller.clientWidth;
+      if (viewportWidth > 0) inner.style.width = `${viewportWidth}px`;
+    };
+
     const syncSpacer = (scale: number) => {
-      const size = scaledContentSize(inner.scrollWidth, inner.scrollHeight, scale);
-      spacer.style.width = `${Math.max(scroller.clientWidth, size.width)}px`;
+      layoutUnscaledWidth();
+      const size = phonePinchStageSize(
+        inner.offsetWidth,
+        inner.offsetHeight,
+        scale,
+        scroller.clientWidth
+      );
+      spacer.style.width = `${size.width}px`;
       spacer.style.height = `${size.height}px`;
     };
+    inner.style.transformOrigin = "top left";
+    inner.style.willChange = "transform";
     syncSpacer(phoneZoomRef.current);
 
     let startDistance = 0;
@@ -1183,6 +1197,8 @@ export default function EsignViewerClient({
     let panX = 0;
     let panY = 0;
     let panning = false;
+    let raf = 0;
+    let pending: { next: number; midpoint: { x: number; y: number } } | null = null;
 
     const showHud = (scale: number) => {
       setPhoneZoomHud(true);
@@ -1191,7 +1207,7 @@ export default function EsignViewerClient({
       void scale;
     };
 
-    const applyScale = (next: number, midpoint: { x: number; y: number }) => {
+    const commitScale = (next: number, midpoint: { x: number; y: number }) => {
       const previous = phoneZoomRef.current;
       if (Math.abs(next - previous) < 0.001) return;
       const keep = scrollToKeepPinchMidpoint({
@@ -1209,6 +1225,17 @@ export default function EsignViewerClient({
       scroller.scrollTop = keep.scrollTop;
       setPhoneZoom(next);
       showHud(next);
+    };
+
+    const applyScale = (next: number, midpoint: { x: number; y: number }) => {
+      pending = { next, midpoint };
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        const frame = pending;
+        pending = null;
+        if (frame) commitScale(frame.next, frame.midpoint);
+      });
     };
 
     const onStart = (event: TouchEvent) => {
@@ -1265,6 +1292,15 @@ export default function EsignViewerClient({
       if (event.touches.length < 2) {
         phonePinchActiveRef.current = false;
         startDistance = 0;
+        const leftover = pending;
+        pending = null;
+        if (raf) {
+          window.cancelAnimationFrame(raf);
+          raf = 0;
+        }
+        if (leftover) commitScale(leftover.next, leftover.midpoint);
+        inner.style.transform = `scale(${phoneZoomRef.current})`;
+        syncSpacer(phoneZoomRef.current);
       }
       if (event.touches.length === 0) panning = false;
       if (event.touches.length === 1) {
@@ -1284,11 +1320,17 @@ export default function EsignViewerClient({
     scroller.addEventListener("gesturestart", preventGesture, { passive: false });
     scroller.addEventListener("gesturechange", preventGesture, { passive: false });
     scroller.addEventListener("gestureend", preventGesture, { passive: false });
-    const observer = new ResizeObserver(() => syncSpacer(phoneZoomRef.current));
+    const observer = new ResizeObserver(() => {
+      if (phonePinchActiveRef.current) return;
+      syncSpacer(phoneZoomRef.current);
+    });
+    observer.observe(scroller);
     observer.observe(inner);
     return () => {
       observer.disconnect();
+      if (raf) window.cancelAnimationFrame(raf);
       if (phoneZoomHudTimerRef.current) clearTimeout(phoneZoomHudTimerRef.current);
+      inner.style.willChange = "";
       scroller.removeEventListener("touchstart", onStart);
       scroller.removeEventListener("touchmove", onMove);
       scroller.removeEventListener("touchend", onEnd);
@@ -2639,12 +2681,16 @@ export default function EsignViewerClient({
             >
               <div
                 ref={phoneSpacerRef}
-                className={phoneLayout ? "relative w-full" : undefined}
+                className={phoneLayout ? "relative" : undefined}
               >
                 <div
                   ref={phonePagesRef}
-                  className={phoneLayout ? "absolute left-0 top-0 w-full origin-top-left" : undefined}
-                  style={phoneLayout ? { transform: `scale(${phoneZoom})` } : undefined}
+                  className={phoneLayout ? "absolute left-0 top-0 origin-top-left" : undefined}
+                  style={
+                    phoneLayout
+                      ? { transform: `scale(${phoneZoom})`, transformOrigin: "top left" }
+                      : undefined
+                  }
                 >
               <EsignPdfViewer
                 ref={viewerRef}
@@ -3126,6 +3172,11 @@ export default function EsignViewerClient({
             signOpen={phoneSheet === "sign"}
             documentOpen={phoneSheet === "document"}
             lockButton={phoneLockButton}
+            lockHint={phoneUnlockedSignatureHint(
+              phoneLayout,
+              signatures,
+              recipientFinished
+            )}
             hasSelectedSignature={!!selectedSignatureId}
             downloading={downloading}
             canDownload={signatures.length > 0 && hasLockedSignature}

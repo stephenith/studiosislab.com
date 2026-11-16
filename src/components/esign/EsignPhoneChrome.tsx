@@ -111,6 +111,7 @@ export function EsignPhoneDock({
   signOpen,
   documentOpen,
   lockButton,
+  lockHint = null,
   hasSelectedSignature,
   downloading,
   canDownload,
@@ -129,6 +130,7 @@ export function EsignPhoneDock({
   signOpen: boolean;
   documentOpen: boolean;
   lockButton: LockButtonView;
+  lockHint?: string | null;
   hasSelectedSignature: boolean;
   downloading: boolean;
   canDownload: boolean;
@@ -144,9 +146,15 @@ export function EsignPhoneDock({
   onRecipientComplete: () => void;
 }) {
   return (
+    <div className="shrink-0 bg-white">
+      {lockHint ? (
+        <p className="px-3 py-1.5 text-center text-[11px] leading-snug text-zinc-600">
+          {lockHint}
+        </p>
+      ) : null}
     <nav
       aria-label="E-sign actions"
-      className="flex shrink-0 items-stretch border-t border-zinc-200 bg-white"
+      className="flex items-stretch border-t border-zinc-200 bg-white"
       style={{ paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }}
     >
       <DockButton label="Sign" active={signOpen} onClick={onOpenSign}>
@@ -204,6 +212,7 @@ export function EsignPhoneDock({
         </>
       )}
     </nav>
+    </div>
   );
 }
 

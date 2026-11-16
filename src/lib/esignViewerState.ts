@@ -120,6 +120,19 @@ export function recipientActionEnabled(phase: RecipientPhase): boolean {
   return phase === "ready";
 }
 
+export const PHONE_UNLOCKED_SIGNATURE_HINT =
+  "Tap Lock to secure your signature and continue.";
+
+export function phoneUnlockedSignatureHint(
+  phoneLayout: boolean,
+  signatures: Array<{ locked?: boolean }>,
+  recipientFinished = false
+): string | null {
+  if (!phoneLayout || recipientFinished) return null;
+  if (!signatures.some((signature) => !signature.locked)) return null;
+  return PHONE_UNLOCKED_SIGNATURE_HINT;
+}
+
 export function esignTitleStatus(input: {
   status?: string | null;
   countersignStatus?: string | null;

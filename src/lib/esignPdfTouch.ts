@@ -204,3 +204,60 @@ export function isEsignSignatureTouchTarget(target: EventTarget | null): boolean
     target.closest("[data-esign-sig-id], [data-esign-resize-handle], [data-esign-countersign-box]")
   );
 }
+
+export function visualRectToLayoutBox(
+  box: { left: number; top: number; width: number; height: number },
+  overlay: { left: number; top: number; width: number; height: number },
+  scale: number
+): EsignBox | null {
+  const safe = scale > 0.01 ? scale : 1;
+  if (!(overlay.width > 0) || !(overlay.height > 0)) return null;
+  const width = box.width / safe;
+  const height = box.height / safe;
+  if (!(width > 0) || !(height > 0)) return null;
+  return {
+    left: (box.left - overlay.left) / safe,
+    top: (box.top - overlay.top) / safe,
+    width,
+    height,
+  };
+}
+
+export function visualClientPointToLayout(
+  clientX: number,
+  clientY: number,
+  overlay: { left: number; top: number; width: number; height: number },
+  scale: number
+): { x: number; y: number } | null {
+  const safe = scale > 0.01 ? scale : 1;
+  if (!(overlay.width > 0) || !(overlay.height > 0)) return null;
+  return {
+    x: (clientX - overlay.left) / safe,
+    y: (clientY - overlay.top) / safe,
+  };
+}
+
+export const COUNTERSIGN_LOCK_ERRORS = {
+  missing:
+    "Place the countersign box on a page first, then tap Lock countersign position to continue.",
+  alreadySent:
+    "This countersign position is already shared and stays in place.",
+} as const;
+
+export function resolveCountersignLock(input: {
+  invitationAlreadySent: boolean;
+  hasPlaceholder: boolean;
+  alreadyLocked: boolean;
+}):
+  | { action: "lock" }
+  | { action: "already_locked" }
+  | { action: "error"; error: string } {
+  if (input.invitationAlreadySent) {
+    return { action: "error", error: COUNTERSIGN_LOCK_ERRORS.alreadySent };
+  }
+  if (!input.hasPlaceholder) {
+    return { action: "error", error: COUNTERSIGN_LOCK_ERRORS.missing };
+  }
+  if (input.alreadyLocked) return { action: "already_locked" };
+  return { action: "lock" };
+}

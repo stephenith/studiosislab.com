@@ -50,9 +50,13 @@ import {
   phoneZoomPercent,
   pinchMidpointInScroller,
   pinchScaleFromDistance,
+  pointerDeltaInPageSpace,
   resizeSignatureBox,
+  resolveCountersignLock,
   scrollToKeepPinchMidpoint,
   touchDistance,
+  visualClientPointToLayout,
+  visualRectToLayoutBox,
   type EsignResizeCorner,
 } from "@/lib/esignPdfTouch";
 import {
@@ -789,8 +793,14 @@ function EsignPdfViewerInner(
             const dataUrl = activeSignatureRef.current;
             if (!dataUrl) return;
             const rect = overlay.getBoundingClientRect();
-            const px = event.clientX - rect.left;
-            const py = event.clientY - rect.top;
+            const layoutPoint = visualClientPointToLayout(
+              event.clientX,
+              event.clientY,
+              rect,
+              viewScaleRef.current
+            );
+            const px = layoutPoint?.x ?? event.clientX - rect.left;
+            const py = layoutPoint?.y ?? event.clientY - rect.top;
             const w = overlay.clientWidth;
             const h = overlay.clientHeight;
             const defaultW = 160;
@@ -878,13 +888,18 @@ function EsignPdfViewerInner(
     const timer = window.setTimeout(() => {
       if (cancelled || pinchActiveRef.current) return;
       const pageCount = Number(pdf.numPages) || 0;
-      const nearby = new Set(nearbyEsignPdfPages(paintFocusPage, pageCount));
+      const nearby = nearbyEsignPdfPages(paintFocusPage, pageCount);
+      const nearbySet = new Set(nearby);
       const dpr = window.devicePixelRatio || 1;
       const sharp = phonePdfSharpOutputScale(dpr, viewScaleRef.current);
       const preview = phonePdfPreviewOutputScale(dpr);
-      for (let pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
-        void paintPhonePage(pageNumber, nearby.has(pageNumber) ? sharp : preview);
-      }
+      const pages = new Set(nearby);
+      pagePaintScaleRef.current.forEach((scale, pageNumber) => {
+        if (phonePdfPaintNeeded(scale, preview)) pages.add(pageNumber);
+      });
+      pages.forEach((pageNumber) => {
+        void paintPhonePage(pageNumber, nearbySet.has(pageNumber) ? sharp : preview);
+      });
     }, 160);
     return () => {
       cancelled = true;
@@ -976,6 +991,7 @@ function EsignPdfViewerInner(
               const up = () => {
                 window.removeEventListener("pointermove", move);
                 window.removeEventListener("pointerup", up);
+                window.removeEventListener("pointercancel", up);
                 onSignatureUpdatedRef.current?.(model.id, {
                   xNorm: img.offsetLeft / overlay.clientWidth,
                   yNorm: img.offsetTop / overlay.clientHeight,
@@ -983,6 +999,7 @@ function EsignPdfViewerInner(
               };
               window.addEventListener("pointermove", move);
               window.addEventListener("pointerup", up);
+              window.addEventListener("pointercancel", up);
             };
             }
           }
@@ -1026,12 +1043,14 @@ function EsignPdfViewerInner(
             const up = () => {
               window.removeEventListener("pointermove", move);
               window.removeEventListener("pointerup", up);
+              window.removeEventListener("pointercancel", up);
               const newXNorm = img.offsetLeft / overlay.clientWidth;
               const newYNorm = img.offsetTop / overlay.clientHeight;
               onSignatureUpdatedRef.current?.(model.id, { xNorm: newXNorm, yNorm: newYNorm });
             };
             window.addEventListener("pointermove", move);
             window.addEventListener("pointerup", up);
+            window.addEventListener("pointercancel", up);
           };
         }
         }
@@ -1065,13 +1084,17 @@ function EsignPdfViewerInner(
           }
         });
         onVisiblePageChange(bestPage);
-        setPaintFocusPage(bestPage);
+        setPaintFocusPage((current) => (current === bestPage ? current : bestPage));
       },
       { root, rootMargin: "0px", threshold: [0, 0.25, 0.5, 0.75, 1] }
     );
     wrappers.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, [signatures.length, loading, scrollContainerRef, onVisiblePageChange]);
+
+  useEffect(() => {
+    if (countersignPlaceholder?.locked) countersignGestureRef.current = false;
+  }, [countersignPlaceholder?.locked]);
 
   // Sync countersign placeholder box (sender-only) into the overlay.
   // A drag keeps this node mounted. Rebuilding it while the pointer is down
@@ -1107,6 +1130,8 @@ function EsignPdfViewerInner(
     box.style.boxSizing = "border-box";
     box.style.pointerEvents = countersignPlaceholder.locked ? "none" : "auto";
     box.style.cursor = countersignPlaceholder.locked ? "default" : "move";
+    box.style.touchAction = "none";
+    box.style.zIndex = "2";
     if (!interactive) {
       box.style.pointerEvents = "none";
       box.style.cursor = "default";
@@ -1123,13 +1148,18 @@ function EsignPdfViewerInner(
     const readNorms = () => {
       if (!box.isConnected) return null;
       const overlayRect = overlay.getBoundingClientRect();
-      const boxRect = box.getBoundingClientRect();
-      if (!(overlayRect.width > 0) || !(overlayRect.height > 0)) return null;
-      if (!(boxRect.width > 0) || !(boxRect.height > 0)) return null;
-      const nextW = Math.min(boxRect.width / overlayRect.width, 1);
-      const nextH = Math.min(boxRect.height / overlayRect.height, 1);
-      const nextX = Math.max(0, Math.min((boxRect.left - overlayRect.left) / overlayRect.width, 1 - nextW));
-      const nextY = Math.max(0, Math.min((boxRect.top - overlayRect.top) / overlayRect.height, 1 - nextH));
+      const layout = visualRectToLayoutBox(
+        box.getBoundingClientRect(),
+        overlayRect,
+        viewScaleRef.current
+      );
+      const pageW = overlay.clientWidth;
+      const pageH = overlay.clientHeight;
+      if (!layout || !(pageW > 0) || !(pageH > 0)) return null;
+      const nextW = Math.min(layout.width / pageW, 1);
+      const nextH = Math.min(layout.height / pageH, 1);
+      const nextX = Math.max(0, Math.min(layout.left / pageW, 1 - nextW));
+      const nextY = Math.max(0, Math.min(layout.top / pageH, 1 - nextH));
       if (![nextX, nextY, nextW, nextH].every((value) => Number.isFinite(value) && value >= 0)) return null;
       if (!(nextW > 0) || !(nextH > 0)) return null;
       return {
@@ -1157,29 +1187,39 @@ function EsignPdfViewerInner(
         e.preventDefault();
         e.stopPropagation();
         countersignGestureRef.current = true;
+        box.setPointerCapture?.(e.pointerId);
         const startX = e.clientX;
         const startY = e.clientY;
         const overlayRect = overlay.getBoundingClientRect();
-        const boxRect = box.getBoundingClientRect();
-        const originLeft = boxRect.left - overlayRect.left;
-        const originTop = boxRect.top - overlayRect.top;
+        const origin = visualRectToLayoutBox(
+          box.getBoundingClientRect(),
+          overlayRect,
+          viewScaleRef.current
+        );
+        if (!origin) {
+          countersignGestureRef.current = false;
+          return;
+        }
         const move = (ev: PointerEvent) => {
-          const width = box.getBoundingClientRect().width || boxRect.width;
-          const height = box.getBoundingClientRect().height || boxRect.height;
-          const maxLeft = Math.max(0, overlay.clientWidth - width);
-          const maxTop = Math.max(0, overlay.clientHeight - height);
-          const nextLeft = Math.max(0, Math.min(originLeft + ev.clientX - startX, maxLeft));
-          const nextTop = Math.max(0, Math.min(originTop + ev.clientY - startY, maxTop));
-          box.style.left = `${nextLeft}px`;
-          box.style.top = `${nextTop}px`;
+          const delta = pointerDeltaInPageSpace(
+            ev.clientX - startX,
+            ev.clientY - startY,
+            viewScaleRef.current
+          );
+          const maxLeft = Math.max(0, overlay.clientWidth - origin.width);
+          const maxTop = Math.max(0, overlay.clientHeight - origin.height);
+          box.style.left = `${Math.max(0, Math.min(origin.left + delta.dx, maxLeft))}px`;
+          box.style.top = `${Math.max(0, Math.min(origin.top + delta.dy, maxTop))}px`;
         };
         const up = () => {
           window.removeEventListener("pointermove", move);
           window.removeEventListener("pointerup", up);
+          window.removeEventListener("pointercancel", up);
           finishGesture();
         };
         window.addEventListener("pointermove", move);
         window.addEventListener("pointerup", up);
+        window.addEventListener("pointercancel", up);
       };
       const handle = document.createElement("div");
       handle.setAttribute("data-resize", "true");
@@ -1190,31 +1230,50 @@ function EsignPdfViewerInner(
       handle.style.height = "12px";
       handle.style.backgroundColor = "rgba(0,0,0,0.3)";
       handle.style.cursor = "nwse-resize";
+      handle.style.touchAction = "none";
       handle.onpointerdown = (e) => {
         e.preventDefault();
         e.stopPropagation();
         countersignGestureRef.current = true;
+        handle.setPointerCapture?.(e.pointerId);
         const startX = e.clientX;
         const startY = e.clientY;
-        const origW = box.getBoundingClientRect().width;
-        const origH = box.getBoundingClientRect().height;
+        const origin = visualRectToLayoutBox(
+          box.getBoundingClientRect(),
+          overlay.getBoundingClientRect(),
+          viewScaleRef.current
+        );
+        if (!origin) {
+          countersignGestureRef.current = false;
+          return;
+        }
         const move = (ev: PointerEvent) => {
-          const overlayRect = overlay.getBoundingClientRect();
-          const boxRect = box.getBoundingClientRect();
-          const left = boxRect.left - overlayRect.left;
-          const top = boxRect.top - overlayRect.top;
+          const delta = pointerDeltaInPageSpace(
+            ev.clientX - startX,
+            ev.clientY - startY,
+            viewScaleRef.current
+          );
+          const layout = visualRectToLayoutBox(
+            box.getBoundingClientRect(),
+            overlay.getBoundingClientRect(),
+            viewScaleRef.current
+          );
+          const left = layout?.left ?? origin.left;
+          const top = layout?.top ?? origin.top;
           const maxW = Math.max(40, overlay.clientWidth - left);
           const maxH = Math.max(24, overlay.clientHeight - top);
-          box.style.width = `${Math.max(40, Math.min(origW + ev.clientX - startX, maxW))}px`;
-          box.style.height = `${Math.max(24, Math.min(origH + ev.clientY - startY, maxH))}px`;
+          box.style.width = `${Math.max(40, Math.min(origin.width + delta.dx, maxW))}px`;
+          box.style.height = `${Math.max(24, Math.min(origin.height + delta.dy, maxH))}px`;
         };
         const up = () => {
           window.removeEventListener("pointermove", move);
           window.removeEventListener("pointerup", up);
+          window.removeEventListener("pointercancel", up);
           finishGesture();
         };
         window.addEventListener("pointermove", move);
         window.addEventListener("pointerup", up);
+        window.addEventListener("pointercancel", up);
       };
       box.appendChild(handle);
     }
@@ -1224,7 +1283,7 @@ function EsignPdfViewerInner(
       if (countersignGestureRef.current) return;
       box.remove();
     };
-  }, [loading, countersignPlaceholder, renderedPageCount, countersignLayoutEpoch, showStaticTarget, onCountersignPlaceholderChange]);
+  }, [loading, countersignPlaceholder, renderedPageCount, countersignLayoutEpoch, showStaticTarget, Boolean(onCountersignPlaceholderChange)]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -1263,7 +1322,6 @@ export default function EsignViewerClient({
   const { phone: phoneLayout, setShellEl } = useEsignPhoneLayout();
   const [phoneSheet, setPhoneSheet] = useState<null | "sign" | "document">(null);
   const [phoneZoom, setPhoneZoom] = useState(1);
-  const [phoneZoomHud, setPhoneZoomHud] = useState(false);
   const [senderLockedHintDismissed, setSenderLockedHintDismissed] = useState(false);
   const [selectedPageNumber, setSelectedPageNumber] = useState(1);
   const phoneZoomRef = useRef(1);
@@ -1271,7 +1329,8 @@ export default function EsignViewerClient({
   const phonePagesRef = useRef<HTMLDivElement | null>(null);
   const phoneSpacerRef = useRef<HTMLDivElement | null>(null);
   const phoneZoomHudTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  phoneZoomRef.current = phoneZoom;
+  const phoneZoomHudElRef = useRef<HTMLDivElement | null>(null);
+  if (!phonePinchActiveRef.current) phoneZoomRef.current = phoneZoom;
 
   const [docData, setDocData] = useState<EsignDocument | null>(null);
   const [loadingDoc, setLoadingDoc] = useState(true);
@@ -1321,7 +1380,6 @@ export default function EsignViewerClient({
   useEffect(() => {
     if (!phoneLayout) {
       setPhoneZoom(1);
-      setPhoneZoomHud(false);
       phonePinchActiveRef.current = false;
       return;
     }
@@ -1360,10 +1418,19 @@ export default function EsignViewerClient({
     let pending: { next: number; midpoint: { x: number; y: number } } | null = null;
 
     const showHud = (scale: number) => {
-      setPhoneZoomHud(true);
+      const el = phoneZoomHudElRef.current;
+      if (el) {
+        el.textContent = `${phoneZoomPercent(scale)}%`;
+        el.style.opacity = "1";
+        el.setAttribute("aria-hidden", "false");
+      }
       if (phoneZoomHudTimerRef.current) clearTimeout(phoneZoomHudTimerRef.current);
-      phoneZoomHudTimerRef.current = setTimeout(() => setPhoneZoomHud(false), 900);
-      void scale;
+      phoneZoomHudTimerRef.current = setTimeout(() => {
+        if (el) {
+          el.style.opacity = "0";
+          el.setAttribute("aria-hidden", "true");
+        }
+      }, 900);
     };
 
     const commitScale = (next: number, midpoint: { x: number; y: number }) => {
@@ -1382,7 +1449,6 @@ export default function EsignViewerClient({
       syncSpacer(next);
       scroller.scrollLeft = keep.scrollLeft;
       scroller.scrollTop = keep.scrollTop;
-      setPhoneZoom(next);
       showHud(next);
     };
 
@@ -1460,6 +1526,7 @@ export default function EsignViewerClient({
         if (leftover) commitScale(leftover.next, leftover.midpoint);
         inner.style.transform = `scale(${phoneZoomRef.current})`;
         syncSpacer(phoneZoomRef.current);
+        setPhoneZoom(phoneZoomRef.current);
       }
       if (event.touches.length === 0) panning = false;
       if (event.touches.length === 1) {
@@ -1535,6 +1602,9 @@ export default function EsignViewerClient({
     string | null
   >(null);
   const [countersignPlaceholder, setCountersignPlaceholder] = useState<CountersignPlaceholderModel | null>(null);
+  const [countersignLockError, setCountersignLockError] = useState<string | null>(null);
+  const [countersignLockPending, setCountersignLockPending] = useState(false);
+  const countersignLockTapRef = useRef(0);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
 
   const signaturesRef = useRef<SignatureModel[]>(signatures);
@@ -1754,6 +1824,7 @@ export default function EsignViewerClient({
           const up = () => {
             window.removeEventListener("pointermove", move);
             window.removeEventListener("pointerup", up);
+            window.removeEventListener("pointercancel", up);
             const nw = overlay.clientWidth;
             const nh = overlay.clientHeight;
             setSignatures((prev) =>
@@ -1772,6 +1843,7 @@ export default function EsignViewerClient({
           };
           window.addEventListener("pointermove", move);
           window.addEventListener("pointerup", up);
+          window.addEventListener("pointercancel", up);
         };
         overlay.appendChild(handle);
         });
@@ -2276,6 +2348,50 @@ export default function EsignViewerClient({
     );
   };
 
+  const handleCountersignPlaceholderChange = useCallback(
+    (next: { page: number; xNorm: number; yNorm: number; wNorm: number; hNorm: number }) => {
+      const alreadySent =
+        inviteSent ||
+        docDataRef.current?.countersignStatus === "sent" ||
+        docDataRef.current?.countersignStatus === "completed";
+      if (alreadySent) return;
+      setCountersignPlaceholder((current) => (current ? { ...current, ...next } : null));
+    },
+    [inviteSent]
+  );
+
+  const handleLockCountersignPosition = useCallback(
+    (event?: { preventDefault?: () => void; stopPropagation?: () => void }) => {
+      event?.preventDefault?.();
+      event?.stopPropagation?.();
+      const now = Date.now();
+      if (now - countersignLockTapRef.current < 400) return;
+      countersignLockTapRef.current = now;
+      if (countersignLockPending) return;
+      const alreadySent =
+        inviteSent ||
+        docDataRef.current?.countersignStatus === "sent" ||
+        docDataRef.current?.countersignStatus === "completed";
+      const resolved = resolveCountersignLock({
+        invitationAlreadySent: alreadySent,
+        hasPlaceholder: Boolean(countersignPlaceholderRef.current),
+        alreadyLocked: Boolean(countersignPlaceholderRef.current?.locked),
+      });
+      if (resolved.action === "error") {
+        setCountersignLockError(resolved.error);
+        return;
+      }
+      setCountersignLockError(null);
+      if (resolved.action === "already_locked") return;
+      setCountersignLockPending(true);
+      setCountersignPlaceholder((current) =>
+        current ? { ...current, locked: true } : current
+      );
+      setCountersignLockPending(false);
+    },
+    [inviteSent, countersignLockPending]
+  );
+
   useEffect(() => {
     if (
       signatures.length === 0 ||
@@ -2768,10 +2884,10 @@ export default function EsignViewerClient({
           <section className={`relative flex min-h-0 flex-1 flex-col ${phoneLayout ? "order-none" : "order-2 min-h-[45vh] lg:order-none"}`}>
             {phoneLayout && (
               <div
-                aria-hidden={!phoneZoomHud}
-                className={`pointer-events-none absolute right-3 top-2 z-20 rounded-full bg-[#1f1f28]/80 px-2 py-0.5 text-[11px] font-medium text-white transition-opacity duration-300 ${
-                  phoneZoomHud ? "opacity-100" : "opacity-0"
-                }`}
+                ref={phoneZoomHudElRef}
+                aria-hidden="true"
+                className="pointer-events-none absolute right-3 top-2 z-20 rounded-full bg-[#1f1f28]/80 px-2 py-0.5 text-[11px] font-medium text-white transition-opacity duration-300"
+                style={{ opacity: 0 }}
               >
                 {phoneZoomPercent(phoneZoom)}%
               </div>
@@ -2916,14 +3032,7 @@ export default function EsignViewerClient({
                     : countersignPlaceholder
                 }
                 onCountersignPlaceholderChange={
-                  isRecipientMode
-                    ? undefined
-                    : (n) => {
-                        if (invitationAlreadySent) return;
-                        setCountersignPlaceholder((p) =>
-                          p ? { ...p, ...n } : null
-                        );
-                      }
+                  isRecipientMode ? undefined : handleCountersignPlaceholderChange
                 }
                 recipientView={isRecipientMode && !recipientFinished}
                 recipientSignatureId={clientSignatureId}
@@ -2941,7 +3050,7 @@ export default function EsignViewerClient({
           className={
             phoneLayout
               ? phoneSheet === "document" || recipientFinished
-                ? "absolute inset-x-0 bottom-0 z-20 max-h-[min(58vh,28rem)] overflow-y-auto rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
+                ? "absolute inset-x-0 bottom-0 z-40 max-h-[min(58vh,28rem)] overflow-y-auto rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
                 : "hidden"
               : "order-3 w-full max-h-[48vh] overflow-y-auto border-t bg-white lg:order-none lg:max-h-none lg:w-[320px] lg:border-l lg:border-t-0 lg:overflow-visible lg:flex lg:flex-col"
           }
@@ -2984,7 +3093,7 @@ export default function EsignViewerClient({
           className={
             phoneLayout
               ? phoneSheet === "document"
-                ? "absolute inset-x-0 bottom-0 z-20 max-h-[min(58vh,28rem)] overflow-y-auto rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
+                ? "absolute inset-x-0 bottom-0 z-40 max-h-[min(58vh,28rem)] overflow-y-auto rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)]"
                 : "hidden"
               : "order-3 w-full max-h-[56vh] overflow-y-auto border-t bg-white lg:order-none lg:max-h-none lg:w-[320px] lg:border-l lg:border-t-0 lg:overflow-visible lg:flex lg:flex-col"
           }
@@ -3067,6 +3176,7 @@ export default function EsignViewerClient({
                       type="button"
                       onClick={() => {
                         if (countersignPlaceholder) return;
+                        setCountersignLockError(null);
                         const id =
                           typeof crypto !== "undefined" && "randomUUID" in crypto
                             ? crypto.randomUUID()
@@ -3092,16 +3202,22 @@ export default function EsignViewerClient({
                   {countersignPlaceholder && !countersignPlaceholder.locked && !invitationAlreadySent && (
                     <button
                       type="button"
-                      onClick={() =>
-                        setCountersignPlaceholder((current) =>
-                          current ? { ...current, locked: true } : current
-                        )
-                      }
-                      className="flex w-full items-center justify-center gap-2 rounded-lg border border-sky-700 bg-sky-600 px-3 py-2.5 text-xs font-medium text-white shadow-sm hover:bg-sky-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"
+                      disabled={countersignLockPending}
+                      onPointerUp={handleLockCountersignPosition}
+                      onClick={handleLockCountersignPosition}
+                      style={{ touchAction: "manipulation" }}
+                      className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sky-700 bg-sky-600 px-3 py-2.5 text-xs font-medium text-white shadow-sm hover:bg-sky-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 disabled:cursor-wait disabled:opacity-80"
                     >
                       <Lock aria-hidden className="h-4 w-4" strokeWidth={2} />
-                      Lock countersign position to continue
+                      {countersignLockPending
+                        ? "Locking countersign position…"
+                        : "Lock countersign position to continue"}
                     </button>
+                  )}
+                  {countersignLockError && (
+                    <p className="text-[11px] text-red-600" role="alert">
+                      {countersignLockError}
+                    </p>
                   )}
 
                   {countersignPlaceholder?.locked && !invitationAlreadySent && (

@@ -14,6 +14,10 @@ import {
   phonePinchStageSize,
   scaledContentSize,
   scrollToKeepPinchMidpoint,
+  visualClientPointToLayout,
+  visualRectToLayoutBox,
+  resolveCountersignLock,
+  COUNTERSIGN_LOCK_ERRORS,
 } from "./esignPdfTouch";
 
 function main() {
@@ -102,6 +106,51 @@ function main() {
   });
   assert.equal(kept.scrollLeft, 100);
   assert.equal(kept.scrollTop, 80);
+
+  const layout = visualRectToLayoutBox(
+    { left: 80, top: 60, width: 120, height: 40 },
+    { left: 40, top: 20, width: 400, height: 600 },
+    2
+  );
+  assert.equal(layout?.left, 20);
+  assert.equal(layout?.top, 20);
+  assert.equal(layout?.width, 60);
+  assert.equal(layout?.height, 20);
+
+  const point = visualClientPointToLayout(80, 60, { left: 40, top: 20, width: 400, height: 600 }, 2);
+  assert.equal(point?.x, 20);
+  assert.equal(point?.y, 20);
+
+  assert.equal(
+    resolveCountersignLock({
+      invitationAlreadySent: false,
+      hasPlaceholder: true,
+      alreadyLocked: false,
+    }).action,
+    "lock"
+  );
+  assert.equal(
+    resolveCountersignLock({
+      invitationAlreadySent: false,
+      hasPlaceholder: true,
+      alreadyLocked: true,
+    }).action,
+    "already_locked"
+  );
+  const missing = resolveCountersignLock({
+    invitationAlreadySent: false,
+    hasPlaceholder: false,
+    alreadyLocked: false,
+  });
+  assert.equal(missing.action, "error");
+  if (missing.action === "error") assert.equal(missing.error, COUNTERSIGN_LOCK_ERRORS.missing);
+  const sent = resolveCountersignLock({
+    invitationAlreadySent: true,
+    hasPlaceholder: true,
+    alreadyLocked: false,
+  });
+  assert.equal(sent.action, "error");
+  if (sent.action === "error") assert.equal(sent.error, COUNTERSIGN_LOCK_ERRORS.alreadySent);
 
   console.log("esignPdfTouch.verify.ts: pass");
 }

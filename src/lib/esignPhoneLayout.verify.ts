@@ -157,7 +157,10 @@ function main() {
   );
   assert.match(dock, /h-11/);
   assert.match(dock, /relative z-50/);
-  assert.match(dock, /pointer-events-none flex flex-col/);
+  assert.match(dock, /pointer-events-none flex flex-col|fillSafeArea \? "h-11" : "pointer-events-none"/);
+  assert.match(dock, /fillSafeArea=\{recipientDock\}/);
+  assert.match(dock, /pb-\[max\(0\.25rem,env\(safe-area-inset-bottom\)\)\]/);
+  assert.match(dock, /data-esign-dock-button/);
   assert.match(dock, /touchAction: "manipulation"/);
   assert.match(dock, /visualViewport/);
   assert.match(dock, /addEventListener\("resize", sync\)/);

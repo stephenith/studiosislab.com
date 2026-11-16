@@ -74,6 +74,7 @@ type DockButtonProps = {
   disabled?: boolean;
   active?: boolean;
   onClick: () => void;
+  fillSafeArea?: boolean;
   children: ReactNode;
 };
 
@@ -82,6 +83,7 @@ function DockButton({
   disabled,
   active,
   onClick,
+  fillSafeArea = false,
   children,
 }: DockButtonProps) {
   return (
@@ -90,8 +92,13 @@ function DockButton({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
+      data-esign-dock-button={label}
       style={{ touchAction: "manipulation" }}
-      className={`flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-medium ${
+      className={`flex min-w-0 flex-1 flex-col items-center px-1 text-[10px] font-medium ${
+        fillSafeArea
+          ? "min-h-11 items-stretch justify-start"
+          : "h-11 justify-center"
+      } ${
         disabled
           ? "text-zinc-400"
           : active
@@ -99,7 +106,11 @@ function DockButton({
           : "text-zinc-700"
       }`}
     >
-      <span className="pointer-events-none flex flex-col items-center justify-center gap-0.5">
+      <span
+        className={`flex w-full flex-col items-center justify-center gap-0.5 ${
+          fillSafeArea ? "h-11" : "pointer-events-none"
+        }`}
+      >
         {children}
         <span className="max-w-full truncate">{label}</span>
       </span>
@@ -146,10 +157,17 @@ export function EsignPhoneDock({
   onShare: () => void;
   onRecipientComplete: () => void;
 }) {
+  const recipientDock = mode === "recipient";
   return (
     <div
-      className="relative z-50 shrink-0 overflow-visible bg-white"
-      style={{ paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }}
+      className={`relative z-50 shrink-0 overflow-visible bg-white ${
+        recipientDock ? "isolate" : ""
+      }`}
+      style={
+        recipientDock
+          ? undefined
+          : { paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }
+      }
     >
       {dockHint ? (
         <div
@@ -178,15 +196,25 @@ export function EsignPhoneDock({
       ) : null}
     <nav
       aria-label="E-sign actions"
-      className="flex h-11 items-stretch border-t border-zinc-200 bg-white"
+      className={`flex items-stretch border-t border-zinc-200 bg-white ${
+        recipientDock
+          ? "relative z-[60] min-h-11 pb-[max(0.25rem,env(safe-area-inset-bottom))]"
+          : "h-11"
+      }`}
     >
-      <DockButton label="Sign" active={signOpen} onClick={onOpenSign}>
+      <DockButton
+        label="Sign"
+        active={signOpen}
+        onClick={onOpenSign}
+        fillSafeArea={recipientDock}
+      >
         <PenLine aria-hidden className="h-4 w-4" strokeWidth={2} />
       </DockButton>
       <DockButton
         label={lockButton.tone === "unlock" ? "Unlock" : "Lock"}
         disabled={lockButton.disabled}
         onClick={onLock}
+        fillSafeArea={recipientDock}
       >
         {lockButton.tone === "unlock" ? (
           <LockOpen aria-hidden className="h-4 w-4" strokeWidth={2} />
@@ -198,6 +226,7 @@ export function EsignPhoneDock({
         label="Delete"
         disabled={!hasSelectedSignature}
         onClick={onDelete}
+        fillSafeArea={recipientDock}
       >
         <Trash2 aria-hidden className="h-4 w-4" strokeWidth={2} />
       </DockButton>
@@ -226,10 +255,16 @@ export function EsignPhoneDock({
             }
             disabled={!recipientCompleteEnabled || recipientCompleting}
             onClick={onRecipientComplete}
+            fillSafeArea
           >
             <Share2 aria-hidden className="h-4 w-4" strokeWidth={2} />
           </DockButton>
-          <DockButton label="Document" active={documentOpen} onClick={onOpenDocument}>
+          <DockButton
+            label="Document"
+            active={documentOpen}
+            onClick={onOpenDocument}
+            fillSafeArea
+          >
             <FileUp aria-hidden className="h-4 w-4" strokeWidth={2} />
           </DockButton>
         </>

@@ -1760,6 +1760,7 @@ export default function EsignViewerClient({
         handle.style.backgroundColor = "#3b82f6";
         handle.style.border = phoneHandles ? "2px solid #ffffff" : "none";
         handle.style.zIndex = "6";
+        handle.style.pointerEvents = "auto";
         handle.style.touchAction = "none";
         handle.style.cursor =
           corner === "tl" || corner === "br" ? "nwse-resize" : "nesw-resize";

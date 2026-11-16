@@ -130,6 +130,9 @@ function main() {
   assert.match(viewer, /\/api\/esign\/invite\/complete/);
   assert.match(viewer, /router\.push\("\/tools"\)/);
   assert.match(viewer, /bg-\[#000000\]/);
+  assert.match(viewer, /\["tl", "tr", "bl", "br"\]/);
+  assert.match(viewer, /handle\.style\.pointerEvents = "auto"/);
+  assert.match(viewer, /handle\.style\.touchAction = "none"/);
 
   const dock = readFileSync(
     path.join(__dirname, "../components/esign/EsignPhoneChrome.tsx"),

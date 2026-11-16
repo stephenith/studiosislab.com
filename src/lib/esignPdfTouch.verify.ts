@@ -75,6 +75,47 @@ function main() {
   assert.equal(tl.left, 40);
   assert.equal(tl.top, 60);
 
+  const tr = resizeSignatureBox({
+    corner: "tr",
+    start: { left: 80, top: 80, width: 80, height: 40 },
+    dx: 40,
+    dy: 0,
+    overlayWidth: 400,
+    overlayHeight: 400,
+    aspect: 2,
+  });
+  assert.equal(tr.left, 80);
+  assert.equal(tr.top, 60);
+  assert.equal(tr.width, 120);
+  assert.equal(tr.height, 60);
+
+  const bl = resizeSignatureBox({
+    corner: "bl",
+    start: { left: 80, top: 80, width: 80, height: 40 },
+    dx: -40,
+    dy: 0,
+    overlayWidth: 400,
+    overlayHeight: 400,
+    aspect: 2,
+  });
+  assert.equal(bl.left, 40);
+  assert.equal(bl.top, 80);
+  assert.equal(bl.width, 120);
+  assert.equal(bl.height, 60);
+
+  const zoomedBr = resizeSignatureBox({
+    corner: "br",
+    start: { left: 10, top: 10, width: 80, height: 40 },
+    dx: 80,
+    dy: 0,
+    overlayWidth: 400,
+    overlayHeight: 400,
+    aspect: 2,
+    scale: 2,
+  });
+  assert.equal(zoomedBr.width, 120);
+  assert.equal(zoomedBr.height, 60);
+
   const pages = scaledContentSize(300, 800, 2);
   assert.equal(pages.width, 600);
   assert.equal(pages.height, 1600);

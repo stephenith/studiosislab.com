@@ -13,6 +13,7 @@ import {
   ESIGN_PHONE_DOCUMENT_SHEET_CLASS,
   ESIGN_PHONE_STAGE_TOUCH_CLASS,
   pinEsignShellToVisualViewport,
+  shouldCommitPhonePointerTap,
   wantsEsignPhoneLayout,
 } from "./esignPhoneLayout";
 import {
@@ -104,6 +105,9 @@ function main() {
   assert.equal(urlBar.keyboardOpen, false);
   assert.equal(urlBar.height, 780);
   assert.equal(root.style.height, "780px");
+  assert.equal(shouldCommitPhonePointerTap({ x: 10, y: 10 }, { x: 12, y: 11 }), true);
+  assert.equal(shouldCommitPhonePointerTap({ x: 10, y: 10 }, { x: 40, y: 40 }), false);
+  assert.equal(shouldCommitPhonePointerTap(null, { x: 10, y: 10 }), false);
 
   const panel = readFileSync(
     path.join(__dirname, "../components/esign/SignatureToolsPanel.tsx"),
@@ -227,8 +231,13 @@ function main() {
   assert.match(viewer, /phoneEsignHeaderFileName/);
   assert.match(ESIGN_PHONE_CONTROL_CLASS, /text-\[16px\]/);
   assert.match(ESIGN_PHONE_CONTROL_CLASS, /min-h-10/);
-  assert.match(ESIGN_PHONE_CONTROL_CLASS, /cursor-pointer/);
+  assert.match(ESIGN_PHONE_CONTROL_CLASS, /cursor-text/);
+  assert.equal(/cursor-pointer/.test(ESIGN_PHONE_CONTROL_CLASS), false);
   assert.match(ESIGN_PHONE_CONTROL_CLASS, /touch-manipulation/);
+  assert.match(viewer, /bindPhoneTap/);
+  assert.match(viewer, /bindPhoneFocus/);
+  assert.match(viewer, /shouldCommitPhonePointerTap/);
+  assert.match(viewer, /focus\(\{ preventScroll: true \}\)/);
   assert.match(ESIGN_PHONE_DOCUMENT_SHEET_CLASS, /max-h-\[min\(52vh,24rem\)\]/);
   assert.match(ESIGN_PHONE_DOCUMENT_SHEET_CLASS, /pointer-events-auto/);
   assert.match(ESIGN_PHONE_DOCUMENT_SHEET_CLASS, /touch-manipulation/);

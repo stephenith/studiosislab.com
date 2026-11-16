@@ -47,6 +47,7 @@ import {
   ESIGN_PHONE_DOCUMENT_SHEET_CLASS,
   ESIGN_PHONE_PAGE_TOUCH_ACTION,
   ESIGN_PHONE_STAGE_TOUCH_CLASS,
+  shouldCommitPhonePointerTap,
 } from "@/lib/esignPhoneLayout";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 import {
@@ -1684,6 +1685,63 @@ export default function EsignViewerClient({
   const [countersignLockError, setCountersignLockError] = useState<string | null>(null);
   const [countersignLockPending, setCountersignLockPending] = useState(false);
   const countersignLockTapRef = useRef(0);
+  const countersignPointerRef = useRef<{ id: number; x: number; y: number } | null>(
+    null
+  );
+  const bindPhoneTap = (activate: () => void) =>
+    phoneLayout
+      ? {
+          onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
+            countersignPointerRef.current = {
+              id: event.pointerId,
+              x: event.clientX,
+              y: event.clientY,
+            };
+          },
+          onPointerUp: (event: React.PointerEvent<HTMLElement>) => {
+            const start = countersignPointerRef.current;
+            countersignPointerRef.current = null;
+            if (!start || start.id !== event.pointerId) return;
+            if (
+              !shouldCommitPhonePointerTap(start, {
+                x: event.clientX,
+                y: event.clientY,
+              })
+            ) {
+              return;
+            }
+            activate();
+          },
+          onClick: (event: React.MouseEvent<HTMLElement>) => {
+            event.preventDefault();
+          },
+        }
+      : {
+          onClick: () => activate(),
+        };
+  const bindPhoneFocus = {
+    onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
+      countersignPointerRef.current = {
+        id: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+      };
+    },
+    onPointerUp: (event: React.PointerEvent<HTMLElement>) => {
+      const start = countersignPointerRef.current;
+      countersignPointerRef.current = null;
+      if (!start || start.id !== event.pointerId) return;
+      if (
+        !shouldCommitPhonePointerTap(start, {
+          x: event.clientX,
+          y: event.clientY,
+        })
+      ) {
+        return;
+      }
+      event.currentTarget.focus({ preventScroll: true });
+    },
+  };
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
 
   const signaturesRef = useRef<SignatureModel[]>(signatures);
@@ -3327,14 +3385,14 @@ export default function EsignViewerClient({
                 <button
                   type="button"
                   aria-disabled={!hasLockedSignature}
-                  onClick={() => {
+                  {...bindPhoneTap(() => {
                     if (!hasLockedSignature) {
                       setCountersignLockHint(true);
                       return;
                     }
                     setCountersignLockHint(false);
                     setCountersignSetupOpen(true);
-                  }}
+                  })}
                   className={`flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
                     hasLockedSignature
                       ? "cursor-pointer border-green-700 bg-green-600 text-white focus-visible:outline-green-700"
@@ -3357,7 +3415,7 @@ export default function EsignViewerClient({
                   {!countersignPlaceholder && !invitationAlreadySent && (
                     <button
                       type="button"
-                      onClick={() => {
+                      {...bindPhoneTap(() => {
                         if (countersignPlaceholder) return;
                         setCountersignLockError(null);
                         const id =
@@ -3373,7 +3431,7 @@ export default function EsignViewerClient({
                           hNorm: 0.1,
                           locked: false,
                         });
-                      }}
+                      })}
                       className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-orange-600 bg-orange-500 px-3 py-2.5 text-xs font-medium text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300"
                       style={phoneLayout ? { touchAction: "manipulation" } : undefined}
                     >
@@ -3387,7 +3445,7 @@ export default function EsignViewerClient({
                     <button
                       type="button"
                       disabled={countersignLockPending}
-                      onClick={handleLockCountersignPosition}
+                      {...bindPhoneTap(() => handleLockCountersignPosition())}
                       style={{ touchAction: "manipulation" }}
                       className="flex min-h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-sky-700 bg-sky-600 px-3 py-2.5 text-xs font-medium text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 disabled:cursor-wait disabled:opacity-80"
                     >
@@ -3406,11 +3464,11 @@ export default function EsignViewerClient({
                   {countersignPlaceholder?.locked && !invitationAlreadySent && (
                     <button
                       type="button"
-                      onClick={() =>
+                      {...bindPhoneTap(() =>
                         setCountersignPlaceholder((current) =>
                           current ? { ...current, locked: false } : current
                         )
-                      }
+                      )}
                       className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-xs font-medium text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
                       style={phoneLayout ? { touchAction: "manipulation" } : undefined}
                     >
@@ -3440,6 +3498,7 @@ export default function EsignViewerClient({
                             autoCapitalize="none"
                             autoCorrect="off"
                             spellCheck={false}
+                            {...(phoneLayout ? bindPhoneFocus : {})}
                             value={senderEmail}
                             onChange={(e) => {
                               setSenderEmail(e.target.value);
@@ -3468,6 +3527,7 @@ export default function EsignViewerClient({
                             autoCapitalize="none"
                             autoCorrect="off"
                             spellCheck={false}
+                            {...(phoneLayout ? bindPhoneFocus : {})}
                             value={clientEmail}
                             onChange={(e) => {
                               setClientEmail(e.target.value);
@@ -3492,6 +3552,7 @@ export default function EsignViewerClient({
                         </label>
                         <textarea
                           id="esign-counter-message"
+                          {...(phoneLayout ? bindPhoneFocus : {})}
                           value={counterMessage}
                           onChange={(e) => setCounterMessage(e.target.value)}
                           placeholder="Add a short note for the recipient…"
@@ -3507,9 +3568,9 @@ export default function EsignViewerClient({
                       <button
                         type="button"
                         disabled={!canShareCountersign || countersignSending}
-                        onClick={(event) => {
-                          void handleShareForCountersign(event);
-                        }}
+                        {...bindPhoneTap(() => {
+                          void handleShareForCountersign();
+                        })}
                         style={{ touchAction: "manipulation" }}
                         className={`flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium ${
                           canShareCountersign && !countersignSending

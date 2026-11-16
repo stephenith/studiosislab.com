@@ -21,7 +21,18 @@ export const ESIGN_PHONE_PAGE_TOUCH_ACTION = "pan-x pan-y pinch-zoom";
 
 /** 16px so iOS does not zoom; keep padding compact like the share sheet screenshot. */
 export const ESIGN_PHONE_CONTROL_CLASS =
-  "min-h-10 w-full cursor-pointer touch-manipulation rounded border border-zinc-300 bg-white px-2 py-1.5 text-[16px] leading-5 text-zinc-900";
+  "min-h-10 w-full cursor-text touch-manipulation rounded border border-zinc-300 bg-white px-2 py-1.5 text-[16px] leading-5 text-zinc-900";
+
+export const ESIGN_PHONE_TAP_SLOP_PX = 12;
+
+export function shouldCommitPhonePointerTap(
+  start: { x: number; y: number } | null | undefined,
+  end: { x: number; y: number },
+  slopPx = ESIGN_PHONE_TAP_SLOP_PX
+): boolean {
+  if (!start) return false;
+  return Math.hypot(end.x - start.x, end.y - start.y) <= slopPx;
+}
 
 export const ESIGN_PHONE_DOCUMENT_SHEET_CLASS =
   "pointer-events-auto absolute inset-x-0 bottom-0 z-50 isolate flex max-h-[min(52vh,24rem)] min-h-0 flex-col overflow-hidden rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)] touch-manipulation [transform:translateZ(0)]";

@@ -45,11 +45,12 @@ import {
 import {
   ESIGN_PHONE_CONTROL_CLASS,
   ESIGN_PHONE_DOCUMENT_SHEET_CLASS,
+  ESIGN_PHONE_PAGE_TOUCH_ACTION,
+  ESIGN_PHONE_STAGE_TOUCH_CLASS,
 } from "@/lib/esignPhoneLayout";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 import {
   dragSignatureBox,
-  isEsignSignatureTouchTarget,
   phonePinchStageSize,
   phoneZoomPercent,
   pinchMidpointInScroller,
@@ -468,6 +469,7 @@ function EsignPdfViewerInner(
     offscreen.style.margin = "0 auto";
     offscreen.style.width = `${metrics.cssWidth}px`;
     offscreen.style.height = `${metrics.cssHeight}px`;
+    offscreen.style.touchAction = ESIGN_PHONE_PAGE_TOUCH_ACTION;
     live.replaceWith(offscreen);
     pagePaintScaleRef.current.set(pageNumber, metrics.outputScale);
   }, []);
@@ -770,11 +772,15 @@ function EsignPdfViewerInner(
           if (touchChrome) {
             canvas.style.width = `${metrics.cssWidth}px`;
             canvas.style.height = `${metrics.cssHeight}px`;
+            canvas.style.touchAction = ESIGN_PHONE_PAGE_TOUCH_ACTION;
           }
 
           const pageWrapper = document.createElement("div");
           pageWrapper.style.position = "relative";
           pageWrapper.style.marginBottom = "24px";
+          if (touchChrome) {
+            pageWrapper.style.touchAction = ESIGN_PHONE_PAGE_TOUCH_ACTION;
+          }
           pageWrapper.dataset.pageNumber = String(pageNumber);
           pageWrapper.dataset.esignCssWidth = String(metrics.cssWidth);
           pageWrapper.dataset.esignCssHeight = String(metrics.cssHeight);
@@ -1452,9 +1458,6 @@ export default function EsignViewerClient({
 
     let startDistance = 0;
     let originScale = 1;
-    let panX = 0;
-    let panY = 0;
-    let panning = false;
     let raf = 0;
     let pending: { next: number; midpoint: { x: number; y: number } } | null = null;
 
@@ -1507,53 +1510,29 @@ export default function EsignViewerClient({
     const onStart = (event: TouchEvent) => {
       if (event.touches.length === 2) {
         phonePinchActiveRef.current = true;
-        panning = false;
         startDistance = touchDistance(event.touches[0], event.touches[1]);
         originScale = phoneZoomRef.current;
         if (event.cancelable) event.preventDefault();
-        return;
-      }
-      if (
-        event.touches.length === 1 &&
-        !phonePinchActiveRef.current &&
-        phoneZoomRef.current > 1.02 &&
-        !isEsignSignatureTouchTarget(event.target)
-      ) {
-        panning = true;
-        panX = event.touches[0].clientX;
-        panY = event.touches[0].clientY;
       }
     };
     const onMove = (event: TouchEvent) => {
-      if (event.touches.length === 2) {
-        phonePinchActiveRef.current = true;
-        panning = false;
-        if (event.cancelable) event.preventDefault();
-        if (!(startDistance > 0)) {
-          startDistance = touchDistance(event.touches[0], event.touches[1]);
-          originScale = phoneZoomRef.current;
-        }
-        const next = pinchScaleFromDistance(
-          startDistance,
-          touchDistance(event.touches[0], event.touches[1]),
-          originScale
-        );
-        const rect = scroller.getBoundingClientRect();
-        applyScale(
-          next,
-          pinchMidpointInScroller(event.touches[0], event.touches[1], rect)
-        );
-        return;
+      if (event.touches.length !== 2) return;
+      phonePinchActiveRef.current = true;
+      if (event.cancelable) event.preventDefault();
+      if (!(startDistance > 0)) {
+        startDistance = touchDistance(event.touches[0], event.touches[1]);
+        originScale = phoneZoomRef.current;
       }
-      if (panning && event.touches.length === 1 && !isEsignSignatureTouchTarget(event.target)) {
-        if (event.cancelable) event.preventDefault();
-        const x = event.touches[0].clientX;
-        const y = event.touches[0].clientY;
-        scroller.scrollLeft -= x - panX;
-        scroller.scrollTop -= y - panY;
-        panX = x;
-        panY = y;
-      }
+      const next = pinchScaleFromDistance(
+        startDistance,
+        touchDistance(event.touches[0], event.touches[1]),
+        originScale
+      );
+      const rect = scroller.getBoundingClientRect();
+      applyScale(
+        next,
+        pinchMidpointInScroller(event.touches[0], event.touches[1], rect)
+      );
     };
     const onEnd = (event: TouchEvent) => {
       if (event.touches.length < 2) {
@@ -1569,12 +1548,6 @@ export default function EsignViewerClient({
         inner.style.transform = `scale(${phoneZoomRef.current})`;
         syncSpacer(phoneZoomRef.current);
         setPhoneZoom(phoneZoomRef.current);
-      }
-      if (event.touches.length === 0) panning = false;
-      if (event.touches.length === 1) {
-        panning = !isEsignSignatureTouchTarget(event.target);
-        panX = event.touches[0].clientX;
-        panY = event.touches[0].clientY;
       }
     };
     const preventGesture = (event: Event) => {
@@ -3100,7 +3073,7 @@ export default function EsignViewerClient({
               ref={scrollContainerRef}
               className={`flex-1 min-h-0 ${
                 phoneLayout
-                  ? "overflow-auto overscroll-contain bg-[#ebecf0] pt-3 touch-none"
+                  ? ESIGN_PHONE_STAGE_TOUCH_CLASS
                   : "overflow-y-auto bg-zinc-100 pt-12 sm:pt-10"
               }`}
             >
@@ -3403,12 +3376,6 @@ export default function EsignViewerClient({
                               setSenderEmail(e.target.value);
                               setCountersignShareError(null);
                             }}
-                            onFocus={(e) =>
-                              e.currentTarget.scrollIntoView({
-                                block: "center",
-                                inline: "nearest",
-                              })
-                            }
                             placeholder="your-side@email.com"
                             className={
                               phoneLayout
@@ -3437,12 +3404,6 @@ export default function EsignViewerClient({
                               setClientEmail(e.target.value);
                               setCountersignShareError(null);
                             }}
-                            onFocus={(e) =>
-                              e.currentTarget.scrollIntoView({
-                                block: "center",
-                                inline: "nearest",
-                              })
-                            }
                             placeholder="client-side@email.com"
                             className={
                               phoneLayout
@@ -3464,12 +3425,6 @@ export default function EsignViewerClient({
                           id="esign-counter-message"
                           value={counterMessage}
                           onChange={(e) => setCounterMessage(e.target.value)}
-                          onFocus={(e) =>
-                            e.currentTarget.scrollIntoView({
-                              block: "center",
-                              inline: "nearest",
-                            })
-                          }
                           placeholder="Add a short note for the recipient…"
                           rows={3}
                           className={

@@ -11,6 +11,7 @@ import {
   ESIGN_SIGNATURE_METHODS,
   ESIGN_PHONE_CONTROL_CLASS,
   ESIGN_PHONE_DOCUMENT_SHEET_CLASS,
+  ESIGN_PHONE_STAGE_TOUCH_CLASS,
   pinEsignShellToVisualViewport,
   wantsEsignPhoneLayout,
 } from "./esignPhoneLayout";
@@ -87,9 +88,9 @@ function main() {
   );
   assert.equal(pinned.keyboardOpen, true);
   assert.equal(pinned.height, 420);
-  assert.equal(pinned.top, 40);
+  assert.equal(pinned.top, 0);
   assert.equal(root.style.position, "fixed");
-  assert.equal(root.style.top, "40px");
+  assert.equal(root.style.top, "0px");
   assert.equal(root.style.height, "420px");
 
   const closed = pinEsignShellToVisualViewport(root, { height: 780, offsetTop: 0 }, 780);
@@ -114,7 +115,10 @@ function main() {
   assert.match(viewer, /EsignPhoneDock/);
   assert.match(viewer, /!phoneLayout &&/);
   assert.match(viewer, /phoneZoomPercent/);
-  assert.match(viewer, /touch-none/);
+  assert.match(viewer, /ESIGN_PHONE_STAGE_TOUCH_CLASS/);
+  assert.match(ESIGN_PHONE_STAGE_TOUCH_CLASS, /touch-pan-y/);
+  assert.match(ESIGN_PHONE_STAGE_TOUCH_CLASS, /touch-pinch-zoom/);
+  assert.equal(/touch-none/.test(viewer), false);
   assert.match(viewer, /gesturestart/);
   assert.match(viewer, /onPageSelect/);
   assert.match(viewer, /setPhoneSheet\(null\)/);
@@ -131,7 +135,10 @@ function main() {
     path.join(__dirname, "../components/esign/EsignPhoneChrome.tsx"),
     "utf8"
   );
-  assert.match(dock, /min-h-11/);
+  assert.match(dock, /h-11/);
+  assert.match(dock, /relative z-50/);
+  assert.match(dock, /pointer-events-none flex flex-col/);
+  assert.match(dock, /touchAction: "manipulation"/);
   assert.match(dock, /visualViewport/);
   assert.match(dock, /dockHint/);
   assert.match(dock, /bg-lime-400/);

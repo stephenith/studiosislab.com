@@ -13,6 +13,12 @@ export const ESIGN_SIGNATURE_METHODS = ["draw", "upload", "mobile"] as const;
 export const ESIGN_PHONE_HEADER_BG = "#1f1f28";
 export const ESIGN_PHONE_STAGE_BG = "#ebecf0";
 
+/** Native one-finger pan plus pinch; do not use touch-action:none on the scroller. */
+export const ESIGN_PHONE_STAGE_TOUCH_CLASS =
+  "overflow-auto overscroll-contain bg-[#ebecf0] pt-3 touch-pan-x touch-pan-y touch-pinch-zoom";
+
+export const ESIGN_PHONE_PAGE_TOUCH_ACTION = "pan-x pan-y pinch-zoom";
+
 /** 16px so iOS does not zoom; keep padding compact like the share sheet screenshot. */
 export const ESIGN_PHONE_CONTROL_CLASS =
   "min-h-10 w-full touch-manipulation rounded border border-zinc-300 bg-white px-2 py-1.5 text-[16px] leading-5 text-zinc-900";
@@ -64,7 +70,8 @@ export function pinEsignShellToVisualViewport(
   innerHeight: number
 ): { keyboardOpen: boolean; height: number; top: number } {
   const height = viewport?.height ?? innerHeight;
-  const top = viewport?.offsetTop ?? 0;
+  const keyboardOpen = innerHeight - height > 80;
+  const top = keyboardOpen ? 0 : viewport?.offsetTop ?? 0;
   root.style.position = "fixed";
   root.style.left = "0";
   root.style.right = "0";
@@ -72,7 +79,7 @@ export function pinEsignShellToVisualViewport(
   root.style.top = `${top}px`;
   root.style.height = `${Math.round(height)}px`;
   return {
-    keyboardOpen: innerHeight - height > 80,
+    keyboardOpen,
     height,
     top,
   };

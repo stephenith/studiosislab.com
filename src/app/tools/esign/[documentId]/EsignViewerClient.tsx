@@ -60,6 +60,7 @@ import {
   resolveCountersignLock,
   scrollToKeepPinchMidpoint,
   touchDistance,
+  visibleEsignPageFromRects,
   visualClientPointToLayout,
   visualRectToLayoutBox,
   type EsignResizeCorner,
@@ -385,8 +386,11 @@ function EsignPdfViewerInner(
   const pagePaintGenRef = useRef<Map<number, number>>(new Map());
   const [paintFocusPage, setPaintFocusPage] = useState(1);
   const onPageSelectRef = useRef(onPageSelect);
+  const onVisiblePageChangeRef = useRef(onVisiblePageChange);
   const touchChromeRef = useRef(touchChrome);
+  const visiblePagePickRef = useRef(1);
   onPageSelectRef.current = onPageSelect;
+  onVisiblePageChangeRef.current = onVisiblePageChange;
   touchChromeRef.current = touchChrome;
   viewScaleRef.current = viewScale;
 
@@ -786,6 +790,19 @@ function EsignPdfViewerInner(
           pageWrapper.dataset.esignCssHeight = String(metrics.cssHeight);
           pageWrapper.dataset.esignLayoutScale = String(scale);
           pageWrapper.setAttribute("data-esign-page", String(pageNumber));
+          if (touchChrome) {
+            pageWrapper.addEventListener("pointerdown", () => {
+              if (pinchActiveRef.current) return;
+              const page = parseInt(
+                pageWrapper.getAttribute("data-esign-page") ?? "1",
+                10
+              );
+              visiblePagePickRef.current = page;
+              onPageSelectRef.current?.(page);
+              onVisiblePageChangeRef.current?.(page);
+              setPaintFocusPage((current) => (current === page ? current : page));
+            });
+          }
           pageWrapper.appendChild(canvas);
 
           const overlay = document.createElement("div");
@@ -798,7 +815,8 @@ function EsignPdfViewerInner(
           overlay.setAttribute("data-esign-overlay", "true");
           overlay.addEventListener("pointerdown", (event) => {
             if (event.target !== overlay) return;
-            onPageSelectRef.current?.(pageNumber);
+            const page = parseInt(overlay.getAttribute("data-page-number") ?? "1", 10);
+            onPageSelectRef.current?.(page);
           });
 
           overlay.addEventListener("click", (event) => {
@@ -1078,7 +1096,43 @@ function EsignPdfViewerInner(
     const root = scrollContainerRef?.current;
     if (!root || !onVisiblePageChange) return;
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || loading) return;
+    if (touchChrome) {
+      const pickVisiblePage = () => {
+        if (pinchActiveRef.current) return;
+        const wrappers = container.querySelectorAll<HTMLElement>("[data-esign-page]");
+        if (wrappers.length === 0) return;
+        const viewport = root.getBoundingClientRect();
+        const pages = Array.from(wrappers).map((el) => {
+          const rect = el.getBoundingClientRect();
+          return {
+            page: parseInt(el.getAttribute("data-esign-page") ?? "1", 10),
+            top: rect.top,
+            bottom: rect.bottom,
+          };
+        });
+        const next = visibleEsignPageFromRects(
+          pages,
+          viewport.top,
+          viewport.bottom,
+          visiblePagePickRef.current
+        );
+        if (next === visiblePagePickRef.current) return;
+        visiblePagePickRef.current = next;
+        onVisiblePageChangeRef.current?.(next);
+        onPageSelectRef.current?.(next);
+        setPaintFocusPage((current) => (current === next ? current : next));
+      };
+      root.addEventListener("scroll", pickVisiblePage, { passive: true });
+      const observer = new ResizeObserver(pickVisiblePage);
+      observer.observe(root);
+      observer.observe(container);
+      pickVisiblePage();
+      return () => {
+        root.removeEventListener("scroll", pickVisiblePage);
+        observer.disconnect();
+      };
+    }
     const wrappers = container.querySelectorAll<HTMLElement>("[data-esign-page]");
     if (wrappers.length === 0) return;
     const ratiosRef = { current: new Map<number, number>() };
@@ -1103,7 +1157,7 @@ function EsignPdfViewerInner(
     );
     wrappers.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [signatures.length, loading, scrollContainerRef, onVisiblePageChange]);
+  }, [signatures.length, loading, renderedPageCount, scrollContainerRef, touchChrome, viewScale]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -1371,6 +1425,7 @@ export default function EsignViewerClient({
   const [phoneZoom, setPhoneZoom] = useState(1);
   const [senderLockedHintDismissed, setSenderLockedHintDismissed] = useState(false);
   const [selectedPageNumber, setSelectedPageNumber] = useState(1);
+  const activePageRef = useRef(1);
   const phoneZoomRef = useRef(1);
   const phonePinchActiveRef = useRef(false);
   const phonePagesRef = useRef<HTMLDivElement | null>(null);
@@ -1422,6 +1477,12 @@ export default function EsignViewerClient({
   const [signaturePaintEpoch, setSignaturePaintEpoch] = useState(0);
   const [showCompletionPopup, setShowCompletionPopup] = useState(false);
   const [visiblePageNumber, setVisiblePageNumber] = useState(1);
+  const commitPhoneActivePage = useCallback((page: number) => {
+    const next = Math.max(1, Math.floor(page) || 1);
+    activePageRef.current = next;
+    setVisiblePageNumber((current) => (current === next ? current : next));
+    setSelectedPageNumber((current) => (current === next ? current : next));
+  }, []);
   const [zoomMode, setZoomMode] = useState<ZoomMode>("fit");
   const [zoomScale, setZoomScale] = useState(1);
   useEffect(() => {
@@ -2725,7 +2786,9 @@ export default function EsignViewerClient({
         insertingRef.current = true;
         const placed = viewerRef.current?.placeSignatureAtCenter(
           sig,
-          selectedPageNumber || visiblePageNumber || 1
+          phoneLayout
+            ? activePageRef.current || selectedPageNumber || visiblePageNumber || 1
+            : selectedPageNumber || visiblePageNumber || 1
         );
         if (!placed) {
           senderInsertBlockedRef.current = signaturesRef.current.length > 0;
@@ -3129,11 +3192,13 @@ export default function EsignViewerClient({
                   .map((s) => s.id)}
                 signatures={recipientFinished ? [] : signatures}
                 scrollContainerRef={scrollContainerRef}
-                onVisiblePageChange={setVisiblePageNumber}
+                onVisiblePageChange={
+                  phoneLayout ? commitPhoneActivePage : setVisiblePageNumber
+                }
                 touchChrome={phoneLayout}
                 viewScale={phoneLayout ? phoneZoom : 1}
                 selectedPage={selectedPageNumber}
-                onPageSelect={setSelectedPageNumber}
+                onPageSelect={phoneLayout ? commitPhoneActivePage : setSelectedPageNumber}
                 pinchActiveRef={phonePinchActiveRef}
                 countersignPlaceholder={
                   countersignPlaceholder

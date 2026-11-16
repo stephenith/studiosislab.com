@@ -237,6 +237,50 @@ export function visualClientPointToLayout(
   };
 }
 
+/** Pick the in-view PDF page from live visual rects. Hysteresis avoids boundary flicker. */
+export function visibleEsignPageFromRects(
+  pages: Array<{ page: number; top: number; bottom: number }>,
+  viewportTop: number,
+  viewportBottom: number,
+  previousPage = 1
+): number {
+  if (pages.length === 0) return Math.max(1, Math.floor(previousPage) || 1);
+  const viewportHeight = Math.max(1, viewportBottom - viewportTop);
+  const overlaps = pages.map((item) => {
+    const overlap = Math.max(
+      0,
+      Math.min(item.bottom, viewportBottom) - Math.max(item.top, viewportTop)
+    );
+    return { page: item.page, overlap };
+  });
+  overlaps.sort((a, b) => b.overlap - a.overlap || a.page - b.page);
+  const best = overlaps[0];
+  if (!(best.overlap > 0)) {
+    const mid = (viewportTop + viewportBottom) / 2;
+    let nearest = pages[0];
+    let dist = Number.POSITIVE_INFINITY;
+    for (const item of pages) {
+      const d = Math.abs((item.top + item.bottom) / 2 - mid);
+      if (d < dist) {
+        dist = d;
+        nearest = item;
+      }
+    }
+    return nearest.page;
+  }
+  const previous = overlaps.find((item) => item.page === previousPage);
+  const hysteresis = viewportHeight * 0.18;
+  if (
+    previous &&
+    previous.overlap > 0 &&
+    best.page !== previousPage &&
+    best.overlap - previous.overlap < hysteresis
+  ) {
+    return previousPage;
+  }
+  return best.page;
+}
+
 export const COUNTERSIGN_LOCK_ERRORS = {
   missing:
     "Place the countersign box on a page first, then tap Lock countersign position to continue.",

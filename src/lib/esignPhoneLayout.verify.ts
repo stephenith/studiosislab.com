@@ -133,6 +133,10 @@ function main() {
   assert.match(viewer, /\["tl", "tr", "bl", "br"\]/);
   assert.match(viewer, /handle\.style\.pointerEvents = "auto"/);
   assert.match(viewer, /handle\.style\.touchAction = "none"/);
+  assert.match(viewer, /visibleEsignPageFromRects/);
+  assert.match(viewer, /activePageRef/);
+  assert.match(viewer, /pageWrapper\.getAttribute\("data-esign-page"\)/);
+  assert.match(viewer, /renderedPageCount/);
 
   const dock = readFileSync(
     path.join(__dirname, "../components/esign/EsignPhoneChrome.tsx"),

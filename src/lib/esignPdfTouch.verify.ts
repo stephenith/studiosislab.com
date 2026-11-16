@@ -14,6 +14,7 @@ import {
   phonePinchStageSize,
   scaledContentSize,
   scrollToKeepPinchMidpoint,
+  visibleEsignPageFromRects,
   visualClientPointToLayout,
   visualRectToLayoutBox,
   resolveCountersignLock,
@@ -161,6 +162,16 @@ function main() {
   const point = visualClientPointToLayout(80, 60, { left: 40, top: 20, width: 400, height: 600 }, 2);
   assert.equal(point?.x, 20);
   assert.equal(point?.y, 20);
+
+  const twoPages = [
+    { page: 1, top: 0, bottom: 800 },
+    { page: 2, top: 824, bottom: 1624 },
+  ];
+  assert.equal(visibleEsignPageFromRects(twoPages, 0, 700, 1), 1);
+  assert.equal(visibleEsignPageFromRects(twoPages, 900, 1600, 1), 2);
+  assert.equal(visibleEsignPageFromRects(twoPages, 400, 1100, 1), 1);
+  assert.equal(visibleEsignPageFromRects(twoPages, 400, 1100, 2), 2);
+  assert.equal(visibleEsignPageFromRects(twoPages, 900, 1600, 2), 2);
 
   assert.equal(
     resolveCountersignLock({

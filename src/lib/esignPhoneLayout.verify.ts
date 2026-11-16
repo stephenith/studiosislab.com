@@ -170,7 +170,11 @@ function main() {
   assert.match(dock, /bg-orange-400/);
   assert.match(dock, /left-\[30%\]/);
   assert.match(dock, /left-\[90%\]/);
-  assert.match(dock, /pointer-events-none relative z-20 overflow-visible/);
+  assert.match(dock, /pointer-events-none relative overflow-visible/);
+  assert.match(dock, /recipientDock \? "z-\[70\]" : "z-20"/);
+  assert.match(dock, /PHONE_RECIPIENT_DOCK_SLOTS/);
+  assert.match(dock, /commitOnPointerUp=\{recipientDock\}/);
+  assert.match(dock, /shouldCommitPhonePointerTap/);
   assert.match(dock, /translate-y-full/);
   assert.equal(/relative z-0 px-3/.test(dock), false);
 
@@ -216,7 +220,11 @@ function main() {
       signatures: [{ locked: true }],
       recipientPhase: "ready",
     }),
-    { text: PHONE_LOCKED_RECIPIENT_HINT, tone: "orange", arrow: "complete" }
+    { text: PHONE_LOCKED_RECIPIENT_HINT, tone: "green", arrow: "complete" }
+  );
+  assert.equal(
+    PHONE_LOCKED_RECIPIENT_HINT,
+    "Tap Complete to finish this agreement"
   );
   assert.equal(
     phoneDockGuidance({
@@ -227,6 +235,26 @@ function main() {
     }),
     null
   );
+  assert.equal(
+    phoneDockGuidance({
+      phoneLayout: true,
+      mode: "recipient",
+      signatures: [{ locked: true }],
+      recipientPhase: "completing",
+    }),
+    null
+  );
+  assert.equal(
+    phoneDockGuidance({
+      phoneLayout: true,
+      mode: "recipient",
+      signatures: [{ locked: true }],
+      recipientPhase: "completed",
+    }),
+    null
+  );
+  assert.match(viewer, /isRecipientMode \? clientSignatureId : selectedSignatureId/);
+  assert.match(viewer, /isRecipientMode \? Boolean\(clientSignatureId\) : !!selectedSignatureId/);
   assert.match(viewer, /phoneDockGuidance/);
   assert.match(viewer, /phonePinchStageSize/);
   assert.equal(/absolute left-0 top-0 w-full origin-top-left/.test(viewer), false);

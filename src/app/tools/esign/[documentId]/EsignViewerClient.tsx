@@ -2475,13 +2475,12 @@ export default function EsignViewerClient({
   };
 
   const handleLockSignature = () => {
-    if (!selectedSignatureId) return;
-    if (isRecipientMode && selectedSignatureId !== clientSignatureId) return;
+    const targetId = isRecipientMode ? clientSignatureId : selectedSignatureId;
+    if (!targetId) return;
+    if (isRecipientMode && targetId !== clientSignatureId) return;
     setSignatures((prev) =>
       prev.map((s) =>
-        s.id === selectedSignatureId
-          ? { ...s, locked: !(s.locked ?? false) }
-          : s
+        s.id === targetId ? { ...s, locked: !(s.locked ?? false) } : s
       )
     );
   };
@@ -2862,8 +2861,10 @@ export default function EsignViewerClient({
   const recipientTargetMissing =
     isRecipientMode && !loadingDoc && !recipientFinished && !recipientTarget;
   const phoneLockButton = lockButtonView(
-    !!selectedSignatureId,
-    signatureLocked,
+    isRecipientMode ? Boolean(clientSignatureId) : !!selectedSignatureId,
+    isRecipientMode
+      ? Boolean(signatures.find((s) => s.id === clientSignatureId)?.locked)
+      : signatureLocked,
     isRecipientMode ? "recipient" : "sender"
   );
   const handleDownloadSignedCopy = async () => {

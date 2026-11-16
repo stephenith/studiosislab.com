@@ -127,7 +127,15 @@ export const PHONE_LOCKED_SENDER_HINT =
   "Signature locked. Tap Download to save the signed agreement or Share to request a countersignature.";
 
 export const PHONE_LOCKED_RECIPIENT_HINT =
-  "Signature locked. Tap Complete to finish this agreement.";
+  "Tap Complete to finish this agreement";
+
+export const PHONE_RECIPIENT_DOCK_SLOTS = [
+  "sign",
+  "lock",
+  "delete",
+  "complete",
+  "document",
+] as const;
 
 export type PhoneDockGuidance = {
   text: string;
@@ -163,7 +171,7 @@ export function phoneDockGuidance(input: {
   if (input.recipientPhase === "ready") {
     return {
       text: PHONE_LOCKED_RECIPIENT_HINT,
-      tone: "orange",
+      tone: "green",
       arrow: "complete",
     };
   }

@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+  type PointerEvent,
+  type ReactNode,
+} from "react";
 import {
   Download,
   FileUp,
@@ -12,9 +19,14 @@ import {
 } from "lucide-react";
 import {
   pinEsignShellToVisualViewport,
+  shouldCommitPhonePointerTap,
   wantsEsignPhoneLayout,
 } from "@/lib/esignPhoneLayout";
-import type { LockButtonView, PhoneDockGuidance } from "@/lib/esignViewerState";
+import {
+  PHONE_RECIPIENT_DOCK_SLOTS,
+  type LockButtonView,
+  type PhoneDockGuidance,
+} from "@/lib/esignViewerState";
 
 export function useEsignPhoneLayout() {
   const [phone, setPhone] = useState(false);
@@ -75,6 +87,7 @@ type DockButtonProps = {
   active?: boolean;
   onClick: () => void;
   fillSafeArea?: boolean;
+  commitOnPointerUp?: boolean;
   children: ReactNode;
 };
 
@@ -84,14 +97,58 @@ function DockButton({
   active,
   onClick,
   fillSafeArea = false,
+  commitOnPointerUp = false,
   children,
 }: DockButtonProps) {
+  const pointerStartRef = useRef<{
+    id: number;
+    x: number;
+    y: number;
+  } | null>(null);
+  const pointerCommittedRef = useRef(false);
+  const activation = commitOnPointerUp
+    ? {
+        onPointerDown: (event: PointerEvent<HTMLButtonElement>) => {
+          pointerCommittedRef.current = false;
+          pointerStartRef.current = {
+            id: event.pointerId,
+            x: event.clientX,
+            y: event.clientY,
+          };
+        },
+        onPointerUp: (event: PointerEvent<HTMLButtonElement>) => {
+          const start = pointerStartRef.current;
+          pointerStartRef.current = null;
+          if (disabled) return;
+          if (!start || start.id !== event.pointerId) return;
+          if (
+            !shouldCommitPhonePointerTap(start, {
+              x: event.clientX,
+              y: event.clientY,
+            })
+          ) {
+            return;
+          }
+          if (pointerCommittedRef.current) return;
+          pointerCommittedRef.current = true;
+          onClick();
+        },
+        onClick: (event: MouseEvent<HTMLButtonElement>) => {
+          event.preventDefault();
+          if (pointerCommittedRef.current) {
+            pointerCommittedRef.current = false;
+            return;
+          }
+          if (disabled) return;
+          onClick();
+        },
+      }
+    : { onClick };
   return (
     <button
       type="button"
       aria-label={label}
       disabled={disabled}
-      onClick={onClick}
       data-esign-dock-button={label}
       style={{ touchAction: "manipulation" }}
       className={`flex min-w-0 flex-1 flex-col items-center px-1 text-[10px] font-medium ${
@@ -105,6 +162,7 @@ function DockButton({
           ? "text-[#1f1f28]"
           : "text-zinc-700"
       }`}
+      {...activation}
     >
       <span
         className={`flex w-full flex-col items-center justify-center gap-0.5 ${
@@ -173,25 +231,46 @@ export function EsignPhoneDock({
         <div
           role="status"
           aria-live="polite"
-          className={`pointer-events-none relative z-20 overflow-visible px-3 pb-2 pt-1.5 ${
-            dockHint.tone === "green" ? "bg-lime-400" : "bg-orange-400"
-          }`}
+          className={`pointer-events-none relative overflow-visible px-3 pb-2 pt-1.5 ${
+            recipientDock ? "z-[70]" : "z-20"
+          } ${dockHint.tone === "green" ? "bg-lime-400" : "bg-orange-400"}`}
         >
           <p className="text-center text-[11px] font-medium leading-snug text-zinc-900">
             {dockHint.text}
           </p>
-          <span
-            aria-hidden
-            className={`absolute bottom-0 z-20 h-0 w-0 -translate-x-1/2 translate-y-full border-x-[6px] border-x-transparent border-t-[7px] ${
-              dockHint.tone === "green" ? "border-t-lime-400" : "border-t-orange-400"
-            } ${
-              dockHint.arrow === "lock"
-                ? "left-[30%]"
-                : dockHint.arrow === "share"
-                ? "left-[90%]"
-                : "left-[70%]"
-            }`}
-          />
+          {recipientDock ? (
+            <span
+              aria-hidden
+              className="absolute inset-x-0 bottom-0 z-[70] flex translate-y-full"
+            >
+              {PHONE_RECIPIENT_DOCK_SLOTS.map((slot) => (
+                <span key={slot} className="flex flex-1 justify-center">
+                  {dockHint.arrow === slot ? (
+                    <span
+                      className={`h-0 w-0 border-x-[6px] border-x-transparent border-t-[7px] ${
+                        dockHint.tone === "green"
+                          ? "border-t-lime-400"
+                          : "border-t-orange-400"
+                      }`}
+                    />
+                  ) : null}
+                </span>
+              ))}
+            </span>
+          ) : (
+            <span
+              aria-hidden
+              className={`absolute bottom-0 z-20 h-0 w-0 -translate-x-1/2 translate-y-full border-x-[6px] border-x-transparent border-t-[7px] ${
+                dockHint.tone === "green" ? "border-t-lime-400" : "border-t-orange-400"
+              } ${
+                dockHint.arrow === "lock"
+                  ? "left-[30%]"
+                  : dockHint.arrow === "share"
+                  ? "left-[90%]"
+                  : "left-[70%]"
+              }`}
+            />
+          )}
         </div>
       ) : null}
     <nav
@@ -215,6 +294,7 @@ export function EsignPhoneDock({
         disabled={lockButton.disabled}
         onClick={onLock}
         fillSafeArea={recipientDock}
+        commitOnPointerUp={recipientDock}
       >
         {lockButton.tone === "unlock" ? (
           <LockOpen aria-hidden className="h-4 w-4" strokeWidth={2} />

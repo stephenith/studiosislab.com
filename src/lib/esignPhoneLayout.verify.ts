@@ -145,6 +145,9 @@ function main() {
   assert.match(dock, /bg-orange-400/);
   assert.match(dock, /left-\[30%\]/);
   assert.match(dock, /left-\[90%\]/);
+  assert.match(dock, /pointer-events-none relative z-20 overflow-visible/);
+  assert.match(dock, /translate-y-full/);
+  assert.equal(/relative z-0 px-3/.test(dock), false);
 
   assert.equal(
     phoneUnlockedSignatureHint(true, [{ locked: false }]),

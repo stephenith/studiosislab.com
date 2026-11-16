@@ -93,7 +93,7 @@ function DockButton({
       disabled={disabled}
       onClick={onClick}
       style={{ touchAction: "manipulation" }}
-      className={`relative z-10 flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-medium ${
+      className={`flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-medium ${
         disabled
           ? "text-zinc-400"
           : active
@@ -150,14 +150,14 @@ export function EsignPhoneDock({
 }) {
   return (
     <div
-      className="relative z-50 shrink-0 bg-white"
+      className="relative z-50 shrink-0 overflow-visible bg-white"
       style={{ paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }}
     >
       {dockHint ? (
         <div
           role="status"
           aria-live="polite"
-          className={`pointer-events-none relative z-0 px-3 pb-2 pt-1.5 ${
+          className={`pointer-events-none relative z-20 overflow-visible px-3 pb-2 pt-1.5 ${
             dockHint.tone === "green" ? "bg-lime-400" : "bg-orange-400"
           }`}
         >
@@ -166,7 +166,7 @@ export function EsignPhoneDock({
           </p>
           <span
             aria-hidden
-            className={`absolute bottom-0 h-0 w-0 -translate-x-1/2 translate-y-full border-x-[6px] border-x-transparent border-t-[7px] ${
+            className={`absolute bottom-0 z-20 h-0 w-0 -translate-x-1/2 translate-y-full border-x-[6px] border-x-transparent border-t-[7px] ${
               dockHint.tone === "green" ? "border-t-lime-400" : "border-t-orange-400"
             } ${
               dockHint.arrow === "lock"
@@ -180,7 +180,7 @@ export function EsignPhoneDock({
       ) : null}
     <nav
       aria-label="E-sign actions"
-      className="relative z-10 flex h-11 items-stretch border-t border-zinc-200 bg-white"
+      className="flex h-11 items-stretch border-t border-zinc-200 bg-white"
     >
       <DockButton label="Sign" active={signOpen} onClick={onOpenSign}>
         <PenLine aria-hidden className="h-4 w-4" strokeWidth={2} />

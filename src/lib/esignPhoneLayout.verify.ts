@@ -96,7 +96,14 @@ function main() {
   const closed = pinEsignShellToVisualViewport(root, { height: 780, offsetTop: 40 }, 780);
   assert.equal(closed.keyboardOpen, false);
   assert.equal(closed.top, 0);
+  assert.equal(closed.height, 780);
   assert.equal(root.style.top, "0px");
+  assert.equal(root.style.height, "780px");
+
+  const urlBar = pinEsignShellToVisualViewport(root, { height: 720, offsetTop: 48 }, 780);
+  assert.equal(urlBar.keyboardOpen, false);
+  assert.equal(urlBar.height, 780);
+  assert.equal(root.style.height, "780px");
 
   const panel = readFileSync(
     path.join(__dirname, "../components/esign/SignatureToolsPanel.tsx"),
@@ -149,6 +156,8 @@ function main() {
   assert.match(dock, /pointer-events-none flex flex-col/);
   assert.match(dock, /touchAction: "manipulation"/);
   assert.match(dock, /visualViewport/);
+  assert.match(dock, /addEventListener\("resize", sync\)/);
+  assert.equal(/addEventListener\("scroll", sync\)/.test(dock), false);
   assert.match(dock, /dockHint/);
   assert.match(dock, /bg-lime-400/);
   assert.match(dock, /bg-orange-400/);
@@ -223,6 +232,15 @@ function main() {
   assert.match(ESIGN_PHONE_DOCUMENT_SHEET_CLASS, /max-h-\[min\(52vh,24rem\)\]/);
   assert.match(ESIGN_PHONE_DOCUMENT_SHEET_CLASS, /pointer-events-auto/);
   assert.match(ESIGN_PHONE_DOCUMENT_SHEET_CLASS, /touch-manipulation/);
+  assert.match(ESIGN_PHONE_DOCUMENT_SHEET_CLASS, /z-50/);
+  assert.match(ESIGN_PHONE_DOCUMENT_SHEET_CLASS, /isolate/);
+  assert.match(viewer, /z-0 isolate order-none/);
+  assert.equal(
+    /event\?\.preventDefault\?\.\(\);\s*event\?\.stopPropagation\?\.\(\);\s*const now = Date.now\(\);\s*if \(now - countersignLockTapRef/.test(
+      viewer
+    ),
+    false
+  );
   assert.equal(/WebkitOverflowScrolling/.test(viewer), false);
   assert.equal(/!recipientFinished && !keyboardOpen &&/.test(viewer), false);
   assert.match(viewer, /keyboardOpen \? "invisible pointer-events-none"/);

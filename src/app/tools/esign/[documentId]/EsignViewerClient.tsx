@@ -2442,11 +2442,7 @@ export default function EsignViewerClient({
 
   const handleLockCountersignPosition = useCallback(
     (event?: { preventDefault?: () => void; stopPropagation?: () => void }) => {
-      event?.preventDefault?.();
       event?.stopPropagation?.();
-      const now = Date.now();
-      if (now - countersignLockTapRef.current < 400) return;
-      countersignLockTapRef.current = now;
       if (countersignLockPending) return;
       const alreadySent =
         inviteSent ||
@@ -2463,6 +2459,9 @@ export default function EsignViewerClient({
       }
       setCountersignLockError(null);
       if (resolved.action === "already_locked") return;
+      const now = Date.now();
+      if (now - countersignLockTapRef.current < 400) return;
+      countersignLockTapRef.current = now;
       setCountersignLockPending(true);
       setCountersignPlaceholder((current) =>
         current ? { ...current, locked: true } : current
@@ -3058,7 +3057,7 @@ export default function EsignViewerClient({
         )
         )}
 
-          <section className={`relative flex min-h-0 flex-1 flex-col ${phoneLayout ? "order-none" : "order-2 min-h-[45vh] lg:order-none"}`}>
+          <section className={`relative flex min-h-0 flex-1 flex-col ${phoneLayout ? "z-0 isolate order-none" : "order-2 min-h-[45vh] lg:order-none"}`}>
             {phoneLayout && (
               <div
                 ref={phoneZoomHudElRef}

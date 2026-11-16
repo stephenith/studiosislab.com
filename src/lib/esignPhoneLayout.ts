@@ -24,7 +24,7 @@ export const ESIGN_PHONE_CONTROL_CLASS =
   "min-h-10 w-full cursor-pointer touch-manipulation rounded border border-zinc-300 bg-white px-2 py-1.5 text-[16px] leading-5 text-zinc-900";
 
 export const ESIGN_PHONE_DOCUMENT_SHEET_CLASS =
-  "pointer-events-auto absolute inset-x-0 bottom-0 z-40 flex max-h-[min(52vh,24rem)] min-h-0 flex-col overflow-hidden rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)] touch-manipulation";
+  "pointer-events-auto absolute inset-x-0 bottom-0 z-50 isolate flex max-h-[min(52vh,24rem)] min-h-0 flex-col overflow-hidden rounded-t-2xl border-t bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)] touch-manipulation [transform:translateZ(0)]";
 
 export type EsignPhoneSignals = {
   match: (query: string) => boolean;
@@ -69,15 +69,24 @@ export function pinEsignShellToVisualViewport(
   viewport: { height: number; offsetTop: number } | null | undefined,
   innerHeight: number
 ): { keyboardOpen: boolean; height: number; top: number } {
-  const height = viewport?.height ?? innerHeight;
-  const keyboardOpen = innerHeight - height > 80;
+  const vvHeight = viewport?.height ?? innerHeight;
+  const keyboardOpen = innerHeight - vvHeight > 80;
+  const height = Math.round(keyboardOpen ? vvHeight : innerHeight);
   const top = 0;
-  root.style.position = "fixed";
-  root.style.left = "0";
-  root.style.right = "0";
-  root.style.width = "100%";
-  root.style.top = `${top}px`;
-  root.style.height = `${Math.round(height)}px`;
+  const next = {
+    position: "fixed",
+    left: "0",
+    right: "0",
+    width: "100%",
+    top: `${top}px`,
+    height: `${height}px`,
+  };
+  if (root.style.position !== next.position) root.style.position = next.position;
+  if (root.style.left !== next.left) root.style.left = next.left;
+  if (root.style.right !== next.right) root.style.right = next.right;
+  if (root.style.width !== next.width) root.style.width = next.width;
+  if (root.style.top !== next.top) root.style.top = next.top;
+  if (root.style.height !== next.height) root.style.height = next.height;
   return {
     keyboardOpen,
     height,

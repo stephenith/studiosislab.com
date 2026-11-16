@@ -53,11 +53,9 @@ export function useEsignPhoneLayout() {
     };
     sync();
     viewport?.addEventListener("resize", sync);
-    viewport?.addEventListener("scroll", sync);
     window.addEventListener("resize", sync);
     return () => {
       viewport?.removeEventListener("resize", sync);
-      viewport?.removeEventListener("scroll", sync);
       window.removeEventListener("resize", sync);
       shellEl.style.position = "";
       shellEl.style.left = "";

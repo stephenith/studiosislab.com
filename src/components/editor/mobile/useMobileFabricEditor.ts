@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import type { Canvas } from "fabric";
+import { trackEvent } from "@/lib/analytics";
 import { getSystemTemplateById } from "@/data/systemTemplates/registry";
 import { initFabricCanvas } from "@/lib/editor/canvasInitializer";
 import { exportToDataURL, buildPDFFromPages } from "@/lib/editor/exportCanvas";
@@ -1289,6 +1290,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           link.click();
           link.remove();
           URL.revokeObjectURL(url);
+          trackEvent("export_success", { format: "pdf", flow: "resume_editor" });
         } else {
           rendered.forEach((page, index) => {
             const link = document.createElement("a");
@@ -1298,6 +1300,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
             link.click();
             link.remove();
           });
+          trackEvent("export_success", { format: "png", flow: "resume_editor" });
         }
       } catch (err) {
         console.error("[mobile-editor] Download failed", err);

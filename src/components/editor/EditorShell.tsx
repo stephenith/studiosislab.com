@@ -366,9 +366,11 @@ export default function EditorShell({
     const { format, pages } = pendingExport;
     setPendingExport(null);
     setIsAdOpen(false);
-    if (format === "pdf") editor?.exportPDF?.(pages);
-    else editor?.exportPNG?.(pages);
-    trackEvent("export_success", { format, flow: "resume_editor" });
+    const exported =
+      format === "pdf" ? editor?.exportPDF?.(pages) === true : editor?.exportPNG?.(pages) === true;
+    if (exported) {
+      trackEvent("export_success", { format, flow: "resume_editor" });
+    }
   }, [editor, pendingExport]);
 
   const rawZoomPercent =

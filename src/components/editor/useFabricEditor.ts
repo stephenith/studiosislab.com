@@ -6028,24 +6028,25 @@ try {
   );
 
   const exportPNG = useCallback(
-    (pageIndexes?: number[]) => {
+    (pageIndexes?: number[]): boolean => {
       const c = getCanvas();
-      if (!c) return;
+      if (!c) return false;
       const hasSelection = Array.isArray(pageIndexes) && pageIndexes.length > 0;
       if (!hasSelection) {
         const result = exportPageDataUrl(2);
-        if (!result) return;
+        if (!result) return false;
         const { dataUrl } = result;
         const a = document.createElement("a");
         a.href = dataUrl;
         a.download = "resume.png";
         a.click();
-        return;
+        return true;
       }
       const ordered = Array.from(new Set(pageIndexes))
         .filter((i) => i >= 0 && i < pages.length)
         .sort((a, b) => a - b);
-      if (!ordered.length) return;
+      if (!ordered.length) return false;
+      let initiated = false;
       for (const i of ordered) {
         const pageId = pages[i]?.id;
         const canvas = pageId ? pageCanvasesRef.current.get(pageId) : null;
@@ -6057,19 +6058,21 @@ try {
         a.href = dataUrl;
         a.download = `resume-page-${i + 1}.png`;
         a.click();
+        initiated = true;
       }
+      return initiated;
     },
     [exportPageDataUrl, getCanvas, pages]
   );
 
   const exportPDF = useCallback(
-    (pageIndexes?: number[]) => {
+    (pageIndexes?: number[]): boolean => {
       const c = getCanvas();
-      if (!c) return;
+      if (!c) return false;
       const hasSelection = Array.isArray(pageIndexes) && pageIndexes.length > 0;
       if (!hasSelection) {
         const result = exportPageDataUrl(2);
-        if (!result) return;
+        if (!result) return false;
         const { dataUrl, width, height } = result;
         const pdf = new jsPDF({
           orientation: "portrait",
@@ -6078,12 +6081,12 @@ try {
         });
         pdf.addImage(dataUrl, "PNG", 0, 0, width, height);
         pdf.save("resume.pdf");
-        return;
+        return true;
       }
       const ordered = Array.from(new Set(pageIndexes))
         .filter((i) => i >= 0 && i < pages.length)
         .sort((a, b) => a - b);
-      if (!ordered.length) return;
+      if (!ordered.length) return false;
       let pdf: jsPDF | null = null;
       for (const i of ordered) {
         const pageId = pages[i]?.id;
@@ -6104,7 +6107,9 @@ try {
           pdf.addImage(dataUrl, "PNG", 0, 0, width, height);
         }
       }
-      if (pdf) pdf.save("resume.pdf");
+      if (!pdf) return false;
+      pdf.save("resume.pdf");
+      return true;
     },
     [exportPageDataUrl, getCanvas, pages]
   );

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import ResumeHubClient from "./ResumeHubClient";
+import ResumeHubClient, { type ResumeRolePageLink } from "./ResumeHubClient";
+import { getAllPublishedTemplateSeoPages } from "@/lib/templateSeo";
 
 export const metadata: Metadata = {
   title: "Resume Templates & Builder | StudiosisLab",
@@ -11,5 +12,11 @@ export const metadata: Metadata = {
 };
 
 export default function ResumePage() {
-  return <ResumeHubClient />;
+  const rolePages: ResumeRolePageLink[] = getAllPublishedTemplateSeoPages().map((page) => ({
+    templateId: page.templateId,
+    href: `/resume/${page.slug}`,
+    label: page.h1.replace(/^&#x20;/, "").trim(),
+  }));
+
+  return <ResumeHubClient rolePages={rolePages} />;
 }

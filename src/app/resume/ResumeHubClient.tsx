@@ -144,7 +144,17 @@ type RecentDoc = {
   canvasJson?: any;
 };
 
-export default function ResumeTemplatesPage() {
+export type ResumeRolePageLink = {
+  templateId: string;
+  href: string;
+  label: string;
+};
+
+export default function ResumeTemplatesPage({
+  rolePages,
+}: {
+  rolePages: ResumeRolePageLink[];
+}) {
   const router = useRouter();
   const { user, authReady } = useAuth();
   const isGuest = authReady && !user;
@@ -373,6 +383,7 @@ export default function ResumeTemplatesPage() {
 
   const openEditor = useCallback(
     (target: EditorOpenTarget) => {
+      if (!authReady) return;
       const href = editorHrefForViewport(target, phoneEditorViewportMatch());
       if (user) {
         router.push(href);
@@ -380,23 +391,8 @@ export default function ResumeTemplatesPage() {
       }
       router.push(getLoginPathWithNext(href));
     },
-    [getLoginPathWithNext, router, user]
+    [authReady, getLoginPathWithNext, router, user]
   );
-
-  if (!authReady) {
-    return (
-      <main className="relative min-h-dvh w-full bg-white">
-        <NoiseBackground />
-        <div className="relative z-10 flex min-h-dvh flex-col items-center justify-center px-4 text-zinc-700">
-          <div
-            className="h-8 w-8 rounded-full border-2 border-zinc-200 border-t-zinc-700 animate-spin"
-            aria-hidden
-          />
-          <p className="mt-4 text-sm text-zinc-600">Loading…</p>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="relative min-h-dvh w-full bg-white px-5 pb-20 pt-10 text-zinc-900 sm:pt-12">
@@ -714,11 +710,13 @@ export default function ResumeTemplatesPage() {
                 <button
                   key={`recent-${template.id}`}
                   type="button"
+                  disabled={!authReady}
                   onClick={() => {
+                    if (!authReady) return;
                     setOpeningTemplateId(template.id);
                     openEditor({ templateId: template.id });
                   }}
-                  className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none"
+                  className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none disabled:cursor-not-allowed"
                 >
                   <div className={THUMB_FRAME}>
                     <TemplateThumbnail
@@ -748,11 +746,13 @@ export default function ResumeTemplatesPage() {
                 <button
                   key={`featured-${template.id}`}
                   type="button"
+                  disabled={!authReady}
                   onClick={() => {
+                    if (!authReady) return;
                     setOpeningTemplateId(template.id);
                     openEditor({ templateId: template.id });
                   }}
-                  className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none"
+                  className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none disabled:cursor-not-allowed"
                 >
                   <div className={THUMB_FRAME}>
                     <TemplateThumbnail
@@ -777,9 +777,9 @@ export default function ResumeTemplatesPage() {
           className={`${
             isSearching
               ? "mt-10 sm:mt-12"
-              : isGuest
-                ? "mt-8 sm:mt-10"
-                : "mt-12 sm:mt-14"
+              : authReady && user
+                ? "mt-12 sm:mt-14"
+                : "mt-8 sm:mt-10"
           }`}
           aria-label="Resume templates"
         >
@@ -810,9 +810,9 @@ export default function ResumeTemplatesPage() {
                   <button
                     key={template.id}
                     type="button"
-                    disabled={isAnyTemplateOpening}
+                    disabled={!authReady || isAnyTemplateOpening}
                     onClick={() => {
-                      if (isAnyTemplateOpening) return;
+                      if (!authReady || isAnyTemplateOpening) return;
                       setOpeningTemplateId(template.id);
                       trackEvent("template_open", {
                         template_id: template.id,
@@ -820,7 +820,7 @@ export default function ResumeTemplatesPage() {
                       });
                       openEditor({ templateId: template.id });
                     }}
-                    className={`group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
+                    className={`group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed ${
                       isAnyTemplateOpening ? "cursor-wait opacity-80" : ""
                     }`}
                   >
@@ -846,6 +846,23 @@ export default function ResumeTemplatesPage() {
           )}
         </section>
         )}
+
+        <nav aria-label="Resume samples by role" className="mt-16">
+          <h2 className="text-lg font-semibold tracking-tight text-zinc-900">Resume samples by role</h2>
+          <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
+            {rolePages.map((page) => (
+              <li key={page.templateId}>
+                <Link
+                  href={page.href}
+                  prefetch={false}
+                  className="text-sm text-zinc-700 underline-offset-4 hover:text-zinc-900 hover:underline"
+                >
+                  {page.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
         <footer className="mt-20 text-center text-sm text-zinc-500">
           designed and powered by Studiosis

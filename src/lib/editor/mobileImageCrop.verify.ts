@@ -150,8 +150,9 @@ assert.match(hook, /applyImageCrop/);
 assert.match(hook, /cancelImageCrop/);
 assert.match(hook, /imageCroppingRef.current/);
 assert.match(hook, /pageFrameInWrap/);
-assert.match(hook, /waitForPhoneExportImages\(canvas\)/);
+assert.match(hook, /finalizePhoneExportImages\(canvasRef.current, canvas\)/);
 assert.match(hook, /PHONE_EXPORT_MISSING_PHOTO_NOTICE/);
+assert.match(hook, /PHONE_EXPORT_LOCAL_IMAGE_FAILED/);
 assert.doesNotMatch(hook.slice(hook.indexOf("const applyImageCrop")), /toDataURL\(/);
 
 const utils = readFileSync(path.join(__dirname, "mobileEditorUtils.ts"), "utf8");

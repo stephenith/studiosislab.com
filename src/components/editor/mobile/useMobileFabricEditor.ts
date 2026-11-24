@@ -100,9 +100,10 @@ import {
   phoneResumeLoadDecision,
 } from "@/lib/editor/mobileResumeLoad";
 import {
+  finalizePhoneExportImages,
+  PHONE_EXPORT_LOCAL_IMAGE_FAILED,
   PHONE_EXPORT_MISSING_PHOTO_NOTICE,
   rehydratePhoneImageSources,
-  waitForPhoneExportImages,
 } from "@/lib/editor/mobileImageHydration";
 import { generateResumeThumbnail } from "@/lib/resumePreviewExport";
 import { getAsset } from "@/lib/localAssets";
@@ -1371,7 +1372,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
             preserveUserImages: true,
             preservePageBox: true,
           });
-          await waitForPhoneExportImages(canvas);
+          await finalizePhoneExportImages(canvasRef.current, canvas);
           const result = exportToDataURL(canvas, {
             multiplier: 2,
             getPageBounds: (target) => getPageBounds(target, pageSizeKeyRef.current),
@@ -1404,10 +1405,14 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
         }
       } catch (err) {
         console.error("[mobile-editor] Download failed", err);
+        const failedLocalImage =
+          err instanceof Error && err.message === PHONE_EXPORT_LOCAL_IMAGE_FAILED;
         setSaveError(
-          kind === "pdf"
-            ? "PDF download failed. No file was saved."
-            : "PNG download failed. No file was saved."
+          failedLocalImage
+            ? PHONE_EXPORT_LOCAL_IMAGE_FAILED
+            : kind === "pdf"
+              ? "PDF download failed. No file was saved."
+              : "PNG download failed. No file was saved."
         );
       } finally {
         try {

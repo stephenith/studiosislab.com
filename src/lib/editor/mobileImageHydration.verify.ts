@@ -1,17 +1,23 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import sharp from "sharp";
 import { cloneJson, mergePreservedImages } from "./mobileDocument";
 import { omitImageCropChromeFromSnapshot } from "./imageCrop";
 import { buildPDFFromPages } from "./exportCanvas";
 import { splitStackedMobilePages, stackMobilePages } from "./mobilePageStack";
 import {
   assetIdOfImage,
+  bindDecodedPhoneExportImages,
   fabricImageHasDecodedPixels,
+  finalizePhoneExportImages,
   isMissingPhoneExportImage,
   isUnsafeFabricImageSrc,
   PHONE_EXPORT_IMAGE_WAIT_MS,
+  PHONE_EXPORT_LOCAL_IMAGE_FAILED,
   PHONE_EXPORT_MISSING_PHOTO_NOTICE,
+  phoneExportLocalImagesWithoutPixels,
+  rasterPhoneExportPageRgba,
   rehydratePhoneImageSources,
   waitForPhoneExportImages,
 } from "./mobileImageHydration";
@@ -75,6 +81,7 @@ async function main() {
   assert.equal(exportPayload.objects[1].height, 60);
   assert.equal(exportPayload.objects[1].left, 120);
   assert.equal(exportPayload.objects[1].top, 80);
+  assert.equal("crossOrigin" in exportPayload.objects[1], false);
   assert.equal(originalSaved.objects[1].src, "blob:https://local/revoked");
   assert.equal(originalSaved.objects[1].cropX, 12);
 
@@ -88,15 +95,17 @@ async function main() {
   assert.equal(merged.objects.find((obj: any) => obj.type === "image")?.cropX, 12);
   assert.equal(merged.objects.find((obj: any) => obj.type === "image")?.src, "blob:https://local/revoked");
 
-  const raster = {
-    dataUrl:
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-    width: 794,
-    height: 1123,
+  const networkImage = {
+    type: "image",
+    src: "https://cdn.example/photo.png",
+    crossOrigin: "anonymous",
+    width: 40,
+    height: 40,
   };
-  const pdf = buildPDFFromPages([raster]);
-  assert.equal(pdf.type, "application/pdf");
-  assert.ok(pdf.size > 0);
+  const networkPayload = { objects: [cloneJson(networkImage)] };
+  await rehydratePhoneImageSources(networkPayload, async () => null);
+  assert.equal(networkPayload.objects[0].crossOrigin, "anonymous");
+  assert.equal(networkPayload.objects[0].src, "https://cdn.example/photo.png");
 
   const missingOriginal: { objects: any[] } = {
     objects: [
@@ -200,12 +209,217 @@ async function main() {
     "utf8"
   );
   assert.match(hook, /cloneJson\(snapshot/);
-  assert.match(hook, /waitForPhoneExportImages\(canvas\)/);
+  assert.match(hook, /finalizePhoneExportImages\(canvasRef.current, canvas\)/);
   assert.match(hook, /PHONE_EXPORT_MISSING_PHOTO_NOTICE/);
+  assert.match(hook, /PHONE_EXPORT_LOCAL_IMAGE_FAILED/);
   assert.match(hook, /preparePhoneSnapshot\(snapshot/);
-  const waitIdx = hook.indexOf("waitForPhoneExportImages(canvas)");
-  const exportIdx = hook.indexOf("exportToDataURL(canvas", waitIdx);
-  assert.ok(waitIdx > 0 && exportIdx > waitIdx);
+  const bindIdx = hook.indexOf("finalizePhoneExportImages(canvasRef.current, canvas)");
+  const exportIdx = hook.indexOf("exportToDataURL(canvas", bindIdx);
+  assert.ok(bindIdx > 0 && exportIdx > bindIdx);
+
+  const CRIMSON = [220, 20, 60] as const;
+  const BLUE = [30, 80, 220] as const;
+  const sourceW = 8;
+  const sourceH = 4;
+  const sourceRgba = new Uint8ClampedArray(sourceW * sourceH * 4);
+  for (let y = 0; y < sourceH; y++) {
+    for (let x = 0; x < sourceW; x++) {
+      const color = x < sourceW / 2 ? CRIMSON : BLUE;
+      const i = (y * sourceW + x) * 4;
+      sourceRgba[i] = color[0];
+      sourceRgba[i + 1] = color[1];
+      sourceRgba[i + 2] = color[2];
+      sourceRgba[i + 3] = 255;
+    }
+  }
+
+  function liveDecoded(overrides: Record<string, unknown> = {}) {
+    return {
+      type: "image",
+      id: "img-live",
+      data: { id: "img-live", slbAssetId: "asset-1" },
+      slbAssetId: "asset-1",
+      cropX: 0,
+      cropY: 0,
+      width: sourceW,
+      height: sourceH,
+      left: 0,
+      top: 0,
+      scaleX: 1,
+      scaleY: 1,
+      _element: {
+        naturalWidth: sourceW,
+        naturalHeight: sourceH,
+        width: sourceW,
+        height: sourceH,
+        rgba: sourceRgba,
+        complete: true,
+      },
+      ...overrides,
+    };
+  }
+
+  function emptyExport(overrides: Record<string, unknown> = {}) {
+    return {
+      type: "image",
+      id: "img-live",
+      data: { id: "img-live", slbAssetId: "asset-1" },
+      slbAssetId: "asset-1",
+      src: "blob:https://local/revoked",
+      cropX: 0,
+      cropY: 0,
+      width: sourceW,
+      height: sourceH,
+      left: 0,
+      top: 0,
+      scaleX: 1,
+      scaleY: 1,
+      _element: { naturalWidth: 0, naturalHeight: 0, width: 0, height: 0, complete: true },
+      ...overrides,
+    };
+  }
+
+  function pixelAt(data: Uint8ClampedArray | Buffer, width: number, x: number, y: number) {
+    const i = (y * width + x) * 4;
+    return [data[i], data[i + 1], data[i + 2], data[i + 3]];
+  }
+
+  function colorClose(actual: number[], expected: readonly number[], tol = 8) {
+    return (
+      Math.abs(actual[0] - expected[0]) <= tol &&
+      Math.abs(actual[1] - expected[1]) <= tol &&
+      Math.abs(actual[2] - expected[2]) <= tol
+    );
+  }
+
+  function pageHasColor(data: Uint8ClampedArray | Buffer, width: number, height: number, expected: readonly number[]) {
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        if (colorClose(pixelAt(data, width, x, y), expected)) return true;
+      }
+    }
+    return false;
+  }
+
+  async function pngFromPage(images: any[], pageW: number, pageH: number) {
+    const rgba = rasterPhoneExportPageRgba(images, pageW, pageH);
+    const png = await sharp(Buffer.from(rgba), {
+      raw: { width: pageW, height: pageH, channels: 4 },
+    })
+      .png()
+      .toBuffer();
+    const dataUrl = `data:image/png;base64,${png.toString("base64")}`;
+    const decoded = await sharp(png).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    return {
+      dataUrl,
+      width: pageW,
+      height: pageH,
+      rgba: decoded.data,
+      decodedWidth: decoded.info.width,
+      decodedHeight: decoded.info.height,
+    };
+  }
+
+  const uncroppedExport = emptyExport();
+  const uncroppedBind = bindDecodedPhoneExportImages([liveDecoded()], [uncroppedExport]);
+  assert.equal(uncroppedBind.bound, 1);
+  assert.equal(fabricImageHasDecodedPixels(uncroppedExport), true);
+  assert.equal(uncroppedExport.cropX, 0);
+  assert.equal(uncroppedExport.width, sourceW);
+  assert.equal(uncroppedExport.slbAssetId, "asset-1");
+  const uncropped = await pngFromPage([uncroppedExport], sourceW, sourceH);
+  assert.equal(uncropped.decodedWidth, sourceW);
+  assert.equal(uncropped.decodedHeight, sourceH);
+  assert.equal(colorClose(pixelAt(uncropped.rgba, sourceW, 1, 1), CRIMSON), true);
+  assert.equal(colorClose(pixelAt(uncropped.rgba, sourceW, 6, 1), BLUE), true);
+
+  const croppedExport = emptyExport({ cropX: 4, cropY: 0, width: 4, height: 4, left: 0, top: 0 });
+  bindDecodedPhoneExportImages([liveDecoded()], [croppedExport]);
+  assert.equal(croppedExport.cropX, 4);
+  assert.equal(croppedExport.width, 4);
+  assert.equal(croppedExport.height, 4);
+  const cropped = await pngFromPage([croppedExport], 4, 4);
+  assert.equal(colorClose(pixelAt(cropped.rgba, 4, 1, 1), BLUE), true);
+  assert.equal(pageHasColor(cropped.rgba, 4, 4, CRIMSON), false);
+
+  const missingSaved = {
+    type: "image",
+    src: "blob:https://local/gone",
+    slbAssetId: "missing-asset",
+    cropX: 40,
+    cropY: 16,
+    width: 200,
+    height: 180,
+    left: 0,
+    top: 0,
+  };
+  const missingClone = cloneJson(missingSaved);
+  const missingHydration = await rehydratePhoneImageSources(missingClone, async () => null, () => "blob:placeholder");
+  assert.deepEqual(missingHydration.missingAssetIds, ["missing-asset"]);
+  const missingExport = {
+    ...missingClone,
+    _element: { naturalWidth: 1, naturalHeight: 1, width: 1, height: 1, complete: true, rgba: new Uint8ClampedArray([0, 0, 0, 0]) },
+  };
+  bindDecodedPhoneExportImages([liveDecoded({ slbAssetId: "other" })], [missingExport]);
+  assert.equal(isMissingPhoneExportImage(missingExport), true);
+  assert.equal(missingExport.cropX, 0);
+  assert.equal(missingExport.width, 200);
+  const missingRaster = await pngFromPage([missingExport], 12, 12);
+  assert.equal(pageHasColor(missingRaster.rgba, 12, 12, CRIMSON), false);
+  assert.equal(pageHasColor(missingRaster.rgba, 12, 12, BLUE), false);
+  assert.equal(missingSaved.cropX, 40);
+  assert.equal(missingSaved.slbAssetId, "missing-asset");
+  assert.equal(missingSaved.src, "blob:https://local/gone");
+
+  const verifiedPages = [
+    { dataUrl: uncropped.dataUrl, width: uncropped.width, height: uncropped.height },
+  ];
+  const pdfFromVerifiedRaster = buildPDFFromPages(verifiedPages);
+  assert.equal(pdfFromVerifiedRaster.type, "application/pdf");
+  assert.ok(pdfFromVerifiedRaster.size > 0);
+  assert.equal(verifiedPages[0].dataUrl, uncropped.dataUrl);
+
+  const failedExport = emptyExport();
+  await assert.rejects(
+    () =>
+      finalizePhoneExportImages(
+        { getObjects: () => [] },
+        { getObjects: () => [failedExport] },
+        20
+      ),
+    (err: unknown) => err instanceof Error && err.message === PHONE_EXPORT_LOCAL_IMAGE_FAILED
+  );
+  assert.equal(phoneExportLocalImagesWithoutPixels([failedExport]).length, 1);
+
+  const ambiguousLive = [
+    liveDecoded({ id: "a", data: { id: "a", slbAssetId: "shared" }, slbAssetId: "shared" }),
+    liveDecoded({
+      id: "b",
+      data: { id: "b", slbAssetId: "shared" },
+      slbAssetId: "shared",
+      _element: {
+        naturalWidth: sourceW,
+        naturalHeight: sourceH,
+        width: sourceW,
+        height: sourceH,
+        rgba: sourceRgba,
+        complete: true,
+      },
+    }),
+  ];
+  const ambiguousExport = emptyExport({
+    id: "",
+    data: { slbAssetId: "shared" },
+    slbAssetId: "shared",
+  });
+  const ambiguous = bindDecodedPhoneExportImages(ambiguousLive, [ambiguousExport]);
+  assert.equal(ambiguous.bound, 0);
+  assert.equal(fabricImageHasDecodedPixels(ambiguousExport), false);
+
+  const uniqueById = emptyExport({ id: "a", data: { id: "a", slbAssetId: "shared" }, slbAssetId: "shared" });
+  assert.equal(bindDecodedPhoneExportImages(ambiguousLive, [uniqueById]).bound, 1);
+
+  assert.equal(new File(["x"], "photo.png", { type: "image/png" }) instanceof Blob, true);
 
   console.log("mobileImageHydration.verify: PASS");
 }

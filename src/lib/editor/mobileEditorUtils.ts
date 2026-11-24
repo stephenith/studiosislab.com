@@ -457,6 +457,81 @@ export function resizeBoundsForCorner(
 export const MOBILE_TAP_MOVE_THRESHOLD_PX = 18;
 export const MOBILE_TAP_MAX_DURATION_MS = 600;
 export const MOBILE_ZOOM_MAX_MULTIPLIER = 3;
+export const MOBILE_VIEWPORT_PADDING = 16;
+export const MOBILE_FIT_ZOOM_EPSILON = 0.004;
+export const MOBILE_ZOOM_PERCENT_MIN = 100;
+export const MOBILE_ZOOM_PERCENT_MAX = 100 * MOBILE_ZOOM_MAX_MULTIPLIER;
+
+export type MobileStackBounds = {
+  pageTops: number[];
+  pageSizes: Array<{ w: number; h: number }>;
+};
+
+export function isFitZoom(zoom: number, baseZoom: number, epsilon = MOBILE_FIT_ZOOM_EPSILON): boolean {
+  const base = baseZoom || 1;
+  return (zoom || base) <= base * (1 + epsilon);
+}
+
+export function zoomPercentFromState(zoom: number, baseZoom: number): number {
+  const base = baseZoom || zoom || 1;
+  const percent = Math.round(((zoom || base) / base) * 100);
+  return Math.max(MOBILE_ZOOM_PERCENT_MIN, Math.min(MOBILE_ZOOM_PERCENT_MAX, percent));
+}
+
+export function zoomFromPercent(percent: number, baseZoom: number): number {
+  const clamped = Math.max(MOBILE_ZOOM_PERCENT_MIN, Math.min(MOBILE_ZOOM_PERCENT_MAX, percent));
+  return clampMobileZoom((baseZoom || 1) * (clamped / 100), baseZoom || 1);
+}
+
+/**
+ * Keep the page stack on-stage: centered at fit zoom, vertically reachable
+ * across pages, and inspectable when zoomed in without free gray-stage drag.
+ */
+export function clampMobileViewport(
+  state: MobileViewportState,
+  input: {
+    viewportWidth: number;
+    viewportHeight: number;
+    baseZoom: number;
+    stack: MobileStackBounds | null | undefined;
+  }
+): MobileViewportState {
+  const zoom = clampMobileZoom(state.zoom, input.baseZoom || 1);
+  const vw = input.viewportWidth;
+  const vh = input.viewportHeight;
+  if (!(vw > 0) || !(vh > 0)) return { ...state, zoom };
+  const pages =
+    input.stack?.pageSizes?.length && input.stack.pageTops?.length
+      ? input.stack
+      : { pageTops: [0], pageSizes: [{ w: 1, h: 1 }] };
+  const stackW = Math.max(
+    1,
+    ...pages.pageSizes.map((size) => Math.round(Math.max(1, size.w) * zoom))
+  );
+  let panX = state.panX;
+  if (stackW <= vw) panX = (vw - stackW) / 2;
+  else panX = Math.max(vw - stackW, Math.min(0, state.panX));
+
+  const availH = Math.max(1, vh - MOBILE_VIEWPORT_PADDING * 2 - MOBILE_PAGE_CONTROL_CLEARANCE);
+  const contentTop = MOBILE_VIEWPORT_PADDING;
+  const contentBottom = MOBILE_VIEWPORT_PADDING + availH;
+  let panYMin = Infinity;
+  let panYMax = -Infinity;
+  pages.pageTops.forEach((top, index) => {
+    const height = Math.max(1, pages.pageSizes[index]?.h || 1) * zoom;
+    const fitted = contentTop + (availH - height) / 2 - top * zoom;
+    panYMin = Math.min(panYMin, fitted, contentBottom - (top * zoom + height));
+    panYMax = Math.max(panYMax, fitted, contentTop - top * zoom);
+  });
+  if (!Number.isFinite(panYMin) || !Number.isFinite(panYMax)) {
+    return { zoom, panX, panY: state.panY };
+  }
+  const panY =
+    panYMin > panYMax
+      ? (panYMin + panYMax) / 2
+      : Math.max(panYMin, Math.min(panYMax, state.panY));
+  return { zoom, panX, panY };
+}
 
 export function applyMobileViewportTransform(c: Canvas, state: MobileViewportState): void {
   c.setViewportTransform([state.zoom, 0, 0, state.zoom, state.panX, state.panY]);

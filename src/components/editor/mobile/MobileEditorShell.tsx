@@ -15,6 +15,7 @@ import {
   Loader2,
   Minus,
   Plus,
+  Search,
   Shapes,
   Table2,
   Trash2,
@@ -22,6 +23,10 @@ import {
   X,
   LayoutTemplate,
 } from "lucide-react";
+import {
+  MOBILE_ZOOM_PERCENT_MAX,
+  MOBILE_ZOOM_PERCENT_MIN,
+} from "@/lib/editor/mobileEditorUtils";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 import TextEditSheet from "@/components/editor/mobile/TextEditSheet";
 import SkillBarEditSheet from "@/components/editor/mobile/SkillBarEditSheet";
@@ -41,9 +46,9 @@ const DOCK: { id: DockTool; label: string; icon: typeof Type }[] = [
   { id: "templates", label: "Templates", icon: LayoutTemplate },
   { id: "text", label: "Text", icon: Type },
   { id: "shapes", label: "Shapes", icon: Shapes },
+  { id: "upload", label: "Upload", icon: ImagePlus },
   { id: "tables", label: "Tables", icon: Table2 },
   { id: "frames", label: "Frames", icon: Frame },
-  { id: "upload", label: "Upload", icon: ImagePlus },
 ];
 
 const COLORS = ["#111827", "#374151", "#7C3AED", "#1d4ed8", "#b91c1c", "#15803d"];
@@ -299,6 +304,8 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
   const editor = useMobileFabricEditor({ templateId, docId, blank });
   const shellRef = useRef<HTMLElement>(null);
   const [tool, setTool] = useState<DockTool | null>(null);
+  const [zoomOpen, setZoomOpen] = useState(false);
+  const zoomControlRef = useRef<HTMLDivElement>(null);
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const [tableRows, setTableRows] = useState(3);
@@ -312,6 +319,21 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
     const scroller = shellRef.current?.querySelector("[data-slb-tool-scroll]");
     if (scroller instanceof HTMLElement) scroller.scrollTop = 0;
   }, [editor.selectionLabel, textFormatting]);
+
+  useEffect(() => {
+    setZoomOpen(false);
+  }, [tool]);
+
+  useEffect(() => {
+    if (!zoomOpen) return;
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (target && zoomControlRef.current?.contains(target)) return;
+      setZoomOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [zoomOpen]);
 
   useEffect(() => {
     const root = shellRef.current;
@@ -498,18 +520,52 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
           </div>
         ))}
         <div
+          ref={zoomControlRef}
           data-slb-canvas-control="true"
-          className="absolute bottom-2 right-2 z-20 flex items-center gap-1"
+          className="absolute bottom-2 z-20"
           style={{ right: "max(0.5rem, env(safe-area-inset-right))" }}
         >
-          <button type="button" onClick={() => editor.zoomBy(1 / 1.15)} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d6deeb] bg-white" aria-label="Zoom out">
-            <Minus className="h-4 w-4" />
-          </button>
-          <button type="button" onClick={editor.resetView} className="inline-flex h-11 items-center rounded-full border border-[#d6deeb] bg-white px-3 text-xs font-medium" aria-label="Fit page">
-            {editor.zoomPercent}%
-          </button>
-          <button type="button" onClick={() => editor.zoomBy(1.15)} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d6deeb] bg-white" aria-label="Zoom in">
-            <Plus className="h-4 w-4" />
+          {zoomOpen ? (
+            <div
+              id="mobile-editor-zoom-popover"
+              className="absolute bottom-12 right-0 w-[min(13.5rem,calc(100vw-1.5rem))] rounded-2xl border border-[#d6deeb] bg-white p-3 shadow-[0_8px_24px_rgba(31,31,40,0.16)]"
+            >
+              <div className="mb-1 flex items-center justify-between gap-2">
+                <p className="text-xs font-medium tabular-nums text-zinc-900" aria-live="polite">
+                  {editor.zoomPercent}%
+                </p>
+                <button
+                  type="button"
+                  onClick={() => editor.resetView()}
+                  className="inline-flex h-8 items-center rounded-full px-2 text-[11px] font-medium text-zinc-600"
+                >
+                  Fit
+                </button>
+              </div>
+              <input
+                type="range"
+                min={MOBILE_ZOOM_PERCENT_MIN}
+                max={MOBILE_ZOOM_PERCENT_MAX}
+                step={1}
+                value={editor.zoomPercent}
+                aria-label="Zoom"
+                aria-valuemin={MOBILE_ZOOM_PERCENT_MIN}
+                aria-valuemax={MOBILE_ZOOM_PERCENT_MAX}
+                aria-valuenow={editor.zoomPercent}
+                onChange={(event) => editor.setZoomPercent(Number(event.target.value))}
+                className="h-11 w-full accent-violet-600"
+              />
+            </div>
+          ) : null}
+          <button
+            type="button"
+            aria-label="Zoom"
+            aria-expanded={zoomOpen}
+            aria-controls="mobile-editor-zoom-popover"
+            onClick={() => setZoomOpen((open) => !open)}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d6deeb] bg-white text-zinc-800 shadow-sm"
+          >
+            <Search className="h-4 w-4" />
           </button>
         </div>
       </div>

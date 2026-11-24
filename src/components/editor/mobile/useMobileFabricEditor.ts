@@ -10,11 +10,13 @@ import { exportToDataURL, buildPDFFromPages } from "@/lib/editor/exportCanvas";
 import {
   applyMobileInteractionLocks,
   applyMobileViewportTransform,
+  clampMobileViewport,
   ensurePageBackground,
   fabricSavePayloadHasDataImageSrc,
   findEditableTargetAtContainerPoint,
   elementResizeMode,
   fitCanvasToViewport,
+  isFitZoom,
   MOBILE_PAGE_CONTROL_CLEARANCE,
   resizeBoundsForCorner,
   type ResizeCorner,
@@ -26,6 +28,8 @@ import {
   serializeCanvasForSave,
   type MobileSelectionFrame,
   type MobileViewportState,
+  zoomFromPercent,
+  zoomPercentFromState,
   zoomViewportAroundPoint,
 } from "@/lib/editor/mobileEditorUtils";
 import {
@@ -305,12 +309,35 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const applyViewState = useCallback(
     (state: MobileViewportState) => {
       const canvas = canvasRef.current;
+      const viewport = viewportRef.current;
       if (!canvas) return;
-      viewStateRef.current = state;
-      applyMobileViewportTransform(canvas, state);
-      const base = baseZoomRef.current || state.zoom || 1;
-      setZoomPercent(Math.max(100, Math.round((state.zoom / base) * 100)));
+      const rect = viewport?.getBoundingClientRect();
+      const meta = stackMetaRef.current;
+      const next =
+        rect && rect.width > 0 && rect.height > 0
+          ? clampMobileViewport(state, {
+              viewportWidth: rect.width,
+              viewportHeight: rect.height,
+              baseZoom: baseZoomRef.current || state.zoom || 1,
+              stack: meta
+                ? { pageTops: meta.pageTops, pageSizes: meta.pageSizes }
+                : null,
+            })
+          : state;
+      const prev = viewStateRef.current;
+      if (
+        prev.zoom === next.zoom &&
+        prev.panX === next.panX &&
+        prev.panY === next.panY
+      ) {
+        return next;
+      }
+      viewStateRef.current = next;
+      applyMobileViewportTransform(canvas, next);
+      const percent = zoomPercentFromState(next.zoom, baseZoomRef.current || next.zoom || 1);
+      setZoomPercent((current) => (current === percent ? current : percent));
       refreshSelectionFrame();
+      return next;
     },
     [refreshSelectionFrame]
   );
@@ -1032,16 +1059,18 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
             gesture.mode = "move";
             return;
           }
-          userAdjustedViewRef.current = true;
           keyboardViewRef.current = null;
           return;
         }
-        const next = {
+        const proposed = {
           ...viewStateRef.current,
           panX: viewStateRef.current.panX + (point.x - gesture.lastX),
           panY: viewStateRef.current.panY + (point.y - gesture.lastY),
         };
-        applyViewState(next);
+        const applied = applyViewState(proposed);
+        if (applied && !isFitZoom(applied.zoom, baseZoomRef.current || applied.zoom)) {
+          userAdjustedViewRef.current = true;
+        }
         gesture.lastX = point.x;
         gesture.lastY = point.y;
         event.preventDefault();
@@ -1060,6 +1089,9 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           baseZoomRef.current
         );
         applyViewState(next);
+        if (!isFitZoom(next.zoom, baseZoomRef.current || next.zoom)) {
+          userAdjustedViewRef.current = true;
+        }
         pinch.hadGesture = true;
         event.preventDefault();
       }
@@ -1560,17 +1592,40 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       if (!viewport) return;
       const rect = viewport.getBoundingClientRect();
       const current = viewStateRef.current;
-      userAdjustedViewRef.current = true;
       keyboardViewRef.current = null;
-      applyViewState(
-        zoomViewportAroundPoint(
-          current,
-          current.zoom * factor,
-          rect.width / 2,
-          rect.height / 2,
-          baseZoomRef.current
-        )
+      const next = zoomViewportAroundPoint(
+        current,
+        current.zoom * factor,
+        rect.width / 2,
+        rect.height / 2,
+        baseZoomRef.current
       );
+      if (!isFitZoom(next.zoom, baseZoomRef.current || next.zoom)) {
+        userAdjustedViewRef.current = true;
+      }
+      applyViewState(next);
+    },
+    [applyViewState]
+  );
+
+  const applyZoomPercent = useCallback(
+    (percent: number) => {
+      const viewport = viewportRef.current;
+      if (!viewport) return;
+      const rect = viewport.getBoundingClientRect();
+      const current = viewStateRef.current;
+      const base = baseZoomRef.current || current.zoom || 1;
+      keyboardViewRef.current = null;
+      const next = zoomViewportAroundPoint(
+        current,
+        zoomFromPercent(percent, base),
+        rect.width / 2,
+        rect.height / 2,
+        base
+      );
+      if (!isFitZoom(next.zoom, base)) userAdjustedViewRef.current = true;
+      else userAdjustedViewRef.current = false;
+      applyViewState(next);
     },
     [applyViewState]
   );
@@ -1792,6 +1847,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     duplicateSelection,
     deleteSelection,
     zoomBy,
+    setZoomPercent: applyZoomPercent,
     applyTemplateToPage,
     addPageAfter,
     duplicateCurrentPage,

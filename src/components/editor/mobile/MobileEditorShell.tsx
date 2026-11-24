@@ -628,31 +628,17 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
       <div className="flex min-h-0 flex-1 flex-col">
       <div className="relative z-0 min-h-[46%] flex-1 overflow-hidden">
         <div ref={editor.viewportRef} className="absolute inset-0 overflow-hidden touch-none">
-          {editor.loadError ? (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#ebecf0] p-6">
-              <div className="w-full max-w-sm rounded-2xl border border-[#d6deeb] bg-white p-6 text-center">
-                <h1 className="text-base font-semibold text-zinc-900">Unable to open resume</h1>
-                <p className="mt-2 text-sm text-zinc-600">{editor.loadError}</p>
-                <button
-                  type="button"
-                  onClick={editor.reloadLatest}
-                  className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-zinc-900 px-5 text-sm text-white"
-                >
-                  Try again
-                </button>
-                <Link href="/resume" className="mt-3 inline-flex min-h-11 items-center text-sm font-medium text-zinc-700">
-                  Back to Resume Hub
-                </Link>
-              </div>
-            </div>
-          ) : editor.loading ? (
+          {editor.loading && !editor.loadError ? (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#ebecf0]/80">
               <BrandLoadMark label={docId ? "Opening saved resume" : "Opening resume"} />
             </div>
           ) : null}
-          <div ref={editor.canvasWrapRef} className="relative h-full w-full">
+          <div
+            ref={editor.canvasWrapRef}
+            className={`relative h-full w-full${editor.loadError ? " pointer-events-none" : ""}`}
+          >
             <canvas ref={editor.attachCanvasEl} className="block" />
-            {editor.selectionFrame && !editor.imageCropping ? (
+            {!editor.loadError && editor.selectionFrame && !editor.imageCropping ? (
               <SelectionChrome
                 frame={editor.selectionFrame}
                 boundsWidth={editor.viewportRef.current?.clientWidth || 0}
@@ -667,7 +653,7 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
                 onCrop={editor.beginImageCrop}
               />
             ) : null}
-            {editor.imageCropping && editor.cropWrapRect ? (
+            {!editor.loadError && editor.imageCropping && editor.cropWrapRect ? (
               <CropChrome
                 rect={editor.cropWrapRect}
                 boundsWidth={editor.viewportRef.current?.clientWidth || 0}
@@ -677,7 +663,8 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
                 onCancel={editor.cancelImageCrop}
               />
             ) : null}
-            {editor.pageFrames.map((frame) => (
+            {!editor.loadError &&
+              editor.pageFrames.map((frame) => (
               <div
                 key={frame.index}
                 data-slb-canvas-control="true"
@@ -706,7 +693,40 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
               </div>
             ))}
           </div>
+          {editor.loadError ? (
+            <div
+              className="absolute inset-0 z-30 flex items-center justify-center bg-[#ebecf0] p-6"
+              data-slb-load-error="true"
+              data-slb-load-stage={editor.loadFailure?.stage || ""}
+              data-slb-load-reason={editor.loadFailure?.reason || ""}
+              data-slb-load-source={editor.loadFailure?.source || ""}
+              data-slb-load-error-name={editor.loadFailure?.errorName || ""}
+              data-slb-load-error-code={editor.loadFailure?.errorCode || ""}
+              role="alert"
+            >
+              <div className="w-full max-w-sm rounded-2xl border border-[#d6deeb] bg-white p-6 text-center">
+                <h1 className="text-base font-semibold text-zinc-900">Unable to open resume</h1>
+                <p className="mt-2 text-sm text-zinc-600">{editor.loadError}</p>
+                <div className="mt-5 flex w-full flex-col gap-3">
+                  <button
+                    type="button"
+                    onClick={editor.reloadLatest}
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-zinc-900 px-5 text-sm text-white"
+                  >
+                    Try again
+                  </button>
+                  <Link
+                    href="/resume"
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#d6deeb] bg-white text-sm font-medium text-zinc-700"
+                  >
+                    Back to Resume Hub
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
+        {!editor.loadError ? (
         <div
           ref={zoomControlRef}
           data-slb-canvas-control="true"
@@ -756,6 +776,7 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
             <Search className="h-4 w-4" />
           </button>
         </div>
+        ) : null}
       </div>
 
       <div className="flex max-h-[54%] min-h-0 flex-col overflow-hidden">

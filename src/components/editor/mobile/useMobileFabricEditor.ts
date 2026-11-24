@@ -96,10 +96,14 @@ import {
 import { commitMobileResumeDoc, getResumeDoc, updateResumeThumbnail } from "@/lib/resumeDocs";
 import { normalizeToFabricJson } from "@/lib/editor/fabricJson";
 import {
-  classifyPhoneResumeLoadError,
+  describePhoneResumeLoadFailure,
   loadOwnedResumeWithAuthRetry,
   loadPublishedTemplateJson,
   phoneResumeLoadDecision,
+  phoneResumeLoadFailureLog,
+  phoneResumeLoadSource,
+  type PhoneResumeLoadFailure,
+  type PhoneResumeLoadStage,
 } from "@/lib/editor/mobileResumeLoad";
 import {
   finalizePhoneExportImages,
@@ -230,6 +234,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const [canvasReady, setCanvasReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadFailure, setLoadFailure] = useState<PhoneResumeLoadFailure | null>(null);
   const [docTitle, setDocTitleState] = useState("Untitled Resume");
   const [saveStatus, setSaveStatus] = useState<MobileSaveStatus>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -835,6 +840,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     loadedKeyRef.current = null;
     setSaveStatus("idle");
     setSaveError(null);
+    setLoadFailure(null);
     setReloadNonce((value) => value + 1);
   }, []);
 
@@ -860,35 +866,62 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     userAdjustedViewRef.current = false;
     setLoading(true);
     setLoadError(null);
+    setLoadFailure(null);
     setImageNotice(null);
     selectedObjectRef.current = null;
     setSelectionFrame(null);
     setSelectionLabel(null);
+    const source = phoneResumeLoadSource({ decision, blank, templateId });
+
+    const failLoad = (failure: PhoneResumeLoadFailure) => {
+      console.warn("[mobile-editor] load failed", phoneResumeLoadFailureLog(failure));
+      setLoadFailure(failure);
+      setLoadError(failure.message);
+      setLoading(false);
+    };
 
     const run = async () => {
+      let stage: PhoneResumeLoadStage = "canvas";
       const canvas = canvasRef.current;
       if (!canvas) {
         if (!cancelled) {
-          setLoadError(classifyPhoneResumeLoadError(new Error("Canvas failed to initialize")).message);
-          setLoading(false);
+          failLoad(
+            describePhoneResumeLoadFailure({
+              err: new Error("Canvas failed to initialize"),
+              stage: "canvas",
+              source,
+            })
+          );
         }
         return;
       }
       try {
         if (decision.type === "denied") {
-          setLoadError(decision.message);
-          setLoading(false);
+          failLoad(
+            describePhoneResumeLoadFailure({
+              classified: { reason: "unauthenticated", message: decision.message },
+              stage: "auth",
+              source,
+            })
+          );
           return;
         }
         if (decision.type === "document") {
+          stage = "document_read";
           const read = await loadOwnedResumeWithAuthRetry({
             load: () => getResumeDoc({ uid: decision.uid, docId: decision.docId }),
             refreshAuth: () => user?.getIdToken?.(true),
           });
           if (cancelled) return;
           if (!read.ok) {
-            setLoadError(read.message);
-            setLoading(false);
+            failLoad(
+              describePhoneResumeLoadFailure({
+                err: { name: read.errorName, code: read.errorCode },
+                classified: { reason: read.reason, message: read.message },
+                stage: "document_read",
+                source,
+              })
+            );
             return;
           }
           const record = read.record;
@@ -905,6 +938,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
               "Photos added on another device stay in this resume. This phone does not replace them."
             );
           }
+          stage = "hydrate_render";
           await renderStackedPages(parsed.pages, { activeIndex: 0, fit: true });
         } else if (blank || !templateId) {
           const box = { w: 794, h: 1123 };
@@ -922,15 +956,23 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           baseUpdatedAtRef.current = null;
           setDocTitleState("Untitled Resume");
           setPageCount(1);
+          stage = "hydrate_render";
           await renderStackedPages([empty], { activeIndex: 0, fit: true });
         } else {
+          stage = "template_lookup";
           const template = getSystemTemplateById(templateId);
           if (!template) {
-            setLoadError(classifyPhoneResumeLoadError(new Error("Template not found.")).message);
-            setLoading(false);
+            failLoad(
+              describePhoneResumeLoadFailure({
+                err: new Error("Template not found."),
+                stage: "template_lookup",
+                source,
+              })
+            );
             return;
           }
           setDocTitleState(template.name || "Untitled Resume");
+          stage = "template_json";
           const snapshot = normalizeToFabricJson(await loadPublishedTemplateJson(() => template.load()));
           if (cancelled) return;
           if (!Array.isArray(snapshot.objects)) {
@@ -946,6 +988,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           baseRevisionRef.current = null;
           baseUpdatedAtRef.current = null;
           setPageCount(1);
+          stage = "hydrate_render";
           await renderStackedPages(serverPagesRef.current, { activeIndex: 0, fit: true });
         }
         if (cancelled) return;
@@ -953,10 +996,8 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
         setSaveStatus("idle");
         setLoading(false);
       } catch (err) {
-        console.error("[mobile-editor] Failed to load", err);
         if (!cancelled) {
-          setLoadError(classifyPhoneResumeLoadError(err).message);
-          setLoading(false);
+          failLoad(describePhoneResumeLoadFailure({ err, stage, source }));
         }
       } finally {
         suppressDirtyRef.current = false;
@@ -1936,6 +1977,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   return {
     loading,
     loadError,
+    loadFailure,
     docTitle,
     setDocTitle,
     saveStatus,

@@ -24,6 +24,29 @@ export type PhoneResumeLoadReason =
   | "canvas"
   | "error";
 
+export type PhoneResumeLoadStage =
+  | "auth"
+  | "canvas"
+  | "document_read"
+  | "template_lookup"
+  | "template_json"
+  | "hydrate_render"
+  | "unknown";
+
+export type PhoneResumeLoadSource = "template" | "blank" | "document";
+
+export type PhoneResumeLoadFailure = {
+  message: string;
+  reason: PhoneResumeLoadReason;
+  stage: PhoneResumeLoadStage;
+  source: PhoneResumeLoadSource;
+  errorName: string;
+  errorCode: string;
+};
+
+export const PHONE_LOAD_ERROR_ACTION_MIN_PX = 44;
+export const PHONE_LOAD_ERROR_ACTION_GAP_PX = 12;
+
 export type PhoneResumeLoadDecision =
   | { type: "wait" }
   | { type: "template" }
@@ -43,6 +66,16 @@ export function phoneResumeLoadDecision(input: {
     return { type: "denied", message: PHONE_RESUME_LOAD_MESSAGES.unauthenticated };
   }
   return { type: "document", uid, docId };
+}
+
+export function phoneResumeLoadSource(input: {
+  decision: PhoneResumeLoadDecision;
+  blank?: boolean;
+  templateId?: string | null;
+}): PhoneResumeLoadSource {
+  if (input.decision.type === "document") return "document";
+  if (input.blank || !String(input.templateId || "").trim()) return "blank";
+  return "template";
 }
 
 function errorText(err: unknown): string {
@@ -93,6 +126,67 @@ export function classifyPhoneResumeLoadError(err: unknown): {
   return { reason: "error", message: PHONE_RESUME_LOAD_MESSAGES.generic };
 }
 
+function safeDiagnosticToken(value: unknown): string {
+  const text = String(value || "").trim().slice(0, 64);
+  if (!text) return "";
+  return /^[A-Za-z0-9._:-]+$/.test(text) ? text : "";
+}
+
+export function describePhoneResumeLoadFailure(input: {
+  err?: unknown;
+  stage: PhoneResumeLoadStage;
+  source: PhoneResumeLoadSource;
+  classified?: { reason: PhoneResumeLoadReason; message: string };
+}): PhoneResumeLoadFailure {
+  const classified = input.classified ?? classifyPhoneResumeLoadError(input.err);
+  const value = input.err as { code?: unknown; name?: unknown } | undefined;
+  return {
+    message: classified.message,
+    reason: classified.reason,
+    stage: input.stage,
+    source: input.source,
+    errorName: safeDiagnosticToken(value?.name),
+    errorCode: safeDiagnosticToken(value?.code),
+  };
+}
+
+export function phoneResumeLoadFailureLog(failure: PhoneResumeLoadFailure): {
+  stage: PhoneResumeLoadStage;
+  reason: PhoneResumeLoadReason;
+  name: string;
+  code: string;
+  source: PhoneResumeLoadSource;
+} {
+  return {
+    stage: failure.stage,
+    reason: failure.reason,
+    name: failure.errorName,
+    code: failure.errorCode,
+    source: failure.source,
+  };
+}
+
+export function phoneLoadErrorActionRects(cardInnerWidth: number): {
+  tryAgain: { left: number; top: number; width: number; height: number };
+  hub: { left: number; top: number; width: number; height: number };
+  overlap: boolean;
+} {
+  const width = Math.max(0, cardInnerWidth);
+  const tryAgain = { left: 0, top: 0, width, height: PHONE_LOAD_ERROR_ACTION_MIN_PX };
+  const hub = {
+    left: 0,
+    top: PHONE_LOAD_ERROR_ACTION_MIN_PX + PHONE_LOAD_ERROR_ACTION_GAP_PX,
+    width,
+    height: PHONE_LOAD_ERROR_ACTION_MIN_PX,
+  };
+  const overlap =
+    tryAgain.left < hub.left + hub.width &&
+    tryAgain.left + tryAgain.width > hub.left &&
+    tryAgain.top < hub.top + hub.height &&
+    tryAgain.top + tryAgain.height > hub.top;
+  return { tryAgain, hub, overlap };
+}
+
 export type PhoneResumeRecord = {
   title?: string;
   canvasJson?: unknown;
@@ -104,7 +198,13 @@ export type PhoneResumeRecord = {
 
 export type PhoneResumeReadResult =
   | { ok: true; record: PhoneResumeRecord }
-  | { ok: false; reason: PhoneResumeLoadReason; message: string };
+  | {
+      ok: false;
+      reason: PhoneResumeLoadReason;
+      message: string;
+      errorName?: string;
+      errorCode?: string;
+    };
 
 export async function readPhoneResumeDoc(input: {
   load: () => Promise<PhoneResumeRecord | null>;
@@ -117,10 +217,31 @@ export async function readPhoneResumeDoc(input: {
     return { ok: true, record };
   } catch (err) {
     const classified = classifyPhoneResumeLoadError(err);
+    const diagnostic = describePhoneResumeLoadFailure({
+      err,
+      stage: "document_read",
+      source: "document",
+      classified:
+        classified.reason === "missing"
+          ? { reason: "error", message: PHONE_RESUME_LOAD_MESSAGES.generic }
+          : classified,
+    });
     if (classified.reason === "missing") {
-      return { ok: false, reason: "error", message: PHONE_RESUME_LOAD_MESSAGES.generic };
+      return {
+        ok: false,
+        reason: "error",
+        message: PHONE_RESUME_LOAD_MESSAGES.generic,
+        errorName: diagnostic.errorName,
+        errorCode: diagnostic.errorCode,
+      };
     }
-    return { ok: false, reason: classified.reason, message: classified.message };
+    return {
+      ok: false,
+      reason: classified.reason,
+      message: classified.message,
+      errorName: diagnostic.errorName,
+      errorCode: diagnostic.errorCode,
+    };
   }
 }
 

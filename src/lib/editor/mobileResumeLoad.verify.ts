@@ -7,11 +7,17 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { normalizeToFabricJson } from "./fabricJson";
 import {
+  PHONE_LOAD_ERROR_ACTION_GAP_PX,
+  PHONE_LOAD_ERROR_ACTION_MIN_PX,
   PHONE_RESUME_LOAD_MESSAGES,
   classifyPhoneResumeLoadError,
+  describePhoneResumeLoadFailure,
   loadOwnedResumeWithAuthRetry,
   loadPublishedTemplateJson,
+  phoneLoadErrorActionRects,
   phoneResumeLoadDecision,
+  phoneResumeLoadFailureLog,
+  phoneResumeLoadSource,
   readPhoneResumeDoc,
   unwrapTemplateSnapshot,
 } from "./mobileResumeLoad";
@@ -40,6 +46,38 @@ assert.deepEqual(owned, {
   docId: "8d0b6d6e-4c3a-4f1e-9a2b-0c1d2e3f4a5b",
 });
 assert.deepEqual(phoneResumeLoadDecision({ docId: null, authReady: true, uid: "uid-1" }), { type: "template" });
+assert.equal(
+  phoneResumeLoadSource({
+    decision: phoneResumeLoadDecision({ docId: null, authReady: true, uid: "uid-1" }),
+    blank: false,
+    templateId: "t012",
+  }),
+  "template"
+);
+assert.equal(
+  phoneResumeLoadSource({
+    decision: phoneResumeLoadDecision({ docId: null, authReady: true, uid: "uid-1" }),
+    blank: true,
+    templateId: "blank",
+  }),
+  "blank"
+);
+assert.equal(
+  phoneResumeLoadSource({
+    decision: phoneResumeLoadDecision({ docId: "doc-1", authReady: true, uid: "uid-1" }),
+    blank: false,
+    templateId: "t012",
+  }),
+  "document"
+);
+
+const narrowActions = phoneLoadErrorActionRects(280);
+assert.equal(narrowActions.overlap, false);
+assert.equal(narrowActions.tryAgain.width, 280);
+assert.equal(narrowActions.hub.width, 280);
+assert.equal(narrowActions.tryAgain.height, PHONE_LOAD_ERROR_ACTION_MIN_PX);
+assert.equal(narrowActions.hub.top, PHONE_LOAD_ERROR_ACTION_MIN_PX + PHONE_LOAD_ERROR_ACTION_GAP_PX);
+assert.ok(narrowActions.hub.top >= narrowActions.tryAgain.top + narrowActions.tryAgain.height);
 
 async function main() {
 const missing = await readPhoneResumeDoc({ load: async () => null });
@@ -75,6 +113,7 @@ assert.equal(thrownMissing.ok, false);
 if (!thrownMissing.ok) {
   assert.equal(thrownMissing.reason, "error");
   assert.equal(thrownMissing.message, PHONE_RESUME_LOAD_MESSAGES.generic);
+  assert.equal(thrownMissing.errorCode, "not-found");
 }
 
 const offline = classifyPhoneResumeLoadError({ code: "unavailable", message: "Failed to get document because the client is offline." });
@@ -115,6 +154,29 @@ assert.equal(safari.reason, "invalid_template_json");
 const chunk = classifyPhoneResumeLoadError({ name: "ChunkLoadError", message: "Loading chunk 12 failed" });
 assert.equal(chunk.reason, "invalid_template_json");
 
+const typeError = describePhoneResumeLoadFailure({
+  err: new TypeError("Cannot read properties of undefined"),
+  stage: "hydrate_render",
+  source: "document",
+});
+assert.equal(typeError.message, PHONE_RESUME_LOAD_MESSAGES.generic);
+assert.equal(typeError.stage, "hydrate_render");
+assert.equal(typeError.errorName, "TypeError");
+const typeLog = phoneResumeLoadFailureLog(typeError);
+assert.deepEqual(Object.keys(typeLog).sort(), ["code", "name", "reason", "source", "stage"]);
+assert.equal("message" in typeLog, false);
+assert.doesNotMatch(JSON.stringify(typeLog), /uid-|resume text|token/i);
+
+const dirtyName = describePhoneResumeLoadFailure({
+  err: { name: "FirebaseError", code: "unavailable", message: "Owner uid-secret resume Jane Doe" },
+  stage: "document_read",
+  source: "document",
+});
+assert.equal(dirtyName.errorCode, "unavailable");
+assert.equal(dirtyName.errorName, "FirebaseError");
+assert.equal(phoneResumeLoadFailureLog(dirtyName).code, "unavailable");
+assert.doesNotMatch(JSON.stringify(phoneResumeLoadFailureLog(dirtyName)), /uid-secret|Jane Doe/);
+
 let loads = 0;
 const recovered = await loadPublishedTemplateJson(async () => {
   loads += 1;
@@ -146,6 +208,20 @@ assert.ok(openStart > 0 && openEnd > openStart);
 assert.equal((open.match(/loadSnapshotOntoCanvas/g) || []).length, 0);
 assert.match(open, /sanitizeImageSourcesForLoad/);
 assert.match(open, /renderStackedPages/);
+assert.match(hook, /phoneResumeLoadFailureLog/);
+assert.match(hook, /stage = "document_read"/);
+assert.match(hook, /stage = "template_json"/);
+assert.match(hook, /stage = "hydrate_render"/);
+assert.doesNotMatch(hook, /console\.error\("\[mobile-editor\] Failed to load"/);
+
+const reloadStart = hook.indexOf("const reloadLatest = useCallback");
+const reloadEnd = hook.indexOf("useEffect(() => {\n    if (!canvasReady)", reloadStart);
+const reload = hook.slice(reloadStart, reloadEnd);
+assert.ok(reloadStart > 0 && reloadEnd > reloadStart);
+assert.match(reload, /loadedKeyRef\.current = null/);
+assert.match(reload, /setReloadNonce/);
+assert.equal(/setCanvasEpoch/.test(reload), false);
+assert.equal(/dispose\(/.test(reload), false);
 }
 
 void main().then(() => {

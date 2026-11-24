@@ -12,6 +12,7 @@ import { isSkillBar, resolveSkillBarFromTarget } from "@/lib/editor/skillBar/ski
 import { normalizeSkillBars } from "@/lib/editor/skillBar/skillBarFactory";
 import { isStarRating, resolveStarRatingFromTarget } from "@/lib/editor/starRating/starRatingDetection";
 import { normalizeStarRatings } from "@/lib/editor/starRating/starRatingFactory";
+import { omitImageCropChromeFromSnapshot } from "@/lib/editor/imageCrop";
 import { isMobilePageSurface } from "@/lib/editor/mobilePageStack";
 import { CANVAS_BG, PAGE_SIZES, type PageSize } from "@/types/editor";
 
@@ -705,7 +706,7 @@ export async function loadSnapshotOntoCanvas(
 }
 
 export function serializeCanvasForSave(c: Canvas): any {
-  return (c as any).toJSON([...FABRIC_JSON_PROPS]);
+  return omitImageCropChromeFromSnapshot((c as any).toJSON([...FABRIC_JSON_PROPS]));
 }
 
 export type MobileSelectionFrame = {

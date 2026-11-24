@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type TouchEvent as ReactTouchEvent } from "react";
 import Link from "next/link";
 import {
   AlignCenter,
@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   ChevronDown,
   Copy,
+  Crop,
   Download,
   Frame,
   ImagePlus,
@@ -196,22 +197,26 @@ function SelectionChrome({
   boundsHeight,
   showHandles,
   showActions,
+  imageActions,
   accent,
   onResize,
   onDuplicate,
   onDelete,
+  onCrop,
 }: {
   frame: { left: number; top: number; width: number; height: number };
   boundsWidth: number;
   boundsHeight: number;
   showHandles: boolean;
   showActions: boolean;
+  imageActions: boolean;
   accent: "blue" | "violet";
   onResize: (corner: "tl" | "tr" | "bl" | "br", phase: "start" | "move" | "end", clientX: number, clientY: number) => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  onCrop: () => void;
 }) {
-  const actionWidth = 96;
+  const actionWidth = imageActions ? 148 : 96;
   let actionLeft = frame.left + frame.width / 2 - actionWidth / 2;
   let actionTop = frame.top - 52;
   if (actionTop < 8) actionTop = frame.top + frame.height + 8;
@@ -271,7 +276,39 @@ function SelectionChrome({
             );
           })
         : null}
-      {showActions ? (
+      {imageActions ? (
+        <div
+          data-slb-canvas-control="true"
+          className="absolute z-30 flex items-center gap-2"
+          style={{ left: actionLeft, top: actionTop }}
+          onTouchStart={(event) => event.stopPropagation()}
+        >
+          <button
+            type="button"
+            aria-label="Delete selection"
+            onClick={onDelete}
+            className={`inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-zinc-800 shadow-sm backdrop-blur-sm focus-visible:outline focus-visible:outline-2 ${actionFocus}`}
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Crop selection"
+            onClick={onCrop}
+            className={`inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-zinc-800 shadow-sm backdrop-blur-sm focus-visible:outline focus-visible:outline-2 ${actionFocus}`}
+          >
+            <Crop className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Duplicate selection"
+            onClick={onDuplicate}
+            className={`inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-zinc-800 shadow-sm backdrop-blur-sm focus-visible:outline focus-visible:outline-2 ${actionFocus}`}
+          >
+            <Copy className="h-4 w-4" />
+          </button>
+        </div>
+      ) : showActions ? (
         <div
           data-slb-canvas-control="true"
           className="absolute z-30 flex items-center gap-2"
@@ -296,6 +333,154 @@ function SelectionChrome({
           </button>
         </div>
       ) : null}
+    </>
+  );
+}
+
+const CROP_EDGES = [
+  { id: "n" as const, cursor: "ns-resize" },
+  { id: "s" as const, cursor: "ns-resize" },
+  { id: "e" as const, cursor: "ew-resize" },
+  { id: "w" as const, cursor: "ew-resize" },
+  { id: "tl" as const, cursor: "nwse-resize" },
+  { id: "tr" as const, cursor: "nesw-resize" },
+  { id: "bl" as const, cursor: "nesw-resize" },
+  { id: "br" as const, cursor: "nwse-resize" },
+];
+
+function CropChrome({
+  rect,
+  boundsWidth,
+  boundsHeight,
+  onChange,
+  onDone,
+  onCancel,
+}: {
+  rect: { left: number; top: number; width: number; height: number };
+  boundsWidth: number;
+  boundsHeight: number;
+  onChange: (next: { left: number; top: number; width: number; height: number }) => void;
+  onDone: () => void;
+  onCancel: () => void;
+}) {
+  const dragRef = useRef<{
+    kind: "move" | (typeof CROP_EDGES)[number]["id"];
+    startX: number;
+    startY: number;
+    start: { left: number; top: number; width: number; height: number };
+  } | null>(null);
+  const stopSingleTouch = (event: ReactTouchEvent) => {
+    if (event.touches.length === 1) event.stopPropagation();
+  };
+  const applyDrag = (clientX: number, clientY: number) => {
+    const drag = dragRef.current;
+    if (!drag) return;
+    const dx = clientX - drag.startX;
+    const dy = clientY - drag.startY;
+    if (drag.kind === "move") {
+      onChange({ ...drag.start, left: drag.start.left + dx, top: drag.start.top + dy });
+      return;
+    }
+    let left = drag.start.left;
+    let top = drag.start.top;
+    let right = drag.start.left + drag.start.width;
+    let bottom = drag.start.top + drag.start.height;
+    const edge = drag.kind;
+    if (edge === "w" || edge === "tl" || edge === "bl") left += dx;
+    if (edge === "e" || edge === "tr" || edge === "br") right += dx;
+    if (edge === "n" || edge === "tl" || edge === "tr") top += dy;
+    if (edge === "s" || edge === "bl" || edge === "br") bottom += dy;
+    onChange({ left, top, width: right - left, height: bottom - top });
+  };
+  const bindDrag = (kind: "move" | (typeof CROP_EDGES)[number]["id"]) => ({
+    onPointerDown: (event: ReactPointerEvent<HTMLElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      event.currentTarget.setPointerCapture(event.pointerId);
+      dragRef.current = { kind, startX: event.clientX, startY: event.clientY, start: rect };
+    },
+    onPointerMove: (event: ReactPointerEvent<HTMLElement>) => {
+      if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+      applyDrag(event.clientX, event.clientY);
+    },
+    onPointerUp: (event: ReactPointerEvent<HTMLElement>) => {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+      dragRef.current = null;
+    },
+    onPointerCancel: () => {
+      dragRef.current = null;
+    },
+  });
+  let actionLeft = rect.left + rect.width / 2 - 84;
+  let actionTop = rect.top + rect.height + 8;
+  if (boundsWidth > 0) {
+    actionLeft = Math.max(8, Math.min(actionLeft, boundsWidth - 176));
+    actionTop = Math.max(8, Math.min(actionTop, Math.max(8, boundsHeight - 52)));
+  }
+  return (
+    <>
+      <div
+        data-slb-canvas-control="true"
+        className="absolute z-40 box-border rounded-sm border-2 border-white/90 bg-black/10 shadow-[0_0_0_9999px_rgba(15,23,42,0.35)]"
+        style={{ left: rect.left, top: rect.top, width: rect.width, height: rect.height, touchAction: "none" }}
+        {...bindDrag("move")}
+        onTouchStart={stopSingleTouch}
+        onTouchMove={(event) => {
+          if (event.touches.length === 1) {
+            event.stopPropagation();
+            event.preventDefault();
+          }
+        }}
+      />
+      {CROP_EDGES.map((edge) => {
+        const midX = rect.left + rect.width / 2;
+        const midY = rect.top + rect.height / 2;
+        const x = edge.id === "w" || edge.id === "tl" || edge.id === "bl" ? rect.left : edge.id === "e" || edge.id === "tr" || edge.id === "br" ? rect.left + rect.width : midX;
+        const y = edge.id === "n" || edge.id === "tl" || edge.id === "tr" ? rect.top : edge.id === "s" || edge.id === "bl" || edge.id === "br" ? rect.top + rect.height : midY;
+        return (
+          <button
+            key={edge.id}
+            type="button"
+            data-slb-canvas-control="true"
+            aria-label={`Resize crop ${edge.id}`}
+            className="absolute z-50 inline-flex h-11 w-11 items-center justify-center"
+            style={{ left: x - 22, top: y - 22, touchAction: "none", cursor: edge.cursor }}
+            {...bindDrag(edge.id)}
+            onTouchStart={stopSingleTouch}
+            onTouchMove={(event) => {
+              if (event.touches.length === 1) {
+                event.stopPropagation();
+                event.preventDefault();
+              }
+            }}
+          >
+            <span className="pointer-events-none h-3.5 w-3.5 rounded-full border-2 border-white bg-violet-600 shadow-sm" />
+          </button>
+        );
+      })}
+      <div
+        data-slb-canvas-control="true"
+        className="absolute z-50 flex items-center gap-2"
+        style={{ left: actionLeft, top: actionTop }}
+        onTouchStart={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          aria-label="Cancel crop"
+          onClick={onCancel}
+          className="inline-flex h-11 items-center rounded-full bg-white/85 px-4 text-sm font-medium text-zinc-800 shadow-sm backdrop-blur-sm"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          aria-label="Done cropping"
+          onClick={onDone}
+          className="inline-flex h-11 items-center rounded-full bg-violet-600 px-4 text-sm font-medium text-white shadow-sm"
+        >
+          Done
+        </button>
+      </div>
     </>
   );
 }
@@ -476,17 +661,29 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
           ) : null}
           <div ref={editor.canvasWrapRef} className="relative h-full w-full">
             <canvas ref={editor.attachCanvasEl} className="block" />
-            {editor.selectionFrame ? (
+            {editor.selectionFrame && !editor.imageCropping ? (
               <SelectionChrome
                 frame={editor.selectionFrame}
                 boundsWidth={editor.viewportRef.current?.clientWidth || 0}
                 boundsHeight={editor.viewportRef.current?.clientHeight || 0}
                 showHandles={editor.selectionResizable && !editor.skillBarEdit && !editor.textEdit && (textFormatting || !keyboardOpen)}
-                showActions={!editor.skillBarEdit && !editor.textEdit && (textFormatting || (!keyboardOpen && !tool))}
+                showActions={!editor.selectedIsImage && !editor.skillBarEdit && !editor.textEdit && (textFormatting || (!keyboardOpen && !tool))}
+                imageActions={editor.selectedIsImage && !editor.skillBarEdit && !editor.textEdit}
                 accent={editor.textStyle ? "blue" : "violet"}
                 onResize={editor.resizeSelectionByCorner}
                 onDuplicate={() => void editor.duplicateSelection()}
                 onDelete={editor.deleteSelection}
+                onCrop={editor.beginImageCrop}
+              />
+            ) : null}
+            {editor.imageCropping && editor.cropWrapRect ? (
+              <CropChrome
+                rect={editor.cropWrapRect}
+                boundsWidth={editor.viewportRef.current?.clientWidth || 0}
+                boundsHeight={editor.viewportRef.current?.clientHeight || 0}
+                onChange={editor.updateImageCropWrap}
+                onDone={editor.applyImageCrop}
+                onCancel={editor.cancelImageCrop}
               />
             ) : null}
           </div>

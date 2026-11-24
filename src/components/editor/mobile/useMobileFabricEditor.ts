@@ -8,6 +8,20 @@ import { getSystemTemplateById } from "@/data/systemTemplates/registry";
 import { initFabricCanvas } from "@/lib/editor/canvasInitializer";
 import { exportToDataURL, buildPDFFromPages } from "@/lib/editor/exportCanvas";
 import {
+  computeAxisAlignedImageCrop,
+  imageCropBlockedReason,
+  isImageCropChrome,
+} from "@/lib/editor/imageCrop";
+import {
+  canvasRectToSceneRect,
+  clampMobileCropRect,
+  isStandaloneMobileImage,
+  MOBILE_CROP_MIN_WRAP_PX,
+  sceneRectToWrapRect,
+  type MobileCropView,
+  type MobileRect,
+} from "@/lib/editor/mobileImageCrop";
+import {
   applyMobileInteractionLocks,
   applyMobileViewportTransform,
   clampMobileViewport,
@@ -248,6 +262,12 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const [selectedText, setSelectedText] = useState("");
   const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [zoomPercent, setZoomPercent] = useState(100);
+  const [selectedIsImage, setSelectedIsImage] = useState(false);
+  const [imageCropping, setImageCropping] = useState(false);
+  const [cropWrapRect, setCropWrapRect] = useState<MobileRect | null>(null);
+  const imageCroppingRef = useRef(false);
+  const cropSceneRef = useRef<MobileRect | null>(null);
+  const cropBoundsRef = useRef<MobileRect | null>(null);
   const [reloadNonce, setReloadNonce] = useState(0);
   const [canvasEpoch, setCanvasEpoch] = useState(0);
   const [saveKick, setSaveKick] = useState(0);
@@ -304,6 +324,19 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       width: frame.width * scaleX,
       height: frame.height * scaleY,
     });
+    if (imageCroppingRef.current && cropSceneRef.current) {
+      setCropWrapRect(
+        sceneRectToWrapRect(cropSceneRef.current, {
+          canvasOffsetX: canvasRect.left - wrapRect.left,
+          canvasOffsetY: canvasRect.top - wrapRect.top,
+          scaleX,
+          scaleY,
+          panX: state.panX,
+          panY: state.panY,
+          zoom,
+        })
+      );
+    }
   }, []);
 
   const applyViewState = useCallback(
@@ -454,13 +487,62 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     if (size) pageSizeRef.current = size;
   }, []);
 
+  const readCropView = useCallback((): MobileCropView | null => {
+    const canvas = canvasRef.current;
+    const wrap = canvasWrapRef.current;
+    const element = canvas?.getElement?.();
+    if (!canvas || !wrap || !element) return null;
+    const canvasRect = element.getBoundingClientRect();
+    const wrapRect = wrap.getBoundingClientRect();
+    const logicalWidth = canvas.getWidth() || element.width || 1;
+    const logicalHeight = canvas.getHeight() || element.height || 1;
+    const state = viewStateRef.current;
+    return {
+      canvasOffsetX: canvasRect.left - wrapRect.left,
+      canvasOffsetY: canvasRect.top - wrapRect.top,
+      scaleX: canvasRect.width / logicalWidth,
+      scaleY: canvasRect.height / logicalHeight,
+      panX: state.panX,
+      panY: state.panY,
+      zoom: state.zoom || 1,
+    };
+  }, []);
+
+  const imageSceneRect = useCallback((obj: any): MobileRect | null => {
+    const box = selectionFrameForObject(obj);
+    const state = viewStateRef.current;
+    if (!box) return null;
+    return canvasRectToSceneRect(box, {
+      canvasOffsetX: 0,
+      canvasOffsetY: 0,
+      scaleX: 1,
+      scaleY: 1,
+      panX: state.panX,
+      panY: state.panY,
+      zoom: state.zoom || 1,
+    });
+  }, []);
+
+  const cancelImageCrop = useCallback(() => {
+    imageCroppingRef.current = false;
+    cropSceneRef.current = null;
+    cropBoundsRef.current = null;
+    setImageCropping(false);
+    setCropWrapRect(null);
+  }, []);
+
   const selectObject = useCallback(
     (obj: any, label: string | null) => {
+      if (imageCroppingRef.current && obj !== selectedObjectRef.current) {
+        cancelImageCrop();
+      }
+      setSelectedIsImage(isStandaloneMobileImage(obj));
       if (obj && isMobilePageSurface(obj)) {
         selectedObjectRef.current = null;
         setSelectionLabel(null);
         setSelectionFrame(null);
         setSelectionResizable(false);
+        setSelectedIsImage(false);
         const meta = stackMetaRef.current;
         if (meta?.pageTops.length) activatePageIndex(mobilePageIndexForObjectTop(Number(obj.top) || 0, meta.pageTops));
         refreshSelectionFrame();
@@ -473,7 +555,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       if (obj && meta?.pageTops.length) activatePageIndex(mobilePageIndexForObjectTop(Number(obj.top) || 0, meta.pageTops));
       refreshSelectionFrame();
     },
-    [activatePageIndex, refreshSelectionFrame]
+    [activatePageIndex, cancelImageCrop, refreshSelectionFrame]
   );
 
   const rememberPageEdits = useCallback(() => {
@@ -1056,6 +1138,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
               ? selected
               : null;
           if (moveTarget) {
+            if (imageCroppingRef.current) return;
             gesture.mode = "move";
             return;
           }
@@ -1308,6 +1391,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           const result = exportToDataURL(canvas, {
             multiplier: 2,
             getPageBounds: (target) => getPageBounds(target, pageSizeKeyRef.current),
+            filter: (object) => !isImageCropChrome(object),
           });
           if (!result) throw new Error("Page export failed");
           rendered.push(result);
@@ -1354,6 +1438,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   );
 
   const clearSelection = useCallback(() => {
+    cancelImageCrop();
     exitCanvasText(editingObjectRef.current);
     exitCanvasText(selectedObjectRef.current);
     editingObjectRef.current = null;
@@ -1362,7 +1447,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     setSelectedText("");
     setTextEdit(null);
     setSkillBarEdit(null);
-  }, [selectObject]);
+  }, [cancelImageCrop, selectObject]);
 
   const offsetNewObjectToActivePage = useCallback((obj: any) => {
     const meta = stackMetaRef.current;
@@ -1503,7 +1588,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     (corner: ResizeCorner, phase: "start" | "move" | "end", clientX: number, clientY: number) => {
       const obj = selectedObjectRef.current;
       const mode = elementResizeMode(obj);
-      if (!obj || mode === "none") return;
+      if (!obj || mode === "none" || imageCroppingRef.current) return;
       if (phase === "end") {
         resizeDragRef.current = null;
         return;
@@ -1561,7 +1646,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const resizeSelection = useCallback(
     (factor: number) => {
       const obj = selectedObjectRef.current;
-      if (!obj || isMobilePageSurface(obj)) return;
+      if (!obj || isMobilePageSurface(obj) || imageCroppingRef.current) return;
       resizeMobileObject(obj, factor);
       if (editingObjectRef.current) setTextStyle(readTextStyle(editingObjectRef.current));
       refreshSelectionFrame();
@@ -1573,7 +1658,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
   const duplicateSelection = useCallback(async () => {
     const canvas = canvasRef.current;
     const obj = selectedObjectRef.current;
-    if (!canvas || !obj || isMobilePageSurface(obj)) return;
+    if (!canvas || !obj || isMobilePageSurface(obj) || imageCroppingRef.current) return;
     rememberAdded(await duplicateMobileObject(canvas, obj, pageSizeRef.current), "Copy");
   }, [rememberAdded]);
 
@@ -1581,10 +1666,63 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     const canvas = canvasRef.current;
     const obj = selectedObjectRef.current;
     if (!canvas || !obj || isMobilePageSurface(obj)) return;
+    cancelImageCrop();
     deleteMobileObject(canvas, obj, pageSizeRef.current);
     clearSelection();
     markUnsaved();
-  }, [clearSelection, markUnsaved]);
+  }, [cancelImageCrop, clearSelection, markUnsaved]);
+
+  const beginImageCrop = useCallback(() => {
+    const obj = selectedObjectRef.current;
+    if (!isStandaloneMobileImage(obj)) return;
+    const blocked = imageCropBlockedReason(obj);
+    if (blocked) {
+      setActionNotice(blocked);
+      return;
+    }
+    const bounds = imageSceneRect(obj);
+    if (!bounds) {
+      setActionNotice(imageCropBlockedReason(obj) || "Crop could not be calculated. Move the box onto the picture and try again.");
+      return;
+    }
+    setActionNotice(null);
+    cropBoundsRef.current = bounds;
+    cropSceneRef.current = { ...bounds };
+    imageCroppingRef.current = true;
+    setImageCropping(true);
+    const view = readCropView();
+    setCropWrapRect(view ? sceneRectToWrapRect(bounds, view) : bounds);
+  }, [imageSceneRect, readCropView]);
+
+  const updateImageCropWrap = useCallback((nextWrap: MobileRect) => {
+    const view = readCropView();
+    const bounds = cropBoundsRef.current;
+    if (!view || !bounds || !imageCroppingRef.current) return;
+    const minScene = MOBILE_CROP_MIN_WRAP_PX / Math.max(0.001, view.zoom * view.scaleX);
+    const scene = clampMobileCropRect(canvasRectToSceneRect(nextWrap, view), bounds, minScene);
+    cropSceneRef.current = scene;
+    setCropWrapRect(sceneRectToWrapRect(scene, view));
+  }, [readCropView]);
+
+  const applyImageCrop = useCallback(() => {
+    const obj = selectedObjectRef.current;
+    const scene = cropSceneRef.current;
+    if (!isStandaloneMobileImage(obj) || !scene) {
+      cancelImageCrop();
+      return;
+    }
+    const result = computeAxisAlignedImageCrop(obj, scene);
+    if (!result.ok) {
+      setActionNotice(result.error);
+      return;
+    }
+    obj.set?.(result.patch);
+    obj.setCoords?.();
+    canvasRef.current?.requestRenderAll();
+    cancelImageCrop();
+    refreshSelectionFrame();
+    markUnsaved();
+  }, [cancelImageCrop, markUnsaved, refreshSelectionFrame]);
 
   const zoomBy = useCallback(
     (factor: number) => {
@@ -1818,6 +1956,9 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     selectionResizable,
     pageFrames,
     selectionLabel,
+    selectedIsImage,
+    imageCropping,
+    cropWrapRect,
     imageNotice,
     textStyle,
     actionNotice,
@@ -1846,6 +1987,10 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     resizeSelectionByCorner,
     duplicateSelection,
     deleteSelection,
+    beginImageCrop,
+    cancelImageCrop,
+    applyImageCrop,
+    updateImageCropWrap,
     zoomBy,
     setZoomPercent: applyZoomPercent,
     applyTemplateToPage,

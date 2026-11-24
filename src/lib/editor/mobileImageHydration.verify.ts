@@ -208,13 +208,12 @@ async function main() {
     path.join(__dirname, "../../components/editor/mobile/useMobileFabricEditor.ts"),
     "utf8"
   );
-  assert.match(hook, /cloneJson\(snapshot/);
-  assert.match(hook, /finalizePhoneExportImages\(canvasRef.current, canvas\)/);
   assert.match(hook, /PHONE_EXPORT_MISSING_PHOTO_NOTICE/);
   assert.match(hook, /PHONE_EXPORT_LOCAL_IMAGE_FAILED/);
-  assert.match(hook, /preparePhoneSnapshot\(snapshot/);
-  const bindIdx = hook.indexOf("finalizePhoneExportImages(canvasRef.current, canvas)");
-  const exportIdx = hook.indexOf("exportToDataURL(canvas", bindIdx);
+  assert.match(hook, /rasterMobileExportPage\(/);
+  const exportOwner = readFileSync(path.join(__dirname, "mobilePhoneExport.ts"), "utf8");
+  const bindIdx = exportOwner.indexOf("finalizePhoneExportImages(liveCanvas, exportCanvas)");
+  const exportIdx = exportOwner.indexOf("exportToDataURL(exportCanvas", bindIdx);
   assert.ok(bindIdx > 0 && exportIdx > bindIdx);
 
   const CRIMSON = [220, 20, 60] as const;

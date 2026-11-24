@@ -163,14 +163,12 @@ const hook = readFileSync(
 );
 assert.match(hook, /computeAxisAlignedImageCrop/);
 assert.match(hook, /isStandaloneMobileImage/);
-assert.match(hook, /isImageCropChrome/);
-assert.match(hook, /filter: \(object\) => !isImageCropChrome\(object\)/);
 assert.match(hook, /beginImageCrop/);
 assert.match(hook, /applyImageCrop/);
 assert.match(hook, /cancelImageCrop/);
 assert.match(hook, /imageCroppingRef.current/);
 assert.match(hook, /pageFrameInWrap/);
-assert.match(hook, /finalizePhoneExportImages\(canvasRef.current, canvas\)/);
+assert.match(hook, /rasterMobileExportPage\(/);
 assert.match(hook, /PHONE_EXPORT_MISSING_PHOTO_NOTICE/);
 assert.match(hook, /PHONE_EXPORT_LOCAL_IMAGE_FAILED/);
 assert.doesNotMatch(hook.slice(hook.indexOf("const applyImageCrop")), /toDataURL\(/);
@@ -178,5 +176,13 @@ assert.doesNotMatch(hook.slice(hook.indexOf("const applyImageCrop")), /toDataURL
 const utils = readFileSync(path.join(__dirname, "mobileEditorUtils.ts"), "utf8");
 assert.match(utils, /omitImageCropChromeFromSnapshot/);
 assert.match(utils, /serializeCanvasForSave/);
+assert.match(utils, /toObject\(\[\.\.\.FABRIC_JSON_PROPS\]\)/);
+assert.doesNotMatch(utils, /toJSON\(\[\.\.\.FABRIC_JSON_PROPS\]\)/);
+assert.match(utils, /"id"/);
+
+const exportOwner = readFileSync(path.join(__dirname, "mobilePhoneExport.ts"), "utf8");
+assert.match(exportOwner, /filter: \(object\) => !isImageCropChrome\(object\)/);
+assert.match(exportOwner, /finalizePhoneExportImages\(liveCanvas, exportCanvas\)/);
+assert.match(exportOwner, /exportToDataURL\(exportCanvas/);
 
 console.log("mobileImageCrop.verify: PASS");

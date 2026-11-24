@@ -75,11 +75,15 @@ function assetIdOf(node: any): string {
 }
 
 function imageKey(node: any, index: number): string {
-  const id = String(node?.slbId || node?.data?.id || "").trim();
+  const id = String(node?.id || node?.slbId || node?.data?.id || "").trim();
   if (id) return `id:${id}`;
   const assetId = assetIdOf(node);
   if (assetId) return `asset:${assetId}:${index}`;
   return `index:${index}`;
+}
+
+function hasOwnImageIdentity(node: any): boolean {
+  return Boolean(String(node?.id || node?.slbId || node?.data?.id || "").trim() || assetIdOf(node));
 }
 
 function restoreImageFields(target: any, source: any): void {
@@ -112,7 +116,7 @@ export function mergePreservedImages(serialized: any, serverPage: any): any {
     if (!obj || String(obj.type || "").toLowerCase() !== "image") return obj;
     const key = imageKey(obj, imageIndex);
     imageIndex += 1;
-    const source = serverByKey.get(key) || serverImages[imageIndex - 1];
+    const source = serverByKey.get(key) || (hasOwnImageIdentity(obj) ? undefined : serverImages[imageIndex - 1]);
     if (!source) {
       if (String(obj.src || "") === TEMPLATE_IMAGE_FALLBACK && assetIdOf(obj)) {
         return obj;

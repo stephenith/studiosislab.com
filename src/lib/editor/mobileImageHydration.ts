@@ -273,7 +273,8 @@ function waitForOneExportImage(image: any, deadline: number): Promise<void> {
   if (isMissingPhoneExportImage(image) || fabricImageHasDecodedPixels(image)) return Promise.resolve();
   const el = image?._element || image?._originalElement;
   if (!el) return Promise.resolve();
-  if (el.complete) return Promise.resolve();
+  if (el.complete && fabricImageHasDecodedPixels(image)) return Promise.resolve();
+  if (el.complete && !("addEventListener" in el)) return Promise.resolve();
   return new Promise((resolve) => {
     let done = false;
     const finish = () => {

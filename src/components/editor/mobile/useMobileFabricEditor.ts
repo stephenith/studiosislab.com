@@ -6,11 +6,11 @@ import type { Canvas } from "fabric";
 import { trackEvent } from "@/lib/analytics";
 import { getSystemTemplateById } from "@/data/systemTemplates/registry";
 import { initFabricCanvas } from "@/lib/editor/canvasInitializer";
-import { exportToDataURL, buildPDFFromPages } from "@/lib/editor/exportCanvas";
+import { buildPDFFromPages } from "@/lib/editor/exportCanvas";
+import { rasterMobileExportPage } from "@/lib/editor/mobilePhoneExport";
 import {
   computeAxisAlignedImageCrop,
   imageCropBlockedReason,
-  isImageCropChrome,
 } from "@/lib/editor/imageCrop";
 import {
   canvasRectToSceneRect,
@@ -106,7 +106,6 @@ import {
   type PhoneResumeLoadStage,
 } from "@/lib/editor/mobileResumeLoad";
 import {
-  finalizePhoneExportImages,
   PHONE_EXPORT_LOCAL_IMAGE_FAILED,
   PHONE_EXPORT_MISSING_PHOTO_NOTICE,
   rehydratePhoneImageSources,
@@ -1412,23 +1411,19 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
         const rendered: { dataUrl: string; width: number; height: number }[] = [];
         for (const snapshot of pages) {
           const box = savedPagePixelSize(snapshot);
-          canvas.setDimensions({ width: box.w, height: box.h });
-          const prepared = await preparePhoneSnapshot(snapshot, objectUrlsRef.current);
-          if (prepared.missingAssetIds.length) {
+          const { result, missingAssetIds } = await rasterMobileExportPage({
+            liveCanvas: canvasRef.current,
+            snapshot,
+            exportCanvas: canvas,
+            loadAsset: (assetId) => getAsset(assetId).catch(() => null),
+            objectUrls: objectUrlsRef.current,
+            pageW: box.w,
+            pageH: box.h,
+            pageSizeKey: pageSizeKeyRef.current,
+          });
+          if (missingAssetIds.length) {
             setActionNotice(PHONE_EXPORT_MISSING_PHOTO_NOTICE);
           }
-          await loadSnapshotOntoCanvas(canvas, prepared.snapshot, box.w, box.h, {
-            isTemplateLoad: false,
-            preserveUserImages: true,
-            preservePageBox: true,
-          });
-          await finalizePhoneExportImages(canvasRef.current, canvas);
-          const result = exportToDataURL(canvas, {
-            multiplier: 2,
-            getPageBounds: (target) => getPageBounds(target, pageSizeKeyRef.current),
-            filter: (object) => !isImageCropChrome(object),
-          });
-          if (!result) throw new Error("Page export failed");
           rendered.push(result);
         }
         if (kind === "pdf") {

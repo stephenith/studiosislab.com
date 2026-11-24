@@ -74,6 +74,35 @@ const restored = dropped.objects.find((obj: any) => obj.type === "image");
 assert.equal(restored.src, "/uploads/portrait.png");
 assert.equal(restored.slbAssetId, "asset-1");
 
+const uploaded = mergePreservedImages(
+  page("Phone upload", [
+    {
+      type: "image",
+      src: "blob:http://phone/new",
+      id: "live-upload",
+      slbAssetId: "asset-new",
+      data: { id: "live-upload", slbAssetId: "asset-new" },
+      left: 16,
+      top: 16,
+    },
+  ]),
+  page("Template", [
+    {
+      type: "image",
+      src: "/templates/t004.png",
+      id: "template-photo",
+      data: { id: "template-photo" },
+      left: 16,
+      top: 16,
+    },
+  ])
+);
+const uploadedImage = uploaded.objects.find((obj: any) => obj.type === "image" && obj.slbAssetId === "asset-new");
+assert.equal(uploadedImage.id, "live-upload");
+assert.equal(uploadedImage.data.id, "live-upload");
+assert.equal(uploadedImage.slbAssetId, "asset-new");
+assert.equal(uploadedImage.src, "blob:http://phone/new");
+
 const record = pagesFromResumeRecord({
   pagesData: [page("One"), page("Two")],
   canvasJson: page("Ignored"),

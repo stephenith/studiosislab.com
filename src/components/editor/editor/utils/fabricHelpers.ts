@@ -7,11 +7,12 @@ import type { Canvas } from "fabric";
 export function ensureObjectId(obj: any): string | null {
   if (!obj) return null;
   if (!obj.id) {
-    const generated =
-      typeof crypto !== "undefined" && "randomUUID" in crypto
+    const existing = String(obj.data?.id || obj.slbId || "").trim();
+    obj.id =
+      existing ||
+      (typeof crypto !== "undefined" && "randomUUID" in crypto
         ? crypto.randomUUID()
-        : String(Date.now() + Math.random());
-    obj.id = generated;
+        : String(Date.now() + Math.random()));
   }
   if (!obj.data) obj.data = {};
   obj.data.id = obj.id;

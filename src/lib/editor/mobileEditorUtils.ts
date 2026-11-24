@@ -30,6 +30,7 @@ export const FABRIC_JSON_PROPS = [
   "role",
   "data",
   "name",
+  "id",
   "slbId",
   "slbAssetId",
   "slbSource",
@@ -730,7 +731,8 @@ export async function loadSnapshotOntoCanvas(
 }
 
 export function serializeCanvasForSave(c: Canvas): any {
-  return omitImageCropChromeFromSnapshot((c as any).toJSON([...FABRIC_JSON_PROPS]));
+  // Fabric 6 Canvas.toJSON() ignores extra properties. toObject(...) keeps slbAssetId/data/id.
+  return omitImageCropChromeFromSnapshot((c as any).toObject([...FABRIC_JSON_PROPS]));
 }
 
 export type MobileSelectionFrame = {

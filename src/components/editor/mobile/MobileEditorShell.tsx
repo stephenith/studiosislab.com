@@ -33,6 +33,7 @@ import TextEditSheet from "@/components/editor/mobile/TextEditSheet";
 import SkillBarEditSheet from "@/components/editor/mobile/SkillBarEditSheet";
 import { MOBILE_SHAPE_CHOICES, MOBILE_TEXT_FONTS } from "@/components/editor/mobile/mobileCanvasActions";
 import { useMobileFabricEditor } from "@/components/editor/mobile/useMobileFabricEditor";
+import BrandLoadMark from "@/components/brand/BrandLoadMark";
 import { SYSTEM_TEMPLATES } from "@/data/systemTemplates/registry";
 
 type MobileEditorShellProps = {
@@ -557,31 +558,6 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
     return () => window.removeEventListener("paste", onPaste);
   }, [editor]);
 
-  if (editor.loadError) {
-    return (
-      <main className="flex h-[100dvh] flex-col bg-[#ebecf0] font-[family-name:var(--font-inter)]">
-        <header
-          className="flex items-center gap-2 bg-[#1f1f28] px-3 pb-3 text-white"
-          style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}
-        >
-          <Link href="/resume" className="inline-flex h-11 w-11 items-center justify-center" aria-label="Back to Resume Hub">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <img src={HOME_LOGOS_DARK.header} alt="StudiosisLab" className="h-6 w-auto" />
-        </header>
-        <div className="flex flex-1 items-center justify-center p-6">
-          <div className="w-full max-w-sm rounded-2xl border border-[#d6deeb] bg-white p-6 text-center">
-            <h1 className="text-base font-semibold text-zinc-900">Unable to open resume</h1>
-            <p className="mt-2 text-sm text-zinc-600">{editor.loadError}</p>
-            <Link href="/resume" className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-zinc-900 px-5 text-sm text-white">
-              Back to Resume Hub
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
   return (
     <main
       ref={shellRef}
@@ -651,12 +627,26 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
       <div className="flex min-h-0 flex-1 flex-col">
       <div className="relative z-0 min-h-[46%] flex-1 overflow-hidden">
         <div ref={editor.viewportRef} className="absolute inset-0 overflow-hidden touch-none">
-          {editor.loading ? (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#ebecf0]/80">
-              <div className="flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm text-zinc-700">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {docId ? "Loading saved resume…" : "Loading template…"}
+          {editor.loadError ? (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#ebecf0] p-6">
+              <div className="w-full max-w-sm rounded-2xl border border-[#d6deeb] bg-white p-6 text-center">
+                <h1 className="text-base font-semibold text-zinc-900">Unable to open resume</h1>
+                <p className="mt-2 text-sm text-zinc-600">{editor.loadError}</p>
+                <button
+                  type="button"
+                  onClick={editor.reloadLatest}
+                  className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-zinc-900 px-5 text-sm text-white"
+                >
+                  Try again
+                </button>
+                <Link href="/resume" className="mt-3 inline-flex min-h-11 items-center text-sm font-medium text-zinc-700">
+                  Back to Resume Hub
+                </Link>
               </div>
+            </div>
+          ) : editor.loading ? (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#ebecf0]/80">
+              <BrandLoadMark label={docId ? "Opening saved resume" : "Opening resume"} />
             </div>
           ) : null}
           <div ref={editor.canvasWrapRef} className="relative h-full w-full">

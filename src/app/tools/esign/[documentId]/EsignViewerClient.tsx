@@ -50,6 +50,7 @@ import {
   shouldCommitPhonePointerTap,
 } from "@/lib/esignPhoneLayout";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
+import BrandLoadMark from "@/components/brand/BrandLoadMark";
 import {
   dragSignatureBox,
   phonePinchStageSize,
@@ -2708,16 +2709,16 @@ export default function EsignViewerClient({
 
   if (loading || !user) {
     return (
-      <main className="min-h-screen flex items-center justify-center text-zinc-700">
-        Loading…
+      <main className="min-h-screen flex items-center justify-center bg-[#ebecf0]">
+        <BrandLoadMark label="Opening e-sign" />
       </main>
     );
   }
 
   if (loadingDoc) {
     return (
-      <main className="min-h-screen flex items-center justify-center text-zinc-700">
-        Loading document…
+      <main className="min-h-screen flex items-center justify-center bg-[#ebecf0]">
+        <BrandLoadMark label="Opening document" />
       </main>
     );
   }

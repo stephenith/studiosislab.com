@@ -39,6 +39,7 @@ import { useFloatingToolbarPosition } from "@/components/editor/useFloatingToolb
 import { toHexColor } from "@/lib/color";
 import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
+import BrandLoadMark from "@/components/brand/BrandLoadMark";
 import { auth, db } from "@/lib/firebase";
 import { trackEvent } from "@/lib/analytics";
 import {
@@ -675,9 +676,12 @@ export default function EditorShell({
   if (!editor.isDocDataReady) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-[#ebecf0]">
-        <div className="text-zinc-600 animate-pulse">Loading resume…</div>
-        {editor.loadError && (
-          <div className="mt-2 text-sm text-amber-600">{editor.loadError}</div>
+        {editor.loadError ? (
+          <div className="max-w-sm px-6 text-center">
+            <p className="text-sm text-amber-700">{editor.loadError}</p>
+          </div>
+        ) : (
+          <BrandLoadMark label="Opening resume" />
         )}
       </div>
     );

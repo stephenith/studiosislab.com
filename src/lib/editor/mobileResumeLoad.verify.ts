@@ -3,10 +3,14 @@
  * Run: node src/lib/editor/mobileResumeLoad.verify.ts
  */
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { normalizeToFabricJson } from "./fabricJson";
 import {
   PHONE_RESUME_LOAD_MESSAGES,
   classifyPhoneResumeLoadError,
   loadOwnedResumeWithAuthRetry,
+  loadPublishedTemplateJson,
   phoneResumeLoadDecision,
   readPhoneResumeDoc,
   unwrapTemplateSnapshot,
@@ -103,6 +107,45 @@ assert.deepEqual(unwrapTemplateSnapshot({ objects: [{ type: "rect" }] }), { obje
 assert.deepEqual(unwrapTemplateSnapshot({ default: { objects: [{ type: "textbox" }] } }), {
   objects: [{ type: "textbox" }],
 });
+const arrayPage = unwrapTemplateSnapshot([{ version: "6.9.1", objects: [{ type: "textbox", text: "Array" }] }]);
+assert.deepEqual(normalizeToFabricJson(arrayPage).objects[0], { type: "textbox", text: "Array" });
+
+const safari = classifyPhoneResumeLoadError(new Error("Load failed"));
+assert.equal(safari.reason, "invalid_template_json");
+const chunk = classifyPhoneResumeLoadError({ name: "ChunkLoadError", message: "Loading chunk 12 failed" });
+assert.equal(chunk.reason, "invalid_template_json");
+
+let loads = 0;
+const recovered = await loadPublishedTemplateJson(async () => {
+  loads += 1;
+  if (loads === 1) throw new Error("Load failed");
+  return { objects: [{ type: "rect" }] };
+});
+assert.equal(loads, 2);
+assert.deepEqual(recovered, { objects: [{ type: "rect" }] });
+
+let fabricLoads = 0;
+await assert.rejects(
+  () =>
+    loadPublishedTemplateJson(async () => {
+      fabricLoads += 1;
+      throw new Error("Invalid template JSON: expected { objects: [] }");
+    }),
+  /Invalid template JSON/
+);
+assert.equal(fabricLoads, 1);
+
+const hook = readFileSync(
+  path.join(__dirname, "../../components/editor/mobile/useMobileFabricEditor.ts"),
+  "utf8"
+);
+const openStart = hook.indexOf("const template = getSystemTemplateById(templateId)");
+const openEnd = hook.indexOf("loadedKeyRef.current = key");
+const open = hook.slice(openStart, openEnd);
+assert.ok(openStart > 0 && openEnd > openStart);
+assert.equal((open.match(/loadSnapshotOntoCanvas/g) || []).length, 0);
+assert.match(open, /sanitizeImageSourcesForLoad/);
+assert.match(open, /renderStackedPages/);
 }
 
 void main().then(() => {

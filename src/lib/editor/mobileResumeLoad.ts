@@ -69,7 +69,7 @@ export function classifyPhoneResumeLoadError(err: unknown): {
   const text = errorText(err);
   const lower = text.toLowerCase();
   if (!text) return { reason: "error", message: PHONE_RESUME_LOAD_MESSAGES.generic };
-  if (lower.includes("invalid template json") || lower.includes("failed to fetch dynamically imported module")) {
+  if (isTemplateChunkLoadError(err) || lower.includes("invalid template json")) {
     return { reason: "invalid_template_json", message: PHONE_RESUME_LOAD_MESSAGES.invalidTemplateJson };
   }
   if (lower.includes("template not found") || lower.includes("not available in the system catalog")) {
@@ -124,12 +124,54 @@ export async function readPhoneResumeDoc(input: {
   }
 }
 
+export function isTemplateChunkLoadError(err: unknown): boolean {
+  const lower = errorText(err).toLowerCase();
+  const name = String((err as { name?: unknown })?.name || "").toLowerCase();
+  return (
+    name === "chunkloaderror" ||
+    lower.includes("chunkloaderror") ||
+    lower.includes("failed to fetch dynamically imported module") ||
+    lower.includes("error loading dynamically imported module") ||
+    lower.includes("importing a module script failed") ||
+    lower.includes("load failed")
+  );
+}
+
 export function unwrapTemplateSnapshot(raw: unknown): unknown {
-  if (!raw || typeof raw !== "object") return raw;
+  if (raw == null) return raw;
+  if (typeof raw === "string") {
+    try {
+      return unwrapTemplateSnapshot(JSON.parse(raw));
+    } catch {
+      return raw;
+    }
+  }
+  if (Array.isArray(raw)) {
+    const page = raw.find((item) => item && typeof item === "object" && Array.isArray((item as { objects?: unknown }).objects));
+    return unwrapTemplateSnapshot(page ?? raw[0]);
+  }
+  if (typeof raw !== "object") return raw;
   if ("objects" in raw && Array.isArray((raw as { objects?: unknown }).objects)) return raw;
-  const nested = (raw as { default?: unknown }).default;
+  const nested = (raw as { default?: unknown; canvas?: unknown }).default ?? (raw as { canvas?: unknown }).canvas;
   if (nested && typeof nested === "object") return unwrapTemplateSnapshot(nested);
   return raw;
+}
+
+export async function loadPublishedTemplateJson(
+  load: () => Promise<unknown>,
+  attempts = 2
+): Promise<unknown> {
+  const tries = Math.max(1, attempts);
+  let last: unknown = new Error("Invalid template JSON: expected { objects: [] }");
+  for (let index = 0; index < tries; index += 1) {
+    try {
+      return unwrapTemplateSnapshot(await load());
+    } catch (err) {
+      last = err;
+      if (!isTemplateChunkLoadError(err) || index === tries - 1) throw err;
+    }
+  }
+  throw last;
 }
 
 export async function loadOwnedResumeWithAuthRetry(input: {

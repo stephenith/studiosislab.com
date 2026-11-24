@@ -8,6 +8,7 @@ import {
   phoneEditorHrefFromDesktopPath,
   phoneEditorViewportMatch,
 } from "@/lib/editor/phoneEditorRoute";
+import BrandLoadMark from "@/components/brand/BrandLoadMark";
 
 type EditorMobileGuardProps = {
   children: ReactNode;
@@ -40,8 +41,8 @@ export default function EditorMobileGuard({ children }: EditorMobileGuardProps) 
 
   if (!checked) {
     return (
-      <div className="h-screen flex items-center justify-center bg-[#ebecf0] text-zinc-600 text-sm">
-        Loading editor...
+      <div className="h-screen flex items-center justify-center bg-[#ebecf0]">
+        <BrandLoadMark label="Opening editor" />
       </div>
     );
   }
@@ -49,7 +50,7 @@ export default function EditorMobileGuard({ children }: EditorMobileGuardProps) 
   if (isPhone) {
     return (
       <main className="h-screen flex items-center justify-center bg-[#ebecf0] px-4">
-        <p className="text-sm text-zinc-600">Opening the phone editor…</p>
+        <BrandLoadMark label="Opening the phone editor" />
       </main>
     );
   }

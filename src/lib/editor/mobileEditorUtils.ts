@@ -130,6 +130,7 @@ export function sanitizeImageSourcesForLoad(payload: any): void {
     const type = String((node as any).type || "").toLowerCase();
     if (type !== "image") return;
     const src = String((node as any).src || "").trim();
+    if (src === TEMPLATE_IMAGE_FALLBACK_SRC) return;
     if (!src || src.toLowerCase().startsWith("blob:") || !isPortableImageSrc(src)) {
       (node as any).src = TEMPLATE_IMAGE_FALLBACK_SRC;
     }

@@ -36,6 +36,7 @@ import {
   type ResizeCorner,
   getPageBounds,
   loadSnapshotOntoCanvas,
+  sanitizeImageSourcesForLoad,
   MOBILE_TAP_MAX_DURATION_MS,
   MOBILE_TAP_MOVE_THRESHOLD_PX,
   selectionFrameForObject,
@@ -47,6 +48,7 @@ import {
   zoomViewportAroundPoint,
 } from "@/lib/editor/mobileEditorUtils";
 import {
+  cloneJson,
   mergePreservedImages,
   mobileSavePayload,
   pagesFromResumeRecord,
@@ -89,12 +91,14 @@ import {
   setStarRatingValueOnGroup,
 } from "@/lib/editor/starRating/starRatingFactory";
 import { commitMobileResumeDoc, getResumeDoc, updateResumeThumbnail } from "@/lib/resumeDocs";
+import { normalizeToFabricJson } from "@/lib/editor/fabricJson";
 import {
   classifyPhoneResumeLoadError,
   loadOwnedResumeWithAuthRetry,
+  loadPublishedTemplateJson,
   phoneResumeLoadDecision,
-  unwrapTemplateSnapshot,
 } from "@/lib/editor/mobileResumeLoad";
+import { rehydratePhoneImageSources } from "@/lib/editor/mobileImageHydration";
 import { generateResumeThumbnail } from "@/lib/resumePreviewExport";
 import { getAsset } from "@/lib/localAssets";
 import { useAuth } from "@/lib/useAuth";
@@ -167,34 +171,14 @@ function emptyGesture(): GestureSession {
   };
 }
 
-function assetIdOf(node: any): string {
-  return String(node?.slbAssetId || node?.data?.slbAssetId || "").trim();
-}
-
-async function hydrateCanvasImages(canvas: Canvas, urls: string[]): Promise<void> {
-  const visit = async (objects: any[]) => {
-    for (const obj of objects) {
-      if (!obj) continue;
-      const nested = obj.getObjects?.() || obj._objects || [];
-      if (Array.isArray(nested) && nested.length > 0) await visit(nested);
-      if (String(obj.type || "").toLowerCase() !== "image") continue;
-      const assetId = assetIdOf(obj);
-      if (!assetId) continue;
-      const blob = await getAsset(assetId).catch(() => null);
-      if (!blob) continue;
-      const url = URL.createObjectURL(blob);
-      urls.push(url);
-      if (typeof obj.setSrc === "function") {
-        await obj.setSrc(url, { crossOrigin: "anonymous" }).catch(() => undefined);
-      } else {
-        obj.set?.({ src: url });
-      }
-      obj.set?.({ slbAssetId: assetId });
-      obj.setCoords?.();
-    }
-  };
-  await visit(canvas.getObjects?.() || []);
-  canvas.requestRenderAll();
+async function preparePhoneSnapshot(
+  snapshot: any,
+  urls: string[]
+): Promise<{ snapshot: any; missingAssetIds: string[] }> {
+  const prepared = cloneJson(snapshot || { objects: [] });
+  const hydration = await rehydratePhoneImageSources(prepared, (assetId) => getAsset(assetId).catch(() => null));
+  urls.push(...hydration.urls);
+  return { snapshot: prepared, missingAssetIds: hydration.missingAssetIds };
 }
 
 export function useMobileFabricEditor({ templateId, docId, blank = false }: UseMobileFabricEditorOptions) {
@@ -614,12 +598,15 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       else if (Math.abs(box.w - 794) < 8 && Math.abs(box.h - 1123) < 8) pageSizeKeyRef.current = "A4";
       else pageSizeKeyRef.current = "Custom";
       canvas.setDimensions({ width: box.w, height: box.h });
-      await loadSnapshotOntoCanvas(canvas, { objects: stacked.objects }, box.w, box.h, {
+      const prepared = await preparePhoneSnapshot({ objects: stacked.objects }, objectUrlsRef.current);
+      if (prepared.missingAssetIds.length) {
+        setImageNotice("A photo in this resume isn't available on this phone. The rest of the resume is still here.");
+      }
+      await loadSnapshotOntoCanvas(canvas, prepared.snapshot, box.w, box.h, {
         isTemplateLoad: false,
         preserveUserImages: true,
         preservePageBox: true,
       });
-      await hydrateCanvasImages(canvas, objectUrlsRef.current);
       activePageRef.current = index;
       setPageIndex(index);
       const reveal = () => {
@@ -946,23 +933,21 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
             return;
           }
           setDocTitleState(template.name || "Untitled Resume");
-          const snapshot = unwrapTemplateSnapshot(await template.load());
+          const snapshot = normalizeToFabricJson(await loadPublishedTemplateJson(() => template.load()));
           if (cancelled) return;
-          const box = savedPagePixelSize(snapshot);
+          if (!Array.isArray(snapshot.objects)) {
+            throw new Error("Invalid template JSON: expected { objects: [] }");
+          }
+          const page = cloneJson(snapshot);
+          sanitizeImageSourcesForLoad(page);
           pageSizeRef.current = { w: 794, h: 1123 };
           pageSizeKeyRef.current = "A4";
-          canvas.setDimensions({ width: 794, height: 1123 });
-          await loadSnapshotOntoCanvas(canvas, snapshot, 794, 1123, { isTemplateLoad: true });
-          const loaded = serializeCanvasForSave(canvas);
-          serverPagesRef.current = [loaded];
+          serverPagesRef.current = [page];
           shapeRef.current = "canvas";
           docIdRef.current = null;
           baseRevisionRef.current = null;
           baseUpdatedAtRef.current = null;
           setPageCount(1);
-          if (box.w > 1400) {
-            /* Catalog pages are scaled into A4 by the existing template loader. */
-          }
           await renderStackedPages(serverPagesRef.current, { activeIndex: 0, fit: true });
         }
         if (cancelled) return;
@@ -1382,12 +1367,12 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
         for (const snapshot of pages) {
           const box = savedPagePixelSize(snapshot);
           canvas.setDimensions({ width: box.w, height: box.h });
-          await loadSnapshotOntoCanvas(canvas, snapshot, box.w, box.h, {
+          const prepared = await preparePhoneSnapshot(snapshot, objectUrlsRef.current);
+          await loadSnapshotOntoCanvas(canvas, prepared.snapshot, box.w, box.h, {
             isTemplateLoad: false,
             preserveUserImages: true,
             preservePageBox: true,
           });
-          await hydrateCanvasImages(canvas, objectUrlsRef.current);
           const result = exportToDataURL(canvas, {
             multiplier: 2,
             getPageBounds: (target) => getPageBounds(target, pageSizeKeyRef.current),
@@ -1788,7 +1773,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       const previousIndex = activePageRef.current;
       try {
         rememberPageEdits();
-        const snapshot = await template.load();
+        const snapshot = await loadPublishedTemplateJson(() => template.load());
         const box = pageSizeRef.current;
         const holder = document.createElement("canvas");
         const temp = initFabricCanvas(holder, {

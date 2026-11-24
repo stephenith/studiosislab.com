@@ -1043,7 +1043,7 @@
                                 "globalCompositeOperation": "source-over",
                                 "skewX": 0,
                                 "skewY": 0,
-                                "src": "https://api.iconify.design/material-symbols%3Ahome.svg",
+                                "src": "https://api.iconify.design/material-symbols/home.svg",
                                 "crossOrigin": "anonymous",
                                 "filters": []
                             },
@@ -1081,7 +1081,7 @@
                                 "globalCompositeOperation": "source-over",
                                 "skewX": 0,
                                 "skewY": 0,
-                                "src": "https://api.iconify.design/ic%3Abaseline-call.svg",
+                                "src": "https://api.iconify.design/ic/baseline-call.svg",
                                 "crossOrigin": "anonymous",
                                 "filters": []
                             },
@@ -1119,7 +1119,7 @@
                                 "globalCompositeOperation": "source-over",
                                 "skewX": 0,
                                 "skewY": 0,
-                                "src": "https://api.iconify.design/material-symbols%3Amail.svg",
+                                "src": "https://api.iconify.design/material-symbols/mail.svg",
                                 "crossOrigin": "anonymous",
                                 "filters": []
                             },
@@ -1157,7 +1157,7 @@
                                 "globalCompositeOperation": "source-over",
                                 "skewX": 0,
                                 "skewY": 0,
-                                "src": "https://api.iconify.design/streamline-plump%3Aweb-solid.svg",
+                                "src": "https://api.iconify.design/streamline-plump/web-solid.svg",
                                 "crossOrigin": "anonymous",
                                 "filters": []
                             },
@@ -1195,7 +1195,7 @@
                                 "globalCompositeOperation": "source-over",
                                 "skewX": 0,
                                 "skewY": 0,
-                                "src": "https://api.iconify.design/mdi%3Alinkedin.svg",
+                                "src": "https://api.iconify.design/mdi/linkedin.svg",
                                 "crossOrigin": "anonymous",
                                 "filters": []
                             },
@@ -1233,7 +1233,7 @@
                                 "globalCompositeOperation": "source-over",
                                 "skewX": 0,
                                 "skewY": 0,
-                                "src": "https://api.iconify.design/mdi%3Atwitter.svg",
+                                "src": "https://api.iconify.design/mdi/twitter.svg",
                                 "crossOrigin": "anonymous",
                                 "filters": []
                             }

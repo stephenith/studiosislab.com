@@ -1814,7 +1814,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/gridicons%3Alocation.svg",
+                "src": "https://api.iconify.design/gridicons/location.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -1852,7 +1852,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/mynaui%3Amail-solid.svg",
+                "src": "https://api.iconify.design/mynaui/mail-solid.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -1890,7 +1890,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/streamline-plump%3Aweb-remix.svg",
+                "src": "https://api.iconify.design/streamline-plump/web-remix.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -1928,7 +1928,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/ion%3Acall.svg",
+                "src": "https://api.iconify.design/ion/call.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },

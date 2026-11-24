@@ -1496,7 +1496,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/fa6-solid%3Akit-medical.svg",
+                "src": "https://api.iconify.design/fa6-solid/kit-medical.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             }

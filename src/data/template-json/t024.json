@@ -1981,7 +1981,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/iconoir%3Acamera-solid.svg",
+                "src": "https://api.iconify.design/iconoir/camera-solid.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -2019,7 +2019,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/solar%3Abasketball-bold.svg",
+                "src": "https://api.iconify.design/solar/basketball-bold.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -2057,7 +2057,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/mdi%3Abicycle.svg",
+                "src": "https://api.iconify.design/mdi/bicycle.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -2095,7 +2095,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/mdi%3Agym.svg",
+                "src": "https://api.iconify.design/mdi/gym.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -2133,7 +2133,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/mingcute%3Agame-2-fill.svg",
+                "src": "https://api.iconify.design/mingcute/game-2-fill.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -2171,7 +2171,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/ion%3Acall.svg",
+                "src": "https://api.iconify.design/ion/call.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -2209,7 +2209,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/material-symbols%3Ahome-rounded.svg",
+                "src": "https://api.iconify.design/material-symbols/home-rounded.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -2336,7 +2336,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/material-symbols%3Amail.svg",
+                "src": "https://api.iconify.design/material-symbols/mail.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },

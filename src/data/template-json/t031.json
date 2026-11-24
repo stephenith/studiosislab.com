@@ -4345,7 +4345,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/material-symbols%3Ahome-outline-rounded.svg",
+                "src": "https://api.iconify.design/material-symbols/home-outline-rounded.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -4383,7 +4383,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/mdi%3Aemail-outline.svg",
+                "src": "https://api.iconify.design/mdi/email-outline.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -4421,7 +4421,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/humbleicons%3Acursor.svg",
+                "src": "https://api.iconify.design/humbleicons/cursor.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },

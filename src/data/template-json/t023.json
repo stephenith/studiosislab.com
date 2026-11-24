@@ -1230,7 +1230,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/mdi%3Acertificate.svg",
+                "src": "https://api.iconify.design/mdi/certificate.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -1321,7 +1321,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/mdi%3Acertificate.svg",
+                "src": "https://api.iconify.design/mdi/certificate.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -1788,7 +1788,7 @@
                         "globalCompositeOperation": "source-over",
                         "skewX": 0,
                         "skewY": 0,
-                        "src": "https://api.iconify.design/gridicons%3Alocation.svg",
+                        "src": "https://api.iconify.design/gridicons/location.svg",
                         "crossOrigin": "anonymous",
                         "filters": []
                     },
@@ -1920,7 +1920,7 @@
                         "globalCompositeOperation": "source-over",
                         "skewX": 0,
                         "skewY": 0,
-                        "src": "https://api.iconify.design/streamline-plump%3Aweb-solid.svg",
+                        "src": "https://api.iconify.design/streamline-plump/web-solid.svg",
                         "crossOrigin": "anonymous",
                         "filters": []
                     },
@@ -2052,7 +2052,7 @@
                         "globalCompositeOperation": "source-over",
                         "skewX": 0,
                         "skewY": 0,
-                        "src": "https://api.iconify.design/ion%3Acall.svg",
+                        "src": "https://api.iconify.design/ion/call.svg",
                         "crossOrigin": "anonymous",
                         "filters": []
                     },
@@ -2184,7 +2184,7 @@
                         "globalCompositeOperation": "source-over",
                         "skewX": 0,
                         "skewY": 0,
-                        "src": "https://api.iconify.design/material-symbols%3Amail.svg",
+                        "src": "https://api.iconify.design/material-symbols/mail.svg",
                         "crossOrigin": "anonymous",
                         "filters": []
                     },

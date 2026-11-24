@@ -2169,7 +2169,7 @@
                         "globalCompositeOperation": "source-over",
                         "skewX": 0,
                         "skewY": 0,
-                        "src": "https://api.iconify.design/ion%3Acall.svg",
+                        "src": "https://api.iconify.design/ion/call.svg",
                         "crossOrigin": "anonymous",
                         "filters": []
                     },
@@ -2207,7 +2207,7 @@
                         "globalCompositeOperation": "source-over",
                         "skewX": 0,
                         "skewY": 0,
-                        "src": "https://api.iconify.design/material-symbols%3Amail-sharp.svg",
+                        "src": "https://api.iconify.design/material-symbols/mail-sharp.svg",
                         "crossOrigin": "anonymous",
                         "filters": []
                     },
@@ -2245,7 +2245,7 @@
                         "globalCompositeOperation": "source-over",
                         "skewX": 0,
                         "skewY": 0,
-                        "src": "https://api.iconify.design/streamline%3Aweb-solid.svg",
+                        "src": "https://api.iconify.design/streamline/web-solid.svg",
                         "crossOrigin": "anonymous",
                         "filters": []
                     },
@@ -2283,7 +2283,7 @@
                         "globalCompositeOperation": "source-over",
                         "skewX": 0,
                         "skewY": 0,
-                        "src": "https://api.iconify.design/material-symbols%3Ahome.svg",
+                        "src": "https://api.iconify.design/material-symbols/home.svg",
                         "crossOrigin": "anonymous",
                         "filters": []
                     }

@@ -1499,7 +1499,7 @@
                         "globalCompositeOperation": "source-over",
                         "skewX": 0,
                         "skewY": 0,
-                        "src": "https://api.iconify.design/akar-icons%3Apointer-left-fill.svg",
+                        "src": "https://api.iconify.design/akar-icons/pointer-left-fill.svg",
                         "crossOrigin": "anonymous",
                         "filters": []
                     }
@@ -1631,7 +1631,7 @@
                         "globalCompositeOperation": "source-over",
                         "skewX": 0,
                         "skewY": 0,
-                        "src": "https://api.iconify.design/akar-icons%3Apointer-left-fill.svg",
+                        "src": "https://api.iconify.design/akar-icons/pointer-left-fill.svg",
                         "crossOrigin": "anonymous",
                         "filters": []
                     }

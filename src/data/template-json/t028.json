@@ -1297,7 +1297,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/duo-icons%3Alocation.svg",
+                "src": "https://api.iconify.design/duo-icons/location.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -1335,7 +1335,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/mdi%3Acontact.svg",
+                "src": "https://api.iconify.design/mdi/contact.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -1373,7 +1373,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/ic%3Atwotone-mail.svg",
+                "src": "https://api.iconify.design/ic/twotone-mail.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },

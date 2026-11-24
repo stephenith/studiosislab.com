@@ -43,6 +43,7 @@ import {
 } from "@/types/editor";
 import { initFabricCanvas, applyCanvasBackground as applyCanvasBackgroundModule } from "@/lib/editor/canvasInitializer";
 import { normalizeToFabricJson } from "@/lib/editor/fabricJson";
+import { rewriteTemplateImageSrc } from "@/lib/editor/templateImageSrc";
 import { clampEffectiveZoom as clampEffectiveZoomFn } from "@/lib/editor/zoomController";
 import { addTextbox as addTextboxTool, applyTextBoxNoStretch } from "@/lib/editor/textTools";
 import { getShapeDefinitionById } from "@/data/shapes/catalog";
@@ -437,7 +438,10 @@ function sanitizeImageSourcesForLoad(
       delete (node as any).slbAssetId;
     }
     if (type !== "image") return;
-    const src = String((node as any).src || "").trim();
+    const src = rewriteTemplateImageSrc(String((node as any).src || "").trim());
+    if (src !== String((node as any).src || "").trim()) {
+      (node as any).src = src;
+    }
     if (!src) {
       (node as any).src = fallbackSrc;
       missingSrcCount += 1;

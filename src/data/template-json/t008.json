@@ -220,7 +220,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/mdi%3Aphone-outline.svg",
+                "src": "https://api.iconify.design/mdi/phone-outline.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -258,7 +258,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/mdi%3Aemail-outline.svg",
+                "src": "https://api.iconify.design/mdi/email-outline.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -296,7 +296,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/mdi%3Aweb.svg",
+                "src": "https://api.iconify.design/mdi/web.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },
@@ -334,7 +334,7 @@
                 "globalCompositeOperation": "source-over",
                 "skewX": 0,
                 "skewY": 0,
-                "src": "https://api.iconify.design/tdesign%3Alocation-filled.svg",
+                "src": "https://api.iconify.design/tdesign/location-filled.svg",
                 "crossOrigin": "anonymous",
                 "filters": []
             },

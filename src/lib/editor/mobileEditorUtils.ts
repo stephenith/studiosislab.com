@@ -6,6 +6,7 @@
 import type { Canvas } from "fabric";
 import { Rect, Shadow } from "fabric";
 import { normalizeToFabricJson } from "@/lib/editor/fabricJson";
+import { rewriteTemplateImageSrc } from "@/lib/editor/templateImageSrc";
 import { applyTextBoxNoStretch } from "@/lib/editor/textTools";
 import { ensureObjectId } from "@/components/editor/editor/utils/fabricHelpers";
 import { isSkillBar, resolveSkillBarFromTarget } from "@/lib/editor/skillBar/skillBarDetection";
@@ -129,7 +130,10 @@ export function sanitizeImageSourcesForLoad(payload: any): void {
     if (!node || typeof node !== "object") return;
     const type = String((node as any).type || "").toLowerCase();
     if (type !== "image") return;
-    const src = String((node as any).src || "").trim();
+    const src = rewriteTemplateImageSrc(String((node as any).src || "").trim());
+    if (src !== String((node as any).src || "").trim()) {
+      (node as any).src = src;
+    }
     if (src === TEMPLATE_IMAGE_FALLBACK_SRC) return;
     if (!src || src.toLowerCase().startsWith("blob:") || !isPortableImageSrc(src)) {
       (node as any).src = TEMPLATE_IMAGE_FALLBACK_SRC;

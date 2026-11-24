@@ -17,6 +17,7 @@ import {
   clampMobileCropRect,
   isStandaloneMobileImage,
   MOBILE_CROP_MIN_WRAP_PX,
+  pageFrameInWrap,
   sceneRectToWrapRect,
   type MobileCropView,
   type MobileRect,
@@ -98,7 +99,11 @@ import {
   loadPublishedTemplateJson,
   phoneResumeLoadDecision,
 } from "@/lib/editor/mobileResumeLoad";
-import { rehydratePhoneImageSources } from "@/lib/editor/mobileImageHydration";
+import {
+  PHONE_EXPORT_MISSING_PHOTO_NOTICE,
+  rehydratePhoneImageSources,
+  waitForPhoneExportImages,
+} from "@/lib/editor/mobileImageHydration";
 import { generateResumeThumbnail } from "@/lib/resumePreviewExport";
 import { getAsset } from "@/lib/localAssets";
 import { useAuth } from "@/lib/useAuth";
@@ -282,19 +287,19 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     const scaleY = canvasRect.height / logicalHeight;
     const state = viewStateRef.current;
     const zoom = state.zoom || 1;
+    const view: MobileCropView = {
+      canvasOffsetX: canvasRect.left - wrapRect.left,
+      canvasOffsetY: canvasRect.top - wrapRect.top,
+      scaleX,
+      scaleY,
+      panX: state.panX,
+      panY: state.panY,
+      zoom,
+    };
     setPageFrames(
-      meta?.pageTops.map((pageTop, index) => {
-        const size = meta.pageSizes[index] || { w: 0, h: 0 };
-        const x = state.panX * scaleX;
-        const y = (pageTop * zoom + state.panY) * scaleY;
-        return {
-          index,
-          left: canvasRect.left - wrapRect.left + x,
-          top: canvasRect.top - wrapRect.top + y,
-          width: size.w * zoom * scaleX,
-          height: size.h * zoom * scaleY,
-        };
-      }) || []
+      meta?.pageTops.map((pageTop, index) =>
+        pageFrameInWrap(index, pageTop, meta.pageSizes[index] || { w: 0, h: 0 }, view)
+      ) || []
     );
     const selected = selectedObjectRef.current;
     const frame = selected && !isMobilePageSurface(selected) ? selectionFrameForObject(selected) : null;
@@ -309,17 +314,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       height: frame.height * scaleY,
     });
     if (imageCroppingRef.current && cropSceneRef.current) {
-      setCropWrapRect(
-        sceneRectToWrapRect(cropSceneRef.current, {
-          canvasOffsetX: canvasRect.left - wrapRect.left,
-          canvasOffsetY: canvasRect.top - wrapRect.top,
-          scaleX,
-          scaleY,
-          panX: state.panX,
-          panY: state.panY,
-          zoom,
-        })
-      );
+      setCropWrapRect(sceneRectToWrapRect(cropSceneRef.current, view));
     }
   }, []);
 
@@ -1368,11 +1363,15 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           const box = savedPagePixelSize(snapshot);
           canvas.setDimensions({ width: box.w, height: box.h });
           const prepared = await preparePhoneSnapshot(snapshot, objectUrlsRef.current);
+          if (prepared.missingAssetIds.length) {
+            setActionNotice(PHONE_EXPORT_MISSING_PHOTO_NOTICE);
+          }
           await loadSnapshotOntoCanvas(canvas, prepared.snapshot, box.w, box.h, {
             isTemplateLoad: false,
             preserveUserImages: true,
             preservePageBox: true,
           });
+          await waitForPhoneExportImages(canvas);
           const result = exportToDataURL(canvas, {
             multiplier: 2,
             getPageBounds: (target) => getPageBounds(target, pageSizeKeyRef.current),

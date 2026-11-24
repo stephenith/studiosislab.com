@@ -7,10 +7,21 @@ import {
   clampMobileCropRect,
   isStandaloneMobileImage,
   MOBILE_CROP_MIN_WRAP_PX,
+  MOBILE_PAGE_ACTION_GAP_PX,
   moveMobileCropRect,
+  pageActionWrapTop,
+  pageFrameInWrap,
   resizeMobileCropRect,
   sceneRectToWrapRect,
 } from "./mobileImageCrop";
+import {
+  deleteMobilePage,
+  insertMobilePage,
+  MOBILE_A4_HEIGHT,
+  MOBILE_A4_WIDTH,
+  MOBILE_PAGE_GAP,
+  stackMobilePages,
+} from "./mobilePageStack";
 
 const view = {
   canvasOffsetX: 4,
@@ -75,8 +86,56 @@ assert.match(shell, /aria-label="Cancel crop"/);
 assert.match(shell, /imageActions=\{editor.selectedIsImage/);
 assert.match(shell, /!editor.imageCropping/);
 assert.match(shell, /tool === "upload"/);
+assert.match(shell, /pageActionWrapTop\(frame\)/);
+assert.match(shell, /pointer-events-none absolute z-20 flex items-center justify-center gap-3/);
+assert.match(shell, /pointer-events-auto inline-flex h-11 w-11[\s\S]*aria-label="Duplicate page"/);
+assert.match(shell, /ref=\{editor.canvasWrapRef\}[\s\S]*editor.pageFrames.map/);
 assert.doesNotMatch(shell, /toDataURL\(/);
 assert.equal(MOBILE_CROP_MIN_WRAP_PX, 24);
+
+const a4 = { w: MOBILE_A4_WIDTH, h: MOBILE_A4_HEIGHT };
+const fitView = { canvasOffsetX: 0, canvasOffsetY: 0, scaleX: 1, scaleY: 1, panX: 40, panY: 16, zoom: 0.3 };
+const page0 = pageFrameInWrap(0, 0, a4, fitView);
+assert.equal(page0.index, 0);
+assert.deepEqual(
+  { left: page0.left, top: page0.top, width: page0.width, height: page0.height },
+  sceneRectToWrapRect({ left: 0, top: 0, width: a4.w, height: a4.h }, fitView)
+);
+const scrolled = { ...fitView, panY: fitView.panY - 400 };
+const page1Top = MOBILE_A4_HEIGHT + MOBILE_PAGE_GAP;
+const page1Fit = pageFrameInWrap(1, page1Top, a4, fitView);
+const page1Scrolled = pageFrameInWrap(1, page1Top, a4, scrolled);
+assert.equal(page1Scrolled.top, page1Fit.top - 400);
+assert.equal(page1Scrolled.left, page1Fit.left);
+assert.equal(pageActionWrapTop(page1Scrolled) - page1Scrolled.top, page1Scrolled.height + MOBILE_PAGE_ACTION_GAP_PX);
+const pinched = { ...scrolled, zoom: 0.9, panX: -80 };
+const page0Pinch = pageFrameInWrap(0, 0, a4, pinched);
+assert.equal(page0Pinch.width, a4.w * 0.9);
+assert.equal(page0Pinch.left, sceneRectToWrapRect({ left: 0, top: 0, width: a4.w, height: a4.h }, pinched).left);
+const resized = { ...pinched, scaleX: 0.5, scaleY: 0.5, canvasOffsetX: 3, canvasOffsetY: 5 };
+const page0Resize = pageFrameInWrap(0, 0, a4, resized);
+assert.deepEqual(page0Resize, { index: 0, ...sceneRectToWrapRect({ left: 0, top: 0, width: a4.w, height: a4.h }, resized) });
+
+const blank = {
+  objects: [{ type: "rect", role: "pageBackground", left: 0, top: 0, width: a4.w, height: a4.h }],
+};
+const twoPages = [blank, blank];
+const added = insertMobilePage(twoPages, 0, blank);
+const stackedAdded = stackMobilePages(added.pages);
+assert.equal(stackedAdded.pageTops.length, 3);
+stackedAdded.pageTops.forEach((top, index) => {
+  const frame = pageFrameInWrap(index, top, stackedAdded.pageSizes[index], scrolled);
+  assert.equal(frame.top, sceneRectToWrapRect({ left: 0, top, width: a4.w, height: a4.h }, scrolled).top);
+  assert.ok(pageActionWrapTop(frame) > frame.top + frame.height);
+});
+const duplicated = insertMobilePage(twoPages, 0, twoPages[0]);
+const stackedDup = stackMobilePages(duplicated.pages);
+assert.equal(stackedDup.pageTops[1], MOBILE_A4_HEIGHT + MOBILE_PAGE_GAP);
+const removed = deleteMobilePage(duplicated.pages, 1);
+assert.ok(removed);
+const stackedRemoved = stackMobilePages(removed.pages);
+assert.equal(stackedRemoved.pageTops.length, 2);
+assert.equal(pageFrameInWrap(1, stackedRemoved.pageTops[1], a4, scrolled).index, 1);
 
 const hook = readFileSync(
   path.join(__dirname, "../../components/editor/mobile/useMobileFabricEditor.ts"),
@@ -90,6 +149,9 @@ assert.match(hook, /beginImageCrop/);
 assert.match(hook, /applyImageCrop/);
 assert.match(hook, /cancelImageCrop/);
 assert.match(hook, /imageCroppingRef.current/);
+assert.match(hook, /pageFrameInWrap/);
+assert.match(hook, /waitForPhoneExportImages\(canvas\)/);
+assert.match(hook, /PHONE_EXPORT_MISSING_PHOTO_NOTICE/);
 assert.doesNotMatch(hook.slice(hook.indexOf("const applyImageCrop")), /toDataURL\(/);
 
 const utils = readFileSync(path.join(__dirname, "mobileEditorUtils.ts"), "utf8");

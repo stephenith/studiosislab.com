@@ -33,11 +33,61 @@ function walk(node: any, visit: (image: any) => void): void {
 
 function markMissing(node: any, assetId: string, placeholderSrc: string): void {
   node.src = placeholderSrc;
+  node.cropX = 0;
+  node.cropY = 0;
   if (assetId) {
     node.slbAssetId = assetId;
     const data = node.data && typeof node.data === "object" ? node.data : {};
     node.data = { ...data, slbAssetId: assetId, slbAssetMissing: true };
+  } else {
+    const data = node.data && typeof node.data === "object" ? node.data : {};
+    node.data = { ...data, slbAssetMissing: true };
   }
+}
+
+export const PHONE_EXPORT_IMAGE_WAIT_MS = 4000;
+export const PHONE_EXPORT_MISSING_PHOTO_NOTICE =
+  "A photo isn't available on this phone, so it was left out of the download. The rest of the resume was saved.";
+
+export function fabricImageHasDecodedPixels(image: any): boolean {
+  const el = image?._element || image?._originalElement;
+  const width = Number(el?.naturalWidth ?? el?.width ?? 0);
+  const height = Number(el?.naturalHeight ?? el?.height ?? 0);
+  return width > 1 && height > 1;
+}
+
+export function isMissingPhoneExportImage(image: any): boolean {
+  return image?.data?.slbAssetMissing === true;
+}
+
+function waitForOneExportImage(image: any, deadline: number): Promise<void> {
+  if (isMissingPhoneExportImage(image) || fabricImageHasDecodedPixels(image)) return Promise.resolve();
+  const el = image?._element || image?._originalElement;
+  if (!el) return Promise.resolve();
+  if (el.complete && !fabricImageHasDecodedPixels(image)) return Promise.resolve();
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      el.removeEventListener?.("load", finish);
+      el.removeEventListener?.("error", finish);
+      resolve();
+    };
+    const timer = setTimeout(finish, Math.max(0, deadline - Date.now()));
+    el.addEventListener?.("load", finish);
+    el.addEventListener?.("error", finish);
+  });
+}
+
+export async function waitForPhoneExportImages(
+  canvas: { getObjects?: () => any[] },
+  timeoutMs = PHONE_EXPORT_IMAGE_WAIT_MS
+): Promise<void> {
+  const deadline = Date.now() + Math.max(0, timeoutMs);
+  const images = (canvas.getObjects?.() || []).filter((obj) => String(obj?.type || "").toLowerCase() === "image");
+  await Promise.all(images.map((image) => waitForOneExportImage(image, deadline)));
 }
 
 export function missingLocalImagePlaceholderSrc(
@@ -62,6 +112,7 @@ export async function rehydratePhoneImageSources(
     const cropY = image.cropY;
     const width = image.width;
     const height = image.height;
+    let restored = false;
     if (assetId) {
       const blob = await loadAsset(assetId).catch(() => null);
       if (blob) {
@@ -72,6 +123,7 @@ export async function rehydratePhoneImageSources(
         const data = image.data && typeof image.data === "object" ? image.data : {};
         image.data = { ...data, slbAssetId: assetId };
         delete image.data.slbAssetMissing;
+        restored = true;
       } else {
         const placeholder = missingLocalImagePlaceholderSrc(createUrl);
         urls.push(placeholder);
@@ -82,11 +134,15 @@ export async function rehydratePhoneImageSources(
       const placeholder = missingLocalImagePlaceholderSrc(createUrl);
       urls.push(placeholder);
       markMissing(image, "", placeholder);
+    } else {
+      restored = true;
     }
-    if (cropX != null) image.cropX = cropX;
-    if (cropY != null) image.cropY = cropY;
-    if (width != null) image.width = width;
-    if (height != null) image.height = height;
+    if (restored) {
+      if (cropX != null) image.cropX = cropX;
+      if (cropY != null) image.cropY = cropY;
+      if (width != null) image.width = width;
+      if (height != null) image.height = height;
+    }
   }
 
   return { urls, missingAssetIds };

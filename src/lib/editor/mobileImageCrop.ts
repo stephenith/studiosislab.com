@@ -60,6 +60,26 @@ export function sceneRectToWrapRect(rect: MobileRect, view: MobileCropView): Mob
   };
 }
 
+/** Wrap-space box for one stacked A4 page. Same origin as selection and crop chrome. */
+export function pageFrameInWrap(
+  index: number,
+  pageTop: number,
+  size: { w: number; h: number },
+  view: MobileCropView
+): { index: number; left: number; top: number; width: number; height: number } {
+  const rect = sceneRectToWrapRect(
+    { left: 0, top: pageTop, width: Math.max(0, size.w), height: Math.max(0, size.h) },
+    view
+  );
+  return { index, ...rect };
+}
+
+export const MOBILE_PAGE_ACTION_GAP_PX = 8;
+
+export function pageActionWrapTop(pageFrame: { top: number; height: number }, gapPx = MOBILE_PAGE_ACTION_GAP_PX): number {
+  return pageFrame.top + pageFrame.height + gapPx;
+}
+
 export function clampMobileCropRect(
   crop: MobileRect,
   bounds: MobileRect,

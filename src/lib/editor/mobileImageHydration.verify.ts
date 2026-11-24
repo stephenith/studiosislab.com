@@ -360,7 +360,10 @@ async function main() {
     ...missingClone,
     _element: { naturalWidth: 1, naturalHeight: 1, width: 1, height: 1, complete: true, rgba: new Uint8ClampedArray([0, 0, 0, 0]) },
   };
-  bindDecodedPhoneExportImages([liveDecoded({ slbAssetId: "other" })], [missingExport]);
+  bindDecodedPhoneExportImages(
+    [liveDecoded({ id: "other", data: { id: "other", slbAssetId: "other" }, slbAssetId: "other" })],
+    [missingExport]
+  );
   assert.equal(isMissingPhoneExportImage(missingExport), true);
   assert.equal(missingExport.cropX, 0);
   assert.equal(missingExport.width, 200);
@@ -418,6 +421,48 @@ async function main() {
 
   const uniqueById = emptyExport({ id: "a", data: { id: "a", slbAssetId: "shared" }, slbAssetId: "shared" });
   assert.equal(bindDecodedPhoneExportImages(ambiguousLive, [uniqueById]).bound, 1);
+
+  const rescuedSaved = {
+    type: "image",
+    src: "blob:https://local/revoked",
+    slbAssetId: "asset-1",
+    cropX: 4,
+    cropY: 0,
+    width: 4,
+    height: 4,
+    left: 0,
+    top: 0,
+  };
+  const rescuedClone = cloneJson(rescuedSaved);
+  await rehydratePhoneImageSources(rescuedClone, async () => null, () => "blob:placeholder");
+  assert.equal(rescuedClone.cropX, 0);
+  assert.equal(isMissingPhoneExportImage(rescuedClone), true);
+  const rescuedExport = {
+    ...rescuedClone,
+    id: "img-live",
+    data: { ...(rescuedClone as { data?: Record<string, unknown> }).data, id: "img-live" },
+    _element: { naturalWidth: 1, naturalHeight: 1, width: 1, height: 1, complete: true },
+  };
+  const liveCropped = liveDecoded({ cropX: 4, cropY: 0, width: 4, height: 4 });
+  assert.equal(bindDecodedPhoneExportImages([liveCropped], [rescuedExport]).bound, 1);
+  assert.equal(isMissingPhoneExportImage(rescuedExport), false);
+  assert.equal(rescuedExport.cropX, 4);
+  assert.equal(rescuedExport.width, 4);
+  assert.equal(rescuedExport.slbAssetId, "asset-1");
+  const rescuedRaster = await pngFromPage([rescuedExport], 4, 4);
+  assert.equal(colorClose(pixelAt(rescuedRaster.rgba, 4, 1, 1), BLUE), true);
+  assert.equal(pageHasColor(rescuedRaster.rgba, 4, 4, CRIMSON), false);
+  assert.equal(rescuedSaved.cropX, 4);
+  assert.equal(rescuedSaved.src, "blob:https://local/revoked");
+
+  const ambiguousMissing = emptyExport({
+    id: "",
+    data: { slbAssetId: "shared", slbAssetMissing: true },
+    slbAssetId: "shared",
+    cropX: 0,
+  });
+  assert.equal(bindDecodedPhoneExportImages(ambiguousLive, [ambiguousMissing]).bound, 0);
+  assert.equal(isMissingPhoneExportImage(ambiguousMissing), true);
 
   assert.equal(new File(["x"], "photo.png", { type: "image/png" }) instanceof Blob, true);
 

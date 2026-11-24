@@ -33,6 +33,8 @@ import {
   fitCanvasToViewport,
   isFitZoom,
   MOBILE_PAGE_CONTROL_CLEARANCE,
+  MOBILE_STAGE_HEIGHT_SYNC_PX,
+  shouldForceFitOnStageResize,
   resizeBoundsForCorner,
   type ResizeCorner,
   getPageBounds,
@@ -980,13 +982,20 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       if (resizeDebounceRef.current) clearTimeout(resizeDebounceRef.current);
       resizeDebounceRef.current = setTimeout(() => {
         const latest = lastSizeRef.current;
-        const widthChanged = latest.w > 0 && Math.abs(width - latest.w) >= 48;
-        const heightChanged = latest.h > 0 && Math.abs(height - latest.h) >= 40;
-        if (latest.w === 0 || (widthChanged && !userAdjustedViewRef.current)) {
+        if (
+          shouldForceFitOnStageResize({
+            lastWidth: latest.w,
+            nextWidth: width,
+            nextHeight: height,
+            userAdjusted: userAdjustedViewRef.current,
+          })
+        ) {
           keyboardViewRef.current = null;
           fitToContainer({ force: true });
           return;
         }
+        const widthChanged = latest.w > 0 && Math.abs(width - latest.w) >= 48;
+        const heightChanged = latest.h > 0 && Math.abs(height - latest.h) >= MOBILE_STAGE_HEIGHT_SYNC_PX;
         if (widthChanged || heightChanged) syncStageSize(width, height);
       }, 80);
     });
@@ -1751,7 +1760,6 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
         base
       );
       if (!isFitZoom(next.zoom, base)) userAdjustedViewRef.current = true;
-      else userAdjustedViewRef.current = false;
       applyViewState(next);
     },
     [applyViewState]

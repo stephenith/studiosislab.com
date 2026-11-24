@@ -7,6 +7,7 @@ import {
   MOBILE_PAGE_CONTROL_CLEARANCE,
   MOBILE_VIEWPORT_PADDING,
   MOBILE_ZOOM_PERCENT_MAX,
+  shouldForceFitOnStageResize,
   zoomFromPercent,
   zoomPercentFromState,
 } from "./mobileEditorUtils";
@@ -76,6 +77,30 @@ const hook = readFileSync(
 assert.match(hook, /clampMobileViewport/);
 assert.match(hook, /setZoomPercent: applyZoomPercent/);
 assert.match(hook, /zoomPercentFromState/);
+assert.match(hook, /shouldForceFitOnStageResize/);
+assert.match(hook, /resetView/);
+assert.equal(hook.includes("else userAdjustedViewRef.current = false"), false);
 assert.equal(MOBILE_PAGE_CONTROL_CLEARANCE > 0, true);
+
+assert.equal(
+  shouldForceFitOnStageResize({ lastWidth: 0, nextWidth: 390, nextHeight: 520, userAdjusted: false }),
+  true
+);
+assert.equal(
+  shouldForceFitOnStageResize({ lastWidth: 390, nextWidth: 844, nextHeight: 390, userAdjusted: false }),
+  true
+);
+assert.equal(
+  shouldForceFitOnStageResize({ lastWidth: 390, nextWidth: 844, nextHeight: 390, userAdjusted: true }),
+  false
+);
+assert.equal(
+  shouldForceFitOnStageResize({ lastWidth: 390, nextWidth: 390, nextHeight: 400, userAdjusted: true }),
+  false
+);
+assert.equal(
+  shouldForceFitOnStageResize({ lastWidth: 390, nextWidth: 392, nextHeight: 520, userAdjusted: false }),
+  false
+);
 
 console.log("mobileViewport.verify: PASS");

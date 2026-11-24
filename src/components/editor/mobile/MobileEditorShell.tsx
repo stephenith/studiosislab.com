@@ -28,7 +28,7 @@ import {
   MOBILE_ZOOM_PERCENT_MAX,
   MOBILE_ZOOM_PERCENT_MIN,
 } from "@/lib/editor/mobileEditorUtils";
-import { pageActionWrapTop } from "@/lib/editor/mobileImageCrop";
+import { pageActionRowStyle } from "@/lib/editor/mobileImageCrop";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 import TextEditSheet from "@/components/editor/mobile/TextEditSheet";
 import SkillBarEditSheet from "@/components/editor/mobile/SkillBarEditSheet";
@@ -683,10 +683,10 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
                 data-slb-canvas-control="true"
                 role="group"
                 aria-label="Page controls"
-                className="pointer-events-none absolute z-20 flex items-center justify-center gap-3"
-                style={{ left: frame.left, top: pageActionWrapTop(frame), width: frame.width }}
+                className="pointer-events-none absolute z-20 flex w-max items-center justify-center gap-3"
+                style={pageActionRowStyle(frame)}
               >
-                <button type="button" onClick={() => void editor.duplicateCurrentPage(frame.index)} className="pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300" aria-label="Duplicate page">
+                <button type="button" onClick={() => void editor.duplicateCurrentPage(frame.index)} className="pointer-events-auto inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300" aria-label="Duplicate page">
                   <Copy className="h-4 w-4" />
                 </button>
                 <button
@@ -695,12 +695,12 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
                   onClick={() => {
                     if (window.confirm("Delete this page? The other pages stay in the resume.")) void editor.deleteCurrentPage(frame.index);
                   }}
-                  className="pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300 disabled:opacity-40"
+                  className="pointer-events-auto inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300 disabled:opacity-40"
                   aria-label="Delete page"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
-                <button type="button" onClick={() => void editor.addPageAfter(frame.index)} className="pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300" aria-label="Add page">
+                <button type="button" onClick={() => void editor.addPageAfter(frame.index)} className="pointer-events-auto inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-zinc-800 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-violet-300" aria-label="Add page">
                   <Plus className="h-4 w-4" />
                 </button>
               </div>

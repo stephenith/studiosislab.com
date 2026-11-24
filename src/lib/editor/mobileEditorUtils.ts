@@ -463,6 +463,25 @@ export const MOBILE_VIEWPORT_PADDING = 16;
 export const MOBILE_FIT_ZOOM_EPSILON = 0.004;
 export const MOBILE_ZOOM_PERCENT_MIN = 100;
 export const MOBILE_ZOOM_PERCENT_MAX = 100 * MOBILE_ZOOM_MAX_MULTIPLIER;
+export const MOBILE_STAGE_WIDTH_REFIT_PX = 48;
+export const MOBILE_STAGE_HEIGHT_SYNC_PX = 40;
+
+/**
+ * Force Fit only on first layout, or while still in Fit mode (user has not zoomed)
+ * and the stage width changed enough that orientation/layout needs a new base zoom.
+ * After the user zooms, a later resize must not snap back to Fit.
+ */
+export function shouldForceFitOnStageResize(input: {
+  lastWidth: number;
+  nextWidth: number;
+  nextHeight: number;
+  userAdjusted: boolean;
+}): boolean {
+  if (!(input.nextWidth > 0) || !(input.nextHeight > 0)) return false;
+  if (!(input.lastWidth > 0)) return true;
+  if (input.userAdjusted) return false;
+  return Math.abs(input.nextWidth - input.lastWidth) >= MOBILE_STAGE_WIDTH_REFIT_PX;
+}
 
 export type MobileStackBounds = {
   pageTops: number[];

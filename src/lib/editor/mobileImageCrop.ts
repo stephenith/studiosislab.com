@@ -75,9 +75,25 @@ export function pageFrameInWrap(
 }
 
 export const MOBILE_PAGE_ACTION_GAP_PX = 8;
+export const MOBILE_PAGE_ACTION_BUTTON_PX = 44;
 
 export function pageActionWrapTop(pageFrame: { top: number; height: number }, gapPx = MOBILE_PAGE_ACTION_GAP_PX): number {
   return pageFrame.top + pageFrame.height + gapPx;
+}
+
+/** Screen-space row under a page. Width is content, not the page frame. */
+export function pageActionRowStyle(pageFrame: { left: number; top: number; width: number; height: number }): {
+  left: number;
+  top: number;
+  width: "max-content";
+  transform: "translateX(-50%)";
+} {
+  return {
+    left: pageFrame.left + pageFrame.width / 2,
+    top: pageActionWrapTop(pageFrame),
+    width: "max-content",
+    transform: "translateX(-50%)",
+  };
 }
 
 export function clampMobileCropRect(

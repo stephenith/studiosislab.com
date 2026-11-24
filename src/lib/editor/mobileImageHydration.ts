@@ -184,6 +184,12 @@ function captureExportGeometry(image: any) {
   };
 }
 
+function clearMissingMarkerOnExportClone(target: any): void {
+  const data = target.data && typeof target.data === "object" ? { ...target.data } : {};
+  delete data.slbAssetMissing;
+  target.data = data;
+}
+
 export function applyDecodedElementToExportImage(target: any, element: any): boolean {
   if (!target || !element) return false;
   const geometry = captureExportGeometry(target);
@@ -234,12 +240,8 @@ export function bindDecodedPhoneExportImages(liveImages: any[], exportImages: an
   let bound = 0;
   let skipped = 0;
   for (const target of exportImages || []) {
-    if (isMissingPhoneExportImage(target)) {
-      skipped += 1;
-      continue;
-    }
     const live = matchUniqueLiveImage(target, index);
-    if (!live) {
+    if (!live || !fabricImageHasDecodedPixels(live)) {
       skipped += 1;
       continue;
     }
@@ -248,8 +250,17 @@ export function bindDecodedPhoneExportImages(liveImages: any[], exportImages: an
       skipped += 1;
       continue;
     }
-    if (applyDecodedElementToExportImage(target, clone)) bound += 1;
-    else skipped += 1;
+    const missing = isMissingPhoneExportImage(target);
+    if (missing) {
+      target.cropX = live.cropX;
+      target.cropY = live.cropY;
+    }
+    if (!applyDecodedElementToExportImage(target, clone)) {
+      skipped += 1;
+      continue;
+    }
+    if (missing) clearMissingMarkerOnExportClone(target);
+    bound += 1;
   }
   return { bound, skipped };
 }

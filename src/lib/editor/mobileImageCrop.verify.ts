@@ -9,6 +9,8 @@ import {
   MOBILE_CROP_MIN_WRAP_PX,
   MOBILE_PAGE_ACTION_GAP_PX,
   moveMobileCropRect,
+  MOBILE_PAGE_ACTION_BUTTON_PX,
+  pageActionRowStyle,
   pageActionWrapTop,
   pageFrameInWrap,
   resizeMobileCropRect,
@@ -86,9 +88,15 @@ assert.match(shell, /aria-label="Cancel crop"/);
 assert.match(shell, /imageActions=\{editor.selectedIsImage/);
 assert.match(shell, /!editor.imageCropping/);
 assert.match(shell, /tool === "upload"/);
-assert.match(shell, /pageActionWrapTop\(frame\)/);
-assert.match(shell, /pointer-events-none absolute z-20 flex items-center justify-center gap-3/);
-assert.match(shell, /pointer-events-auto inline-flex h-11 w-11[\s\S]*aria-label="Duplicate page"/);
+assert.match(shell, /pageActionRowStyle\(frame\)/);
+assert.match(shell, /pointer-events-none absolute z-20 flex w-max items-center justify-center gap-3/);
+assert.match(shell, /pointer-events-auto inline-flex h-11 w-11 shrink-0[\s\S]*aria-label="Duplicate page"/);
+assert.match(shell, /shrink-0[\s\S]*aria-label="Delete page"/);
+assert.match(shell, /shrink-0[\s\S]*aria-label="Add page"/);
+assert.doesNotMatch(
+  shell.slice(shell.indexOf('aria-label="Page controls"'), shell.indexOf('aria-label="Duplicate page"')),
+  /width: frame\.width/
+);
 assert.match(shell, /ref=\{editor.canvasWrapRef\}[\s\S]*editor.pageFrames.map/);
 assert.doesNotMatch(shell, /toDataURL\(/);
 assert.equal(MOBILE_CROP_MIN_WRAP_PX, 24);
@@ -108,10 +116,22 @@ const page1Scrolled = pageFrameInWrap(1, page1Top, a4, scrolled);
 assert.equal(page1Scrolled.top, page1Fit.top - 400);
 assert.equal(page1Scrolled.left, page1Fit.left);
 assert.equal(pageActionWrapTop(page1Scrolled) - page1Scrolled.top, page1Scrolled.height + MOBILE_PAGE_ACTION_GAP_PX);
+const fitRow = pageActionRowStyle(page0);
+assert.equal(fitRow.left, page0.left + page0.width / 2);
+assert.equal(fitRow.top, pageActionWrapTop(page0));
+assert.equal(fitRow.width, "max-content");
+assert.equal(fitRow.transform, "translateX(-50%)");
+assert.equal(MOBILE_PAGE_ACTION_BUTTON_PX, 44);
 const pinched = { ...scrolled, zoom: 0.9, panX: -80 };
 const page0Pinch = pageFrameInWrap(0, 0, a4, pinched);
 assert.equal(page0Pinch.width, a4.w * 0.9);
 assert.equal(page0Pinch.left, sceneRectToWrapRect({ left: 0, top: 0, width: a4.w, height: a4.h }, pinched).left);
+const pinchRow = pageActionRowStyle(page0Pinch);
+assert.equal(pinchRow.left, page0Pinch.left + page0Pinch.width / 2);
+assert.equal(pinchRow.width, "max-content");
+const narrow = pageActionRowStyle({ ...page0, width: 80 });
+assert.equal(narrow.width, "max-content");
+assert.equal(narrow.left, page0.left + 40);
 const resized = { ...pinched, scaleX: 0.5, scaleY: 0.5, canvasOffsetX: 3, canvasOffsetY: 5 };
 const page0Resize = pageFrameInWrap(0, 0, a4, resized);
 assert.deepEqual(page0Resize, { index: 0, ...sceneRectToWrapRect({ left: 0, top: 0, width: a4.w, height: a4.h }, resized) });

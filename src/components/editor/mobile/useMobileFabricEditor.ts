@@ -25,7 +25,11 @@ import {
 import {
   applyMobileInteractionLocks,
   applyMobileViewportTransform,
+  clampMobileObjectToPage,
   clampMobileViewport,
+  constrainMobileResizeToPage,
+  mobileAabbFitsInPage,
+  mobileObjectSceneAabb,
   ensurePageBackground,
   fabricSavePayloadHasDataImageSrc,
   findEditableTargetAtContainerPoint,
@@ -67,8 +71,10 @@ import {
   mobilePageIndexAtSceneY,
   mobilePageIndexForObjectTop,
   splitStackedMobilePages,
+  stackedMobilePageRect,
   stackMobilePages,
   type MobilePageStack,
+  type StackedMobilePageRect,
 } from "@/lib/editor/mobilePageStack";
 import { processLocalImageFiles } from "@/components/editor/processLocalImageFiles";
 import {
@@ -250,7 +256,10 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     startY: number;
     start: { left: number; top: number; width: number; height: number };
     mode: ReturnType<typeof elementResizeMode>;
+    page: StackedMobilePageRect;
+    startFitted: boolean;
   } | null>(null);
+  const gesturePageRectRef = useRef<StackedMobilePageRect | null>(null);
   const [pageFrames, setPageFrames] = useState<{ index: number; left: number; top: number; width: number; height: number }[]>([]);
   const [selectionLabel, setSelectionLabel] = useState<string | null>(null);
   const [imageNotice, setImageNotice] = useState<string | null>(null);
@@ -471,6 +480,17 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     setPageIndex(next);
     const size = meta.pageSizes[next];
     if (size) pageSizeRef.current = size;
+  }, []);
+
+  const pageRectForObject = useCallback((obj: any): StackedMobilePageRect | null => {
+    const meta = stackMetaRef.current;
+    if (meta?.pageTops.length) {
+      const index = mobilePageIndexForObjectTop(Number(obj?.top) || 0, meta.pageTops);
+      return stackedMobilePageRect(meta.pageTops, meta.pageSizes, index);
+    }
+    const size = pageSizeRef.current;
+    if (!size) return null;
+    return { left: 0, top: 0, width: size.w, height: size.h, index: 0 };
   }, []);
 
   const readCropView = useCallback((): MobileCropView | null => {
@@ -1139,6 +1159,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           left: (obj.left || 0) + (point.x - gesture.lastX) / zoom,
           top: (obj.top || 0) + (point.y - gesture.lastY) / zoom,
         });
+        clampMobileObjectToPage(obj, gesturePageRectRef.current);
         obj.setCoords?.();
         canvas.requestRenderAll();
         refreshSelectionFrame();
@@ -1170,6 +1191,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           if (moveTarget) {
             if (imageCroppingRef.current) return;
             gesture.mode = "move";
+            gesturePageRectRef.current = pageRectForObject(moveTarget);
             return;
           }
           keyboardViewRef.current = null;
@@ -1297,6 +1319,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
             }
           }
         }
+        gesturePageRectRef.current = null;
         gestureRef.current = emptyGesture();
       } else if (event.touches.length === 1 && gesture.mode === "pinch") {
         const point = localPoint(event.touches[0]);
@@ -1317,6 +1340,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     viewport.addEventListener("touchmove", onTouchMove, { passive: false });
     viewport.addEventListener("touchend", onTouchEnd, { passive: false });
     viewport.addEventListener("touchcancel", () => {
+      gesturePageRectRef.current = null;
       gestureRef.current = emptyGesture();
     });
     return () => {
@@ -1324,7 +1348,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       viewport.removeEventListener("touchmove", onTouchMove);
       viewport.removeEventListener("touchend", onTouchEnd);
     };
-  }, [activatePageIndex, applyViewState, beginPinchGesture, canvasReady, loading, markUnsaved, refreshSelectionFrame, revealSelectedText, selectObject]);
+  }, [activatePageIndex, applyViewState, beginPinchGesture, canvasReady, loading, markUnsaved, pageRectForObject, refreshSelectionFrame, revealSelectedText, selectObject]);
 
   const closeTextEdit = useCallback(() => {
     editingObjectRef.current = null;
@@ -1500,6 +1524,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     (obj: any, label: string) => {
       if (!obj) return;
       offsetNewObjectToActivePage(obj);
+      clampMobileObjectToPage(obj, pageRectForObject(obj));
       editingObjectRef.current = null;
       selectObject(obj, label);
       setTextStyle(null);
@@ -1507,7 +1532,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       setTextEdit(null);
       markUnsaved();
     },
-    [markUnsaved, offsetNewObjectToActivePage, selectObject]
+    [markUnsaved, offsetNewObjectToActivePage, pageRectForObject, selectObject]
   );
 
   const addTextBox = useCallback(() => {
@@ -1515,6 +1540,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     if (!canvas) return;
     const obj = addMobileText(canvas, pageSizeRef.current);
     offsetNewObjectToActivePage(obj);
+    clampMobileObjectToPage(obj, pageRectForObject(obj));
     editingObjectRef.current = obj;
     selectObject(obj, "Text");
     setTextStyle(readTextStyle(obj));
@@ -1524,7 +1550,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     focusCanvasText(canvas, obj);
     markUnsaved();
     requestAnimationFrame(() => revealSelectedText());
-  }, [markUnsaved, offsetNewObjectToActivePage, revealSelectedText, selectObject]);
+  }, [markUnsaved, offsetNewObjectToActivePage, pageRectForObject, revealSelectedText, selectObject]);
 
   const addShape = useCallback(
     (shapeId: string) => {
@@ -1569,6 +1595,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
           const obj = await addMobileImage(canvas, url, page, meta);
           if (!obj) return;
           offsetNewObjectToActivePage(obj);
+          clampMobileObjectToPage(obj, pageRectForObject(obj));
           editingObjectRef.current = null;
           selectObject(obj, "Photo");
           setTextStyle(null);
@@ -1578,7 +1605,7 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       });
       setActionNotice(result.uploadedCount ? null : "That photo could not be added. Try Upload again.");
     },
-    [markUnsaved, offsetNewObjectToActivePage, selectObject, user?.uid]
+    [markUnsaved, offsetNewObjectToActivePage, pageRectForObject, selectObject, user?.uid]
   );
 
   const updateSelectedText = useCallback(
@@ -1630,12 +1657,16 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
       const displayedWidth = Math.abs(Number(obj.width) || 0) * Math.abs(Number(obj.scaleX) || 1);
       const displayedHeight = Math.abs(Number(obj.height) || 0) * Math.abs(Number(obj.scaleY) || 1);
       if (phase === "start") {
+        const page = pageRectForObject(obj);
+        const aabb = mobileObjectSceneAabb(obj);
         resizeDragRef.current = {
           corner,
           startX: clientX,
           startY: clientY,
           start: { left: Number(obj.left) || 0, top: Number(obj.top) || 0, width: displayedWidth, height: displayedHeight },
           mode,
+          page: page || { left: 0, top: 0, width: pageSizeRef.current.w, height: pageSizeRef.current.h, index: 0 },
+          startFitted: Boolean(page && aabb && mobileAabbFitsInPage(aabb, page)),
         };
         return;
       }
@@ -1670,23 +1701,29 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
         });
       }
       obj.setCoords?.();
+      constrainMobileResizeToPage(obj, drag.page, drag.mode, drag.startFitted);
       canvas?.requestRenderAll();
       refreshSelectionFrame();
       markUnsaved();
     },
-    [markUnsaved, refreshSelectionFrame]
+    [markUnsaved, pageRectForObject, refreshSelectionFrame]
   );
 
   const resizeSelection = useCallback(
     (factor: number) => {
       const obj = selectedObjectRef.current;
       if (!obj || isMobilePageSurface(obj) || imageCroppingRef.current) return;
+      const page = pageRectForObject(obj);
+      const aabb = mobileObjectSceneAabb(obj);
+      const startFitted = Boolean(page && aabb && mobileAabbFitsInPage(aabb, page));
       resizeMobileObject(obj, factor);
+      const mode = elementResizeMode(obj);
+      constrainMobileResizeToPage(obj, page, mode === "none" ? "free" : mode, startFitted);
       if (editingObjectRef.current) setTextStyle(readTextStyle(editingObjectRef.current));
       refreshSelectionFrame();
       markUnsaved();
     },
-    [markUnsaved, refreshSelectionFrame]
+    [markUnsaved, pageRectForObject, refreshSelectionFrame]
   );
 
   const duplicateSelection = useCallback(async () => {
@@ -1752,11 +1789,12 @@ export function useMobileFabricEditor({ templateId, docId, blank = false }: UseM
     }
     obj.set?.(result.patch);
     obj.setCoords?.();
+    clampMobileObjectToPage(obj, pageRectForObject(obj));
     canvasRef.current?.requestRenderAll();
     cancelImageCrop();
     refreshSelectionFrame();
     markUnsaved();
-  }, [cancelImageCrop, markUnsaved, refreshSelectionFrame]);
+  }, [cancelImageCrop, markUnsaved, pageRectForObject, refreshSelectionFrame]);
 
   const zoomBy = useCallback(
     (factor: number) => {

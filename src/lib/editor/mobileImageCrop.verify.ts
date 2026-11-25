@@ -97,7 +97,7 @@ assert.doesNotMatch(
   shell.slice(shell.indexOf('aria-label="Page controls"'), shell.indexOf('aria-label="Duplicate page"')),
   /width: frame\.width/
 );
-assert.match(shell, /ref=\{editor.canvasWrapRef\}[\s\S]*editor.pageFrames.map/);
+assert.match(shell, /ref=\{editor.canvasWrapRef\}[\s\S]*data-slb-active-page-outline="true"[\s\S]*editor.pageFrames.map/);
 assert.doesNotMatch(shell, /toDataURL\(/);
 assert.equal(MOBILE_CROP_MIN_WRAP_PX, 24);
 

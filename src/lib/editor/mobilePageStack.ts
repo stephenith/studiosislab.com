@@ -129,6 +129,32 @@ export function stackMobilePages(pages: any[]): MobilePageStack {
   };
 }
 
+export type StackedMobilePageRect = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  index: number;
+};
+
+/** Stacked-scene rectangle for one saved page. Left is always 0. */
+export function stackedMobilePageRect(
+  pageTops: number[],
+  pageSizes: MobilePageSize[],
+  index: number
+): StackedMobilePageRect | null {
+  if (!pageTops.length) return null;
+  const next = Math.min(Math.max(index, 0), pageTops.length - 1);
+  const size = pageSizes[next] || { w: MOBILE_A4_WIDTH, h: MOBILE_A4_HEIGHT };
+  return {
+    left: 0,
+    top: pageTops[next] || 0,
+    width: Math.max(1, size.w),
+    height: Math.max(1, size.h),
+    index: next,
+  };
+}
+
 export function mobilePageIndexForObjectTop(top: number, pageTops: number[]): number {
   let index = 0;
   for (let i = 0; i < pageTops.length; i += 1) {

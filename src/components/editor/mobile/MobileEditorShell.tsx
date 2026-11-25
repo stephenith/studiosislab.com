@@ -638,6 +638,19 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
             className={`relative h-full w-full${editor.loadError ? " pointer-events-none" : ""}`}
           >
             <canvas ref={editor.attachCanvasEl} className="block" />
+            {!editor.loadError && editor.pageFrames[editor.pageIndex] ? (
+              <div
+                aria-hidden="true"
+                data-slb-active-page-outline="true"
+                className="pointer-events-none absolute z-10 rounded-sm ring-2 ring-blue-500"
+                style={{
+                  left: editor.pageFrames[editor.pageIndex].left,
+                  top: editor.pageFrames[editor.pageIndex].top,
+                  width: editor.pageFrames[editor.pageIndex].width,
+                  height: editor.pageFrames[editor.pageIndex].height,
+                }}
+              />
+            ) : null}
             {!editor.loadError && editor.selectionFrame && !editor.imageCropping ? (
               <SelectionChrome
                 frame={editor.selectionFrame}

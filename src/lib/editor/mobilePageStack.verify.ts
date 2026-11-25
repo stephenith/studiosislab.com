@@ -9,6 +9,7 @@ import {
   MOBILE_A4_WIDTH,
   MOBILE_PAGE_GAP,
   splitStackedMobilePages,
+  stackedMobilePageRect,
   stackMobilePages,
 } from "./mobilePageStack";
 
@@ -89,5 +90,11 @@ assert.equal(isMobilePageSurface(offsetPage), true);
 assert.equal(isMobilePageSurface({ type: "rect", role: "pageBackground", left: 0, top: 1400, width: 400, height: 200 }), true);
 assert.equal(isMobilePageSurface({ type: "textbox", text: "Headline", left: 80, top: 90, width: 400, height: 40 }), false);
 assert.equal(isMobilePageSurface({ type: "rect", left: 80, top: 200, width: 120, height: 80 }), false);
+
+const page1Rect = stackedMobilePageRect([0, MOBILE_A4_HEIGHT + MOBILE_PAGE_GAP], [{ w: MOBILE_A4_WIDTH, h: MOBILE_A4_HEIGHT }, { w: MOBILE_A4_WIDTH, h: MOBILE_A4_HEIGHT }], 1);
+assert.equal(page1Rect?.index, 1);
+assert.equal(page1Rect?.top, MOBILE_A4_HEIGHT + MOBILE_PAGE_GAP);
+assert.equal(page1Rect?.left, 0);
+assert.equal(page1Rect?.width, MOBILE_A4_WIDTH);
 
 console.log("mobilePageStack.verify: PASS");

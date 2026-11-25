@@ -419,6 +419,125 @@ export function elementResizeMode(obj: any): ElementResizeMode {
   return "free";
 }
 
+export type MobileSceneRect = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
+
+/** Axis-aligned scene box from Fabric `aCoords`, with a left/top/scale fallback for tests. */
+export function mobileObjectSceneAabb(obj: any): MobileSceneRect | null {
+  if (!obj) return null;
+  obj.setCoords?.();
+  const coords = obj.aCoords;
+  const points = coords ? [coords.tl, coords.tr, coords.bl, coords.br] : [];
+  const usable = points.filter((point: any) => point && Number.isFinite(point.x) && Number.isFinite(point.y));
+  if (usable.length >= 4) {
+    const xs = usable.map((point: any) => point.x);
+    const ys = usable.map((point: any) => point.y);
+    const left = Math.min(...xs);
+    const top = Math.min(...ys);
+    const width = Math.max(...xs) - left;
+    const height = Math.max(...ys) - top;
+    if (width < 0.5 || height < 0.5) return null;
+    return { left, top, width, height };
+  }
+  const left = Number(obj.left);
+  const top = Number(obj.top);
+  const width = Math.abs(Number(obj.width) || 0) * Math.abs(Number(obj.scaleX) || 1);
+  const height = Math.abs(Number(obj.height) || 0) * Math.abs(Number(obj.scaleY) || 1);
+  if (!Number.isFinite(left) || !Number.isFinite(top) || width < 0.5 || height < 0.5) return null;
+  return { left, top, width, height };
+}
+
+export function mobileAabbFitsInPage(aabb: MobileSceneRect, page: MobileSceneRect, epsilon = 0.51): boolean {
+  return (
+    aabb.width <= page.width + epsilon &&
+    aabb.height <= page.height + epsilon &&
+    aabb.left >= page.left - epsilon &&
+    aabb.top >= page.top - epsilon &&
+    aabb.left + aabb.width <= page.left + page.width + epsilon &&
+    aabb.top + aabb.height <= page.top + page.height + epsilon
+  );
+}
+
+/**
+ * Slide an AABB as far onto `page` as it can go.
+ * If it is already wider or taller than the page, pin that axis to the page origin
+ * (max overlap) instead of scaling.
+ */
+export function translationToKeepAabbOnPage(aabb: MobileSceneRect, page: MobileSceneRect): { dx: number; dy: number } {
+  let nextLeft = aabb.left;
+  let nextTop = aabb.top;
+  if (aabb.width >= page.width) nextLeft = page.left;
+  else nextLeft = Math.max(page.left, Math.min(page.left + page.width - aabb.width, aabb.left));
+  if (aabb.height >= page.height) nextTop = page.top;
+  else nextTop = Math.max(page.top, Math.min(page.top + page.height - aabb.height, aabb.top));
+  return { dx: nextLeft - aabb.left, dy: nextTop - aabb.top };
+}
+
+export function clampMobileObjectToPage(obj: any, page: MobileSceneRect | null | undefined): boolean {
+  if (!obj || !page || isMobilePageSurface(obj)) return false;
+  const aabb = mobileObjectSceneAabb(obj);
+  if (!aabb) return false;
+  const { dx, dy } = translationToKeepAabbOnPage(aabb, page);
+  if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01) return false;
+  obj.set?.({ left: (Number(obj.left) || 0) + dx, top: (Number(obj.top) || 0) + dy });
+  obj.setCoords?.();
+  return true;
+}
+
+/**
+ * After a user resize, keep a previously on-page object fully on the page.
+ * Oversized existing objects are only translated (max overlap), never auto-scaled.
+ */
+export function constrainMobileResizeToPage(
+  obj: any,
+  page: MobileSceneRect | null | undefined,
+  mode: ElementResizeMode,
+  startFitted: boolean
+): void {
+  if (!obj || !page || isMobilePageSurface(obj)) return;
+  if (!startFitted) {
+    clampMobileObjectToPage(obj, page);
+    return;
+  }
+  const aabb = mobileObjectSceneAabb(obj);
+  if (!aabb) return;
+  const overflowW = aabb.width - page.width;
+  const overflowH = aabb.height - page.height;
+  if (overflowW > 0.51 || overflowH > 0.51) {
+    if (mode === "text") {
+      const scaleX = Math.abs(Number(obj.scaleX) || 1) || 1;
+      const maxWidth = Math.max(24, page.width / scaleX);
+      obj.set?.({ width: Math.min(Number(obj.width) || maxWidth, maxWidth) });
+      applyTextBoxNoStretch(obj);
+      obj.initDimensions?.();
+    } else if (mode === "uniform") {
+      const factor = Math.min(1, page.width / aabb.width, page.height / aabb.height);
+      obj.set?.({
+        scaleX: (Number(obj.scaleX) || 1) * factor,
+        scaleY: (Number(obj.scaleY) || 1) * factor,
+      });
+    } else {
+      if (overflowW > 0.51) {
+        const factor = page.width / aabb.width;
+        obj.set?.({ scaleX: (Number(obj.scaleX) || 1) * factor });
+      }
+      if (overflowH > 0.51) {
+        const next = mobileObjectSceneAabb(obj);
+        const height = next?.height || aabb.height;
+        if (height > page.height + 0.51) {
+          obj.set?.({ scaleY: (Number(obj.scaleY) || 1) * (page.height / height) });
+        }
+      }
+    }
+    obj.setCoords?.();
+  }
+  clampMobileObjectToPage(obj, page);
+}
+
 /**
  * New object bounds after dragging one corner.
  * `width` and `height` are the displayed size. Text keeps its top and height so the box reflows by width.

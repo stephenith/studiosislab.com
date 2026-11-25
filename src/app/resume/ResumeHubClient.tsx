@@ -26,6 +26,7 @@ import {
   phoneEditorViewportMatch,
   type EditorOpenTarget,
 } from "@/lib/editor/phoneEditorRoute";
+import { beginGalleryEditorOpen, subscribeGalleryEditorOpen } from "@/lib/editor/galleryEditorOpen";
 
 import NoiseBackground from "@/components/home/NoiseBackground";
 import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
@@ -394,6 +395,28 @@ export default function ResumeTemplatesPage({
     [authReady, getLoginPathWithNext, router, user]
   );
 
+  const openTemplate = useCallback(
+    (templateId: string, track = false) => {
+      if (!authReady || openingTemplateId) return;
+      setOpeningTemplateId(templateId);
+      beginGalleryEditorOpen();
+      if (track) {
+        trackEvent("template_open", {
+          template_id: templateId,
+          surface: "resume_hub",
+        });
+      }
+      openEditor({ templateId });
+    },
+    [authReady, openEditor, openingTemplateId]
+  );
+
+  useEffect(() => {
+    return subscribeGalleryEditorOpen((open) => {
+      if (!open) setOpeningTemplateId(null);
+    });
+  }, []);
+
   return (
     <main className="relative min-h-dvh w-full bg-white px-5 pb-20 pt-10 text-zinc-900 sm:pt-12">
       <NoiseBackground />
@@ -710,12 +733,8 @@ export default function ResumeTemplatesPage({
                 <button
                   key={`recent-${template.id}`}
                   type="button"
-                  disabled={!authReady}
-                  onClick={() => {
-                    if (!authReady) return;
-                    setOpeningTemplateId(template.id);
-                    openEditor({ templateId: template.id });
-                  }}
+                  disabled={!authReady || openingTemplateId !== null}
+                  onClick={() => openTemplate(template.id)}
                   className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none disabled:cursor-not-allowed"
                 >
                   <div className={THUMB_FRAME}>
@@ -746,12 +765,8 @@ export default function ResumeTemplatesPage({
                 <button
                   key={`featured-${template.id}`}
                   type="button"
-                  disabled={!authReady}
-                  onClick={() => {
-                    if (!authReady) return;
-                    setOpeningTemplateId(template.id);
-                    openEditor({ templateId: template.id });
-                  }}
+                  disabled={!authReady || openingTemplateId !== null}
+                  onClick={() => openTemplate(template.id)}
                   className="group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none disabled:cursor-not-allowed"
                 >
                   <div className={THUMB_FRAME}>
@@ -802,7 +817,6 @@ export default function ResumeTemplatesPage({
           ) : (
             <div className={`${TEMPLATE_GALLERY_GRID}`}>
               {templatesToRender.map((template, index) => {
-                const isOpening = openingTemplateId === template.id;
                 const isAnyTemplateOpening = openingTemplateId !== null;
                 const loadingMode: "eager" | "lazy" = index < EAGER_TEMPLATE_COUNT ? "eager" : "lazy";
 
@@ -811,15 +825,7 @@ export default function ResumeTemplatesPage({
                     key={template.id}
                     type="button"
                     disabled={!authReady || isAnyTemplateOpening}
-                    onClick={() => {
-                      if (!authReady || isAnyTemplateOpening) return;
-                      setOpeningTemplateId(template.id);
-                      trackEvent("template_open", {
-                        template_id: template.id,
-                        surface: "resume_hub",
-                      });
-                      openEditor({ templateId: template.id });
-                    }}
+                    onClick={() => openTemplate(template.id, true)}
                     className={`group flex w-full flex-col gap-2 border-0 bg-transparent p-0 text-left shadow-none outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed ${
                       isAnyTemplateOpening ? "cursor-wait opacity-80" : ""
                     }`}
@@ -835,9 +841,6 @@ export default function ResumeTemplatesPage({
                     <div className="min-w-0 pt-0.5">
                       <div className="text-sm font-semibold leading-tight text-zinc-900">{template.title}</div>
                       <div className="mt-0.5 text-xs text-zinc-500">{template.category}</div>
-                      {isOpening ? (
-                        <div className="mt-1 text-[11px] font-medium text-violet-600">Opening editor…</div>
-                      ) : null}
                     </div>
                   </button>
                 );

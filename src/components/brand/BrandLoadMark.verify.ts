@@ -32,4 +32,12 @@ const invoice = readFileSync(path.join(__dirname, "../../app/tools/invoice/Invoi
 assert.match(invoice, /BrandLoadMark/);
 assert.match(invoice, /StorageNotice/);
 
+const galleryOverlay = readFileSync(
+  path.join(__dirname, "../resume/GalleryEditorOpenOverlay.tsx"),
+  "utf8"
+);
+assert.match(galleryOverlay, /BrandLoadMark/);
+assert.match(galleryOverlay, /data-slb-gallery-editor-open/);
+assert.doesNotMatch(galleryOverlay, /brand-load-arc/);
+
 console.log("BrandLoadMark.verify: PASS");

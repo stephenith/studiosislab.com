@@ -1,6 +1,7 @@
 import EditorShell from "@/components/editor/EditorShell";
 import { EditorAuthGate } from "@/components/editor/EditorAuthGate";
 import EditorMobileGuard from "@/components/editor/EditorMobileGuard";
+import { ClearGalleryEditorOpen } from "@/components/resume/GalleryEditorOpenOverlay";
 import { SYSTEM_TEMPLATE_IDS } from "@/data/systemTemplates/registry";
 
 export default async function EditorTemplatePage({
@@ -20,6 +21,7 @@ export default async function EditorTemplatePage({
             <EditorShell variant="template" templateId={normalizedTemplateId} />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-amber-600">
+              <ClearGalleryEditorOpen />
               Template not found
             </div>
           )}

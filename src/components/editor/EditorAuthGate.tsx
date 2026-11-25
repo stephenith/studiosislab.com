@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
 import { getLoginRedirectUrl } from "@/lib/safeNextPath";
 import BrandLoadMark from "@/components/brand/BrandLoadMark";
+import { endGalleryEditorOpen } from "@/lib/editor/galleryEditorOpen";
 
 export function EditorAuthGate({ children }: { children: ReactNode }) {
   const { user, authReady } = useAuth();
@@ -13,6 +14,7 @@ export function EditorAuthGate({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!authReady) return;
     if (!user) {
+      endGalleryEditorOpen();
       router.replace(getLoginRedirectUrl());
     }
   }, [authReady, user, router]);

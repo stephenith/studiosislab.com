@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -16,6 +17,7 @@ import {
   type User,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import GalleryEditorOpenOverlay from "@/components/resume/GalleryEditorOpenOverlay";
 
 export type AuthContextValue = {
   user: User | null;
@@ -87,6 +89,11 @@ export function Providers({ children }: { children: ReactNode }) {
   );
 
   return (
-    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={value}>
+      {children}
+      <Suspense fallback={null}>
+        <GalleryEditorOpenOverlay />
+      </Suspense>
+    </AuthContext.Provider>
   );
 }

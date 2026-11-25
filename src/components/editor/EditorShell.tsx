@@ -40,6 +40,7 @@ import { toHexColor } from "@/lib/color";
 import { doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { HOME_LOGOS_DARK } from "@/components/home/homeLogoAssets";
 import BrandLoadMark from "@/components/brand/BrandLoadMark";
+import { endGalleryEditorOpen } from "@/lib/editor/galleryEditorOpen";
 import { auth, db } from "@/lib/firebase";
 import { trackEvent } from "@/lib/analytics";
 import {
@@ -261,6 +262,10 @@ export default function EditorShell({
         : ({ variant: "new" } as const);
 
   const editor = useFabricEditor(editorParams);
+
+  useEffect(() => {
+    if (editor.loadError || editor.isDocDataReady) endGalleryEditorOpen();
+  }, [editor.isDocDataReady, editor.loadError]);
 
   const positionToolBtn =
     "border border-zinc-200 rounded-lg h-9 px-3 flex items-center justify-center gap-2 text-zinc-600 hover:bg-zinc-100 hover:shadow-sm active:scale-[0.97] transition-transform";

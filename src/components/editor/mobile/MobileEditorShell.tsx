@@ -35,6 +35,7 @@ import SkillBarEditSheet from "@/components/editor/mobile/SkillBarEditSheet";
 import { MOBILE_SHAPE_CHOICES, MOBILE_TEXT_FONTS } from "@/components/editor/mobile/mobileCanvasActions";
 import { useMobileFabricEditor } from "@/components/editor/mobile/useMobileFabricEditor";
 import BrandLoadMark from "@/components/brand/BrandLoadMark";
+import { endGalleryEditorOpen } from "@/lib/editor/galleryEditorOpen";
 import { SYSTEM_TEMPLATES } from "@/data/systemTemplates/registry";
 
 type MobileEditorShellProps = {
@@ -500,6 +501,10 @@ export default function MobileEditorShell({ templateId, docId, blank = false }: 
   const busyDownload = editor.downloadKind !== null;
   const selected = Boolean(editor.selectionLabel);
   const textFormatting = Boolean(editor.textStyle);
+
+  useEffect(() => {
+    if (editor.loadError || !editor.loading) endGalleryEditorOpen();
+  }, [editor.loadError, editor.loading]);
 
   useEffect(() => {
     if (!textFormatting) return;

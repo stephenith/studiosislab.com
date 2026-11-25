@@ -9,6 +9,7 @@ import {
   phoneEditorViewportMatch,
   type EditorOpenTarget,
 } from "@/lib/editor/phoneEditorRoute";
+import { beginGalleryEditorOpen, shouldIgnoreModifiedEditorClick } from "@/lib/editor/galleryEditorOpen";
 
 type ResumeEditorLinkProps = EditorOpenTarget & {
   className?: string;
@@ -47,6 +48,8 @@ export default function ResumeEditorLink({
       href={href}
       className={className}
       onClick={(event) => {
+        if (shouldIgnoreModifiedEditorClick(event)) return;
+        beginGalleryEditorOpen();
         const next = editorHrefForViewport(target, phoneEditorViewportMatch());
         if (next === href) return;
         event.preventDefault();

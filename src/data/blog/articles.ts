@@ -791,7 +791,7 @@ export const blogArticles: BlogArticle[] = [
     slug: "why-small-businesses-are-switching-to-e-sign-workflows",
     title: "How Teams Can Get Contracts Signed Faster",
     description:
-      "The client has agreed to the work. Now you need a signed contract. See how to send a PDF for signature, check its status and save the signed copy.",
+      "The client has agreed to the work. Upload that existing PDF in StudiosisLab, send it for signature and save the signed copy without a print-and-scan wait.",
     excerpt:
       "See how a small team can get a client agreement signed online without asking the client to print and scan it.",
     publishedAt: "2026-05-31",

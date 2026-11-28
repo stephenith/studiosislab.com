@@ -1216,7 +1216,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Human resources manager resume template focused on recruitment, employee relations, HR operations, compliance, onboarding, and workforce planning.",
     h1: "Human Resources Manager Resume Template",
     intro:
-      "HR manager hiring teams look for evidence of strong people operations and policy execution at scale. This template helps you present recruitment leadership, employee relations, compliance support and workforce planning work in a structure that ATS systems and HR leaders can review quickly.",
+      "This sample shows a fictional Head of Human Resources with earlier learning and development work. Replace the names, employers, dates and results with your own experience.",
     bestFor: [
       "HR managers overseeing recruitment, onboarding and employee lifecycle operations.",
       "People leaders handling employee relations, policy application and compliance coordination.",

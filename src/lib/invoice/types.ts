@@ -17,6 +17,8 @@ export type CurrencyCode = (typeof CURRENCIES)[number]["code"];
 
 export const DEFAULT_ACCENT = "#18181b";
 export const DEFAULT_TAX_LABEL = "Tax";
+export const TAX_TYPES = ["custom", "gst", "cgst_sgst"] as const;
+export type TaxType = (typeof TAX_TYPES)[number];
 export const DEFAULT_NOTES = "Thank you for your business.";
 export const DEFAULT_SIGNATURE_CAPTION = "Authorized Signature";
 export const DEFAULT_SEAL_CAPTION = "Company Seal";
@@ -46,6 +48,7 @@ export type InvoiceData = {
   issueDate: string;
   dueDate: string;
   currency: string;
+  taxType?: TaxType;
   taxLabel: string;
   taxRate: string;
   accentColor: string;
@@ -86,4 +89,12 @@ export function currencyMinorDigits(code: string): number | null {
 
 export function isCurrencyCode(code: string): code is CurrencyCode {
   return currencyMinorDigits(code) !== null;
+}
+
+export function isTaxType(value: unknown): value is TaxType {
+  return typeof value === "string" && (TAX_TYPES as readonly string[]).includes(value);
+}
+
+export function resolveTaxType(value: { taxType?: TaxType }): TaxType {
+  return value.taxType ?? "custom";
 }

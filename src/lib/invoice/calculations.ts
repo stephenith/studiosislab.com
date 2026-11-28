@@ -1,4 +1,4 @@
-import { currencyMinorDigits, type InvoiceData, type InvoiceLineItem } from "./types";
+import { currencyMinorDigits, resolveTaxType, type InvoiceData, type InvoiceLineItem, type TaxType } from "./types";
 
 export const QUANTITY_SCALE = 4;
 const MAX_INTEGER_DIGITS = 12;
@@ -14,6 +14,12 @@ export type LineComputation = {
   amountMinor: bigint | null;
 };
 
+export type TaxRow = {
+  label: string;
+  rateMinor: bigint;
+  amountMinor: bigint;
+};
+
 export type TotalsComputation = {
   lines: LineComputation[];
   taxRateMessage?: string;
@@ -22,6 +28,7 @@ export type TotalsComputation = {
   subtotalMinor: bigint | null;
   taxMinor: bigint | null;
   totalMinor: bigint | null;
+  taxRows: TaxRow[];
   ok: boolean;
 };
 
@@ -82,11 +89,45 @@ export function taxMinorFromSubtotal(subtotalMinor: bigint, taxRateMinor: bigint
   return roundDivHalfUp(subtotalMinor * taxRateMinor, BigInt(10000));
 }
 
-export function computeInvoiceTotals(data: Pick<InvoiceData, "currency" | "taxLabel" | "taxRate" | "lineItems">): TotalsComputation {
+/** Floor-split a 2-decimal percent so component rates sum to the entered total. */
+export function splitComponentRateMinors(totalRateMinor: bigint): { sgstRateMinor: bigint; cgstRateMinor: bigint } {
+  const sgstRateMinor = totalRateMinor / BigInt(2);
+  return { sgstRateMinor, cgstRateMinor: totalRateMinor - sgstRateMinor };
+}
+
+export function taxRowCaption(row: TaxRow): string {
+  return `${row.label} (${formatTaxPercent(row.rateMinor)}%)`;
+}
+
+function taxRowsFor(
+  type: TaxType,
+  taxLabel: string,
+  taxRateMinor: bigint,
+  taxMinor: bigint,
+  subtotalMinor: bigint,
+): TaxRow[] {
+  if (type === "gst") {
+    return [{ label: "GST", rateMinor: taxRateMinor, amountMinor: taxMinor }];
+  }
+  if (type === "cgst_sgst") {
+    const { sgstRateMinor, cgstRateMinor } = splitComponentRateMinors(taxRateMinor);
+    const sgstAmount = taxMinorFromSubtotal(subtotalMinor, sgstRateMinor);
+    return [
+      { label: "SGST", rateMinor: sgstRateMinor, amountMinor: sgstAmount },
+      { label: "CGST", rateMinor: cgstRateMinor, amountMinor: taxMinor - sgstAmount },
+    ];
+  }
+  return [{ label: taxLabel || "Tax", rateMinor: taxRateMinor, amountMinor: taxMinor }];
+}
+
+export function computeInvoiceTotals(
+  data: Pick<InvoiceData, "currency" | "taxType" | "taxLabel" | "taxRate" | "lineItems">,
+): TotalsComputation {
   const digits = currencyMinorDigits(data.currency);
   const currencyMessage = digits === null ? "Choose a supported currency." : undefined;
+  const type = resolveTaxType(data);
   const taxLabel = data.taxLabel.trim();
-  const taxLabelMessage = taxLabel ? undefined : "Enter a tax label.";
+  const taxLabelMessage = type === "custom" && !taxLabel ? "Enter a tax label." : undefined;
   const taxParsed = parseDecimal(data.taxRate, 2);
   let taxRateMessage: string | undefined;
   let taxRateMinor: bigint | null = null;
@@ -119,17 +160,20 @@ export function computeInvoiceTotals(data: Pick<InvoiceData, "currency" | "taxLa
       subtotalMinor: null,
       taxMinor: null,
       totalMinor: null,
+      taxRows: [],
       ok: false,
     };
   }
 
   const subtotalMinor = included.reduce((sum, line) => sum + (line.amountMinor ?? BigInt(0)), BigInt(0));
   const taxMinor = taxMinorFromSubtotal(subtotalMinor, taxRateMinor);
+  const taxRows = taxRowsFor(type, taxLabel, taxRateMinor, taxMinor, subtotalMinor);
   return {
     lines,
     subtotalMinor,
     taxMinor,
     totalMinor: subtotalMinor + taxMinor,
+    taxRows,
     ok: true,
   };
 }

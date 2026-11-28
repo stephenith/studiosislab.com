@@ -9,6 +9,7 @@ import {
   emptyParty,
   INVOICE_SCHEMA_VERSION,
   isCurrencyCode,
+  isTaxType,
   LEGACY_DRAFT_STORAGE_KEY,
   LEGACY_INVOICE_ID,
   newInvoiceId,
@@ -100,6 +101,7 @@ export function readInvoice(value: unknown): InvoiceData | null {
   const currency = exactText(value.currency, 3);
   const taxLabel = exactText(value.taxLabel, 40);
   const taxRate = exactText(value.taxRate, 16);
+  const taxType = value.taxType === undefined ? undefined : isTaxType(value.taxType) ? value.taxType : undefined;
   const notes = exactText(value.notes, 4000);
   const paymentInstructions = exactText(value.paymentInstructions, 4000);
   const from = party(value.from);
@@ -154,6 +156,7 @@ export function readInvoice(value: unknown): InvoiceData | null {
     issueDate,
     dueDate,
     currency,
+    ...(taxType ? { taxType } : {}),
     taxLabel,
     taxRate,
     accentColor: color,

@@ -18,7 +18,7 @@ const editor = fs.readFileSync(
   "utf8"
 );
 const downloadStart = editor.indexOf("function download()");
-const downloadEnd = editor.indexOf("const taxParsed", downloadStart);
+const downloadEnd = editor.indexOf("const taxType = resolveTaxType", downloadStart);
 assert.ok(downloadStart !== -1 && downloadEnd > downloadStart);
 const downloadFn = editor.slice(downloadStart, downloadEnd);
 assert.ok(downloadFn.indexOf("invoicePdfBlob(invoice)") < downloadFn.indexOf("if (!result.ok)"));

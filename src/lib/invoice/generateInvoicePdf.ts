@@ -1,4 +1,4 @@
-import { computeInvoiceTotals, formatMinor, formatTaxPercent, parseDecimal } from "./calculations";
+import { computeInvoiceTotals, formatMinor, taxRowCaption } from "./calculations";
 import { pdfTextErrors } from "./pdfText";
 import {
   currencyMinorDigits,
@@ -193,7 +193,7 @@ export function buildInvoicePdf(data: InvoiceData): PdfBuild {
   inTable = false;
   y += 8;
 
-  const totalsHeight = 62;
+  const totalsHeight = 46 + 16 * totals.taxRows.length;
   if (y + totalsHeight > CONTENT_BOTTOM) startPage(true);
   const labelX = PAGE_W - MARGIN - 180;
   doc.setFont("helvetica", "normal");
@@ -202,11 +202,12 @@ export function buildInvoicePdf(data: InvoiceData): PdfBuild {
   doc.text("Subtotal", labelX, y);
   doc.text(formatMinor(totals.subtotalMinor, data.currency), PAGE_W - MARGIN, y, { align: "right" });
   y += 16;
-  const taxParsed = parseDecimal(data.taxRate, 2);
-  const taxPercent = taxParsed.ok ? formatTaxPercent(taxParsed.minor) : data.taxRate.trim();
-  doc.text(`${data.taxLabel.trim()} (${taxPercent}%)`, labelX, y);
-  doc.text(formatMinor(totals.taxMinor, data.currency), PAGE_W - MARGIN, y, { align: "right" });
-  y += 18;
+  for (const row of totals.taxRows) {
+    doc.text(taxRowCaption(row), labelX, y);
+    doc.text(formatMinor(row.amountMinor, data.currency), PAGE_W - MARGIN, y, { align: "right" });
+    y += 16;
+  }
+  y += 2;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.setTextColor(accent.r, accent.g, accent.b);

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, Plus, Trash2 } from "lucide-react";
-import { computeInvoiceTotals, formatMinor, formatTaxPercent, parseDecimal } from "@/lib/invoice/calculations";
+import { computeInvoiceTotals, formatMinor, taxRowCaption } from "@/lib/invoice/calculations";
 import { invoicePdfBlob } from "@/lib/invoice/generateInvoicePdf";
 import { completeInvoiceDownloadTracking, trackInvoiceDataLayerEvent } from "@/lib/invoiceGtmEvents";
 import { readLogoFile } from "@/lib/invoice/logo";
@@ -17,7 +17,7 @@ import {
   storeFailureMessage,
   type InvoiceSaveResult,
 } from "@/lib/invoice/invoiceStore";
-import { CURRENCIES, newInvoiceId, type InvoiceData, type InvoiceLineItem } from "@/lib/invoice/types";
+import { CURRENCIES, newInvoiceId, resolveTaxType, type InvoiceData, type InvoiceLineItem, type TaxType } from "@/lib/invoice/types";
 import { InvoiceChrome, StorageNotice } from "./InvoiceChrome";
 import BrandLoadMark from "@/components/brand/BrandLoadMark";
 
@@ -242,7 +242,7 @@ export default function InvoiceEditor() {
     );
   }
 
-  const taxParsed = parseDecimal(invoice.taxRate, 2);
+  const taxType = resolveTaxType(invoice);
 
   return (
     <InvoiceChrome>
@@ -300,7 +300,7 @@ export default function InvoiceEditor() {
         </div>
       ) : null}
 
-      <div className="grid gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:grid-cols-4">
+      <div className="grid gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
         <label className="text-sm">
           <span className="mb-1 block text-xs font-medium text-zinc-700">Currency</span>
           <select id="currency" className={fieldClass()} value={invoice.currency} onChange={(event) => update({ currency: event.target.value })}>
@@ -312,9 +312,25 @@ export default function InvoiceEditor() {
           </select>
         </label>
         <label className="text-sm">
-          <span className="mb-1 block text-xs font-medium text-zinc-700">Tax label</span>
-          <input id="tax-label" className={fieldClass(Boolean(totals.taxLabelMessage))} maxLength={40} value={invoice.taxLabel} onChange={(event) => update({ taxLabel: event.target.value })} />
+          <span className="mb-1 block text-xs font-medium text-zinc-700">Tax type</span>
+          <select
+            id="tax-type"
+            className={fieldClass()}
+            value={taxType}
+            onChange={(event) => update({ taxType: event.target.value as TaxType })}
+          >
+            <option value="custom">Custom</option>
+            <option value="gst">GST</option>
+            <option value="cgst_sgst">CGST + SGST</option>
+          </select>
         </label>
+        {taxType === "custom" ? (
+          <label className="text-sm">
+            <span className="mb-1 block text-xs font-medium text-zinc-700">Tax label</span>
+            <input id="tax-label" className={fieldClass(Boolean(totals.taxLabelMessage))} maxLength={40} value={invoice.taxLabel} onChange={(event) => update({ taxLabel: event.target.value })} />
+            {totals.taxLabelMessage ? <span className="mt-1 block text-xs text-red-700">{totals.taxLabelMessage}</span> : null}
+          </label>
+        ) : null}
         <label className="text-sm">
           <span className="mb-1 block text-xs font-medium text-zinc-700">Tax rate (%)</span>
           <input id="tax-rate" inputMode="decimal" className={fieldClass(Boolean(totals.taxRateMessage))} maxLength={16} value={invoice.taxRate} onChange={(event) => update({ taxRate: event.target.value })} />
@@ -428,13 +444,19 @@ export default function InvoiceEditor() {
                 <dt>Subtotal</dt>
                 <dd>{totals.subtotalMinor === null ? "—" : formatMinor(totals.subtotalMinor, invoice.currency)}</dd>
               </div>
-              <div className="flex justify-between gap-3">
-                <dt>
-                  {invoice.taxLabel.trim() || "Tax"}
-                  {taxParsed.ok ? ` (${formatTaxPercent(taxParsed.minor)}%)` : ""}
-                </dt>
-                <dd>{totals.taxMinor === null ? "—" : formatMinor(totals.taxMinor, invoice.currency)}</dd>
-              </div>
+              {totals.taxRows.length ? (
+                totals.taxRows.map((row) => (
+                  <div key={row.label} className="flex justify-between gap-3">
+                    <dt>{taxRowCaption(row)}</dt>
+                    <dd>{formatMinor(row.amountMinor, invoice.currency)}</dd>
+                  </div>
+                ))
+              ) : (
+                <div className="flex justify-between gap-3">
+                  <dt>{taxType === "gst" ? "GST" : taxType === "cgst_sgst" ? "SGST / CGST" : invoice.taxLabel.trim() || "Tax"}</dt>
+                  <dd>—</dd>
+                </div>
+              )}
               <div className="flex justify-between gap-3 border-t border-zinc-200 pt-2 text-base font-semibold" style={{ color: invoice.accentColor }}>
                 <dt>Total</dt>
                 <dd>{totals.totalMinor === null ? "—" : formatMinor(totals.totalMinor, invoice.currency)}</dd>

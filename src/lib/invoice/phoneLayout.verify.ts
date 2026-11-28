@@ -69,4 +69,16 @@ assert.ok(shell.includes("safe-area-inset-bottom"));
 assert.ok(shell.includes("taxRows"));
 assert.equal(shell.includes("SGST / CGST"), false);
 
+const form = fs.readFileSync(path.join(process.cwd(), "src/app/tools/invoice/InvoicePhoneForm.tsx"), "utf8");
+assert.ok(form.includes("More options"));
+assert.ok(form.includes("Logo, colour, notes, payment & signature"));
+assert.ok(form.includes("Ellipsis"));
+assert.ok(form.includes("ChevronDown"));
+assert.ok(form.includes("aria-expanded={moreOptionsOpen}"));
+assert.ok(form.includes('aria-controls="invoice-more-options"'));
+assert.ok(form.includes('id="invoice-more-options"'));
+assert.ok(form.includes("min-h-11"));
+assert.equal(form.includes("BrandMark"), false);
+assert.equal(form.includes("studiosislab-mark"), false);
+
 console.log("phoneLayout.verify: pass");

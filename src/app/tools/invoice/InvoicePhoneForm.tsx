@@ -1,6 +1,7 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { ChevronDown, Ellipsis, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { formatMinor, taxRowCaption, type TotalsComputation } from "@/lib/invoice/calculations";
 import { CURRENCIES, invoiceTaxTypePatch, newInvoiceId, resolveTaxType, type InvoiceData, type InvoiceLineItem, type TaxType } from "@/lib/invoice/types";
 import { StorageNotice } from "./InvoiceChrome";
@@ -46,6 +47,7 @@ export function InvoicePhoneForm({
 }) {
   const taxType = resolveTaxType(invoice);
   const title = invoice.invoiceNumber.trim() || "Untitled invoice";
+  const [moreOptionsOpen, setMoreOptionsOpen] = useState(false);
 
   return (
     <div className="flex flex-col gap-4 pb-4">
@@ -227,9 +229,20 @@ export function InvoicePhoneForm({
         </dl>
       </section>
 
-      <details className="rounded-2xl border border-zinc-200 bg-white p-4">
-        <summary className="min-h-11 cursor-pointer list-none text-sm font-semibold">More options</summary>
-        <div className="mt-3 space-y-4">
+      <details className="rounded-2xl border border-zinc-200 bg-white p-4" onToggle={(event) => setMoreOptionsOpen(event.currentTarget.open)}>
+        <summary
+          className="flex min-h-11 cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden"
+          aria-expanded={moreOptionsOpen}
+          aria-controls="invoice-more-options"
+        >
+          <Ellipsis className="h-5 w-5 shrink-0 text-zinc-700" aria-hidden="true" />
+          <span className="min-w-0 flex-1 text-left">
+            <span className="block text-sm font-semibold text-zinc-900">More options</span>
+            <span className="mt-0.5 block text-xs leading-snug text-zinc-600">Logo, colour, notes, payment & signature</span>
+          </span>
+          <ChevronDown className={`h-5 w-5 shrink-0 text-zinc-700 transition-transform ${moreOptionsOpen ? "rotate-180" : ""}`} aria-hidden="true" />
+        </summary>
+        <div id="invoice-more-options" className="mt-3 space-y-4">
           <label className="block text-sm">
             <span className="mb-1 block text-xs font-medium text-zinc-700">Accent colour</span>
             <input id="phone-accent-color" type="color" className="h-11 w-full cursor-pointer rounded-lg border border-zinc-300 bg-white" value={invoice.accentColor} onChange={(event) => onUpdate({ accentColor: event.target.value })} />

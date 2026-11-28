@@ -24,7 +24,7 @@ const resumeFaqItems = [
   {
     question: "Can I use the builder on mobile?",
     answer:
-      "No, as of now the editor can only be used if you desktop or laptop.",
+      "Yes. On a phone, choosing a Resume Template opens the phone editor. PDF download is available there. PNG download is for a larger screen.",
   },
   {
     question: "Are templates suitable for ATS workflows?",

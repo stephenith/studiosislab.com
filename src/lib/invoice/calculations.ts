@@ -23,7 +23,6 @@ export type TaxRow = {
 export type TotalsComputation = {
   lines: LineComputation[];
   taxRateMessage?: string;
-  taxLabelMessage?: string;
   currencyMessage?: string;
   subtotalMinor: bigint | null;
   taxMinor: bigint | null;
@@ -127,7 +126,6 @@ export function computeInvoiceTotals(
   const currencyMessage = digits === null ? "Choose a supported currency." : undefined;
   const type = resolveTaxType(data);
   const taxLabel = data.taxLabel.trim();
-  const taxLabelMessage = type === "custom" && !taxLabel ? "Enter a tax label." : undefined;
   const taxParsed = parseDecimal(data.taxRate, 2);
   let taxRateMessage: string | undefined;
   let taxRateMinor: bigint | null = null;
@@ -150,12 +148,11 @@ export function computeInvoiceTotals(
 
   const included = lines.filter((line) => !line.blank);
   const lineProblems = included.some((line) => line.amountMinor === null);
-  const blocked = Boolean(currencyMessage || taxLabelMessage || taxRateMessage || lineProblems);
+  const blocked = Boolean(currencyMessage || taxRateMessage || lineProblems);
   if (blocked || digits === null || taxRateMinor === null) {
     return {
       lines,
       currencyMessage,
-      taxLabelMessage,
       taxRateMessage,
       subtotalMinor: null,
       taxMinor: null,

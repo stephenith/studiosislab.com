@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { computeInvoiceTotals, formatMinor, splitComponentRateMinors, taxRowCaption } from "./calculations";
 import { readInvoice } from "./invoiceStore";
-import { INVOICE_SCHEMA_VERSION, type InvoiceData } from "./types";
+import { DEFAULT_TAX_LABEL, INVOICE_SCHEMA_VERSION, invoiceTaxTypePatch, type InvoiceData } from "./types";
 
 function baseInvoice(over: Partial<InvoiceData> & Pick<InvoiceData, "taxLabel" | "taxRate">): InvoiceData {
   return {
@@ -109,14 +109,39 @@ for (const label of ["Tax", "GST", "CGST + SGST"] as const) {
 
 const gstSaved = readInvoice({ ...legacyRecord("GST"), taxType: "gst" });
 assert.equal(gstSaved?.taxType, "gst");
+assert.equal(gstSaved?.taxLabel, "GST");
 assert.equal(computeInvoiceTotals(gstSaved!).taxRows[0]?.label, "GST");
+
+const vatLoaded = readInvoice(legacyRecord("VAT"));
+assert.ok(vatLoaded);
+assert.equal(vatLoaded!.taxType, undefined);
+assert.equal(vatLoaded!.taxLabel, "VAT");
+assert.equal(computeInvoiceTotals(vatLoaded!).taxRows[0]?.label, "VAT");
+assert.deepEqual(invoiceTaxTypePatch("custom"), { taxType: "custom", taxLabel: DEFAULT_TAX_LABEL });
+const afterExplicitTax = { ...vatLoaded!, ...invoiceTaxTypePatch("custom") };
+assert.equal(afterExplicitTax.taxLabel, "Tax");
+assert.equal(computeInvoiceTotals(afterExplicitTax).taxRows[0]?.label, "Tax");
+assert.deepEqual(invoiceTaxTypePatch("gst"), { taxType: "gst" });
+assert.equal({ ...vatLoaded!, ...invoiceTaxTypePatch("gst") }.taxLabel, "VAT");
+assert.deepEqual(invoiceTaxTypePatch("cgst_sgst"), { taxType: "cgst_sgst" });
+
+const emptyLabel = computeInvoiceTotals(baseInvoice({ taxLabel: "   ", taxRate: "18" }));
+assert.equal(emptyLabel.ok, true);
+assert.equal(emptyLabel.taxRows[0]?.label, "Tax");
+assert.equal(taxRowCaption(emptyLabel.taxRows[0]!), "Tax (18%)");
 
 const editor = fs.readFileSync(path.join(process.cwd(), "src/app/tools/invoice/InvoiceEditor.tsx"), "utf8");
 assert.ok(editor.includes("totals.taxRows.map"));
-assert.ok(editor.includes('option value="cgst_sgst"'));
+assert.ok(editor.includes('option value="custom">Tax</option>'));
+assert.ok(editor.includes('option value="gst">GST</option>'));
+assert.ok(editor.includes('option value="cgst_sgst">CGST + SGST</option>'));
+assert.ok(editor.includes("invoiceTaxTypePatch"));
 assert.ok(editor.includes("sm:grid-cols-2"));
 assert.ok(editor.includes("This page does not decide which tax applies"));
 assert.equal(editor.includes("sm:grid-cols-4"), false);
+assert.equal(editor.includes('id="tax-label"'), false);
+assert.equal(editor.includes(">Custom<"), false);
+assert.equal(editor.includes("SGST / CGST"), false);
 const pdfSrc = fs.readFileSync(path.join(process.cwd(), "src/lib/invoice/generateInvoicePdf.ts"), "utf8");
 assert.ok(pdfSrc.includes("for (const row of totals.taxRows)"));
 assert.ok(pdfSrc.includes("taxRowCaption(row)"));

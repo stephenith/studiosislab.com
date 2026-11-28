@@ -98,3 +98,9 @@ export function isTaxType(value: unknown): value is TaxType {
 export function resolveTaxType(value: { taxType?: TaxType }): TaxType {
   return value.taxType ?? "custom";
 }
+
+/** Selecting Tax writes the fixed label. GST / CGST+SGST keep any stored custom label. */
+export function invoiceTaxTypePatch(next: TaxType): { taxType: TaxType; taxLabel?: string } {
+  if (next === "custom") return { taxType: next, taxLabel: DEFAULT_TAX_LABEL };
+  return { taxType: next };
+}

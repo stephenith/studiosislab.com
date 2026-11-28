@@ -17,7 +17,7 @@ import {
   storeFailureMessage,
   type InvoiceSaveResult,
 } from "@/lib/invoice/invoiceStore";
-import { CURRENCIES, newInvoiceId, resolveTaxType, type InvoiceData, type InvoiceLineItem, type TaxType } from "@/lib/invoice/types";
+import { CURRENCIES, invoiceTaxTypePatch, newInvoiceId, resolveTaxType, type InvoiceData, type InvoiceLineItem, type TaxType } from "@/lib/invoice/types";
 import { InvoiceChrome, StorageNotice } from "./InvoiceChrome";
 import BrandLoadMark from "@/components/brand/BrandLoadMark";
 
@@ -317,20 +317,13 @@ export default function InvoiceEditor() {
             id="tax-type"
             className={fieldClass()}
             value={taxType}
-            onChange={(event) => update({ taxType: event.target.value as TaxType })}
+            onChange={(event) => update(invoiceTaxTypePatch(event.target.value as TaxType))}
           >
-            <option value="custom">Custom</option>
+            <option value="custom">Tax</option>
             <option value="gst">GST</option>
             <option value="cgst_sgst">CGST + SGST</option>
           </select>
         </label>
-        {taxType === "custom" ? (
-          <label className="text-sm">
-            <span className="mb-1 block text-xs font-medium text-zinc-700">Tax label</span>
-            <input id="tax-label" className={fieldClass(Boolean(totals.taxLabelMessage))} maxLength={40} value={invoice.taxLabel} onChange={(event) => update({ taxLabel: event.target.value })} />
-            {totals.taxLabelMessage ? <span className="mt-1 block text-xs text-red-700">{totals.taxLabelMessage}</span> : null}
-          </label>
-        ) : null}
         <label className="text-sm">
           <span className="mb-1 block text-xs font-medium text-zinc-700">Tax rate (%)</span>
           <input id="tax-rate" inputMode="decimal" className={fieldClass(Boolean(totals.taxRateMessage))} maxLength={16} value={invoice.taxRate} onChange={(event) => update({ taxRate: event.target.value })} />
@@ -451,9 +444,20 @@ export default function InvoiceEditor() {
                     <dd>{formatMinor(row.amountMinor, invoice.currency)}</dd>
                   </div>
                 ))
+              ) : taxType === "cgst_sgst" ? (
+                <>
+                  <div className="flex justify-between gap-3">
+                    <dt>SGST</dt>
+                    <dd>—</dd>
+                  </div>
+                  <div className="flex justify-between gap-3">
+                    <dt>CGST</dt>
+                    <dd>—</dd>
+                  </div>
+                </>
               ) : (
                 <div className="flex justify-between gap-3">
-                  <dt>{taxType === "gst" ? "GST" : taxType === "cgst_sgst" ? "SGST / CGST" : invoice.taxLabel.trim() || "Tax"}</dt>
+                  <dt>{taxType === "gst" ? "GST" : invoice.taxLabel.trim() || "Tax"}</dt>
                   <dd>—</dd>
                 </div>
               )}

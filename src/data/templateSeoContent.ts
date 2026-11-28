@@ -1756,7 +1756,7 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
       "Mechanical engineer resume template focused on CAD design, manufacturing, engineering projects, quality improvement, and technical documentation.",
     h1: "Mechanical Engineer Resume Template",
     intro:
-      "Mechanical engineer resumes perform best when they connect technical design work to production results. This template helps you present CAD projects, manufacturing collaboration and quality improvement contributions in a structure ATS systems and engineering teams can review efficiently.",
+      "Use this mechanical engineer resume sample as a starting point. Replace the fictional details with your own experience, projects and technical skills.",
     bestFor: [
       "Mechanical engineers working on design, prototyping and production ready product development.",
       "Candidates supporting manufacturing processes, equipment improvements and technical project execution.",
@@ -1772,9 +1772,9 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
     ],
     atsTips: [
       "Use role aligned terms naturally, including CAD, mechanical design, manufacturing support and quality improvement.",
-      "List key software and engineering tools by full names where possible for better ATS matching.",
+      "List key software and engineering tools by full names, such as SolidWorks and AutoCAD.",
       "Include both design and production oriented keywords to reflect full engineering workflow coverage.",
-      "Keep section labels conventional so ATS can parse technical skills and project outcomes accurately.",
+      "Keep section labels clear so technical skills, projects and education stay easy to scan.",
     ],
     writingTips: [
       "Describe engineering decisions with constraints, method and measurable result.",
@@ -1794,9 +1794,9 @@ export const TEMPLATE_SEO_CONTENT: TemplateSeoEntry[] = [
           "State the project goal, your technical contribution and the measurable outcome from your design or process decisions.",
       },
       {
-        question: "Are technical documentation skills important for ATS matching?",
+        question: "Should technical documentation appear on a mechanical engineering resume?",
         answer:
-          "Yes. Many roles screen for documentation, specification writing and communication of design changes.",
+          "Yes, when it is part of the work. This sample includes drawing checks, revision records and test notes with the design work.",
       },
     ],
     relatedTemplateIds: ["t064", "t061", "t060"],

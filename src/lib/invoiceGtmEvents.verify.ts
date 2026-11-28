@@ -27,6 +27,8 @@ assert.ok(downloadFn.indexOf("completeInvoiceDownloadTracking") < downloadFn.ind
 assert.equal(downloadFn.includes("invoice_download_success"), false);
 assert.equal(downloadFn.includes("trackInvoiceDataLayerEvent"), true);
 assert.equal(downloadFn.includes("invoice.invoiceNumber"), true);
+assert.ok(downloadFn.includes("deliverInvoicePdf"));
+assert.ok(downloadFn.includes("if (!delivery.initiated) return"));
 
 const sent = invoiceDownloadDataLayerEvent({ pdfGenerated: true, downloadInitiated: true });
 assert.deepEqual(sent, {

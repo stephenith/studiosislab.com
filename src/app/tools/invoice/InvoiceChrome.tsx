@@ -5,10 +5,52 @@ import Image from "next/image";
 import Link from "next/link";
 import NoiseBackground from "@/components/home/NoiseBackground";
 import { HOME_LOGOS_LIGHT } from "@/components/home/homeLogoAssets";
+import { useInvoicePhoneLayout } from "./InvoicePhoneShell";
 
 const NOTICE_KEY = "studiosislab-invoice-notice-dismissed";
 
 export function InvoiceChrome({ children, showToolsLink = true }: { children: ReactNode; showToolsLink?: boolean }) {
+  const phone = useInvoicePhoneLayout();
+  if (phone) {
+    return (
+      <main
+        className="min-h-dvh bg-white px-3 pb-8 text-zinc-900"
+        style={{
+          paddingTop: "max(0.75rem, env(safe-area-inset-top))",
+          paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))",
+        }}
+      >
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
+          <header className="flex items-center justify-between gap-2">
+            <Link href="/" className="block min-w-0 shrink">
+              <Image
+                src={HOME_LOGOS_LIGHT.header}
+                alt="StudiosisLab — home"
+                width={180}
+                height={33}
+                className="h-8 w-auto object-contain object-left"
+                priority
+              />
+            </Link>
+            <nav className="flex shrink-0 items-center gap-1 text-sm">
+              {showToolsLink ? (
+                <Link href="/tools" className="rounded-full px-2 py-2 font-medium text-zinc-700">
+                  Tools
+                </Link>
+              ) : null}
+              <Link href="/tools/invoice" className="rounded-full px-2 py-2 font-medium text-zinc-700">
+                Invoice
+              </Link>
+              <Link href="/tools/invoice/history" className="rounded-full bg-zinc-900 px-3 py-2 font-medium text-white">
+                History
+              </Link>
+            </nav>
+          </header>
+          {children}
+        </div>
+      </main>
+    );
+  }
   return (
     <main className="relative min-h-dvh bg-white px-4 pb-16 pt-5 text-zinc-900 sm:px-6">
       <NoiseBackground />

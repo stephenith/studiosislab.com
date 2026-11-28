@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, Plus, Trash2 } from "lucide-react";
 import { computeInvoiceTotals, formatMinor, taxRowCaption } from "@/lib/invoice/calculations";
 import { invoicePdfBlob } from "@/lib/invoice/generateInvoicePdf";
-import { completeInvoiceDownloadTracking, trackInvoiceDataLayerEvent } from "@/lib/invoiceGtmEvents";
+import { browserInvoicePdfShareHost, deliverInvoicePdf } from "@/lib/invoice/invoicePdfShare";
+import { completeInvoiceDownloadTracking, invoiceDownloadDataLayerEvent, trackInvoiceDataLayerEvent } from "@/lib/invoiceGtmEvents";
 import { readLogoFile } from "@/lib/invoice/logo";
 import {
   createInvoice,
@@ -19,6 +20,8 @@ import {
 } from "@/lib/invoice/invoiceStore";
 import { CURRENCIES, invoiceTaxTypePatch, newInvoiceId, resolveTaxType, type InvoiceData, type InvoiceLineItem, type TaxType } from "@/lib/invoice/types";
 import { InvoiceChrome, StorageNotice } from "./InvoiceChrome";
+import { InvoicePhoneForm } from "./InvoicePhoneForm";
+import { InvoicePhoneShell, useInvoicePhoneLayout } from "./InvoicePhoneShell";
 import BrandLoadMark from "@/components/brand/BrandLoadMark";
 
 function fieldClass(invalid = false) {
@@ -38,6 +41,9 @@ export default function InvoiceEditor() {
   const [markError, setMarkError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [conflict, setConflict] = useState<Extract<InvoiceSaveResult, { ok: false }> | null>(null);
+  const [openedLatest, setOpenedLatest] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const phone = useInvoicePhoneLayout();
   const baseUpdatedAtRef = useRef<string | null>(null);
   const conflictRef = useRef(false);
 
@@ -49,17 +55,21 @@ export default function InvoiceEditor() {
         const params = new URLSearchParams(window.location.search);
         const requested = params.get("id");
         let next = requested ? await getInvoice(requested) : null;
+        let latest = false;
         if (!requested) {
           next = (await listInvoices())[0] ?? null;
+          if (next) latest = true;
           if (!next) {
             next = createInvoice(null);
             const saved = await saveInvoice(next, null);
             if (!saved.ok) throw new Error("A new invoice could not be stored.");
             next = saved.invoice;
+            latest = false;
           }
           window.history.replaceState(null, "", `/tools/invoice?id=${encodeURIComponent(next.id)}`);
         }
         if (cancelled) return;
+        setOpenedLatest(latest);
         baseUpdatedAtRef.current = next ? next.updatedAt : null;
         conflictRef.current = false;
         setConflict(null);
@@ -218,11 +228,21 @@ export default function InvoiceEditor() {
       return;
     }
     setPdfErrors([]);
+    const filename = `${invoice.invoiceNumber.replace(/[^A-Za-z0-9._-]+/g, "_") || "invoice"}.pdf`;
+    if (phone) {
+      const host = browserInvoicePdfShareHost();
+      if (!host) return;
+      void deliverInvoicePdf({ blob: result.blob, filename, preferShare: true, host }).then((delivery) => {
+        if (!delivery.initiated) return;
+        trackInvoiceDataLayerEvent(invoiceDownloadDataLayerEvent({ pdfGenerated: true, downloadInitiated: true }));
+      });
+      return;
+    }
     completeInvoiceDownloadTracking(true, () => {
       const url = URL.createObjectURL(result.blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `${invoice.invoiceNumber.replace(/[^A-Za-z0-9._-]+/g, "_") || "invoice"}.pdf`;
+      anchor.download = filename;
       anchor.click();
       URL.revokeObjectURL(url);
     }, trackInvoiceDataLayerEvent);
@@ -243,6 +263,43 @@ export default function InvoiceEditor() {
   }
 
   const taxType = resolveTaxType(invoice);
+  const currentLabel = openedLatest
+    ? `Current invoice · ${invoice.invoiceNumber.trim() || "Untitled invoice"}`
+    : invoice.invoiceNumber.trim() || "Untitled invoice";
+
+  if (phone) {
+    return (
+      <InvoicePhoneShell
+        invoice={invoice}
+        totals={totals}
+        previewOpen={previewOpen}
+        onPreviewOpen={() => setPreviewOpen(true)}
+        onPreviewClose={() => setPreviewOpen(false)}
+        onNew={() => void startNew()}
+        onDownload={download}
+        currentLabel={currentLabel}
+      >
+        <InvoicePhoneForm
+          invoice={invoice}
+          totals={totals}
+          status={status}
+          openedLatest={openedLatest}
+          pdfErrors={pdfErrors}
+          logoError={logoError}
+          markError={markError}
+          conflict={conflict}
+          migrationNote={migrationNote}
+          onUpdate={update}
+          onUpdateLine={updateLine}
+          onLogo={(file) => void onLogo(file)}
+          onMark={(kind, file) => void onMark(kind, file)}
+          onKeepEdits={() => void keepEditsAsNewInvoice()}
+          onLoadNewer={loadNewerInvoice}
+          onDelete={() => void removeInvoice()}
+        />
+      </InvoicePhoneShell>
+    );
+  }
 
   return (
     <InvoiceChrome>

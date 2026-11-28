@@ -795,6 +795,7 @@ export const blogArticles: BlogArticle[] = [
     excerpt:
       "See how a small team can get a client agreement signed online without asking the client to print and scan it.",
     publishedAt: "2026-05-31",
+    updatedAt: "2026-11-25",
     category: "E-Sign",
     tags: ["e-sign for small business", "contract turnaround", "operations workflow", "client onboarding"],
     readTime: "3 min read",

@@ -1,13 +1,103 @@
 "use client";
 
-import { ChevronDown, Ellipsis, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, Plus, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { formatMinor, taxRowCaption, type TotalsComputation } from "@/lib/invoice/calculations";
+import {
+  initialPhoneFormOpen,
+  phoneSectionProgress,
+  type PhoneFormOpen,
+  type Thirds,
+} from "@/lib/invoice/phoneSectionProgress";
 import { CURRENCIES, invoiceTaxTypePatch, newInvoiceId, resolveTaxType, type InvoiceData, type InvoiceLineItem, type TaxType } from "@/lib/invoice/types";
 import { StorageNotice } from "./InvoiceChrome";
 
 function field(invalid = false) {
   return `min-h-11 w-full rounded-lg border bg-white px-3 py-2 text-base text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10 ${invalid ? "border-red-400" : "border-zinc-300"}`;
+}
+
+function arcPath(startDeg: number, endDeg: number): string {
+  const polar = (deg: number) => {
+    const rad = ((deg - 90) * Math.PI) / 180;
+    return { x: 12 + 9 * Math.cos(rad), y: 12 + 9 * Math.sin(rad) };
+  };
+  const start = polar(startDeg);
+  const end = polar(endDeg);
+  return `M ${start.x} ${start.y} A 9 9 0 0 1 ${end.x} ${end.y}`;
+}
+
+function SectionProgressIcon({ filled }: { filled: Thirds }) {
+  const empty = "#86efac";
+  const active = "#22c55e";
+  if (filled === 3) {
+    return (
+      <svg viewBox="0 0 24 24" className="h-6 w-6 shrink-0" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" fill={active} />
+        <path d="M7.5 12.5 10.5 15.5 16.5 9" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  const spans: Array<[number, number]> = [
+    [4, 112],
+    [124, 232],
+    [244, 352],
+  ];
+  return (
+    <svg viewBox="0 0 24 24" className="h-6 w-6 shrink-0" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" fill="#fff" />
+      {spans.map(([start, end], index) => (
+        <path
+          key={start}
+          d={arcPath(start, end)}
+          fill="none"
+          stroke={index < filled ? active : empty}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+      ))}
+    </svg>
+  );
+}
+
+function Accordion({
+  id,
+  title,
+  filled,
+  open,
+  onToggle,
+  hint,
+  children,
+}: {
+  id: string;
+  title: string;
+  filled: Thirds;
+  open: boolean;
+  onToggle: () => void;
+  hint?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="rounded-2xl border border-zinc-200 bg-white p-4">
+      <button
+        type="button"
+        className="flex min-h-11 w-full items-center gap-3 text-left"
+        aria-expanded={open}
+        aria-controls={id}
+        aria-label={`${title}, ${filled} of 3 complete`}
+        onClick={onToggle}
+      >
+        <SectionProgressIcon filled={filled} />
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold text-zinc-900">{title}</span>
+          {hint ? <span className="mt-0.5 block text-xs leading-snug text-zinc-600">{hint}</span> : null}
+        </span>
+        <ChevronDown className={`h-5 w-5 shrink-0 text-zinc-700 ${open ? "rotate-180" : ""}`} aria-hidden="true" />
+      </button>
+      <div id={id} hidden={!open} className="mt-3">
+        {children}
+      </div>
+    </section>
+  );
 }
 
 export function InvoicePhoneForm({
@@ -47,7 +137,34 @@ export function InvoicePhoneForm({
 }) {
   const taxType = resolveTaxType(invoice);
   const title = invoice.invoiceNumber.trim() || "Untitled invoice";
-  const [moreOptionsOpen, setMoreOptionsOpen] = useState(false);
+  const progress = useMemo(() => phoneSectionProgress(invoice, totals), [invoice, totals]);
+  const [open, setOpen] = useState<PhoneFormOpen>(() => initialPhoneFormOpen(invoice, totals));
+
+  useEffect(() => {
+    setOpen(initialPhoneFormOpen(invoice, totals));
+    // Recompute chrome when switching invoices; do not reset on field edits.
+  }, [invoice.id]);
+
+  function toggle(key: Exclude<keyof PhoneFormOpen, "itemsOpen">) {
+    setOpen((current) => ({ ...current, [key]: !current[key] }));
+  }
+
+  function toggleItem(id: string) {
+    setOpen((current) => ({
+      ...current,
+      itemsOpen: { ...current.itemsOpen, [id]: !current.itemsOpen[id] },
+    }));
+  }
+
+  function addItem() {
+    const id = newInvoiceId();
+    onUpdate({ lineItems: [...invoice.lineItems, { id, description: "", quantity: "1", unitPrice: "" }] });
+    setOpen((current) => ({
+      ...current,
+      items: true,
+      itemsOpen: { ...current.itemsOpen, [id]: true },
+    }));
+  }
 
   return (
     <div className="flex flex-col gap-4 pb-4">
@@ -93,106 +210,134 @@ export function InvoicePhoneForm({
         </div>
       ) : null}
 
-      <section className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-4">
-        <h2 className="text-sm font-semibold">Invoice details</h2>
-        <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-zinc-700">Invoice number</span>
-          <input id="phone-invoice-number" className={field()} maxLength={40} value={invoice.invoiceNumber} onChange={(event) => onUpdate({ invoiceNumber: event.target.value })} />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-zinc-700">Issued</span>
-          <input id="phone-issue-date" type="date" className={field()} value={invoice.issueDate} onChange={(event) => onUpdate({ issueDate: event.target.value })} />
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-zinc-700">Due</span>
-          <input id="phone-due-date" type="date" className={field()} value={invoice.dueDate} onChange={(event) => onUpdate({ dueDate: event.target.value })} />
-        </label>
-      </section>
+      <Accordion id="invoice-section-details" title="Invoice details" filled={progress.details} open={open.details} onToggle={() => toggle("details")}>
+        <div className="space-y-3">
+          <label className="block text-sm">
+            <span className="mb-1 block text-xs font-medium text-zinc-700">Invoice number</span>
+            <input id="phone-invoice-number" className={field()} maxLength={40} value={invoice.invoiceNumber} onChange={(event) => onUpdate({ invoiceNumber: event.target.value })} />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block text-xs font-medium text-zinc-700">Issued</span>
+            <input id="phone-issue-date" type="date" className={field()} value={invoice.issueDate} onChange={(event) => onUpdate({ issueDate: event.target.value })} />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block text-xs font-medium text-zinc-700">Due</span>
+            <input id="phone-due-date" type="date" className={field()} value={invoice.dueDate} onChange={(event) => onUpdate({ dueDate: event.target.value })} />
+          </label>
+        </div>
+      </Accordion>
 
-      <PartyCard title="From" side="from" invoice={invoice} onChange={(from) => onUpdate({ from })} />
-      <PartyCard title="Bill to" side="to" invoice={invoice} onChange={(to) => onUpdate({ to })} />
+      <Accordion id="invoice-section-parties" title="From & Bill To" filled={progress.parties} open={open.parties} onToggle={() => toggle("parties")}>
+        <div className="space-y-4">
+          <PartyFields title="From" side="from" invoice={invoice} onChange={(from) => onUpdate({ from })} />
+          <div className="border-t border-zinc-200 pt-4">
+            <PartyFields title="Bill to" side="to" invoice={invoice} onChange={(to) => onUpdate({ to })} />
+          </div>
+        </div>
+      </Accordion>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold">Line items</h2>
-        {invoice.lineItems.map((item, index) => {
-          const line = totals.lines[index];
-          return (
-            <div key={item.id} className="space-y-2 rounded-2xl border border-zinc-200 bg-white p-4">
-              <label className="block text-sm">
-                <span className="mb-1 block text-xs font-medium text-zinc-700">Description</span>
-                <input id={`phone-desc-${item.id}`} className={field()} maxLength={500} value={item.description} onChange={(event) => onUpdateLine(item.id, { description: event.target.value })} />
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <label className="block text-sm">
-                  <span className="mb-1 block text-xs font-medium text-zinc-700">Qty</span>
-                  <input id={`phone-qty-${item.id}`} inputMode="decimal" className={field(Boolean(line?.issues.quantity))} maxLength={24} value={item.quantity} onChange={(event) => onUpdateLine(item.id, { quantity: event.target.value })} />
-                  {line?.issues.quantity ? <span className="mt-1 block text-xs text-red-700">{line.issues.quantity}</span> : null}
-                </label>
-                <label className="block text-sm">
-                  <span className="mb-1 block text-xs font-medium text-zinc-700">Rate</span>
-                  <input id={`phone-rate-${item.id}`} inputMode="decimal" className={field(Boolean(line?.issues.unitPrice))} maxLength={24} value={item.unitPrice} onChange={(event) => onUpdateLine(item.id, { unitPrice: event.target.value })} />
-                  {line?.issues.unitPrice ? <span className="mt-1 block text-xs text-red-700">{line.issues.unitPrice}</span> : null}
-                </label>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-medium">
-                  {line?.amountMinor !== null && line?.amountMinor !== undefined
-                    ? formatMinor(line.amountMinor, invoice.currency)
-                    : "—"}
-                </p>
-                <button
-                  type="button"
-                  className="min-h-11 rounded-full px-3 text-sm font-medium text-red-700 disabled:opacity-40"
-                  disabled={invoice.lineItems.length <= 1}
-                  onClick={() => onUpdate({ lineItems: invoice.lineItems.filter((entry) => entry.id !== item.id) })}
-                >
-                  <Trash2 className="mr-1 inline h-4 w-4" aria-hidden />
-                  Remove
-                </button>
-              </div>
-            </div>
-          );
-        })}
-        <button
-          type="button"
-          className="inline-flex min-h-11 items-center gap-1 text-sm font-medium"
-          onClick={() => onUpdate({ lineItems: [...invoice.lineItems, { id: newInvoiceId(), description: "", quantity: "1", unitPrice: "" }] })}
-        >
-          <Plus className="h-4 w-4" aria-hidden />
-          Add item
-        </button>
-      </section>
+      <div className="border-t border-zinc-200 pt-1">
+        <p className="px-1 pb-2 text-sm text-zinc-600">Add your items</p>
+        <Accordion id="invoice-section-items" title="Items" filled={progress.items} open={open.items} onToggle={() => toggle("items")}>
+          <div className="space-y-3">
+            {invoice.lineItems.map((item, index) => {
+              const line = totals.lines[index];
+              const itemOpen = Boolean(open.itemsOpen[item.id]);
+              const itemId = `invoice-item-${item.id}`;
+              const collapsedTitle = item.description.trim() || `Item ${index + 1} — Enter item details`;
+              return (
+                <div key={item.id} className="rounded-xl border border-zinc-200 p-3">
+                  <button
+                    type="button"
+                    className="flex min-h-11 w-full items-center gap-3 text-left"
+                    aria-expanded={itemOpen}
+                    aria-controls={itemId}
+                    aria-label={`${collapsedTitle}, ${progress.itemCards[index] ?? 0} of 3 complete`}
+                    onClick={() => toggleItem(item.id)}
+                  >
+                    <SectionProgressIcon filled={progress.itemCards[index] ?? 0} />
+                    <span className="min-w-0 flex-1 text-sm font-semibold text-zinc-900">{collapsedTitle}</span>
+                    <ChevronDown className={`h-5 w-5 shrink-0 text-zinc-700 ${itemOpen ? "rotate-180" : ""}`} aria-hidden="true" />
+                  </button>
+                  <div id={itemId} hidden={!itemOpen} className="mt-3 space-y-2">
+                    <label className="block text-sm">
+                      <span className="mb-1 block text-xs font-medium text-zinc-700">Description</span>
+                      <input id={`phone-desc-${item.id}`} className={field()} maxLength={500} value={item.description} onChange={(event) => onUpdateLine(item.id, { description: event.target.value })} />
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <label className="block text-sm">
+                        <span className="mb-1 block text-xs font-medium text-zinc-700">Qty</span>
+                        <input id={`phone-qty-${item.id}`} inputMode="decimal" className={field(Boolean(line?.issues.quantity))} maxLength={24} value={item.quantity} onChange={(event) => onUpdateLine(item.id, { quantity: event.target.value })} />
+                        {line?.issues.quantity ? <span className="mt-1 block text-xs text-red-700">{line.issues.quantity}</span> : null}
+                      </label>
+                      <label className="block text-sm">
+                        <span className="mb-1 block text-xs font-medium text-zinc-700">Rate</span>
+                        <input id={`phone-rate-${item.id}`} inputMode="decimal" className={field(Boolean(line?.issues.unitPrice))} maxLength={24} value={item.unitPrice} onChange={(event) => onUpdateLine(item.id, { unitPrice: event.target.value })} />
+                        {line?.issues.unitPrice ? <span className="mt-1 block text-xs text-red-700">{line.issues.unitPrice}</span> : null}
+                      </label>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium">
+                        {line?.amountMinor !== null && line?.amountMinor !== undefined
+                          ? formatMinor(line.amountMinor, invoice.currency)
+                          : "—"}
+                      </p>
+                      <button
+                        type="button"
+                        className="min-h-11 rounded-full px-3 text-sm font-medium text-red-700 disabled:opacity-40"
+                        disabled={invoice.lineItems.length <= 1}
+                        onClick={() => onUpdate({ lineItems: invoice.lineItems.filter((entry) => entry.id !== item.id) })}
+                      >
+                        <Trash2 className="mr-1 inline h-4 w-4" aria-hidden />
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            <button type="button" className="inline-flex min-h-11 items-center gap-1 text-sm font-medium" onClick={addItem}>
+              <Plus className="h-4 w-4" aria-hidden />
+              Add item
+            </button>
+          </div>
+        </Accordion>
+      </div>
 
-      <section className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-4">
-        <h2 className="text-sm font-semibold">Tax</h2>
-        <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-zinc-700">Currency</span>
-          <select id="phone-currency" className={field()} value={invoice.currency} onChange={(event) => onUpdate({ currency: event.target.value })}>
-            {CURRENCIES.map((item) => (
-              <option key={item.code} value={item.code}>
-                {item.code}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-zinc-700">Tax type</span>
-          <select
-            id="phone-tax-type"
-            className={field()}
-            value={taxType}
-            onChange={(event) => onUpdate(invoiceTaxTypePatch(event.target.value as TaxType))}
-          >
-            <option value="custom">Tax</option>
-            <option value="gst">GST</option>
-            <option value="cgst_sgst">CGST + SGST</option>
-          </select>
-        </label>
-        <label className="block text-sm">
-          <span className="mb-1 block text-xs font-medium text-zinc-700">Tax rate (%)</span>
-          <input id="phone-tax-rate" inputMode="decimal" className={field(Boolean(totals.taxRateMessage))} maxLength={16} value={invoice.taxRate} onChange={(event) => onUpdate({ taxRate: event.target.value })} />
-          {totals.taxRateMessage ? <span className="mt-1 block text-xs text-red-700">{totals.taxRateMessage}</span> : null}
-        </label>
+      <Accordion id="invoice-section-tax" title="Tax & currency" filled={progress.tax} open={open.tax} onToggle={() => toggle("tax")}>
+        <div className="space-y-3">
+          <label className="block text-sm">
+            <span className="mb-1 block text-xs font-medium text-zinc-700">Currency</span>
+            <select id="phone-currency" className={field()} value={invoice.currency} onChange={(event) => onUpdate({ currency: event.target.value })}>
+              {CURRENCIES.map((item) => (
+                <option key={item.code} value={item.code}>
+                  {item.code}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block text-xs font-medium text-zinc-700">Tax type</span>
+            <select
+              id="phone-tax-type"
+              className={field()}
+              value={taxType}
+              onChange={(event) => onUpdate(invoiceTaxTypePatch(event.target.value as TaxType))}
+            >
+              <option value="custom">Tax</option>
+              <option value="gst">GST</option>
+              <option value="cgst_sgst">CGST + SGST</option>
+            </select>
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block text-xs font-medium text-zinc-700">Tax rate (%)</span>
+            <input id="phone-tax-rate" inputMode="decimal" className={field(Boolean(totals.taxRateMessage))} maxLength={16} value={invoice.taxRate} onChange={(event) => onUpdate({ taxRate: event.target.value })} />
+            {totals.taxRateMessage ? <span className="mt-1 block text-xs text-red-700">{totals.taxRateMessage}</span> : null}
+          </label>
+        </div>
+      </Accordion>
+
+      <section className="space-y-2 rounded-2xl border border-zinc-200 bg-white p-4" aria-label="Totals">
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between gap-3">
             <dt>Subtotal</dt>
@@ -229,20 +374,15 @@ export function InvoicePhoneForm({
         </dl>
       </section>
 
-      <details className="rounded-2xl border border-zinc-200 bg-white p-4" onToggle={(event) => setMoreOptionsOpen(event.currentTarget.open)}>
-        <summary
-          className="flex min-h-11 cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden"
-          aria-expanded={moreOptionsOpen}
-          aria-controls="invoice-more-options"
-        >
-          <Ellipsis className="h-5 w-5 shrink-0 text-zinc-700" aria-hidden="true" />
-          <span className="min-w-0 flex-1 text-left">
-            <span className="block text-sm font-semibold text-zinc-900">More options</span>
-            <span className="mt-0.5 block text-xs leading-snug text-zinc-600">Logo, colour, notes, payment & signature</span>
-          </span>
-          <ChevronDown className={`h-5 w-5 shrink-0 text-zinc-700 transition-transform ${moreOptionsOpen ? "rotate-180" : ""}`} aria-hidden="true" />
-        </summary>
-        <div id="invoice-more-options" className="mt-3 space-y-4">
+      <Accordion
+        id="invoice-more-options"
+        title="More options"
+        filled={progress.more}
+        open={open.more}
+        onToggle={() => toggle("more")}
+        hint="Logo, colour, notes, payment & signature"
+      >
+        <div className="space-y-4">
           <label className="block text-sm">
             <span className="mb-1 block text-xs font-medium text-zinc-700">Accent colour</span>
             <input id="phone-accent-color" type="color" className="h-11 w-full cursor-pointer rounded-lg border border-zinc-300 bg-white" value={invoice.accentColor} onChange={(event) => onUpdate({ accentColor: event.target.value })} />
@@ -295,7 +435,7 @@ export function InvoicePhoneForm({
           />
           {markError ? <p className="text-sm text-red-700">{markError}</p> : null}
         </div>
-      </details>
+      </Accordion>
 
       <p className="text-xs leading-relaxed text-zinc-500">
         No account. Saved in this browser on this device. This page does not decide which tax applies.
@@ -307,7 +447,7 @@ export function InvoicePhoneForm({
   );
 }
 
-function PartyCard({
+function PartyFields({
   title,
   side,
   invoice,
@@ -323,8 +463,8 @@ function PartyCard({
     onChange({ ...party, [fieldName]: value });
   }
   return (
-    <section className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-4">
-      <h2 className="text-sm font-semibold">{title}</h2>
+    <div className="space-y-3">
+      <h3 className="text-sm font-semibold">{title}</h3>
       <label className="block text-sm">
         <span className="mb-1 block text-xs font-medium text-zinc-700">Name</span>
         <input id={`phone-${side}-name`} className={field()} maxLength={160} value={party.name} onChange={(event) => set("name", event.target.value)} />
@@ -341,7 +481,7 @@ function PartyCard({
         <span className="mb-1 block text-xs font-medium text-zinc-700">Address</span>
         <textarea id={`phone-${side}-address`} rows={3} maxLength={500} className={field()} value={party.address} onChange={(event) => set("address", event.target.value)} />
       </label>
-    </section>
+    </div>
   );
 }
 
